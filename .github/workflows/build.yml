@@ -106,6 +106,13 @@ jobs:
           name: apks
           path: apks
 
+      # The emulator's userdata partition needs several GB; the runner image ships toolchains
+      # this job never uses, so drop them first (run 5 failed with "Not enough space").
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost "$AGENT_TOOLSDIRECTORY/CodeQL"
+          df -h /
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -118,6 +125,7 @@ jobs:
           api-level: 34
           arch: x86_64
           target: google_apis
+          disk-size: 3072M
           disable-animations: true
           script: |
             scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
