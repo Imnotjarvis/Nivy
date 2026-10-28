@@ -1,8 +1,8 @@
 # Builds Ivy Wallet (offline) on every push and publishes signed APKs for v* tags.
 #
 # Every push: offline guard script, debug APK, R8-minified "demo" APK (signed with the
-# committed debug key) and unit tests. The APKs are attached to the run as the "apks"
-# artifact. The "device" job then launches both APKs on an emulator and runs the
+# committed debug key) and, in parallel, unit tests. The APKs are attached to the run as
+# the "apks" artifact. The "device" job then launches both APKs on an emulator and runs the
 # instrumented tests; launch screenshots are in its "device-results" artifact.
 #
 # Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
@@ -56,6 +56,22 @@ jobs:
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/demo/*.apk
+
+  # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --continue
@@ -118,7 +134,7 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: build
+    needs: [build, test]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:

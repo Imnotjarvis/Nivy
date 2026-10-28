@@ -22,6 +22,11 @@ gradle.projectsEvaluated {
     // Increase tests Heap Size because of Kotest property-based tests
     tasks.withType<Test> {
         maxHeapSize = "2048m"
+        // Print the full failure (e.g. Paparazzi's collected render errors) in the build log
+        testLogging {
+            events("failed")
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        }
     }
 }
 
