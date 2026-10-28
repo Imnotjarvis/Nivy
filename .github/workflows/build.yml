@@ -2,7 +2,8 @@
 #
 # Every push: offline guard script, debug APK, R8-minified "demo" APK (signed with the
 # committed debug key) and unit tests. The APKs are attached to the run as the "apks"
-# artifact.
+# artifact. The "device" job then launches both APKs on an emulator and runs the
+# instrumented tests; launch screenshots are in its "device-results" artifact.
 #
 # Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
 # gradle/libs.versions.toml first, or Android refuses to install it as an update), or start
@@ -35,7 +36,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -65,6 +66,56 @@ jobs:
           name: test-reports
           path: '**/build/reports/tests/'
 
+  # Runs the app on an emulator: launches both APKs on a fresh install (catches startup
+  # crashes from R8, Hilt, Room) and runs the instrumented database-migration, backup and
+  # exchange-rate tests.
+  device:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: apks
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Smoke test and instrumented tests on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: |
+            scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
+            ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: device-results
+          path: |
+            build/smoke/
+            **/build/reports/androidTests/
+          if-no-files-found: ignore
+
   release:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: build
@@ -78,7 +129,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v4
 
