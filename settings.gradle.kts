@@ -5,18 +5,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://jitpack.io")
         gradlePluginPortal()
     }
 }
 
 rootProject.name = "IvyWallet"
 include(":app")
-include(":ci-actions:base")
-include(":ci-actions:compose-stability")
-include(":ci-actions:issue-assign")
-include(":ci-actions:issue-create-comment")
-include(":ci-actions:pr-description-check")
 include(":feature:accounts")
 include(":feature:balance")
 include(":feature:budgets")

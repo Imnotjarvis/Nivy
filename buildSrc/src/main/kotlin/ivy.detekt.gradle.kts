@@ -49,5 +49,4 @@ dependencies {
     detektPlugins(libs.detekt.ruleset.compiler)
     detektPlugins(libs.detekt.ruleset.ktlint)
     detektPlugins(libs.detekt.ruleset.compose)
-    detektPlugins(libs.detekt.ruleset.ivy.explicit)
 }
