@@ -2,7 +2,6 @@ package com.ivy.base.time.impl
 
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import io.kotest.common.runBlocking
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.instant
@@ -12,6 +11,7 @@ import io.kotest.property.arbitrary.zoneOffset
 import io.kotest.property.checkAll
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
