@@ -38,6 +38,10 @@ jobs:
           java-version: '17'
 
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          # Save the Gradle cache from every branch, not only the default one, so later
+          # runs skip the ~10 min plugin download and accessor generation.
+          cache-read-only: false
 
       - name: Offline guard
         run: scripts/verifyOffline.sh

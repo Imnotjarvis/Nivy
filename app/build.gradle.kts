@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -10,7 +12,7 @@ plugins {
 }
 
 // Release signing comes from an untracked keystore.properties at the repo root.
-val keystoreProps = java.util.Properties().apply {
+val keystoreProps = Properties().apply {
     val propsFile = rootProject.file("keystore.properties")
     if (propsFile.exists()) propsFile.inputStream().use { load(it) }
 }

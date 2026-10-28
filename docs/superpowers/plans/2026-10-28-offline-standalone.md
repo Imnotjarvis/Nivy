@@ -632,11 +632,11 @@ keyPassword=<the password you typed>
 
 - [x] **Step 2: Wire signing and the new id**
 
-`app/build.gradle.kts`: add this above `android {`:
+`app/build.gradle.kts`: add `import java.util.Properties` as the first line of the file. A fully qualified `java.util.Properties` doesn't work in a build script, because `java` resolves to the project's `java` extension there. Then add this above `android {`:
 
 ```kotlin
 // Release signing comes from an untracked keystore.properties at the repo root.
-val keystoreProps = java.util.Properties().apply {
+val keystoreProps = Properties().apply {
     val propsFile = rootProject.file("keystore.properties")
     if (propsFile.exists()) propsFile.inputStream().use { load(it) }
 }
