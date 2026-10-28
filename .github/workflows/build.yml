@@ -14,6 +14,9 @@
 #   RELEASE_KEY_ALIAS        e.g. ivy-offline
 #   RELEASE_KEY_PASSWORD     key password
 # Use the same release.jks as your local builds, so CI and local APKs update each other.
+#
+# Jobs run on an explicit Ubuntu 26.04 image rather than ubuntu-latest, so an image switch
+# never changes the build without a commit here.
 name: Build
 
 on:
@@ -28,21 +31,22 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
-          # Save the Gradle cache from every branch, not only the default one, so later
-          # runs skip the ~10 min plugin download and accessor generation.
-          cache-read-only: false
+          # Open-source (MIT) cache: one entry per hash of the build files. Only the
+          # "test" job saves it; parallel jobs saving the same key collide and warn.
+          cache-provider: basic
+          cache-read-only: true
 
       - name: Offline guard
         run: scripts/verifyOffline.sh
@@ -50,7 +54,7 @@ jobs:
       - name: Build debug and minified APKs
         run: ./gradlew :app:assembleDebug :app:assembleDemo --continue
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: apks
           path: |
@@ -59,24 +63,27 @@ jobs:
 
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
+          cache-provider: basic
+          # Save from every branch, not only the default one, so later runs skip the
+          # ~10 min plugin download. This job resolves almost everything the others need.
           cache-read-only: false
 
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --continue
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-reports
@@ -87,21 +94,22 @@ jobs:
   # exchange-rate tests.
   device:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
-          cache-read-only: false
+          cache-provider: basic
+          cache-read-only: true
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: apks
           path: apks
@@ -131,7 +139,7 @@ jobs:
             scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
             ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: device-results
@@ -143,19 +151,22 @@ jobs:
   release:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: [build, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
 
       - name: Restore release key
         env:
@@ -179,7 +190,7 @@ jobs:
       - name: Build signed release APK
         run: ./gradlew :app:assembleRelease
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-apk
           path: app/build/outputs/apk/release/*.apk
