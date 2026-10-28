@@ -3,6 +3,8 @@ package com.ivy.design.system
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import com.ivy.design.system.colors.IvyColors
 
@@ -18,7 +20,10 @@ fun IvyMaterial3Theme(
     )
 }
 
-private fun ivyLightColorScheme(): ColorScheme = ColorScheme(
+// Built with lightColorScheme/darkColorScheme so no role is left Color.Unspecified:
+// Material3 1.3+ blends surfaceContainer into TopAppBar/Switch colors, and an unspecified
+// role there yields an invalid color space ("Invalid ID") and crashes drawing.
+private fun ivyLightColorScheme(): ColorScheme = lightColorScheme(
     primary = IvyColors.Purple.primary,
     onPrimary = IvyColors.White,
     primaryContainer = IvyColors.Purple.light,
@@ -50,10 +55,18 @@ private fun ivyLightColorScheme(): ColorScheme = ColorScheme(
 
     outline = IvyColors.Gray,
     outlineVariant = IvyColors.DarkGray,
-    scrim = IvyColors.ExtraDarkGray.copy(alpha = 0.8f)
+    scrim = IvyColors.ExtraDarkGray.copy(alpha = 0.8f),
+
+    surfaceBright = IvyColors.White,
+    surfaceDim = IvyColors.White,
+    surfaceContainer = IvyColors.White,
+    surfaceContainerHigh = IvyColors.White,
+    surfaceContainerHighest = IvyColors.White,
+    surfaceContainerLow = IvyColors.White,
+    surfaceContainerLowest = IvyColors.White,
 )
 
-private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = ColorScheme(
+private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorScheme(
     primary = IvyColors.Purple.primary,
     onPrimary = IvyColors.White,
     primaryContainer = IvyColors.Purple.light,
@@ -85,5 +98,15 @@ private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = ColorScheme(
 
     outline = IvyColors.Gray,
     outlineVariant = IvyColors.LightGray,
-    scrim = IvyColors.ExtraLightGray.copy(alpha = 0.8f)
+    scrim = IvyColors.ExtraLightGray.copy(alpha = 0.8f),
+
+    surfaceBright = darkSurface(isTrueBlack),
+    surfaceDim = darkSurface(isTrueBlack),
+    surfaceContainer = darkSurface(isTrueBlack),
+    surfaceContainerHigh = darkSurface(isTrueBlack),
+    surfaceContainerHighest = darkSurface(isTrueBlack),
+    surfaceContainerLow = darkSurface(isTrueBlack),
+    surfaceContainerLowest = darkSurface(isTrueBlack),
 )
+
+private fun darkSurface(isTrueBlack: Boolean) = if (isTrueBlack) IvyColors.TrueBlack else IvyColors.Black

@@ -149,7 +149,6 @@
     <string name="swipe_to_agree_privacy_policy">Шударч нууцлалын бодлогыг зөвшөөрнө үү</string>
     <string name="agreed_privacy_policy">Нууцлалын бодлогыг зөвшөөрсөн</string>
     <string name="terms_and_conditions">Үйлчилгээний нөхцөл</string>
-    <string name="privacy_policy">Нууцлалын бодлого</string>
     <string name="wallet_description">Ivy-г ашиглаж орлого, зарлага, төсвөө хянаарай.\n\nХялбар интерфэйс, давтамжит ба төлөвлөгөөт гүйлгээ, олон данс, гүйлгээ ангилах, чухал статистик, CSV хэлбэрээр авах болон өшөө илүү зүйлс.</string>
     <string name="enter_your_name">Нэрээ оруулж\nсанхүүчтэйгээ\nтанилцаарай</string>
     <string name="what_is_your_name">Таны нэр?</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">Мэдээллийн бүрэн бүтэн, аюулгай байдал баталгаатай биш!</string>
     <string name="or_enter_with_offline_account">ЭСВЭЛ ОФФЛАЙН БҮРТГЭЛЭЭР НЭВТРЭХ</string>
     <string name="offline_warning">Таны мэдээлэл зөвхөн таны утсан дээр хадгалагдана. Таныг төхөөрөмжөө солих, аппыг устгах үед бүх мэдээлэл тань цуг устах болно. Та дараа хүссэн үедээ нөөцлөх тохиргоог идэвхжүүлэх боломжтой.</string>
-    <string name="terms_conditions"><![CDATA[Үйлчилгээний нөхцөл]]></string>
-    <string name="by_signing_in">Нэвтэрч орсноор та %1$s болон %2$s-г зөвшөөрсөн гэж үзнэ.</string>
     <string name="import_csv_file">CSV файлаас сэргээх</string>
     <string name="from_ivy_or_another_app">Ivy эсвэл өөр аппаас</string>
     <string name="importing_another_time_warning">Өгөгдөл нөөцөөс сэргээхэд 5 хүртэлх минут болдог шүү. Мөн та дараа хүссэн үедээ сэргээх боломжтой.</string>

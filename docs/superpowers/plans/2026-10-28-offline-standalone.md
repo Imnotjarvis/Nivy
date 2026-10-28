@@ -2,79 +2,139 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Turn the archived Ivy Wallet repo into a sideloaded, offline-first personal app with no Firebase, Google Play, GitHub API or CI dependencies. The only network call left is the exchange-rate fetch.
+**Goal:** Turn the archived Ivy Wallet snapshot into a sideloaded, offline-first personal app with no Firebase, Google Play, GitHub API, CI or JitPack dependencies. The only runtime network call left is the exchange-rate fetch.
 
-**Architecture:** Delete the modules that only exist to talk to outside services (`feature:poll`, `feature:contributors`, `feature:releases`, `feature:attributions`, `ci-actions:*`). Strip Firebase and Play Core from the build. Cut the UI entry points that pointed at them. Keep everything that stores data locally (Room, DataStore, SharedPrefs, WorkManager reminders, widgets) exactly as it is, so existing backups still import. A grep-based guard script is the "test" for each removal.
+**Architecture:** The app already stores everything locally (Room DB v130 with exported schemas, DataStore, SharedPrefs, a local zip backup, WorkManager reminders, Glance widgets). Cloud sync was already removed upstream. So this plan only *removes* things: Firebase Crashlytics and Play Core from the build, three leaf feature modules that call `api.github.com` or only link to upstream channels, the CI/release tooling, and the UI entry points that pointed at them. Nothing that reads or writes user data changes, so existing backups still import. A grep-based guard script is the "test" for each removal.
 
-**Tech Stack:** Kotlin 2.0.20, AGP 8.5.2, Gradle 8.8, Jetpack Compose 1.6.8, Hilt 2.52, Room 2.6.1, Ktor 2.3.12 (exchange rates only), Arrow 1.2.4, Kotest + MockK.
+**Tech Stack:** Kotlin 2.0.20, AGP 8.5.2, Gradle 8.8, Jetpack Compose 1.6.8, Hilt 2.52, Room 2.6.1, Ktor 2.3.12 (exchange rates only), Arrow 1.2.4, Kotest + MockK + Paparazzi. These were the versions the plan was written against. They were then upgraded; see "Upgrade to latest" at the end.
 
-**Spec:** No separate spec. These requirements come from the user:
-1. Bare minimum needed to build and run. Firebase, external connections and store integration are not needed.
+**Requirements (from the user):**
+1. The bare minimum needed to build and run. Firebase, external connections and store integration are not needed.
 2. The exchange-rate API is the one network feature to keep.
-3. Everything else must work offline.
+3. Everything else works offline.
 4. Distributed as a standalone APK, not through the Play Store.
+
+## Revision note (2026-10-28)
+
+This replaces the first draft, which was written against a different snapshot. Corrections for this repo (`Imnotjarvis/ivy`):
+
+- There is no `feature/poll` and no `.github/`, and the tree is already a git repo. The draft's "git init" step and its poll-removal task are dropped.
+- There is **no `.gitignore`**, and **6,159 build-output files are committed** (`buildSrc/build/`, `buildSrc/.gradle/`, `build/reports/`), plus `local.properties` with a machine-specific `sdk.dir`. That cleanup is now Task 1.
+- Dependencies that are declared but unused are now removed too: `androidx.security:security-crypto`, `kotlinx-coroutines-play-services`, `play:app-update`, `play-services-tasks`.
+- JitPack is now removed. It's only needed for a detekt ruleset, and it's the one build host most likely to vanish.
+- The guard script no longer scans `config/detekt/baseline.yml`. That file holds detekt suppression IDs that mention firebase, which would be a false positive.
+
+**Verification status.** Every path, symbol and line quoted here was checked against this tree. The source edits in Tasks 1 and 3–6 were dry-run in a scratch worktree: every edit matched exactly once, `scripts/verifyOffline.sh` exited 0, no references to removed symbols were left, and every edited Kotlin file stayed brace-balanced. **No Gradle build was run while writing the plan**, because the planning environment can't reach Google Maven (`dl.google.com`). Task 1 Step 3 is therefore the first real compile.
+
+## Implementation status (2026-10-28)
+
+The code changes for all seven tasks are committed on `claude/adoring-bell-r022v1`, one commit per task. Ticked steps are done. Each removal was checked with `scripts/verifyOffline.sh` (exits 0), a scan for references to removed symbols (none) and a brace-balance check of every edited Kotlin file.
+
+Unticked steps need a machine that can reach Google Maven, or your phone:
+- **Task 1 Steps 3–4:** the first build, and recording the baseline tests.
+- **The Gradle half of each Verify step** (Task 3 Step 8, Task 4 Step 5, Task 5 Step 4, Task 6 Steps 2 and 4). The guard-script half passed.
+- **Task 7 Steps 1 and 3–5:** your keystore, the release build, device QA and data migration.
+
+One change beyond the plan: `include(":shared:common-ui")` was dropped from `settings.gradle.kts`. That directory doesn't exist and nothing uses it. Gradle 8.8 only warns about such an include, but Gradle 9 rejects it.
+
+A GitHub Actions build was added afterwards (`.github/workflows/build.yml`). It is your own CI, not upstream's: it runs the guard script, builds the debug APK and the R8-minified `demo` APK, and runs the unit tests on every push. On `v*` tags it also builds a signed release APK and publishes it as a GitHub release. The file header lists the secrets this needs.
+
+Run these in order: `./gradlew :app:assembleDebug`, then `./gradlew testDebugUnitTest --continue`, then Task 7 Step 1. Until `keystore.properties` exists, `assembleRelease` fails at signing. Debug builds don't need it.
+
+## What stays, what goes
+
+| Area | Decision | Why |
+|---|---|---|
+| `shared/data/*` (Room, DataStore, backup zip, Ktor client) | **Keep** | User data, backups, exchange-rate fetch |
+| `feature/exchange-rates`, `SyncExchangeRatesUseCase`, `RemoteExchangeRatesDataSourceImpl` | **Keep** | The one network feature. It already fails soft (see Task 6) |
+| All core features (accounts, transactions, categories, budgets, loans, planned payments, reports, piechart, search, import-data, settings, home, main, onboarding) | **Keep** | Core app |
+| `feature/features` | **Keep** | Local user toggles stored in DataStore, not a remote flag service |
+| `feature/disclaimer` | Keep (optional removal) | A local first-launch gate with no network |
+| `temp/legacy-code`, `temp/old-design` | **Keep** | Despite the name, they're load-bearing: about 31k lines that hold most of the business logic and the UI kit every screen uses |
+| `widget/*`, `PaymentTileService`, reminder worker | **Keep** | All local |
+| Firebase Crashlytics, `google-services.json`, `FirebaseExt.kt` | **Remove** (Task 3) | Sends crash reports to the original authors' Firebase project |
+| Play Review, Play App Update, `play-services-tasks`, `kotlinx-coroutines-play-services` | **Remove** (Task 3) | Play-only. Of these, only `ReviewManagerFactory` is referenced in code |
+| `androidx.security:security-crypto` | **Remove** (Task 3) | Declared but unused, and deprecated upstream |
+| "Rate us", "Share Ivy" and "open source" buttons; the rate-us card | **Remove** (Tasks 3–4) | Point at the Play listing or upstream GitHub |
+| `feature/contributors`, `feature/releases` (and Coil) | **Remove** (Task 4) | Call `api.github.com`. Coil is only used for contributor avatars |
+| `feature/attributions` and the Settings "Product" section | **Remove** (Task 4) | Only links to upstream Telegram, GitHub and help center |
+| `ci-actions/*`, `fastlane/`, `Gemfile*`, compose-stability scripts, the wrapper-upgrade bot plugin | **Remove** (Task 5) | GitHub/Play automation. `ci-actions` also needs a JDK 17 toolchain and Kotlin context receivers |
+| JitPack and the `detekt-explicit` ruleset | **Remove** (Task 5) | A third-party build host, used only by `./gradlew detekt` |
+
+Kept on purpose: `INTERNET` and `ACCESS_NETWORK_STATE`, Ktor and its four fallback URLs, `openUrlInBrowser`, and `openGooglePlayAppPage`. The CSV-import instructions use that last one to open *other* apps' store pages, and it falls back to the browser without any Play library. Tap-to-open links in onboarding, the disclaimer and the import instructions stay too. They make no automatic network calls.
 
 ## Global Constraints
 
-- JDK: run Gradle with `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64`. The system default is JDK 25, which Gradle 8.8 cannot run on. Every `./gradlew` command below is written with this prefix.
-- Android SDK: `/home/matt/Android/Sdk`. `android-34` is already installed.
-- Do NOT change: the Room schema or migrations, DataStore keys, SharedPrefs keys, or the backup zip format. Existing user data and backups must stay readable.
-- Do NOT bump AGP, Kotlin, Compose, `compileSdk` or `targetSdk` (stays 34) in this plan. Upgrades are separate work.
-- Keep the `INTERNET` permission, Ktor, `RemoteExchangeRatesDataSourceImpl` and its four fallback URLs.
-- Keep the `namespace` (`com.ivy.wallet`). Only `applicationId` changes, in Task 8.
-- The repo is not a git repository yet. Task 1 creates it so every later removal can be reverted.
+- **JDK:** use JDK 21. After the upgrade, Gradle 9.8 needs 17+ and Paparazzi 2 needs 21 to run the screenshot tests. Before any `./gradlew` command, run `export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64` once per shell. In Android Studio, pick JDK 21 under Settings → Build Tools → Gradle → Gradle JDK. (Before the upgrade, Gradle 8.8 could not start on JDK 23+, and the original dev machine's default is JDK 25.)
+- **Android SDK:** `sdk.dir=/home/matt/Android/Sdk` with `android-34` installed. After Task 1 this lives only in your local, untracked `local.properties`.
+- **Do NOT change:** the Room schema or migrations, DataStore keys, SharedPrefs keys, the backup zip/JSON format, or the `namespace` (`com.ivy.wallet`). Existing data and backups must stay readable.
+- **Do NOT bump** versions inside these tasks. The toolchain and library upgrade was done separately afterwards (see the end). `targetSdk` stays 34 even after it.
+- Leftover *unused* imports are warnings, not errors, because no module sets `allWarningsAsErrors`. Each task still lists them so detekt stays clean. Imports of *deleted* symbols are errors and must go.
 
 ## Review Focus
 
-1. **First launch with no network.** Onboarding finishes, the home screen loads, the exchange-rate list is empty, and adding a manual rate still works. Covered by the Task 7 unit test plus the Task 8 device step "airplane-mode first launch".
-2. **Network drops after rates were synced.** Previously stored rates must not be wiped by a failed sync. Covered by the Task 7 unit test `sync - network failure leaves stored rates untouched`.
-3. **Moving data from the Play Store install.** A backup zip exported from the Play version imports into the new `applicationId`. Covered by Task 8, step "migrate data".
-4. **R8-minified release build crashes at start** because a removed class was still reachable. Covered by Task 8, which smoke-tests the *release* APK and not just debug.
-5. **Home screen journey cards, app lock (biometric) and widgets after the removals.** Covered by the Task 8 device checklist.
+1. **First launch with no network.** Onboarding finishes, Home loads, the exchange-rate list is empty, and adding a manual rate works. Onboarding navigates first and syncs afterwards (`OnboardingRouter.completeOnboarding`), so it isn't blocked. Covered by the Task 6 unit test and the Task 7 "airplane-mode first launch" device step.
+2. **Network drops after rates were synced.** Stored rates must not be wiped by a failed sync. Covered by the Task 6 test `sync - network failure leaves stored rates untouched`.
+3. **Moving data from the Play install.** A backup zip exported from the Play version imports into the new `applicationId`. Covered by Task 7, "migrate data".
+4. **The R8-minified release build crashes at start** because a removed class was still reachable. Covered by Task 7, which smoke-tests the *release* APK.
+5. **Home "more" menu and Settings after the removals.** The more-menu's second row goes from 4 buttons to 3 (they're spaced with `weight(1f)`, so still evenly), and Settings loses its "Other" and "Product" sections. Covered by the Task 7 device checklist.
 
 ---
 
-### Task 1: Baseline: git, SDK path, first build
+### Task 1: Repo hygiene and baseline build
 
 **Files:**
-- Create: `local.properties`
-- Create: `.git/` (via `git init`)
+- Create: `.gitignore`
+- Untrack (keep on disk): `buildSrc/build/`, `buildSrc/.gradle/`, `build/`, `local.properties`
 
 **Interfaces:**
 - Consumes: nothing
-- Produces: a committed baseline, and a recorded list of tests that already fail before any change (`/tmp/claude-1000/-home-matt-Documents-GitHub-ivy-wallet-main/27e36e21-271c-45f2-ae3e-01b02492d5d5/scratchpad/baseline-test-failures.txt` or any local notes file)
+- Produces: a tree that tracks no build output, a green debug build, and a notes file listing tests that already fail (`../ivy-baseline-tests.log`, kept outside the repo so `./gradlew clean` can't delete it)
 
-- [ ] **Step 1: Init git and commit untouched tree**
+- [x] **Step 1: Add `.gitignore`**
+
+```gitignore
+# Gradle / Android build output
+.gradle/
+build/
+/local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Release signing (Task 7)
+/keystore.properties
+/release.jks
+```
+
+- [x] **Step 2: Stop tracking build output and the machine-specific SDK path**
 
 ```bash
-cd /home/matt/Documents/GitHub/ivy-wallet-main
-git init
-git add -A
-git commit -m "chore: import ivy-wallet archived snapshot"
+git rm -r -q --cached buildSrc/build buildSrc/.gradle build local.properties
+git add .gitignore
+git commit -m "chore: add .gitignore and untrack build outputs"
 ```
 
-- [ ] **Step 2: Point Gradle at the SDK**
+Run: `git ls-files | grep -cE '(^|/)(build|\.gradle)/'`
+Expected: `0`. `git ls-files | wc -l` drops from 8006 to about 1,850. Your local `local.properties` is still on disk.
 
-`local.properties` (already ignored by `.gitignore`):
+- [ ] **Step 3: Build the debug APK (first real compile)**
 
-```properties
-sdk.dir=/home/matt/Android/Sdk
-```
-
-- [ ] **Step 3: Build the debug APK**
-
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleDebug`
+Run: `./gradlew :app:assembleDebug`
 Expected: `BUILD SUCCESSFUL`, APK at `app/build/outputs/apk/debug/app-debug.apk`.
-If it fails, stop and report the error. Every later task assumes this baseline builds.
+If it fails, stop and record the error. Every later task assumes this baseline builds.
 
-- [ ] **Step 4: Run unit tests and record pre-existing failures**
+- [ ] **Step 4: Record pre-existing unit-test failures**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew testDebugUnitTest --continue 2>&1 | tee /tmp/claude-1000/-home-matt-Documents-GitHub-ivy-wallet-main/27e36e21-271c-45f2-ae3e-01b02492d5d5/scratchpad/baseline-tests.log`
-Expected: mostly PASS. Copy any `FAILED` test names into your notes. Later tasks only need "no *new* failures".
-
-- [ ] **Step 5: Commit**
-
-Nothing new is tracked (`local.properties` is gitignored), so there is nothing to commit. Move on.
+Run: `./gradlew testDebugUnitTest --continue > ../ivy-baseline-tests.log 2>&1; grep -E 'FAILED$' ../ivy-baseline-tests.log`
+Expected: mostly PASS. Later tasks only need "no *new* failures". Failures inside `feature/contributors`, `feature/releases` and `feature/attributions` disappear with those modules in Task 4.
 
 ---
 
@@ -85,18 +145,18 @@ Nothing new is tracked (`local.properties` is gitignored), so there is nothing t
 
 **Interfaces:**
 - Consumes: nothing
-- Produces: `scripts/verifyOffline.sh`. It exits 0 when clean and 1 when any check fails, printing one `ok   [label]` or `FAIL [label]` line per check. Labels: `firebase`, `play-core`, `github-api`, `poll-module`, `ci-actions`, `google-services.json`.
+- Produces: `scripts/verifyOffline.sh`. It exits 0 when clean and 1 otherwise, printing one `ok   [label]` or `FAIL [label]` line per check. Labels: `firebase`, `play-core`, `github-api`, `jitpack`, `ci-wiring`, `removed-paths`.
 
-- [ ] **Step 1: Write the script**
+- [x] **Step 1: Write the script**
 
 ```bash
 #!/bin/bash
-# Fails if any Firebase / Google Play / GitHub API / CI wiring is still in the build.
-# The exchange-rate API (currency-api) is the only network dependency allowed.
+# Fails if Firebase / Google Play / GitHub API / CI / JitPack wiring is still in the build.
+# The exchange-rate API (currency-api) is the only network dependency the app may keep.
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-SRC_DIRS="app buildSrc feature shared temp widget gradle settings.gradle.kts build.gradle.kts"
+SRC_DIRS="app buildSrc config/detekt/config.yml feature shared temp widget gradle settings.gradle.kts build.gradle.kts"
 fail=0
 
 check() {
@@ -104,8 +164,9 @@ check() {
     local hits
     # shellcheck disable=SC2086
     hits=$(grep -rnIiE "$pattern" $SRC_DIRS \
-        --include='*.kt' --include='*.kts' --include='*.toml' --include='*.xml' --include='*.json' \
-        2>/dev/null | grep -v '/build/')
+        --include='*.kt' --include='*.kts' --include='*.toml' --include='*.xml' \
+        --include='*.json' --include='*.yml' --include='*.pro' \
+        2>/dev/null | grep -v '/build/' | grep -v 'lint-baseline.xml')
     if [ -n "$hits" ]; then
         echo "FAIL [$label]"
         echo "$hits" | head -5 | sed 's/^/       /'
@@ -115,28 +176,36 @@ check() {
     fi
 }
 
-check "firebase"    'firebase|crashlytics|google-services|google\.services|com\.google\.gms'
-check "play-core"   'com\.google\.android\.play|play-services'
-check "github-api"  'api\.github\.com'
-check "poll-module" 'feature:poll|feature\.poll|com\.ivy\.poll'
-check "ci-actions"  'ci-actions'
+absent() {
+    local label="$1"; shift
+    local present=""
+    for p in "$@"; do [ -e "$p" ] && present="$present $p"; done
+    if [ -n "$present" ]; then
+        echo "FAIL [$label] still present:$present"
+        fail=1
+    else
+        echo "ok   [$label]"
+    fi
+}
 
-if [ -e app/google-services.json ]; then
-    echo "FAIL [google-services.json]"
-    fail=1
-else
-    echo "ok   [google-services.json]"
-fi
+check  "firebase"   'firebase|crashlytics|google-services|google\.services|com\.google\.gms'
+check  "play-core"  'com\.google\.android\.play|play-services'
+check  "github-api" 'api\.github\.com'
+check  "jitpack"    'jitpack|detekt-explicit|ivy[.-]explicit|IvyExplicit'
+check  "ci-wiring"  'ci-actions|wrapperUpgrade|wrapper-upgrade'
+absent "removed-paths" app/google-services.json ci-actions fastlane Gemfile Gemfile.lock \
+    feature/contributors feature/releases feature/attributions \
+    buildSrc/src/main/kotlin/ivy.script.gradle.kts
 
 exit $fail
 ```
 
-- [ ] **Step 2: Run it to verify it fails**
+- [x] **Step 2: Run it to verify it fails**
 
 Run: `chmod +x scripts/verifyOffline.sh && scripts/verifyOffline.sh; echo "exit=$?"`
-Expected: every label prints `FAIL`, and `exit=1`.
+Expected: all six labels `FAIL`, `exit=1`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add scripts/verifyOffline.sh
@@ -145,136 +214,24 @@ git commit -m "test: add offline guard script"
 
 ---
 
-### Task 3: Remove the poll feature (Firestore)
+### Task 3: Remove Firebase Crashlytics, google-services, Play Core and unused security-crypto
 
-The poll writes votes to Ivy's Firestore project, and its home card expired on 2025-07-28. Remove it first. It is the only Firestore user, so it has to go before the google-services plugin in Task 4.
-
-**Files:**
-- Delete: `feature/poll/` (both `impl` and `public`)
-- Modify: `settings.gradle.kts`
-- Modify: `app/build.gradle.kts`
-- Modify: `feature/home/build.gradle.kts`
-- Modify: `feature/home/src/main/java/com/ivy/home/customerjourney/CustomerJourneyCardModel.kt`
-- Modify: `feature/home/src/main/java/com/ivy/home/customerjourney/CustomerJourneyCardsProvider.kt`
-- Modify: `app/src/main/java/com/ivy/IvyNavGraph.kt`
-- Modify: `shared/ui/navigation/src/main/java/com/ivy/navigation/Screens.kt`
-
-**Interfaces:**
-- Consumes: `scripts/verifyOffline.sh` (Task 2)
-- Produces: `CustomerJourneyDeps(timeProvider: TimeProvider)` with a single field. `CustomerJourneyCardsProvider` no longer takes `pollRepository`. `Screen` no longer has `PollScreen`.
-
-- [ ] **Step 1: Delete module and includes**
-
-```bash
-rm -rf feature/poll
-```
-
-`settings.gradle.kts`: delete these two lines:
-
-```kotlin
-include(":feature:poll:impl")
-include(":feature:poll:public")
-```
-
-`app/build.gradle.kts`: delete all three of these lines (`poll.impl` appears twice):
-
-```kotlin
-    implementation(projects.feature.poll.impl)
-    implementation(projects.feature.poll.public)
-```
-
-`feature/home/build.gradle.kts`: delete:
-
-```kotlin
-    implementation(projects.feature.poll.public)
-```
-
-- [ ] **Step 2: Drop `pollRepository` from the card deps**
-
-`CustomerJourneyCardModel.kt`: remove `import com.ivy.poll.data.PollRepository` and change the deps class to:
-
-```kotlin
-@Immutable
-data class CustomerJourneyDeps(
-    val timeProvider: TimeProvider,
-)
-```
-
-- [ ] **Step 3: Remove the vote card from the provider**
-
-`CustomerJourneyCardsProvider.kt`:
-- Remove these imports: `com.ivy.navigation.Navigation`, `com.ivy.navigation.PollScreen`, `com.ivy.poll.data.PollRepository`, `com.ivy.poll.data.model.PollId`, `java.time.LocalDate`.
-- Remove the constructor parameter `private val pollRepository: PollRepository,`.
-- Replace the deps construction with:
-
-```kotlin
-    val deps = CustomerJourneyDeps(
-      timeProvider = timeProvider,
-    )
-```
-
-- Change `ACTIVE_CARDS` to:
-
-```kotlin
-    val ACTIVE_CARDS = listOf(
-      adjustBalanceCard(),
-      addPlannedPaymentCard(),
-      didYouKnow_pinAddTransactionWidgetCard(),
-      didYouKnow_expensesPieChart(),
-    )
-```
-
-- Delete the whole `private fun voteCard() = CustomerJourneyCardModel(...)` function, including its `@Suppress(...)` annotation line.
-
-- [ ] **Step 4: Remove the nav route**
-
-`IvyNavGraph.kt`: delete `import com.ivy.navigation.PollScreen`, `import com.ivy.poll.impl.ui.PollScreen`, and the branch line `PollScreen -> PollScreen()`.
-
-`Screens.kt`: delete:
-
-```kotlin
-data object PollScreen : Screen
-```
-
-- [ ] **Step 5: Verify**
-
-Run: `scripts/verifyOffline.sh`
-Expected: `ok   [poll-module]` (other labels still FAIL).
-
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleDebug`
-Expected: `BUILD SUCCESSFUL`.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add -A
-git commit -m "refactor: remove Firestore poll feature"
-```
-
----
-
-### Task 4: Remove Firebase Crashlytics, google-services and Play Core
-
-Crashlytics sends crash reports to the original developers' Firebase project. Play Review only works for Play installs. "Share" sends a Play Store link.
+Crashlytics sends crash reports to the original developers' Firebase project. Play Review only works for Play installs. "Share" sends the Play Store link.
 
 **Files:**
-- Delete: `app/google-services.json`
-- Delete: `temp/legacy-code/src/main/java/com/ivy/legacy/utils/FirebaseExt.kt`
-- Modify: `gradle/libs.versions.toml`
-- Modify: `buildSrc/build.gradle.kts`
-- Modify: `app/build.gradle.kts`
-- Modify: `temp/legacy-code/build.gradle.kts`
+- Delete: `app/google-services.json`, `temp/legacy-code/src/main/java/com/ivy/legacy/utils/FirebaseExt.kt` (also defines `DeveloperException`, which nothing else uses)
+- Modify: `gradle/libs.versions.toml`, `buildSrc/build.gradle.kts`, `app/build.gradle.kts`, `temp/legacy-code/build.gradle.kts`
 - Modify: `shared/domain/src/main/java/com/ivy/domain/RootScreen.kt`
-- Modify: `app/src/main/java/com/ivy/wallet/RootActivity.kt`
+- Modify: `app/src/main/java/com/ivy/wallet/RootActivity.kt` (the only `RootScreen` implementation)
 - Modify: `feature/home/src/main/java/com/ivy/home/customerjourney/CustomerJourneyCardsProvider.kt`
 - Modify: `feature/home/src/main/java/com/ivy/home/HomeMoreMenu.kt`
 - Modify: `feature/settings/src/main/java/com/ivy/settings/SettingsScreen.kt`
 
 **Interfaces:**
-- Consumes: Task 3 result (no Firestore users left)
-- Produces: `RootScreen` without `reviewIvyWallet` and `shareIvyWallet`. It keeps `openUrlInBrowser`, `shareCSVFile`, `shareZipFile`, `openGooglePlayAppPage`, `pinWidget` and the build-info vals.
+- Consumes: `scripts/verifyOffline.sh` (Task 2)
+- Produces: `RootScreen` without `reviewIvyWallet` and `shareIvyWallet`. It keeps `isDebug`, `buildVersionName`, `buildVersionCode`, `openUrlInBrowser`, `shareCSVFile`, `shareZipFile`, `openGooglePlayAppPage` and `pinWidget`. `CustomerJourneyCardsProvider` no longer has `rateUsCard()`.
 
-- [ ] **Step 1: Version catalog**
+- [x] **Step 1: Version catalog**
 
 `gradle/libs.versions.toml`: delete these library lines:
 
@@ -287,9 +244,10 @@ google-play-review = { module = "com.google.android.play:review-ktx", version = 
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version = "19.0.3" }
 firebase-crashlytics-gradle-plugin = { module = "com.google.firebase:firebase-crashlytics-gradle", version = "3.0.2" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore", version = "25.1.4" }
+androidx-security = { module = "androidx.security:security-crypto", version = "1.0.0" }
 ```
 
-Replace the `kotlin-android` bundle with:
+Replace the `kotlin-android` bundle with the following. This bundle is applied to every Android module through `ivy.kotlin-android`.
 
 ```toml
 kotlin-android = [
@@ -299,7 +257,7 @@ kotlin-android = [
 
 Delete the whole `google = [...]` and `firebase = [...]` bundles.
 
-- [ ] **Step 2: Gradle scripts**
+- [x] **Step 2: Gradle scripts**
 
 `buildSrc/build.gradle.kts`: delete:
 
@@ -320,13 +278,10 @@ Also delete these dependency lines:
 ```kotlin
     implementation(libs.bundles.google)
     implementation(libs.bundles.firebase)
+    implementation(libs.androidx.security)
 ```
 
-`temp/legacy-code/build.gradle.kts`: delete:
-
-```kotlin
-    implementation(libs.bundles.firebase)
-```
+`temp/legacy-code/build.gradle.kts`: delete `    implementation(libs.bundles.firebase)`.
 
 Then:
 
@@ -334,7 +289,7 @@ Then:
 rm app/google-services.json temp/legacy-code/src/main/java/com/ivy/legacy/utils/FirebaseExt.kt
 ```
 
-- [ ] **Step 3: `RootScreen` interface**
+- [x] **Step 3: `RootScreen` interface**
 
 `RootScreen.kt`: delete these two declarations and the blank line after each:
 
@@ -344,27 +299,26 @@ rm app/google-services.json temp/legacy-code/src/main/java/com/ivy/legacy/utils/
     fun shareIvyWallet()
 ```
 
-- [ ] **Step 4: `RootActivity`**
+- [x] **Step 4: `RootActivity`**
 
 - Delete these imports: `com.google.android.play.core.review.ReviewManagerFactory`, `com.ivy.home.customerjourney.CustomerJourneyCardsProvider`, `com.ivy.legacy.Constants`, `com.ivy.legacy.utils.sendToCrashlytics`.
-- Delete the field:
+- Delete the field and the blank line after it:
 
 ```kotlin
     @Inject
     lateinit var customerJourneyLogic: CustomerJourneyCardsProvider
 ```
 
-- In `openUrlInBrowser`, delete the line `e.sendToCrashlytics("Cannot open URL in browser, intent not supported.")`. Keep `e.printStackTrace()` and the Toast.
-- Delete the whole `override fun shareIvyWallet() { ... }` function.
-- Delete the whole `override fun reviewIvyWallet(dismissReviewCard: Boolean) { ... }` function.
+- In `openUrlInBrowser`, delete `e.sendToCrashlytics("Cannot open URL in browser, intent not supported.")`. Keep `e.printStackTrace()` and the Toast.
+- Delete the whole `override fun shareIvyWallet() { ... }` and `override fun reviewIvyWallet(dismissReviewCard: Boolean) { ... }` functions.
 
-- [ ] **Step 5: Rate-us card**
+- [x] **Step 5: Rate-us card**
 
-`CustomerJourneyCardsProvider.kt`: delete the whole `fun rateUsCard() = CustomerJourneyCardModel(...)` function. It is not in `ACTIVE_CARDS`. Its only caller was `RootActivity.reviewIvyWallet`, which Step 4 removed.
+`CustomerJourneyCardsProvider.kt`: delete the whole `fun rateUsCard() = CustomerJourneyCardModel(...)` function and the blank line above it. It isn't in `ACTIVE_CARDS`, and its only caller was `RootActivity.reviewIvyWallet` (Step 4). Delete `import com.ivy.design.l0_system.Green`, which is now unused.
 
-- [ ] **Step 6: Home more-menu share button**
+- [x] **Step 6: Home more-menu "Share" button**
 
-`HomeMoreMenu.kt`, in the "Second Row": delete this block together with the `Spacer` that follows it:
+`HomeMoreMenu.kt`, in the "Second Row": delete this block together with the `Spacer` and blank line that follow it:
 
 ```kotlin
             val rootScreen = rootScreen()
@@ -378,58 +332,49 @@ rm app/google-services.json temp/legacy-code/src/main/java/com/ivy/legacy/utils/
             Spacer(Modifier.weight(1f))
 ```
 
-If `import com.ivy.legacy.rootScreen` is now unused (`grep -c "rootScreen" feature/home/src/main/java/com/ivy/home/HomeMoreMenu.kt` returns 1), delete it.
+Delete `import com.ivy.legacy.rootScreen`, which is now unused. Row 2 keeps Reports, Budgets and Loans.
 
-- [ ] **Step 7: Settings "Other" section**
+- [x] **Step 7: Settings "Other" section**
 
-`SettingsScreen.kt`: delete the whole `item { ... }` that starts with `SettingsSectionDivider(text = stringResource(R.string.other))`. It contains three buttons: "Rate us", "Share" and "open source". Then drop the imports that are now unused:
-
-```bash
-f=feature/settings/src/main/java/com/ivy/settings/SettingsScreen.kt
-for s in GradientIvy Red3 MediumBlack; do echo "$s $(grep -cw "$s" $f)"; done
-```
-
-Delete the `import com.ivy.wallet.ui.theme.<Symbol>` line for each symbol whose count is `1`.
+`SettingsScreen.kt`: delete the whole `item { ... }` that starts with `SettingsSectionDivider(text = stringResource(R.string.other))`. It holds the "Rate us", "Share" and "open source" buttons. `GradientIvy`, `Red3` and `MediumBlack` become unused. Delete their imports at the end of Task 4 together with the rest.
 
 - [ ] **Step 8: Verify**
 
 Run: `scripts/verifyOffline.sh`
-Expected: `ok` for `firebase`, `play-core`, `poll-module` and `google-services.json`. `github-api` and `ci-actions` still FAIL.
+Expected: `ok` for `firebase` and `play-core`. The others still FAIL.
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleDebug`
+Run: `./gradlew :app:assembleDebug`
 Expected: `BUILD SUCCESSFUL`.
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -iE "firebase|com.google.android.play|play-services"`
+Run: `./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -iE "firebase|com.google.android.play|play-services"`
 Expected: no output.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add -A
-git commit -m "refactor: remove Firebase Crashlytics and Play Core"
+git commit -m "refactor: remove Firebase Crashlytics, Play Core and unused security-crypto"
 ```
 
 ---
 
-### Task 5: Remove GitHub-API screens and outbound project links
+### Task 4: Remove GitHub-API screens, attributions, project links and Coil
 
-`contributors` and `releases` call `api.github.com`. `contributors` also pulls in Coil to load avatars. `attributions` and the Settings "Product" section are only links to Ivy's Telegram, GitHub and help center.
+`contributors` and `releases` call `api.github.com`. `contributors` also pulls in Coil for avatars, its only user. `attributions` and the Settings "Product" section only link to Ivy's Telegram, GitHub and help center. All three modules are leaves: only `app` (nav graph) and Settings reference them, and their tests live inside them.
 
 **Files:**
 - Delete: `feature/contributors/`, `feature/releases/`, `feature/attributions/`
-- Modify: `settings.gradle.kts`
-- Modify: `app/build.gradle.kts`
-- Modify: `gradle/libs.versions.toml`
+- Modify: `settings.gradle.kts`, `app/build.gradle.kts`, `gradle/libs.versions.toml`, `app/proguard-rules.pro`
 - Modify: `app/src/main/java/com/ivy/IvyNavGraph.kt`
 - Modify: `shared/ui/navigation/src/main/java/com/ivy/navigation/Screens.kt`
 - Modify: `feature/settings/src/main/java/com/ivy/settings/SettingsScreen.kt`
 - Modify: `feature/home/src/main/java/com/ivy/home/HomeMoreMenu.kt`
 
 **Interfaces:**
-- Consumes: Task 4 result
-- Produces: `Screen` no longer has `AttributionsScreen`, `ContributorsScreen` or `ReleasesScreen`. The `compose` bundle no longer contains `compose-coil`.
+- Consumes: Task 3 result
+- Produces: `Screen` (a sealed interface) no longer has `AttributionsScreen`, `ContributorsScreen` or `ReleasesScreen`. The `compose` bundle no longer contains `compose-coil`.
 
-- [ ] **Step 1: Delete modules and wiring**
+- [x] **Step 1: Delete modules and wiring**
 
 ```bash
 rm -rf feature/contributors feature/releases feature/attributions
@@ -451,11 +396,13 @@ include(":feature:releases")
     implementation(projects.feature.releases)
 ```
 
-`gradle/libs.versions.toml`: delete the library line `compose-coil = { module = "io.coil-kt:coil-compose", version = "2.7.0" }` and the `"compose-coil",` entry in the `compose` bundle.
+`gradle/libs.versions.toml`: delete the line `compose-coil = { module = "io.coil-kt:coil-compose", version = "2.7.0" }` and the `    "compose-coil",` entry in the `compose` bundle.
 
-- [ ] **Step 2: Nav graph and screens**
+`app/proguard-rules.pro`: delete `-dontwarn coil.**`.
 
-`IvyNavGraph.kt`: delete these imports: `com.ivy.attributions.AttributionsScreenImpl`, `com.ivy.contributors.ContributorsScreenImpl`, `com.ivy.releases.ReleasesScreenImpl`, `com.ivy.navigation.AttributionsScreen`, `com.ivy.navigation.ContributorsScreen`, `com.ivy.navigation.ReleasesScreen`. Delete these branches:
+- [x] **Step 2: Nav graph and screens**
+
+`IvyNavGraph.kt`: delete these imports: `com.ivy.attributions.AttributionsScreenImpl`, `com.ivy.contributors.ContributorsScreenImpl`, `com.ivy.releases.ReleasesScreenImpl`, `com.ivy.navigation.AttributionsScreen`, `com.ivy.navigation.ContributorsScreen`, `com.ivy.navigation.ReleasesScreen`. Also delete these branches:
 
 ```kotlin
         AttributionsScreen -> AttributionsScreenImpl()
@@ -463,7 +410,7 @@ include(":feature:releases")
         ReleasesScreen -> ReleasesScreenImpl()
 ```
 
-`Screens.kt`: delete:
+`Screens.kt`: delete these, with the blank line after each:
 
 ```kotlin
 data object AttributionsScreen : Screen
@@ -473,80 +420,64 @@ data object ContributorsScreen : Screen
 data object ReleasesScreen : Screen
 ```
 
-- [ ] **Step 3: Settings screen**
+- [x] **Step 3: Settings screen**
 
 `SettingsScreen.kt`:
-- In the toolbar version `Text`, delete the `modifier = Modifier.clickable { nav.navigateTo(ReleasesScreen) },` argument. Keep the text.
-- Delete the whole `item { ... }` that starts with `SettingsSectionDivider(text = stringResource(R.string.product))`, ending after `TCAndPrivacyPolicy()`.
+- In the toolbar version `Text`, delete the argument `modifier = Modifier.clickable { nav.navigateTo(ReleasesScreen) },` (three lines). Keep the version text.
+- Delete the whole `item { ... }` that starts with `SettingsSectionDivider(text = stringResource(R.string.product))` and ends after `TCAndPrivacyPolicy()`.
 - Delete these private composables: `IvyTelegram`, `HelpCenter`, `ReportBug`, `RequestFeature`, `ContactSupport`, `Releases`, `Contributors`, `Attributions`, `TCAndPrivacyPolicy`.
-- Remove the imports that are now unused:
+- Delete these imports, whose symbols no longer exist (otherwise the build breaks): `com.ivy.navigation.AttributionsScreen`, `com.ivy.navigation.ContributorsScreen`, `com.ivy.navigation.ReleasesScreen`.
+- Delete these imports, which are now unused (from both Task 3 and this step): `com.ivy.legacy.Constants`, `androidx.compose.ui.platform.LocalUriHandler`, `androidx.compose.ui.text.style.TextAlign`, `com.ivy.navigation.Navigation`, `com.ivy.wallet.ui.theme.Blue`, `com.ivy.wallet.ui.theme.GradientIvy`, `com.ivy.wallet.ui.theme.Red3`, `com.ivy.wallet.ui.theme.MediumBlack`. Keep `border` and `clickable`, which are still used.
 
-```bash
-f=feature/settings/src/main/java/com/ivy/settings/SettingsScreen.kt
-for s in Constants LocalUriHandler ReleasesScreen ContributorsScreen AttributionsScreen Navigation Blue TextAlign border; do echo "$s $(grep -cw "$s" $f)"; done
-```
+- [x] **Step 4: Home more-menu "open source" card**
 
-Delete the import line for each symbol whose count is `1`. Keep any symbol with a count above 1.
-
-- [ ] **Step 4: Home more-menu open-source card**
-
-`HomeMoreMenu.kt`: delete the call `OpenSource()` and the `Spacer(Modifier.height(16.dp))` directly above it. Delete the whole `private fun ColumnScope.OpenSource() { ... }` function. Then check for imports that are now unused:
-
-```bash
-f=feature/home/src/main/java/com/ivy/home/HomeMoreMenu.kt
-for s in Constants LocalUriHandler openUrl Blue; do echo "$s $(grep -cw "$s" $f)"; done
-```
-
-Delete the import line for each symbol whose count is `1`.
+`HomeMoreMenu.kt`: in `Content(...)`, delete `Spacer(Modifier.height(16.dp))` and the `OpenSource()` call below it, keeping the final `Spacer(Modifier.weight(1f))`. Delete the whole `private fun ColumnScope.OpenSource() { ... }` function. Then delete these imports, which are now unused: `androidx.compose.ui.platform.LocalUriHandler`, `com.ivy.legacy.Constants`, `com.ivy.legacy.utils.openUrl`, `com.ivy.wallet.ui.theme.Blue`.
 
 - [ ] **Step 5: Verify**
 
 Run: `scripts/verifyOffline.sh`
-Expected: every label `ok` except `ci-actions`.
+Expected: `ok` for `firebase`, `play-core` and `github-api`. `jitpack`, `ci-wiring` and `removed-paths` still FAIL. `removed-paths` now lists only `ci-actions fastlane Gemfile Gemfile.lock buildSrc/.../ivy.script.gradle.kts`.
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleDebug`
+Run: `./gradlew :app:assembleDebug`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 6: Commit**
+Run: `./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -c "io.coil-kt"`
+Expected: `0`.
+
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
-git commit -m "refactor: remove GitHub-API screens and project links"
+git commit -m "refactor: remove GitHub-API screens, attributions and project links"
 ```
 
 ---
 
-### Task 6: Remove CI, release automation and repo-bot infrastructure
+### Task 5: Remove CI, release automation and JitPack
 
 **Files:**
-- Delete: `ci-actions/`, `.github/`, `fastlane/`, `Gemfile`, `Gemfile.lock`, `buildSrc/src/main/kotlin/ivy.script.gradle.kts`
-- Modify: `settings.gradle.kts`
-- Modify: `build.gradle.kts`
-- Modify: `gradle/libs.versions.toml`
+- Delete: `ci-actions/`, `fastlane/`, `Gemfile`, `Gemfile.lock`, `buildSrc/src/main/kotlin/ivy.script.gradle.kts`, `scripts/composeStability.sh`, `scripts/composeStabilityBaseline.sh`
+- Modify: `settings.gradle.kts`, `buildSrc/build.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`, `buildSrc/src/main/kotlin/ivy.detekt.gradle.kts`, `config/detekt/config.yml`
 
 **Interfaces:**
-- Consumes: Task 5 result
-- Produces: a build with no GitHub/Play automation. `scripts/verifyOffline.sh` exits 0.
+- Consumes: Task 4 result
+- Produces: a build with no GitHub/Play automation that resolves only from Google Maven, Maven Central and the Gradle Plugin Portal. `scripts/verifyOffline.sh` exits 0.
 
-- [ ] **Step 1: Delete**
+- [x] **Step 1: Delete**
 
 ```bash
-rm -rf ci-actions .github fastlane Gemfile Gemfile.lock buildSrc/src/main/kotlin/ivy.script.gradle.kts
+rm -rf ci-actions fastlane Gemfile Gemfile.lock \
+  buildSrc/src/main/kotlin/ivy.script.gradle.kts \
+  scripts/composeStability.sh scripts/composeStabilityBaseline.sh
 ```
 
-`settings.gradle.kts`: delete:
+`settings.gradle.kts`: delete the five `include(":ci-actions:...")` lines and `        maven(url = "https://jitpack.io")`.
 
-```kotlin
-include(":ci-actions:base")
-include(":ci-actions:compose-stability")
-include(":ci-actions:issue-assign")
-include(":ci-actions:issue-create-comment")
-include(":ci-actions:pr-description-check")
-```
+`buildSrc/build.gradle.kts`: delete `    maven(url = "https://jitpack.io")`.
 
-- [ ] **Step 2: Drop the wrapper-upgrade bot plugin**
+- [x] **Step 2: Drop the wrapper-upgrade bot plugin**
 
-`build.gradle.kts`: delete `alias(libs.plugins.gradleWrapperUpgrade)` and the whole `wrapperUpgrade { ... }` block.
+`build.gradle.kts`: delete `    alias(libs.plugins.gradleWrapperUpgrade)` and the whole `wrapperUpgrade { ... }` block at the end.
 
 `gradle/libs.versions.toml`, under `[plugins]`: delete:
 
@@ -554,36 +485,52 @@ include(":ci-actions:pr-description-check")
 gradleWrapperUpgrade = { id = "org.gradle.wrapper-upgrade", version = "0.11.4" }
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Drop the JitPack-hosted detekt ruleset**
+
+`gradle/libs.versions.toml`: delete:
+
+```toml
+detekt-ruleset-ivy-explicit = { module = "com.github.Ivy-Apps:detekt-explicit", version = "v0.0.8" }
+```
+
+`buildSrc/src/main/kotlin/ivy.detekt.gradle.kts`: delete `    detektPlugins(libs.detekt.ruleset.ivy.explicit)`.
+
+`config/detekt/config.yml`: delete the trailing `IvyExplicit:` block, from that line to the end of the file. Detekt rejects config for a rule set that isn't loaded.
+
+- [ ] **Step 4: Verify**
 
 Run: `scripts/verifyOffline.sh; echo "exit=$?"`
 Expected: all six labels `ok`, `exit=0`.
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleDebug testDebugUnitTest --continue`
-Expected: `BUILD SUCCESSFUL`, or only the failures already recorded in Task 1.
+Run: `./gradlew :app:assembleDebug testDebugUnitTest --continue`
+Expected: `BUILD SUCCESSFUL`, or only the failures recorded in Task 1, minus the ones from deleted modules.
 
-- [ ] **Step 4: Commit**
+Optional: `./gradlew detekt` now runs without JitPack.
+
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
-git commit -m "chore: remove CI, fastlane and repo-bot infrastructure"
+git commit -m "chore: remove CI, fastlane, repo-bot plugin and JitPack"
 ```
 
 ---
 
-### Task 7: Pin offline exchange-rate behaviour and harden the manifest
+### Task 6: Pin offline exchange-rate behaviour and harden the manifest
 
-`SyncExchangeRatesUseCase` already returns `Left` on a network error without touching the DB. This task pins that behaviour with a JVM test so later edits can't break offline use. It also drops permissions the app never uses.
+`SyncExchangeRatesUseCase.sync` calls `repository.fetchEurExchangeRates().bind()` first, so a network error returns `Left` before anything touches the DB. Every caller (`MainViewModel`, `HomeViewModel`, `SettingsViewModel`, `ExchangeRatesViewModel`, `OnboardingRouter`) ignores the `Left`. This task pins that behaviour with a JVM test so later edits can't break offline use. It also drops permissions the app never uses.
 
 **Files:**
 - Create: `shared/domain/src/test/java/com/ivy/domain/usecase/exchange/SyncExchangeRatesOfflineTest.kt`
 - Modify: `app/src/main/AndroidManifest.xml`
 
 **Interfaces:**
-- Consumes: `SyncExchangeRatesUseCase(repository: ExchangeRatesRepository)` with `suspend fun sync(baseCurrency: AssetCode): Either<String, Unit>`. Consumes `ExchangeRatesRepository.fetchEurExchangeRates(): Either<String, List<ExchangeRate>>`, `saveManyRates(List<ExchangeRate>)` and `deleteAll()`. Consumes `AssetCode.unsafe(String)`.
+- Consumes: `SyncExchangeRatesUseCase(repository: ExchangeRatesRepository)` with `suspend fun sync(baseCurrency: AssetCode): Either<String, Unit>`, and `ExchangeRatesRepository` (a final class, which MockK can mock) with `fetchEurExchangeRates()`, `findAllManuallyOverridden()`, `saveManyRates(List<ExchangeRate>)` and `deleteAll()`. Also `AssetCode.USD`.
 - Produces: nothing new for other tasks
 
-- [ ] **Step 1: Write the test**
+- [x] **Step 1: Write the test**
+
+This follows the `shared/domain` test style: JUnit4 `@Test`, Kotest matchers, MockK.
 
 ```kotlin
 package com.ivy.domain.usecase.exchange
@@ -610,7 +557,7 @@ class SyncExchangeRatesOfflineTest {
         coEvery { repository.fetchEurExchangeRates() } returns offlineError.left()
 
         // when
-        val result = useCase.sync(AssetCode.unsafe("USD"))
+        val result = useCase.sync(AssetCode.USD)
 
         // then
         result.shouldBeLeft() shouldBe offlineError
@@ -623,10 +570,10 @@ class SyncExchangeRatesOfflineTest {
 
 - [ ] **Step 2: Run it**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :shared:domain:testDebugUnitTest --tests "com.ivy.domain.usecase.exchange.SyncExchangeRatesOfflineTest"`
-Expected: PASS. This pins behaviour the code already has. To confirm the test can fail, temporarily add `repository.deleteAll()` as the first line inside `sync`'s `either { }` block, re-run, see `FAIL` (`Verification failed: call ... deleteAll() ... was called`), then revert that line.
+Run: `./gradlew :shared:domain:testDebugUnitTest --tests "com.ivy.domain.usecase.exchange.SyncExchangeRatesOfflineTest"`
+Expected: PASS. This pins behaviour the code already has. To confirm the test can fail, temporarily add `repository.deleteAll()` as the first line inside `sync`'s `either { }` block, re-run, and see FAIL (`Verification failed: call ... deleteAll() ... was called`). Then revert that line.
 
-- [ ] **Step 3: Manifest**
+- [x] **Step 3: Manifest**
 
 `app/src/main/AndroidManifest.xml`: delete:
 
@@ -635,16 +582,14 @@ Expected: PASS. This pins behaviour the code already has. To confirm the test ca
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
-No Kotlin code reads location (`grep -rn "LOCATION" --include=*.kt .` returns nothing). Also delete the attribute line `android:usesCleartextTraffic="true"`. All four exchange-rate URLs are `https://`.
-
-Keep `INTERNET` and `ACCESS_NETWORK_STATE`.
+No Kotlin code reads location: `grep -rn "LOCATION" --include=*.kt .` returns nothing. Also delete the attribute line `android:usesCleartextTraffic="true"`, since all four exchange-rate URLs are `https://`. Keep `INTERNET` and `ACCESS_NETWORK_STATE`.
 
 - [ ] **Step 4: Verify**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleDebug :shared:domain:testDebugUnitTest`
+Run: `./gradlew :app:assembleDebug :shared:domain:testDebugUnitTest`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
@@ -653,20 +598,23 @@ git commit -m "test: pin offline exchange-rate sync; drop unused permissions"
 
 ---
 
-### Task 8: Own app identity, release signing, device QA
+### Task 7: Own app identity, release signing and device QA
 
-A self-signed APK can't replace the Play-signed `com.ivy.wallet` because the signatures differ. A distinct `applicationId` installs next to the Play version, so data can be moved across with a backup zip.
+You can't sign as the Play-signed `com.ivy.wallet`, because Android rejects an update whose signature differs. A distinct `applicationId` installs next to the Play version, so data can move across with a backup zip. `allowBackup="false"` means Android's cloud backup never covered this app, so the in-app zip is the only way to move data.
+
+Changing the id is safe. The only hardcoded `com.ivy.wallet` strings are widget intent-action names and the "import from Ivy" entry in `ImportType.appId()`, and neither is compared with the package name. The `androidx-startup` provider already uses `${applicationId}`.
 
 **Files:**
 - Modify: `app/build.gradle.kts`
-- Modify: `.gitignore`
-- Create (not committed): `keystore.properties`, `release.jks`
+- Create (not committed; already in `.gitignore` from Task 1): `keystore.properties`, `release.jks`
 
 **Interfaces:**
-- Consumes: Tasks 3–7
+- Consumes: Tasks 3–6
 - Produces: `app/build/outputs/apk/release/app-release.apk` with `applicationId = "com.ivy.wallet.offline"`. Debug builds get `com.ivy.wallet.offline.debug`.
 
-- [ ] **Step 1: Keystore (one-time, keep a backup copy outside the repo; losing it means you can't ship updates over an installed copy)**
+- [ ] **Step 1: Keystore (one-time)**
+
+Keep a backup copy outside the repo. If you lose it, you can't ship updates over an installed copy.
 
 ```bash
 keytool -genkeypair -v -keystore release.jks -alias ivy-offline \
@@ -682,21 +630,15 @@ keyAlias=ivy-offline
 keyPassword=<the password you typed>
 ```
 
-`.gitignore`: append:
+- [x] **Step 2: Wire signing and the new id**
 
-```gitignore
-/keystore.properties
-/release.jks
-```
-
-- [ ] **Step 2: Wire signing and the new id**
-
-`app/build.gradle.kts`: above `android {`, add:
+`app/build.gradle.kts`: add `import java.util.Properties` as the first line of the file. A fully qualified `java.util.Properties` doesn't work in a build script, because `java` resolves to the project's `java` extension there. Then add this above `android {`:
 
 ```kotlin
-val keystoreProps = java.util.Properties().apply {
-    val file = rootProject.file("keystore.properties")
-    if (file.exists()) file.inputStream().use(::load)
+// Release signing comes from an untracked keystore.properties at the repo root.
+val keystoreProps = Properties().apply {
+    val propsFile = rootProject.file("keystore.properties")
+    if (propsFile.exists()) propsFile.inputStream().use { load(it) }
 }
 ```
 
@@ -706,24 +648,27 @@ Inside `defaultConfig`, change `applicationId = "com.ivy.wallet"` to:
         applicationId = "com.ivy.wallet.offline"
 ```
 
-Replace the `create("release") { ... }` signing block with:
+Replace the `create("release") { ... }` signing block, which points at a `sign.jks` that isn't in the repo and at CI environment variables, with:
 
 ```kotlin
         create("release") {
-            storeFile = keystoreProps.getProperty("storeFile")?.let(rootProject::file)
+            storeFile = keystoreProps.getProperty("storeFile")?.let { rootProject.file(it) }
             storePassword = keystoreProps.getProperty("storePassword")
             keyAlias = keystoreProps.getProperty("keyAlias")
             keyPassword = keystoreProps.getProperty("keyPassword")
         }
 ```
 
-- [ ] **Step 3: Build release**
+- [ ] **Step 3: Build and inspect the release APK**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleRelease`
-Expected: `BUILD SUCCESSFUL`, `app/build/outputs/apk/release/app-release.apk` exists.
+Run: `./gradlew :app:assembleRelease`
+Expected: `BUILD SUCCESSFUL`, and `app/build/outputs/apk/release/app-release.apk` exists.
 
-Run: `~/Android/Sdk/build-tools/36.1.0/apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk | head -3`
+Run: `"$(ls -d ~/Android/Sdk/build-tools/* | tail -1)/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | head -3`
 Expected: the signer DN you entered in Step 1.
+
+Run: `unzip -l app/build/outputs/apk/release/app-release.apk | grep -c '\.so$'`
+Expected: `0`. With no native libraries, Android 15+ devices that use 16 KB memory pages need no special alignment.
 
 - [ ] **Step 4: Device QA (release APK, phone connected with USB debugging)**
 
@@ -732,24 +677,26 @@ Expected: the signer DN you entered in Step 1.
 ```
 
 Check each item and note pass/fail:
-- **Airplane-mode first launch:** turn on airplane mode → open app → disclaimer → onboarding → pick a non-EUR currency → home loads, no crash. Settings → Exchange rates shows an empty list. Add a manual rate → it appears.
-- Turn airplane mode off → reopen the app → Exchange rates fills in automatically. The manual override stays.
-- Turn airplane mode back on → restart the app → rates are still listed (not wiped).
-- Add income, expense and transfer. Home balance updates. Planned payment, budget and loan screens open.
-- Settings → Lock app ON → background the app for over 60 s → biometric/PIN prompt appears and unlocks.
-- Long-press launcher → add the "Add transaction" and "Wallet balance" widgets → both render and open the app.
+- **Airplane-mode first launch:** turn on airplane mode → open the app → disclaimer → onboarding → pick a non-EUR currency → Home loads with no crash. Settings → Exchange rates shows an empty list. Add a manual rate → it appears.
+- Turn airplane mode off → reopen the app → Exchange rates fills in automatically, and the manual override stays.
+- Turn airplane mode back on → restart the app → rates are still listed, not wiped.
+- Known edge, not a bug to fix here: removing a manual override *while offline* deletes it, and that currency pair has no rate until the next successful sync (`ExchangeRatesViewModel.handleRemoveOverride`).
+- Add an income, an expense and a transfer. The Home balance updates. The planned payment, budget, loan, report and search screens open.
+- Settings → Lock app ON → background the app for over 60 s → the biometric/PIN prompt appears and unlocks.
+- Long-press the launcher → add the "Add transaction" and "Wallet balance" widgets → both render and open the app. The quick-settings tile opens the app.
 - Settings → Backup data → zip saved. Settings → Export to CSV → file saved.
-- Home journey cards render, and tapping each one does not crash.
+- Home journey cards render, and tapping each one doesn't crash. The more-menu shows two rows (Settings/Categories/Theme/Planned and Reports/Budgets/Loans) and no GitHub card.
+- Settings shows Import/Export, App settings and Danger zone, with no "Other" or "Product" section. Tapping the version text does nothing.
 
 - [ ] **Step 5: Migrate data (only if the Play version holds real data)**
 
 On the Play version: Settings → Backup data → save the zip.
-On `com.ivy.wallet.offline`: onboarding → Import → Ivy Wallet → pick the zip → check that transaction counts and account balances match. Only then uninstall the Play version.
+On `com.ivy.wallet.offline`: onboarding → Import → Ivy Wallet → pick the zip → check that transaction counts and account balances match. Only then uninstall the Play version. While both are installed, launcher shortcuts (an implicit `ivy.wallet.intent.action.add_transaction` intent) may ask which app to open. That stops once one is uninstalled.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
-git add app/build.gradle.kts .gitignore
+git add app/build.gradle.kts
 git commit -m "build: own applicationId and local release signing"
 ```
 
@@ -757,8 +704,51 @@ git commit -m "build: own applicationId and local release signing"
 
 ## Optional follow-ups (not needed for "bare minimum")
 
-- Remove `feature/disclaimer` (a local legal gate on first launch; only matters for public distribution).
-- Remove the onboarding splash links to GitHub, T&C and privacy policy (`OnboardingSplashLogin.kt`). They are tap-to-open only and make no automatic network calls.
-- Remove `DeviceIdUseCase` (only the poll used it), the `SettingsEvent.DeleteCloudUserData` dead path, and unused string resources.
-- Remove detekt's JitPack-hosted `detekt-explicit` ruleset and its `IvyExplicit:` block in `config/detekt/config.yml`, then the `jitpack.io` repositories, so the build has one fewer third-party host.
-- Toolchain upgrade (AGP 8.10+, Kotlin 2.2+, Gradle 8.14+, compileSdk/targetSdk 35+) as its own plan. Raising targetSdk to 35 forces edge-to-edge, so expect UI inset fixes on legacy screens.
+- Remove `feature/disclaimer`, a local legal gate on first launch that only matters for public distribution. Its `OpenSourceCard` in `shared/ui/core` goes with it.
+- Remove the tap-to-open links to GitHub, T&C and privacy policy in `OnboardingSplashLogin.kt`.
+- Remove the dead "delete cloud data" path: `SettingsEvent.DeleteCloudUserData`, the `deleteCloudDataModalVisible` modal (nothing sets it to `true`) and `LogoutLogic.cloudLogout()`.
+- Delete or implement the `TODO("Not implemented")` stubs in `shared/domain`: `ExchangeUseCase`, `WalletBalanceUseCase`, `WalletStatsUseCase`, `AccountStatsUseCase`, `AccountBalanceUseCase` and `CategoryStatsUseCase`. Nothing calls them today, but injecting one into new code crashes at runtime. The working equivalents live in `temp/legacy-code` (for example `com.ivy.wallet.domain.pure.exchange`).
+- Drop the `demo` build type. It uses the same `.debug` suffix as `debug`, so the two overwrite each other.
+- Regenerate `all_modules.gv` and `docs/assets/modules-graph.svg` (`scripts/generateModulesGraph.sh`), and prune now-unused strings and drawables with lint `UnusedResources`.
+- Give the Ktor client an `HttpTimeout`. On a slow (not absent) network, changing the base currency on Home waits for up to four sequential fetch attempts before reloading.
+
+## Upgrade to latest (2026-10-28)
+
+Done after Tasks 1–7, at the user's request, on the same branch. Every version below was checked against Maven Central metadata, the official AndroidX release tables or the Compose BOM mapping. Every source API the code uses was checked against the new jars before the bump.
+
+| | Before | After |
+|---|---|---|
+| Gradle | 8.8 | 9.8.2 (wrapper pinned to the official checksum) |
+| AGP | 8.5.2 | 9.4.0, built-in Kotlin (no `kotlin-android` plugin) |
+| Kotlin / KSP | 2.0.20 / 2.0.20-1.0.24 | 2.4.21 / 2.3.12 |
+| compileSdk / targetSdk | 34 / 34 | 37 / **34** (kept, see below) |
+| Compose / Material 3 / icons | 1.6.8 / 1.2.1 / 1.6.8 | 1.12.1 / 1.4.0 / 1.7.8 (icons are frozen upstream) |
+| Hilt / Room | 2.52 / 2.6.1 | 2.60.1 / 2.8.5 (still generating Java, as before) |
+| Coroutines / Serialization / Ktor | 1.8.1 / 1.7.1 / 2.3.12 | 1.11.0 / 1.12.0 / 3.6.0 |
+| Arrow / Kotest / MockK | 1.2.4 / 5.9.1 / 1.13.12 | 2.3.0 / 6.2.6 / 1.14.11 |
+| AndroidX | activity 1.9.1, lifecycle 2.8.4, work 2.9.1, datastore 1.1.1, glance 1.1.0, appcompat 1.7.0, biometric 1.2.0-alpha05 | 1.13.0, 2.11.0, 2.12.0, 1.3.0, 1.2.0, 1.8.0, 1.4.0-alpha07 |
+| Paparazzi / Molecule | 1.3.3 / 1.4.3 plugin | 2.0.0-alpha05.1 / 2.2.0 runtime |
+
+Code changes needed by the new majors: `.orNull()` → `.getOrNull()`, `arrow.core.computations.option` → `arrow.core.raise.option`, `NonEmptyList.fromListUnsafe` → `toNonEmptyListOrNull()`, and Kotest's `runBlocking` → the kotlinx one.
+
+Decisions:
+- **`targetSdk` stays 34.** It isn't a library, and raising it changes app behaviour on the device. At 35, edge-to-edge is enforced (`RootActivity` already calls `enableEdgeToEdge()`, but check insets on the legacy screens). At 36, **`onBackPressed()` stops being called**, and `RootActivity` routes all in-app back navigation through it, so move that to `OnBackPressedDispatcher`/`BackHandler` first. Do it with a phone at hand.
+- **Kover was removed.** 0.9.11 still reads `applicationVariants`, which AGP 9 removed, and nothing used the coverage reports any more.
+- **Paparazzi moved to the 2.0 alpha.** 1.3.5, the last stable release, uses AGP's removed `BaseExtension`. The 44 committed reference images predate the Compose upgrade, so re-record them once the screenshots have been reviewed (`./gradlew recordPaparazziDebug`).
+- **detekt stays at 1.23.8**, the latest stable release, with its rule sets. Only the 2.0 alpha officially supports Kotlin 2.4. 1.23.8 doesn't break the build, because its Android hook needs the `kotlin-android` plugin, which is gone. But `./gradlew detekt` may not parse code that uses newer Kotlin syntax.
+- **Material Components is 1.13.0**, the newest stable release that could be confirmed.
+- **Biometric is 1.4.0-alpha07.** The project was already on an alpha, and `BiometricPrompt` is unchanged. Re-check the app lock on a device.
+
+Verification lives in CI (`.github/workflows/build.yml`). The build job compiles the debug and R8-minified APKs and audits the shipped libraries. The test job runs the unit tests. The device job launches both APKs on an emulator and runs the instrumented Room-migration, backup and exchange-rate tests.
+
+## Offline audit (2026-10-28)
+
+Checked after CI went green on the upgraded stack.
+
+- **Network.** The only HTTP code is `RemoteExchangeRatesDataSourceImpl` with the client from `KtorClientModule`, both in `shared:data:core`. It reads two mirrors of the free currency API (`currency-api.pages.dev`, `cdn.jsdelivr.net`), needs no key, and a failure leaves the stored rates untouched (`SyncExchangeRatesOfflineTest`). `app`, `shared:domain` and `temp:legacy-code` declared Ktor without using it; only `shared:data:core` does now, and `INTERNET` comes only from its manifest. `verifyOffline.sh` enforces both (`network-boundary`).
+- **Shipped libraries.** `scripts/auditRuntimeDependencies.sh` (a CI step) lists everything Gradle resolves for the release APK, transitive libraries included. It fails on Firebase, Play services, ads, billing or tracking SDKs. Removed as unused: `ktor-client-serialization` and `material3-window-size-class`. Everything else in the catalog is used by code.
+- **Permissions.** Removed `SET_ALARM`, `DISABLE_KEYGUARD`, `VIBRATE`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `requestLegacyExternalStorage` and `ACCESS_NETWORK_STATE`. No code used them, the app never requested them at runtime, and files go through the system picker. Cloud backup was already off (`allowBackup="false"`).
+- **Links.** Removed the splash screen's "By signing in, you accept our Terms & Conditions and Privacy Policy". Those are the original publisher's documents for its Play Store app, and this build has no sign-in. Also removed the unused Telegram, Sponsors, Play Store and issue-tracker URLs. Kept: the "Open source" link to the upstream repository (attribution) and the CSV-import help links to other apps' export guides. Each opens the browser only when tapped.
+- **CI annotations.** "Node.js 20 is deprecated" (upload/download-artifact v4, setup-gradle v4) and "ubuntu-latest will migrate to Ubuntu 26". Every action is now on its newest Node 24 major, and jobs pin `ubuntu-26.04`. setup-gradle v6 uses its MIT "basic" cache instead of the default proprietary one. Only the test job saves it.
+
+Known gap, not changed: `POST_NOTIFICATIONS` is declared, but the app never asks for it at runtime. On Android 13+, reminder notifications stay off until they are enabled in system settings.

@@ -152,7 +152,6 @@
     <string name="swipe_to_agree_privacy_policy">滑動即可同意我們的隱私權政策</string>
     <string name="agreed_privacy_policy">同意我們的隱私權政策</string>
     <string name="terms_and_conditions">條款與條件</string>
-    <string name="privacy_policy">隱私權政策</string>
     <string name="wallet_description">使用 Ivy 追蹤您的收入、支出和預算。\n\n直觀的介面、定期付款和經常交易、管理多個帳戶、按類別組織交易、強大的統計數據、匯出到 CSV 等等。</string>
     <string name="enter_your_name">輸入您的姓名\n以個性化您的\n錢包</string>
     <string name="what_is_your_name">你叫什麼名字?</string>
@@ -174,8 +173,6 @@
     <string name="data_integrity_protection_warning">無法保證資料完整性和保護!</string>
     <string name="or_enter_with_offline_account">或使用離線帳戶輸入</string>
     <string name="offline_warning">您的資料將僅保存在本地，不會與雲端同步。解除安裝應用程式或更換裝置可能會導致資料遺失。如果需要，您可以稍後啟用同步。</string>
-    <string name="terms_conditions"><![CDATA[條款與條件]]></string>
-    <string name="by_signing_in">登入即表示您接受我們的 %1$s 和 %2$s。</string>
     <string name="import_csv_file">導入 CSV 檔案</string>
     <string name="from_ivy_or_another_app">來自 Ivy 或其他應用程式</string>
     <string name="importing_another_time_warning">從其他應用程式匯入備份檔案可能需要 5 分鐘。如果您願意，您可以隨時匯入資料。</string>

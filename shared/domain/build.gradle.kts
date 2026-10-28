@@ -13,12 +13,13 @@ dependencies {
     implementation(projects.shared.data.core)
 
     implementation(libs.datastore)
-    implementation(libs.bundles.ktor)
     implementation(libs.bundles.opencsv)
 
     testImplementation(projects.shared.data.modelTesting)
     testImplementation(projects.shared.data.coreTesting)
 
     androidTestImplementation(libs.bundles.integration.testing)
+    // The live exchange-rate test builds the real HTTP client from shared:data:core
+    androidTestImplementation(libs.bundles.ktor)
     androidTestImplementation(libs.mockk.android)
 }

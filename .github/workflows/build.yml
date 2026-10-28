@@ -1,0 +1,208 @@
+# Builds Ivy Wallet (offline) on every push and publishes signed APKs for v* tags.
+#
+# Every push: offline guard script, debug APK, R8-minified "demo" APK (signed with the
+# committed debug key) and, in parallel, unit tests. The APKs are attached to the run as
+# the "apks" artifact. The "device" job then launches both APKs on an emulator and runs the
+# instrumented tests; launch screenshots are in its "device-results" artifact.
+#
+# Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
+# gradle/libs.versions.toml first, or Android refuses to install it as an update), or start
+# the workflow by hand from the Actions tab. That needs four repository secrets
+# (Settings -> Secrets and variables -> Actions):
+#   RELEASE_KEYSTORE_BASE64  output of: base64 -w0 release.jks
+#   RELEASE_STORE_PASSWORD   keystore password
+#   RELEASE_KEY_ALIAS        e.g. ivy-offline
+#   RELEASE_KEY_PASSWORD     key password
+# Use the same release.jks as your local builds, so CI and local APKs update each other.
+#
+# Jobs run on an explicit Ubuntu 26.04 image rather than ubuntu-latest, so an image switch
+# never changes the build without a commit here.
+name: Build
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          # Open-source (MIT) cache: one entry per hash of the build files. Only the
+          # "test" job saves it; parallel jobs saving the same key collide and warn.
+          cache-provider: basic
+          cache-read-only: true
+
+      - name: Offline guard
+        run: scripts/verifyOffline.sh
+
+      - name: Build debug and minified APKs
+        run: ./gradlew :app:assembleDebug :app:assembleDemo --continue
+
+      - name: Audit shipped libraries
+        run: scripts/auditRuntimeDependencies.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: apks
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/demo/*.apk
+
+  # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
+  test:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          # Save from every branch, not only the default one, so later runs skip the
+          # ~10 min plugin download. This job resolves almost everything the others need.
+          cache-read-only: false
+
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --continue
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'
+
+  # Runs the app on an emulator: launches both APKs on a fresh install (catches startup
+  # crashes from R8, Hilt, Room) and runs the instrumented database-migration, backup and
+  # exchange-rate tests.
+  device:
+    needs: build
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: apks
+          path: apks
+
+      # The emulator's userdata partition needs several GB; the runner image ships toolchains
+      # this job never uses, so drop them first (run 5 failed with "Not enough space").
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost "$AGENT_TOOLSDIRECTORY/CodeQL"
+          df -h /
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Smoke test and instrumented tests on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disk-size: 3072M
+          disable-animations: true
+          script: |
+            scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
+            ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: device-results
+          path: |
+            build/smoke/
+            **/build/reports/androidTests/
+          if-no-files-found: ignore
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: [build, test]
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - name: Restore release key
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "::error::Add the RELEASE_* secrets described at the top of build.yml first."
+            exit 1
+          fi
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release.jks
+          cat > keystore.properties <<EOF
+          storeFile=release.jks
+          storePassword=$RELEASE_STORE_PASSWORD
+          keyAlias=$RELEASE_KEY_ALIAS
+          keyPassword=$RELEASE_KEY_PASSWORD
+          EOF
+
+      - name: Build signed release APK
+        run: ./gradlew :app:assembleRelease
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME"
+          app/build/outputs/apk/release/app-release.apk
+          --title "$GITHUB_REF_NAME" --generate-notes

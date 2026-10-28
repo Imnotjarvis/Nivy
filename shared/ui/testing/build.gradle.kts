@@ -13,4 +13,6 @@ dependencies {
     // because it'll be added as "testImplementation"
     implementation(libs.bundles.testing)
     implementation(libs.paparazzi)
+    // Molecule 2 ships no Gradle plugin; ComposeViewModelTest uses its runtime directly.
+    implementation(libs.cashapp.molecule.runtime)
 }

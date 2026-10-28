@@ -149,7 +149,6 @@
     <string name="swipe_to_agree_privacy_policy">ನಮ್ಮ ಪ್ರೈವಸಿ ನೀತಿಯನ್ನು ಒಪ್ಪಿಕೊಳ್ಳಲು ಸ್ವೈಪ್ ಮಾಡಿ</string>
     <string name="agreed_privacy_policy">ನಮ್ಮ ಪ್ರೈವಸಿ ನೀತಿಗೆ ಸಮ್ಮತಿಸಲಾಗಿದೆ</string>
     <string name="terms_and_conditions">ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು</string>
-    <string name="privacy_policy">ಪ್ರೈವಸಿ ನೀತಿ</string>
     <string name="wallet_description">ಐವಿಯೊಂದಿಗೆ ನಿಮ್ಮ ಆದಾಯ, ಖರ್ಚು ಮತ್ತು ಬಜೆಟ್ ಅನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.\n\nಅರ್ಥಗರ್ಭಿತ UI, ಮರುಕಳಿಸುವ ಮತ್ತು ಯೋಜಿತ ಪಾವತಿಗಳು, ಅನೇಕ ಖಾತೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ, ವರ್ಗಗಳಲ್ಲಿ ವಹಿವಾಟುಗಳನ್ನು ಆಯೋಜಿಸಿ, ಅರ್ಥಪೂರ್ಣ ಅಂಕಿಅಂಶಗಳು, CSV ಗೆ ರಫ್ತು ಮತ್ತು ಇನ್ನೂ ಹೆಚ್ಚು</string>
     <string name="enter_your_name">ನಿಮ್ಮ ವ್ಯಾಲೆಟ್ ಅನ್ನು ವೈಯಕ್ತೀಕರಿಸಲು\nನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ</string>
     <string name="what_is_your_name">ನಿಮ್ಮ ಹೆಸರೇನು?</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">ಡೇಟಾ ಸಮಗ್ರತೆ ಮತ್ತು ರಕ್ಷಣೆಗೆ ಖಾತರಿಯಿಲ್ಲ!</string>
     <string name="or_enter_with_offline_account">ಅಥವಾ ಆಫ್‌ಲೈನ್ ಖಾತೆಯೊಂದಿಗೆ ನಮೂದಿಸಿ</string>
     <string name="offline_warning">ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಸ್ಥಳೀಯವಾಗಿ ಉಳಿಸಲಾಗುತ್ತದೆ (ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ ಮಾತ್ರ) ಮತ್ತು ಕ್ಲೌಡ್‌ನೊಂದಿಗೆ ಸಿಂಕ್ ಆಗುವುದಿಲ್ಲ. ನೀವು ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿದರೆ ಅಥವಾ ನಿಮ್ಮ ಸಾಧನವನ್ನು ಬದಲಾಯಿಸಿದರೆ ನೀವು ಅದನ್ನು ಕಳೆದುಕೊಳ್ಳುವ ಅಪಾಯವಿದೆ. ನೀವು ನಿರ್ಧರಿಸಿದರೆ ನೀವು ಯಾವಾಗಲೂ ಸಿಂಕ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು.</string>
-    <string name="terms_conditions"><![CDATA[ನಿಯಮ ಮತ್ತು ಶರತ್ತುಗಳು]]></string>
-    <string name="by_signing_in">ಸೈನ್ ಇನ್ ಮಾಡುವ ಮೂಲಕ, ನೀವು ನಮ್ಮೊಂದಿಗೆ ಸಮ್ಮತಿಸುತ್ತೀರಿ %1$s ಮತ್ತು %2$s.</string>
     <string name="import_csv_file">CSV ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿ</string>
     <string name="from_ivy_or_another_app">Ivy ಅಥವಾ ಇನ್ನೊಂದು ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ</string>
     <string name="importing_another_time_warning">ಇನ್ನೊಂದರಿಂದ ಬ್ಯಾಕಪ್ ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಲು 5 ನಿಮಿಷಗಳವರೆಗೆ ತೆಗೆದುಕೊಳ್ಳಬಹುದು. ನೀವು ಬಯಸಿದಲ್ಲಿ ಯಾವಾಗಲೂ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಬಹುದು.</string>

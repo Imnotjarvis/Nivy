@@ -149,7 +149,6 @@
     <string name="swipe_to_agree_privacy_policy">اسحب للموافقة على سياسة الخصوصية</string>
     <string name="agreed_privacy_policy">تمت الموافقة على سياسة الخصوصية</string>
     <string name="terms_and_conditions">الشروط و الأحكام</string>
-    <string name="privacy_policy">سياسة الخصوصية</string>
     <string name="wallet_description">تتبع دخلك, إنفاقك و ميزانيتك مع Ivy.\n\n تصميم أنيق, دفعات مخططة و متكررة, أدِر حسابات متعددة, نظم المعاملات في فئات, إحصائيات معبرة, صدّر المعاملات الى ملف csv و أكثر.</string>
     <string name="enter_your_name">أدخل اسمك\n لتخصيص محفظتك</string>
     <string name="what_is_your_name">ما اسمك؟</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">سلامة و حماية البيانات غير مضمونة!</string>
     <string name="or_enter_with_offline_account">أو الدخول بحساب غير متصل على الانترنت</string>
     <string name="offline_warning">سوف يتم حفظ بياناتك محليا على جهازك و لن يتم مزامنتها مع السحابة. انت تخاطر بخسارة ملفاتك إذا ألغيت تثبيت التطبيق أو غيرت جهازك. يمكنك دائما تفعيل المزامنة لاحقا في حال تغيير رأيك.</string>
-    <string name="terms_conditions">الشروط و الأحكام</string>
-    <string name="by_signing_in">بتسجيل الدخول انت توافق على %1$s و %2$s.</string>
     <string name="import_csv_file">CSV إستيراد ملف</string>
     <string name="from_ivy_or_another_app">Ivy من تطبيق اخر او من </string>
     <string name="importing_another_time_warning">استيراد ملف نسخ احتياطي من تطبيق اخر يمكن ان يستغرق حتى 5 دقائق. يمكنك دائمًا استيراد البيانات لاحقًا اذا اردت.</string>

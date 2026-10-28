@@ -1,0 +1,18 @@
+# Gradle / Android build output
+.gradle/
+build/
+/local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Release signing (Task 7)
+/keystore.properties
+/release.jks
