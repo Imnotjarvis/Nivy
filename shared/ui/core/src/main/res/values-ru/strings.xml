@@ -149,7 +149,6 @@
     <string name="swipe_to_agree_privacy_policy">Смахните, чтобы согласиться с наший политикой конфиденциальности</string>
     <string name="agreed_privacy_policy">Согласен с политикой конфиденциальности</string>
     <string name="terms_and_conditions">Условия</string>
-    <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="wallet_description">Отслеживайте ваши доходы, расходы и бюджет с Ivy.\n\nИнтуитивно понятный интерфейс, регулярные и запланированные платежи, управляй несколькими счетами, организуй транзакции по категориям, используй полезную статистику, экспортируй в CSV и многое другое.</string>
     <string name="enter_your_name">Для персонализации вашего кошелька введите своё имя</string>
     <string name="what_is_your_name">Как вас зовут?</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">Целостность и защищённость данных не гарантирована!</string>
     <string name="or_enter_with_offline_account">ИЛИ ВОЙДИТЕ ЧЕРЕЗ ОФФЛАЙН АККАУНТ</string>
     <string name="offline_warning">Ваши данные будут сохранены локально (на вашем телефоне) и не будут синхронизированы в облаке. Вы рискуете потерять данные, если удалите приложение или смените устройство. Вы всегда можете активировать синхронизацию позже.</string>
-    <string name="terms_conditions"><![CDATA[Условия и Положения]]></string>
-    <string name="by_signing_in">Входя в систему, вы поглашаетесь с %1$s и %2$s.</string>
     <string name="import_csv_file">Загрузите CSV файл</string>
     <string name="from_ivy_or_another_app">из Ivy или другого приложения</string>
     <string name="importing_another_time_warning">Загрузка бэкап файла из другого приложения может занять до 5 минут. Вы всегда можете загрузить данные позже.</string>

@@ -149,7 +149,6 @@
     <string name="swipe_to_agree_privacy_policy">Swipe to agree with our Privacy policy</string>
     <string name="agreed_privacy_policy">Agreed with our Privacy policy</string>
     <string name="terms_and_conditions">Общи условия</string>
-    <string name="privacy_policy">Privacy policy</string>
     <string name="wallet_description">Track your income, expenses and budget with Ivy.\n\nIntuitive UI, recurring and planned payments, manage multiple accounts, organize transactions in categories, meaningful statistics, export to CSV and so much more.</string>
     <string name="enter_your_name">Enter your name\nto personalize your\nwallet</string>
     <string name="what_is_your_name">What\'s your name?</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">Сигурността на данните не е гарантирана!</string>
     <string name="or_enter_with_offline_account">ИЛИ ВЛЕЗ С ОФЛАЙН АКАУНТ</string>
     <string name="offline_warning">Данните ти ще бъдат съхванявани само локално, на устройството. Има риск да ги загубите.</string>
-    <string name="terms_conditions"><![CDATA[Общи условия]]></string>
-    <string name="by_signing_in">By signing in, you agree with our %1$s and %2$s.</string>
     <string name="import_csv_file">Импортирай CSV файл</string>
     <string name="from_ivy_or_another_app">от Ivy Wallet или друго приложение</string>
     <string name="importing_another_time_warning">Импортирай файл за възстановяване.</string>

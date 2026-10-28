@@ -147,7 +147,6 @@
     <string name="agreed_terms_conditions">हमारे नियमों और शर्तों से सहमत</string>
     <string name="swipe_to_agree_privacy_policy">हमारी गोपनीयता नीति से सहमत होने के लिए स्वाइप करें</string>
     <string name="terms_and_conditions">नियम और शर्तें</string>
-    <string name="privacy_policy">प्राइवेसी पालिसी</string>
     <string name="what_is_your_name">आपका क्या नाम है?</string>
     <string name="enter">दाखिल करना</string>
     <string name="add_accounts">खाते जोड़ें</string>
@@ -166,8 +165,6 @@
     <string name="sync_data_ivy_cloud">Ivy क्लाउड पर अपना डेटा सिंक करें</string>
     <string name="data_integrity_protection_warning">डेटा अखंडता और सुरक्षा की गारंटी नहीं है!</string>
     <string name="or_enter_with_offline_account">या ऑफ़लाइन खाते से दर्ज करें</string>
-    <string name="terms_conditions"><![CDATA[नियम और शर्तें]]></string>
-    <string name="by_signing_in">साइन इन करके, आप हमारे %1$s और %2$s से सहमत हो रहे है।</string>
     <string name="import_csv_file">CSV फाइल इम्पोर्ट करे</string>
     <string name="from_ivy_or_another_app">Ivy या किसी अन्य ऐप से</string>
     <string name="import_backup_file">बैकअप फ़ाइल इम्पोर्ट करें</string>

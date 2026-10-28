@@ -150,7 +150,6 @@
     <string name="swipe_to_agree_privacy_policy">Geser untuk menyetujui Kebijakan Privasi kami</string>
     <string name="agreed_privacy_policy">Setuju dengan Kebijakan Privasi kami</string>
     <string name="terms_and_conditions">Syarat dan Ketentuan</string>
-    <string name="privacy_policy">Kebijakan Privasi</string>
     <string name="wallet_description">Lacak pendapatan, pengeluaran, dan anggaran Anda dengan Ivy.\n\nAntarmuka pengguna intuitif, pembayaran berulang dan terencana, kelola beberapa akun, atur transaksi dalam kategori, statistik bermakna, ekspor ke CSV, dan banyak lagi.</string>
     <string name="enter_your_name">Masukkan nama anda\nuntuk personalisasi\ndompet Anda</string>
     <string name="what_is_your_name">Apa nama Anda?</string>
@@ -172,8 +171,6 @@
     <string name="data_integrity_protection_warning">Integritas data dan perlindungan tidak dijamin!</string>
     <string name="or_enter_with_offline_account">ATAU MASUK DENGAN AKUN OFFLINE</string>
     <string name="offline_warning">Data Anda akan disimpan secara lokal (hanya di ponsel Anda) dan tidak akan disinkronkan dengan cloud. Anda berisiko kehilangannya jika Anda menghapus aplikasi atau mengganti perangkat. Anda selalu dapat mengaktifkan sinkronisasi nanti jika Anda memutuskan.</string>
-    <string name="terms_conditions"><![CDATA[Syarat & Ketentuan]]></string>
-    <string name="by_signing_in">Dengan masuk, Anda menyetujui %1$s dan %2$s kami.</string>
     <string name="import_csv_file">Impor File CSV</string>
     <string name="from_ivy_or_another_app">dari Ivy atau aplikasi lainnya</string>
     <string name="importing_another_time_warning">Mengimpor file cadangan dari aplikasi lain dapat memakan waktu hingga 5 menit. Anda selalu dapat mengimpor data Anda nanti jika Anda menginginkannya.</string>

@@ -155,7 +155,6 @@ dependencies {
 
     implementation(libs.bundles.kotlin)
     implementation(libs.bundles.kotlin.android)
-    implementation(libs.bundles.ktor)
     implementation(libs.bundles.arrow)
     implementation(libs.bundles.compose)
     implementation(libs.bundles.activity)

@@ -150,7 +150,6 @@
     <string name="swipe_to_agree_privacy_policy">滑动以同意我们的隐私政策</string>
     <string name="agreed_privacy_policy">已同意我们的隐私政策</string>
     <string name="terms_and_conditions">条款和条件</string>
-    <string name="privacy_policy">隐私政策</string>
     <string name="wallet_description">使用 Ivy 记录您的收入、支出和预算。\n\n直观的界面，循环和计划支付，管理多个账户，按类别组织交易，强大的统计数据，导出为 CSV 等等。</string>
     <string name="enter_your_name">输入您的姓名\n以个性化您的\n钱包</string>
     <string name="what_is_your_name">您叫什么名字？</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">数据完整性和保护无法得到保证！</string>
     <string name="or_enter_with_offline_account">或使用离线账户登录</string>
     <string name="offline_warning">您的数据仅在本地保存，不会与云端同步。卸载应用程序或更换设备可能导致数据丢失。如果需要，您可以随后启用同步功能。</string>
-    <string name="terms_conditions"><![CDATA[条款和条件]]></string>
-    <string name="by_signing_in">登录代表着您接受我们的%1$s和%2$s。</string>
     <string name="import_csv_file">导入 CSV 文件</string>
     <string name="from_ivy_or_another_app">从 Ivy 或其他应用程序导入</string>
     <string name="importing_another_time_warning">导入来自其他应用的备份文件可能需要最多 5 分钟。如果您愿意，您随时可以稍后导入您的数据。</string>

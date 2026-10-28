@@ -149,7 +149,6 @@
     <string name="swipe_to_agree_privacy_policy">Desliza para aceptar nuestra política de privacidad</string>
     <string name="agreed_privacy_policy">De acuerdo con nuestra política de privacidad</string>
     <string name="terms_and_conditions">Términos y condiciones</string>
-    <string name="privacy_policy">Política de privacidad</string>
     <string name="wallet_description">Realice un seguimiento de sus ingresos, gastos y presupuesto con Ivy.\n\nInterfaz de usuario intuitiva, pagos recurrentes y planificados, administre múltiples cuentas, organice transacciones en categorías, estadísticas significativas, exporte a CSV y mucho más.</string>
     <string name="enter_your_name">Introduce tu nombre\npara personalizar tu\nbilletera</string>
     <string name="what_is_your_name">¿Cuál es tu nombre?</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">¡La integridad y la protección de los datos no están garantizadas!</string>
     <string name="or_enter_with_offline_account">O ENTRAR CON UNA CUENTA OFFLINE</string>
     <string name="offline_warning">Sus datos se guardarán localmente (solo en su teléfono) y no se sincronizarán con la nube. Corre el riesgo de perderlo si desinstala la aplicación o cambia su dispositivo. Siempre puedes activar la sincronización más tarde si decides.</string>
-    <string name="terms_conditions"><![CDATA[Términos y condiciones]]></string>
-    <string name="by_signing_in">Al iniciar sesión, acepta nuestros %1$s y %2$s.</string>
     <string name="import_csv_file">Importar archivo CSV</string>
     <string name="from_ivy_or_another_app">de Ivy u otra aplicación</string>
     <string name="importing_another_time_warning">La importación de un archivo de copia de seguridad desde otro puede tardar hasta 5 minutos. Siempre puede importar sus datos más tarde si lo desea.</string>

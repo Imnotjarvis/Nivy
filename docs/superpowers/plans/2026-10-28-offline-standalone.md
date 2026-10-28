@@ -739,4 +739,16 @@ Decisions:
 - **Material Components is 1.13.0**, the newest stable release that could be confirmed.
 - **Biometric is 1.4.0-alpha07.** The project was already on an alpha, and `BiometricPrompt` is unchanged. Re-check the app lock on a device.
 
-Verification lives in CI (`.github/workflows/build.yml`). The build job compiles the debug and R8-minified APKs and runs the unit tests. The device job launches both APKs on an emulator and runs the instrumented Room-migration, backup and exchange-rate tests.
+Verification lives in CI (`.github/workflows/build.yml`). The build job compiles the debug and R8-minified APKs and audits the shipped libraries. The test job runs the unit tests. The device job launches both APKs on an emulator and runs the instrumented Room-migration, backup and exchange-rate tests.
+
+## Offline audit (2026-10-28)
+
+Checked after CI went green on the upgraded stack.
+
+- **Network.** The only HTTP code is `RemoteExchangeRatesDataSourceImpl` with the client from `KtorClientModule`, both in `shared:data:core`. It reads two mirrors of the free currency API (`currency-api.pages.dev`, `cdn.jsdelivr.net`), needs no key, and a failure leaves the stored rates untouched (`SyncExchangeRatesOfflineTest`). `app`, `shared:domain` and `temp:legacy-code` declared Ktor without using it; only `shared:data:core` does now, and `INTERNET` comes only from its manifest. `verifyOffline.sh` enforces both (`network-boundary`).
+- **Shipped libraries.** `scripts/auditRuntimeDependencies.sh` (a CI step) lists everything Gradle resolves for the release APK, transitive libraries included. It fails on Firebase, Play services, ads, billing or tracking SDKs. Removed as unused: `ktor-client-serialization` and `material3-window-size-class`. Everything else in the catalog is used by code.
+- **Permissions.** Removed `SET_ALARM`, `DISABLE_KEYGUARD`, `VIBRATE`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `requestLegacyExternalStorage` and `ACCESS_NETWORK_STATE`. No code used them, the app never requested them at runtime, and files go through the system picker. Cloud backup was already off (`allowBackup="false"`).
+- **Links.** Removed the splash screen's "By signing in, you accept our Terms & Conditions and Privacy Policy". Those are the original publisher's documents for its Play Store app, and this build has no sign-in. Also removed the unused Telegram, Sponsors, Play Store and issue-tracker URLs. Kept: the "Open source" link to the upstream repository (attribution) and the CSV-import help links to other apps' export guides. Each opens the browser only when tapped.
+- **CI annotations.** "Node.js 20 is deprecated" (upload/download-artifact v4, setup-gradle v4) and "ubuntu-latest will migrate to Ubuntu 26". Every action is now on its newest Node 24 major, and jobs pin `ubuntu-26.04`. setup-gradle v6 uses its MIT "basic" cache instead of the default proprietary one. Only the test job saves it.
+
+Known gap, not changed: `POST_NOTIFICATIONS` is declared, but the app never asks for it at runtime. On Android 13+, reminder notifications stay off until they are enabled in system settings.

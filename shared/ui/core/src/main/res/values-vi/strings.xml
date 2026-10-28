@@ -150,7 +150,6 @@
     <string name="swipe_to_agree_privacy_policy">Vuốt để đồng ý với Chính sách quyền riêng tư của chúng tôi</string>
     <string name="agreed_privacy_policy">Đồng ý với Chính sách quyền riêng tư của chúng tôi</string>
     <string name="terms_and_conditions">Các điều khoản và điều kiện</string>
-    <string name="privacy_policy">Chính sách bảo mật</string>
     <string name="wallet_description">Theo dõi thu nhập, chi phí và ngân sách của bạn với Ivy.\n\nGiao diện trực quan, thanh toán định kỳ và theo kế hoạch, quản lý nhiều tài khoản, sắp xếp giao dịch theo danh mục, số liệu thống kê mạnh mẽ, xuất file sang CSV và hơn thế nữa.</string>
     <string name="enter_your_name">Nhập tên \để cá nhân hóa\ví của bạn</string>
     <string name="what_is_your_name">Bạn tên là gì?</string>
@@ -171,8 +170,6 @@
     <string name="data_integrity_protection_warning">Tính toàn vẹn và bảo mật dữ liệu không được đảm bảo!</string>
     <string name="or_enter_with_offline_account">HOẶC THAM GIA BẰNG TÀI KHOẢN NGOẠI TUYẾN</string>
     <string name="offline_warning">Dữ liệu của bạn sẽ chỉ được lưu trữ trên bộ nhớ máy và không được đồng bộ hóa với cloud. Gỡ bỏ ứng dụng hoặc thay đổi thiết bị có thể dẫn đến mất dữ liệu. Bạn có thể bật đồng bộ sau này nếu cần.</string>
-    <string name="terms_conditions"><![CDATA[Điều khoản & Điều kiện]]></string>
-    <string name="by_signing_in">Bằng cách đăng nhập, bạn sẽ chấp nhận %1$s và %2$s của chúng tôi.</string>
     <string name="import_csv_file">Tải lên tệp CSV</string>
     <string name="from_ivy_or_another_app">từ Ivy hoặc ứng dụng khác</string>
     <string name="importing_another_time_warning">Việc tải tệp sao lưu từ ứng dụng khác có thể mất tối đa 5 phút. Bạn luôn có thể tải lên dữ liệu của mình sau này nếu muốn.</string>
