@@ -35,6 +35,8 @@ Unticked steps need a machine that can reach Google Maven, or your phone:
 - **The Gradle half of each Verify step** (Task 3 Step 8, Task 4 Step 5, Task 5 Step 4, Task 6 Steps 2 and 4). The guard-script half passed.
 - **Task 7 Steps 1 and 3–5:** your keystore, the release build, device QA and data migration.
 
+One change beyond the plan: `include(":shared:common-ui")` was dropped from `settings.gradle.kts`. That directory doesn't exist and nothing uses it. Gradle 8.8 only warns about such an include, but Gradle 9 rejects it.
+
 Run these in order: `./gradlew :app:assembleDebug`, then `./gradlew testDebugUnitTest --continue`, then Task 7 Step 1. Until `keystore.properties` exists, `assembleRelease` fails at signing. Debug builds don't need it.
 
 ## What stays, what goes
