@@ -1,0 +1,115 @@
+# Builds Ivy Wallet (offline) on every push and publishes signed APKs for v* tags.
+#
+# Every push: offline guard script, debug APK, R8-minified "demo" APK (signed with the
+# committed debug key) and unit tests. The APKs are attached to the run as the "apks"
+# artifact.
+#
+# Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
+# gradle/libs.versions.toml first, or Android refuses to install it as an update), or start
+# the workflow by hand from the Actions tab. That needs four repository secrets
+# (Settings -> Secrets and variables -> Actions):
+#   RELEASE_KEYSTORE_BASE64  output of: base64 -w0 release.jks
+#   RELEASE_STORE_PASSWORD   keystore password
+#   RELEASE_KEY_ALIAS        e.g. ivy-offline
+#   RELEASE_KEY_PASSWORD     key password
+# Use the same release.jks as your local builds, so CI and local APKs update each other.
+name: Build
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Offline guard
+        run: scripts/verifyOffline.sh
+
+      - name: Build debug and minified APKs
+        run: ./gradlew :app:assembleDebug :app:assembleDemo
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/demo/*.apk
+
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --continue
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore release key
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "::error::Add the RELEASE_* secrets described at the top of build.yml first."
+            exit 1
+          fi
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release.jks
+          cat > keystore.properties <<EOF
+          storeFile=release.jks
+          storePassword=$RELEASE_STORE_PASSWORD
+          keyAlias=$RELEASE_KEY_ALIAS
+          keyPassword=$RELEASE_KEY_PASSWORD
+          EOF
+
+      - name: Build signed release APK
+        run: ./gradlew :app:assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME"
+          app/build/outputs/apk/release/app-release.apk
+          --title "$GITHUB_REF_NAME" --generate-notes

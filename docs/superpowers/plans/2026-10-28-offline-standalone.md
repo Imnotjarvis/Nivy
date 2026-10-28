@@ -37,6 +37,8 @@ Unticked steps need a machine that can reach Google Maven, or your phone:
 
 One change beyond the plan: `include(":shared:common-ui")` was dropped from `settings.gradle.kts`. That directory doesn't exist and nothing uses it. Gradle 8.8 only warns about such an include, but Gradle 9 rejects it.
 
+A GitHub Actions build was added afterwards (`.github/workflows/build.yml`). It is your own CI, not upstream's: it runs the guard script, builds the debug APK and the R8-minified `demo` APK, and runs the unit tests on every push. On `v*` tags it also builds a signed release APK and publishes it as a GitHub release. The file header lists the secrets this needs.
+
 Run these in order: `./gradlew :app:assembleDebug`, then `./gradlew testDebugUnitTest --continue`, then Task 7 Step 1. Until `keystore.properties` exists, `assembleRelease` fails at signing. Debug builds don't need it.
 
 ## What stays, what goes
