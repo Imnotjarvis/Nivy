@@ -6,7 +6,7 @@
 
 **Architecture:** The app already stores everything locally (Room DB v130 with exported schemas, DataStore, SharedPrefs, a local zip backup, WorkManager reminders, Glance widgets). Cloud sync was already removed upstream. So this plan only *removes* things: Firebase Crashlytics and Play Core from the build, three leaf feature modules that call `api.github.com` or only link to upstream channels, the CI/release tooling, and the UI entry points that pointed at them. Nothing that reads or writes user data changes, so existing backups still import. A grep-based guard script is the "test" for each removal.
 
-**Tech Stack:** Kotlin 2.0.20, AGP 8.5.2, Gradle 8.8, Jetpack Compose 1.6.8, Hilt 2.52, Room 2.6.1, Ktor 2.3.12 (exchange rates only), Arrow 1.2.4, Kotest + MockK + Paparazzi.
+**Tech Stack:** Kotlin 2.0.20, AGP 8.5.2, Gradle 8.8, Jetpack Compose 1.6.8, Hilt 2.52, Room 2.6.1, Ktor 2.3.12 (exchange rates only), Arrow 1.2.4, Kotest + MockK + Paparazzi. These were the versions the plan was written against. They were then upgraded; see "Upgrade to latest" at the end.
 
 **Requirements (from the user):**
 1. The bare minimum needed to build and run. Firebase, external connections and store integration are not needed.
@@ -65,10 +65,10 @@ Kept on purpose: `INTERNET` and `ACCESS_NETWORK_STATE`, Ktor and its four fallba
 
 ## Global Constraints
 
-- **JDK:** Gradle 8.8 runs on JDK 17–22 only. It can't start on JDK 23+, and the original dev machine's default is JDK 25. Before any `./gradlew` command, run `export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64` once per shell. In Android Studio, pick a 17 or 21 JDK under Settings → Build Tools → Gradle → Gradle JDK. Every command below assumes this.
+- **JDK:** use JDK 21. After the upgrade, Gradle 9.8 needs 17+ and Paparazzi 2 needs 21 to run the screenshot tests. Before any `./gradlew` command, run `export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64` once per shell. In Android Studio, pick JDK 21 under Settings → Build Tools → Gradle → Gradle JDK. (Before the upgrade, Gradle 8.8 could not start on JDK 23+, and the original dev machine's default is JDK 25.)
 - **Android SDK:** `sdk.dir=/home/matt/Android/Sdk` with `android-34` installed. After Task 1 this lives only in your local, untracked `local.properties`.
 - **Do NOT change:** the Room schema or migrations, DataStore keys, SharedPrefs keys, the backup zip/JSON format, or the `namespace` (`com.ivy.wallet`). Existing data and backups must stay readable.
-- **Do NOT bump:** AGP, Kotlin, Compose, `compileSdk` or `targetSdk` (stays 34). Upgrades are a separate plan (see the end).
+- **Do NOT bump** versions inside these tasks. The toolchain and library upgrade was done separately afterwards (see the end). `targetSdk` stays 34 even after it.
 - Leftover *unused* imports are warnings, not errors, because no module sets `allWarningsAsErrors`. Each task still lists them so detekt stays clean. Imports of *deleted* symbols are errors and must go.
 
 ## Review Focus
@@ -712,12 +712,31 @@ git commit -m "build: own applicationId and local release signing"
 - Regenerate `all_modules.gv` and `docs/assets/modules-graph.svg` (`scripts/generateModulesGraph.sh`), and prune now-unused strings and drawables with lint `UnusedResources`.
 - Give the Ktor client an `HttpTimeout`. On a slow (not absent) network, changing the base currency on Home waits for up to four sequential fetch attempts before reloading.
 
-## Separate plan: toolchain upgrade (only when you need a newer library)
+## Upgrade to latest (2026-10-28)
 
-Frozen versions keep building as long as Google Maven, Maven Central and the Gradle Plugin Portal serve them, which they do indefinitely. Upgrade only when something forces it. Do it in this order, one PR each:
+Done after Tasks 1–7, at the user's request, on the same branch. Every version below was checked against Maven Central metadata, the official AndroidX release tables or the Compose BOM mapping. Every source API the code uses was checked against the new jars before the bump.
 
-1. Gradle 8.14+ (allows JDK 23+) → AGP 8.13+ → Kotlin 2.2+ with matching KSP and the Compose compiler plugin. Context receivers are no blocker any more, because only `ci-actions` used them.
-2. `compileSdk` 35/36. Newer AndroidX and Compose releases require it.
-3. `targetSdk` 35, which **enforces edge-to-edge**. `RootActivity` already calls `enableEdgeToEdge()`, but check insets on every legacy screen.
-4. `targetSdk` 36. **`onBackPressed()` stops being called**, and `RootActivity` routes all in-app back navigation through it. Move that to `OnBackPressedDispatcher`/`BackHandler` first, or back will exit the app from every screen.
-5. Library majors: Arrow 2 (removes `arrow.core.computations`, used in `legacy/domain/pure/exchange/Exchange.kt`), Ktor 3, Compose BOM.
+| | Before | After |
+|---|---|---|
+| Gradle | 8.8 | 9.8.2 (wrapper pinned to the official checksum) |
+| AGP | 8.5.2 | 9.4.0, built-in Kotlin (no `kotlin-android` plugin) |
+| Kotlin / KSP | 2.0.20 / 2.0.20-1.0.24 | 2.4.21 / 2.3.12 |
+| compileSdk / targetSdk | 34 / 34 | 37 / **34** (kept, see below) |
+| Compose / Material 3 / icons | 1.6.8 / 1.2.1 / 1.6.8 | 1.12.1 / 1.4.0 / 1.7.8 (icons are frozen upstream) |
+| Hilt / Room | 2.52 / 2.6.1 | 2.60.1 / 2.8.5 (still generating Java, as before) |
+| Coroutines / Serialization / Ktor | 1.8.1 / 1.7.1 / 2.3.12 | 1.11.0 / 1.12.0 / 3.6.0 |
+| Arrow / Kotest / MockK | 1.2.4 / 5.9.1 / 1.13.12 | 2.3.0 / 6.2.6 / 1.14.11 |
+| AndroidX | activity 1.9.1, lifecycle 2.8.4, work 2.9.1, datastore 1.1.1, glance 1.1.0, appcompat 1.7.0, biometric 1.2.0-alpha05 | 1.13.0, 2.11.0, 2.12.0, 1.3.0, 1.2.0, 1.8.0, 1.4.0-alpha07 |
+| Paparazzi / Molecule | 1.3.3 / 1.4.3 plugin | 2.0.0-alpha05.1 / 2.2.0 runtime |
+
+Code changes needed by the new majors: `.orNull()` → `.getOrNull()`, `arrow.core.computations.option` → `arrow.core.raise.option`, `NonEmptyList.fromListUnsafe` → `toNonEmptyListOrNull()`, and Kotest's `runBlocking` → the kotlinx one.
+
+Decisions:
+- **`targetSdk` stays 34.** It isn't a library, and raising it changes app behaviour on the device. At 35, edge-to-edge is enforced (`RootActivity` already calls `enableEdgeToEdge()`, but check insets on the legacy screens). At 36, **`onBackPressed()` stops being called**, and `RootActivity` routes all in-app back navigation through it, so move that to `OnBackPressedDispatcher`/`BackHandler` first. Do it with a phone at hand.
+- **Kover was removed.** 0.9.11 still reads `applicationVariants`, which AGP 9 removed, and nothing used the coverage reports any more.
+- **Paparazzi moved to the 2.0 alpha.** 1.3.5, the last stable release, uses AGP's removed `BaseExtension`. The 44 committed reference images predate the Compose upgrade, so re-record them once the screenshots have been reviewed (`./gradlew recordPaparazziDebug`).
+- **detekt stays at 1.23.8**, the latest stable release, with its rule sets. Only the 2.0 alpha officially supports Kotlin 2.4. 1.23.8 doesn't break the build, because its Android hook needs the `kotlin-android` plugin, which is gone. But `./gradlew detekt` may not parse code that uses newer Kotlin syntax.
+- **Material Components is 1.13.0**, the newest stable release that could be confirmed.
+- **Biometric is 1.4.0-alpha07.** The project was already on an alpha, and `BiometricPrompt` is unchanged. Re-check the app lock on a device.
+
+Verification lives in CI (`.github/workflows/build.yml`). The build job compiles the debug and R8-minified APKs and runs the unit tests. The device job launches both APKs on an emulator and runs the instrumented Room-migration, backup and exchange-rate tests.
