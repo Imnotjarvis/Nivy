@@ -5,27 +5,4 @@ plugins {
     // ./gradlew detektFormat // To check with enabled auto-correction
     id("ivy.detekt")
     id("com.jraska.module.graph.assertion")
-
-    alias(libs.plugins.koverPlugin)
-}
-
-subprojects {
-    apply(plugin = "org.jetbrains.kotlinx.kover")
-    kover {
-        reports {
-            filters {
-                excludes {
-                    classes(
-                        "*Activity",
-                        "*Activity\$*",
-                        "*.BuildConfig",
-                        "dagger.hilt.*",
-                        "hilt_aggregated_deps.*",
-                        "*.Hilt_*"
-                    )
-                    annotatedBy("@Composable")
-                }
-            }
-        }
-    }
 }

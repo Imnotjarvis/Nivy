@@ -1,19 +1,14 @@
 plugins {
+    // AGP 9 compiles Kotlin itself ("built-in Kotlin"), so the kotlin-android plugin is gone.
     id("com.android.library")
-    id("kotlin-android")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    // Kotlin
+    // Kotlin's jvmTarget follows targetCompatibility under built-in Kotlin.
     val javaVersion = catalog.version("jvm-target")
     compileOptions {
         sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
         targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
-    }
-
-    kotlinOptions {
-        jvmTarget = javaVersion
     }
 
     // Android
