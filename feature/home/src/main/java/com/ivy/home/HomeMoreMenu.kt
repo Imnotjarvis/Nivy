@@ -52,7 +52,6 @@ import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.Constants
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.rootScreen
 import com.ivy.legacy.utils.clickableNoIndication
 import com.ivy.legacy.utils.colorLerp
 import com.ivy.legacy.utils.lerp
@@ -499,16 +498,6 @@ private fun QuickAccess(
 //        ) {
 //            ivyContext.navigateTo(Screen.Charts)
 //        }
-
-            val rootScreen = rootScreen()
-            MoreMenuButton(
-                icon = R.drawable.home_more_menu_share,
-                label = stringResource(R.string.share_ivy)
-            ) {
-                rootScreen.shareIvyWallet()
-            }
-
-            Spacer(Modifier.weight(1f))
 
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_reports,

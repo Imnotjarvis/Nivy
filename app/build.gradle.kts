@@ -6,8 +6,6 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.devtools.ksp")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
     id("io.gitlab.arturbosch.detekt")
 }
 
@@ -159,10 +157,7 @@ dependencies {
     implementation(libs.bundles.arrow)
     implementation(libs.bundles.compose)
     implementation(libs.bundles.activity)
-    implementation(libs.bundles.google)
-    implementation(libs.bundles.firebase)
     implementation(libs.datastore)
-    implementation(libs.androidx.security)
     implementation(libs.androidx.biometrics)
 
     implementation(libs.bundles.hilt)
