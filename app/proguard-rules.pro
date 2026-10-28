@@ -2,7 +2,6 @@
 -dontwarn javax.script.**
 -dontwarn javax.servlet.**
 -dontwarn org.apache.**
--dontwarn coil.**
 -dontwarn org.bouncycastle.jsse.**
 -dontwarn org.conscrypt.**
 -dontwarn org.openjsse.**

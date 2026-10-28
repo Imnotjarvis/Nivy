@@ -120,11 +120,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.feature.attributions)
     implementation(projects.feature.balance)
     implementation(projects.feature.budgets)
     implementation(projects.feature.categories)
-    implementation(projects.feature.contributors)
     implementation(projects.feature.disclaimer)
     implementation(projects.feature.editTransaction)
     implementation(projects.feature.exchangeRates)
@@ -136,7 +134,6 @@ dependencies {
     implementation(projects.feature.onboarding)
     implementation(projects.feature.piechart)
     implementation(projects.feature.plannedPayments)
-    implementation(projects.feature.releases)
     implementation(projects.feature.reports)
     implementation(projects.feature.search)
     implementation(projects.feature.settings)
