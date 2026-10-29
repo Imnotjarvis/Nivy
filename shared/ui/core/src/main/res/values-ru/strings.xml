@@ -88,7 +88,6 @@
     <string name="hi_name">Привет, %1$s</string>
     <string name="cashflow">Денежный поток: %1$s%2$s %3$s</string>
     <string name="search_transactions">Поиск транзакций</string>
-    <string name="ivy_wallet_open_source">Ivy Wallet — open-source проект</string>
     <string name="savings_goal">Цель накоплений</string>
     <string name="quick_access">Быстрый доступ</string>
     <string name="settings">Настройки</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">Предложения</string>
     <string name="set">Установить</string>
     <string name="your_personal_money_manager">Ваш личный финансовый менеджер</string>
-    <string name="opensource">#opensource</string>
-    <string name="offline_account">Оффлайн аккаунт</string>
+    <string name="continue_offline">Продолжить оффлайн</string>
     <string name="import_csv_file">Загрузите CSV файл</string>
     <string name="from_ivy_or_another_app">из Ivy или другого приложения</string>
     <string name="importing_another_time_warning">Загрузка бэкап файла из другого приложения может занять до 5 минут. Вы всегда можете загрузить данные позже.</string>

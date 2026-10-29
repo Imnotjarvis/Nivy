@@ -88,7 +88,6 @@
     <string name="hi_name">你好 %1$s</string>
     <string name="cashflow">现金流：%1$s%2$s %3$s</string>
     <string name="search_transactions">搜索交易</string>
-    <string name="ivy_wallet_open_source">Ivy Wallet 是开源的</string>
     <string name="savings_goal">储蓄目标</string>
     <string name="quick_access">快速访问</string>
     <string name="settings">设置</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">建议</string>
     <string name="set">确认</string>
     <string name="your_personal_money_manager">您的个人理财助手</string>
-    <string name="opensource">#开源</string>
-    <string name="offline_account">离线账户</string>
+    <string name="continue_offline">离线继续</string>
     <string name="import_csv_file">导入 CSV 文件</string>
     <string name="from_ivy_or_another_app">从 Ivy 或其他应用程序导入</string>
     <string name="importing_another_time_warning">导入来自其他应用的备份文件可能需要最多 5 分钟。如果您愿意，您随时可以稍后导入您的数据。</string>

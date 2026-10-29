@@ -49,7 +49,7 @@ Run these in order: `./gradlew :app:assembleDebug`, then `./gradlew testDebugUni
 | `feature/exchange-rates`, `SyncExchangeRatesUseCase`, `RemoteExchangeRatesDataSourceImpl` | **Keep** | The one network feature. It already fails soft (see Task 6) |
 | All core features (accounts, transactions, categories, budgets, loans, planned payments, reports, piechart, search, import-data, settings, home, main, onboarding) | **Keep** | Core app |
 | `feature/features` | **Keep** | Local user toggles stored in DataStore, not a remote flag service |
-| `feature/disclaimer` | Keep (optional removal) | A local first-launch gate with no network |
+| `feature/disclaimer` | Keep (optional removal); removed 2026-10-29 | A local first-launch gate with no network |
 | `temp/legacy-code`, `temp/old-design` | **Keep** | Despite the name, they're load-bearing: about 31k lines that hold most of the business logic and the UI kit every screen uses |
 | `widget/*`, `PaymentTileService`, reminder worker | **Keep** | All local |
 | Firebase Crashlytics, `google-services.json`, `FirebaseExt.kt` | **Remove** (Task 3) | Sends crash reports to the original authors' Firebase project |
@@ -704,8 +704,8 @@ git commit -m "build: own applicationId and local release signing"
 
 ## Optional follow-ups (not needed for "bare minimum")
 
-- Remove `feature/disclaimer`, a local legal gate on first launch that only matters for public distribution. Its `OpenSourceCard` in `shared/ui/core` goes with it.
-- Remove the tap-to-open links to GitHub, T&C and privacy policy in `OnboardingSplashLogin.kt`.
+- ~~Remove `feature/disclaimer`, a local legal gate on first launch that only matters for public distribution. Its `OpenSourceCard` in `shared/ui/core` goes with it.~~ Done in "Onboarding: offline only" below.
+- ~~Remove the tap-to-open links to GitHub, T&C and privacy policy in `OnboardingSplashLogin.kt`.~~ Done: T&C and privacy in the offline audit, GitHub in "Onboarding: offline only".
 - ~~Remove the dead "delete cloud data" path~~ Done in the dead-code cleanup below.
 - Delete or implement the `TODO("Not implemented")` stubs in `shared/domain`: `ExchangeUseCase`, `WalletBalanceUseCase`, `WalletStatsUseCase`, `AccountStatsUseCase`, `AccountBalanceUseCase` and `CategoryStatsUseCase`. Nothing calls them today, but injecting one into new code crashes at runtime. The working equivalents live in `temp/legacy-code` (for example `com.ivy.wallet.domain.pure.exchange`).
 - Drop the `demo` build type. It uses the same `.debug` suffix as `debug`, so the two overwrite each other.
@@ -796,7 +796,7 @@ A code change lands between those: its module and everything that depends on it 
 Changes:
 - **`plan` job** (`scripts/ciPlan.sh`). It decides what each run needs and explains why in the run summary.
   - **Branch pushes** skip the emulator job and the R8 demo build when the change can't reach app startup or the APK build. That covers:
-    - code or resources of features other than onboarding and disclaimer (the screens a fresh install opens);
+    - code or resources of features other than onboarding (the screens a fresh install opens);
     - widgets, unit tests and docs;
     - the detekt and warning baselines.
   - **Everything runs** on pushes to `main`, tags, manual runs, and the nightly run (02:37 UTC). The nightly run skips itself on days without commits.
@@ -837,3 +837,19 @@ Measured (wall time; the emulator job is the longest, so it sets the total):
 | 20 | system image from the cache (29 s) | 6.6 min | 9.2 min |
 
 Run 20's emulator step was slower than run 19's for reasons a change can't affect: a 66-second boot (40 in run 19) and Gradle start-up. The instrumented tests came from the build cache in both runs.
+
+## Onboarding: offline only (2026-10-29)
+
+A fresh install now opens straight on the onboarding splash page, and nothing on the first pages points to GitHub.
+
+- **Removed the "Important User Agreement" page** (`feature/disclaimer`). It was the first screen of a fresh install: four legal checkboxes for the original publisher's public app, and a card linking to the upstream GitHub repository. Removed with it:
+  - its navigation entry and the start-up check in `RootViewModel`;
+  - `LegalRepository` and `LocalLegalDataSource`, which stored "accepted" in DataStore. Existing installs keep a stale `disclaimer_accepted` key, which nothing reads;
+  - `OpenSourceCard`, its GitHub logo and string, and its screenshot test.
+  - The screenshot reference images go from 34 to 28, in 9 modules instead of 11.
+- **Splash page:**
+  - removed the "#opensource" link to GitHub;
+  - the only button now reads "Continue offline", with all 17 translations (was "Offline account").
+  - The note above the button, that data is stored only on the device and should be backed up, stays.
+- **Kept: the import step after the splash page** ("Import backup file" or "Start fresh"). It imports a local file, an Ivy backup zip or another app's CSV, so it makes no network call. Settings > Import data does the same after onboarding. Importing during onboarding is still the better path when moving from another install. After an import, onboarding ends at the currency step, so it never adds its default accounts and categories next to the imported ones.
+- `scripts/ciPlan.sh`: onboarding is now the only feature whose changes always start the emulator job on branch pushes.

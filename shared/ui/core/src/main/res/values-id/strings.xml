@@ -88,7 +88,6 @@
     <string name="hi_name">Hai %1$s</string>
     <string name="cashflow">Cashflow: %1$s%2$s %3$s</string>
     <string name="search_transactions">Cari transaksi</string>
-    <string name="ivy_wallet_open_source">Ivy Wallet adalah sumber terbuka</string>
     <string name="savings_goal">Tujuan tabungan</string>
     <string name="quick_access">Akses cepat</string>
     <string name="settings">Pengaturan</string>
@@ -142,8 +141,7 @@
     <string name="suggestions">Saran</string>
     <string name="set">Setel</string>
     <string name="your_personal_money_manager">Manajer uang pribadi Anda</string>
-    <string name="opensource">#opensource</string>
-    <string name="offline_account">Akun Offline</string>
+    <string name="continue_offline">Lanjutkan secara offline</string>
     <string name="import_csv_file">Impor File CSV</string>
     <string name="from_ivy_or_another_app">dari Ivy atau aplikasi lainnya</string>
     <string name="importing_another_time_warning">Mengimpor file cadangan dari aplikasi lain dapat memakan waktu hingga 5 menit. Anda selalu dapat mengimpor data Anda nanti jika Anda menginginkannya.</string>

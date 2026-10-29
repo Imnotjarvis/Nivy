@@ -88,7 +88,6 @@
     <string name="hi_name">أهلا %1$s</string>
     <string name="cashflow">تدفق المال: %1$s%2$s %3$s</string>
     <string name="search_transactions">ابحث المعاملات</string>
-    <string name="ivy_wallet_open_source">مفتوح المصدر Ivy Wallet</string>
     <string name="savings_goal">هدف التوفير</string>
     <string name="quick_access">الوصول السريع</string>
     <string name="settings">الاعدادات</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">مقترحات</string>
     <string name="set">تحديد</string>
     <string name="your_personal_money_manager">مدير أموالك الشخصي</string>
-    <string name="opensource">مفتوح_المصدر#</string>
-    <string name="offline_account">حساب غير متصل على الانترنت</string>
+    <string name="continue_offline">المتابعة دون اتصال بالإنترنت</string>
     <string name="import_csv_file">CSV إستيراد ملف</string>
     <string name="from_ivy_or_another_app">Ivy من تطبيق اخر او من </string>
     <string name="importing_another_time_warning">استيراد ملف نسخ احتياطي من تطبيق اخر يمكن ان يستغرق حتى 5 دقائق. يمكنك دائمًا استيراد البيانات لاحقًا اذا اردت.</string>

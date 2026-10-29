@@ -5,7 +5,7 @@
 #   device  the R8-minified demo APK and the emulator job (startup crashes, R8 rules, Room, Hilt)
 #   lint    Android Lint
 # Branch pushes skip the device work when they only change code or resources of features a fresh
-# install never opens (everything but onboarding and disclaimer) or widgets, unit tests, or docs.
+# install never opens (everything but onboarding) or widgets, unit tests, or docs.
 # Tags, pushes to the default branch, nightly and manual runs always run everything.
 # Env (set by build.yml): EVENT, ACTION, REF, DEFAULT_BRANCH, BEFORE, GITHUB_SHA
 set -uo pipefail
@@ -21,7 +21,7 @@ device_relevant() {
         echo "$changed" \
             | grep -vE '(^|/)src/test/|\.md$|^docs/|^LICENSE$|^config/detekt/|^config/compiler-warnings-baseline\.txt$' \
             | grep -vE '^(feature|widget)/[^/]+/src/main/(java|kotlin|res)/'
-        echo "$changed" | grep -E '^feature/(onboarding|disclaimer)/src/main/'
+        echo "$changed" | grep -E '^feature/onboarding/src/main/'
     } | grep . | sort -u
 }
 
