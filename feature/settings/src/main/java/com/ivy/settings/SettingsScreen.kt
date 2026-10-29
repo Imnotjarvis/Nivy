@@ -120,9 +120,6 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         onDeleteAllUserData = {
             viewModel.onEvent(SettingsEvent.DeleteAllUserData)
         },
-        onDeleteCloudUserData = {
-            viewModel.onEvent(SettingsEvent.DeleteCloudUserData)
-        },
         onSwitchLanguage = {
             viewModel.onEvent(SettingsEvent.SwitchLanguage)
         }
@@ -156,13 +153,11 @@ private fun BoxWithConstraintsScope.UI(
     onSetHideIncome: (Boolean) -> Unit = {},
     onSetStartDateOfMonth: (Int) -> Unit = {},
     onDeleteAllUserData: () -> Unit = {},
-    onDeleteCloudUserData: () -> Unit = {},
     onSwitchLanguage: () -> Unit = {}
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
     var nameModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
-    var deleteCloudDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
@@ -460,20 +455,6 @@ private fun BoxWithConstraintsScope.UI(
         dismiss = { deleteAllDataModalFinalVisible = false },
         onDelete = {
             onDeleteAllUserData()
-        }
-    )
-
-    DeleteModal(
-        title = stringResource(R.string.delete_all_cloud_data_question),
-        description = stringResource(
-            R.string.delete_all_user_cloud_data_warning,
-            stringResource(R.string.your_account)
-        ),
-        visible = deleteCloudDataModalVisible,
-        dismiss = { deleteCloudDataModalVisible = false },
-        onDelete = {
-            onDeleteCloudUserData()
-            deleteCloudDataModalVisible = false
         }
     )
 

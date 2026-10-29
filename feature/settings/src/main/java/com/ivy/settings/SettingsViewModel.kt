@@ -230,7 +230,6 @@ class SettingsViewModel @Inject constructor(
 
             is SettingsEvent.SetStartDateOfMonth -> setStartDateOfMonth(event.startDate)
 
-            SettingsEvent.DeleteCloudUserData -> deleteCloudUserData()
             SettingsEvent.DeleteAllUserData -> deleteAllUserData()
             SettingsEvent.SwitchLanguage -> switchLanguage()
         }
@@ -370,18 +369,6 @@ class SettingsViewModel @Inject constructor(
                     startDateOfMonth.intValue = res.data
                 }
             }
-        }
-    }
-
-    private fun deleteCloudUserData() {
-        viewModelScope.launch {
-            cloudLogout()
-        }
-    }
-
-    private fun cloudLogout() {
-        viewModelScope.launch {
-            logoutLogic.cloudLogout()
         }
     }
 
