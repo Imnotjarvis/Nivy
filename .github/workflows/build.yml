@@ -1,9 +1,17 @@
 # Builds Ivy Wallet (offline) on every push and publishes signed APKs for v* tags.
 #
-# Every push: offline guard script, debug APK, R8-minified "demo" APK (signed with the
-# committed debug key) and, in parallel, unit tests. The APKs are attached to the run as
-# the "apks" artifact. The "device" job then launches both APKs on an emulator and runs the
-# instrumented tests; launch screenshots are in its "device-results" artifact.
+# Every push that changes more than docs:
+#   checks  offline guard, detekt and module dependency rules (no compiling, a few minutes)
+#   build   debug APK and R8-minified "demo" APK (signed with the committed debug key),
+#           attached to the run as the "apks" artifact
+#   test    unit tests, in parallel with build
+#   device  launches both APKs on an emulator and runs the instrumented tests; launch
+#           screenshots are in its "device-results" artifact
+# build and test also fail on Kotlin compiler warnings that config/compiler-warnings-baseline.txt
+# doesn't list (scripts/checkCompilerWarnings.sh).
+#
+# Gradle's build cache is saved per commit, so a push only recompiles and retests the modules
+# its changes can affect. Unchanged modules come from the cache, and so do their test results.
 #
 # Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
 # gradle/libs.versions.toml first, or Android refuses to install it as an update), or start
@@ -23,13 +31,51 @@ on:
   push:
     branches: ['**']
     tags: ['v*']
+    # Pushes that only touch docs don't run CI. Tag pushes always run: GitHub doesn't apply
+    # path filters to tags.
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   workflow_dispatch:
 
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Gradle's local build cache (settings.gradle.kts reads this). It lives outside Gradle's home so
+  # the setup-gradle dependency cache stays small, and is saved under a per-commit key below.
+  GRADLE_BUILD_CACHE_DIR: ${{ github.workspace }}/.gradle/ci-build-cache
+
 jobs:
+  checks:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - name: Offline guard
+        run: scripts/verifyOffline.sh
+
+      # The configuration cache isn't kept between CI runs, so skipping it here costs nothing.
+      - name: Detekt and module dependency rules
+        run: ./gradlew :detekt :assertModuleGraph --continue --no-configuration-cache
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: detekt-report
+          path: build/reports/detekt/
+          if-no-files-found: ignore
+
   build:
     runs-on: ubuntu-26.04
     timeout-minutes: 60
@@ -48,11 +94,35 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
-      - name: Offline guard
-        run: scripts/verifyOffline.sh
+      - name: Restore build cache
+        id: restore-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-build-${{ github.sha }}
+          restore-keys: |
+            gradle-build-cache-build-
+            gradle-build-cache-
 
       - name: Build debug and minified APKs
-        run: ./gradlew :app:assembleDebug :app:assembleDemo --continue
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleDebug :app:assembleDemo --continue 2>&1 | tee gradle-output.log
+
+      # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
+      - name: Drop build cache entries older than a week
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+
+      - name: Save build cache
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-build-${{ github.sha }}
+
+      - name: No new compiler warnings
+        run: scripts/checkCompilerWarnings.sh gradle-output.log
 
       - name: Audit shipped libraries
         run: scripts/auditRuntimeDependencies.sh
@@ -83,8 +153,34 @@ jobs:
           # ~10 min plugin download. This job resolves almost everything the others need.
           cache-read-only: false
 
+      - name: Restore build cache
+        id: restore-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-test-${{ github.sha }}
+          restore-keys: |
+            gradle-build-cache-test-
+            gradle-build-cache-
+
       - name: Unit tests
-        run: ./gradlew testDebugUnitTest --continue
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest --continue 2>&1 | tee gradle-output.log
+
+      - name: Drop build cache entries older than a week
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+
+      - name: Save build cache
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-test-${{ github.sha }}
+
+      - name: No new compiler warnings
+        run: scripts/checkCompilerWarnings.sh gradle-output.log
 
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -111,6 +207,14 @@ jobs:
         with:
           cache-provider: basic
           cache-read-only: true
+
+      # Reuses what the build job just compiled for this commit. Not saved again: the only
+      # outputs added here are the small instrumented-test APKs.
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-build-${{ github.sha }}
+          restore-keys: gradle-build-cache-build-
 
       - uses: actions/download-artifact@v8
         with:
@@ -153,7 +257,7 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: [build, test]
+    needs: [checks, build, test]
     runs-on: ubuntu-26.04
     timeout-minutes: 45
     permissions:
@@ -170,6 +274,13 @@ jobs:
         with:
           cache-provider: basic
           cache-read-only: true
+
+      # The library modules' release variants were compiled by the build job (for the demo APK).
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-build-${{ github.sha }}
+          restore-keys: gradle-build-cache-build-
 
       - name: Restore release key
         env:
