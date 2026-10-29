@@ -228,10 +228,15 @@ jobs:
       # verifyPaparazziDebug makes the screenshot tests compare each image with its reference in
       # src/test/snapshots/ (differences are in the "test-reports" artifact). After an intended
       # UI change, re-record them: Actions > Build > Run workflow > record-screenshots.
+      # It's only requested in modules that have reference images: Paparazzi's verify mode fails
+      # any module with unit tests but no src/test/snapshots/ directory.
       - name: Unit and screenshot tests
         run: |
           set -o pipefail
-          ./gradlew testDebugUnitTest verifyPaparazziDebug --continue 2>&1 | tee gradle-output.log
+          verify=$(find . \( -name build -o -name .gradle -o -name .git \) -prune -o \
+              -path '*/src/test/snapshots' -type d -print \
+              | sed -E 's#^\./(.*)/src/test/snapshots$#:\1:verifyPaparazziDebug#; s#/#:#g')
+          ./gradlew testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
 
       - name: Drop build cache entries older than a week
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
