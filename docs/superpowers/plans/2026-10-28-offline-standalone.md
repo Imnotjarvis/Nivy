@@ -706,10 +706,10 @@ git commit -m "build: own applicationId and local release signing"
 
 - Remove `feature/disclaimer`, a local legal gate on first launch that only matters for public distribution. Its `OpenSourceCard` in `shared/ui/core` goes with it.
 - Remove the tap-to-open links to GitHub, T&C and privacy policy in `OnboardingSplashLogin.kt`.
-- Remove the dead "delete cloud data" path: `SettingsEvent.DeleteCloudUserData`, the `deleteCloudDataModalVisible` modal (nothing sets it to `true`) and `LogoutLogic.cloudLogout()`.
+- ~~Remove the dead "delete cloud data" path~~ Done in the dead-code cleanup below.
 - Delete or implement the `TODO("Not implemented")` stubs in `shared/domain`: `ExchangeUseCase`, `WalletBalanceUseCase`, `WalletStatsUseCase`, `AccountStatsUseCase`, `AccountBalanceUseCase` and `CategoryStatsUseCase`. Nothing calls them today, but injecting one into new code crashes at runtime. The working equivalents live in `temp/legacy-code` (for example `com.ivy.wallet.domain.pure.exchange`).
 - Drop the `demo` build type. It uses the same `.debug` suffix as `debug`, so the two overwrite each other.
-- Regenerate `all_modules.gv` and `docs/assets/modules-graph.svg` (`scripts/generateModulesGraph.sh`), and prune now-unused strings and drawables with lint `UnusedResources`.
+- Regenerate `all_modules.gv` and `docs/assets/modules-graph.svg` (`scripts/generateModulesGraph.sh`); both still show the removed `shared:data:core-testing`. Unused strings are pruned (dead-code cleanup below). Drawables cannot be pruned by reference count, because `ItemIcon` resolves icon names stored in the database with `getIdentifier`.
 - Give the Ktor client an `HttpTimeout`. On a slow (not absent) network, changing the base currency on Home waits for up to four sequential fetch attempts before reloading.
 
 ## Upgrade to latest (2026-10-28)
@@ -752,3 +752,20 @@ Checked after CI went green on the upgraded stack.
 - **CI annotations.** "Node.js 20 is deprecated" (upload/download-artifact v4, setup-gradle v4) and "ubuntu-latest will migrate to Ubuntu 26". Every action is now on its newest Node 24 major, and jobs pin `ubuntu-26.04`. setup-gradle v6 uses its MIT "basic" cache instead of the default proprietary one. Only the test job saves it.
 
 Known gap, not changed: `POST_NOTIFICATIONS` is declared, but the app never asks for it at runtime. On Android 13+, reminder notifications stay off until they are enabled in system settings.
+
+## Dead-code cleanup (2026-10-29)
+
+Every removal had zero references anywhere in the repo (code, tests, XML, build scripts), checked by a whole-repo identifier index, detekt's unused-code rules and the Kotlin warnings from CI. Baseline: CI run 8 (green). After: CI run 10 on `c543c2e`. 134 files changed, about 2,470 lines and 4.6 MB of fonts removed.
+
+- **Build.** The empty `shared:data:core-testing` module; duplicate dependency lines in `feature:features` and `widget:add-transaction`. In `app`: keval, opencsv, recyclerview (other modules still declare them, so the APK keeps them) and test libraries (the module has no tests). `kotest-property-arrow` and `glance-material3`: nothing imports them. Also the two Retrofit-only R8 rules (Retrofit is not on the classpath).
+- **Code.** About 60 unused functions, classes and properties, mostly in `temp:legacy-code`, plus what only they used. Also gone: the delete-cloud-data dialog (its visibility flag was only ever set to false) with its event and handlers; commented-out code and three unread locals; and four spots the compiler flags as unreachable or a no-op.
+- **Approved by the owner.** The four `*UiTest` screenshot hooks no test calls; unused design tokens (`primary1`, `orange1`, `red1`, `red1Inverse`, six shape radii, the `Pink` palette); 11 Room queries nothing calls, with their fakes.
+- **Resources.** 80 strings (all 18 locales), 17 font weights (both copies), the `redL1` color.
+
+Kept on purpose:
+
+- The `TODO("Not implemented")` use cases in `shared:domain` (owner's call; one `AccountStatsUseCase` method is real and tested).
+- Hilt modules, Room type converters, `@Preview` functions and `Migration109to110.addSyncColumns` (migrations are off-limits).
+- All drawables: `ItemIcon` loads icon names stored in the database with `getIdentifier`.
+- `commons-lang3` (pins a patched version of an opencsv dependency), `room-ktx`, and `app`'s Room and Arrow declarations (Hilt's generated component in `app` may need them to compile). Code doesn't import any of them directly.
+- Unused parameters (31, mostly navigation `screen` arguments). Removing them would change call sites across modules.
