@@ -452,7 +452,11 @@ jobs:
         env:
           ACTION: ${{ inputs.action }}
         run: |
-          git add -A -- '*/src/test/snapshots/' app/lint-baseline.xml
+          if [ "$ACTION" = record-screenshots ]; then
+            git add -A -- ':(glob)**/src/test/snapshots/**'
+          else
+            git add -A -- app/lint-baseline.xml
+          fi
           if git diff --cached --quiet; then
             echo "Nothing changed."
             exit 0
