@@ -25,11 +25,6 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         return findAll().take(1)
     }
 
-    override suspend fun findAllByType(type: TransactionType): List<TransactionEntity> {
-        return items.filter { !it.isDeleted && it.type == type }
-            .sortedByDescending { it.dateTime }
-    }
-
     override suspend fun findAllByTypeAndAccount(
         type: TransactionType,
         accountId: UUID
@@ -38,39 +33,12 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
             .sortedByDescending { it.dateTime }
     }
 
-    override suspend fun findAllByTypeAndAccountBetween(
-        type: TransactionType,
-        accountId: UUID,
-        startDate: Instant,
-        endDate: Instant
-    ): List<TransactionEntity> {
-        return items.filter {
-            val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && !it.isDeleted && it.type == type
-        }.sortedByDescending { it.dateTime }
-    }
-
     override suspend fun findAllTransfersToAccount(
         toAccountId: UUID,
         type: TransactionType
     ): List<TransactionEntity> {
         return items.filter {
             it.type == TransactionType.TRANSFER && it.toAccountId == toAccountId && !it.isDeleted
-        }.sortedByDescending { it.dateTime }
-    }
-
-    override suspend fun findAllTransfersToAccountBetween(
-        toAccountId: UUID,
-        startDate: Instant,
-        endDate: Instant,
-        type: TransactionType
-    ): List<TransactionEntity> {
-        return items.filter {
-            val dateTime = it.dateTime ?: return@filter false
-            it.type == TransactionType.TRANSFER &&
-                    it.toAccountId == toAccountId &&
-                    isBetween(dateTime, startDate, endDate) &&
-                    !it.isDeleted
         }.sortedByDescending { it.dateTime }
     }
 
@@ -202,44 +170,12 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
             .sortedByDescending { it.dateTime }
     }
 
-    override suspend fun findAllBetweenAndType(
-        startDate: Instant,
-        endDate: Instant,
-        type: TransactionType
-    ): List<TransactionEntity> {
-        return items.filter {
-            val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && it.type == type && !it.isDeleted
-        }.sortedByDescending { it.dateTime }
-    }
-
-    override suspend fun findAllBetweenAndRecurringRuleId(
-        startDate: Instant,
-        endDate: Instant,
-        recurringRuleId: UUID
-    ): List<TransactionEntity> {
-        return items.filter {
-            val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) &&
-                    it.recurringRuleId == recurringRuleId &&
-                    !it.isDeleted
-        }.sortedByDescending { it.dateTime }
-    }
-
     override suspend fun findById(id: UUID): TransactionEntity? {
         return items.find { it.id == id }
     }
 
     override suspend fun findByIds(ids: List<UUID>): List<TransactionEntity> {
         return items.filter { it.id in ids }
-    }
-
-    override suspend fun findByIsSyncedAndIsDeleted(
-        synced: Boolean,
-        deleted: Boolean
-    ): List<TransactionEntity> {
-        return items.filter { it.isSynced == synced && it.isDeleted == deleted }
-            .sortedByDescending { it.dateTime }
     }
 
     override suspend fun countHappenedTransactions(): Long {

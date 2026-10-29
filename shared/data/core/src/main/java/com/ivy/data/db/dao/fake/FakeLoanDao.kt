@@ -14,13 +14,6 @@ class FakeLoanDao : LoanDao, WriteLoanDao {
         return items
     }
 
-    override suspend fun findByIsSyncedAndIsDeleted(
-        synced: Boolean,
-        deleted: Boolean
-    ): List<LoanEntity> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun findById(id: UUID): LoanEntity? {
         return items.find { it.id == id }
     }

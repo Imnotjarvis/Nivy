@@ -17,9 +17,6 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE isDeleted = 0 LIMIT 1")
     suspend fun findAll_LIMIT_1(): List<TransactionEntity>
 
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type ORDER BY dateTime DESC")
-    suspend fun findAllByType(type: TransactionType): List<TransactionEntity>
-
     @Query(
         "SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and accountId = :accountId ORDER BY dateTime DESC"
     )
@@ -29,30 +26,10 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and accountId = :accountId and dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
-    )
-    suspend fun findAllByTypeAndAccountBetween(
-        type: TransactionType,
-        accountId: UUID,
-        startDate: Instant,
-        endDate: Instant
-    ): List<TransactionEntity>
-
-    @Query(
         "SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and toAccountId = :toAccountId ORDER BY dateTime DESC"
     )
     suspend fun findAllTransfersToAccount(
         toAccountId: UUID,
-        type: TransactionType = TransactionType.TRANSFER
-    ): List<TransactionEntity>
-
-    @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and toAccountId = :toAccountId and dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
-    )
-    suspend fun findAllTransfersToAccountBetween(
-        toAccountId: UUID,
-        startDate: Instant,
-        endDate: Instant,
         type: TransactionType = TransactionType.TRANSFER
     ): List<TransactionEntity>
 
@@ -157,35 +134,11 @@ interface TransactionDao {
     )
     suspend fun findAllByRecurringRuleId(recurringRuleId: UUID): List<TransactionEntity>
 
-    @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dateTime >= :startDate AND dateTime <= :endDate AND type = :type ORDER BY dateTime DESC"
-    )
-    suspend fun findAllBetweenAndType(
-        startDate: Instant,
-        endDate: Instant,
-        type: TransactionType
-    ): List<TransactionEntity>
-
-    @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dateTime >= :startDate AND dateTime <= :endDate AND recurringRuleId = :recurringRuleId ORDER BY dateTime DESC"
-    )
-    suspend fun findAllBetweenAndRecurringRuleId(
-        startDate: Instant,
-        endDate: Instant,
-        recurringRuleId: UUID
-    ): List<TransactionEntity>
-
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun findById(id: UUID): TransactionEntity?
 
     @Query("SELECT * FROM transactions WHERE id in (:ids)")
     suspend fun findByIds(ids: List<UUID>): List<TransactionEntity>
-
-    @Query("SELECT * FROM transactions WHERE isSynced = :synced AND isDeleted = :deleted")
-    suspend fun findByIsSyncedAndIsDeleted(
-        synced: Boolean,
-        deleted: Boolean = false
-    ): List<TransactionEntity>
 
     @Query("SELECT COUNT(*) FROM transactions WHERE isDeleted = 0 AND dateTime IS NOT null")
     suspend fun countHappenedTransactions(): Long

@@ -10,9 +10,6 @@ interface BudgetDao {
     @Query("SELECT * FROM budgets WHERE isDeleted = 0 ORDER BY orderId ASC")
     suspend fun findAll(): List<BudgetEntity>
 
-    @Query("SELECT * FROM budgets WHERE isSynced = :synced AND isDeleted = :deleted")
-    suspend fun findByIsSyncedAndIsDeleted(synced: Boolean, deleted: Boolean = false): List<BudgetEntity>
-
     @Query("SELECT * FROM budgets WHERE id = :id")
     suspend fun findById(id: UUID): BudgetEntity?
 
