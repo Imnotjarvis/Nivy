@@ -118,13 +118,6 @@ fun Iterable<com.ivy.data.model.Transaction>.filterOverdue(): List<com.ivy.data.
     }
 }
 
-fun FromToTimeRange.toCloseTimeRangeUnsafe(): ClosedTimeRange {
-    return ClosedTimeRange(
-        from = from(),
-        to = to()
-    )
-}
-
 fun FromToTimeRange.toCloseTimeRange(): ClosedTimeRange {
     return ClosedTimeRange(
         from = from ?: ivyMinTime(),

@@ -23,10 +23,6 @@ fun Fragment.args(putArgs: Bundle.() -> Unit): Fragment {
     return this
 }
 
-fun Fragment.stringArg(key: String): String? {
-    return arguments?.getString(key, null)
-}
-
 suspend fun <T> ioThread(action: suspend () -> T): T = withContext(Dispatchers.IO) {
     return@withContext action()
 }

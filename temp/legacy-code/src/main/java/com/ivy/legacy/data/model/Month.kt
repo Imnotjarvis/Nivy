@@ -49,8 +49,4 @@ data class Month(
         ivyContext.updateSelectedPeriodInMemory(incrementedPeriod)
         return incrementedPeriod
     }
-
-    fun toTimePeriod(): TimePeriod = TimePeriod(
-        month = this
-    )
 }

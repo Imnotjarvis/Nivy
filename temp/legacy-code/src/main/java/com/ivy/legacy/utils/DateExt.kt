@@ -1,7 +1,5 @@
 package com.ivy.legacy.utils
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import com.ivy.base.legacy.stringRes
 import com.ivy.base.time.INSTANT_MAX_SAFE
 import com.ivy.base.time.INSTANT_MIN_SAFE
@@ -29,18 +27,12 @@ fun timeNowUTC(): LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
 
 @Deprecated("Use the TimeProvider interface via DI")
 @Total
-fun timeUTC(): LocalTime = LocalTime.now(ZoneOffset.UTC)
-
-@Deprecated("Use the TimeProvider interface via DI")
-@Total
 fun dateNowUTC(): LocalDate = LocalDate.now(ZoneOffset.UTC)
 
 @Deprecated("Use the TimeProvider interface via DI + atStartOfDay()")
 fun startOfDayNowUTC(): LocalDateTime = dateNowUTC().atStartOfDay()
 
 fun LocalDateTime.toEpochSeconds() = this.toEpochSecond(ZoneOffset.UTC)
-
-fun LocalDateTime.millis() = this.toInstant(ZoneOffset.UTC).toEpochMilli()
 
 @Deprecated("Use the TimeConverter interface via DI")
 fun LocalDateTime.formatNicely(
@@ -84,54 +76,6 @@ fun LocalDateTime.formatNicely(
 }
 
 fun LocalDateTime.getISOFormattedDateTime(): String = this.formatLocal("yyyyMMdd-HHmm")
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDateTime.formatNicelyWithTime(
-    noWeekDay: Boolean = true,
-    zone: ZoneId = ZoneOffset.systemDefault()
-): String {
-    val today = dateNowUTC()
-    val isThisYear = today.year == this.year
-
-    val patternNoWeekDay = "dd MMM HH:mm"
-
-    if (noWeekDay) {
-        return if (isThisYear) {
-            this.formatLocal(patternNoWeekDay)
-        } else {
-            this.formatLocal("dd MMM, yyyy HH:mm")
-        }
-    }
-
-    return when (this.toLocalDate()) {
-        today -> {
-            stringRes(R.string.today_date, this.formatLocal(patternNoWeekDay, zone))
-        }
-
-        today.minusDays(1) -> {
-            stringRes(R.string.yesterday_date, this.formatLocal(patternNoWeekDay, zone))
-        }
-
-        today.plusDays(1) -> {
-            stringRes(R.string.tomorrow, this.formatLocal(patternNoWeekDay, zone))
-        }
-
-        else -> {
-            if (isThisYear) {
-                this.formatLocal("EEE, dd MMM HH:mm", zone)
-            } else {
-                this.formatLocal("dd MMM, yyyy HH:mm", zone)
-            }
-        }
-    }
-}
-
-@Deprecated("Use the TimeConverter interface via DI")
-@Composable
-fun LocalDateTime.formatLocalTime(): String {
-    val timeFormat = android.text.format.DateFormat.getTimeFormat(LocalContext.current)
-    return timeFormat.format(this.millis())
-}
 
 @Deprecated("Use the TimeConverter interface via DI")
 fun LocalDate.formatDateOnly(): String = this.formatLocal("MMM. dd", ZoneOffset.systemDefault())
@@ -217,12 +161,6 @@ fun LocalDateTime.convertUTCto(zone: ZoneId): LocalDateTime {
 fun LocalTime.convertLocalToUTC(): LocalTime {
     val offset = timeNowLocal().atZone(ZoneOffset.systemDefault()).offset.totalSeconds.toLong()
     return this.minusSeconds(offset)
-}
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalTime.convertUTCToLocal(): LocalTime {
-    val offset = timeNowLocal().atZone(ZoneOffset.systemDefault()).offset.totalSeconds.toLong()
-    return this.plusSeconds(offset)
 }
 
 @Deprecated("Use the TimeConverter interface via DI")

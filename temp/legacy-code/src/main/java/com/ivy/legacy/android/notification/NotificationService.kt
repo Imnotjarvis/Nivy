@@ -46,10 +46,4 @@ class NotificationService @Inject constructor(
             e.printStackTrace()
         }
     }
-
-    fun dismissNotification(notificationId: Int) {
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(notificationId)
-    }
 }

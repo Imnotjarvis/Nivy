@@ -11,9 +11,7 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
-import com.ivy.legacy.data.model.filterOverdue
 import com.ivy.legacy.data.model.filterOverdueLegacy
-import com.ivy.legacy.data.model.filterUpcoming
 import com.ivy.legacy.data.model.filterUpcomingLegacy
 import com.ivy.legacy.datamodel.temp.toLegacy
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
@@ -291,17 +289,6 @@ class WalletCategoryLogic @Inject constructor(
             .filterUpcomingLegacy(timeProvider, timeConverter)
     }
 
-    suspend fun upcomingByCategory(
-        category: Category,
-        range: com.ivy.legacy.data.model.FromToTimeRange
-    ): List<com.ivy.data.model.Transaction> {
-        return transactionRepository.findAllDueToBetweenByCategory(
-            categoryId = CategoryId(category.id.value),
-            startDate = range.upcomingFrom(timeProvider),
-            endDate = range.to()
-        ).filterUpcoming()
-    }
-
     @Deprecated("Uses legacy Transaction")
     suspend fun upcomingUnspecifiedLegacy(range: com.ivy.legacy.data.model.FromToTimeRange): List<Transaction> {
         return transactionRepository.findAllDueToBetweenByCategoryUnspecified(
@@ -312,15 +299,6 @@ class WalletCategoryLogic @Inject constructor(
                 it.toLegacy(transactionMapper)
             }
             .filterUpcomingLegacy(timeProvider, timeConverter)
-    }
-
-    suspend fun upcomingUnspecified(
-        range: com.ivy.legacy.data.model.FromToTimeRange
-    ): List<com.ivy.data.model.Transaction> {
-        return transactionRepository.findAllDueToBetweenByCategoryUnspecified(
-            startDate = range.upcomingFrom(timeProvider),
-            endDate = range.to()
-        ).filterUpcoming()
     }
 
     suspend fun calculateOverdueIncomeByCategory(
@@ -385,18 +363,6 @@ class WalletCategoryLogic @Inject constructor(
             .filterOverdueLegacy(timeProvider, timeConverter)
     }
 
-    suspend fun overdueByCategory(
-        category: Category,
-        range: com.ivy.legacy.data.model.FromToTimeRange
-    ): List<com.ivy.data.model.Transaction> {
-        return transactionRepository.findAllDueToBetweenByCategory(
-            categoryId = CategoryId(category.id.value),
-            startDate = range.from(),
-            endDate = range.overdueTo(timeProvider)
-        )
-            .filterOverdue()
-    }
-
     @Deprecated("Uses legacy Transaction")
     suspend fun overdueUnspecifiedLegacy(range: com.ivy.legacy.data.model.FromToTimeRange): List<Transaction> {
         return transactionRepository.findAllDueToBetweenByCategoryUnspecified(
@@ -407,14 +373,5 @@ class WalletCategoryLogic @Inject constructor(
                 it.toLegacy(transactionMapper)
             }
             .filterOverdueLegacy(timeProvider, timeConverter)
-    }
-
-    suspend fun overdueUnspecified(
-        range: com.ivy.legacy.data.model.FromToTimeRange
-    ): List<com.ivy.data.model.Transaction> {
-        return transactionRepository.findAllDueToBetweenByCategoryUnspecified(
-            startDate = range.from(),
-            endDate = range.overdueTo(timeProvider)
-        ).filterOverdue()
     }
 }

@@ -143,9 +143,6 @@ class IvyWalletCtx @Inject constructor() : IvyContext() {
     // Billing -------------------------------------------------------------------------------------
 
     @Deprecated("Legacy code. Don't use it, please.")
-    lateinit var googleSignIn: (idTokenResult: (String?) -> Unit) -> Unit
-
-    @Deprecated("Legacy code. Don't use it, please.")
     lateinit var createNewFile: (fileName: String, onCreated: (Uri) -> Unit) -> Unit
 
     @Deprecated("Legacy code. Don't use it, please.")

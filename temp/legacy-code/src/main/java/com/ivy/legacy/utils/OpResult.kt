@@ -11,6 +11,5 @@ sealed class OpResult<out T> {
         fun <T> success(data: T) = Success(data)
         fun loading() = Loading
         fun failure(e: Exception) = Failure(e)
-        fun faliure(errMsg: String) = Failure(Exception(errMsg))
     }
 }
