@@ -36,7 +36,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -433,14 +432,6 @@ private fun QuickAccess(
             verticalAlignment = Alignment.Top
         ) {
             Spacer(Modifier.weight(1f))
-
-            val context = LocalContext.current
-//        MoreMenuButton(
-//            icon = R.drawable.home_more_menu_reports,
-//            label = "Charts"
-//        ) {
-//            ivyContext.navigateTo(Screen.Charts)
-//        }
 
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_reports,

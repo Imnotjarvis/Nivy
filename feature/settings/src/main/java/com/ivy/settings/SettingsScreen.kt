@@ -120,9 +120,6 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         onDeleteAllUserData = {
             viewModel.onEvent(SettingsEvent.DeleteAllUserData)
         },
-        onDeleteCloudUserData = {
-            viewModel.onEvent(SettingsEvent.DeleteCloudUserData)
-        },
         onSwitchLanguage = {
             viewModel.onEvent(SettingsEvent.SwitchLanguage)
         }
@@ -156,13 +153,11 @@ private fun BoxWithConstraintsScope.UI(
     onSetHideIncome: (Boolean) -> Unit = {},
     onSetStartDateOfMonth: (Int) -> Unit = {},
     onDeleteAllUserData: () -> Unit = {},
-    onDeleteCloudUserData: () -> Unit = {},
     onSwitchLanguage: () -> Unit = {}
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
     var nameModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
-    var deleteCloudDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
@@ -218,9 +213,6 @@ private fun BoxWithConstraintsScope.UI(
             ) {
                 nameModalVisible = true
             }
-
-//            Spacer(Modifier.height(20.dp))
-//            Premium()
         }
 
         item {
@@ -283,14 +275,6 @@ private fun BoxWithConstraintsScope.UI(
             Spacer(Modifier.height(12.dp))
 
             val nav = navigation()
-//            SettingsDefaultButton(
-//                icon = R.drawable.ic_custom_atom_m,
-//                text = "Features"
-//            ) {
-//                nav.navigateTo(FeaturesScreen)
-//            }
-//
-//            Spacer(Modifier.height(12.dp))
 
             if (languageOptionVisible) {
                 SettingsDefaultButton(
@@ -375,20 +359,6 @@ private fun BoxWithConstraintsScope.UI(
             )
         }
 
-//        item {
-//            SettingsSectionDivider(text = stringResource(R.string.experimental))
-//
-//            Spacer(Modifier.height(16.dp))
-//
-//            val nav = navigation()
-//            SettingsDefaultButton(
-//                icon = R.drawable.ic_custom_atom_m,
-//                text = stringResource(R.string.experimental_settings)
-//            ) {
-//                nav.navigateTo(ExperimentalScreen)
-//            }
-//        }
-
         item {
             SettingsSectionDivider(
                 text = stringResource(R.string.danger_zone),
@@ -460,20 +430,6 @@ private fun BoxWithConstraintsScope.UI(
         dismiss = { deleteAllDataModalFinalVisible = false },
         onDelete = {
             onDeleteAllUserData()
-        }
-    )
-
-    DeleteModal(
-        title = stringResource(R.string.delete_all_cloud_data_question),
-        description = stringResource(
-            R.string.delete_all_user_cloud_data_warning,
-            stringResource(R.string.your_account)
-        ),
-        visible = deleteCloudDataModalVisible,
-        dismiss = { deleteCloudDataModalVisible = false },
-        onDelete = {
-            onDeleteCloudUserData()
-            deleteCloudDataModalVisible = false
         }
     )
 
@@ -800,44 +756,6 @@ private fun SettingsButtonRow(
 }
 
 @Composable
-private fun AccountCardButton(
-    @DrawableRes icon: Int,
-    text: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(UI.shapes.rFull)
-            .background(UI.colors.pure, UI.shapes.rFull)
-            .clickable {
-                onClick()
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(12.dp))
-
-        IvyIconScaled(
-            icon = icon,
-            iconScale = IconScale.M
-        )
-
-        Spacer(Modifier.width(4.dp))
-
-        Text(
-            modifier = Modifier
-                .padding(vertical = 10.dp),
-            text = text,
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
-                color = UI.colors.pureInverse
-            )
-        )
-
-        Spacer(Modifier.width(24.dp))
-    }
-}
-
-@Composable
 private fun CurrencyButton(
     currency: String,
     onClick: () -> Unit
@@ -947,15 +865,4 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
             languageOptionVisible = true
         )
     }
-}
-
-/** For screenshot testing */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SettingsUiTest(isDark: Boolean) {
-    val theme = when (isDark) {
-        true -> Theme.DARK
-        false -> Theme.LIGHT
-    }
-    Preview(theme)
 }

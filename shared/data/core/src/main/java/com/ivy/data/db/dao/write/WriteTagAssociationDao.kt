@@ -23,7 +23,4 @@ interface WriteTagAssociationDao {
 
     @Query("DELETE FROM tags_association WHERE tagId = :tagId")
     suspend fun deleteAssociationsByTagId(tagId: UUID)
-
-    @Query("DELETE FROM tags_association WHERE associatedId = :associatedId")
-    suspend fun deleteAssociationsByAssociateId(associatedId: UUID)
 }

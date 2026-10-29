@@ -10,12 +10,6 @@ interface LoanRecordDao {
     @Query("SELECT * FROM loan_records WHERE isDeleted = 0 ORDER BY dateTime DESC")
     suspend fun findAll(): List<LoanRecordEntity>
 
-    @Query("SELECT * FROM loan_records WHERE isSynced = :synced AND isDeleted = :deleted")
-    suspend fun findByIsSyncedAndIsDeleted(
-        synced: Boolean,
-        deleted: Boolean = false
-    ): List<LoanRecordEntity>
-
     @Query("SELECT * FROM loan_records WHERE id = :id")
     suspend fun findById(id: UUID): LoanRecordEntity?
 

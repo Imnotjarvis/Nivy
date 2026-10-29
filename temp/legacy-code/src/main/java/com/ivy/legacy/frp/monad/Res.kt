@@ -1,8 +1,6 @@
 package com.ivy.frp.monad
 
 import com.ivy.frp.action.Action
-import com.ivy.frp.asParamTo
-import com.ivy.frp.thenInvokeAfter
 
 @Deprecated("Legacy code. Use Arrow's Either")
 sealed class Res<out E, out T> {
@@ -14,28 +12,6 @@ sealed class Res<out E, out T> {
 @Deprecated("Legacy code. Don't use it, please.")
 inline fun <E, T, S> Res<E, T>.map(f: (Res<E, T>) -> S): S {
     return f(this)
-}
-
-@Deprecated("Legacy code. Don't use it, please.")
-inline fun <T> tryOp(
-    noinline operation: suspend () -> T,
-): suspend () -> Res<Exception, T> = {
-    try {
-        operation thenInvokeAfter { Res.Ok(it) }
-    } catch (e: Exception) {
-        Res.Err(e)
-    }
-}
-
-@Deprecated("Legacy code. Don't use it, please.")
-inline fun <A, T> tryOpWithParam(
-    crossinline operation: suspend (A) -> T,
-): suspend (A) -> Res<Exception, T> = { a ->
-    try {
-        a asParamTo operation thenInvokeAfter { Res.Ok(it) }
-    } catch (e: Exception) {
-        Res.Err(e)
-    }
 }
 
 // ------------------ mapError --------------------------------------

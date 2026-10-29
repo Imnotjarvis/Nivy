@@ -19,14 +19,6 @@ fun serialize(ids: List<UUID>): String {
     return ids.joinToString(separator = ",")
 }
 
-fun budgetType(categoriesCount: Int): String {
-    return when (categoriesCount) {
-        0 -> "Total Budget"
-        1 -> "Category Budget"
-        else -> "Multi-Category ($categoriesCount) Budget"
-    }
-}
-
 fun BudgetEntity.parseCategoryIds(): List<UUID> {
     return parseIdsString(categoryIdsSerialized)
 }

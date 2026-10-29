@@ -559,10 +559,6 @@ class LoanDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onLoanTransactionChecked(boolean: Boolean) {
-        createLoanTransaction.value = boolean
-    }
-
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             TestIdlingResource.increment()

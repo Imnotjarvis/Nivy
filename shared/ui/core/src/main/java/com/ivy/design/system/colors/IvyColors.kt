@@ -68,13 +68,4 @@ object IvyColors {
         dark = Color(0xFF36248F),
         extraDark = Color(0xFF1F1452),
     )
-    val Pink = ColorShades(
-        extraLight = Color(0xFFF5ABD0),
-        light = Color(0xFFF587BE),
-        kindaLight = Color(0xFFF562AB),
-        primary = Color(0xFFF53D99),
-        kindaDark = Color(0xFFCC3380),
-        dark = Color(0xFF8F2459),
-        extraDark = Color(0xFF521433),
-    )
 }

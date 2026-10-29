@@ -18,21 +18,7 @@ class TransactionReminderLogic @Inject constructor(
     private val sharedPrefs: SharedPrefs,
 ) {
     companion object {
-        private const val UNIQUE_WORK_NAME_V1 = "transaction_reminder_work"
         private const val UNIQUE_WORK_NAME_V2 = "transaction_reminder_work_v2"
-        private const val UNIQUE_WORK_NAME_TEST = "transaction_reminder_work_test"
-    }
-
-    fun testNow() {
-        val workBuilder = PeriodicWorkRequestBuilder<TransactionReminderWorker>(5, TimeUnit.MINUTES)
-
-        WorkManager
-            .getInstance(appContext)
-            .enqueueUniquePeriodicWork(
-                UNIQUE_WORK_NAME_TEST,
-                ExistingPeriodicWorkPolicy.REPLACE,
-                workBuilder.build()
-            )
     }
 
     fun scheduleReminder() {

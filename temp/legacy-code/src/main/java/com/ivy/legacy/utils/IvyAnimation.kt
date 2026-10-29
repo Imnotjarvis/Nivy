@@ -14,17 +14,7 @@ fun <T> springBounceFast() = springBounce<T>(
     stiffness = 2000f
 )
 
-fun <T> springBounceMedium() = spring<T>(
-    dampingRatio = 0.75f,
-    stiffness = Spring.StiffnessLow,
-)
-
 fun <T> springBounceSlow() = spring<T>(
     dampingRatio = 0.75f,
     stiffness = Spring.StiffnessVeryLow,
-)
-
-fun <T> springBounceVerySlow() = spring<T>(
-    dampingRatio = 0.75f,
-    stiffness = 20f,
 )

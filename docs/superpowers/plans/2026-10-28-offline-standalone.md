@@ -706,10 +706,10 @@ git commit -m "build: own applicationId and local release signing"
 
 - Remove `feature/disclaimer`, a local legal gate on first launch that only matters for public distribution. Its `OpenSourceCard` in `shared/ui/core` goes with it.
 - Remove the tap-to-open links to GitHub, T&C and privacy policy in `OnboardingSplashLogin.kt`.
-- Remove the dead "delete cloud data" path: `SettingsEvent.DeleteCloudUserData`, the `deleteCloudDataModalVisible` modal (nothing sets it to `true`) and `LogoutLogic.cloudLogout()`.
+- ~~Remove the dead "delete cloud data" path~~ Done in the dead-code cleanup below.
 - Delete or implement the `TODO("Not implemented")` stubs in `shared/domain`: `ExchangeUseCase`, `WalletBalanceUseCase`, `WalletStatsUseCase`, `AccountStatsUseCase`, `AccountBalanceUseCase` and `CategoryStatsUseCase`. Nothing calls them today, but injecting one into new code crashes at runtime. The working equivalents live in `temp/legacy-code` (for example `com.ivy.wallet.domain.pure.exchange`).
 - Drop the `demo` build type. It uses the same `.debug` suffix as `debug`, so the two overwrite each other.
-- Regenerate `all_modules.gv` and `docs/assets/modules-graph.svg` (`scripts/generateModulesGraph.sh`), and prune now-unused strings and drawables with lint `UnusedResources`.
+- Regenerate `all_modules.gv` and `docs/assets/modules-graph.svg` (`scripts/generateModulesGraph.sh`); both still show the removed `shared:data:core-testing`. Unused strings are pruned (dead-code cleanup below). Drawables cannot be pruned by reference count, because `ItemIcon` resolves icon names stored in the database with `getIdentifier`.
 - Give the Ktor client an `HttpTimeout`. On a slow (not absent) network, changing the base currency on Home waits for up to four sequential fetch attempts before reloading.
 
 ## Upgrade to latest (2026-10-28)
@@ -752,3 +752,88 @@ Checked after CI went green on the upgraded stack.
 - **CI annotations.** "Node.js 20 is deprecated" (upload/download-artifact v4, setup-gradle v4) and "ubuntu-latest will migrate to Ubuntu 26". Every action is now on its newest Node 24 major, and jobs pin `ubuntu-26.04`. setup-gradle v6 uses its MIT "basic" cache instead of the default proprietary one. Only the test job saves it.
 
 Known gap, not changed: `POST_NOTIFICATIONS` is declared, but the app never asks for it at runtime. On Android 13+, reminder notifications stay off until they are enabled in system settings.
+
+## Dead-code cleanup (2026-10-29)
+
+Every removal had zero references anywhere in the repo (code, tests, XML, build scripts), checked by a whole-repo identifier index, detekt's unused-code rules and the Kotlin warnings from CI. Baseline: CI run 8 (green). After: CI run 10 on `c543c2e`. 134 files changed, about 2,470 lines and 4.6 MB of fonts removed.
+
+- **Build.** The empty `shared:data:core-testing` module; duplicate dependency lines in `feature:features` and `widget:add-transaction`. In `app`: keval, opencsv, recyclerview (other modules still declare them, so the APK keeps them) and test libraries (the module has no tests). `kotest-property-arrow` and `glance-material3`: nothing imports them. Also the two Retrofit-only R8 rules (Retrofit is not on the classpath).
+- **Code.** About 60 unused functions, classes and properties, mostly in `temp:legacy-code`, plus what only they used. Also gone: the delete-cloud-data dialog (its visibility flag was only ever set to false) with its event and handlers; commented-out code and three unread locals; and four spots the compiler flags as unreachable or a no-op.
+- **Approved by the owner.** The four `*UiTest` screenshot hooks no test calls; unused design tokens (`primary1`, `orange1`, `red1`, `red1Inverse`, six shape radii, the `Pink` palette); 11 Room queries nothing calls, with their fakes.
+- **Resources.** 80 strings (all 18 locales), 17 font weights (both copies), the `redL1` color.
+
+Kept on purpose:
+
+- The `TODO("Not implemented")` use cases in `shared:domain` (owner's call; one `AccountStatsUseCase` method is real and tested).
+- Hilt modules, Room type converters, `@Preview` functions and `Migration109to110.addSyncColumns` (migrations are off-limits).
+- All drawables: `ItemIcon` loads icon names stored in the database with `getIdentifier`.
+- `commons-lang3` (pins a patched version of an opencsv dependency), `room-ktx`, and `app`'s Room and Arrow declarations (Hilt's generated component in `app` may need them to compile). Code doesn't import any of them directly.
+- Unused parameters (31, mostly navigation `screen` arguments). Removing them would change call sites across modules.
+
+## Faster CI (2026-10-29)
+
+Changes:
+- **Build cache.** Gradle's build cache is on (`org.gradle.caching`). CI saves it per commit with `actions/cache`, so a push only recompiles and retests the modules its changes reach. Gradle also builds projects in parallel now, with 4 GB for the daemon.
+- **Docs-only pushes** (`**/*.md`, `docs/`, `LICENSE`) start no run.
+- **New `checks` job**, in parallel with build and test:
+  - the offline guard;
+  - detekt, against a regenerated baseline (11,500 lines down to 880);
+  - the module dependency rules in the root `build.gradle.kts` (`:assertModuleGraph`).
+- **Warning check.** build and test fail on Kotlin compiler warnings that `config/compiler-warnings-baseline.txt` doesn't list (`scripts/checkCompilerWarnings.sh`, 32 known warnings; deprecations aren't checked).
+
+Measured, in wall time:
+
+| Run | What changed | Time |
+|---|---|---|
+| 11 | docs only, before these changes | 27.7 min |
+| 12 | build files changed (empty caches) | ~31 min (build 21.0, test 10.5, checks 4.5) |
+| 13 | no code (warm caches) | 10.8 min (build 2.7, test 1.8, checks 3.4, emulator 8.1) |
+
+A code change lands between those: its module and everything that depends on it are recompiled, its tests rerun, and R8 (about 4 min) reruns for any app code change. The emulator job still runs on every push (changed since: see below).
+
+## CI: run only what a change can affect; lint and screenshot checks (2026-10-29)
+
+Changes:
+- **`plan` job** (`scripts/ciPlan.sh`). It decides what each run needs and explains why in the run summary.
+  - **Branch pushes** skip the emulator job and the R8 demo build when the change can't reach app startup or the APK build. That covers:
+    - code or resources of features other than onboarding and disclaimer (the screens a fresh install opens);
+    - widgets, unit tests and docs;
+    - the detekt and warning baselines.
+  - **Everything runs** on pushes to `main`, tags, manual runs, and the nightly run (02:37 UTC). The nightly run skips itself on days without commits.
+- **Emulator.**
+  - The system image is cached; on a cache miss it's downloaded in its own step, with three attempts (Google's server cut the download short once).
+  - The AVD is created fresh and cold-booted every run. Caching it with a boot snapshot was tried and dropped:
+    - the cache entry came to 3.5 GB;
+    - the snapshot was never written, because the emulator is killed 20 seconds into shutdown;
+    - a cold boot only takes about 40 seconds.
+  - The build job compiles the instrumented tests along with the demo APK, so the emulator job takes them from the build cache instead of compiling them after the emulator has booted.
+- **`lint` job** (`:app:lintDebug`).
+  - Runs on `main`, nightly and manual runs.
+  - Fails on Error or Fatal issues that `app/lint-baseline.xml` doesn't list (`scripts/checkLintReport.sh`). The baseline was regenerated on CI and lists 1,066 issues, 641 of them `UnusedResources`.
+  - The run summary has a table of new issues, and the report is in the `lint-report` artifact.
+- **Screenshot tests compare against reference images** (`verifyPaparazziDebug` in the test job).
+  - It's only requested in modules that have a `src/test/snapshots/` folder. Paparazzi's verify mode fails any module with unit tests but no such folder (five shared modules), so `./gradlew verifyPaparazziDebug` on its own fails locally too.
+  - The reference images were re-recorded on CI: 34 images (17 tests, light and dark).
+  - 44 old ones were removed: names from before Paparazzi 2, and tests that no longer exist.
+  - No rendered preview depends on today's date, so the images don't change from day to day.
+- **Manual actions** (Actions > Build > Run workflow) commit to the branch they run on: `record-screenshots` after an intended UI change, and `update-lint-baseline`. Their commits don't start another run.
+
+Notes:
+- GitHub only runs the nightly schedule from the default branch's copy of the workflow.
+- The repository is private, so Actions minutes count against the account's allowance. With warm caches:
+  - a branch push that runs the emulator job uses about 15 min of runner time;
+  - one that skips the emulator job uses about 8;
+  - a push to `main` adds lint and R8 on top.
+- Caches are scoped to the branch that saved them, plus `main`. The first run on `main` is therefore cold (about 30 min). After that, every branch can start from `main`'s caches.
+- The 3.5 GB cache entry from the snapshot attempt (`avd-34-google_apis-x86_64-3072M-v1`) expires after 7 days without use. It can also be deleted under Actions > Caches.
+
+Measured (wall time; the emulator job is the longest, so it sets the total):
+
+| Run | What changed | Emulator job | Whole run |
+|---|---|---|---|
+| 13 | before these changes, warm caches | 8.1 min | 10.8 min |
+| 14 | first try: AVD and snapshot cached (cache being created) | 18.1 min | ~20 min |
+| 19 | system image not cached yet; instrumented tests built by the build job | 6.7 min (emulator step 3.2) | test job failed (fixed in 20) |
+| 20 | system image from the cache (29 s) | 6.6 min | 9.2 min |
+
+Run 20's emulator step was slower than run 19's for reasons a change can't affect: a 66-second boot (40 in run 19) and Gradle start-up. The instrumented tests came from the build cache in both runs.

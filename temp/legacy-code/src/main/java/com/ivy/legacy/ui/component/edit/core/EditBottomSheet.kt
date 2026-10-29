@@ -171,12 +171,6 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             .fillMaxWidth()
             .statusBarsPadding()
             .padding(top = 24.dp)
-//            .drawColoredShadow(
-//                color = UI.colors.mediumInverse,
-//                alpha = if (UI.colors.isLight) 0.3f else 0.2f,
-//                borderRadius = 24.dp,
-//                shadowRadius = 24.dp
-//            )
             .border(
                 width = 2.dp,
                 color = UI.colors.medium,

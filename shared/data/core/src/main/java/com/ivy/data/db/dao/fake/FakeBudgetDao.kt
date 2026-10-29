@@ -14,13 +14,6 @@ class FakeBudgetDao : BudgetDao, WriteBudgetDao {
         return items
     }
 
-    override suspend fun findByIsSyncedAndIsDeleted(
-        synced: Boolean,
-        deleted: Boolean
-    ): List<BudgetEntity> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun findById(id: UUID): BudgetEntity? {
         return items.find { it.id == id }
     }

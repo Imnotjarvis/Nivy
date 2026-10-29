@@ -14,13 +14,6 @@ class FakePlannedPaymentDao : PlannedPaymentRuleDao, WritePlannedPaymentRuleDao 
         return items
     }
 
-    override suspend fun findByIsSyncedAndIsDeleted(
-        synced: Boolean,
-        deleted: Boolean
-    ): List<PlannedPaymentRuleEntity> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun findAllByOneTime(oneTime: Boolean): List<PlannedPaymentRuleEntity> {
         TODO("Not yet implemented")
     }

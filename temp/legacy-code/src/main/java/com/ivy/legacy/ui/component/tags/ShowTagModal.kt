@@ -265,14 +265,6 @@ private fun ExistingTag(
     ) {
         Spacer(Modifier.width(if (selected) 12.dp else 8.dp))
 
-//        ItemIconSDefaultIcon(
-//            modifier = Modifier
-//                .background(tagColor, CircleShape),
-//            iconName = category.icon,
-//            defaultIcon = R.drawable.ic_custom_category_s,
-//            tint = findContrastTextColor(tagColor)
-//        )
-
         Text(
             modifier = Modifier
                 .padding(vertical = 12.dp)

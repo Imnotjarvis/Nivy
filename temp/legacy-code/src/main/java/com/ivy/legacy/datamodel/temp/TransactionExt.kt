@@ -46,16 +46,3 @@ fun TransactionEntity.toLegacyDomain(
 fun Tag.toLegacyTag(): LegacyTag = LegacyTag(this.id.value, this.name.value)
 fun List<Tag>.toImmutableLegacyTags(): ImmutableList<LegacyTag> =
     this.map { it.toLegacyTag() }.toImmutableList()
-
-fun TransactionEntity.isIdenticalWith(transaction: TransactionEntity?): Boolean {
-    if (transaction == null) return false
-
-    // Set isSynced && isDeleted to false so they aren't accounted in the equals check
-    return this.copy(
-        isSynced = false,
-        isDeleted = false
-    ) == transaction.copy(
-        isSynced = false,
-        isDeleted = false
-    )
-}

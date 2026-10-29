@@ -980,13 +980,3 @@ private fun Preview_Records(theme: Theme = Theme.LIGHT) {
         ) {}
     }
 }
-
-/** For screenshot testing */
-@Composable
-fun LoanDetailScreenUiTest(isDark: Boolean) {
-    val theme = when (isDark) {
-        true -> Theme.DARK
-        false -> Theme.LIGHT
-    }
-    Preview_Records(theme)
-}

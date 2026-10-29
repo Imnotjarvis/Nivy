@@ -38,7 +38,6 @@ class AccountRepositoryTest {
             mapper = AccountMapper(
                 CurrencyRepository(
                     settingsDao = settingsDao,
-                    writeSettingsDao = settingsDao,
                     dispatchersProvider = TestDispatchersProvider
                 )
             ),

@@ -169,13 +169,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.timber)
-    implementation(libs.keval)
-    implementation(libs.bundles.opencsv)
     implementation(libs.androidx.work)
-    implementation(libs.androidx.recyclerview)
-
-    testImplementation(libs.bundles.testing)
-    testImplementation(libs.androidx.work.testing)
 
     lintChecks(libs.slack.lint.compose)
 }
