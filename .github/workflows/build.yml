@@ -5,7 +5,8 @@
 #   checks  offline guard, detekt and module dependency rules (no compiling)
 #   build   debug APK; when the device job runs, also the R8-minified "demo" APK (signed with
 #           the committed debug key) and the instrumented tests. APKs are in the "apks" artifact
-#   test    unit tests and screenshot tests, in parallel with build
+#   test    unit tests, and screenshot tests compared with their reference images; in parallel
+#           with build
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
 #   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list
@@ -224,10 +225,13 @@ jobs:
             gradle-build-cache-test-
             gradle-build-cache-
 
-      - name: Unit tests
+      # verifyPaparazziDebug makes the screenshot tests compare each image with its reference in
+      # src/test/snapshots/ (differences are in the "test-reports" artifact). After an intended
+      # UI change, re-record them: Actions > Build > Run workflow > record-screenshots.
+      - name: Unit and screenshot tests
         run: |
           set -o pipefail
-          ./gradlew testDebugUnitTest --continue 2>&1 | tee gradle-output.log
+          ./gradlew testDebugUnitTest verifyPaparazziDebug --continue 2>&1 | tee gradle-output.log
 
       - name: Drop build cache entries older than a week
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
