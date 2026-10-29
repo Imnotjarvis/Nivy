@@ -58,7 +58,6 @@ arrowkt-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 mockk = { module = "io.mockk:mockk", version = "1.14.11" }
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
-kotest-property-arrow = { module = "io.kotest:kotest-property-arrow", version.ref = "kotest" }
 kotest-assertions-arrow = { module = "io.kotest:kotest-assertions-arrow", version.ref = "kotest" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
 cashapp-molecule-runtime = { module = "app.cash.molecule:molecule-runtime", version = "2.2.0" }
@@ -87,7 +86,6 @@ compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose",
 compose-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 glance = { module = "androidx.glance:glance", version.ref = "glance" }
 glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
 
 # Room
 room-plugin = { module = "androidx.room:androidx.room.gradle.plugin", version.ref = "room" }
@@ -109,7 +107,6 @@ androidx-biometrics = { module = "androidx.biometric:biometric", version = "1.4.
 androidx-activity = { module = "androidx.activity:activity-ktx", version = "1.13.0" }
 appcompat-activity = { module = "androidx.appcompat:appcompat", version = "1.8.0" }
 androidx-work = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
-androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "androidx-work" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version = "1.4.0" }
 
 # Material
@@ -160,7 +157,6 @@ ktor = [
 testing = [
     "kotest-assertions",
     "kotest-property",
-    "kotest-property-arrow",
     "kotest-assertions-arrow",
     "kotlin-coroutines-test",
     "mockk",
@@ -194,7 +190,6 @@ activity = [
 glance = [
     "glance",
     "glance-appwidget",
-    "glance-material3"
 ]
 hilt = [
     "hilt",
