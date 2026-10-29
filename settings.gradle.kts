@@ -9,6 +9,13 @@ dependencyResolutionManagement {
     }
 }
 
+buildCache {
+    local {
+        // CI keeps the build cache outside Gradle's home so it can be saved per commit.
+        System.getenv("GRADLE_BUILD_CACHE_DIR")?.let { directory = File(it) }
+    }
+}
+
 rootProject.name = "IvyWallet"
 include(":app")
 include(":feature:accounts")
