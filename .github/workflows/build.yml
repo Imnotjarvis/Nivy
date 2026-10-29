@@ -304,10 +304,25 @@ jobs:
       # it takes 2 seconds to create, and a boot snapshot would save half a minute of booting
       # for gigabytes of the repository's 10 GB cache allowance, which Gradle's caches need.
       - name: Cache the emulator system image
+        id: system-image
         uses: actions/cache@v6
         with:
           path: /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64
           key: system-image-34-google_apis-x86_64-v1
+
+      # Google's server sometimes cuts the download short (run 16: "Error reading Zip content"),
+      # and the emulator step doesn't retry, so fetch the image here first.
+      - name: Download the emulator system image
+        if: steps.system-image.outputs.cache-hit != 'true'
+        run: |
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$sdkmanager" --licenses > /dev/null
+          for attempt in 1 2 3; do
+            "$sdkmanager" --install 'system-images;android-34;google_apis;x86_64' > /dev/null && exit 0
+            echo "Download failed (attempt $attempt of 3)."
+            sleep $((attempt * 20))
+          done
+          exit 1
 
       # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install.
       - name: Smoke test and instrumented tests on an emulator
