@@ -789,4 +789,36 @@ Measured, in wall time:
 | 12 | build files changed (empty caches) | ~31 min (build 21.0, test 10.5, checks 4.5) |
 | 13 | no code (warm caches) | 10.8 min (build 2.7, test 1.8, checks 3.4, emulator 8.1) |
 
-A code change lands between those: its module and everything that depends on it are recompiled, its tests rerun, and R8 (about 4 min) reruns for any app code change. The emulator job still runs on every push.
+A code change lands between those: its module and everything that depends on it are recompiled, its tests rerun, and R8 (about 4 min) reruns for any app code change. The emulator job still runs on every push (changed since: see below).
+
+## CI: run only what a change can affect; lint and screenshot checks (2026-10-29)
+
+Changes:
+- **`plan` job** (`scripts/ciPlan.sh`). It decides what each run needs and explains why in the run summary.
+  - **Branch pushes** skip the emulator job and the R8 demo build when the change can't reach app startup or the APK build. That covers:
+    - code or resources of features other than onboarding and disclaimer (the screens a fresh install opens);
+    - widgets, unit tests and docs;
+    - the detekt and warning baselines.
+  - **Everything runs** on pushes to `main`, tags, manual runs, and the nightly run (02:37 UTC). The nightly run skips itself on days without commits.
+- **Emulator.**
+  - The system image is cached; on a cache miss it's downloaded in its own step, with three attempts (Google's server cut the download short once).
+  - The AVD is created fresh and cold-booted every run. Caching it with a boot snapshot was tried and dropped:
+    - the cache entry came to 3.5 GB;
+    - the snapshot was never written, because the emulator is killed 20 seconds into shutdown;
+    - a cold boot only takes about 40 seconds.
+  - The build job compiles the instrumented tests along with the demo APK, so the emulator job takes them from the build cache instead of compiling them after the emulator has booted.
+- **`lint` job** (`:app:lintDebug`).
+  - Runs on `main`, nightly and manual runs.
+  - Fails on Error or Fatal issues that `app/lint-baseline.xml` doesn't list (`scripts/checkLintReport.sh`). The baseline was regenerated on CI and lists 1,066 issues, 641 of them `UnusedResources`.
+  - The run summary has a table of new issues, and the report is in the `lint-report` artifact.
+- **Screenshot tests compare against reference images** (`verifyPaparazziDebug` in the test job).
+  - The reference images were re-recorded on CI: 34 images (17 tests, light and dark).
+  - 44 old ones were removed: names from before Paparazzi 2, and tests that no longer exist.
+  - No rendered preview depends on today's date, so the images don't change from day to day.
+- **Manual actions** (Actions > Build > Run workflow) commit to the branch they run on: `record-screenshots` after an intended UI change, and `update-lint-baseline`. Their commits don't start another run.
+
+Notes:
+- GitHub only runs the nightly schedule from the default branch's copy of the workflow.
+- The repository is private, so Actions minutes count against the account's allowance. A push to `main` runs everything (about 25 min of runner time when warm). A branch push that skips the emulator job uses about 10.
+- Caches are scoped to the branch that saved them, plus `main`. The first run on `main` is therefore cold (about 30 min). After that, every branch can start from `main`'s caches.
+- The 3.5 GB cache entry from the snapshot attempt (`avd-34-google_apis-x86_64-3072M-v1`) expires after 7 days without use. It can also be deleted under Actions > Caches.
