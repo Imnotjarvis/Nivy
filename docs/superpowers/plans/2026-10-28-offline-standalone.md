@@ -769,3 +769,24 @@ Kept on purpose:
 - All drawables: `ItemIcon` loads icon names stored in the database with `getIdentifier`.
 - `commons-lang3` (pins a patched version of an opencsv dependency), `room-ktx`, and `app`'s Room and Arrow declarations (Hilt's generated component in `app` may need them to compile). Code doesn't import any of them directly.
 - Unused parameters (31, mostly navigation `screen` arguments). Removing them would change call sites across modules.
+
+## Faster CI (2026-10-29)
+
+Changes:
+- **Build cache.** Gradle's build cache is on (`org.gradle.caching`). CI saves it per commit with `actions/cache`, so a push only recompiles and retests the modules its changes reach. Gradle also builds projects in parallel now, with 4 GB for the daemon.
+- **Docs-only pushes** (`**/*.md`, `docs/`, `LICENSE`) start no run.
+- **New `checks` job**, in parallel with build and test:
+  - the offline guard;
+  - detekt, against a regenerated baseline (11,500 lines down to 880);
+  - the module dependency rules in the root `build.gradle.kts` (`:assertModuleGraph`).
+- **Warning check.** build and test fail on Kotlin compiler warnings that `config/compiler-warnings-baseline.txt` doesn't list (`scripts/checkCompilerWarnings.sh`, 32 known warnings; deprecations aren't checked).
+
+Measured, in wall time:
+
+| Run | What changed | Time |
+|---|---|---|
+| 11 | docs only, before these changes | 27.7 min |
+| 12 | build files changed (empty caches) | ~31 min (build 21.0, test 10.5, checks 4.5) |
+| 13 | no code (warm caches) | 10.8 min (build 2.7, test 1.8, checks 3.4, emulator 8.1) |
+
+A code change lands between those: its module and everything that depends on it are recompiled, its tests rerun, and R8 (about 4 min) reruns for any app code change. The emulator job still runs on every push.
