@@ -3,8 +3,8 @@
 # Jobs:
 #   plan    decides what this run needs (scripts/ciPlan.sh, explained in the run summary)
 #   checks  offline guard, detekt and module dependency rules (no compiling)
-#   build   debug APK, plus the R8-minified "demo" APK (signed with the committed debug key)
-#           when the device job runs; attached to the run as the "apks" artifact
+#   build   debug APK; when the device job runs, also the R8-minified "demo" APK (signed with
+#           the committed debug key) and the instrumented tests. APKs are in the "apks" artifact
 #   test    unit tests and screenshot tests, in parallel with build
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
@@ -157,13 +157,16 @@ jobs:
             gradle-build-cache-build-
             gradle-build-cache-
 
-      # The minified demo APK (R8 takes about 4 minutes) is only built for the device job.
+      # The minified demo APK (R8 takes about 4 minutes) and the instrumented tests are only
+      # built for the device job, which takes the compiled tests from this job's build cache.
       - name: Build APKs
         env:
-          DEMO_APK: ${{ needs.plan.outputs.device == 'true' && ':app:assembleDemo' || '' }}
+          DEVICE_TASKS: >-
+            ${{ needs.plan.outputs.device == 'true' && ':app:assembleDemo
+            :shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug $DEMO_APK --continue 2>&1 | tee gradle-output.log
+          ./gradlew :app:assembleDebug $DEVICE_TASKS --continue 2>&1 | tee gradle-output.log
 
       # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
       - name: Drop build cache entries older than a week
@@ -270,8 +273,8 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
-      # Reuses what the build job just compiled for this commit. Not saved again: the only
-      # outputs added here are the small instrumented-test APKs.
+      # Reuses what the build job just compiled for this commit, instrumented tests included.
+      # Not saved again: this job adds nothing worth keeping.
       - uses: actions/cache/restore@v6
         with:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
@@ -296,33 +299,17 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # The system image (about a minute to download) and an AVD with a clean boot snapshot
-      # (about a minute to cold-boot) are cached. Bump the key's -v to rebuild them. The image
-      # path is ANDROID_HOME on GitHub's Ubuntu runners.
-      - name: Emulator cache
-        id: avd-cache
+      # The system image takes 1 to 4 minutes to download from Google; bump the key's -v to
+      # refresh it. The path is ANDROID_HOME's on GitHub's Ubuntu runners. The AVD isn't cached:
+      # it takes 2 seconds to create, and a boot snapshot would save half a minute of booting
+      # for gigabytes of the repository's 10 GB cache allowance, which Gradle's caches need.
+      - name: Cache the emulator system image
         uses: actions/cache@v6
         with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-            /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64
-          key: avd-34-google_apis-x86_64-3072M-v1
+          path: /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64
+          key: system-image-34-google_apis-x86_64-v1
 
-      - name: Create the AVD and its boot snapshot
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          target: google_apis
-          disk-size: 3072M
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          script: echo "Created the AVD and saved a boot snapshot for the cache."
-
-      # -no-snapshot-save keeps the cached snapshot clean; every APK is installed fresh anyway.
+      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install.
       - name: Smoke test and instrumented tests on an emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -330,8 +317,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disk-size: 3072M
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
             scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
