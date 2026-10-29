@@ -416,7 +416,7 @@ class EditPlannedViewModel @Inject constructor(
             try {
                 ioThread {
                     loadedRule = loadedRule().copy(
-                        type = transactionType ?: error("no transaction type"),
+                        type = transactionType,
                         startDate = with(timeConverter) { startDate?.toUTC() }
                             ?: error("no startDate"),
                         intervalN = intervalN ?: error("no intervalN"),
@@ -425,7 +425,7 @@ class EditPlannedViewModel @Inject constructor(
                         accountId = account?.id ?: error("no accountId"),
                         title = title?.trim(),
                         description = description?.trim(),
-                        amount = amount ?: error("no amount"),
+                        amount = amount,
 
                         isSynced = false
                     )

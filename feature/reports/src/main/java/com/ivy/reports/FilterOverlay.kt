@@ -121,7 +121,6 @@ fun BoxWithConstraintsScope.FilterOverlay(
         ReportFilter.emptyFilter(baseCurrency = baseCurrency)
     }
     val nonNullFilter = { currentFilter: ReportFilter? ->
-        ReportFilter
         currentFilter ?: baseFilter
     }
 

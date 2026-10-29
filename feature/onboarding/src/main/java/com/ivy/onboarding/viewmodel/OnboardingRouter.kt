@@ -94,11 +94,6 @@ class OnboardingRouter(
                     state.value = OnboardingState.ACCOUNTS
                     true
                 }
-
-                null -> {
-                    // do nothing, consume back
-                    true
-                }
             }
         }
     }
