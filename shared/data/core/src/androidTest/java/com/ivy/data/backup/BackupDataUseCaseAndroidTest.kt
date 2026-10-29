@@ -40,7 +40,6 @@ class BackupDataUseCaseAndroidTest {
         val accountMapper = AccountMapper(
             currencyRepository = CurrencyRepository(
                 settingsDao = db.settingsDao,
-                writeSettingsDao = db.writeSettingsDao,
                 dispatchersProvider = TestDispatchersProvider,
             )
         )

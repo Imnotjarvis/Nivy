@@ -57,12 +57,6 @@ class SharedPrefs @Inject constructor(
         editor.apply()
     }
 
-    fun putDouble(key: String, value: Double) {
-        val editor = preferences.edit()
-        editor.putFloat(key, value.toFloat())
-        editor.apply()
-    }
-
     fun putLong(key: String, value: Long) {
         val editor = preferences.edit()
         editor.putLong(key, value)

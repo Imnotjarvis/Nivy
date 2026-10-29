@@ -800,44 +800,6 @@ private fun SettingsButtonRow(
 }
 
 @Composable
-private fun AccountCardButton(
-    @DrawableRes icon: Int,
-    text: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(UI.shapes.rFull)
-            .background(UI.colors.pure, UI.shapes.rFull)
-            .clickable {
-                onClick()
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(12.dp))
-
-        IvyIconScaled(
-            icon = icon,
-            iconScale = IconScale.M
-        )
-
-        Spacer(Modifier.width(4.dp))
-
-        Text(
-            modifier = Modifier
-                .padding(vertical = 10.dp),
-            text = text,
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
-                color = UI.colors.pureInverse
-            )
-        )
-
-        Spacer(Modifier.width(24.dp))
-    }
-}
-
-@Composable
 private fun CurrencyButton(
     currency: String,
     onClick: () -> Unit

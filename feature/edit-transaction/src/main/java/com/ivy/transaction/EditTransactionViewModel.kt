@@ -767,21 +767,6 @@ class EditTransactionViewModel @Inject constructor(
         hasChanges = hasChangesValue
     }
 
-    private suspend fun transferToAmount(
-        amount: Double
-    ): Double? {
-        if (transactionType != TransactionType.TRANSFER) return null
-        val toCurrency = toAccount?.currency ?: baseCurrency()
-        val fromCurrency = account?.currency ?: baseCurrency()
-
-        return exchangeRatesLogic.convertAmount(
-            baseCurrency = baseCurrency(),
-            amount = amount,
-            fromCurrency = fromCurrency,
-            toCurrency = toCurrency
-        )
-    }
-
     private suspend fun baseCurrency(): String = ioThread { settingsDao.findFirst().currency }
 
     private fun closeScreen() {

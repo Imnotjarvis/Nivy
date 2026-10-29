@@ -405,8 +405,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
         startActivity(intent)
     }
 
-    override val isDebug: Boolean
-        get() = BuildConfig.DEBUG
     override val buildVersionName: String
         get() = BuildConfig.VERSION_NAME
     override val buildVersionCode: Int

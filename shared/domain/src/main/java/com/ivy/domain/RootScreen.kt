@@ -4,11 +4,6 @@ import android.net.Uri
 
 interface RootScreen {
     /**
-     * BuildConfig.DEBUG
-     */
-    val isDebug: Boolean
-
-    /**
      * BuildConfig.VERSION_NAME
      */
     val buildVersionName: String

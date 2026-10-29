@@ -25,5 +25,3 @@ private fun tryStatus(block: () -> MappingStatus): MappingStatus = try {
 } catch (e: Exception) {
     MappingStatus(sampleValues = emptyList(), success = false)
 }
-
-fun mappingFailure(): MappingStatus = MappingStatus(sampleValues = emptyList(), success = false)

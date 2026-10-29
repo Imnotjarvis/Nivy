@@ -114,16 +114,6 @@ class OnboardingRouter(
     // ------------------------------------- Step 0 -------------------------------------------------
 
     // ------------------------------------- Step 1 - Login -----------------------------------------
-    suspend fun googleLoginNext() {
-        if (isLogin()) {
-            // Route logged user
-            state.value = OnboardingState.CURRENCY
-        } else {
-            // Route new user
-            state.value = OnboardingState.CHOOSE_PATH
-        }
-    }
-
     private suspend fun isLogin(): Boolean {
         isLoginCache = ioThread { accountDao.findAll().isNotEmpty() }
         return isLoginCache
