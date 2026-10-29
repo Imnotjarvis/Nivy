@@ -1,21 +1,36 @@
-# Builds Ivy Wallet (offline) on every push and publishes signed APKs for v* tags.
+# Builds Ivy Wallet (offline), tests it, and publishes signed APKs for v* tags.
 #
-# Every push that changes more than docs:
-#   checks  offline guard, detekt and module dependency rules (no compiling, a few minutes)
-#   build   debug APK and R8-minified "demo" APK (signed with the committed debug key),
-#           attached to the run as the "apks" artifact
-#   test    unit tests, in parallel with build
+# Jobs:
+#   plan    decides what this run needs (scripts/ciPlan.sh, explained in the run summary)
+#   checks  offline guard, detekt and module dependency rules (no compiling)
+#   build   debug APK, plus the R8-minified "demo" APK (signed with the committed debug key)
+#           when the device job runs; attached to the run as the "apks" artifact
+#   test    unit tests and screenshot tests, in parallel with build
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
+#   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list
 # build and test also fail on Kotlin compiler warnings that config/compiler-warnings-baseline.txt
 # doesn't list (scripts/checkCompilerWarnings.sh).
 #
-# Gradle's build cache is saved per commit, so a push only recompiles and retests the modules
-# its changes can affect. Unchanged modules come from the cache, and so do their test results.
+# What runs when:
+#   push to a branch        checks, build, test; device only when the change can reach app
+#                           startup or the APK build (not for other features, widgets, unit
+#                           tests or docs); no lint
+#   push to main, tag,      everything
+#   nightly, manual run
+#   docs-only push          nothing
+# Gradle's build cache is saved per commit, so a run only recompiles and retests the modules its
+# changes can affect.
+#
+# Manual runs (Actions > Build > Run workflow) take an "action":
+#   build                 everything
+#   release               everything, plus a signed release APK
+#   record-screenshots    re-records the screenshot tests' reference images and commits them
+#   update-lint-baseline  regenerates app/lint-baseline.xml and commits it
 #
 # Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
-# gradle/libs.versions.toml first, or Android refuses to install it as an update), or start
-# the workflow by hand from the Actions tab. That needs four repository secrets
+# gradle/libs.versions.toml first, or Android refuses to install it as an update), or run the
+# workflow by hand with "release". That needs four repository secrets
 # (Settings -> Secrets and variables -> Actions):
 #   RELEASE_KEYSTORE_BASE64  output of: base64 -w0 release.jks
 #   RELEASE_STORE_PASSWORD   keystore password
@@ -34,10 +49,21 @@ on:
     # Pushes that only touch docs don't run CI. Tag pushes always run: GitHub doesn't apply
     # path filters to tags.
     paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+  # Nightly, on the default branch only (GitHub runs schedules from there). It skips itself
+  # on days without commits.
+  schedule:
+    - cron: '37 2 * * *'
   workflow_dispatch:
+    inputs:
+      action:
+        description: What to run
+        type: choice
+        default: build
+        options: [build, release, record-screenshots, update-lint-baseline]
 
 concurrency:
-  group: build-${{ github.ref }}
+  # Manual maintenance runs and pushes to the same branch don't cancel each other.
+  group: build-${{ github.ref }}-${{ inputs.action || github.event_name }}
   cancel-in-progress: true
 
 env:
@@ -46,7 +72,32 @@ env:
   GRADLE_BUILD_CACHE_DIR: ${{ github.workspace }}/.gradle/ci-build-cache
 
 jobs:
+  plan:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+      device: ${{ steps.plan.outputs.device }}
+      lint: ${{ steps.plan.outputs.lint }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Decide what this run needs
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ inputs.action }}
+          REF: ${{ github.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          scripts/ciPlan.sh >> "$GITHUB_OUTPUT" 2> plan.txt
+          cat plan.txt
+          echo "**Plan:** $(cat plan.txt)" >> "$GITHUB_STEP_SUMMARY"
+
   checks:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
@@ -77,6 +128,8 @@ jobs:
           if-no-files-found: ignore
 
   build:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
@@ -104,10 +157,13 @@ jobs:
             gradle-build-cache-build-
             gradle-build-cache-
 
-      - name: Build debug and minified APKs
+      # The minified demo APK (R8 takes about 4 minutes) is only built for the device job.
+      - name: Build APKs
+        env:
+          DEMO_APK: ${{ needs.plan.outputs.device == 'true' && ':app:assembleDemo' || '' }}
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug :app:assembleDemo --continue 2>&1 | tee gradle-output.log
+          ./gradlew :app:assembleDebug $DEMO_APK --continue 2>&1 | tee gradle-output.log
 
       # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
       - name: Drop build cache entries older than a week
@@ -136,6 +192,8 @@ jobs:
 
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
@@ -186,13 +244,17 @@ jobs:
         if: failure()
         with:
           name: test-reports
-          path: '**/build/reports/tests/'
+          path: |
+            **/build/reports/tests/
+            **/build/paparazzi/failures/
+          if-no-files-found: ignore
 
   # Runs the app on an emulator: launches both APKs on a fresh install (catches startup
   # crashes from R8, Hilt, Room) and runs the instrumented database-migration, backup and
   # exchange-rate tests.
   device:
-    needs: build
+    needs: [plan, build]
+    if: needs.plan.outputs.device == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
@@ -234,6 +296,33 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # The system image (about a minute to download) and an AVD with a clean boot snapshot
+      # (about a minute to cold-boot) are cached. Bump the key's -v to rebuild them. The image
+      # path is ANDROID_HOME on GitHub's Ubuntu runners.
+      - name: Emulator cache
+        id: avd-cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64
+          key: avd-34-google_apis-x86_64-3072M-v1
+
+      - name: Create the AVD and its boot snapshot
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disk-size: 3072M
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Created the AVD and saved a boot snapshot for the cache."
+
+      # -no-snapshot-save keeps the cached snapshot clean; every APK is installed fresh anyway.
       - name: Smoke test and instrumented tests on an emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -241,6 +330,8 @@ jobs:
           arch: x86_64
           target: google_apis
           disk-size: 3072M
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
             scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
@@ -255,9 +346,126 @@ jobs:
             **/build/reports/androidTests/
           if-no-files-found: ignore
 
+  lint:
+    needs: plan
+    if: needs.plan.outputs.lint == 'true'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      # Lint's per-module analysis is cacheable too, and it needs the compiled classes.
+      - name: Restore build cache
+        id: restore-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-lint-${{ github.sha }}
+          restore-keys: |
+            gradle-build-cache-lint-
+            gradle-build-cache-build-
+            gradle-build-cache-
+
+      # app's lint config has checkDependencies = true, so this covers every module.
+      - name: Android Lint
+        run: ./gradlew :app:lintDebug --continue
+
+      - name: Drop build cache entries older than a week
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+
+      - name: Save build cache
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-lint-${{ github.sha }}
+
+      - name: No new lint errors
+        run: scripts/checkLintReport.sh
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: lint-report
+          path: |
+            app/build/reports/lint-results-debug.*
+            build/reports/lint/
+          if-no-files-found: ignore
+
+  # Manual maintenance: regenerates a baseline on CI's Linux runner (screenshots must be
+  # recorded where they are verified) and commits the result to the branch it ran on.
+  # Commits made with the workflow's token don't start another run.
+  update-baselines:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      (inputs.action == 'record-screenshots' || inputs.action == 'update-lint-baseline')
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-test-${{ github.sha }}
+          restore-keys: gradle-build-cache-
+
+      - name: Record screenshot reference images
+        if: inputs.action == 'record-screenshots'
+        run: ./gradlew cleanRecordPaparazziDebug --continue
+
+      # updateLintBaseline rewrites app/lint-baseline.xml with every issue lint finds today. If
+      # this AGP version lacks the task, lint writes a fresh baseline when the file is missing.
+      - name: Regenerate the lint baseline
+        if: inputs.action == 'update-lint-baseline'
+        run: |
+          if ! ./gradlew :app:updateLintBaseline --continue; then
+            rm -f app/lint-baseline.xml
+            ./gradlew :app:lintDebug -Dlint.baselines.continue=true --continue || true
+          fi
+          test -s app/lint-baseline.xml
+
+      - name: Commit the result
+        env:
+          ACTION: ${{ inputs.action }}
+        run: |
+          git add -A -- '*/src/test/snapshots/' app/lint-baseline.xml
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git diff --cached --stat
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -q -m "ci: $ACTION" -m "Generated by the Build workflow's $ACTION action on ${{ runner.os }}."
+          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
+
   release:
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: [checks, build, test]
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.action == 'release'
+    needs: [plan, checks, build, test]
     runs-on: ubuntu-26.04
     timeout-minutes: 45
     permissions:
