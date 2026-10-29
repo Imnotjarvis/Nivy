@@ -812,6 +812,7 @@ Changes:
   - Fails on Error or Fatal issues that `app/lint-baseline.xml` doesn't list (`scripts/checkLintReport.sh`). The baseline was regenerated on CI and lists 1,066 issues, 641 of them `UnusedResources`.
   - The run summary has a table of new issues, and the report is in the `lint-report` artifact.
 - **Screenshot tests compare against reference images** (`verifyPaparazziDebug` in the test job).
+  - It's only requested in modules that have a `src/test/snapshots/` folder. Paparazzi's verify mode fails any module with unit tests but no such folder (five shared modules), so `./gradlew verifyPaparazziDebug` on its own fails locally too.
   - The reference images were re-recorded on CI: 34 images (17 tests, light and dark).
   - 44 old ones were removed: names from before Paparazzi 2, and tests that no longer exist.
   - No rendered preview depends on today's date, so the images don't change from day to day.
@@ -819,6 +820,20 @@ Changes:
 
 Notes:
 - GitHub only runs the nightly schedule from the default branch's copy of the workflow.
-- The repository is private, so Actions minutes count against the account's allowance. A push to `main` runs everything (about 25 min of runner time when warm). A branch push that skips the emulator job uses about 10.
+- The repository is private, so Actions minutes count against the account's allowance. With warm caches:
+  - a branch push that runs the emulator job uses about 15 min of runner time;
+  - one that skips the emulator job uses about 8;
+  - a push to `main` adds lint and R8 on top.
 - Caches are scoped to the branch that saved them, plus `main`. The first run on `main` is therefore cold (about 30 min). After that, every branch can start from `main`'s caches.
 - The 3.5 GB cache entry from the snapshot attempt (`avd-34-google_apis-x86_64-3072M-v1`) expires after 7 days without use. It can also be deleted under Actions > Caches.
+
+Measured (wall time; the emulator job is the longest, so it sets the total):
+
+| Run | What changed | Emulator job | Whole run |
+|---|---|---|---|
+| 13 | before these changes, warm caches | 8.1 min | 10.8 min |
+| 14 | first try: AVD and snapshot cached (cache being created) | 18.1 min | ~20 min |
+| 19 | system image not cached yet; instrumented tests built by the build job | 6.7 min (emulator step 3.2) | test job failed (fixed in 20) |
+| 20 | system image from the cache (29 s) | 6.6 min | 9.2 min |
+
+Run 20's emulator step was slower than run 19's for reasons a change can't affect: a 66-second boot (40 in run 19) and Gradle start-up. The instrumented tests came from the build cache in both runs.
