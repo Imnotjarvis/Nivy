@@ -107,12 +107,6 @@ fun BoxWithConstraintsScope.OnboardingCategories(
                     )
                 )
 
-//                PremiumInfo(
-//                    itemLabelPlural = "categories",
-//                    itemsCount = categories.size,
-//                    freeItemsCount = Constants.FREE_CATEGORIES
-//                )
-
                 if (categories.isEmpty()) {
                     Spacer(Modifier.height(16.dp))
 

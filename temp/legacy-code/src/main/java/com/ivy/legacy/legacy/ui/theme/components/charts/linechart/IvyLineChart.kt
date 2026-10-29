@@ -145,7 +145,6 @@ private fun DrawScope.drawFunctions(
 ): List<FunctionPoint> {
     // Add some kind of a "Padding" for the initial point where the line starts.
     val lineWidth = 3.dp.toPx()
-    val marginFromX = 4.dp.toPx()
 
     return functions.flatMapIndexed { index, function ->
         drawFunction(

@@ -104,12 +104,6 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                     )
                 )
 
-//                PremiumInfo(
-//                    itemLabelPlural = "accounts",
-//                    itemsCount = accounts.size,
-//                    freeItemsCount = Constants.FREE_ACCOUNTS
-//                )
-
                 if (accounts.isEmpty()) {
                     Spacer(Modifier.height(16.dp))
 
