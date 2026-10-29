@@ -866,14 +866,3 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
         )
     }
 }
-
-/** For screenshot testing */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SettingsUiTest(isDark: Boolean) {
-    val theme = when (isDark) {
-        true -> Theme.DARK
-        false -> Theme.LIGHT
-    }
-    Preview(theme)
-}
