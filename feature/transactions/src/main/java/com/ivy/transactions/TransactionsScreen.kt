@@ -920,8 +920,8 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
 
 @Preview
 @Composable
-private fun BoxWithConstraintsScope.Preview_empty_upcoming() {
-    IvyPreview {
+private fun BoxWithConstraintsScope.Preview_empty_upcoming(isDark: Boolean = false) {
+    IvyPreview(isDark) {
         UI(
             period = TimePeriod(month = Month.monthsList().first(), year = 2023),
             baseCurrency = "BGN",
@@ -974,6 +974,6 @@ fun TransactionsUiTest(isDark: Boolean) {
         false -> Theme.LIGHT
     }
     IvyWalletPreview(theme) {
-        Preview_empty_upcoming()
+        Preview_empty_upcoming(isDark)
     }
 }
