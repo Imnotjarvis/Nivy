@@ -17,6 +17,8 @@
 #   push to a branch        checks, build, test; device only when the change can reach app
 #                           startup or the APK build (not for other features, widgets, unit
 #                           tests or docs); no lint
+#   push to a branch named  checks and build only; build also compiles the unit tests
+#   claude/experimental-*
 #   push to main, tag,      everything
 #   nightly, manual run
 #   docs-only push          nothing
@@ -78,6 +80,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       run: ${{ steps.plan.outputs.run }}
+      test: ${{ steps.plan.outputs.test }}
       device: ${{ steps.plan.outputs.device }}
       lint: ${{ steps.plan.outputs.lint }}
     steps:
@@ -144,9 +147,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           # Open-source (MIT) cache: one entry per hash of the build files. Only the
-          # "test" job saves it; parallel jobs saving the same key collide and warn.
+          # "test" job saves it (this job when tests don't run); parallel jobs saving the same
+          # key collide and warn.
           cache-provider: basic
-          cache-read-only: true
+          cache-read-only: ${{ needs.plan.outputs.test == 'true' }}
 
       - name: Restore build cache
         id: restore-cache
@@ -160,14 +164,16 @@ jobs:
 
       # The minified demo APK (R8 takes about 4 minutes) and the instrumented tests are only
       # built for the device job, which takes the compiled tests from this job's build cache.
+      # When the test job doesn't run, the unit tests are still compiled here.
       - name: Build APKs
         env:
           DEVICE_TASKS: >-
             ${{ needs.plan.outputs.device == 'true' && ':app:assembleDemo
             :shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
+          TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug $DEVICE_TASKS --continue 2>&1 | tee gradle-output.log
+          ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
 
       # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
       - name: Drop build cache entries older than a week
@@ -194,10 +200,16 @@ jobs:
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/demo/*.apk
 
+      # Last, so the end of a long log still shows them. Modules taken from the build cache
+      # print no warnings.
+      - name: List compiler errors and warnings
+        if: ${{ !cancelled() }}
+        run: grep -E '^[ew]: ' gradle-output.log | sed "s#file://$PWD/##" | sort -u || true
+
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:
     needs: plan
-    if: needs.plan.outputs.run == 'true'
+    if: needs.plan.outputs.test == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
