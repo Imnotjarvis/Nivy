@@ -15,6 +15,7 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -150,7 +151,7 @@ class CategoriesViewModel @Inject constructor(
 
             transactions = trnsWithRangeAndAccFiltersAct(
                 TrnsWithRangeAndAccFiltersAct.Input(
-                    range = range,
+                    range = range.toCloseTimeRange(),
                     accountIdFilterSet = allAccounts.map { it.id.value }.toHashSet()
                 )
             )

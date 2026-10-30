@@ -14,6 +14,7 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.design.system.colors.RedLight
+import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.piechart.CategoryAmount
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -53,7 +54,7 @@ class PieChartAct @Inject constructor(
         val transactions = input.existingTransactions.ifEmpty {
             trnsWithRangeAndAccFiltersAct(
                 TrnsWithRangeAndAccFiltersAct.Input(
-                    range = input.range,
+                    range = input.range.toCloseTimeRange(),
                     accountIdFilterSet = accountsUsed.map { it.id.value }.toHashSet()
                 )
             )
