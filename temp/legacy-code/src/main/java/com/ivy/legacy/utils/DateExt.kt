@@ -91,6 +91,7 @@ fun LocalDate.formatDateWeekDayLong(): String =
     this.formatLocal("EEEE, dd MMM", ZoneOffset.systemDefault())
 
 @Deprecated("Use the TimeConverter interface via DI")
+@Composable
 fun LocalDate.formatNicely(
     pattern: String = "EEE, dd MMM",
     patternNoWeekDay: String = "dd MMM",
