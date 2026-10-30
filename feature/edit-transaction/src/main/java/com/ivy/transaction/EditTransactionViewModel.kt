@@ -32,6 +32,7 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TagMapper
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.ivy.legacy.data.EditTransactionDisplayLoan
 import com.ivy.legacy.datamodel.temp.toDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
@@ -53,7 +54,6 @@ import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
 import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
 import com.ivy.wallet.domain.deprecated.logic.SmartTitleSuggestionsLogic
 import com.ivy.wallet.domain.deprecated.logic.currency.ExchangeRatesLogic
-import com.ivy.wallet.domain.deprecated.logic.loantrasactions.LoanTransactionsLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
@@ -94,7 +94,7 @@ class EditTransactionViewModel @Inject constructor(
     private val accountCreator: AccountCreator,
     private val plannedPaymentsLogic: PlannedPaymentsLogic,
     private val smartTitleSuggestionsLogic: SmartTitleSuggestionsLogic,
-    private val loanTransactionsLogic: LoanTransactionsLogic,
+    private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
     private val trnByIdAct: TrnByIdAct,
@@ -137,9 +137,6 @@ class EditTransactionViewModel @Inject constructor(
 
     private var loadedTransaction: Transaction? = null
     private var editMode = false
-
-    // Used for optimising in updating all loan/loanRecords
-    private var accountsChanged = false
 
     private var title: String? = null
     private lateinit var baseUserCurrency: String
@@ -499,8 +496,6 @@ class EditTransactionViewModel @Inject constructor(
                 updateCurrency(account = newAccount)
             }
 
-            accountsChanged = true
-
             // update last selected account
             appPreferences.setLastSelectedAccountId(newAccount.id.value.toString())
 
@@ -728,23 +723,12 @@ class EditTransactionViewModel @Inject constructor(
                     isSynced = false
                 )
 
-                if (loadedTransaction?.loanId != null) {
-                    loanTransactionsLogic.updateAssociatedLoanData(
-                        loadedTransaction!!.copy(),
-                        onBackgroundProcessingStart = {
-                            backgroundProcessingStarted = true
-                        },
-                        onBackgroundProcessingEnd = {
-                            backgroundProcessingStarted = false
-                        },
-                        accountsChanged = accountsChanged
-                    )
-
-                    // Reset Counter
-                    accountsChanged = false
-                }
-
                 loadedTransaction().toDomain(transactionMapper)?.let {
+                    if (it.metadata.loanId != null) {
+                        backgroundProcessingStarted = true
+                        loanTransactionsUseCase.updateFromTransaction(it)
+                        backgroundProcessingStarted = false
+                    }
                     transactionRepo.save(it)
                 }
 

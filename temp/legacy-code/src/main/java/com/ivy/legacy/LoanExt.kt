@@ -2,8 +2,8 @@ package com.ivy.legacy
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanType
-import com.ivy.legacy.datamodel.Loan
 import com.ivy.ui.R
 
 @Composable

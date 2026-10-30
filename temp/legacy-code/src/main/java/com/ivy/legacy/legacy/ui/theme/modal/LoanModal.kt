@@ -35,11 +35,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
+import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanType
+import com.ivy.data.model.primitive.ColorInt
+import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
@@ -98,7 +101,7 @@ fun BoxWithConstraintsScope.LoanModal(
     val timeConverter = LocalTimeConverter.current
 
     var nameTextFieldValue by remember(modal) {
-        mutableStateOf(selectEndTextFieldValue(loan?.name))
+        mutableStateOf(selectEndTextFieldValue(loan?.name?.value))
     }
     var dateTime = modal?.loan?.dateTime ?: with(timeConverter) {
         dateTime.toLocalDateTime()
@@ -107,16 +110,16 @@ fun BoxWithConstraintsScope.LoanModal(
         mutableStateOf(modal?.loan?.type ?: LoanType.BORROW)
     }
     var amount by remember(modal) {
-        mutableStateOf(modal?.loan?.amount ?: 0.0)
+        mutableStateOf(modal?.loan?.amount?.value ?: 0.0)
     }
     var color by remember(modal) {
-        mutableStateOf(loan?.color?.let { Color(it) } ?: Ivy)
+        mutableStateOf(loan?.color?.let { Color(it.value) } ?: Ivy)
     }
     var icon by remember(modal) {
-        mutableStateOf(loan?.icon)
+        mutableStateOf(loan?.icon?.id)
     }
     var noteTextFieldValue by remember(modal) {
-        mutableStateOf(selectEndTextFieldValue(loan?.note))
+        mutableStateOf(selectEndTextFieldValue(loan?.note?.value))
     }
     var currencyCode by remember(modal) {
         mutableStateOf(modal?.baseCurrency ?: "")
@@ -609,19 +612,23 @@ private fun save(
     dismiss: () -> Unit
 ) {
     if (loan != null) {
-        onEditLoan(
-            loan.copy(
-                name = nameTextFieldValue.text.trim(),
-                dateTime = dateTime,
-                note = NotBlankTrimmedString.from(noteTextFieldValue.text).getOrNull()?.value,
-                type = type,
-                amount = amount,
-                color = color.toArgb(),
-                icon = icon,
-                accountId = selectedAccount?.id?.value
-            ),
-            createLoanTransaction
-        )
+        val name = NotBlankTrimmedString.from(nameTextFieldValue.text).getOrNull()
+        val positiveAmount = PositiveDouble.from(amount).getOrNull()
+        if (name != null && positiveAmount != null) {
+            onEditLoan(
+                loan.copy(
+                    name = name,
+                    dateTime = dateTime,
+                    note = NotBlankTrimmedString.from(noteTextFieldValue.text).getOrNull(),
+                    type = type,
+                    amount = positiveAmount,
+                    color = ColorInt(color.toArgb()),
+                    icon = icon?.let(IconAsset::from)?.getOrNull(),
+                    account = selectedAccount?.id
+                ),
+                createLoanTransaction
+            )
+        }
     } else {
         onCreateLoan(
             CreateLoanData(

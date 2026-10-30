@@ -1,17 +1,13 @@
 package com.ivy.wallet.domain.action.loan
 
-import com.ivy.data.db.dao.read.LoanDao
-import com.ivy.legacy.datamodel.Loan
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
+import com.ivy.data.model.Loan
+import com.ivy.data.model.LoanId
+import com.ivy.data.repository.LoanRepository
 import java.util.UUID
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class LoanByIdAct @Inject constructor(
-    private val loanDao: LoanDao
+    private val loanRepository: LoanRepository
 ) {
-    suspend operator fun invoke(loanId: UUID): Loan? = withContext(Dispatchers.IO) {
-        loanDao.findById(loanId)?.toLegacyDomain()
-    }
+    suspend operator fun invoke(loanId: UUID): Loan? = loanRepository.findById(LoanId(loanId))
 }

@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,8 +34,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.model.Theme
 import com.ivy.data.model.LoanType
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.humanReadableType
+import com.ivy.legacy.ui.previewLoan
 import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.horizontalSwipeListener
 import com.ivy.legacy.utils.rememberSwipeListenerState
@@ -125,7 +124,7 @@ private fun BoxWithConstraintsScope.UI(
                 ) {
                     nav.navigateTo(
                         screen = LoanDetailsScreen(
-                            loanId = item.loan.id
+                            loanId = item.loan.id.value
                         )
                     )
                 }
@@ -173,7 +172,7 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxWidth()
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
-            text = item.loan.name,
+            text = item.loan.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
@@ -269,7 +268,7 @@ private fun LoanItem(
     onClick: () -> Unit
 ) {
     val loan = displayLoan.loan
-    val contrastColor = findContrastTextColor(loan.color.toComposeColor())
+    val contrastColor = findContrastTextColor(loan.color.value.toComposeColor())
 
     Column(
         modifier = Modifier
@@ -307,7 +306,7 @@ private fun LoanHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(loan.color.toComposeColor(), ShapeTop16)
+            .background(loan.color.value.toComposeColor(), ShapeTop16)
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -317,7 +316,7 @@ private fun LoanHeader(
             Spacer(Modifier.width(20.dp))
 
             ItemIconSDefaultIcon(
-                iconName = loan.icon,
+                iconName = loan.icon?.id,
                 defaultIcon = R.drawable.ic_custom_loan_s,
                 tint = contrastColor
             )
@@ -325,7 +324,7 @@ private fun LoanHeader(
             Spacer(Modifier.width(8.dp))
 
             Text(
-                text = loan.name,
+                text = loan.name.value,
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
@@ -336,7 +335,7 @@ private fun LoanHeader(
             Text(
                 text = loan.humanReadableType(),
                 style = MaterialTheme.typography.labelMedium.copy(
-                    color = loan.color.toComposeColor().dynamicContrast(),
+                    color = loan.color.value.toComposeColor().dynamicContrast(),
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -444,13 +443,13 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
         selectedTab = LoanTab.PENDING,
         completedLoans = persistentListOf(
             DisplayLoan(
-                loan = Loan(
+                loan = previewLoan(
                     name = "Loan 3",
-                    icon = "bank",
-                    color = Blue.toArgb(),
                     amount = 7000.0,
+                    color = Blue,
                     type = LoanType.LEND,
-                    dateTime = testDateTime
+                    dateTime = testDateTime,
+                    icon = "bank",
                 ),
                 loanTotalAmount = 7000.0,
                 amountPaid = 8000.0,
@@ -459,13 +458,13 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
         ),
         pendingLoans = persistentListOf(
             DisplayLoan(
-                loan = Loan(
+                loan = previewLoan(
                     name = "Loan 3",
-                    icon = "bank",
-                    color = Blue.toArgb(),
                     amount = 7000.0,
+                    color = Blue,
                     type = LoanType.LEND,
-                    dateTime = testDateTime
+                    dateTime = testDateTime,
+                    icon = "bank",
                 ),
                 loanTotalAmount = 7000.0,
                 amountPaid = 8000.0,

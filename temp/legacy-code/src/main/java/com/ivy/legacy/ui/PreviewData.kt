@@ -2,12 +2,21 @@ package com.ivy.legacy.ui
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.ivy.base.model.LoanRecordType
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
+import com.ivy.data.model.Loan
+import com.ivy.data.model.LoanId
+import com.ivy.data.model.LoanRecord
+import com.ivy.data.model.LoanRecordId
+import com.ivy.data.model.LoanType
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
+import java.time.Instant
+import java.time.LocalDateTime
 import java.util.UUID
 
 /** An account for previews and screenshot tests. */
@@ -26,4 +35,43 @@ fun previewAccount(
     icon = icon?.let(IconAsset::unsafe),
     includeInBalance = includeInBalance,
     orderNum = 0.0,
+)
+
+/** A loan for previews and screenshot tests. */
+fun previewLoan(
+    name: String,
+    amount: Double,
+    color: Color,
+    type: LoanType,
+    dateTime: LocalDateTime? = null,
+    icon: String? = null,
+): Loan = Loan(
+    id = LoanId(UUID.randomUUID()),
+    name = NotBlankTrimmedString.unsafe(name),
+    amount = PositiveDouble.unsafe(amount),
+    type = type,
+    color = ColorInt(color.toArgb()),
+    icon = icon?.let(IconAsset::unsafe),
+    account = null,
+    note = null,
+    dateTime = dateTime,
+    orderNum = 0.0,
+)
+
+/** A loan record for previews and screenshot tests. */
+fun previewLoanRecord(
+    amount: Double,
+    dateTime: Instant,
+    type: LoanRecordType,
+    note: String? = null,
+): LoanRecord = LoanRecord(
+    id = LoanRecordId(UUID.randomUUID()),
+    loan = LoanId(UUID.randomUUID()),
+    amount = PositiveDouble.unsafe(amount),
+    note = note?.let(NotBlankTrimmedString::unsafe),
+    dateTime = dateTime,
+    interest = false,
+    account = null,
+    convertedAmount = null,
+    type = type,
 )

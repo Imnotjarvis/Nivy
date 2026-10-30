@@ -33,10 +33,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.LoanRecordType
 import com.ivy.data.model.Account
+import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
 import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
 import com.ivy.design.utils.selectEndTextFieldValue
@@ -87,13 +88,13 @@ fun BoxWithConstraintsScope.LoanRecordModal(
     val initialRecord = modal?.loanRecord
 
     var noteTextFieldValue by remember(modal) {
-        mutableStateOf(selectEndTextFieldValue(initialRecord?.note))
+        mutableStateOf(selectEndTextFieldValue(initialRecord?.note?.value))
     }
     var currencyCode by remember(modal) {
         mutableStateOf(modal?.baseCurrency ?: "")
     }
     var amount by remember(modal) {
-        mutableStateOf(modal?.loanRecord?.amount ?: 0.0)
+        mutableStateOf(modal?.loanRecord?.amount?.value ?: 0.0)
     }
     var selectedAcc by remember(modal) {
         mutableStateOf(modal?.selectedAccount)
@@ -111,7 +112,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         mutableStateOf(modal?.loanAccountCurrencyCode != null && modal.loanAccountCurrencyCode != modal.baseCurrency)
     }
     var loanRecordType by remember(modal) {
-        mutableStateOf(modal?.loanRecord?.loanRecordType ?: LoanRecordType.DECREASE)
+        mutableStateOf(modal?.loanRecord?.type ?: LoanRecordType.DECREASE)
     }
 
     var dateTime = modal?.loanRecord?.dateTime ?: dateTime
@@ -392,22 +393,25 @@ private fun save(
     dismiss: () -> Unit
 ) {
     if (loanRecord != null) {
-        val record = loanRecord.copy(
-            note = NotBlankTrimmedString.from(noteTextFieldValue.text).getOrNull()?.value,
-            amount = amount,
-            dateTime = dateTime,
-            interest = loanRecordInterest,
-            accountId = selectedAccount?.id?.value,
-            loanRecordType = loanRecordType
-        )
-        onEdit(
-            EditLoanRecordData(
-                newLoanRecord = record,
-                originalLoanRecord = loanRecord,
-                createLoanRecordTransaction = createLoanRecordTransaction,
-                reCalculateLoanAmount = reCalculateAmount,
+        val positiveAmount = PositiveDouble.from(amount).getOrNull()
+        if (positiveAmount != null) {
+            val record = loanRecord.copy(
+                note = NotBlankTrimmedString.from(noteTextFieldValue.text).getOrNull(),
+                amount = positiveAmount,
+                dateTime = dateTime,
+                interest = loanRecordInterest,
+                account = selectedAccount?.id,
+                type = loanRecordType
             )
-        )
+            onEdit(
+                EditLoanRecordData(
+                    newLoanRecord = record,
+                    originalLoanRecord = loanRecord,
+                    createLoanRecordTransaction = createLoanRecordTransaction,
+                    reCalculateLoanAmount = reCalculateAmount,
+                )
+            )
+        }
     } else {
         onCreate(
             CreateLoanRecordData(

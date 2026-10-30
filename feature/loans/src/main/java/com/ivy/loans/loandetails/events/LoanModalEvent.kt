@@ -1,6 +1,6 @@
 package com.ivy.loans.loandetails.events
 
-import com.ivy.legacy.datamodel.Loan
+import com.ivy.data.model.Loan
 
 sealed interface LoanModalEvent : LoanDetailsScreenEvent {
     data object OnDismissLoanModal : LoanModalEvent
