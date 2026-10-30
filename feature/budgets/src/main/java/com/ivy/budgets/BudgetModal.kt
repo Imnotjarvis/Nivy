@@ -287,7 +287,7 @@ private fun Preview_create() {
                     ),
                 ),
             ),
-            onCreate = {},
+            onCreate = { _, _, _ -> },
             onEdit = {},
             onDelete = {}
         ) {
@@ -336,7 +336,7 @@ private fun Preview_edit() {
                     ),
                 ),
             ),
-            onCreate = {},
+            onCreate = { _, _, _ -> },
             onEdit = {},
             onDelete = {}
         ) {
