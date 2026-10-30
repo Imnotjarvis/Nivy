@@ -6,12 +6,12 @@ import androidx.datastore.preferences.core.edit
 import com.ivy.base.threading.DispatchersProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
-import com.ivy.data.db.dao.read.UserDao
+import com.ivy.data.db.IvyRoomDatabase
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.db.dao.write.WriteLoanRecordDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
+import com.ivy.data.preferences.LegacySettingsMigration
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.ExchangeRatesRepository
@@ -30,8 +30,7 @@ class DeleteAllDataUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val tagRepository: TagRepository,
     private val exchangeRatesRepository: ExchangeRatesRepository,
-    private val userDao: UserDao,
-    private val writeSettingsDao: WriteSettingsDao,
+    private val db: IvyRoomDatabase,
     private val writePlannedPaymentRuleDao: WritePlannedPaymentRuleDao,
     private val writeBudgetDao: WriteBudgetDao,
     private val writeLoanDao: WriteLoanDao,
@@ -45,14 +44,18 @@ class DeleteAllDataUseCase @Inject constructor(
             categoryRepository.deleteAll()
             tagRepository.deleteAll()
             exchangeRatesRepository.deleteAll()
-            writeSettingsDao.deleteAll()
             writePlannedPaymentRuleDao.deleteAll()
-            userDao.deleteAll()
             writeBudgetDao.deleteAll()
             writeLoanDao.deleteAll()
             writeLoanRecordDao.deleteAll()
-            // also forgets the settings in AppPreferences
-            dataStore.edit { it.clear() }
+            // the old settings table, which the database schema no longer has; its values were
+            // copied into DataStore
+            db.openHelper.writableDatabase.execSQL("DROP TABLE IF EXISTS settings")
+            // also forgets the settings in AppPreferences, but not that they were copied
+            dataStore.edit {
+                it.clear()
+                it[LegacySettingsMigration.Migrated] = true
+            }
         }
         dataObserver.post(DataWriteEvent.AllDataChange)
     }

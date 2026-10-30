@@ -13,19 +13,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
+import com.ivy.base.model.next
 import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.BackupDataUseCase
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.legacy.ThemeState
-import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.uiThread
@@ -34,7 +33,6 @@ import com.ivy.navigation.OnboardingScreen
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
 import com.ivy.wallet.domain.action.global.UpdateStartDayOfMonthAct
-import com.ivy.wallet.domain.action.settings.SettingsAct
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -46,7 +44,7 @@ import javax.inject.Inject
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsDao: SettingsDao,
+    private val currencyRepository: CurrencyRepository,
     private val themeState: ThemeState,
     private val deleteAllDataUseCase: DeleteAllDataUseCase,
     private val nav: Navigation,
@@ -55,9 +53,6 @@ class SettingsViewModel @Inject constructor(
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val updateStartDayOfMonthAct: UpdateStartDayOfMonthAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
-    private val settingsAct: SettingsAct,
-    private val updateSettingsAct: UpdateSettingsAct,
-    private val settingsWriter: WriteSettingsDao,
     private val exportCsvUseCase: ExportCsvUseCase,
     @ApplicationContext private val context: Context,
     private val timeProvider: TimeProvider,
@@ -108,23 +103,15 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun initializeCurrency() {
-        val settings = ioThread {
-            settingsDao.findFirst()
-        }
-
-        currencyCode.value = settings.currency
+        currencyCode.value = currencyRepository.getBaseCurrency().code
     }
 
     private suspend fun initializeName() {
-        val settings = ioThread {
-            settingsDao.findFirst()
-        }
-
-        name.value = settings.name
+        name.value = appPreferences.settings()?.name.orEmpty()
     }
 
     private suspend fun initializeCurrentTheme() {
-        currentTheme.value = settingsAct().theme
+        currentTheme.value = themeState.theme
     }
 
     private suspend fun initializeLockApp() {
@@ -238,11 +225,7 @@ class SettingsViewModel @Inject constructor(
 
         viewModelScope.launch {
             ioThread {
-                settingsWriter.save(
-                    settingsDao.findFirst().copy(
-                        currency = newCurrency
-                    )
-                )
+                appPreferences.setBaseCurrency(newCurrency)
                 AssetCode.from(newCurrency).onRight {
                     syncExchangeRatesUseCase.sync(it)
                 }
@@ -254,13 +237,7 @@ class SettingsViewModel @Inject constructor(
         name.value = newName
 
         viewModelScope.launch {
-            ioThread {
-                settingsWriter.save(
-                    settingsDao.findFirst().copy(
-                        name = newName
-                    )
-                )
-            }
+            appPreferences.setUserName(newName)
         }
     }
 
@@ -304,11 +281,10 @@ class SettingsViewModel @Inject constructor(
 
     private fun switchTheme() {
         viewModelScope.launch {
-            settingsAct.getSettingsWithNextTheme().run {
-                updateSettingsAct(this)
-                themeState.switchTheme(this.theme)
-                currentTheme.value = this.theme
-            }
+            val theme = themeState.theme.next()
+            appPreferences.setTheme(theme)
+            themeState.switchTheme(theme)
+            currentTheme.value = theme
         }
     }
 

@@ -9,7 +9,7 @@ import com.ivy.data.db.dao.fake.FakeCategoryDao
 import com.ivy.data.db.dao.fake.FakeLoanDao
 import com.ivy.data.db.dao.fake.FakeLoanRecordDao
 import com.ivy.data.db.dao.fake.FakePlannedPaymentDao
-import com.ivy.data.db.dao.fake.FakeSettingsDao
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.db.dao.fake.FakeTagAssociationDao
 import com.ivy.data.db.dao.fake.FakeTagDao
 import com.ivy.data.db.dao.fake.FakeTransactionDao
@@ -20,6 +20,7 @@ import com.ivy.data.repository.mapper.AccountMapper
 import com.ivy.data.testResource
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -31,7 +32,7 @@ class BackupDataUseCaseTest {
         transactionDao: FakeTransactionDao = FakeTransactionDao(),
         plannedPaymentDao: FakePlannedPaymentDao = FakePlannedPaymentDao(),
         budgetDao: FakeBudgetDao = FakeBudgetDao(),
-        settingsDao: FakeSettingsDao = FakeSettingsDao(),
+        appPreferences: AppPreferences = mockk(relaxed = true) { coEvery { baseCurrency() } returns null },
         loanDao: FakeLoanDao = FakeLoanDao(),
         loanRecordDao: FakeLoanRecordDao = FakeLoanRecordDao(),
         tagDao: FakeTagDao = FakeTagDao(),
@@ -39,7 +40,7 @@ class BackupDataUseCaseTest {
     ): BackupDataUseCase {
         val accountMapper = AccountMapper(
             CurrencyRepository(
-                settingsDao = settingsDao,
+                appPreferences = appPreferences,
                 dispatchersProvider = TestDispatchersProvider,
             )
         )
@@ -60,16 +61,14 @@ class BackupDataUseCaseTest {
             plannedPaymentRuleDao = plannedPaymentDao,
             transactionDao = transactionDao,
             transactionWriter = transactionDao,
-            settingsDao = settingsDao,
             categoryWriter = categoryDao,
-            settingsWriter = settingsDao,
             budgetWriter = budgetDao,
             loanWriter = loanDao,
             loanRecordWriter = loanRecordDao,
             plannedPaymentRuleWriter = plannedPaymentDao,
 
             context = mockk(relaxed = true),
-            appPreferences = mockk(relaxed = true),
+            appPreferences = appPreferences,
             json = KotlinxSerializationModule.provideJson(),
             dispatchersProvider = TestDispatchersProvider,
             fileSystem = mockk(relaxed = true),

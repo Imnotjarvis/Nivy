@@ -7,9 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.data.db.dao.read.AccountDao
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.preferences.AppSettings
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.ui.ComposeViewModel
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
@@ -17,7 +16,6 @@ import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.legacy.data.model.AccountBalance
 import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Settings
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.OpResult
 import com.ivy.legacy.utils.ioThread
@@ -40,12 +38,15 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// What the home screen keeps aside until the user sets their own buffer.
+private const val DefaultBufferAmount = 1000.0
+
 @Stable
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val nav: Navigation,
     private val accountDao: AccountDao,
-    private val settingsDao: SettingsDao,
+    private val appPreferences: AppPreferences,
     private val accountLogic: WalletAccountLogic,
     private val categoryCreator: CategoryCreator,
     private val categoryRepository: CategoryRepository,
@@ -53,10 +54,8 @@ class OnboardingViewModel @Inject constructor(
 
     private val accountsAct: AccountsAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
-    private val settingsWriter: WriteSettingsDao,
 
     // Only OnboardingRouter stuff
-    appPreferences: AppPreferences,
     transactionReminderScheduler: TransactionReminderScheduler,
     preloadDataLogic: PreloadDataLogic,
     deleteAllDataUseCase: DeleteAllDataUseCase,
@@ -122,17 +121,15 @@ class OnboardingViewModel @Inject constructor(
         val defaultCurrency = IvyCurrency.getDefault()
         _currency.value = defaultCurrency
 
-        ioThread {
-            if (settingsDao.findAll().isEmpty()) {
-                settingsWriter.save(
-                    Settings(
-                        theme = if (isSystemDarkMode) Theme.DARK else Theme.LIGHT,
-                        name = "",
-                        baseCurrency = defaultCurrency.code,
-                        bufferAmount = 1000.0.toBigDecimal()
-                    ).toEntity()
+        if (appPreferences.settings() == null) {
+            appPreferences.saveSettings(
+                AppSettings(
+                    theme = if (isSystemDarkMode) Theme.DARK else Theme.LIGHT,
+                    name = "",
+                    baseCurrency = defaultCurrency.code,
+                    bufferAmount = DefaultBufferAmount,
                 )
-            }
+            )
         }
     }
 
@@ -189,13 +186,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun updateBaseCurrency(baseCurrency: IvyCurrency) {
-        ioThread {
-            settingsWriter.save(
-                settingsDao.findFirst().copy(
-                    currency = baseCurrency.code
-                )
-            )
-        }
+        appPreferences.setBaseCurrency(baseCurrency.code)
         _currency.value = baseCurrency
     }
 

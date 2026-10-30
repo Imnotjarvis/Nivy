@@ -9,7 +9,6 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
@@ -44,7 +43,6 @@ import kotlin.math.absoluteValue
 import com.ivy.legacy.datamodel.Account as LegacyAccount
 
 class CSVImporter @Inject constructor(
-    private val settingsDao: SettingsDao,
     private val accountDao: AccountDao,
     private val categoryRepository: CategoryRepository,
     private val transactionRepository: TransactionRepository,
@@ -101,7 +99,7 @@ class CSVImporter @Inject constructor(
         categories = categoryRepository.findAll()
         val initialCategoriesCount = categories.size
 
-        val baseCurrency = settingsDao.findFirst().currency
+        val baseCurrency = currencyRepository.getBaseCurrency().code
 
         val failedRows = persistentListOf<CSVRow>()
 

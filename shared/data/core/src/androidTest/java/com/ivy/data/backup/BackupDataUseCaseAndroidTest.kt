@@ -39,9 +39,15 @@ class BackupDataUseCaseAndroidTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, IvyRoomDatabase::class.java).build()
         val appContext = InstrumentationRegistry.getInstrumentation().context
+        // a new file each time: DataStore allows only one instance per file
+        val appPreferences = AppPreferences(
+            PreferenceDataStoreFactory.create {
+                File(context.cacheDir, "backup-test-${UUID.randomUUID()}.preferences_pb")
+            }
+        )
         val accountMapper = AccountMapper(
             currencyRepository = CurrencyRepository(
-                settingsDao = db.settingsDao,
+                appPreferences = appPreferences,
                 dispatchersProvider = TestDispatchersProvider,
             )
         )
@@ -52,15 +58,9 @@ class BackupDataUseCaseAndroidTest {
             loanRecordDao = db.loanRecordDao,
             loanDao = db.loanDao,
             plannedPaymentRuleDao = db.plannedPaymentRuleDao,
-            settingsDao = db.settingsDao,
             transactionDao = db.transactionDao,
             transactionWriter = db.writeTransactionDao,
-            // a new file each time: DataStore allows only one instance per file
-            appPreferences = AppPreferences(
-                PreferenceDataStoreFactory.create {
-                    File(context.cacheDir, "backup-test-${UUID.randomUUID()}.preferences_pb")
-                }
-            ),
+            appPreferences = appPreferences,
             accountRepository = AccountRepository(
                 accountDao = db.accountDao,
                 writeAccountDao = db.writeAccountDao,
@@ -70,7 +70,6 @@ class BackupDataUseCaseAndroidTest {
             ),
             accountMapper = accountMapper,
             categoryWriter = db.writeCategoryDao,
-            settingsWriter = db.writeSettingsDao,
             budgetWriter = db.writeBudgetDao,
             loanWriter = db.writeLoanDao,
             loanRecordWriter = db.writeLoanRecordDao,

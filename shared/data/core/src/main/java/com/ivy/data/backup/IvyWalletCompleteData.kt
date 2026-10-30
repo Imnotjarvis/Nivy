@@ -7,10 +7,10 @@ import com.ivy.data.db.entity.CategoryEntity
 import com.ivy.data.db.entity.LoanEntity
 import com.ivy.data.db.entity.LoanRecordEntity
 import com.ivy.data.db.entity.PlannedPaymentRuleEntity
-import com.ivy.data.db.entity.SettingsEntity
 import com.ivy.data.db.entity.TagAssociationEntity
 import com.ivy.data.db.entity.TagEntity
 import com.ivy.data.db.entity.TransactionEntity
+import com.ivy.base.model.Theme
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -31,7 +31,7 @@ data class IvyWalletCompleteData(
     @SerialName("plannedPaymentRules")
     val plannedPaymentRules: List<PlannedPaymentRuleEntity> = emptyList(),
     @SerialName("settings")
-    val settings: List<SettingsEntity> = emptyList(),
+    val settings: List<SettingsBackup> = emptyList(),
     @SerialName("transactions")
     val transactions: List<TransactionEntity> = emptyList(),
     @SerialName("sharedPrefs")
@@ -40,4 +40,21 @@ data class IvyWalletCompleteData(
     val tags: List<TagEntity> = emptyList(),
     @SerialName("tagAssociations")
     val tagAssociations: List<TagAssociationEntity> = emptyList()
+)
+
+/**
+ * The settings in a backup. They have the fields of the old settings table, so backups from older
+ * versions import, and older versions can import new backups.
+ */
+@Keep
+@Serializable
+data class SettingsBackup(
+    @SerialName("theme")
+    val theme: Theme,
+    @SerialName("currency")
+    val currency: String,
+    @SerialName("bufferAmount")
+    val bufferAmount: Double,
+    @SerialName("name")
+    val name: String,
 )

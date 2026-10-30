@@ -16,7 +16,6 @@ import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.LoanDao
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
@@ -26,6 +25,7 @@ import com.ivy.data.model.primitive.AssociationId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TagMapper
@@ -86,7 +86,7 @@ class EditTransactionViewModel @Inject constructor(
     private val context: Context,
     private val toaster: Toaster,
     private val loanDao: LoanDao,
-    private val settingsDao: SettingsDao,
+    private val currencyRepository: CurrencyRepository,
     private val nav: Navigation,
     private val appPreferences: AppPreferences,
     private val exchangeRatesLogic: ExchangeRatesLogic,
@@ -764,7 +764,7 @@ class EditTransactionViewModel @Inject constructor(
         hasChanges = hasChangesValue
     }
 
-    private suspend fun baseCurrency(): String = ioThread { settingsDao.findFirst().currency }
+    private suspend fun baseCurrency(): String = ioThread { currencyRepository.getBaseCurrency().code }
 
     private fun closeScreen() {
         if (nav.backStackEmpty()) {

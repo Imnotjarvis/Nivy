@@ -22,12 +22,12 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.AppStarter
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.settings.SettingsAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import com.ivy.widgets.WidgetBase
@@ -115,7 +115,7 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var walletBalanceAct: CalcWalletBalanceAct
 
     @Inject
-    lateinit var settingsAct: SettingsAct
+    lateinit var currencyRepository: CurrencyRepository
 
     @Inject
     lateinit var accountsAct: AccountsAct
@@ -146,15 +146,14 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
 
     private fun updateData(context: Context) {
         coroutineScope.launch {
-            val settings = settingsAct()
             val appLocked = appPreferences.isAppLockEnabled()
-            val currency = settings.baseCurrency
+            val currency = currencyRepository.getBaseCurrency().code
             val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
             val accounts = accountsAct()
             val period = periodState.selected
             val incomeExpense = calcIncomeExpenseAct(
                 CalcIncomeExpenseAct.Input(
-                    baseCurrency = settings.baseCurrency,
+                    baseCurrency = currency,
                     accounts = accounts,
                     range = period.toRange(
                         startDateOfMonth = periodState.startDayOfMonth,

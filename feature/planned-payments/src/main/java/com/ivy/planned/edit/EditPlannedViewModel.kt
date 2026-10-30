@@ -11,12 +11,12 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
@@ -47,7 +47,7 @@ import javax.inject.Inject
 class EditPlannedViewModel @Inject constructor(
     private val accountDao: AccountDao,
     private val categoryRepository: CategoryRepository,
-    private val settingsDao: SettingsDao,
+    private val currencyRepository: CurrencyRepository,
     private val nav: Navigation,
     private val plannedPaymentRuleDao: PlannedPaymentRuleDao,
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
@@ -321,7 +321,7 @@ class EditPlannedViewModel @Inject constructor(
         currency = account.currency ?: baseCurrency()
     }
 
-    private suspend fun baseCurrency(): String = ioThread { settingsDao.findFirst().currency }
+    private suspend fun baseCurrency(): String = ioThread { currencyRepository.getBaseCurrency().code }
 
     private fun updateRule(
         startDate: LocalDateTime,

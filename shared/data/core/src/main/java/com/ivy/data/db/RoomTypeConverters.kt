@@ -1,7 +1,6 @@
 package com.ivy.domain.db
 
 import androidx.room.TypeConverter
-import com.ivy.base.model.Theme
 import com.ivy.base.legacy.epochMilliToDateTime
 import com.ivy.base.legacy.toEpochMilli
 import com.ivy.base.model.LoanRecordType
@@ -25,12 +24,6 @@ class RoomTypeConverters {
 
     @TypeConverter
     fun parseUUID(id: String?) = id?.let { UUID.fromString(id) }
-
-    @TypeConverter
-    fun saveTheme(value: Theme?) = value?.name
-
-    @TypeConverter
-    fun parseTheme(value: String?) = value?.let { Theme.valueOf(it) }
 
     @TypeConverter
     fun saveTransactionType(value: TransactionType?) = value?.name

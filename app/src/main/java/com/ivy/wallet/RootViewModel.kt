@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.ThemeState
@@ -36,7 +35,6 @@ class RootViewModel @Inject constructor(
     private val periodState: PeriodState,
     private val themeState: ThemeState,
     private val nav: Navigation,
-    private val settingsDao: SettingsDao,
     private val appPreferences: AppPreferences,
     private val transactionReminderScheduler: TransactionReminderScheduler,
     private val migrationsManager: MigrationsManager,
@@ -56,7 +54,7 @@ class RootViewModel @Inject constructor(
     fun start(systemDarkMode: Boolean, intent: Intent) {
         viewModelScope.launch {
             ioThread {
-                val theme = settingsDao.findAll().firstOrNull()?.theme
+                val theme = appPreferences.settings()?.theme
                     ?: if (systemDarkMode) Theme.DARK else Theme.LIGHT
                 themeState.switchTheme(theme)
 

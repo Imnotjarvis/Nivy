@@ -11,9 +11,9 @@ import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Category
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.utils.ioThread
@@ -33,7 +33,7 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class PieChartStatisticViewModel @Inject constructor(
-    private val settingsDao: SettingsDao,
+    private val currencyRepository: CurrencyRepository,
     private val periodState: PeriodState,
     private val pieChartAct: PieChartAct,
     private val appPreferences: AppPreferences,
@@ -174,8 +174,7 @@ class PieChartStatisticViewModel @Inject constructor(
         filterExcludedValue: Boolean,
         transactionsValue: ImmutableList<Transaction>
     ) {
-        val settings = ioThread { settingsDao.findFirst() }
-        val baseCurrencyValue = settings.currency
+        val baseCurrencyValue = currencyRepository.getBaseCurrency().code
 
         period = periodValue
         transactionType = type

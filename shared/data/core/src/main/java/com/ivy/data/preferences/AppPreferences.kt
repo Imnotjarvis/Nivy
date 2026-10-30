@@ -3,9 +3,11 @@ package com.ivy.data.preferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.ivy.base.model.Theme
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,6 +50,33 @@ class AppPreferences @Inject constructor(
     suspend fun categorySortOrder(default: Int): Int = get(CategorySortOrder, default)
     suspend fun setCategorySortOrder(order: Int) = set(CategorySortOrder, order)
 
+    /** The user's settings; null until onboarding (or a backup, or the old database) sets them. */
+    suspend fun settings(): AppSettings? {
+        val prefs = dataStore.data.first()
+        val baseCurrency = prefs[BaseCurrency] ?: return null
+        return AppSettings(
+            theme = prefs[ThemeName]?.let { name -> Theme.entries.find { it.name == name } } ?: Theme.AUTO,
+            baseCurrency = baseCurrency,
+            bufferAmount = prefs[BufferAmount] ?: 0.0,
+            name = prefs[UserName].orEmpty(),
+        )
+    }
+
+    suspend fun saveSettings(settings: AppSettings) {
+        dataStore.edit {
+            it[ThemeName] = settings.theme.name
+            it[BaseCurrency] = settings.baseCurrency
+            it[BufferAmount] = settings.bufferAmount
+            it[UserName] = settings.name
+        }
+    }
+
+    suspend fun baseCurrency(): String? = dataStore.data.first()[BaseCurrency]
+    suspend fun setBaseCurrency(code: String) = set(BaseCurrency, code)
+    suspend fun setTheme(theme: Theme) = set(ThemeName, theme.name)
+    suspend fun setBufferAmount(amount: Double) = set(BufferAmount, amount)
+    suspend fun setUserName(name: String) = set(UserName, name)
+
     // Home screen cards the user dismissed, by card id.
     suspend fun isCardDismissed(cardId: String): Boolean = get(cardDismissedKey(cardId), false)
     suspend fun setCardDismissed(cardId: String) = set(cardDismissedKey(cardId), true)
@@ -73,6 +102,12 @@ class AppPreferences @Inject constructor(
         private val TransfersAsIncomeExpense = booleanPreferencesKey("transfers_as_inc_exp")
         private val CategorySortOrder = intPreferencesKey("categorySortOrder")
         private const val CardDismissedSuffix = "_cj_dismissed"
+
+        // The settings that used to live in the database's settings table.
+        internal val ThemeName = stringPreferencesKey("settings_theme")
+        internal val BaseCurrency = stringPreferencesKey("settings_base_currency")
+        internal val BufferAmount = doublePreferencesKey("settings_buffer_amount")
+        internal val UserName = stringPreferencesKey("settings_name")
 
         private fun cardDismissedKey(cardId: String) = booleanPreferencesKey(cardId + CardDismissedSuffix)
 

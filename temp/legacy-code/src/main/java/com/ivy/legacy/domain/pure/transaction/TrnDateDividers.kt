@@ -6,11 +6,11 @@ import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.convertToLocal
 import com.ivy.data.db.dao.read.AccountDao
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.data.model.Transaction
 import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.frp.Pure
@@ -35,14 +35,14 @@ import java.util.UUID
 @Deprecated("Migrate to actions")
 suspend fun List<Transaction>.withDateDividers(
     exchangeRatesLogic: ExchangeRatesLogic,
-    settingsDao: SettingsDao,
+    currencyRepository: CurrencyRepository,
     accountDao: AccountDao,
     tagRepository: TagRepository,
     accountRepository: AccountRepository,
 ): List<TransactionHistoryItem> {
     return transactionsWithDateDividers(
         transactions = this,
-        baseCurrencyCode = settingsDao.findFirst().currency,
+        baseCurrencyCode = currencyRepository.getBaseCurrency().code,
         getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
         getTags = { tagsIds -> tagRepository.findByIds(tagsIds) },
         accountRepository = accountRepository,
@@ -115,13 +115,13 @@ object LegacyTrnDateDividers {
     @Deprecated("Migrate to actions")
     suspend fun List<com.ivy.base.legacy.Transaction>.withDateDividers(
         exchangeRatesLogic: ExchangeRatesLogic,
-        settingsDao: SettingsDao,
+        currencyRepository: CurrencyRepository,
         accountDao: AccountDao,
         timeConverter: TimeConverter,
     ): List<TransactionHistoryItem> {
         return transactionsWithDateDividers(
             transactions = this,
-            baseCurrencyCode = settingsDao.findFirst().currency,
+            baseCurrencyCode = currencyRepository.getBaseCurrency().code,
             getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
             exchange = { data, amount ->
                 exchangeRatesLogic.convertAmount(

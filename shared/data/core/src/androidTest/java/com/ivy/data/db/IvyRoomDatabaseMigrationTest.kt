@@ -9,6 +9,7 @@ import com.ivy.data.db.migration.Migration123to124_LoanIncludeDateTime
 import com.ivy.data.db.migration.Migration124to125_LoanEditDateTime
 import com.ivy.data.db.migration.Migration126to127_LoanRecordType
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
+import com.ivy.data.db.migration.Migration130to131_DropUsers
 import com.ivy.data.model.LoanType
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -26,6 +27,28 @@ class IvyRoomDatabaseMigrationTest {
         listOf(IvyRoomDatabase.DeleteSEMigration()),
         FrameworkSQLiteOpenHelperFactory()
     )
+
+    @Test
+    fun migrate130to131_DropUsers() {
+        helper.createDatabase(TestDb, 130).close()
+
+        // The settings table stays in the file until LegacySettingsMigration copies it into
+        // DataStore, so tables the schema dropped aren't checked.
+        val newDb = helper.runMigrationsAndValidate(
+            TestDb,
+            131,
+            false,
+            Migration130to131_DropUsers()
+        )
+
+        newDb.query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").use {
+            it.count shouldBe 0
+        }
+        newDb.query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'settings'").use {
+            it.count shouldBe 1
+        }
+        newDb.close()
+    }
 
     @Test
     fun migrate129to130_LoanIncludeNote() {
