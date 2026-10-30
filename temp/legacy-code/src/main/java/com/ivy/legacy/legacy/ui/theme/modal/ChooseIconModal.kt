@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Ivy
@@ -43,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 
 private const val ICON_PICKER_ICONS_PER_ROW = 5
 
@@ -78,7 +78,7 @@ fun BoxWithConstraintsScope.ChooseIconModal(
         }
     ) {
         val view = LocalView.current
-        onScreenStart {
+        LaunchedEffect(Unit) {
             hideKeyboard(view)
         }
 

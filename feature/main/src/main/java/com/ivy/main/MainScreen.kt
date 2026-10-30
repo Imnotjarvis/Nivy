@@ -17,7 +17,6 @@ import com.ivy.home.HomeTab
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
@@ -25,6 +24,8 @@ import com.ivy.navigation.navigation
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
+import androidx.compose.runtime.LaunchedEffect
+import androidx.activity.compose.BackHandler
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -34,11 +35,15 @@ fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
 
     val currency by viewModel.currency.observeAsState("")
 
-    onScreenStart {
-        viewModel.start(screen)
+    LaunchedEffect(Unit) {
+        viewModel.start()
     }
 
     val ivyContext = ivyWalletCtx()
+    // Back from the accounts tab goes to home; from home it leaves the app.
+    BackHandler(enabled = ivyContext.mainTab == MainTab.ACCOUNTS) {
+        ivyContext.selectMainTab(MainTab.HOME)
+    }
     UI(
         screen = screen,
         tab = ivyContext.mainTab,

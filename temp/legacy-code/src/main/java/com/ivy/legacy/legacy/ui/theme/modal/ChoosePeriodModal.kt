@@ -45,7 +45,6 @@ import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.formatDateOnlyWithYear
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -63,6 +62,7 @@ import java.util.concurrent.TimeUnit
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
+import androidx.compose.runtime.LaunchedEffect
 
 data class ChoosePeriodModalData(
     val id: UUID = UUID.randomUUID(),
@@ -193,7 +193,7 @@ private fun ColumnScope.ChooseMonth(
     val state = rememberLazyListState()
 
     val coroutineScope = rememberCoroutineScope()
-    onScreenStart {
+    LaunchedEffect(Unit) {
         if (selectedMonthYear != null) {
             val selectedMonthIndex = months.indexOf(selectedMonthYear)
             if (selectedMonthIndex != -1) {
@@ -448,7 +448,7 @@ private fun ColumnScope.LastNPeriod(
     val rootView = LocalView.current
     val coroutineScope = rememberCoroutineScope()
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener { keyboardShown ->
             if (keyboardShown) {
                 coroutineScope.launch {

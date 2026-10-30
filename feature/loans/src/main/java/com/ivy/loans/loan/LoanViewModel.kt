@@ -15,7 +15,6 @@ import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.model.LoanType
-import com.ivy.frp.test.TestIdlingResource
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
@@ -191,8 +190,6 @@ class LoanViewModel @Inject constructor(
 
     private fun start() {
         viewModelScope.launch(Dispatchers.Default) {
-            TestIdlingResource.increment()
-
             dateTime = timeProvider.utcNow()
 
             defaultCurrencyCode = ioThread {
@@ -242,8 +239,6 @@ class LoanViewModel @Inject constructor(
             }
             loadPendingLoans()
             loadCompletedLoans()
-
-            TestIdlingResource.decrement()
         }
     }
 
@@ -314,8 +309,6 @@ class LoanViewModel @Inject constructor(
 
     private fun createLoan(data: CreateLoanData) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             val uuid = loanCreator.create(data) {
                 start()
             }
@@ -323,15 +316,11 @@ class LoanViewModel @Inject constructor(
             uuid?.let {
                 loanTransactionsLogic.Loan.createAssociatedLoanTransaction(data = data, loanId = it)
             }
-
-            TestIdlingResource.decrement()
         }
     }
 
     private fun reorder(newOrder: List<DisplayLoan>) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             ioThread {
                 newOrder.forEachIndexed { index, item ->
                     loanWriter.save(
@@ -343,8 +332,6 @@ class LoanViewModel @Inject constructor(
                 }
             }
             start()
-
-            TestIdlingResource.decrement()
         }
     }
 
@@ -358,13 +345,9 @@ class LoanViewModel @Inject constructor(
 
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             accountCreator.createAccount(data) {
                 accounts = accountsAct(Unit)
             }
-
-            TestIdlingResource.decrement()
         }
     }
 

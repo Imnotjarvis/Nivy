@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import com.ivy.importdata.csvimport.flow.ImportSteps
 import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
 import com.ivy.design.utils.drawColoredShadow
-import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientIvy
@@ -45,6 +44,7 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -62,10 +62,10 @@ fun BoxWithConstraintsScope.ImportInstructions(
             .navigationBarsPadding()
     ) {
         stickyHeader {
-            val nav = navigation()
+            val onBack = rememberOnBack()
             OnboardingToolbar(
                 hasSkip = hasSkip,
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
                 onSkip = onSkip
             )
             // onboarding toolbar include paddingBottom 16.dp

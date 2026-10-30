@@ -38,14 +38,12 @@ import com.ivy.data.model.LoanType
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.legacy.LocalTimeConverter
 import com.ivy.domain.legacy.ui.IvyColorPicker
-import com.ivy.frp.test.TestingContext
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
 import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
@@ -180,7 +178,7 @@ fun BoxWithConstraintsScope.LoanModal(
             }
         }
     ) {
-        onScreenStart {
+        LaunchedEffect(Unit) {
             if (modal?.autoOpenAmountModal == true) {
                 amountModalVisible = true
             }
@@ -397,8 +395,6 @@ private fun AccountsRow(
             val selectedIndex = accounts.indexOf(selectedAccount)
             if (selectedIndex != -1) {
                 launch {
-                    if (TestingContext.inTest) return@launch // breaks UI tests
-
                     lazyState.scrollToItem(
                         index = selectedIndex, // +1 because Spacer width 24.dp
                     )

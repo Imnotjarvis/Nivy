@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
@@ -37,6 +36,7 @@ import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalDynamicPrimaryAction
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @Suppress("ParameterNaming")
 @Composable
@@ -92,7 +92,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
         Spacer(Modifier.height(24.dp))
 
         val focus = FocusRequester()
-        onScreenStart {
+        LaunchedEffect(Unit) {
             focus.requestFocus()
         }
 

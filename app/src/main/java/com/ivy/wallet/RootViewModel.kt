@@ -10,7 +10,6 @@ import com.ivy.base.legacy.Theme
 import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.frp.test.TestIdlingResource
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.readOnly
@@ -56,8 +55,6 @@ class RootViewModel @Inject constructor(
 
     fun start(systemDarkMode: Boolean, intent: Intent) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             ioThread {
                 val theme = settingsDao.findAll().firstOrNull()?.theme
                     ?: if (systemDarkMode) Theme.DARK else Theme.LIGHT
@@ -65,13 +62,9 @@ class RootViewModel @Inject constructor(
 
                 ivyContext.initStartDayOfMonthInMemory(sharedPrefs = sharedPrefs)
             }
-
-            TestIdlingResource.decrement()
         }
 
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             ioThread {
                 appLockEnabled = sharedPrefs.getBoolean(SharedPrefs.APP_LOCK_ENABLED, false)
                 // initial app locked state
@@ -83,8 +76,6 @@ class RootViewModel @Inject constructor(
                     nav.navigateTo(OnboardingScreen)
                 }
             }
-
-            TestIdlingResource.decrement()
         }
 
         viewModelScope.launch {

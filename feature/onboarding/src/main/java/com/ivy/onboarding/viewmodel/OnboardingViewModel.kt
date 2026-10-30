@@ -102,17 +102,17 @@ class OnboardingViewModel @Inject constructor(
         syncExchangeRatesUseCase = syncExchangeRatesUseCase,
     )
 
+    private var restartOnboarding: () -> Unit = {}
+
+    fun onBack() {
+        router.onBack(viewModelScope = viewModelScope, restartOnboarding = restartOnboarding)
+    }
+
     fun start(screen: OnboardingScreen, isSystemDarkMode: Boolean) {
         viewModelScope.launch {
             initiateSettings(isSystemDarkMode)
 
-            router.initBackHandling(
-                screen = screen,
-                viewModelScope = viewModelScope,
-                restartOnboarding = {
-                    start(screen, isSystemDarkMode)
-                }
-            )
+            restartOnboarding = { start(screen, isSystemDarkMode) }
 
             router.splashNext()
         }

@@ -23,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.StatusBarDarkText
-import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.design.system.colors.GradientIvy
@@ -34,6 +33,7 @@ import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.colors.isLight
+import com.ivy.navigation.rememberOnBack
 
 @Composable
 fun BoxWithConstraintsScope.OnboardingSetCurrency(
@@ -56,11 +56,11 @@ fun BoxWithConstraintsScope.OnboardingSetCurrency(
             mutableStateOf(false)
         }
 
-        val nav = navigation()
+        val onBack = rememberOnBack()
         BackButton(
             modifier = Modifier.padding(start = 20.dp)
         ) {
-            nav.onBackPressed()
+            onBack()
         }
 
         if (!keyboardVisible) {

@@ -16,6 +16,7 @@ import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
 import com.ivy.navigation.ImportScreen
 import com.ivy.onboarding.viewmodel.OnboardingViewModel
 import com.ivy.data.backup.ImportResult
+import androidx.activity.compose.BackHandler
 
 @OptIn(ExperimentalStdlibApi::class)
 @ExperimentalFoundationApi
@@ -30,8 +31,9 @@ fun BoxWithConstraintsScope.ImportCSVScreen(screen: ImportScreen) {
 
     val onboardingViewModel: OnboardingViewModel = viewModel()
 
-    com.ivy.legacy.utils.onScreenStart {
-        viewModel.start(screen)
+    // Past the first step, back returns to it (and does nothing while importing).
+    BackHandler(enabled = importStep != ImportStep.IMPORT_FROM) {
+        viewModel.onBack()
     }
     val context = LocalContext.current
 

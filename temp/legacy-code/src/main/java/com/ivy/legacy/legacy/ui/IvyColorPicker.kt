@@ -31,13 +31,12 @@ import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.thenIf
-import com.ivy.frp.test.TestingContext
-import com.ivy.legacy.frp.onScreenStart
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import kotlinx.coroutines.launch
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 private data class IvyColor(
     val color: Color,
@@ -83,8 +82,7 @@ fun ColumnScope.IvyColorPicker(
     val coroutineScope = rememberCoroutineScope()
 
     densityScope {
-        onScreenStart {
-            if (TestingContext.inTest) return@onScreenStart // listState.scrollToItem breaks the tests
+        LaunchedEffect(Unit) {
             // java.lang.IllegalStateException: pending composition has not been applied
 
             val selectedColorIndex = ivyColors.indexOfFirst { it.color == selectedColor }

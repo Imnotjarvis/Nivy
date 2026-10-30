@@ -42,7 +42,6 @@ import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
@@ -55,6 +54,7 @@ import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalAddSave
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import java.util.UUID
+import androidx.compose.runtime.LaunchedEffect
 
 data class CategoryModalData(
     val category: Category?,
@@ -187,7 +187,7 @@ fun IconNameRow(
     ) {
         val nameFocus = FocusRequester()
 
-        onScreenStart {
+        LaunchedEffect(Unit) {
             if (autoFocusKeyboard) {
                 nameFocus.requestFocus()
             }

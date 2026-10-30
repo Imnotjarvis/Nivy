@@ -95,25 +95,26 @@ import java.math.BigDecimal
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop32
+import androidx.compose.runtime.DisposableEffect
 
 @Composable
 fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
     val viewModel: TransactionsViewModel = screenScopedViewModel()
 
     val ivyContext = ivyWalletCtx()
-    val nav = navigation()
     val uiState = viewModel.uiState()
 
     val view = LocalView.current
     LaunchedEffect(Unit) {
         viewModel.start(screen)
-
-        nav.onBackPressed[screen] = {
+    }
+    // This screen colors the status bar after the account; put the theme's back when leaving.
+    DisposableEffect(Unit) {
+        onDispose {
             setStatusBarDarkTextCompat(
                 view = view,
                 darkText = ivyContext.theme == Theme.LIGHT
             )
-            false
         }
     }
 

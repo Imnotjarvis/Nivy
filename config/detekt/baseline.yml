@@ -23,9 +23,7 @@
     <ID>ClassNaming:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime : Migration</ID>
     <ID>ClassNaming:Migration129to130_LoanIncludeNote.kt$Migration129to130_LoanIncludeNote : Migration</ID>
     <ID>ComplexCondition:Transactions.kt$(upcoming == null || upcoming.trns.isEmpty()) &amp;&amp; (overdue == null || overdue.trns.isEmpty()) &amp;&amp; history.isEmpty()</ID>
-    <ID>ComposableNaming:ComposeExt.kt$onScreenStart</ID>
     <ID>ComposableNaming:Keyboard.kt$hideKeyboard</ID>
-    <ID>ComposableNaming:OnScreenStart.kt$onScreenStart</ID>
     <ID>ComposableParamOrder:AddKeywordModal.kt$AddKeywordModal</ID>
     <ID>ComposableParamOrder:BackBottomBar.kt$BackBottomBar</ID>
     <ID>ComposableParamOrder:BudgetBattery.kt$BudgetBattery</ID>
@@ -87,7 +85,6 @@
     <ID>CyclomaticComplexMethod:ReportViewModel.kt$ReportViewModel$private suspend fun filterTransactions( baseCurrency: String, accounts: List&lt;Account&gt;, filter: ReportFilter, ): ImmutableList&lt;Transaction&gt;</ID>
     <ID>EmptyCatchBlock:CSVImporter.kt$CSVImporter${ }</ID>
     <ID>EmptyCatchBlock:IntervalPickerRow.kt${ }</ID>
-    <ID>EmptyFunctionBlock:TestIdlingResource.kt$TestIdlingResource${ }</ID>
     <ID>Filename:DueSection.kt$com.ivy.legacy.data.DueSection.kt</ID>
     <ID>FunctionNaming:CustomerJourneyCardsProvider.kt$CustomerJourneyCardsProvider.Companion$fun didYouKnow_expensesPieChart()</ID>
     <ID>FunctionNaming:CustomerJourneyCardsProvider.kt$CustomerJourneyCardsProvider.Companion$fun didYouKnow_pinAddTransactionWidgetCard()</ID>
@@ -271,8 +268,6 @@
     <ID>InvalidPackageDeclaration:SmartTitleSuggestionsLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
     <ID>InvalidPackageDeclaration:SortOrder.kt$package com.ivy.wallet.domain.data</ID>
     <ID>InvalidPackageDeclaration:StartDayOfMonthAct.kt$package com.ivy.wallet.domain.action.global</ID>
-    <ID>InvalidPackageDeclaration:TestIdlingResource.kt$package com.ivy.frp.test</ID>
-    <ID>InvalidPackageDeclaration:TestingContext.kt$package com.ivy.frp.test</ID>
     <ID>InvalidPackageDeclaration:Title.kt$package com.ivy.wallet.ui.edit.core</ID>
     <ID>InvalidPackageDeclaration:Toolbar.kt$package com.ivy.wallet.ui.edit.core</ID>
     <ID>InvalidPackageDeclaration:TransactionHistoryDateDivider.kt$package com.ivy.wallet.domain.data</ID>
@@ -669,7 +664,6 @@
     <ID>MultipleEmitters:TransactionSectionDivider.kt$SectionDivider</ID>
     <ID>NestedBlockDepth:ZipUtils.kt$fun unzip(fileInputStream: FileInputStream, location: File)</ID>
     <ID>NoWildcardImports:BufferModal.kt$import androidx.compose.runtime.*</ID>
-    <ID>NoWildcardImports:ComposeExt.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:IvyRoomDatabase.kt$import androidx.room.*</ID>
     <ID>NoWildcardImports:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:Keyboard.kt$import androidx.compose.runtime.*</ID>
@@ -769,7 +763,6 @@
     <ID>UseCheckOrError:ZipUtils.kt$throw IllegalStateException("Location file must be directory or not exist")</ID>
     <ID>UtilityClassWithPublicConstructor:WidgetBase.kt$WidgetBase</ID>
     <ID>WildcardImport:BufferModal.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ComposeExt.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:IvyRoomDatabase.kt$import androidx.room.*</ID>
     <ID>WildcardImport:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:Keyboard.kt$import androidx.compose.runtime.*</ID>

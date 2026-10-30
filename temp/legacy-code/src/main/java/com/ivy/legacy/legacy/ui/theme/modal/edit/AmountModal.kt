@@ -47,7 +47,6 @@ import com.ivy.legacy.utils.formatInputAmount
 import com.ivy.legacy.utils.formatInt
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.localDecimalSeparator
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
@@ -59,6 +58,7 @@ import java.util.UUID
 import kotlin.math.truncate
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberHeadlineMedium
+import androidx.compose.runtime.LaunchedEffect
 
 @SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
@@ -153,7 +153,7 @@ fun BoxWithConstraintsScope.AmountModal(
         Spacer(Modifier.height(amountSpacerTop))
 
         val rootView = LocalView.current
-        onScreenStart {
+        LaunchedEffect(Unit) {
             hideKeyboard(rootView)
         }
 

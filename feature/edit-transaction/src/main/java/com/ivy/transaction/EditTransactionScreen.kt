@@ -44,7 +44,6 @@ import com.ivy.legacy.ui.component.edit.TransactionDateTime
 import com.ivy.legacy.ui.component.edit.core.Description
 import com.ivy.legacy.ui.component.tags.AddTagButton
 import com.ivy.legacy.ui.component.tags.ShowTagModal
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.IvyPreview
@@ -427,7 +426,7 @@ private fun BoxWithConstraintsScope.UI(
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         if (screen.initialTransactionId == null) {
             amountModalShown = true
         }

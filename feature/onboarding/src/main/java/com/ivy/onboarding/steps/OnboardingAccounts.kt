@@ -37,7 +37,6 @@ import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.AccountBalance
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.toLowerCaseLocal
-import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
@@ -59,6 +58,7 @@ import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
 import androidx.compose.material3.MaterialTheme
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -83,10 +83,10 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
             .navigationBarsPadding()
     ) {
         stickyHeader {
-            val nav = navigation()
+            val onBack = rememberOnBack()
             OnboardingToolbar(
                 hasSkip = accounts.isEmpty(),
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
                 onSkip = onSkip
             )
         }

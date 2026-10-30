@@ -40,7 +40,6 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.utils.toLowerCaseLocal
-import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
@@ -64,6 +63,7 @@ import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
 import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -79,7 +79,7 @@ fun BoxWithConstraintsScope.OnboardingCategories(
 ) {
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
 
-    val nav = navigation()
+    val onBack = rememberOnBack()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +89,7 @@ fun BoxWithConstraintsScope.OnboardingCategories(
         stickyHeader {
             OnboardingToolbar(
                 hasSkip = categories.isEmpty(),
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
                 onSkip = onSkip
             )
         }

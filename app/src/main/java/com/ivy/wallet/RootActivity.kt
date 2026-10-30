@@ -330,11 +330,12 @@ class RootActivity : AppCompatActivity(), RootScreen {
         biometricPrompt.authenticate(promptInfo)
     }
 
-    // Back goes to Navigation first. What it doesn't consume, and any back press while the app
-    // is locked, falls through to the default behaviour (leaving the app).
+    // Screens and dialogs handle back with Compose's BackHandler, which takes precedence over this
+    // callback. What they don't consume goes back a screen; at the first screen, or while the app
+    // is locked, it falls through to the default behaviour (leaving the app).
     private fun setupBackHandling() {
         onBackPressedDispatcher.addCallback(this) {
-            if (viewModel.isAppLocked() || !navigation.onBackPressed()) {
+            if (viewModel.isAppLocked() || !navigation.back()) {
                 isEnabled = false
                 onBackPressedDispatcher.onBackPressed()
                 isEnabled = true

@@ -29,7 +29,6 @@ import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.legacy.utils.toUpperCaseLocal
@@ -47,6 +46,7 @@ import com.ivy.wallet.ui.theme.modal.ModalAmountSection
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 data class AccountModalData(
     val account: Account?,
@@ -119,7 +119,7 @@ fun BoxWithConstraintsScope.AccountModal(
             }
         }
     ) {
-        onScreenStart {
+        LaunchedEffect(Unit) {
             if (modal?.adjustBalanceMode == true) {
                 amountModalVisible = true
             }

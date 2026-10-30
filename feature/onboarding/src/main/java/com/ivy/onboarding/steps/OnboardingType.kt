@@ -21,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientIvy
@@ -34,6 +33,7 @@ import com.ivy.wallet.ui.theme.components.IvyOutlinedButtonFillMaxWidth
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.navigation.rememberOnBack
 
 @Composable
 fun OnboardingType(
@@ -49,11 +49,11 @@ fun OnboardingType(
     ) {
         Spacer(Modifier.height(16.dp))
 
-        val nav = navigation()
+        val onBack = rememberOnBack()
         CloseButton(
             modifier = Modifier.padding(start = 20.dp)
         ) {
-            nav.onBackPressed()
+            onBack()
         }
 
         Spacer(Modifier.height(24.dp))

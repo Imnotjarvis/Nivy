@@ -48,7 +48,6 @@ import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
@@ -60,6 +59,8 @@ import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import java.util.Locale
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 
 @Suppress("ParameterNaming")
 @Composable
@@ -78,10 +79,11 @@ fun CurrencyPicker(
     val rootView = LocalView.current
     var keyboardShown by remember { mutableStateOf(false) }
 
-    onScreenStart {
+    val latestOnKeyboardShown by rememberUpdatedState(onKeyboardShown)
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener {
             keyboardShown = it
-            onKeyboardShown(it)
+            latestOnKeyboardShown(it)
         }
     }
 

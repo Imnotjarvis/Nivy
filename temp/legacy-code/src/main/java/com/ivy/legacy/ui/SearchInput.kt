@@ -16,12 +16,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyBasicTextField
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @Suppress("MagicNumber")
 @Composable
@@ -57,7 +57,7 @@ fun SearchInput(
         )
 
         if (focus) {
-            onScreenStart {
+            LaunchedEffect(Unit) {
                 searchFocus.requestFocus()
             }
         }

@@ -28,7 +28,6 @@ import com.ivy.legacy.data.model.Month.Companion.monthsList
 import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Ivy
@@ -38,6 +37,7 @@ import java.time.LocalDate
 import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
@@ -65,7 +65,7 @@ fun BoxWithConstraintsScope.MonthPickerModal(
         }
     ) {
         val view = LocalView.current
-        onScreenStart {
+        LaunchedEffect(Unit) {
             hideKeyboard(view)
         }
 

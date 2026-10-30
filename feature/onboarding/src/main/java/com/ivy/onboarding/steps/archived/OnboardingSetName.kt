@@ -38,7 +38,6 @@ import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.densityScope
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.legacy.utils.springBounceSlow
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientIvy
@@ -46,6 +45,7 @@ import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyOutlinedTextField
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun OnboardingSetName(
@@ -54,7 +54,7 @@ fun OnboardingSetName(
     val rootView = LocalView.current
     var keyboardShown by remember { mutableStateOf(false) }
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener {
             keyboardShown = it
         }
@@ -104,7 +104,7 @@ fun OnboardingSetName(
 
         val nameFocus = FocusRequester()
 
-        onScreenStart {
+        LaunchedEffect(Unit) {
             nameFocus.requestFocus()
         }
 

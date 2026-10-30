@@ -35,7 +35,6 @@ import com.ivy.design.utils.thenIf
 import com.ivy.legacy.ui.SearchInput
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
@@ -51,6 +50,7 @@ import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @ExperimentalFoundationApi
 @Suppress("ParameterNaming")
@@ -301,7 +301,7 @@ private fun ExistingTag(
 @Composable
 private fun HideKeyboard() {
     val view = LocalView.current
-    onScreenStart { hideKeyboard(view) }
+    LaunchedEffect(Unit) { hideKeyboard(view) }
 }
 
 @Composable

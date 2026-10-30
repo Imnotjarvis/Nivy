@@ -66,6 +66,7 @@ import com.ivy.design.system.typography.numberLabelMedium
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -163,6 +164,7 @@ private fun BoxWithConstraintsScope.UI(
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
+    val onBack = rememberOnBack()
 
     LazyColumn(
         modifier = Modifier
@@ -173,7 +175,7 @@ private fun BoxWithConstraintsScope.UI(
     ) {
         stickyHeader {
             IvyToolbar(
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
             ) {
                 Spacer(Modifier.weight(1f))
 

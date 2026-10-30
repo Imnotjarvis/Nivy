@@ -29,7 +29,6 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.IntervalType
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -52,6 +51,7 @@ import com.ivy.wallet.ui.theme.modal.edit.ChooseCategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.DescriptionModal
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
+import androidx.compose.runtime.rememberUpdatedState
 
 @ExperimentalFoundationApi
 @Composable
@@ -195,12 +195,13 @@ private fun BoxWithConstraintsScope.UI(
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
-    onScreenStart {
+    val latestOnEvent by rememberUpdatedState(onEvent)
+    LaunchedEffect(Unit) {
         if (screen.plannedPaymentRuleId == null) {
             // Create mode
             if (screen.mandatoryFilled()) {
                 // Flow Convert (Amount, Account, Category)
-                onEvent(
+                latestOnEvent(
                     EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
                         RecurringRuleModalData(
                             initialStartDate = state.startDate,
@@ -212,7 +213,7 @@ private fun BoxWithConstraintsScope.UI(
                 )
             } else {
                 // Flow Empty
-                onEvent(EditPlannedScreenEvent.OnTransactionTypeModalVisible(true))
+                latestOnEvent(EditPlannedScreenEvent.OnTransactionTypeModalVisible(true))
             }
         }
     }

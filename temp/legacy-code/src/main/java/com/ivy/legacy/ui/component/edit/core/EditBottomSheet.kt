@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.legacy.datamodel.Account
-import com.ivy.frp.test.TestingContext
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.addKeyboardListener
@@ -57,7 +56,6 @@ import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInsets
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.legacy.utils.springBounce
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.utils.verticalSwipeListener
@@ -120,7 +118,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     val rootView = LocalView.current
     var keyboardShown by remember { mutableStateOf(false) }
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener {
             keyboardShown = it
         }
@@ -537,8 +535,6 @@ private fun AccountsRow(
             val selectedIndex = accounts.indexOf(selectedAccount)
             if (selectedIndex != -1) {
                 launch {
-                    if (TestingContext.inTest) return@launch // breaks UI tests
-
                     lazyState.scrollToItem(
                         index = selectedIndex, // +1 because Spacer width 24.dp
                     )

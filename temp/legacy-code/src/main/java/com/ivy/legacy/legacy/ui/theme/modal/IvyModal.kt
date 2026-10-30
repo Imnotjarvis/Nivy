@@ -21,12 +21,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,10 +47,7 @@ import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.design.utils.navigationBarInsets
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.thenIf
-import com.ivy.navigation.Navigation
-import com.ivy.navigation.navigation
 import com.ivy.wallet.ui.theme.components.ActionsRow
 import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.design.system.colors.gradientCutBackgroundTop
@@ -61,6 +56,9 @@ import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop24
+import androidx.compose.runtime.LaunchedEffect
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.key
 
 private const val DURATION_BACKGROUND_BLUR_ANIM = 400
 
@@ -81,7 +79,7 @@ fun BoxScope.IvyModal(
     val rootView = LocalView.current
     var keyboardShown by remember { mutableStateOf(false) }
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener {
             keyboardShown = it
         }
@@ -208,47 +206,17 @@ private fun ModalBackHandling(
     )
 }
 
+// While visible, back runs [action] (e.g. closes the dialog). The handler that registered last
+// runs first, and keying it on [modalId] registers it again whenever a dialog opens with a new
+// id, so the dialog opened last closes first.
 @Composable
 fun AddModalBackHandling(
     modalId: UUID?,
     visible: Boolean,
     action: () -> Unit
 ) {
-    val latestAction by rememberUpdatedState(action)
-    val nav = navigation()
-    DisposableEffect(visible) {
-        if (visible) {
-            val lastModalBackHandlingId = nav.lastModalBackHandlerId()
-
-            if (modalId != null && modalId != lastModalBackHandlingId) {
-                nav.modalBackHandling.add(
-                    Navigation.ModalBackHandler(
-                        id = modalId,
-                        onBackPressed = {
-                            if (visible) {
-                                latestAction()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                    )
-                )
-            }
-        }
-
-        onDispose {
-            val lastModalBackHandlingId = nav.lastModalBackHandlerId()
-            if (modalId != null && lastModalBackHandlingId == modalId) {
-                removeLastBackHandlerSafe(nav)
-            }
-        }
-    }
-}
-
-private fun removeLastBackHandlerSafe(nav: Navigation) {
-    if (nav.modalBackHandling.isNotEmpty()) {
-        nav.modalBackHandling.pop()
+    key(modalId) {
+        BackHandler(enabled = visible, onBack = action)
     }
 }
 

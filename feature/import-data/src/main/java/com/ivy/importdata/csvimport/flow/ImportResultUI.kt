@@ -35,6 +35,7 @@ import kotlinx.collections.immutable.persistentListOf
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberHeadlineMedium
+import com.ivy.navigation.rememberOnBack
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -53,10 +54,11 @@ fun ImportResultUI(
         Spacer(Modifier.height(16.dp))
 
         val nav = navigation()
+        val onBack = rememberOnBack()
         BackButton(
             modifier = Modifier.padding(start = 20.dp)
         ) {
-            nav.onBackPressed()
+            onBack()
         }
 
         Spacer(Modifier.height(24.dp))

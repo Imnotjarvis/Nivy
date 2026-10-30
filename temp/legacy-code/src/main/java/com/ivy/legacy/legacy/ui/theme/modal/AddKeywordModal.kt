@@ -18,12 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyTitleTextField
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @Suppress("ParameterNaming")
 @Composable
@@ -62,7 +62,7 @@ fun BoxWithConstraintsScope.AddKeywordModal(
 
         val inputFocus = FocusRequester()
 
-        onScreenStart {
+        LaunchedEffect(Unit) {
             inputFocus.requestFocus()
         }
 

@@ -36,7 +36,6 @@ import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Ivy
@@ -53,6 +52,7 @@ import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @Suppress("ParameterNaming")
 @ExperimentalFoundationApi
@@ -86,7 +86,7 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
         }
     ) {
         val view = LocalView.current
-        onScreenStart {
+        LaunchedEffect(Unit) {
             hideKeyboard(view)
         }
 

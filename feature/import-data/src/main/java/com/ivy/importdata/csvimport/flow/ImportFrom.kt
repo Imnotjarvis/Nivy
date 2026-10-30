@@ -35,6 +35,7 @@ import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -54,10 +55,10 @@ fun BoxWithConstraintsScope.ImportFrom(
             .navigationBarsPadding()
     ) {
         stickyHeader {
-            val nav = navigation()
+            val onBack = rememberOnBack()
             OnboardingToolbar(
                 hasSkip = hasSkip,
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
                 onSkip = onSkip
             )
             // onboarding toolbar include paddingBottom 16.dp

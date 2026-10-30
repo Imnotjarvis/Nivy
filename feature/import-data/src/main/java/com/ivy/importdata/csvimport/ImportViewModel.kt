@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivy.frp.test.TestIdlingResource
 import com.ivy.legacy.domain.deprecated.logic.csv.CSVImporter
 import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
 import com.ivy.data.backup.BackupDataUseCase
@@ -47,26 +46,11 @@ class ImportViewModel @Inject constructor(
     private val _importResult = MutableLiveData<ImportResult>()
     val importResult = _importResult.asLiveData()
 
-    fun start(screen: ImportScreen) {
-        nav.onBackPressed[screen] = {
-            when (importStep.value) {
-                ImportStep.IMPORT_FROM -> false
-                ImportStep.INSTRUCTIONS -> {
-                    _importStep.value = ImportStep.IMPORT_FROM
-                    true
-                }
-
-                ImportStep.LOADING -> {
-                    // do nothing, disable back
-                    true
-                }
-
-                ImportStep.RESULT -> {
-                    _importStep.value = ImportStep.IMPORT_FROM
-                    true
-                }
-
-                null -> false
+    fun onBack() {
+        when (importStep.value) {
+            ImportStep.INSTRUCTIONS, ImportStep.RESULT -> _importStep.value = ImportStep.IMPORT_FROM
+            ImportStep.IMPORT_FROM, ImportStep.LOADING, null -> {
+                // the first step leaves the screen; back is disabled while importing
             }
         }
     }
@@ -77,8 +61,6 @@ class ImportViewModel @Inject constructor(
 
         ivyContext.openFile { fileUri ->
             viewModelScope.launch {
-                TestIdlingResource.increment()
-
                 _importStep.value = ImportStep.LOADING
 
                 _importResult.value = if (hasCSVExtension(context, fileUri)) {
@@ -95,8 +77,6 @@ class ImportViewModel @Inject constructor(
                 }
 
                 _importStep.value = ImportStep.RESULT
-
-                TestIdlingResource.decrement()
             }
         }
     }

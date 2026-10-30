@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.data.model.Category
 import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.steps.OnboardingAccounts
 import com.ivy.onboarding.steps.OnboardingCategories
@@ -20,6 +19,8 @@ import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import kotlinx.collections.immutable.ImmutableList
+import androidx.compose.runtime.LaunchedEffect
+import androidx.activity.compose.BackHandler
 
 @ExperimentalFoundationApi
 @Composable
@@ -30,11 +31,16 @@ fun BoxWithConstraintsScope.OnboardingScreen(screen: OnboardingScreen) {
     val uiState = viewModel.uiState()
 
     val isSystemDarkTheme = isSystemInDarkTheme()
-    onScreenStart {
+    LaunchedEffect(Unit) {
         viewModel.start(
             screen = screen,
             isSystemDarkMode = isSystemDarkTheme
         )
+    }
+
+    // Back goes to the previous step; on the login step it leaves the app.
+    BackHandler(enabled = state != OnboardingState.LOGIN) {
+        viewModel.onBack()
     }
 
     UI(

@@ -14,7 +14,6 @@ import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.ImportScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
-import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingState
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
@@ -47,53 +46,42 @@ class OnboardingRouter(
 
     var isLoginCache = false
 
-    fun initBackHandling(
-        screen: OnboardingScreen,
+    // Back goes one onboarding step back. The screen doesn't send it on the login step, where back
+    // leaves the app, and it does nothing on the splash.
+    fun onBack(
         viewModelScope: CoroutineScope,
         restartOnboarding: () -> Unit
     ) {
-        nav.onBackPressed[screen] = {
-            when (state.value) {
-                OnboardingState.SPLASH -> {
-                    // do nothing, consume back
-                    true
-                }
+        when (state.value) {
+            OnboardingState.SPLASH, OnboardingState.LOGIN -> {
+                // nothing to go back to
+            }
 
-                OnboardingState.LOGIN -> {
-                    // let the user exit the app
-                    false
-                }
+            OnboardingState.CHOOSE_PATH -> {
+                state.value = OnboardingState.LOGIN
+            }
 
-                OnboardingState.CHOOSE_PATH -> {
-                    state.value = OnboardingState.LOGIN
-                    true
-                }
-
-                OnboardingState.CURRENCY -> {
-                    if (isLoginCache) {
-                        // user with Ivy account
-                        viewModelScope.launch {
-                            logoutLogic.logout()
-                            isLoginCache = false
-                            restartOnboarding()
-                            state.value = OnboardingState.LOGIN
-                        }
-                    } else {
-                        // fresh user
-                        state.value = OnboardingState.CHOOSE_PATH
+            OnboardingState.CURRENCY -> {
+                if (isLoginCache) {
+                    // user with Ivy account
+                    viewModelScope.launch {
+                        logoutLogic.logout()
+                        isLoginCache = false
+                        restartOnboarding()
+                        state.value = OnboardingState.LOGIN
                     }
-                    true
+                } else {
+                    // fresh user
+                    state.value = OnboardingState.CHOOSE_PATH
                 }
+            }
 
-                OnboardingState.ACCOUNTS -> {
-                    state.value = OnboardingState.CURRENCY
-                    true
-                }
+            OnboardingState.ACCOUNTS -> {
+                state.value = OnboardingState.CURRENCY
+            }
 
-                OnboardingState.CATEGORIES -> {
-                    state.value = OnboardingState.ACCOUNTS
-                    true
-                }
+            OnboardingState.CATEGORIES -> {
+                state.value = OnboardingState.ACCOUNTS
             }
         }
     }

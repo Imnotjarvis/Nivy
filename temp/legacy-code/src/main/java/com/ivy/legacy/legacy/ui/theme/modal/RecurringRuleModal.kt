@@ -43,7 +43,6 @@ import com.ivy.legacy.utils.closeDay
 import com.ivy.legacy.utils.formatDateWeekDayLong
 import com.ivy.legacy.utils.formatNicely
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.ui.R
@@ -61,6 +60,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 data class RecurringRuleModalData(
     val initialStartDate: LocalDateTime?,
@@ -117,7 +117,7 @@ fun BoxWithConstraintsScope.RecurringRuleModal(
         Spacer(Modifier.height(32.dp))
 
         val rootView = LocalView.current
-        onScreenStart {
+        LaunchedEffect(Unit) {
             hideKeyboard(rootView)
         }
 
@@ -299,7 +299,7 @@ private fun MultipleTimes(
     val rootView = LocalView.current
     val coroutineScope = rememberCoroutineScope()
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener { keyboardShown ->
             if (keyboardShown) {
                 coroutineScope.launch {
