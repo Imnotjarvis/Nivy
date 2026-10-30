@@ -7,9 +7,11 @@ plugins {
     id("com.jraska.module.graph.assertion")
 }
 
-// Each compiler warning carries its diagnostic name, e.g. [DEPRECATION], so CI can group them.
+// Kotlin warnings fail the build. Each one carries its diagnostic name, e.g. [DEPRECATION], so CI
+// can group them.
 subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+        compilerOptions.allWarningsAsErrors.set(true)
         compilerOptions.freeCompilerArgs.add("-Xrender-internal-diagnostic-names")
     }
 }
