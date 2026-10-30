@@ -13,12 +13,10 @@ import com.ivy.data.model.testing.transaction
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TransactionRepository
-import io.kotest.common.DelicateKotest
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
-import io.kotest.property.arbitrary.next
 import io.kotest.property.checkAll
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -26,8 +24,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
-// Arb.next() draws a single random value outside a property check, which Kotest marks delicate.
-@OptIn(DelicateKotest::class)
 class ExportCsvUseCasePropertyTest {
 
     private val accountRepository = mockk<AccountRepository>()
