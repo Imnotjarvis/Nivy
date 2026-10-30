@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
-import arrow.core.Some
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.budgets.model.DisplayBudget
@@ -18,22 +17,21 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.getFromAccount
+import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.temp.migration.getValue
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.format
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.action.transaction.HistoryTrnsAct
-import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -52,7 +50,7 @@ class BudgetViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val currencyRepository: CurrencyRepository,
     private val historyTrnsAct: HistoryTrnsAct,
-    private val exchangeAct: ExchangeAct,
+    private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<BudgetScreenState, BudgetScreenEvent>() {
@@ -171,7 +169,7 @@ class BudgetViewModel @Inject constructor(
     private fun start() {
         viewModelScope.launch {
             categories.value = categoryRepository.findAll().toImmutableList()
-            val baseCurrency = currencyRepository.getBaseCurrency().code
+            val baseCurrency = currencyRepository.getBaseCurrency()
             val startDateOfMonth = appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
             val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = startDateOfMonth,
@@ -194,7 +192,7 @@ class BudgetViewModel @Inject constructor(
                     spentAmount = calculateSpentAmount(
                         budget = it,
                         transactions = transactions,
-                        baseCurrencyCode = baseCurrency
+                        baseCurrency = baseCurrency
                     )
                 )
             }.toImmutableList()
@@ -202,7 +200,7 @@ class BudgetViewModel @Inject constructor(
                 budgets = this@BudgetViewModel.budgets.value,
                 categoryBudgetsTotal = categoryBudgetsTotal.doubleValue
             )
-            this@BudgetViewModel.baseCurrency.value = baseCurrency
+            this@BudgetViewModel.baseCurrency.value = baseCurrency.code
             this@BudgetViewModel.timeRange.value = timeRange
         }
     }
@@ -211,22 +209,14 @@ class BudgetViewModel @Inject constructor(
     private suspend fun calculateSpentAmount(
         budget: Budget,
         transactions: List<Transaction>,
-        baseCurrencyCode: String,
+        baseCurrency: AssetCode,
     ): Double {
         return transactions
             .filterIsInstance<Expense>()
             .filter { budget.accounts.isEmpty() || it.getFromAccount() in budget.accounts }
             .filter { budget.categories.isEmpty() || it.category in budget.categories }
             .sumOf {
-                exchangeAct(
-                    ExchangeAct.Input(
-                        data = ExchangeData(
-                            baseCurrency = baseCurrencyCode,
-                            fromCurrency = Some(it.value.asset.code)
-                        ),
-                        amount = it.getValue()
-                    )
-                ).getOrNull()?.toDouble() ?: 0.0
+                exchangeUseCase.convert(it.value, to = baseCurrency).getOrNull()?.amount?.value ?: 0.0
             }
     }
 
