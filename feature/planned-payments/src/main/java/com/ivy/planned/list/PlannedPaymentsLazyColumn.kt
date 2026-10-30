@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
-import com.ivy.legacy.datamodel.PlannedPaymentRule
+import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.legacy.ui.component.transaction.SectionDivider
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.Navigation
@@ -191,7 +191,7 @@ private fun onPlannedPaymentClick(
 ) {
     nav.navigateTo(
         EditPlannedScreen(
-            plannedPaymentRuleId = rule.id,
+            plannedPaymentRuleId = rule.id.value,
             type = rule.type
         )
     )

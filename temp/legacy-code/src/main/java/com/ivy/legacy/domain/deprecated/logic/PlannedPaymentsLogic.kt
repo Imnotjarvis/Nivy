@@ -3,24 +3,19 @@ package com.ivy.wallet.domain.deprecated.logic
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
-import com.ivy.data.model.Account
-import com.ivy.data.model.IntervalType
 import com.ivy.data.model.TransactionId
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.data.temp.migration.settleNow
-import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.datamodel.temp.toDomain
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.utils.ioThread
 import com.ivy.wallet.domain.deprecated.logic.currency.ExchangeRatesLogic
-import com.ivy.wallet.domain.deprecated.logic.currency.sumByDoublePlannedInBaseCurrency
 import javax.inject.Inject
 
 @Deprecated("Migrate to FP Style")
@@ -29,17 +24,12 @@ class PlannedPaymentsLogic @Inject constructor(
     private val transactionDao: TransactionDao,
     private val currencyRepository: CurrencyRepository,
     private val exchangeRatesLogic: ExchangeRatesLogic,
-    private val accountDao: AccountDao,
     private val accountRepository: AccountRepository,
     private val transactionMapper: TransactionMapper,
     private val plannedPaymentRuleWriter: WritePlannedPaymentRuleDao,
     private val transactionRepository: TransactionRepository,
     private val timeProvider: TimeProvider,
 ) {
-    companion object {
-        private const val AVG_DAYS_IN_MONTH = 30.436875
-    }
-
     suspend fun plannedPaymentsAmountFor(range: com.ivy.legacy.data.model.FromToTimeRange): Double {
         val baseCurrency = currencyRepository.getBaseCurrency().code
         val accounts = accountRepository.findAll()
@@ -59,103 +49,6 @@ class PlannedPaymentsLogic @Inject constructor(
                 TransactionType.EXPENSE -> -amount
                 TransactionType.TRANSFER -> 0.0
             }
-        }
-    }
-
-    suspend fun oneTime(): List<PlannedPaymentRule> {
-        return plannedPaymentRuleDao.findAllByOneTime(oneTime = true).map { it.toLegacyDomain() }
-    }
-
-    suspend fun oneTimeIncome(): Double {
-        return oneTime()
-            .filter { it.type == TransactionType.INCOME }
-            .sumByDoublePlannedInBaseCurrency(
-                exchangeRatesLogic = exchangeRatesLogic,
-                currencyRepository = currencyRepository,
-                accountDao = accountDao
-            )
-    }
-
-    suspend fun oneTimeExpenses(): Double {
-        return oneTime()
-            .filter { it.type == TransactionType.EXPENSE }
-            .sumByDoublePlannedInBaseCurrency(
-                exchangeRatesLogic = exchangeRatesLogic,
-                currencyRepository = currencyRepository,
-                accountDao = accountDao
-            )
-    }
-
-    suspend fun recurring(): List<PlannedPaymentRule> =
-        plannedPaymentRuleDao.findAllByOneTime(oneTime = false).map { it.toLegacyDomain() }
-
-    suspend fun recurringIncome(): Double {
-        return recurring()
-            .filter { it.type == TransactionType.INCOME }
-            .sumByDoubleRecurringForMonthInBaseCurrency()
-    }
-
-    suspend fun recurringExpenses(): Double {
-        return recurring()
-            .filter { it.type == TransactionType.EXPENSE }
-            .sumByDoubleRecurringForMonthInBaseCurrency()
-    }
-
-    private suspend fun Iterable<PlannedPaymentRule>.sumByDoubleRecurringForMonthInBaseCurrency(): Double {
-        val accounts = accountRepository.findAll()
-        val baseCurrency = currencyRepository.getBaseCurrency().code
-
-        return sumOf {
-            amountForMonthInBaseCurrency(
-                plannedPayment = it,
-                baseCurrency = baseCurrency,
-                accounts = accounts
-            )
-        }
-    }
-
-    private suspend fun amountForMonthInBaseCurrency(
-        plannedPayment: PlannedPaymentRule,
-        baseCurrency: String,
-        accounts: List<Account>
-    ): Double {
-        val amountBaseCurrency = exchangeRatesLogic.amountBaseCurrency(
-            plannedPayment = plannedPayment,
-            baseCurrency = baseCurrency,
-            accounts = accounts,
-        )
-
-        if (plannedPayment.oneTime) {
-            return amountBaseCurrency
-        }
-
-        val intervalN = plannedPayment.intervalN ?: return amountBaseCurrency
-        if (intervalN <= 0) {
-            return amountBaseCurrency
-        }
-
-        return when (plannedPayment.intervalType) {
-            IntervalType.DAY -> {
-                val monthDiff = 1 / AVG_DAYS_IN_MONTH // 0.03%
-
-                (amountBaseCurrency / monthDiff) / intervalN
-            }
-
-            IntervalType.WEEK -> {
-                val monthDiff = 7 / AVG_DAYS_IN_MONTH // 0.22%
-
-                (amountBaseCurrency / monthDiff) / intervalN
-            }
-
-            IntervalType.MONTH -> {
-                amountBaseCurrency / intervalN
-            }
-
-            IntervalType.YEAR -> {
-                amountBaseCurrency / (12 * intervalN)
-            }
-
-            null -> amountBaseCurrency
         }
     }
 

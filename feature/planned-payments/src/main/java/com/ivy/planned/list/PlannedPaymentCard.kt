@@ -30,15 +30,15 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
+import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.forDisplay
 import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
 import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewPlannedPaymentRule
 import com.ivy.legacy.utils.formatLocal
-import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.legacy.utils.uppercaseLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
@@ -80,13 +80,13 @@ fun LazyItemScope.PlannedPaymentCard(
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
-                if (accounts.find { it.id.value == plannedPayment.accountId } != null) {
+                if (accounts.find { it.id == plannedPayment.account } != null) {
                     onClick(plannedPayment)
                 }
             }
             .testTag("planned_payment_card")
     ) {
-        val currency = accounts.find { it.id.value == plannedPayment.accountId }?.asset?.code ?: baseCurrency
+        val currency = accounts.find { it.id == plannedPayment.account }?.asset?.code ?: baseCurrency
 
         Spacer(Modifier.height(20.dp))
 
@@ -99,20 +99,20 @@ fun LazyItemScope.PlannedPaymentCard(
         Spacer(Modifier.height(16.dp))
 
         RuleTextRow(
-            oneTime = plannedPayment.oneTime,
+            oneTime = plannedPayment.interval == null,
             startDate = with(LocalTimeConverter.current) {
-                plannedPayment.startDate?.toLocalDateTime()
+                plannedPayment.startDate.toLocalDateTime()
             },
-            intervalN = plannedPayment.intervalN,
-            intervalType = plannedPayment.intervalType
+            intervalN = plannedPayment.interval?.n?.value,
+            intervalType = plannedPayment.interval?.type
         )
 
-        if (plannedPayment.title.isNotNullOrBlank()) {
+        plannedPayment.title?.let { title ->
             Spacer(Modifier.height(8.dp))
 
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
-                text = plannedPayment.title!!,
+                text = title.value,
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
@@ -126,7 +126,7 @@ fun LazyItemScope.PlannedPaymentCard(
             transactionType = plannedPayment.type,
             dueDate = null,
             currency = currency,
-            amount = plannedPayment.amount
+            amount = plannedPayment.amount.value
         )
 
         Spacer(Modifier.height(24.dp))
@@ -157,7 +157,7 @@ private fun PlannedPaymentHeaderRow(
             Spacer(Modifier.width(12.dp))
 
             val category =
-                plannedPayment.categoryId?.let { targetId -> categories.find { it.id.value == targetId } }
+                plannedPayment.category?.let { targetId -> categories.find { it.id == targetId } }
             if (category != null) {
                 IvyButton(
                     iconTint = findContrastTextColor(category.color.value.toComposeColor()),
@@ -185,7 +185,7 @@ private fun PlannedPaymentHeaderRow(
                 Spacer(Modifier.width(12.dp))
             }
 
-            val account = accounts.find { it.id.value == plannedPayment.accountId }
+            val account = accounts.find { it.id == plannedPayment.account }
             IvyButton(
                 backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                 text = account?.name?.value ?: stringResource(R.string.deleted),
@@ -290,16 +290,13 @@ private fun Preview_oneTime() {
                     baseCurrency = "BGN",
                     categories = persistentListOf(food),
                     accounts = persistentListOf(cash),
-                    plannedPayment = PlannedPaymentRule(
-                        accountId = cash.id.value,
+                    plannedPayment = previewPlannedPaymentRule(
+                        account = cash.id,
                         title = "Lidl pazar",
-                        categoryId = food.id.value,
+                        category = food.id,
                         amount = 250.75,
                         startDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        oneTime = true,
-                        intervalType = null,
-                        intervalN = null,
-                        type = TransactionType.EXPENSE
+                        type = TransactionType.EXPENSE,
                     )
                 ) {}
             }
@@ -328,55 +325,15 @@ private fun Preview_recurring() {
                     baseCurrency = "BGN",
                     categories = persistentListOf(shisha),
                     accounts = persistentListOf(account),
-                    plannedPayment = PlannedPaymentRule(
-                        accountId = account.id.value,
+                    plannedPayment = previewPlannedPaymentRule(
+                        account = account.id,
                         title = "Tabu",
-                        categoryId = shisha.id.value,
+                        category = shisha.id,
                         amount = 250.75,
                         startDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        oneTime = false,
-                        intervalType = IntervalType.MONTH,
-                        intervalN = 1,
-                        type = TransactionType.EXPENSE
+                        type = TransactionType.EXPENSE,
+                        interval = 1 to IntervalType.MONTH,
                     )
-                ) {}
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun Preview_recurringError() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val account = previewAccount("Revolut", color = Blue, currency = "BGN")
-            val shisha = Category(
-                name = NotBlankTrimmedString.unsafe("Shisha"),
-                color = ColorInt(Orange.toArgb()),
-                icon = null,
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                Spacer(Modifier.height(68.dp))
-
-                PlannedPaymentCard(
-                    baseCurrency = "BGN",
-                    categories = persistentListOf(shisha),
-                    accounts = persistentListOf(account),
-                    plannedPayment = PlannedPaymentRule(
-                        accountId = account.id.value,
-                        title = "Tabu",
-                        categoryId = shisha.id.value,
-                        amount = 250.75,
-                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        oneTime = false,
-                        intervalType = null,
-                        intervalN = null,
-                        type = TransactionType.EXPENSE
-                    ),
                 ) {}
             }
         }

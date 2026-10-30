@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.IntervalType
+import com.ivy.data.model.incrementDate
 import com.ivy.legacy.forDisplay
-import com.ivy.legacy.incrementDate
 import java.time.Instant
 
 @Suppress("DataClassFunctions")

@@ -7,7 +7,6 @@ import com.ivy.data.db.entity.AccountEntity
 import com.ivy.data.model.Account
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.mapper.AccountMapper
-import com.ivy.legacy.datamodel.PlannedPaymentRule
 import java.util.UUID
 import javax.inject.Inject
 
@@ -15,19 +14,6 @@ import javax.inject.Inject
 class ExchangeRatesLogic @Inject constructor(
     private val exchangeRatesDao: ExchangeRatesDao
 ) {
-    suspend fun amountBaseCurrency(
-        plannedPayment: PlannedPaymentRule,
-        baseCurrency: String,
-        accounts: List<Account> // helper
-    ): Double {
-        return amountBaseCurrency(
-            amount = plannedPayment.amount,
-            accountId = plannedPayment.accountId,
-            baseCurrency = baseCurrency,
-            accounts = accounts
-        )
-    }
-
     suspend fun amountBaseCurrency(
         transaction: Transaction,
         baseCurrency: String,
@@ -114,24 +100,6 @@ suspend fun Iterable<Transaction>.sumInBaseCurrency(
     return sumOf {
         exchangeRatesLogic.amountBaseCurrency(
             transaction = it,
-            baseCurrency = baseCurrency,
-            accounts = accounts
-        )
-    }
-}
-
-@Deprecated("Use FP style, look into `domain.fp` package")
-suspend fun Iterable<PlannedPaymentRule>.sumByDoublePlannedInBaseCurrency(
-    exchangeRatesLogic: ExchangeRatesLogic,
-    currencyRepository: CurrencyRepository,
-    accountDao: AccountDao,
-): Double {
-    val baseCurrency = currencyRepository.getBaseCurrency().code
-    val accounts = accountDao.findAll().toDomainAccounts(currencyRepository)
-
-    return sumOf {
-        exchangeRatesLogic.amountBaseCurrency(
-            plannedPayment = it,
             baseCurrency = baseCurrency,
             accounts = accounts
         )

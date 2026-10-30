@@ -20,8 +20,8 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.system.colors.Purple
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewPlannedPaymentRule
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation
@@ -129,31 +129,26 @@ private fun Preview() {
                 accounts = persistentListOf(account),
                 categories = persistentListOf(food, shisha),
                 oneTimePlannedPayment = persistentListOf(
-                    PlannedPaymentRule(
-                        accountId = account.id.value,
+                    previewPlannedPaymentRule(
+                        account = account.id,
                         title = "Lidl pazar",
-                        categoryId = food.id.value,
+                        category = food.id,
                         amount = 250.75,
                         startDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        oneTime = true,
-                        intervalType = null,
-                        intervalN = null,
-                        type = TransactionType.EXPENSE
+                        type = TransactionType.EXPENSE,
                     )
                 ),
                 oneTimeExpenses = 250.75,
                 oneTimeIncome = 0.0,
                 recurringPlannedPayment = persistentListOf(
-                    PlannedPaymentRule(
-                        accountId = account.id.value,
+                    previewPlannedPaymentRule(
+                        account = account.id,
                         title = "Tabu",
-                        categoryId = shisha.id.value,
+                        category = shisha.id,
                         amount = 1025.5,
                         startDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        oneTime = false,
-                        intervalType = IntervalType.MONTH,
-                        intervalN = 1,
-                        type = TransactionType.EXPENSE
+                        type = TransactionType.EXPENSE,
+                        interval = 1 to IntervalType.MONTH,
                     )
                 ),
                 recurringExpenses = 1025.5,

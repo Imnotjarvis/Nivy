@@ -3,18 +3,25 @@ package com.ivy.legacy.ui
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.ivy.base.model.LoanRecordType
+import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
+import com.ivy.data.model.CategoryId
+import com.ivy.data.model.IntervalType
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
 import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.LoanRecordId
 import com.ivy.data.model.LoanType
+import com.ivy.data.model.PlannedPaymentInterval
+import com.ivy.data.model.PlannedPaymentRule
+import com.ivy.data.model.PlannedPaymentRuleId
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.model.primitive.PositiveInt
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -74,4 +81,28 @@ fun previewLoanRecord(
     account = null,
     convertedAmount = null,
     type = type,
+)
+
+/** A planned payment rule for previews and screenshot tests; one-time without an [interval]. */
+@Suppress("LongParameterList")
+fun previewPlannedPaymentRule(
+    account: AccountId,
+    title: String,
+    category: CategoryId?,
+    amount: Double,
+    startDate: Instant,
+    type: TransactionType,
+    interval: Pair<Int, IntervalType>? = null,
+): PlannedPaymentRule = PlannedPaymentRule(
+    id = PlannedPaymentRuleId(UUID.randomUUID()),
+    type = type,
+    account = account,
+    amount = PositiveDouble.unsafe(amount),
+    category = category,
+    title = NotBlankTrimmedString.unsafe(title),
+    description = null,
+    startDate = startDate,
+    interval = interval?.let { (n, intervalType) ->
+        PlannedPaymentInterval(n = PositiveInt.unsafe(n), type = intervalType)
+    },
 )
