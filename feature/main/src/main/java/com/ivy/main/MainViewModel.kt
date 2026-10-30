@@ -3,7 +3,6 @@ package com.ivy.main
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.legacy.IvyWalletCtx
@@ -21,7 +20,6 @@ class MainViewModel @Inject constructor(
     private val ivyContext: IvyWalletCtx,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val accountCreator: AccountCreator,
-    private val appPreferences: AppPreferences,
     private val currencyRepository: CurrencyRepository,
 ) : ViewModel() {
 
@@ -32,8 +30,6 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val baseCurrency = currencyRepository.getBaseCurrency()
             _currency.value = baseCurrency.code
-
-            ivyContext.dataBackupCompleted = appPreferences.isDataBackupCompleted()
 
             ioThread {
                 // Sync exchange rates

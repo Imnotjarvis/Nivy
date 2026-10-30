@@ -23,7 +23,6 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
-import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.datamodel.LoanRecord
@@ -43,7 +42,6 @@ import javax.inject.Inject
 class LoanTransactionsCore @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val transactionDao: TransactionDao,
-    private val ivyContext: IvyWalletCtx,
     private val loanRecordDao: LoanRecordDao,
     private val loanDao: LoanDao,
     private val settingsDao: SettingsDao,
@@ -223,33 +221,20 @@ class LoanTransactionsCore @Inject constructor(
             categoryRepository.findAll()
         }
 
-        var addCategoryToDb = false
-
+        // Loan transactions go in the first category with "loan" in its name, or a new one.
         val loanCategory = categoryList.find { category ->
             category.name.value.lowercase(Locale.ENGLISH).contains("loan")
-        } ?: if (ivyContext.isPremium || categoryList.size < 12) {
-            addCategoryToDb = true
-
-            Category(
-                name = NotBlankTrimmedString.unsafe("Loans"),
-                color = ColorInt(IVY_COLOR_PICKER_COLORS_FREE[DEFAULT_COLOR_INDEX].toArgb()),
-                icon = IconAsset.unsafe("loan"),
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-        } else {
-            null
+        } ?: Category(
+            name = NotBlankTrimmedString.unsafe("Loans"),
+            color = ColorInt(IVY_COLOR_PICKER_COLORS_FREE[DEFAULT_COLOR_INDEX].toArgb()),
+            icon = IconAsset.unsafe("loan"),
+            id = CategoryId(UUID.randomUUID()),
+            orderNum = 0.0,
+        ).also { newCategory ->
+            ioThread { categoryRepository.save(newCategory) }
         }
 
-        if (addCategoryToDb) {
-            ioThread {
-                loanCategory?.let {
-                    categoryRepository.save(it)
-                }
-            }
-        }
-
-        return loanCategory?.id?.value
+        return loanCategory.id.value
     }
 
     suspend fun computeConvertedAmount(

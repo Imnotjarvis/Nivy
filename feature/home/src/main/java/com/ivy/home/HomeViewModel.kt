@@ -49,8 +49,6 @@ import com.ivy.wallet.domain.action.viewmodel.home.HasTrnsAct
 import com.ivy.wallet.domain.action.viewmodel.home.OverdueAct
 import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideBalanceAct
 import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
-import com.ivy.wallet.domain.action.viewmodel.home.UpdateAccCacheAct
-import com.ivy.wallet.domain.action.viewmodel.home.UpdateCategoriesCacheAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
@@ -86,8 +84,6 @@ class HomeViewModel @Inject constructor(
     private val shouldHideBalanceAct: ShouldHideBalanceAct,
     private val shouldHideIncomeAct: ShouldHideIncomeAct,
     private val updateSettingsAct: UpdateSettingsAct,
-    private val updateAccCacheAct: UpdateAccCacheAct,
-    private val updateCategoriesCacheAct: UpdateCategoriesCacheAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val transactionMapper: TransactionMapper,
     private val timeProvider: TimeProvider,
@@ -297,12 +293,8 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadAppBaseData(
         input: Pair<Settings, ClosedTimeRange>
     ): Triple<Settings, ClosedTimeRange, List<Account>> =
-        suspend {} then accountsAct then updateAccCacheAct then { accounts ->
-            accounts
-        } then { accounts ->
-            val retrievedCategories = categoryRepository.findAll()
-            val categories = updateCategoriesCacheAct(retrievedCategories)
-            accounts to categories
+        suspend {} then accountsAct then { accounts ->
+            accounts to categoryRepository.findAll()
         } thenInvokeAfter { (accounts, categories) ->
             val (settings, timeRange) = input
 

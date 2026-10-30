@@ -290,9 +290,6 @@ class SettingsViewModel @Inject constructor(
                 backupDataUseCase.exportToFile(zipFileUri = fileUri)
                 progressState.value = false
 
-                appPreferences.setDataBackupCompleted(true)
-                ivyContext.dataBackupCompleted = true
-
                 uiThread {
                     rootScreen.shareZipFile(
                         fileUri = fileUri

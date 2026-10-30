@@ -48,9 +48,6 @@ class AppPreferences @Inject constructor(
     suspend fun categorySortOrder(default: Int): Int = get(CategorySortOrder, default)
     suspend fun setCategorySortOrder(order: Int) = set(CategorySortOrder, order)
 
-    suspend fun isDataBackupCompleted(): Boolean = get(DataBackupCompleted, false)
-    suspend fun setDataBackupCompleted(completed: Boolean) = set(DataBackupCompleted, completed)
-
     // Home screen cards the user dismissed, by card id.
     suspend fun isCardDismissed(cardId: String): Boolean = get(cardDismissedKey(cardId), false)
     suspend fun setCardDismissed(cardId: String) = set(cardDismissedKey(cardId), true)
@@ -75,7 +72,6 @@ class AppPreferences @Inject constructor(
         private val HideIncome = booleanPreferencesKey("hide_income")
         private val TransfersAsIncomeExpense = booleanPreferencesKey("transfers_as_inc_exp")
         private val CategorySortOrder = intPreferencesKey("categorySortOrder")
-        private val DataBackupCompleted = booleanPreferencesKey("data_backup_completed")
         private const val CardDismissedSuffix = "_cj_dismissed"
 
         private fun cardDismissedKey(cardId: String) = booleanPreferencesKey(cardId + CardDismissedSuffix)

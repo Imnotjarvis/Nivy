@@ -28,11 +28,8 @@ import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_PREMIUM
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.ivyWalletCtx
-import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import kotlinx.coroutines.launch
 import androidx.compose.material3.MaterialTheme
@@ -97,9 +94,6 @@ fun ColumnScope.IvyColorPicker(
         }
     }
 
-    val ivyContext = ivyWalletCtx()
-    val navigation = navigation()
-
     LazyRow(
         modifier = Modifier
             .fillMaxWidth(),
@@ -136,7 +130,6 @@ private fun ColorItem(
         Spacer(Modifier.width(24.dp))
     }
 
-    val ivyContext = ivyWalletCtx()
     Box(
         modifier = Modifier
             .clip(CircleShape)
@@ -149,15 +142,7 @@ private fun ColorItem(
                 onSelected(ivyColor)
             })
             .testTag("color_item_${ivyColor.color.value}"),
-        contentAlignment = Alignment.Center
-    ) {
-        if (ivyColor.premium && !ivyContext.isPremium) {
-            IvyIcon(
-                icon = R.drawable.ic_custom_safe_s,
-                tint = color.dynamicContrast()
-            )
-        }
-    }
+    )
 
     Spacer(Modifier.width(if (selected) 16.dp else 24.dp))
 }

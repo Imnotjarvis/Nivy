@@ -6,12 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.ivy.base.model.Theme
-import com.ivy.data.model.Category
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.legacy.datamodel.Account
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,17 +43,6 @@ class IvyWalletCtx @Inject constructor() {
     fun setStartDayOfMonth(day: Int) {
         startDayOfMonth = day
     }
-
-    // ---------------------- Optimization  ----------------------------
-    @Deprecated("Legacy code. Don't use it, please.")
-    val categoryMap: MutableMap<UUID, Category> = mutableMapOf()
-
-    @Deprecated("Legacy code. Don't use it, please.")
-    val accountMap: MutableMap<UUID, Account> = mutableMapOf()
-    // ---------------------- Optimization  ----------------------------
-
-    @Deprecated("Legacy code. Don't use it, please.")
-    var dataBackupCompleted = false
 
     @Deprecated("Legacy code. Don't use it, please.")
     suspend fun initStartDayOfMonthInMemory(appPreferences: AppPreferences): Int {
@@ -156,25 +142,9 @@ class IvyWalletCtx @Inject constructor() {
     }
     // Activity help -------------------------------------------------------------------------------
 
-    // Billing -------------------------------------------------------------------------------------
-    @Deprecated("Legacy code. Don't use it, please.")
-    var isPremium = true // if (BuildConfig.DEBUG) Constants.PREMIUM_INITIAL_VALUE_DEBUG else false
-    // Billing -------------------------------------------------------------------------------------
-
     @Deprecated("Legacy code. Don't use it, please.")
     lateinit var createNewFile: (fileName: String, onCreated: (Uri) -> Unit) -> Unit
 
     @Deprecated("Legacy code. Don't use it, please.")
     lateinit var openFile: (onOpened: (Uri) -> Unit) -> Unit
-
-    // Testing --------------------------------------------------------------------------------------
-    @Deprecated("Legacy code. Don't use it, please.")
-    fun reset() {
-        mainTab = com.ivy.legacy.data.model.MainTab.HOME
-        startDayOfMonth = 1
-        isPremium = true
-        transactionsListState = null
-        categoriesListState = null
-        accountsListState = null
-    }
 }
