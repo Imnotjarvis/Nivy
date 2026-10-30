@@ -46,4 +46,22 @@ New models exist for accounts, categories, transactions, tags and exchange rates
 
 ## Progress
 
-(Updated as phases land.)
+Warning counts are from the build job's "List compiler errors and warnings" step.
+
+| Phase | State | Warnings after |
+|---|---|---|
+| 1. CI for the branch | Done | about 4,900 before any fix |
+| 2. Third-party deprecations | Done | |
+| 3. Design system | Done: tokens, components and call sites on Material3; `temp:old-design` deleted | 2,563 |
+| 4. Legacy helpers | Done: `SharedPrefs` → `AppPreferences` (DataStore, keeps stored values), `stringRes` and the global `appContext`, the FRP `Action`/`then` library, `IvyWalletCtx` (split into `ThemeState`, `PeriodState`, `MainScreenState`, `LocalScreenSize` and `RootScreen` methods), the legacy clock and date helpers, `LogoutLogic` → `DeleteAllDataUseCase` | 996 before the last two items |
+| 5. Data layer | In progress | |
+| 6. Dissolve `temp:legacy-code` | Not started | |
+| 7. Review | Not started | |
+
+Behaviour changes found on the way, each a fix of an upstream bug:
+
+- Home's "set currency" built its update but never ran it; it now runs.
+- The legacy CSV importer shifted dates parsed with a custom format by the UTC offset twice.
+- "Today", the current month and the overdue/upcoming split now use the device's time zone, like the date ranges they are compared with. They used UTC before.
+- Loan dates were formatted as if they were UTC, though they are stored in local time.
+- `AndroidResourceProvider` passed format arguments as a single array.
