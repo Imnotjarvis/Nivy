@@ -20,7 +20,6 @@ import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun CloseButton(
     modifier: Modifier = Modifier,
@@ -34,7 +33,6 @@ fun CloseButton(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun CircleButton(
     modifier: Modifier = Modifier,
@@ -58,7 +56,6 @@ fun CircleButton(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun CircleButtonFilled(
     modifier: Modifier = Modifier,
@@ -81,7 +78,6 @@ fun CircleButtonFilled(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun CircleButtonFilledGradient(
     modifier: Modifier = Modifier,
@@ -104,7 +100,6 @@ fun CircleButtonFilledGradient(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BackButton(
     modifier: Modifier = Modifier,

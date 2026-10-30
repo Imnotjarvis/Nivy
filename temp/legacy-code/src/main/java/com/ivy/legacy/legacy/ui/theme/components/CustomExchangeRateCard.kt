@@ -27,7 +27,6 @@ import com.ivy.design.system.colors.Orange
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun CustomExchangeRateCard(
     fromCurrencyCode: String,

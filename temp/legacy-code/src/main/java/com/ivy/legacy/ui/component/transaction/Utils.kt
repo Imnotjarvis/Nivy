@@ -6,7 +6,6 @@ import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.ivyWalletCtx
 import java.util.UUID
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun category(
     categoryId: UUID?,
@@ -16,7 +15,6 @@ fun category(
     return ivyWalletCtx().categoryMap[targetId] ?: categories.find { it.id.value == targetId }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun account(
     accountId: UUID?,

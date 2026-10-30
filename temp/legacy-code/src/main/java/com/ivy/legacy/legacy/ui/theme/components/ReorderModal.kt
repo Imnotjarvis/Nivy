@@ -32,7 +32,6 @@ import com.ivy.wallet.ui.theme.modal.IvyModal
 import java.util.*
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("UNCHECKED_CAST", "ParameterNaming")
 @Composable
 fun <T : Reorderable> BoxScope.ReorderModalSingleType(
@@ -74,7 +73,6 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun <T : Reorderable> BoxScope.ReorderModal(
@@ -176,7 +174,6 @@ fun <T : Reorderable> BoxScope.ReorderModal(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("UNCHECKED_CAST")
 private class Adapter<T : Reorderable>(
     private val itemTouchHelper: ItemTouchHelper,

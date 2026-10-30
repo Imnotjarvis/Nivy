@@ -54,7 +54,6 @@ import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @ExperimentalFoundationApi
 @Composable
@@ -259,7 +258,6 @@ private fun CategoryButton(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun AddNewButton(
     modifier: Modifier = Modifier,
@@ -280,7 +278,6 @@ fun AddNewButton(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private class AddNewCategory
 
 @ExperimentalFoundationApi

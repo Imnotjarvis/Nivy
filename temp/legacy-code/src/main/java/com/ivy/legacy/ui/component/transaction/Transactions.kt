@@ -36,7 +36,6 @@ import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun LazyListScope.transactions(
     baseData: AppBaseData,
 

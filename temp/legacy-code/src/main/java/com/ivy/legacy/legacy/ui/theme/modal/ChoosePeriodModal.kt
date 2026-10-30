@@ -64,14 +64,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class ChoosePeriodModalData(
     val id: UUID = UUID.randomUUID(),
     val period: TimePeriod
 )
 
 @SuppressLint("ComposeModifierMissing")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ChoosePeriodModal(
@@ -238,7 +236,6 @@ private fun ColumnScope.ChooseMonth(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class MonthYear(
     val month: com.ivy.legacy.data.model.Month,
     val year: Int

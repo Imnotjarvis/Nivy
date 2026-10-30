@@ -31,7 +31,6 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal(

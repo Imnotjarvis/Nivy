@@ -34,7 +34,6 @@ import com.ivy.design.system.colors.White
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun IvyButton(
     modifier: Modifier = Modifier,

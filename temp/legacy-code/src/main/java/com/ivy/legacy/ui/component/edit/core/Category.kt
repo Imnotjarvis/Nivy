@@ -16,7 +16,6 @@ import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.toComposeColor
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun Category(
     category: Category?,

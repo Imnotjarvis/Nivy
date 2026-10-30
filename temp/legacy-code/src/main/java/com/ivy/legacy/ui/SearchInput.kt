@@ -23,7 +23,6 @@ import com.ivy.wallet.ui.theme.components.IvyBasicTextField
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("MagicNumber")
 @Composable
 fun SearchInput(

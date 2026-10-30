@@ -9,7 +9,6 @@ import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientRed
 import com.ivy.design.system.colors.White
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun DeleteButton(
     modifier: Modifier = Modifier,

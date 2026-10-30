@@ -1,71 +1,40 @@
 package com.ivy.wallet.ui.theme.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.springBounce
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.White
+import com.ivy.legacy.IvyWalletComponentPreview
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
+// A Material3 switch in Ivy's colors: green when on, a gray outline when off.
 @Composable
 fun IvySwitch(
     modifier: Modifier = Modifier,
     enabled: Boolean,
     onEnabledChange: (checked: Boolean) -> Unit
 ) {
-    val color by animateColorAsState(
-        targetValue = if (enabled) Green else Gray,
-        animationSpec = springBounce()
+    Switch(
+        modifier = modifier,
+        checked = enabled,
+        onCheckedChange = onEnabledChange,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = White,
+            checkedTrackColor = Green,
+            checkedBorderColor = Green,
+            uncheckedThumbColor = Gray,
+            uncheckedTrackColor = MaterialTheme.colorScheme.surface,
+            uncheckedBorderColor = Gray,
+        )
     )
-
-    Row(
-        modifier = modifier
-            .width(40.dp)
-            .clip(CircleShape)
-            .border(2.dp, color, CircleShape)
-            .clickable {
-                onEnabledChange(!enabled)
-            }
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val weightStart by animateFloatAsState(
-            targetValue = if (enabled) 1f else 0f,
-            animationSpec = springBounce()
-        )
-
-        Spacer(Modifier.width(4.dp))
-
-        if (weightStart > 0) {
-            Spacer(Modifier.weight(weightStart))
-        }
-
-        // Circle
-        Spacer(
-            modifier = Modifier
-                .size(16.dp)
-                .background(color, CircleShape)
-        )
-
-        val weightEnd = 1f - weightStart
-        if (weightEnd > 0) {
-            Spacer(Modifier.weight(weightEnd))
-        }
-
-        Spacer(Modifier.width(4.dp))
-    }
 }
 
 @Preview

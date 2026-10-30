@@ -62,7 +62,6 @@ import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class LoanRecordModalData(
     val loanRecord: LoanRecord?,
     val baseCurrency: String,
@@ -75,7 +74,6 @@ data class LoanRecordModalData(
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @SuppressLint("ComposeModifierMissing")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.LoanRecordModal(
     modal: LoanRecordModalData?,

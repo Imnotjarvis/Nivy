@@ -20,7 +20,6 @@ import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ProgressBar(
     modifier: Modifier = Modifier,

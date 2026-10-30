@@ -17,7 +17,6 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Transparent
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.GradientCutBottom(
     height: Dp = 96.dp,

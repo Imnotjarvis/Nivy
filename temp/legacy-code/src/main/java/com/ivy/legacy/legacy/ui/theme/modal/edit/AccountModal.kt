@@ -48,7 +48,6 @@ import com.ivy.wallet.ui.theme.modal.ModalTitle
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class AccountModalData(
     val account: Account?,
     val baseCurrency: String,
@@ -59,7 +58,6 @@ data class AccountModalData(
     val id: UUID = UUID.randomUUID()
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.AccountModal(
     modal: AccountModalData?,

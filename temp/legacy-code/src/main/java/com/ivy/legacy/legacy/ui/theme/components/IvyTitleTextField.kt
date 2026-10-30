@@ -1,6 +1,5 @@
 package com.ivy.wallet.ui.theme.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,8 +33,9 @@ import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.isNotNullOrBlank
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.draw.clip
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun ColumnScope.IvyTitleTextField(
@@ -98,11 +98,10 @@ fun ColumnScope.IvyTitleTextField(
 
     Spacer(Modifier.height(8.dp))
 
-    Spacer(
-        modifier = dividerModifier
-            .fillMaxWidth()
-            .height(2.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+    HorizontalDivider(
+        modifier = dividerModifier.clip(CircleShape),
+        thickness = 2.dp,
+        color = MaterialTheme.colorScheme.surfaceVariant
     )
 }
 

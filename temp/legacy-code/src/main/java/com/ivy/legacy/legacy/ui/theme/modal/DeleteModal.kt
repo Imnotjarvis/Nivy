@@ -30,7 +30,6 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("ComposeModifierMissing")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.DeleteModal(
     title: String,

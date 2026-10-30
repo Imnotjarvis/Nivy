@@ -20,7 +20,6 @@ import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
 
 @SuppressLint("ComposeModifierMissing")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun AmountCurrencyB2Row(
     amount: Double,

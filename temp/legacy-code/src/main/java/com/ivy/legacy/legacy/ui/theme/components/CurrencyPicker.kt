@@ -61,7 +61,6 @@ import java.util.Locale
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun CurrencyPicker(
@@ -136,7 +135,6 @@ fun CurrencyPicker(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 private fun SearchInput(
     searchTextFieldValue: TextFieldValue,

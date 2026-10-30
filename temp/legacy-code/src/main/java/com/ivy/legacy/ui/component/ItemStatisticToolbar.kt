@@ -19,7 +19,6 @@ import com.ivy.wallet.ui.theme.components.DeleteButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 
 @SuppressLint("ComposeModifierMissing")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemStatisticToolbar(
     contrastColor: Color,

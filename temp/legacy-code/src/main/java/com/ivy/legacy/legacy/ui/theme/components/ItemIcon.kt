@@ -19,8 +19,8 @@ import com.ivy.design.utils.thenWhen
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.toLowerCaseLocal
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemIconL(
     modifier: Modifier = Modifier,
@@ -40,7 +40,6 @@ fun ItemIconL(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemIconMDefaultIcon(
     modifier: Modifier = Modifier,
@@ -53,17 +52,16 @@ fun ItemIconMDefaultIcon(
         iconName = iconName,
         tint = tint,
         Default = {
-            Image(
+            Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
-                colorFilter = ColorFilter.tint(tint),
-                contentDescription = "item icon"
+                contentDescription = "item icon",
+                tint = tint
             )
         }
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemIconM(
     modifier: Modifier = Modifier,
@@ -83,7 +81,6 @@ fun ItemIconM(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemIconSDefaultIcon(
     modifier: Modifier = Modifier,
@@ -96,17 +93,16 @@ fun ItemIconSDefaultIcon(
         iconName = iconName,
         tint = tint,
         Default = {
-            Image(
+            Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
-                colorFilter = ColorFilter.tint(tint),
-                contentDescription = "item icon"
+                contentDescription = "item icon",
+                tint = tint
             )
         }
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemIconS(
     modifier: Modifier = Modifier,
@@ -126,7 +122,6 @@ fun ItemIconS(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 private fun ItemIcon(
     modifier: Modifier = Modifier,
@@ -181,7 +176,6 @@ private fun ItemIcon(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @DrawableRes
 @Composable
 fun getCustomIconIdS(
@@ -196,7 +190,6 @@ fun getCustomIconIdS(
     )?.iconId ?: defaultIcon
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun getCustomIconId(
     context: Context,
     iconName: String?,
@@ -243,7 +236,6 @@ fun getCustomIconId(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class IconInfo(
     @DrawableRes
     val iconId: Int,
@@ -251,12 +243,10 @@ data class IconInfo(
     val newFormat: Boolean
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 enum class IconStyle {
     L, M, S, UNKNOWN
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun fallbackToNewIconFormat(
     iconStyle: IconStyle,
     context: Context,

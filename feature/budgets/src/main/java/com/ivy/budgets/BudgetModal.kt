@@ -51,7 +51,6 @@ import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class BudgetModalData(
     val budget: Budget?,
 
@@ -63,7 +62,6 @@ data class BudgetModalData(
     val autoFocusKeyboard: Boolean = true,
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.BudgetModal(
     modal: BudgetModalData?,

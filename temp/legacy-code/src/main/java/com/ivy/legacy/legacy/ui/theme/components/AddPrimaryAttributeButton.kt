@@ -20,7 +20,6 @@ import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun AddPrimaryAttributeButton(
     @DrawableRes icon: Int,

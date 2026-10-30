@@ -34,7 +34,6 @@ import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.isNotNullOrBlank
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun IvyNameTextField(

@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import com.ivy.design.system.typography.numberBodyLarge
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun Description(
     description: String?,

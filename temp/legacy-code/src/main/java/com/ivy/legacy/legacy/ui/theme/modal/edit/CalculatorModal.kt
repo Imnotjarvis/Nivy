@@ -37,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberHeadlineMedium
 
 @SuppressLint("ComposeModifierMissing")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.CalculatorModal(
       initialAmount: Double?,

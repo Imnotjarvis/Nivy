@@ -19,7 +19,6 @@ import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalDynamicPrimaryAction(
     initialEmpty: Boolean,
@@ -61,7 +60,6 @@ fun ModalDynamicPrimaryAction(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalSet(
     modifier: Modifier = Modifier,
@@ -77,7 +75,6 @@ fun ModalSet(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalCheck(
     modifier: Modifier = Modifier,
@@ -94,7 +91,6 @@ fun ModalCheck(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun <T> ModalAddSave(
     item: T,
@@ -114,7 +110,6 @@ fun <T> ModalAddSave(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalSave(
     modifier: Modifier = Modifier,
@@ -130,7 +125,6 @@ fun ModalSave(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalAdd(
     enabled: Boolean = true,
@@ -146,7 +140,6 @@ fun ModalAdd(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalNegativeButton(
     text: String,
@@ -163,7 +156,6 @@ fun ModalNegativeButton(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalPositiveButton(
     modifier: Modifier = Modifier,
@@ -182,7 +174,6 @@ fun ModalPositiveButton(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalDelete(
     enabled: Boolean = true,
@@ -201,7 +192,6 @@ fun ModalDelete(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalTitle(
     text: String
@@ -216,7 +206,6 @@ fun ModalTitle(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalSkip(
     text: String = stringResource(R.string.skip),

@@ -40,13 +40,11 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class Value(
     val x: Double,
     val y: Double
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class Function(
     val values: List<Value>,
     val color: Color,
@@ -61,20 +59,17 @@ data class Function(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class TapEvent(
     val functionIndex: Int,
     val valueIndex: Int
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class FunctionPoint(
     val functionIndex: Int,
     val valueIndex: Int,
     val point: Offset
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private fun yValues(
     min: Double,
     max: Double
@@ -92,7 +87,6 @@ private fun yValues(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private fun DrawScope.drawTappedPoint(
     functions: List<Function>,
     tapEvent: TapEvent?,
@@ -130,7 +124,6 @@ private fun DrawScope.drawTappedPoint(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private fun DrawScope.drawFunctions(
     chartWidth: Float,
     lineDistance: Float,
@@ -163,7 +156,6 @@ private fun DrawScope.drawFunctions(
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private fun DrawScope.drawFunction(
     function: Function,
     functionIndex: Int,
@@ -248,7 +240,6 @@ private fun DrawScope.drawFunction(
     return points
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private fun calculateXCoordinate(
     values: List<Value>,
     valueIndex: Int,
@@ -284,7 +275,6 @@ private fun Offset.distance(point2: Offset): Float {
     return sqrt((point2.x - x).pow(2) + (point2.y - y).pow(2))
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun IvyLineChart(
     modifier: Modifier = Modifier,
@@ -327,7 +317,6 @@ fun IvyLineChart(
     )
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 private fun IvyChart(
     modifier: Modifier,

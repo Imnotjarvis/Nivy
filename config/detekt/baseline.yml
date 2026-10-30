@@ -295,9 +295,9 @@
     <ID>InvalidPackageDeclaration:WidgetBase.kt$package com.ivy.widgets</ID>
     <ID>InvalidPackageDeclaration:WrapContentRow.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>LargeClass:TransactionsViewModel.kt$TransactionsViewModel : ComposeViewModel</ID>
-    <ID>LongMethod:AccountModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") @Composable fun BoxWithConstraintsScope.AccountModal( modal: AccountModalData?, onCreateAccount: (CreateAccountData) -&gt; Unit, onEditAccount: (Account, balance: Double) -&gt; Unit, dismiss: () -&gt; Unit, )</ID>
+    <ID>LongMethod:AccountModal.kt$@Composable fun BoxWithConstraintsScope.AccountModal( modal: AccountModalData?, onCreateAccount: (CreateAccountData) -&gt; Unit, onEditAccount: (Account, balance: Double) -&gt; Unit, dismiss: () -&gt; Unit, )</ID>
     <ID>LongMethod:ChooseIconModal.kt$fun ivyIcons(): List&lt;Any&gt;</ID>
-    <ID>LongMethod:MainBottomBar.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") @Composable fun BoxWithConstraintsScope.BottomBar( tab: MainTab, selectTab: (MainTab) -&gt; Unit, onAddIncome: () -&gt; Unit, onAddExpense: () -&gt; Unit, onAddTransfer: () -&gt; Unit, onAddPlannedPayment: () -&gt; Unit, showAddAccountModal: () -&gt; Unit, )</ID>
+    <ID>LongMethod:MainBottomBar.kt$@Composable fun BoxWithConstraintsScope.BottomBar( tab: MainTab, selectTab: (MainTab) -&gt; Unit, onAddIncome: () -&gt; Unit, onAddExpense: () -&gt; Unit, onAddTransfer: () -&gt; Unit, onAddPlannedPayment: () -&gt; Unit, showAddAccountModal: () -&gt; Unit, )</ID>
     <ID>LongMethod:ReportScreen.kt$@ExperimentalFoundationApi @Composable private fun BoxWithConstraintsScope.UI( state: ReportScreenState = ReportScreenState(), onEventHandler: (ReportScreenEvent) -&gt; Unit = {} )</ID>
     <ID>LoopWithTooManyJumpStatements:PieChart.kt$PieChartView$for</ID>
     <ID>MagicNumber:AmountFormatting.kt$0.009</ID>
@@ -618,9 +618,9 @@
     <ID>ModifierMissing:WalletBalanceWidgetContent.kt$WidgetClickableItem</ID>
     <ID>ModifierNotUsedAtRoot:ItemIcon.kt$modifier = modifier</ID>
     <ID>ModifierNotUsedAtRoot:IvyNameTextFieldValue.kt$modifier = modifier</ID>
-    <ID>ModifierReused:ItemIcon.kt$Image( modifier = modifier, painter = painterResource(id = defaultIcon), colorFilter = ColorFilter.tint(tint), contentDescription = "item icon" )</ID>
-    <ID>ModifierReused:ItemIcon.kt$ItemIconM( modifier = modifier, iconName = iconName, tint = tint, Default = { Image( modifier = modifier, painter = painterResource(id = defaultIcon), colorFilter = ColorFilter.tint(tint), contentDescription = "item icon" ) } )</ID>
-    <ID>ModifierReused:ItemIcon.kt$ItemIconS( modifier = modifier, iconName = iconName, tint = tint, Default = { Image( modifier = modifier, painter = painterResource(id = defaultIcon), colorFilter = ColorFilter.tint(tint), contentDescription = "item icon" ) } )</ID>
+    <ID>ModifierReused:ItemIcon.kt$Icon( modifier = modifier, painter = painterResource(id = defaultIcon), contentDescription = "item icon", tint = tint )</ID>
+    <ID>ModifierReused:ItemIcon.kt$ItemIconM( modifier = modifier, iconName = iconName, tint = tint, Default = { Icon( modifier = modifier, painter = painterResource(id = defaultIcon), contentDescription = "item icon", tint = tint ) } )</ID>
+    <ID>ModifierReused:ItemIcon.kt$ItemIconS( modifier = modifier, iconName = iconName, tint = tint, Default = { Icon( modifier = modifier, painter = painterResource(id = defaultIcon), contentDescription = "item icon", tint = tint ) } )</ID>
     <ID>ModifierWithoutDefault:IvyLineChart.kt$modifier</ID>
     <ID>MultipleEmitters:AmountCurrency.kt$AmountCurrencyB1</ID>
     <ID>MultipleEmitters:AmountModal.kt$AmountKeyboard</ID>
@@ -671,8 +671,6 @@
     <ID>NoWildcardImports:BufferModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ComposeExt.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:IvyRoomDatabase.kt$import androidx.room.*</ID>
-    <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:Keyboard.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
@@ -710,11 +708,11 @@
     <ID>ReturnCount:PlannedPaymentsLogic.kt$PlannedPaymentsLogic$private suspend fun amountForMonthInBaseCurrency( plannedPayment: PlannedPaymentRule, baseCurrency: String, accounts: List&lt;Account&gt; ): Double</ID>
     <ID>ReturnCount:ReportFilter.kt$ReportFilter$fun validate(): Boolean</ID>
     <ID>TopLevelPropertyNaming:AmountFormatting.kt$const val N_100K = 100000</ID>
-    <ID>TopLevelPropertyNaming:ChooseIconModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") private const val ICON_PICKER_ICONS_PER_ROW = 5</ID>
-    <ID>TopLevelPropertyNaming:EditBottomSheet.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") const val SWIPE_UP_EXPANDED_THRESHOLD = 200</ID>
+    <ID>TopLevelPropertyNaming:ChooseIconModal.kt$private const val ICON_PICKER_ICONS_PER_ROW = 5</ID>
+    <ID>TopLevelPropertyNaming:EditBottomSheet.kt$const val SWIPE_UP_EXPANDED_THRESHOLD = 200</ID>
     <ID>TopLevelPropertyNaming:HomeMoreMenu.kt$private const val SWIPE_UP_THRESHOLD_CLOSE_MORE_MENU = 300</ID>
-    <ID>TopLevelPropertyNaming:IvyModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") const val DURATION_MODAL_ANIM = 200</ID>
-    <ID>TopLevelPropertyNaming:IvyModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") private const val DURATION_BACKGROUND_BLUR_ANIM = 400</ID>
+    <ID>TopLevelPropertyNaming:IvyModal.kt$const val DURATION_MODAL_ANIM = 200</ID>
+    <ID>TopLevelPropertyNaming:IvyModal.kt$private const val DURATION_BACKGROUND_BLUR_ANIM = 400</ID>
     <ID>TopLevelPropertyNaming:ParseStatus.kt$const val SAMPLE_SIZE = 20</ID>
     <ID>TopLevelPropertyNaming:PieChart.kt$const val PIE_CHART_RADIUS_DP = 128</ID>
     <ID>TopLevelPropertyNaming:PieChart.kt$const val RADIUS_DP = 112f</ID>
@@ -773,8 +771,6 @@
     <ID>WildcardImport:BufferModal.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ComposeExt.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:IvyRoomDatabase.kt$import androidx.room.*</ID>
-    <ID>WildcardImport:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:IvySwitch.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:Keyboard.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>

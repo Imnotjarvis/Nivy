@@ -37,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 
 private const val RepeatIntervalCharLimit = 5
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun IntervalPickerRow(
     intervalN: Int,

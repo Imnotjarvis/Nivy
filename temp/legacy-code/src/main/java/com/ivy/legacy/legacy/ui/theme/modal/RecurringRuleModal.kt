@@ -62,7 +62,6 @@ import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class RecurringRuleModalData(
     val initialStartDate: LocalDateTime?,
     val initialIntervalN: Int?,
@@ -71,7 +70,6 @@ data class RecurringRuleModalData(
     val id: UUID = UUID.randomUUID()
 )
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.RecurringRuleModal(

@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 
 @Suppress("MultipleEmitters")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun TransactionDateTime(
     dateTime: Instant?,

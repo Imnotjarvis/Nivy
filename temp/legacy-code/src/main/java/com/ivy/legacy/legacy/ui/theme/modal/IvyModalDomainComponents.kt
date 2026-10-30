@@ -20,7 +20,6 @@ import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import androidx.compose.material3.MaterialTheme
 
 @Suppress("UnusedParameter")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ModalAmountSection(
     label: String,

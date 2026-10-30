@@ -22,7 +22,6 @@ import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Category
 import androidx.compose.material3.MaterialTheme
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun <T> WrapContentRow(
     modifier: Modifier = Modifier,

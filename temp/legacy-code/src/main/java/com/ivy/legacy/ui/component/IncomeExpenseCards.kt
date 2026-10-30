@@ -37,7 +37,6 @@ import com.ivy.design.system.colors.isDarkColor
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberTitleLarge
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun IncomeExpensesCards(

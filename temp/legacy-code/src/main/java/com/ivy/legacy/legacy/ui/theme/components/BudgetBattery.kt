@@ -37,7 +37,6 @@ import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberLabelMedium
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BudgetBattery(
     modifier: Modifier = Modifier,

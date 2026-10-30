@@ -91,6 +91,7 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop16
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
+import androidx.compose.material3.VerticalDivider
 
 @Composable
 fun BoxWithConstraintsScope.CategoriesScreen(screen: CategoriesScreen) {
@@ -437,12 +438,12 @@ fun AddedSpent(
             Spacer(modifier = Modifier.width(dividerSpacer))
         }
 
-        // Divider
-        Spacer(
+        VerticalDivider(
             modifier = Modifier
-                .width(2.dp)
                 .height(48.dp)
-                .background(dividerColor, CircleShape)
+                .clip(CircleShape),
+            thickness = 2.dp,
+            color = dividerColor
         )
 
         if (center) {

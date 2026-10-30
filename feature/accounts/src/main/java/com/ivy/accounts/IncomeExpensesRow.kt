@@ -1,6 +1,5 @@
 package com.ivy.accounts
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +19,8 @@ import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun IncomeExpensesRow(
@@ -58,12 +59,12 @@ fun IncomeExpensesRow(
             Spacer(modifier = Modifier.width(dividerSpacer))
         }
 
-        // Divider
-        Spacer(
+        VerticalDivider(
             modifier = Modifier
-                .width(2.dp)
                 .height(48.dp)
-                .background(dividerColor, CircleShape)
+                .clip(CircleShape),
+            thickness = 2.dp,
+            color = dividerColor
         )
 
         if (center) {

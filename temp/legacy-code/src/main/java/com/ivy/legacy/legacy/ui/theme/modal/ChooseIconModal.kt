@@ -44,10 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 private const val ICON_PICKER_ICONS_PER_ROW = 5
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ChooseIconModal(

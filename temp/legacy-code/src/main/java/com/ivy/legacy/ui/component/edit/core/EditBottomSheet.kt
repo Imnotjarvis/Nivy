@@ -94,11 +94,9 @@ import com.ivy.design.system.shapes.ShapeTop24
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 const val SWIPE_UP_EXPANDED_THRESHOLD = 200
 
 @Suppress("LongMethod", "LongParameterList", "UnusedParameter", "ParameterNaming")
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.EditBottomSheet(
     initialTransactionId: UUID?,
