@@ -194,12 +194,19 @@ jobs:
         run: scripts/auditRuntimeDependencies.sh
 
       # Room writes each schema version into the module's schemas folder, and the migration tests
-      # read it from there, so a new version has to be committed. The file is in the artifact.
+      # read it from there, so a new version has to be committed. The files are in the artifact,
+      # and printed below for when the artifact can't be downloaded.
       - name: Room schemas are committed
         run: |
           changed=$(git status --porcelain -- ':(glob)**/schemas/**')
           if [ -n "$changed" ]; then
             echo "$changed"
+            git diff -- ':(glob)**/schemas/**'
+            git ls-files --others --exclude-standard -- ':(glob)**/schemas/**' | while read -r f; do
+              echo "::group::$f"
+              cat "$f"
+              echo "::endgroup::"
+            done
             echo "::error::Room wrote schema files that aren't committed. Commit the room-schemas artifact."
             exit 1
           fi
