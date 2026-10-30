@@ -7,6 +7,13 @@ plugins {
     id("com.jraska.module.graph.assertion")
 }
 
+// Each compiler warning carries its diagnostic name, e.g. [DEPRECATION], so CI can group them.
+subprojects {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+        compilerOptions.freeCompilerArgs.add("-Xrender-internal-diagnostic-names")
+    }
+}
+
 // Module dependency rules, checked in CI by ./gradlew :assertModuleGraph.
 // The rules are regexes over "consumer -X> dependency" (api and implementation only).
 moduleGraphAssert {

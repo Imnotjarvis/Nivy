@@ -80,7 +80,7 @@ fun IvyDescriptionTextField(
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions ?: KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
-                autoCorrect = true,
+                autoCorrectEnabled = true,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done
             ),

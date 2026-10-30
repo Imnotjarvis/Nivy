@@ -19,8 +19,7 @@ class LoanRecordCreator @Inject constructor(
         if (data.amount <= 0) return null
 
         try {
-            var newItem: LoanRecord? = null
-            newItem = ioThread {
+            val newItem = ioThread {
                 val item = LoanRecord(
                     loanId = loanId,
                     note = note?.trim(),
@@ -37,8 +36,8 @@ class LoanRecordCreator @Inject constructor(
                 item
             }
 
-            onRefreshUI(newItem!!)
-            return newItem?.id
+            onRefreshUI(newItem)
+            return newItem.id
         } catch (e: Exception) {
             e.printStackTrace()
         }

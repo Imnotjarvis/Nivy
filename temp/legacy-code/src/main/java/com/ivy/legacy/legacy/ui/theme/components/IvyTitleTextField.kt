@@ -46,7 +46,7 @@ fun ColumnScope.IvyTitleTextField(
     hint: String?,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
-        autoCorrect = true,
+        autoCorrectEnabled = true,
         keyboardType = KeyboardType.Text,
         imeAction = ImeAction.Done,
         capitalization = KeyboardCapitalization.Sentences

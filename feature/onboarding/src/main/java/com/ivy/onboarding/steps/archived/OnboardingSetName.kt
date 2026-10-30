@@ -117,7 +117,7 @@ fun OnboardingSetName(
             hint = stringResource(R.string.what_is_your_name),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),

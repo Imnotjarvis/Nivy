@@ -1,10 +1,9 @@
 package com.ivy.wallet
 
-import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.Intent
-import android.os.Build
 import android.service.quicksettings.TileService
+import androidx.core.service.quicksettings.PendingIntentActivityWrapper
+import androidx.core.service.quicksettings.TileServiceCompat
 
 class PaymentTileService : TileService() {
     // Called when the user adds your tile.
@@ -34,16 +33,14 @@ class PaymentTileService : TileService() {
         super.onTileRemoved()
     }
 
-    @SuppressLint("StartActivityAndCollapseDeprecated")
+    // TileServiceCompat picks the PendingIntent form on Android 14+ and the Intent form before.
     private fun startRootActivity() {
         val intent = Intent(applicationContext, RootActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-            startActivityAndCollapse(pi)
-        } else {
-            startActivityAndCollapse(intent)
-        }
+        TileServiceCompat.startActivityAndCollapse(
+            this,
+            PendingIntentActivityWrapper(this, 0, intent, 0, false)
+        )
     }
 }

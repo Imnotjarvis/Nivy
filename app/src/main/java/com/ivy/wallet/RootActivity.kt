@@ -10,6 +10,7 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
@@ -89,6 +90,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setupApp()
+        setupBackHandling()
         setContent {
             val viewModel: RootViewModel = viewModel()
             val isSystemInDarkTheme = isSystemInDarkTheme()
@@ -341,12 +343,14 @@ class RootActivity : AppCompatActivity(), RootScreen {
         biometricPrompt.authenticate(promptInfo)
     }
 
-    override fun onBackPressed() {
-        if (viewModel.isAppLocked()) {
-            super.onBackPressed()
-        } else {
-            if (!navigation.onBackPressed()) {
-                super.onBackPressed()
+    // Back goes to Navigation first. What it doesn't consume, and any back press while the app
+    // is locked, falls through to the default behaviour (leaving the app).
+    private fun setupBackHandling() {
+        onBackPressedDispatcher.addCallback(this) {
+            if (viewModel.isAppLocked() || !navigation.onBackPressed()) {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
             }
         }
     }

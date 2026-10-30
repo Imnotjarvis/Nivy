@@ -13,6 +13,7 @@ import com.ivy.data.model.testing.transaction
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.validIncomeOrExpense
 import com.ivy.data.validTransfer
+import io.kotest.common.DelicateKotest
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -25,6 +26,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
+// Arb.next() draws a single random value outside a property check, which Kotest marks delicate.
+@OptIn(DelicateKotest::class)
 class TransactionMapperPropertyTest {
 
     private val accountRepo = mockk<AccountRepository>()

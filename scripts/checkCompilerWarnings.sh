@@ -10,9 +10,11 @@ LOG=$(realpath "$1")
 cd "$(dirname "$0")/.." || exit 1
 BASELINE=config/compiler-warnings-baseline.txt
 
-# "w: file:///abs/repo/dir/File.kt:12:5 message" -> "dir/File.kt:12:5 message"
+# "w: file:///abs/repo/dir/File.kt:12:5 [NAME] message" -> "dir/File.kt:12:5 message"
+# (the build passes -Xrender-internal-diagnostic-names, which adds the [NAME])
 warnings=$(grep -E '^w: file://' "$LOG" | sed "s#^w: file://$PWD/##" \
-    | grep -vE 'is deprecated|which is deprecated|overrides a deprecated member' | sort -u || true)
+    | grep -vE '\[DEPRECATION\]|is deprecated|which is deprecated|overrides a deprecated member' \
+    | sed -E 's/ \[[A-Z_]+\]//' | sort -u || true)
 
 new=0
 while IFS= read -r line; do

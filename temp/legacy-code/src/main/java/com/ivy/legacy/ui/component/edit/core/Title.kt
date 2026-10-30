@@ -62,7 +62,7 @@ fun ColumnScope.Title(
             TransactionType.TRANSFER -> stringResource(R.string.transfer_title)
         },
         keyboardOptions = KeyboardOptions(
-            autoCorrect = true,
+            autoCorrectEnabled = true,
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Next,
             capitalization = KeyboardCapitalization.Sentences

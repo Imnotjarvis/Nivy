@@ -81,7 +81,7 @@ fun unzip(fileInputStream: FileInputStream, location: File) {
 
         while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
             unzipFile = File(locationPath + zipEntry!!.name)
-            if (zipEntry!!.isDirectory) {
+            if (zipEntry.isDirectory) {
                 if (!unzipFile.isDirectory) unzipFile.mkdirs()
             } else {
                 unzipParentDir = unzipFile.parentFile

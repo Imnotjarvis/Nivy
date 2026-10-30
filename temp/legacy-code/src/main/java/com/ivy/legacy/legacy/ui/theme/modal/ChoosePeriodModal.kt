@@ -507,7 +507,7 @@ private fun ColumnScope.AllTime(
 ) {
     val timeProvider = LocalTimeProvider.current
     val active = timeRange != null && timeRange.from == null &&
-            timeRange.to != null && timeRange.to!!.isAfter(timeProvider.utcNow())
+            timeRange.to != null && timeRange.to.isAfter(timeProvider.utcNow())
 
     Text(
         modifier = Modifier

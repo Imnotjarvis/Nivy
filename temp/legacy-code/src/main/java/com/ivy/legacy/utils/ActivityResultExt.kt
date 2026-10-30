@@ -67,9 +67,9 @@ private fun <I> activityResultContract(
 
         override fun parseResult(
             resultCode: Int,
-            data: Intent?
+            intent: Intent?
         ) {
-            onActivityResult(resultCode, data)
+            onActivityResult(resultCode, intent)
         }
     }
 }

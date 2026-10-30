@@ -126,7 +126,7 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
             value = titleTextFieldValue,
             hint = "Enter TagName",
             keyboardOptions = KeyboardOptions(
-                autoCorrect = true,
+                autoCorrectEnabled = true,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next,
                 capitalization = KeyboardCapitalization.Sentences

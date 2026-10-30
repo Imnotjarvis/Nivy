@@ -5,8 +5,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Suppress("MagicNumber", "ClassNaming")
 class Migration128to129_DeleteIsDeleted : Migration(128, 129) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        with(database) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        with(db) {
             deleteDeletedFrom(tableName = "accounts")
             deleteDeletedFrom(tableName = "budgets")
             deleteDeletedFrom(tableName = "categories")

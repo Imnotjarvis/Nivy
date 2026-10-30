@@ -241,8 +241,8 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         }
     }
 
-    override suspend fun saveMany(values: List<TransactionEntity>) {
-        values.forEach { save(it) }
+    override suspend fun saveMany(value: List<TransactionEntity>) {
+        value.forEach { save(it) }
     }
 
     override suspend fun deletedByRecurringRuleIdAndNoDateTime(recurringRuleId: UUID) {

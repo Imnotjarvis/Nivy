@@ -150,7 +150,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
                 capitalization = KeyboardCapitalization.Words,
                 imeAction = ImeAction.Done,
                 keyboardType = KeyboardType.Text,
-                autoCorrect = true
+                autoCorrectEnabled = true
             ),
             keyboardActions = KeyboardActions(
                 onDone = {

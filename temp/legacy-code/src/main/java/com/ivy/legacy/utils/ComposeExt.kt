@@ -7,7 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -112,8 +112,7 @@ fun Modifier.drawColoredShadow(
     val transparentColor = android.graphics.Color.toArgb(color.copy(alpha = 0.0f).value.toLong())
     val shadowColor = android.graphics.Color.toArgb(color.copy(alpha = alpha).value.toLong())
     this.drawIntoCanvas {
-        val paint = Paint()
-        val frameworkPaint = paint.asFrameworkPaint()
+        val frameworkPaint = android.graphics.Paint()
         frameworkPaint.color = transparentColor
         frameworkPaint.setShadowLayer(
             shadowRadius.toPx(),
@@ -121,14 +120,14 @@ fun Modifier.drawColoredShadow(
             offsetY.toPx(),
             shadowColor
         )
-        it.drawRoundRect(
+        it.nativeCanvas.drawRoundRect(
             0f,
             0f,
             this.size.width,
             this.size.height,
             borderRadius.toPx(),
             borderRadius.toPx(),
-            paint
+            frameworkPaint
         )
     }
 }

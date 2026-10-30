@@ -79,7 +79,7 @@ fun IvyNumberTextField(
                 capitalization = KeyboardCapitalization.Characters,
                 imeAction = ImeAction.Done,
                 keyboardType = KeyboardType.Number,
-                autoCorrect = false
+                autoCorrectEnabled = false
             ),
             keyboardActions = keyboardActions ?: KeyboardActions(
                 onDone = {

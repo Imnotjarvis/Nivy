@@ -105,7 +105,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
                 .focusRequester(focus),
             testTag = "modal_desc_input",
             keyboardOptions = KeyboardOptions(
-                autoCorrect = true,
+                autoCorrectEnabled = true,
                 capitalization = KeyboardCapitalization.Sentences,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Default

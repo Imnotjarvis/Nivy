@@ -26,8 +26,8 @@ class FakeLoanDao : LoanDao, WriteLoanDao {
         items.add(value)
     }
 
-    override suspend fun saveMany(values: List<LoanEntity>) {
-        values.forEach { save(it) }
+    override suspend fun saveMany(value: List<LoanEntity>) {
+        value.forEach { save(it) }
     }
 
     override suspend fun deleteById(id: UUID) {
