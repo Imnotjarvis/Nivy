@@ -24,26 +24,20 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.base.legacy.stringRes
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.api.LocalTimeProvider
-import com.ivy.frp.forward
-import com.ivy.frp.then2
+import com.ivy.base.model.Theme
+import com.ivy.data.model.Transaction
 import com.ivy.home.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.home.customerjourney.CustomerJourney
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalMainScreenState
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.legacy.ui.component.transaction.transactions
 import com.ivy.legacy.utils.horizontalSwipeListener
@@ -53,7 +47,11 @@ import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.domain.data.IvyCurrency
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.wallet.ui.theme.modal.BufferModal
 import com.ivy.wallet.ui.theme.modal.BufferModalData
@@ -84,18 +82,18 @@ fun BoxWithConstraintsScope.HomeUi(
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val mainScreenState = LocalMainScreenState.current
 
     var bufferModalData: BufferModalData? by remember { mutableStateOf(null) }
     var currencyModalVisible by remember { mutableStateOf(false) }
     var choosePeriodModal: ChoosePeriodModalData? by remember {
         mutableStateOf(null)
     }
-    var moreMenuExpanded by remember { mutableStateOf(ivyContext.moreMenuExpanded) }
+    var moreMenuExpanded by remember { mutableStateOf(mainScreenState.homeMenuExpanded) }
     var skipAllModalVisible by remember { mutableStateOf(false) }
     val setMoreMenuExpanded = { expanded: Boolean ->
         moreMenuExpanded = expanded
-        ivyContext.setMoreMenuExpanded(expanded)
+        mainScreenState.homeMenuExpanded = expanded
     }
 
     val baseCurrency = uiState.baseData.baseCurrency
@@ -115,20 +113,14 @@ fun BoxWithConstraintsScope.HomeUi(
                 sensitivity = SWIPE_HORIZONTAL_THRESHOLD,
                 state = rememberSwipeListenerState(),
                 onSwipeLeft = {
-                    ivyContext.selectMainTab(MainTab.ACCOUNTS)
+                    mainScreenState.selectTab(MainTab.ACCOUNTS)
                 },
                 onSwipeRight = {
-                    ivyContext.selectMainTab(MainTab.ACCOUNTS)
+                    mainScreenState.selectTab(MainTab.ACCOUNTS)
                 }
             )
     ) {
-        val listState = rememberScrollPositionListState(
-            key = "home_lazy_column",
-            initialFirstVisibleItemIndex = ivyContext.transactionsListState
-                ?.firstVisibleItemIndex ?: 0,
-            initialFirstVisibleItemScrollOffset = ivyContext.transactionsListState
-                ?.firstVisibleItemScrollOffset ?: 0
-        )
+        val listState = rememberScrollPositionListState(key = "home_lazy_column")
 
         HomeHeader(
             expanded = uiState.expanded,
@@ -191,21 +183,11 @@ fun BoxWithConstraintsScope.HomeUi(
             customerJourneyCards = uiState.customerJourneyCards,
             shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions,
 
-            onPayOrGet = forward<Transaction>() then2 {
-                HomeEvent.PayOrGetPlanned(it)
-            } then2 onEvent,
-            onDismiss = forward<CustomerJourneyCardModel>() then2 {
-                HomeEvent.DismissCustomerJourneyCard(it)
-            } then2 onEvent,
-            onSkipTransaction = forward<Transaction>() then2 {
-                HomeEvent.SkipPlanned(it)
-            } then2 onEvent,
-            setUpcomingExpanded = forward<Boolean>() then2 {
-                HomeEvent.SetUpcomingExpanded(it)
-            } then2 onEvent,
-            setOverdueExpanded = forward<Boolean>() then2 {
-                HomeEvent.SetOverdueExpanded(it)
-            } then2 onEvent,
+            onPayOrGet = { onEvent(HomeEvent.PayOrGetPlanned(it)) },
+            onDismiss = { onEvent(HomeEvent.DismissCustomerJourneyCard(it)) },
+            onSkipTransaction = { onEvent(HomeEvent.SkipPlanned(it)) },
+            setUpcomingExpanded = { onEvent(HomeEvent.SetUpcomingExpanded(it)) },
+            setOverdueExpanded = { onEvent(HomeEvent.SetOverdueExpanded(it)) },
             onSkipAllTransactions = {
                 skipAllModalVisible = true
             }
@@ -239,9 +221,7 @@ fun BoxWithConstraintsScope.HomeUi(
         dismiss = {
             bufferModalData = null
         },
-        onBufferChanged = forward<Double>() then2 {
-            HomeEvent.SetBuffer(it)
-        } then2 onEvent
+        onBufferChanged = { onEvent(HomeEvent.SetBuffer(it)) }
     )
 
     CurrencyModal(
@@ -251,9 +231,7 @@ fun BoxWithConstraintsScope.HomeUi(
         dismiss = {
             currencyModalVisible = false
         },
-        onSetCurrency = forward<String>() then2 {
-            HomeEvent.SetCurrency(it)
-        } then2 onEvent
+        onSetCurrency = { onEvent(HomeEvent.SetCurrency(it)) }
     )
 
     ChoosePeriodModal(
@@ -261,9 +239,7 @@ fun BoxWithConstraintsScope.HomeUi(
         dismiss = {
             choosePeriodModal = null
         },
-        onPeriodSelected = forward<TimePeriod>() then2 {
-            HomeEvent.SetPeriod(it)
-        } then2 onEvent
+        onPeriodSelected = { onEvent(HomeEvent.SetPeriod(it)) }
     )
 
     DeleteModal(
@@ -292,8 +268,8 @@ fun HomeLazyColumn(
     baseData: AppBaseData,
     shouldShowAccountSpecificColorInTransactions: Boolean,
 
-    upcoming: LegacyDueSection,
-    overdue: LegacyDueSection,
+    upcoming: DueSection,
+    overdue: DueSection,
     balance: BigDecimal,
     stats: IncomeExpensePair,
     history: ImmutableList<TransactionHistoryItem>,
@@ -314,7 +290,7 @@ fun HomeLazyColumn(
     onSkipAllTransactions: (List<Transaction>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val ivyContext = ivyWalletCtx()
+    val periodState = LocalPeriodState.current
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -332,6 +308,17 @@ fun HomeLazyColumn(
     val timeProvider = LocalTimeProvider.current
     val timeConverter = LocalTimeConverter.current
     val timeFormatter = LocalTimeFormatter.current
+    val emptyStateTitle = stringResource(R.string.no_transactions)
+    val emptyStateText = stringResource(
+        R.string.no_transactions_description,
+        period.toDisplayLong(
+            startDateOfMonth = periodState.startDayOfMonth,
+            timeProvider = timeProvider,
+            timeConverter = timeConverter,
+            timeFormatter = timeFormatter,
+        )
+    )
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -378,16 +365,8 @@ fun HomeLazyColumn(
             setOverdueExpanded = setOverdueExpanded,
             history = history,
             onPayOrGet = onPayOrGet,
-            emptyStateTitle = stringRes(R.string.no_transactions),
-            emptyStateText = stringRes(
-                R.string.no_transactions_description,
-                period.toDisplayLong(
-                    startDateOfMonth = ivyContext.startDayOfMonth,
-                    timeProvider = timeProvider,
-                    timeConverter = timeConverter,
-                    timeFormatter = timeFormatter,
-                )
-            ),
+            emptyStateTitle = emptyStateTitle,
+            emptyStateText = emptyStateText,
             shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
             onSkipTransaction = onSkipTransaction,
             onSkipAllTransactions = onSkipAllTransactions
@@ -418,12 +397,12 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
                 customerJourneyCards = persistentListOf(),
                 history = persistentListOf(),
                 stats = IncomeExpensePair.zero(),
-                upcoming = LegacyDueSection(
+                upcoming = DueSection(
                     trns = persistentListOf(),
                     stats = IncomeExpensePair.zero(),
                     expanded = false,
                 ),
-                overdue = LegacyDueSection(
+                overdue = DueSection(
                     trns = persistentListOf(),
                     stats = IncomeExpensePair.zero(),
                     expanded = false,

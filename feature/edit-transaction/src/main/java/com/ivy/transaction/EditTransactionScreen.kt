@@ -21,9 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,28 +31,26 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.l0_system.Orange
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
+import com.ivy.domain.RootScreen
 import com.ivy.legacy.data.EditTransactionDisplayLoan
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.edit.TransactionDateTime
 import com.ivy.legacy.ui.component.edit.core.Description
 import com.ivy.legacy.ui.component.tags.AddTagButton
 import com.ivy.legacy.ui.component.tags.ShowTagModal
-import com.ivy.legacy.utils.onScreenStart
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
+import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
@@ -86,6 +84,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.math.roundToInt
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @ExperimentalFoundationApi
 @Composable
@@ -330,9 +330,9 @@ private fun BoxWithConstraintsScope.UI(
 
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
-                text = loanData.loanCaption!!,
-                style = UI.typo.nB2.style(
-                    color = UI.colors.mediumInverse,
+                text = loanData.loanCaption,
+                style = MaterialTheme.typography.numberBodyLarge.copy(
+                    color = MaterialTheme.colorScheme.inverseSurface,
                     fontWeight = FontWeight.Normal
                 )
             )
@@ -352,12 +352,14 @@ private fun BoxWithConstraintsScope.UI(
 
         Spacer(Modifier.height(32.dp))
 
-        val ivyContext = ivyWalletCtx()
+        // looked up on tap, so previews without the activity still draw
+
+        val context = LocalContext.current
 
         val timeConverter = LocalTimeConverter.current
         if (dueDate != null) {
             DueDate(dueDate = dueDate) {
-                ivyContext.datePicker(
+                (context as RootScreen).pickDate(
                     initialDate = with(timeConverter) {
                         dueDate.toLocalDate()
                     }
@@ -414,7 +416,7 @@ private fun BoxWithConstraintsScope.UI(
                             plannedPaymentRuleId = null,
                             type = transactionType,
                             amount = amount,
-                            accountId = account?.id,
+                            accountId = account?.id?.value,
                             categoryId = category?.id?.value,
                             title = titleTextFieldValue.text,
                             description = description,
@@ -427,7 +429,7 @@ private fun BoxWithConstraintsScope.UI(
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         if (screen.initialTransactionId == null) {
             amountModalShown = true
         }
@@ -497,7 +499,7 @@ private fun BoxWithConstraintsScope.UI(
             }
         },
         onSelectedAccountChanged = {
-            if (loanData.isLoan && account?.currency != it.currency) {
+            if (loanData.isLoan && account?.asset != it.asset) {
                 selectedAcc = it
                 accountChangeModal = true
             } else {
@@ -670,7 +672,7 @@ private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
             dateTime = testDateTime,
             description = null,
             category = null,
-            account = Account(name = "phyre", Orange.toArgb()),
+            account = previewAccount("phyre", color = Orange, currency = "BGN"),
             toAccount = null,
             amount = 0.0,
             dueDate = null,

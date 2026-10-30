@@ -9,14 +9,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.domain.features.Features
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.AccountData
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.format
@@ -41,8 +41,8 @@ import javax.inject.Inject
 class AccountsViewModel @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val ivyContext: IvyWalletCtx,
-    private val sharedPrefs: SharedPrefs,
+    private val periodState: PeriodState,
+    private val appPreferences: AppPreferences,
     private val calcWalletBalanceAct: CalcWalletBalanceAct,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val accountDataAct: AccountDataAct,
@@ -167,15 +167,15 @@ class AccountsViewModel @Inject constructor(
 
     private suspend fun startInternally() {
         val period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
-            startDayOfMonth = ivyContext.startDayOfMonth
+            startDayOfMonth = periodState.startDayOfMonth,
+            timeProvider = timeProvider,
         ) // this must be monthly
-        val range = period.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+        val range = period.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
-        val baseCurrencyCode = baseCurrencyAct(Unit)
+        val baseCurrencyCode = baseCurrencyAct()
         val accounts = accountRepository.findAll().toImmutableList()
 
-        val includeTransfersInCalc =
-            sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false)
+        val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
         val accountsDataList = accountDataAct(
             AccountDataAct.Input(

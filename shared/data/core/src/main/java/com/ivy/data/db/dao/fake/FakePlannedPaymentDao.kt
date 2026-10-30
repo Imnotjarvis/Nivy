@@ -30,11 +30,11 @@ class FakePlannedPaymentDao : PlannedPaymentRuleDao, WritePlannedPaymentRuleDao 
         items.add(value)
     }
 
-    override suspend fun saveMany(values: List<PlannedPaymentRuleEntity>) {
-        values.forEach { save(it) }
+    override suspend fun saveMany(value: List<PlannedPaymentRuleEntity>) {
+        value.forEach { save(it) }
     }
 
-    override suspend fun deletedByAccountId(accountId: UUID) {
+    override suspend fun deleteAllByAccountId(accountId: UUID) {
         items.removeIf { it.accountId == accountId }
     }
 

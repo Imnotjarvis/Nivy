@@ -5,19 +5,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.data.model.Account
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.ui.ComposeViewModel
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.ioThread
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.AllTrnsAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -76,22 +76,22 @@ class SearchViewModel @Inject constructor(
 
         viewModelScope.launch {
             val queryResult = ioThread {
-                val filteredTransactions = allTrnsAct(Unit)
+                val filteredTransactions = allTrnsAct()
                     .filter { transaction ->
                         transaction.title.matchesQuery(normalizedQuery) ||
                                 transaction.description.matchesQuery(normalizedQuery)
                     }
                 trnsWithDateDivsAct(
                     TrnsWithDateDivsAct.Input(
-                        baseCurrency = baseCurrencyAct(Unit),
+                        baseCurrency = baseCurrencyAct(),
                         transactions = filteredTransactions
                     )
                 ).toImmutableList()
             }
 
             transactions.value = queryResult
-            baseCurrency.value = baseCurrencyAct(Unit)
-            accounts.value = accountsAct(Unit)
+            baseCurrency.value = baseCurrencyAct()
+            accounts.value = accountsAct()
             categories.value = categoryRepository.findAll().toImmutableList()
         }
     }

@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -34,35 +33,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.base.legacy.stringRes
+import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
+import com.ivy.base.time.impl.DeviceTimeProvider
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.data.model.Transaction
+import com.ivy.data.model.Transfer
+import com.ivy.design.system.colors.isLight
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.transactions
+import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewTransaction
 import com.ivy.legacy.utils.balancePrefix
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.horizontalSwipeListener
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.rememberSwipeListenerState
-import com.ivy.legacy.utils.setStatusBarDarkTextCompat
+import com.ivy.design.utils.StatusBarDarkText
+import com.ivy.design.utils.setStatusBarDarkTextCompat
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.PieChartStatisticScreen
@@ -71,15 +70,19 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.GreenDark
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.GreenDark
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMedium
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.isDarkColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.isDarkColor
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.ivy.wallet.ui.theme.modal.DeleteConfirmationModal
@@ -88,31 +91,32 @@ import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import java.math.BigDecimal
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop32
+import androidx.compose.runtime.DisposableEffect
 
 @Composable
 fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
     val viewModel: TransactionsViewModel = screenScopedViewModel()
-
-    val ivyContext = ivyWalletCtx()
-    val nav = navigation()
     val uiState = viewModel.uiState()
 
     val view = LocalView.current
     LaunchedEffect(Unit) {
         viewModel.start(screen)
-
-        nav.onBackPressed[screen] = {
+    }
+    // This screen colors the status bar after the account; put the theme's back when leaving.
+    val lightTheme = MaterialTheme.colorScheme.isLight()
+    DisposableEffect(Unit) {
+        onDispose {
             setStatusBarDarkTextCompat(
                 view = view,
-                darkText = ivyContext.theme == Theme.LIGHT
+                darkText = lightTheme
             )
-            false
         }
     }
 
@@ -262,8 +266,9 @@ private fun BoxWithConstraintsScope.UI(
     onSkipAllTransactions: (List<Transaction>) -> Unit = {},
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
-    val itemColor = (account?.color ?: category?.color?.value)?.toComposeColor() ?: Gray
+    val periodState = LocalPeriodState.current
+    val screenSize = LocalScreenSize.current
+    val itemColor = (account?.color?.value ?: category?.color?.value)?.toComposeColor() ?: Gray
 
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
@@ -294,13 +299,24 @@ private fun BoxWithConstraintsScope.UI(
         val timeProvider = LocalTimeProvider.current
         val timeConverter = LocalTimeConverter.current
         val timeFormatter = LocalTimeFormatter.current
+        val emptyStateTitle = stringResource(R.string.no_transactions)
+        val emptyStateText = stringResource(
+            R.string.no_transactions_for_period,
+            period.toDisplayLong(
+                startDateOfMonth = periodState.startDayOfMonth,
+                timeProvider = timeProvider,
+                timeConverter = timeConverter,
+                timeFormatter = timeFormatter,
+            )
+        )
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .clip(UI.shapes.r1Top)
-                .background(UI.colors.pure)
+                .clip(ShapeTop32)
+                .background(MaterialTheme.colorScheme.surface)
                 .testTag("item_stats_lazy_column"),
             state = listState,
         ) {
@@ -388,7 +404,7 @@ private fun BoxWithConstraintsScope.UI(
                     accounts,
                     categories
                 ),
-                upcoming = LegacyDueSection(
+                upcoming = DueSection(
                     trns = upcoming,
                     stats = IncomeExpensePair(
                         income = upcomingIncome.toBigDecimal(),
@@ -398,7 +414,7 @@ private fun BoxWithConstraintsScope.UI(
                 ),
                 setUpcomingExpanded = setUpcomingExpanded,
 
-                overdue = LegacyDueSection(
+                overdue = DueSection(
                     trns = overdue,
                     stats = IncomeExpensePair(
                         income = overdueIncome.toBigDecimal(),
@@ -410,7 +426,7 @@ private fun BoxWithConstraintsScope.UI(
 
                 history = history,
                 lastItemSpacer = with(density) {
-                    (ivyContext.screenHeight * 0.7f).toDp()
+                    (screenSize.height * 0.7f).toDp()
                 },
 
                 onPayOrGet = onPayOrGet,
@@ -418,16 +434,8 @@ private fun BoxWithConstraintsScope.UI(
                 onSkipAllTransactions = {
                     onSkipAllModalVisible(true)
                 },
-                emptyStateTitle = stringRes(R.string.no_transactions),
-                emptyStateText = stringRes(
-                    R.string.no_transactions_for_period,
-                    period.toDisplayLong(
-                        startDateOfMonth = ivyContext.startDayOfMonth,
-                        timeProvider = timeProvider,
-                        timeConverter = timeConverter,
-                        timeFormatter = timeFormatter,
-                    )
-                ),
+                emptyStateTitle = emptyStateTitle,
+                emptyStateText = emptyStateText,
                 shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions
             )
         }
@@ -492,7 +500,7 @@ private fun LazyListScope.choosePeriodModal(
                     .height(32.dp)
                     .fillMaxWidth()
                     .background(itemColor) // itemColor is displayed below the clip
-                    .background(UI.colors.pure, UI.shapes.r1Top)
+                    .background(MaterialTheme.colorScheme.surface, ShapeTop32)
             )
 
             PeriodSelector(
@@ -551,7 +559,7 @@ private fun BoxWithConstraintsScope.DeleteModals(
         description = if (account != null) {
             stringResource(
                 id = R.string.account_confirm_deletion_type_account_name,
-                account.name
+                account.name.value
             )
         } else {
             stringResource(R.string.please_type_category_name, category?.name?.value ?: "")
@@ -608,7 +616,7 @@ private fun Header(
     val contrastColor = findContrastTextColor(itemColor)
 
     val darkColor = isDarkColor(itemColor)
-    setStatusBarDarkTextCompat(darkText = !darkColor)
+    StatusBarDarkText(darkText = !darkColor)
 
     Column(
         modifier = Modifier.background(itemColor)
@@ -616,7 +624,7 @@ private fun Header(
         Spacer(Modifier.height(20.dp))
 
         val hideEditAndDeleteButtonForAccountTransfer =
-            screen.transactions.none { it.type == TransactionType.TRANSFER }
+            screen.transactions.none { it is Transfer }
 
         ItemStatisticToolbar(
             contrastColor = contrastColor,
@@ -694,7 +702,7 @@ private fun Header(
                     nav.navigateTo(
                         PieChartStatisticScreen(
                             type = TransactionType.INCOME,
-                            accountList = persistentListOf(account.id),
+                            accountList = persistentListOf(account.id.value),
                             filterExcluded = false,
                             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
                         )
@@ -706,7 +714,7 @@ private fun Header(
                     nav.navigateTo(
                         PieChartStatisticScreen(
                             type = TransactionType.EXPENSE,
-                            accountList = persistentListOf(account.id),
+                            accountList = persistentListOf(account.id.value),
                             filterExcluded = false,
                             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
                         )
@@ -718,7 +726,7 @@ private fun Header(
                 EditTransactionScreen(
                     initialTransactionId = null,
                     type = trnType,
-                    accountId = account?.id,
+                    accountId = account?.id?.value,
                     categoryId = category?.id?.value
                 )
             )
@@ -756,7 +764,7 @@ private fun Item(
         when {
             account != null -> {
                 ItemIconMDefaultIcon(
-                    iconName = account.icon,
+                    iconName = account.icon?.id,
                     defaultIcon = R.drawable.ic_custom_account_m,
                     tint = contrastColor
                 )
@@ -764,8 +772,8 @@ private fun Item(
                 Spacer(Modifier.width(8.dp))
 
                 Text(
-                    text = account.name,
-                    style = UI.typo.b1.style(
+                    text = account.name.value,
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -775,9 +783,10 @@ private fun Item(
                     Spacer(Modifier.width(8.dp))
 
                     Text(
-                        text = stringRes(R.string.excluded),
-                        style = UI.typo.c.style(
-                            color = account.color.toComposeColor().dynamicContrast()
+                        text = stringResource(R.string.excluded),
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = account.color.value.toComposeColor().dynamicContrast(),
+                            fontWeight = FontWeight.Bold
                         )
                     )
                 }
@@ -794,7 +803,7 @@ private fun Item(
 
                 Text(
                     text = category.name.value,
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -813,7 +822,7 @@ private fun Item(
 
                 Text(
                     text = Constants.CATEGORY_UNSPECIFIED_NAME,
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -829,7 +838,8 @@ private fun BoxWithConstraintsScope.Preview_empty() {
     IvyPreview {
         UI(
             period = TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             baseCurrency = "BGN",
             currency = "BGN",
@@ -844,7 +854,7 @@ private fun BoxWithConstraintsScope.Preview_empty() {
 
             history = persistentListOf(),
             category = null,
-            account = Account("DSK", color = GreenDark.toArgb(), icon = "pet"),
+            account = previewAccount("DSK", color = GreenDark, icon = "pet"),
             onSetPeriod = { },
             onPreviousMonth = {},
             onNextMonth = {},
@@ -871,7 +881,8 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
     IvyPreview {
         UI(
             period = TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             baseCurrency = "BGN",
             currency = "ADA",
@@ -886,12 +897,7 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
 
             history = persistentListOf(),
             category = null,
-            account = Account(
-                name = "DSK",
-                color = GreenDark.toArgb(),
-                icon = "pet",
-                includeInBalance = false
-            ),
+            account = previewAccount("DSK", color = GreenDark, icon = "pet", includeInBalance = false),
             onSetPeriod = { },
             onPreviousMonth = {},
             onNextMonth = {},
@@ -914,8 +920,8 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
 
 @Preview
 @Composable
-private fun BoxWithConstraintsScope.Preview_empty_upcoming() {
-    IvyPreview {
+private fun BoxWithConstraintsScope.Preview_empty_upcoming(isDark: Boolean = false) {
+    IvyPreview(isDark) {
         UI(
             period = TimePeriod(month = Month.monthsList().first(), year = 2023),
             baseCurrency = "BGN",
@@ -931,7 +937,7 @@ private fun BoxWithConstraintsScope.Preview_empty_upcoming() {
 
             history = persistentListOf(),
             category = null,
-            account = Account("DSK", color = GreenDark.toArgb(), icon = "pet"),
+            account = previewAccount("DSK", color = GreenDark, icon = "pet"),
             onSetPeriod = { },
             onPreviousMonth = {},
             onNextMonth = {},
@@ -939,10 +945,10 @@ private fun BoxWithConstraintsScope.Preview_empty_upcoming() {
             onEditAccount = { _, _ -> },
             onEditCategory = {},
             upcoming = persistentListOf(
-                Transaction(
-                    UUID(1L, 2L),
-                    TransactionType.EXPENSE,
-                    BigDecimal.valueOf(10L)
+                previewTransaction(
+                    type = TransactionType.EXPENSE,
+                    account = previewAccount("Cash", color = GreenDark, currency = "BGN", id = UUID(1L, 2L)),
+                    amount = 10.0,
                 )
             ),
             updateAccountNameConfirmation = {},
@@ -968,6 +974,6 @@ fun TransactionsUiTest(isDark: Boolean) {
         false -> Theme.LIGHT
     }
     IvyWalletPreview(theme) {
-        Preview_empty_upcoming()
+        Preview_empty_upcoming(isDark)
     }
 }

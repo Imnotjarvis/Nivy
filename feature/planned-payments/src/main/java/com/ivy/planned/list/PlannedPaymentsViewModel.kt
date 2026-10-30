@@ -8,15 +8,16 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.data.db.dao.read.SettingsDao
+import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
+import com.ivy.data.model.PlannedPaymentRule
+import com.ivy.data.repository.CurrencyRepository
+import com.ivy.data.repository.PlannedPaymentRuleRepository
+import com.ivy.domain.usecase.planned.PlannedPaymentAmountsUseCase
 import com.ivy.ui.ComposeViewModel
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.PlannedPaymentRule
-import com.ivy.legacy.utils.ioThread
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -27,8 +28,9 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class PlannedPaymentsViewModel @Inject constructor(
-    private val settingsDao: SettingsDao,
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
+    private val currencyRepository: CurrencyRepository,
+    private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
+    private val plannedPaymentAmountsUseCase: PlannedPaymentAmountsUseCase,
     private val categoriesRepository: CategoryRepository,
     private val accountsAct: AccountsAct
 ) : ComposeViewModel<PlannedPaymentsScreenState, PlannedPaymentsScreenEvent>() {
@@ -136,21 +138,33 @@ class PlannedPaymentsViewModel @Inject constructor(
 
     private fun start() {
         viewModelScope.launch {
-            val settings = ioThread { settingsDao.findFirst() }
-            currency = settings.currency
+            val baseCurrency = currencyRepository.getBaseCurrency()
+            currency = baseCurrency.code
 
             categories = categoriesRepository.findAll().toImmutableList()
-            accounts = accountsAct(Unit)
+            accounts = accountsAct()
 
-            oneTimePlannedPayment =
-                ioThread { plannedPaymentsLogic.oneTime() }.toImmutableList()
-            oneTimeIncome = ioThread { plannedPaymentsLogic.oneTimeIncome() }
-            oneTimeExpenses = ioThread { plannedPaymentsLogic.oneTimeExpenses() }
+            val oneTime = plannedPaymentRuleRepository.findAllByOneTime(oneTime = true)
+            oneTimePlannedPayment = oneTime.toImmutableList()
+            oneTimeIncome = plannedPaymentAmountsUseCase.total(
+                rules = oneTime.filter { it.type == TransactionType.INCOME },
+                currency = baseCurrency,
+            )
+            oneTimeExpenses = plannedPaymentAmountsUseCase.total(
+                rules = oneTime.filter { it.type == TransactionType.EXPENSE },
+                currency = baseCurrency,
+            )
 
-            recurringPlannedPayment =
-                ioThread { plannedPaymentsLogic.recurring() }.toImmutableList()
-            recurringIncome = ioThread { plannedPaymentsLogic.recurringIncome() }
-            recurringExpenses = ioThread { plannedPaymentsLogic.recurringExpenses() }
+            val recurring = plannedPaymentRuleRepository.findAllByOneTime(oneTime = false)
+            recurringPlannedPayment = recurring.toImmutableList()
+            recurringIncome = plannedPaymentAmountsUseCase.monthlyTotal(
+                rules = recurring.filter { it.type == TransactionType.INCOME },
+                currency = baseCurrency,
+            )
+            recurringExpenses = plannedPaymentAmountsUseCase.monthlyTotal(
+                rules = recurring.filter { it.type == TransactionType.EXPENSE },
+                currency = baseCurrency,
+            )
         }
     }
 }

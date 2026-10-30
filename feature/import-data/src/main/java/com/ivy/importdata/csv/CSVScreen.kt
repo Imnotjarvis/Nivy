@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -37,16 +38,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.colorAs
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
+import com.ivy.domain.RootScreen
 import com.ivy.importdata.csvimport.flow.ImportProcessing
 import com.ivy.importdata.csvimport.flow.ImportResultUI
 import com.ivy.navigation.CSVScreen
 import com.ivy.onboarding.viewmodel.OnboardingViewModel
 import com.ivy.ui.R
 import kotlin.math.abs
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberTitleLarge
 
 @Composable
 fun CSVScreen(
@@ -108,7 +110,9 @@ private fun ImportUI(
                 Spacer8()
                 Text(
                     text = stringResource(R.string.warning_import_csv_file).trimIndent(),
-                    style = UI.typo.c.colorAs(UI.colors.red),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = MaterialTheme.colorScheme.error
+                    ),
                     fontWeight = FontWeight.Bold,
                 )
             } else {
@@ -117,7 +121,7 @@ private fun ImportUI(
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     text = stringResource(R.string.import_a_csv_file_to_continue),
-                    style = UI.typo.b2,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -143,22 +147,23 @@ private fun ImportUI(
 private fun ImportButton(
     onFilePick: (Uri) -> Unit,
 ) {
-    val ivyContext = com.ivy.legacy.ivyWalletCtx()
+    // looked up on tap, so previews without the activity still draw
+    val context = LocalContext.current
     Button(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
         onClick = {
-            ivyContext.openFile {
+            (context as RootScreen).openFile {
                 onFilePick(it)
             }
         }
     ) {
         Text(
             text = stringResource(R.string.import_csv_file),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             ),
         )
     }
@@ -219,17 +224,17 @@ private fun CSVCell(
     header: Boolean,
     even: Boolean,
 ) {
-    val medium = UI.colors.medium
+    val medium = MaterialTheme.colorScheme.surfaceVariant
     Text(
         modifier = Modifier
             .width(140.dp)
-            .border(1.dp, UI.colors.pureInverse)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface)
             .thenIf(even) {
                 this.background(medium)
             }
             .padding(all = 4.dp),
         text = text.ifEmpty { " " },
-        style = UI.typo.nB1,
+        style = MaterialTheme.typography.numberTitleLarge,
         fontWeight = if (header) FontWeight.Bold else FontWeight.Normal,
         overflow = TextOverflow.Ellipsis,
         maxLines = 1,
@@ -251,9 +256,9 @@ private fun <M> LazyListScope.mappingRow(
                 .border(
                     width = 2.dp,
                     color = when {
-                        mapping.required && !status.success -> UI.colors.red
-                        status.success -> UI.colors.green
-                        else -> UI.colors.medium
+                        mapping.required && !status.success -> MaterialTheme.colorScheme.error
+                        status.success -> MaterialTheme.colorScheme.secondary
+                        else -> MaterialTheme.colorScheme.surfaceVariant
                     },
                     shape = RoundedCornerShape(4.dp),
                 )
@@ -261,12 +266,17 @@ private fun <M> LazyListScope.mappingRow(
         ) {
             Text(
                 text = mapping.ivyColumn,
-                style = UI.typo.b1.colorAs(UI.colors.primary),
+                style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.primary),
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = mapping.helpInfo, style = UI.typo.c.colorAs(UI.colors.gray))
+            Text(
+                text = mapping.helpInfo,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
             Spacer8()
-            Text(text = "Choose a matching CSV column:", style = UI.typo.b2)
+            Text(text = "Choose a matching CSV column:", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier
@@ -306,14 +316,14 @@ private fun <M> LazyListScope.mappingRow(
 fun LazyListScope.sectionDivider(text: String) {
     item {
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = text, style = UI.typo.b1)
+        Text(text = text, style = MaterialTheme.typography.titleLarge)
         Text(
             text = """
                 Match the CSV column with the appropriate Ivy type.
                 If the parsing is successful the border will turn green.
             """.trimIndent(),
-            style = UI.typo.nB2,
-            color = UI.colors.gray
+            style = MaterialTheme.typography.numberBodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer8()
     }
@@ -395,7 +405,7 @@ private fun AmountMetadata(
     multiplier: Int,
     onMetaChange: (Int) -> Unit,
 ) {
-    Text(text = "Multiplier", style = UI.typo.nB2)
+    Text(text = "Multiplier", style = MaterialTheme.typography.numberBodyLarge)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Button(onClick = {
             onMetaChange(
@@ -415,8 +425,8 @@ private fun AmountMetadata(
                 multiplier > 1 -> "*${abs(multiplier)}"
                 else -> "None"
             },
-            style = UI.typo.nB2,
-            color = UI.colors.primary,
+            style = MaterialTheme.typography.numberBodyLarge,
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer8(horizontal = true)
         Button(onClick = {
@@ -460,7 +470,7 @@ private fun TypeMetadata(
         }
     )
     Spacer8()
-    Text(text = "(optional)", style = UI.typo.c)
+    Text(text = "(optional)", style = MaterialTheme.typography.labelMedium)
     LabelContainsField(
         label = "Transfer",
         value = metadata.transfer ?: "",
@@ -477,8 +487,8 @@ fun LabelContainsField(
     onValueChange: (String) -> Unit,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text = label, color = UI.colors.primary, style = UI.typo.nB1)
-        Text(text = " contains ", style = UI.typo.c)
+        Text(text = label, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.numberTitleLarge)
+        Text(text = " contains ", style = MaterialTheme.typography.labelMedium)
         Spacer8(horizontal = true)
         var textField by remember {
             // move the cursor at the end of the text
@@ -653,9 +663,9 @@ private fun LazyListScope.continueButton(
         ) {
             Text(
                 text = stringResource(R.string.import_csv_continue),
-                style = UI.typo.b2.style(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 ),
             )
         }

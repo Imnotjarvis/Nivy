@@ -1,0 +1,8 @@
+package com.ivy.design.utils
+
+import android.os.Handler
+import android.os.Looper
+
+fun postDelayed(delayMs: Long, run: () -> Unit) {
+    Handler(Looper.getMainLooper()).postDelayed({ run() }, delayMs)
+}

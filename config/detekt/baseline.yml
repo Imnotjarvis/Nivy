@@ -23,89 +23,13 @@
     <ID>ClassNaming:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime : Migration</ID>
     <ID>ClassNaming:Migration129to130_LoanIncludeNote.kt$Migration129to130_LoanIncludeNote : Migration</ID>
     <ID>ComplexCondition:Transactions.kt$(upcoming == null || upcoming.trns.isEmpty()) &amp;&amp; (overdue == null || overdue.trns.isEmpty()) &amp;&amp; history.isEmpty()</ID>
-    <ID>ComposableNaming:Compose.kt$onEvent</ID>
-    <ID>ComposableNaming:ComposeExt.kt$onScreenStart</ID>
     <ID>ComposableNaming:Keyboard.kt$hideKeyboard</ID>
-    <ID>ComposableNaming:OnScreenStart.kt$onScreenStart</ID>
-    <ID>ComposableNaming:UIExt.kt$setStatusBarDarkTextCompat</ID>
-    <ID>ComposableParamOrder:AddKeywordModal.kt$AddKeywordModal</ID>
-    <ID>ComposableParamOrder:BackBottomBar.kt$BackBottomBar</ID>
-    <ID>ComposableParamOrder:BudgetBattery.kt$BudgetBattery</ID>
-    <ID>ComposableParamOrder:BufferBattery.kt$BufferBattery</ID>
-    <ID>ComposableParamOrder:Button.kt$Button</ID>
-    <ID>ComposableParamOrder:ButtonWithIcon.kt$Button</ID>
-    <ID>ComposableParamOrder:ChangeTransactionTypeModal.kt$ChangeTransactionTypeModal</ID>
-    <ID>ComposableParamOrder:Checkbox.kt$Checkbox</ID>
-    <ID>ComposableParamOrder:Checkbox.kt$CheckboxWithText</ID>
-    <ID>ComposableParamOrder:ChooseCategoryModal.kt$ChooseCategoryModal</ID>
-    <ID>ComposableParamOrder:ChooseIconModal.kt$ChooseIconModal</ID>
-    <ID>ComposableParamOrder:ChooseStartDateOfMonthModal.kt$ChooseStartDateOfMonthModal</ID>
-    <ID>ComposableParamOrder:CircleButtons.kt$CircleButton</ID>
-    <ID>ComposableParamOrder:CircleButtons.kt$CircleButtonFilled</ID>
-    <ID>ComposableParamOrder:CircleButtons.kt$CircleButtonFilledGradient</ID>
-    <ID>ComposableParamOrder:CurrencyPicker.kt$CurrencyPicker</ID>
-    <ID>ComposableParamOrder:DescriptionModal.kt$DescriptionModal</ID>
-    <ID>ComposableParamOrder:FilterOverlay.kt$TypeFilterCheckbox</ID>
-    <ID>ComposableParamOrder:IconButton.kt$IconButton</ID>
-    <ID>ComposableParamOrder:ImportInstructions.kt$InstructionButton</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIcon</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconL</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconM</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconMDefaultIcon</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconS</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconSDefaultIcon</ID>
-    <ID>ComposableParamOrder:IvyBasicTextField.kt$IvyBasicTextField</ID>
-    <ID>ComposableParamOrder:IvyBorderButton.kt$IvyBorderButton</ID>
-    <ID>ComposableParamOrder:IvyButton.kt$IvyButton</ID>
-    <ID>ComposableParamOrder:IvyCheckbox.kt$IvyCheckbox</ID>
-    <ID>ComposableParamOrder:IvyCheckbox.kt$IvyCheckboxWithText</ID>
-    <ID>ComposableParamOrder:IvyChecklistTextField.kt$IvyChecklistTextField</ID>
-    <ID>ComposableParamOrder:IvyCircleButton.kt$IvyCircleButton</ID>
-    <ID>ComposableParamOrder:IvyDescriptionTextField.kt$IvyDescriptionTextField</ID>
-    <ID>ComposableParamOrder:IvyIcon.kt$IvyIcon</ID>
-    <ID>ComposableParamOrder:IvyIcon.kt$IvyIconScaled</ID>
-    <ID>ComposableParamOrder:IvyLineChart.kt$IvyLineChart</ID>
-    <ID>ComposableParamOrder:IvyModal.kt$IvyModal</ID>
-    <ID>ComposableParamOrder:IvyModalComponents.kt$ModalCheck</ID>
-    <ID>ComposableParamOrder:IvyModalComponents.kt$ModalDynamicPrimaryAction</ID>
-    <ID>ComposableParamOrder:IvyModalComponents.kt$ModalPositiveButton</ID>
-    <ID>ComposableParamOrder:IvyNameTextFieldValue.kt$IvyNameTextField</ID>
-    <ID>ComposableParamOrder:IvyNumberTextField.kt$IvyNumberTextField</ID>
-    <ID>ComposableParamOrder:IvyOutlinedButton.kt$IvyOutlinedButton</ID>
-    <ID>ComposableParamOrder:IvyOutlinedButton.kt$IvyOutlinedButtonFillMaxWidth</ID>
-    <ID>ComposableParamOrder:IvyOutlinedTextField.kt$IvyOutlinedTextField</ID>
-    <ID>ComposableParamOrder:IvySwitch.kt$IvySwitch</ID>
-    <ID>ComposableParamOrder:IvyText.kt$IvyText</ID>
-    <ID>ComposableParamOrder:IvyTitleTextField.kt$IvyTitleTextField</ID>
-    <ID>ComposableParamOrder:LoanModal.kt$AccountsRow</ID>
-    <ID>ComposableParamOrder:OnboardingComponents.kt$OnboardingButton</ID>
-    <ID>ComposableParamOrder:OnboardingProgressSlider.kt$OnboardingProgressSlider</ID>
-    <ID>ComposableParamOrder:PlannedPaymentsBottomBar.kt$PlannedPaymentsBottomBar</ID>
-    <ID>ComposableParamOrder:PrimaryAttributeColumn.kt$PrimaryAttributeColumn</ID>
-    <ID>ComposableParamOrder:ProgressBar.kt$ProgressBar</ID>
-    <ID>ComposableParamOrder:ProgressModal.kt$ProgressModal</ID>
-    <ID>ComposableParamOrder:ReorderModal.kt$ReorderModal</ID>
-    <ID>ComposableParamOrder:ReorderModal.kt$ReorderModalSingleType</ID>
-    <ID>ComposableParamOrder:ScreenTitle.kt$ScreenTitle</ID>
-    <ID>ComposableParamOrder:Shapes.kt$Shape</ID>
-    <ID>ComposableParamOrder:Shapes.kt$ShapeOutlined</ID>
-    <ID>ComposableParamOrder:Switch.kt$Switch</ID>
-    <ID>ComposableParamOrder:WrapContentRow.kt$WrapContentRow</ID>
-    <ID>CompositionLocalAllowlist:IvyTheme.kt$LocalIvyColors</ID>
-    <ID>CompositionLocalAllowlist:IvyTheme.kt$LocalIvyShapes</ID>
-    <ID>CompositionLocalAllowlist:IvyTheme.kt$LocalIvyTypography</ID>
-    <ID>CompositionLocalAllowlist:IvyUI.kt$LocalIvyContext</ID>
-    <ID>CompositionLocalAllowlist:NavigationRoot.kt$LocalNavigation</ID>
-    <ID>ConstructorParameterNaming:LoanTransactionsLogic.kt$LoanTransactionsLogic$val Loan: LTLoanMapper</ID>
-    <ID>ConstructorParameterNaming:LoanTransactionsLogic.kt$LoanTransactionsLogic$val LoanRecord: LTLoanRecordMapper</ID>
     <ID>ConstructorParameterNaming:ReorderModal.kt$Adapter$private val ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
     <ID>CyclomaticComplexMethod:CSVViewModel.kt$CSVViewModel$private suspend fun handleEvent(event: CSVEvent)</ID>
     <ID>CyclomaticComplexMethod:EditPlannedViewModel.kt$EditPlannedViewModel$override fun onEvent(event: EditPlannedScreenEvent)</ID>
     <ID>CyclomaticComplexMethod:ReportViewModel.kt$ReportViewModel$private suspend fun filterTransactions( baseCurrency: String, accounts: List&lt;Account&gt;, filter: ReportFilter, ): ImmutableList&lt;Transaction&gt;</ID>
     <ID>EmptyCatchBlock:CSVImporter.kt$CSVImporter${ }</ID>
     <ID>EmptyCatchBlock:IntervalPickerRow.kt${ }</ID>
-    <ID>EmptyFunctionBlock:TestIdlingResource.kt$TestIdlingResource${ }</ID>
-    <ID>Filename:DueSection.kt$com.ivy.legacy.data.DueSection.kt</ID>
     <ID>FunctionNaming:CustomerJourneyCardsProvider.kt$CustomerJourneyCardsProvider.Companion$fun didYouKnow_expensesPieChart()</ID>
     <ID>FunctionNaming:CustomerJourneyCardsProvider.kt$CustomerJourneyCardsProvider.Companion$fun didYouKnow_pinAddTransactionWidgetCard()</ID>
     <ID>FunctionParameterNaming:AmountModal.kt$FirstRowExtra: (@Composable RowScope.() -&gt; Unit)? = null</ID>
@@ -115,11 +39,9 @@
     <ID>FunctionParameterNaming:AmountModal.kt$ThirdRowExtra: (@Composable RowScope.() -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:AmountModal.kt$ZeroRow: (@Composable RowScope.() -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:BackBottomBar.kt$PrimaryAction: @Composable () -&gt; Unit</ID>
-    <ID>FunctionParameterNaming:ColumnRoot.kt$Content: @Composable ColumnScope.() -&gt; Unit</ID>
     <ID>FunctionParameterNaming:EditBottomSheet.kt$ActionButton: @Composable () -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ItemIcon.kt$Default: (@Composable () -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:IvyComponents.kt$Content: @Composable RowScope.() -&gt; Unit</ID>
-    <ID>FunctionParameterNaming:IvyComposeApp.kt$Content: @Composable BoxScope.() -&gt; Unit</ID>
     <ID>FunctionParameterNaming:IvyModal.kt$Content: @Composable ColumnScope.() -&gt; Unit</ID>
     <ID>FunctionParameterNaming:IvyModal.kt$PrimaryAction: @Composable () -&gt; Unit</ID>
     <ID>FunctionParameterNaming:IvyModal.kt$SecondaryActions: (@Composable () -&gt; Unit)? = null</ID>
@@ -131,126 +53,10 @@
     <ID>FunctionParameterNaming:ReorderModal.kt$Adapter.ItemViewHolder$ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ReorderModal.kt$ItemContent: @Composable (Int, T) -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ReorderModal.kt$ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
-    <ID>FunctionParameterNaming:ReorderModal.kt$TitleContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = Modifier.padding(start = 32.dp), text = stringResource(R.string.reorder), style = UI.typo.b1.style( UI.colors.pureInverse, FontWeight.ExtraBold ) ) }</ID>
+    <ID>FunctionParameterNaming:ReorderModal.kt$TitleContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = Modifier.padding(start = 32.dp), text = stringResource(R.string.reorder), style = MaterialTheme.typography.titleLarge.copy( color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold ) ) }</ID>
     <ID>FunctionParameterNaming:WrapContentRow.kt$ItemContent: @Composable (item: T) -&gt; Unit</ID>
-    <ID>InvalidPackageDeclaration:AccTrnsAct.kt$package com.ivy.wallet.domain.action.account</ID>
-    <ID>InvalidPackageDeclaration:AccountByIdAct.kt$package com.ivy.wallet.domain.action.account</ID>
-    <ID>InvalidPackageDeclaration:AccountDataAct.kt$package com.ivy.wallet.domain.action.viewmodel.account</ID>
-    <ID>InvalidPackageDeclaration:AccountFunctions.kt$package com.ivy.wallet.domain.pure.account</ID>
-    <ID>InvalidPackageDeclaration:AccountModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:AccountsAct.kt$package com.ivy.wallet.domain.action.account</ID>
-    <ID>InvalidPackageDeclaration:Action.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:AddKeywordModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:AddPrimaryAttributeButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:AllTrnsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:AmountCurrency.kt$package com.ivy.wallet.ui.theme.wallet</ID>
-    <ID>InvalidPackageDeclaration:AmountModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:Annotations.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:BackBottomBar.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:BalanceRow.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:BaseCurrencyAct.kt$package com.ivy.wallet.domain.action.settings</ID>
-    <ID>InvalidPackageDeclaration:BudgetsAct.kt$package com.ivy.wallet.domain.action.budget</ID>
-    <ID>InvalidPackageDeclaration:BufferBattery.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:BufferModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:CSVMapper.kt$package com.ivy.wallet.domain.deprecated.logic.csv</ID>
-    <ID>InvalidPackageDeclaration:CSVNormalizer.kt$package com.ivy.wallet.domain.deprecated.logic.csv</ID>
-    <ID>InvalidPackageDeclaration:CalcAccBalanceAct.kt$package com.ivy.wallet.domain.action.account</ID>
-    <ID>InvalidPackageDeclaration:CalcAccIncomeExpenseAct.kt$package com.ivy.wallet.domain.action.account</ID>
-    <ID>InvalidPackageDeclaration:CalcBufferDiffAct.kt$package com.ivy.wallet.domain.action.settings</ID>
-    <ID>InvalidPackageDeclaration:CalcIncomeExpenseAct.kt$package com.ivy.wallet.domain.action.wallet</ID>
-    <ID>InvalidPackageDeclaration:CalcTrnsIncomeExpenseAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:CalcWalletBalanceAct.kt$package com.ivy.wallet.domain.action.wallet</ID>
-    <ID>InvalidPackageDeclaration:CalculatorModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:Category.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:CategoryCreator.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:CategoryIncomeWithAccountFiltersAct.kt$package com.ivy.wallet.domain.action.category</ID>
-    <ID>InvalidPackageDeclaration:CategoryModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:CategoryTrnsBetweenAct.kt$package com.ivy.wallet.domain.action.category</ID>
-    <ID>InvalidPackageDeclaration:ChangeTransactionTypeModal.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:ChooseCategoryModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:ChooseIconModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:ChoosePeriodModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:ChooseStartDateOfMonthModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:CircleButtons.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:ClosedTimeRange.kt$package com.ivy.wallet.domain.pure.data</ID>
-    <ID>InvalidPackageDeclaration:Composition.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:Composition2.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:CompositionFilter.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:CompositionMap.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:CompositionN.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:CompositionSum.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:CreateAccountData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateBudgetData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateCategoryData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateLoanData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateLoanRecordData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CurrencyModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:CurrencyPicker.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:CustomExchangeRateCard.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:CustomExchangeRateState.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:DeleteButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:DeleteModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:DescriptionModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:DueDate.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:DueTrnsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:DueTrnsInfoAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:EditBottomSheet.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:EditLoanRecordData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:Exchange.kt$package com.ivy.wallet.domain.pure.exchange</ID>
-    <ID>InvalidPackageDeclaration:ExchangeAct.kt$package com.ivy.wallet.domain.action.exchange</ID>
-    <ID>InvalidPackageDeclaration:ExchangeRatesLogic.kt$package com.ivy.wallet.domain.deprecated.logic.currency</ID>
-    <ID>InvalidPackageDeclaration:ExchangeTrns.kt$package com.ivy.wallet.domain.pure.exchange</ID>
-    <ID>InvalidPackageDeclaration:FPAction.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:FoldTransactions.kt$package com.ivy.wallet.domain.pure.transaction</ID>
-    <ID>InvalidPackageDeclaration:GradientCut.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:HasTrnsAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:HistoryTrnsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:HistoryWithDateDivsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:IncomeExpensePair.kt$package com.ivy.wallet.domain.pure.data</ID>
-    <ID>InvalidPackageDeclaration:IncomeExpenseTransferPair.kt$package com.ivy.wallet.domain.pure.data</ID>
-    <ID>InvalidPackageDeclaration:IntervalPickerRow.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IntervalType.kt$package com.ivy.data.model</ID>
-    <ID>InvalidPackageDeclaration:ItemIcon.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyBasicTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyBorderButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyCheckbox.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyChecklistTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyCircleButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyColorPicker.kt$package com.ivy.domain.legacy.ui</ID>
-    <ID>InvalidPackageDeclaration:IvyColors.kt$package com.ivy.wallet.ui.theme</ID>
-    <ID>InvalidPackageDeclaration:IvyComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyCurrency.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:IvyDataStore.kt$package com.ivy.wallet.io.persistence.datastore</ID>
-    <ID>InvalidPackageDeclaration:IvyDescriptionTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyDivider.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyDividerDot.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyDomainUtils.kt$package com.ivy.wallet.domain.pure.util</ID>
-    <ID>InvalidPackageDeclaration:IvyIcon.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyLineChart.kt$package com.ivy.wallet.ui.theme.components.charts.linechart</ID>
-    <ID>InvalidPackageDeclaration:IvyModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:IvyModalComponents.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:IvyModalDomainComponents.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:IvyNameTextFieldValue.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyNotification.kt$package com.ivy.wallet.android.notification</ID>
-    <ID>InvalidPackageDeclaration:IvyNotificationChannel.kt$package com.ivy.wallet.android.notification</ID>
-    <ID>InvalidPackageDeclaration:IvyNumberTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyOutlinedButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyOutlinedTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvySwitch.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyTitleTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyToolbar.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:LTLoanMapper.kt$package com.ivy.wallet.domain.deprecated.logic.loantrasactions</ID>
-    <ID>InvalidPackageDeclaration:LTLoanRecordMapper.kt$package com.ivy.wallet.domain.deprecated.logic.loantrasactions</ID>
-    <ID>InvalidPackageDeclaration:ListItem.kt$package com.ivy.domain.legacy.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:LoanByIdAct.kt$package com.ivy.wallet.domain.action.loan</ID>
-    <ID>InvalidPackageDeclaration:LoanCreator.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:LoanModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:LoanRecordCreator.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:LoanRecordModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:LoanTransactionsLogic.kt$package com.ivy.wallet.domain.deprecated.logic.loantrasactions</ID>
     <ID>InvalidPackageDeclaration:LoanType.kt$package com.ivy.data.model</ID>
-    <ID>InvalidPackageDeclaration:LoansAct.kt$package com.ivy.wallet.domain.action.loan</ID>
     <ID>InvalidPackageDeclaration:Migration105to106_TrnRecurringRules.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration106to107_Wishlist.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration107to108_Sync.kt$package com.ivy.domain.db.migration</ID>
@@ -268,56 +74,12 @@
     <ID>InvalidPackageDeclaration:Migration119to120_LoanTransactions.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration120to121_DropWishlistItem.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration122to123_ExchangeRates.kt$package com.ivy.domain.db.migration</ID>
-    <ID>InvalidPackageDeclaration:MonthPickerModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:NameModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:NotificationService.kt$package com.ivy.wallet.android.notification</ID>
-    <ID>InvalidPackageDeclaration:OnboardingComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:OverdueAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:PeriodSelector.kt$package com.ivy.wallet.ui.theme.wallet</ID>
-    <ID>InvalidPackageDeclaration:PlannedPaymentsGenerator.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:PlannedPaymentsLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:PreloadDataLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:ProgressBar.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:ProgressModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:RecurringRuleModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:ReorderModal.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:Reorderable.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:Res.kt$package com.ivy.frp.monad</ID>
-    <ID>InvalidPackageDeclaration:ResComposition.kt$package com.ivy.frp.monad</ID>
     <ID>InvalidPackageDeclaration:RoomTypeConverters.kt$package com.ivy.domain.db</ID>
-    <ID>InvalidPackageDeclaration:RowMapping.kt$package com.ivy.wallet.domain.deprecated.logic.csv.model</ID>
-    <ID>InvalidPackageDeclaration:SettingsAct.kt$package com.ivy.wallet.domain.action.settings</ID>
-    <ID>InvalidPackageDeclaration:ShouldHideBalanceAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:SmartTitleSuggestionsLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:SortOrder.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:StartDayOfMonthAct.kt$package com.ivy.wallet.domain.action.global</ID>
-    <ID>InvalidPackageDeclaration:TestIdlingResource.kt$package com.ivy.frp.test</ID>
-    <ID>InvalidPackageDeclaration:TestingContext.kt$package com.ivy.frp.test</ID>
-    <ID>InvalidPackageDeclaration:Title.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:Toolbar.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:TransactionHistoryDateDivider.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:TransactionReminderLogic.kt$package com.ivy.wallet.domain.deprecated.logic.notification</ID>
-    <ID>InvalidPackageDeclaration:TransactionReminderWorker.kt$package com.ivy.wallet.domain.deprecated.logic.notification</ID>
-    <ID>InvalidPackageDeclaration:TrnByIdAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:TrnFunctions.kt$package com.ivy.wallet.domain.pure.transaction</ID>
-    <ID>InvalidPackageDeclaration:TrnsWithDateDivsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:TrnsWithRangeAndAccFiltersAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
-    <ID>InvalidPackageDeclaration:UpcomingAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:UpdateAccCacheAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:UpdateCategoriesCacheAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:UpdateStartDayOfMonthAct.kt$package com.ivy.wallet.domain.action.global</ID>
-    <ID>InvalidPackageDeclaration:Utils.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:Utils.kt$package com.ivy.wallet.domain.pure.util</ID>
-    <ID>InvalidPackageDeclaration:ViewmodelUtils.kt$package com.ivy.frp.viewmodel</ID>
-    <ID>InvalidPackageDeclaration:WalletAccountLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:WalletCategoryLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:WalletValueFunctions.kt$package com.ivy.wallet.domain.pure.transaction</ID>
     <ID>InvalidPackageDeclaration:WidgetBase.kt$package com.ivy.widgets</ID>
-    <ID>InvalidPackageDeclaration:WrapContentRow.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>LargeClass:TransactionsViewModel.kt$TransactionsViewModel : ComposeViewModel</ID>
-    <ID>LongMethod:AccountModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") @Composable fun BoxWithConstraintsScope.AccountModal( modal: AccountModalData?, onCreateAccount: (CreateAccountData) -&gt; Unit, onEditAccount: (Account, balance: Double) -&gt; Unit, dismiss: () -&gt; Unit, )</ID>
+    <ID>LongMethod:AccountModal.kt$@Composable fun BoxWithConstraintsScope.AccountModal( modal: AccountModalData?, onCreateAccount: (CreateAccountData) -&gt; Unit, onEditAccount: (Account, balance: Double) -&gt; Unit, dismiss: () -&gt; Unit, )</ID>
     <ID>LongMethod:ChooseIconModal.kt$fun ivyIcons(): List&lt;Any&gt;</ID>
-    <ID>LongMethod:MainBottomBar.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") @Composable fun BoxWithConstraintsScope.BottomBar( tab: MainTab, selectTab: (MainTab) -&gt; Unit, onAddIncome: () -&gt; Unit, onAddExpense: () -&gt; Unit, onAddTransfer: () -&gt; Unit, onAddPlannedPayment: () -&gt; Unit, showAddAccountModal: () -&gt; Unit, )</ID>
+    <ID>LongMethod:MainBottomBar.kt$@Composable fun BoxWithConstraintsScope.BottomBar( tab: MainTab, selectTab: (MainTab) -&gt; Unit, onAddIncome: () -&gt; Unit, onAddExpense: () -&gt; Unit, onAddTransfer: () -&gt; Unit, onAddPlannedPayment: () -&gt; Unit, showAddAccountModal: () -&gt; Unit, )</ID>
     <ID>LongMethod:ReportScreen.kt$@ExperimentalFoundationApi @Composable private fun BoxWithConstraintsScope.UI( state: ReportScreenState = ReportScreenState(), onEventHandler: (ReportScreenEvent) -&gt; Unit = {} )</ID>
     <ID>LoopWithTooManyJumpStatements:PieChart.kt$PieChartView$for</ID>
     <ID>MagicNumber:AmountFormatting.kt$0.009</ID>
@@ -347,13 +109,6 @@
     <ID>MagicNumber:ChooseIconModal.kt$5</ID>
     <ID>MagicNumber:ChoosePeriodModal.kt$200</ID>
     <ID>MagicNumber:ChoosePeriodModal.kt$3</ID>
-    <ID>MagicNumber:Colors.kt$0.1f</ID>
-    <ID>MagicNumber:Colors.kt$0.4f</ID>
-    <ID>MagicNumber:Colors.kt$0.5</ID>
-    <ID>MagicNumber:Colors.kt$0.5f</ID>
-    <ID>MagicNumber:Colors.kt$0.6f</ID>
-    <ID>MagicNumber:Colors.kt$0.8f</ID>
-    <ID>MagicNumber:Colors.kt$3</ID>
     <ID>MagicNumber:CurrencyPicker.kt$20</ID>
     <ID>MagicNumber:DateExt.kt$23</ID>
     <ID>MagicNumber:DateExt.kt$59</ID>
@@ -383,21 +138,11 @@
     <ID>MagicNumber:ImportProcessing.kt$100</ID>
     <ID>MagicNumber:ImportResultUI.kt$100</ID>
     <ID>MagicNumber:ImportViewModel.kt$ImportViewModel$100</ID>
-    <ID>MagicNumber:InputField.kt$100</ID>
     <ID>MagicNumber:IntervalPickerRow.kt$180f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.1f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.4f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.5</ID>
-    <ID>MagicNumber:IvyColors.kt$0.5f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.6f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.8f</ID>
-    <ID>MagicNumber:IvyColors.kt$3</ID>
-    <ID>MagicNumber:IvyLineChart.kt$3</ID>
     <ID>MagicNumber:IvyModal.kt$0.01f</ID>
     <ID>MagicNumber:IvyModal.kt$1000f</ID>
     <ID>MagicNumber:IvyModal.kt$1100f</ID>
     <ID>MagicNumber:LoanDetailsScreen.kt$100</ID>
-    <ID>MagicNumber:LoanTransactionsCore.kt$LoanTransactionsCore$12</ID>
     <ID>MagicNumber:LoanViewModel.kt$LoanViewModel$100</ID>
     <ID>MagicNumber:MainBottomBar.kt$0.01f</ID>
     <ID>MagicNumber:MainBottomBar.kt$100f</ID>
@@ -483,8 +228,6 @@
     <ID>MagicNumber:PieChartStatisticScreen.kt$100</ID>
     <ID>MagicNumber:PieChartStatisticScreen.kt$40</ID>
     <ID>MagicNumber:PlannedPaymentCard.kt$5</ID>
-    <ID>MagicNumber:PlannedPaymentsLogic.kt$PlannedPaymentsLogic$12</ID>
-    <ID>MagicNumber:PlannedPaymentsLogic.kt$PlannedPaymentsLogic$7</ID>
     <ID>MagicNumber:PlannedPaymentsScreen.kt$5</ID>
     <ID>MagicNumber:RecurringRule.kt$5</ID>
     <ID>MagicNumber:RecurringRuleModal.kt$12</ID>
@@ -492,13 +235,8 @@
     <ID>MagicNumber:ReportScreen.kt$1000f</ID>
     <ID>MagicNumber:SortOrder.kt$SortOrder.ALPHABETICAL$3</ID>
     <ID>MagicNumber:TransactionCard.kt$5</ID>
-    <ID>MagicNumber:TransactionReminderLogic.kt$TransactionReminderLogic$20</ID>
-    <ID>MagicNumber:TransactionReminderLogic.kt$TransactionReminderLogic$24</ID>
     <ID>MagicNumber:Transactions.kt$5</ID>
     <ID>MagicNumber:TransactionsScreen.kt$0.7f</ID>
-    <ID>MagicNumber:TransactionsScreen.kt$10L</ID>
-    <ID>MagicNumber:UpdateStartDayOfMonthAct.kt$UpdateStartDayOfMonthAct$31</ID>
-    <ID>MagicNumber:WalletAccountLogic.kt$WalletAccountLogic$0.009</ID>
     <ID>MaxLineLength:FortuneCitySteps.kt$articleUrl = "https://fourdesire.helpshift.com/hc/en/5-fortune-city/faq/242-can-i-export-my-fortune-city-records/"</ID>
     <ID>MaxLineLength:IvyChecklistTextField.kt$"Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."</ID>
     <ID>MaxLineLength:IvyDescriptionTextField.kt$"Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."</ID>
@@ -514,24 +252,9 @@
     <ID>MaxLineLength:Migration118to119_Loans.kt$Migration118to119_Loans$"CREATE TABLE IF NOT EXISTS `$LOANS_TABLE` (`name` TEXT NOT NULL, `amount` REAL NOT NULL, `type` TEXT NOT NULL, `color` INTEGER NOT NULL, `icon` TEXT, `orderNum` REAL NOT NULL, `isSynced` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
     <ID>MaxLineLength:Migration118to119_Loans.kt$Migration118to119_Loans$"CREATE TABLE IF NOT EXISTS `$LOAN_RECORDS_TABLE` (`loanId` TEXT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `dateTime` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
     <ID>MaxLineLength:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime$"CREATE TABLE `${LOANS_TEMP_TABLE}` (`name` TEXT NOT NULL, `amount` REAL NOT NULL, `type` TEXT NOT NULL, `color` INTEGER NOT NULL, `icon` TEXT, `orderNum` REAL NOT NULL, `accountId` TEXT, `isSynced` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `dateTime` INTEGER, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
-    <ID>MaxLineLength:PieChartAct.kt$PieChartAct$if</ID>
-    <ID>MaxLineLength:PlannedPaymentRuleDao.kt$PlannedPaymentRuleDao$"SELECT * FROM planned_payment_rules WHERE isDeleted = 0 AND oneTime = :oneTime ORDER BY amount DESC, startDate ASC"</ID>
     <ID>MaxLineLength:PrimaryAttributeColumn.kt$"Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.\n"</ID>
     <ID>MaxLineLength:PrimaryAttributeColumn.kt$"See https://docs.gradle.org/7.0-rc-1/userguide/command_line_interface.html#sec:command_line_warnings"</ID>
     <ID>MaxLineLength:ReportViewModel.kt$ReportViewModel$return incomeExpenseTransferPair.income + incomeExpenseTransferPair.transferIncome - incomeExpenseTransferPair.expense - incomeExpenseTransferPair.transferExpense</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) AND type = :type AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId IS NULL) AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId IS NULL) AND type = :type AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND accountId = :accountId AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate AND (categoryId = :categoryId) ORDER BY dateTime DESC, dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate AND (categoryId IS NULL) ORDER BY dateTime DESC, dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate AND accountId = :accountId ORDER BY dateTime DESC, dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate ORDER BY dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND toAccountId = :toAccountId AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and accountId = :accountId ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and toAccountId = :toAccountId ORDER BY dateTime DESC"</ID>
     <ID>MaxLineLength:TransactionReminderWorker.kt$TransactionReminderWorker$// Double check is needed because the user can switch off notifications in settings after it has been scheduled to show notifications for the next day</ID>
     <ID>MaxLineLength:WalletByBudgetBakersSteps.kt$articleUrl = "https://support.budgetbakers.com/hc/en-us/articles/209753325-How-to-EXPORT-transactions-from-Wallet"</ID>
     <ID>MaximumLineLength:FortuneCitySteps.kt$ </ID>
@@ -547,12 +270,14 @@
     <ID>MaximumLineLength:Migration117to118_Budgets.kt$Migration117to118_Budgets$ </ID>
     <ID>MaximumLineLength:Migration118to119_Loans.kt$Migration118to119_Loans$ </ID>
     <ID>MaximumLineLength:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime$ </ID>
-    <ID>MaximumLineLength:PieChartAct.kt$PieChartAct$ </ID>
-    <ID>MaximumLineLength:PlannedPaymentRuleDao.kt$PlannedPaymentRuleDao$ </ID>
     <ID>MaximumLineLength:PrimaryAttributeColumn.kt$ </ID>
     <ID>MaximumLineLength:ReportViewModel.kt$ReportViewModel$ </ID>
-    <ID>MaximumLineLength:TransactionDao.kt$TransactionDao$ </ID>
     <ID>MaximumLineLength:WalletByBudgetBakersSteps.kt$ </ID>
+    <ID>ModifierClickableOrder:ChooseCategoryModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
+    <ID>ModifierClickableOrder:IvyOutlinedButton.kt$clickable( onClick = onClick, )</ID>
+    <ID>ModifierClickableOrder:LoanDetailsScreen.kt$clickable { onClick() }</ID>
+    <ID>ModifierClickableOrder:RateItem.kt$clickable(onClick = onClick)</ID>
+    <ID>ModifierClickableOrder:ShowTagModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
     <ID>ModifierMissing:AccountModal.kt$AccountModal</ID>
     <ID>ModifierMissing:AddKeywordModal.kt$AddKeywordModal</ID>
     <ID>ModifierMissing:AddPrimaryAttributeButton.kt$AddPrimaryAttributeButton</ID>
@@ -584,9 +309,6 @@
     <ID>ModifierMissing:DeleteModal.kt$DeleteConfirmationModal</ID>
     <ID>ModifierMissing:DeleteModal.kt$DeleteModal</ID>
     <ID>ModifierMissing:DescriptionModal.kt$DescriptionModal</ID>
-    <ID>ModifierMissing:Dividers.kt$DividerH</ID>
-    <ID>ModifierMissing:Dividers.kt$DividerV</ID>
-    <ID>ModifierMissing:Dividers.kt$DividerW</ID>
     <ID>ModifierMissing:FilterOverlay.kt$FilterOverlay</ID>
     <ID>ModifierMissing:FinancistoSteps.kt$FinancistoSteps</ID>
     <ID>ModifierMissing:GradientCut.kt$GradientCutBottom</ID>
@@ -602,9 +324,7 @@
     <ID>ModifierMissing:IntervalPickerRow.kt$IntervalPickerRow</ID>
     <ID>ModifierMissing:ItemStatisticToolbar.kt$ItemStatisticToolbar</ID>
     <ID>ModifierMissing:IvyColorPicker.kt$IvyColorPicker</ID>
-    <ID>ModifierMissing:IvyComposeApp.kt$IvyWalletComponentPreview</ID>
     <ID>ModifierMissing:IvyDividerDot.kt$IvyDividerDot</ID>
-    <ID>ModifierMissing:IvyModal.kt$IvyModal</ID>
     <ID>ModifierMissing:IvyModal.kt$ModalActionsRow</ID>
     <ID>ModifierMissing:IvyModal.kt$ModalPreviewActionRowSpacer</ID>
     <ID>ModifierMissing:IvyModalComponents.kt$ModalAdd</ID>
@@ -612,7 +332,6 @@
     <ID>ModifierMissing:IvyModalComponents.kt$ModalDynamicPrimaryAction</ID>
     <ID>ModifierMissing:IvyModalComponents.kt$ModalTitle</ID>
     <ID>ModifierMissing:IvyToolbar.kt$IvyToolbar</ID>
-    <ID>ModifierMissing:IvyUI.kt$IvyUI</ID>
     <ID>ModifierMissing:IvyWalletSteps.kt$IvyWalletSteps</ID>
     <ID>ModifierMissing:ListItem.kt$ListItem</ID>
     <ID>ModifierMissing:LoanModal.kt$LoanModal</ID>
@@ -637,12 +356,7 @@
     <ID>ModifierMissing:RecurringRuleModal.kt$RecurringRuleModal</ID>
     <ID>ModifierMissing:ReorderModal.kt$ReorderModal</ID>
     <ID>ModifierMissing:ReorderModal.kt$ReorderModalSingleType</ID>
-    <ID>ModifierMissing:ScreenTitle.kt$ScreenTitle</ID>
-    <ID>ModifierMissing:ScreenTitle.kt$ScreenTitleLarge</ID>
     <ID>ModifierMissing:SearchInput.kt$SearchInput</ID>
-    <ID>ModifierMissing:Spacers.kt$SpacerHor</ID>
-    <ID>ModifierMissing:Spacers.kt$SpacerVer</ID>
-    <ID>ModifierMissing:Spacers.kt$SpacerWeight</ID>
     <ID>ModifierMissing:SpendeeSteps.kt$SpendeeSteps</ID>
     <ID>ModifierMissing:Suggestions.kt$Suggestions</ID>
     <ID>ModifierMissing:Title.kt$Title</ID>
@@ -655,10 +369,9 @@
     <ID>ModifierMissing:WalletBalanceWidgetContent.kt$WidgetClickableItem</ID>
     <ID>ModifierNotUsedAtRoot:ItemIcon.kt$modifier = modifier</ID>
     <ID>ModifierNotUsedAtRoot:IvyNameTextFieldValue.kt$modifier = modifier</ID>
-    <ID>ModifierReused:ItemIcon.kt$Image( modifier = modifier, painter = painterResource(id = defaultIcon), colorFilter = ColorFilter.tint(tint), contentDescription = "item icon" )</ID>
-    <ID>ModifierReused:ItemIcon.kt$ItemIconM( modifier = modifier, iconName = iconName, tint = tint, Default = { Image( modifier = modifier, painter = painterResource(id = defaultIcon), colorFilter = ColorFilter.tint(tint), contentDescription = "item icon" ) } )</ID>
-    <ID>ModifierReused:ItemIcon.kt$ItemIconS( modifier = modifier, iconName = iconName, tint = tint, Default = { Image( modifier = modifier, painter = painterResource(id = defaultIcon), colorFilter = ColorFilter.tint(tint), contentDescription = "item icon" ) } )</ID>
-    <ID>ModifierWithoutDefault:IvyLineChart.kt$modifier</ID>
+    <ID>ModifierReused:ItemIcon.kt$Icon( modifier = modifier, painter = painterResource(id = defaultIcon), contentDescription = "item icon", tint = tint )</ID>
+    <ID>ModifierReused:ItemIcon.kt$ItemIconM( modifier = modifier, iconName = iconName, tint = tint, Default = { Icon( modifier = modifier, painter = painterResource(id = defaultIcon), contentDescription = "item icon", tint = tint ) } )</ID>
+    <ID>ModifierReused:ItemIcon.kt$ItemIconS( modifier = modifier, iconName = iconName, tint = tint, Default = { Icon( modifier = modifier, painter = painterResource(id = defaultIcon), contentDescription = "item icon", tint = tint ) } )</ID>
     <ID>MultipleEmitters:AmountCurrency.kt$AmountCurrencyB1</ID>
     <ID>MultipleEmitters:AmountModal.kt$AmountKeyboard</ID>
     <ID>MultipleEmitters:BudgetModal.kt$CategoriesRow</ID>
@@ -706,69 +419,12 @@
     <ID>MultipleEmitters:TransactionSectionDivider.kt$SectionDivider</ID>
     <ID>NestedBlockDepth:ZipUtils.kt$fun unzip(fileInputStream: FileInputStream, location: File)</ID>
     <ID>NoWildcardImports:BufferModal.kt$import androidx.compose.runtime.*</ID>
-    <ID>NoWildcardImports:ComposeExt.kt$import androidx.compose.runtime.*</ID>
-    <ID>NoWildcardImports:Dividers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:InputField.kt$import com.ivy.design.l0_system.*</ID>
-    <ID>NoWildcardImports:InputField.kt$import com.ivy.design.utils.*</ID>
     <ID>NoWildcardImports:IvyRoomDatabase.kt$import androidx.room.*</ID>
-    <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:IvyWalletDesign.kt$import com.ivy.design.l0_system.*</ID>
     <ID>NoWildcardImports:Keyboard.kt$import androidx.compose.runtime.*</ID>
-    <ID>NoWildcardImports:ProgressBar.kt$import com.ivy.wallet.ui.theme.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
-    <ID>NoWildcardImports:Spacers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:Switch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:Switch.kt$import androidx.compose.runtime.*</ID>
-    <ID>ObjectPropertyNaming:SharedPrefs.kt$SharedPrefs.Companion$// -------------------------------- Customer Journey ---------------------------------------- const val _CARD_DISMISSED = "_cj_dismissed"</ID>
-    <ID>PackageName:Background.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageName:Button.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:ButtonWithIcon.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:Checkbox.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:Colors.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageName:ColumnRoot.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:Dividers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:IconButton.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:InputField.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:IvyColors.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageName:IvyIcon.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:IvyPadding.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageName:IvyShapes.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageName:IvyText.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:IvyTheme.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageName:IvyTypography.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageName:ScreenTitle.kt$package com.ivy.design.l3_ivyComponents</ID>
-    <ID>PackageName:Shapes.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:Spacers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:Switch.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:TypographyExt.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:Background.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageNaming:Button.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:ButtonWithIcon.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:Checkbox.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:Colors.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:ColumnRoot.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:Dividers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:IconButton.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:InputField.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:IvyColors.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:IvyIcon.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:IvyPadding.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageNaming:IvyShapes.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:IvyText.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:IvyTheme.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:IvyTypography.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:ScreenTitle.kt$package com.ivy.design.l3_ivyComponents</ID>
-    <ID>PackageNaming:Shapes.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:Spacers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:Switch.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:TypographyExt.kt$package com.ivy.design.l0_system</ID>
-    <ID>PrintStackTrace:Budget.kt$Budget$e</ID>
-    <ID>PrintStackTrace:BudgetCreator.kt$BudgetCreator$e</ID>
-    <ID>PrintStackTrace:BudgetExt.kt$e</ID>
     <ID>PrintStackTrace:CSVImporter.kt$CSVImporter$e</ID>
     <ID>PrintStackTrace:CSVViewModel.kt$CSVViewModel$e</ID>
     <ID>PrintStackTrace:CategoryCreator.kt$CategoryCreator$e</ID>
@@ -776,33 +432,25 @@
     <ID>PrintStackTrace:FileUtil.kt$e</ID>
     <ID>PrintStackTrace:IvyCurrency.kt$IvyCurrency.Companion$e</ID>
     <ID>PrintStackTrace:Keyboard.kt$e</ID>
-    <ID>PrintStackTrace:LoanCreator.kt$LoanCreator$e</ID>
-    <ID>PrintStackTrace:LoanRecordCreator.kt$LoanRecordCreator$e</ID>
     <ID>PrintStackTrace:NotificationService.kt$NotificationService$e</ID>
-    <ID>PrintStackTrace:UIExt.kt$e</ID>
     <ID>ReturnCount:CSVImporter.kt$CSVImporter$private fun mapDate( rowMapping: RowMapping, dateString: String? ): LocalDateTime?</ID>
     <ID>ReturnCount:CSVImporter.kt$CSVImporter$private fun mapType( row: List&lt;String&gt;, rowMapping: RowMapping ): TransactionType?</ID>
     <ID>ReturnCount:CSVImporter.kt$CSVImporter$private suspend fun mapCategory( categoryNameString: String?, color: Int?, icon: String?, orderNum: Double? ): Category?</ID>
-    <ID>ReturnCount:CSVImporter.kt$CSVImporter$private suspend fun mapToTransaction( baseCurrency: String, row: List&lt;String&gt;, rowMapping: RowMapping ): Transaction?</ID>
+    <ID>ReturnCount:CSVImporter.kt$CSVImporter$private suspend fun mapToTransaction( baseCurrency: String, row: List&lt;String&gt;, rowMapping: RowMapping ): TransactionEntity?</ID>
     <ID>ReturnCount:CSVImporterV2.kt$CSVImporterV2$private suspend fun mapAccount( baseCurrency: String, accountNameString: String?, color: Int?, icon: String?, orderNum: Double?, currencyRawString: String?, ): Account?</ID>
     <ID>ReturnCount:CSVImporterV2.kt$CSVImporterV2$private suspend fun mapCategory( categoryNameString: String?, color: Int?, icon: String?, orderNum: Double? ): Category?</ID>
-    <ID>ReturnCount:CSVImporterV2.kt$CSVImporterV2$private suspend fun mapToTransaction( baseCurrency: String, row: CSVRowNew, importantFields: ImportantFields, transferFields: TransferFields, optionalFields: OptionalFields, ): Transaction?</ID>
+    <ID>ReturnCount:CSVImporterV2.kt$CSVImporterV2$private suspend fun mapToTransaction( baseCurrency: String, row: CSVRowNew, importantFields: ImportantFields, transferFields: TransferFields, optionalFields: OptionalFields, ): TransactionEntity?</ID>
     <ID>ReturnCount:CSVViewModel.kt$CSVViewModel$private fun processFile( uri: Uri, normalizeCSV: Boolean = false, charset: Charset = Charsets.UTF_8 ): List&lt;CSVRow&gt;?</ID>
-    <ID>ReturnCount:EditPlannedViewModel.kt$EditPlannedViewModel$private fun validate(): Boolean</ID>
     <ID>ReturnCount:EditTransactionViewModel.kt$EditTransactionViewModel$private suspend fun defaultAccountId( screen: EditTransactionScreen, accounts: List&lt;Account&gt;, ): UUID</ID>
-    <ID>ReturnCount:EditTransactionViewModel.kt$EditTransactionViewModel$private suspend fun getDisplayLoanHelper(trans: Transaction): EditTransactionDisplayLoan</ID>
-    <ID>ReturnCount:ExchangeRatesLogic.kt$ExchangeRatesLogic$private suspend fun exchangeRate( baseCurrency: String, currency: String ): Double</ID>
+    <ID>ReturnCount:EditTransactionViewModel.kt$EditTransactionViewModel$private suspend fun getDisplayLoanHelper(trans: TransactionDraft): EditTransactionDisplayLoan</ID>
     <ID>ReturnCount:IvyCurrency.kt$IvyCurrency.Companion$fun fromCode(code: String): IvyCurrency?</ID>
-    <ID>ReturnCount:LoanCreator.kt$LoanCreator$suspend fun create( data: CreateLoanData, onRefreshUI: suspend (Loan) -&gt; Unit ): UUID?</ID>
-    <ID>ReturnCount:LoanRecordCreator.kt$LoanRecordCreator$suspend fun create( loanId: UUID, data: CreateLoanRecordData, onRefreshUI: suspend (LoanRecord) -&gt; Unit ): UUID?</ID>
-    <ID>ReturnCount:PlannedPaymentsLogic.kt$PlannedPaymentsLogic$private suspend fun amountForMonthInBaseCurrency( plannedPayment: PlannedPaymentRule, baseCurrency: String, accounts: List&lt;Account&gt; ): Double</ID>
     <ID>ReturnCount:ReportFilter.kt$ReportFilter$fun validate(): Boolean</ID>
     <ID>TopLevelPropertyNaming:AmountFormatting.kt$const val N_100K = 100000</ID>
-    <ID>TopLevelPropertyNaming:ChooseIconModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") private const val ICON_PICKER_ICONS_PER_ROW = 5</ID>
-    <ID>TopLevelPropertyNaming:EditBottomSheet.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") const val SWIPE_UP_EXPANDED_THRESHOLD = 200</ID>
+    <ID>TopLevelPropertyNaming:ChooseIconModal.kt$private const val ICON_PICKER_ICONS_PER_ROW = 5</ID>
+    <ID>TopLevelPropertyNaming:EditBottomSheet.kt$const val SWIPE_UP_EXPANDED_THRESHOLD = 200</ID>
     <ID>TopLevelPropertyNaming:HomeMoreMenu.kt$private const val SWIPE_UP_THRESHOLD_CLOSE_MORE_MENU = 300</ID>
-    <ID>TopLevelPropertyNaming:IvyModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") const val DURATION_MODAL_ANIM = 200</ID>
-    <ID>TopLevelPropertyNaming:IvyModal.kt$@Deprecated("Old design system. Use `:ivy-design` and Material3") private const val DURATION_BACKGROUND_BLUR_ANIM = 400</ID>
+    <ID>TopLevelPropertyNaming:IvyModal.kt$const val DURATION_MODAL_ANIM = 200</ID>
+    <ID>TopLevelPropertyNaming:IvyModal.kt$private const val DURATION_BACKGROUND_BLUR_ANIM = 400</ID>
     <ID>TopLevelPropertyNaming:ParseStatus.kt$const val SAMPLE_SIZE = 20</ID>
     <ID>TopLevelPropertyNaming:PieChart.kt$const val PIE_CHART_RADIUS_DP = 128</ID>
     <ID>TopLevelPropertyNaming:PieChart.kt$const val RADIUS_DP = 112f</ID>
@@ -810,15 +458,12 @@
     <ID>TopLevelPropertyNaming:ZipUtils.kt$private const val MODE_READ = "r"</ID>
     <ID>TopLevelPropertyNaming:ZipUtils.kt$private const val MODE_WRITE = "w"</ID>
     <ID>UnstableCollections:BudgetModal.kt$List&lt;Category&gt;</ID>
-    <ID>UnstableCollections:BudgetModal.kt$List&lt;UUID&gt;</ID>
     <ID>UnstableCollections:CSVViewModel.kt$CSVViewModel$List&lt;CSVRow&gt;?</ID>
     <ID>UnstableCollections:ChooseCategoryModal.kt$List&lt;Category&gt;</ID>
     <ID>UnstableCollections:EditBottomSheet.kt$List&lt;Account&gt;</ID>
     <ID>UnstableCollections:FilterOverlay.kt$List&lt;Account&gt;</ID>
     <ID>UnstableCollections:FilterOverlay.kt$List&lt;Category&gt;</ID>
     <ID>UnstableCollections:IncomeExpenseCards.kt$List&lt;TransactionHistoryItem&gt;</ID>
-    <ID>UnstableCollections:IvyLineChart.kt$List&lt;Function&gt;</ID>
-    <ID>UnstableCollections:IvyLineChart.kt$List&lt;Value&gt;</ID>
     <ID>UnstableCollections:LoanModal.kt$List&lt;Account&gt;</ID>
     <ID>UnstableCollections:LoanRecordModal.kt$List&lt;Account&gt;</ID>
     <ID>UnstableCollections:OnboardingAccounts.kt$List&lt;AccountBalance&gt;</ID>
@@ -831,53 +476,30 @@
     <ID>UnstableCollections:Title.kt$Set&lt;String&gt;</ID>
     <ID>UnstableCollections:TransactionCard.kt$List&lt;Account&gt;</ID>
     <ID>UnstableCollections:TransactionCard.kt$List&lt;Category&gt;</ID>
-    <ID>UnstableCollections:Utils.kt$List&lt;Account&gt;</ID>
-    <ID>UnstableCollections:Utils.kt$List&lt;Category&gt;</ID>
     <ID>UnstableCollections:WrapContentRow.kt$List&lt;T&gt;</ID>
     <ID>UnusedParameter:BalanceScreen.kt$screen: BalanceScreen</ID>
     <ID>UnusedParameter:BudgetScreen.kt$screen: BudgetScreen</ID>
     <ID>UnusedParameter:CategoriesScreen.kt$onLongClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:CategoriesScreen.kt$screen: CategoriesScreen</ID>
-    <ID>UnusedParameter:Composition2.kt$crossinline f: () -&gt; Unit</ID>
     <ID>UnusedParameter:HomeMoreMenu.kt$onCurrencyClick: () -&gt; Unit</ID>
-    <ID>UnusedParameter:HomeViewModel.kt$HomeViewModel$unit: Unit</ID>
-    <ID>UnusedParameter:IvyBasicTextField.kt$textColor: Color = UI.colors.pureInverse</ID>
-    <ID>UnusedParameter:IvyLineChart.kt$cellSize: Float</ID>
-    <ID>UnusedParameter:IvyLineChart.kt$chartWidth: Float</ID>
-    <ID>UnusedParameter:IvyLineChart.kt$offsetRight: Float</ID>
+    <ID>UnusedParameter:IvyBasicTextField.kt$textColor: Color = MaterialTheme.colorScheme.onSurface</ID>
     <ID>UnusedParameter:LoansScreen.kt$screen: LoansScreen</ID>
     <ID>UnusedParameter:MainScreen.kt$screen: MainScreen</ID>
     <ID>UnusedParameter:ParseFields.kt$metadata: Unit</ID>
     <ID>UnusedParameter:PlannedPaymentsLazyColumn.kt$listState: LazyListState</ID>
-    <ID>UnusedParameter:PlannedPaymentsLogic.kt$PlannedPaymentsLogic$syncTransaction: Boolean = true</ID>
     <ID>UnusedParameter:PlannedPaymentsScreen.kt$screen: PlannedPaymentsScreen</ID>
     <ID>UnusedParameter:ReportScreen.kt$screen: ReportScreen</ID>
     <ID>UnusedParameter:SearchScreen.kt$screen: SearchScreen</ID>
-    <ID>UnusedParameter:Shapes.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:Title.kt$initialTransactionId: UUID?</ID>
     <ID>UnusedPrivateMember:Migration109to110_PlannedPayments.kt$Migration109to110_PlannedPayments$private fun SupportSQLiteDatabase.addSyncColumns(tableName: String)</ID>
-    <ID>UseCheckOrError:IvyContext.kt$IvyContext$throw IllegalStateException("screenHeight not initialized")</ID>
-    <ID>UseCheckOrError:IvyContext.kt$IvyContext$throw IllegalStateException("screenWidth not initialized")</ID>
-    <ID>UseCheckOrError:SharedPrefs.kt$SharedPrefs$throw IllegalStateException("SharePrefs key '$key' cannot be null")</ID>
     <ID>UseCheckOrError:ZipUtils.kt$throw IllegalStateException("Location file must be directory or not exist")</ID>
     <ID>UtilityClassWithPublicConstructor:WidgetBase.kt$WidgetBase</ID>
     <ID>WildcardImport:BufferModal.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ComposeExt.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:Dividers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:InputField.kt$import com.ivy.design.l0_system.*</ID>
-    <ID>WildcardImport:InputField.kt$import com.ivy.design.utils.*</ID>
     <ID>WildcardImport:IvyRoomDatabase.kt$import androidx.room.*</ID>
-    <ID>WildcardImport:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:IvySwitch.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:IvyWalletDesign.kt$import com.ivy.design.l0_system.*</ID>
     <ID>WildcardImport:Keyboard.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ProgressBar.kt$import com.ivy.wallet.ui.theme.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
-    <ID>WildcardImport:Spacers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:Switch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:Switch.kt$import androidx.compose.runtime.*</ID>
   </CurrentIssues>
 </SmellBaseline>

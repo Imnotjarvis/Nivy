@@ -12,24 +12,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.Purple
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Purple
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.WrapContentRow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun Suggestions(
@@ -77,8 +75,8 @@ private fun Suggestion(
 ) {
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
-            .background(UI.colors.medium, UI.shapes.rFull)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .clickable {
                 onClick()
             },
@@ -93,7 +91,8 @@ private fun Suggestion(
         Text(
             modifier = Modifier.padding(vertical = 16.dp),
             text = name,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -108,9 +107,9 @@ private fun AddNewButton(
 ) {
     Row(
         modifier = Modifier
-            .drawColoredShadow(color = UI.colors.mediumInverse)
-            .clip(UI.shapes.rFull)
-            .background(UI.colors.mediumInverse, UI.shapes.rFull)
+            .drawColoredShadow(color = MaterialTheme.colorScheme.inverseSurface)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.inverseSurface, CircleShape)
             .clickable {
                 onClick()
             },
@@ -120,7 +119,7 @@ private fun AddNewButton(
 
         IvyIcon(
             icon = R.drawable.ic_plus,
-            tint = UI.colors.pure,
+            tint = MaterialTheme.colorScheme.surface,
         )
 
         Spacer(Modifier.width(8.dp))
@@ -128,8 +127,8 @@ private fun AddNewButton(
         Text(
             modifier = Modifier.padding(vertical = 16.dp),
             text = stringResource(R.string.add_new),
-            style = UI.typo.b2.style(
-                color = UI.colors.pure,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.surface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -146,9 +145,9 @@ private fun Preview() {
     IvyWalletComponentPreview {
         Suggestions(
             suggestions = listOf(
-                Account("Cash", Green.toArgb()),
-                Account("Bank", Red.toArgb()),
-                Account("Revolut", Purple.toArgb())
+                CreateAccountData(name = "Cash", currency = "USD", color = Green, icon = null, balance = 0.0),
+                CreateAccountData(name = "Bank", currency = "USD", color = Red, icon = null, balance = 0.0),
+                CreateAccountData(name = "Revolut", currency = "USD", color = Purple, icon = null, balance = 0.0)
             ),
             onAddSuggestion = { }
         ) {

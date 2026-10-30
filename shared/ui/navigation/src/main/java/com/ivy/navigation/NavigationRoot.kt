@@ -1,15 +1,16 @@
 package com.ivy.navigation
 
-import android.annotation.SuppressLint
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 
-@SuppressLint("ComposeCompositionLocalUsage")
 private val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
 
 @Composable
@@ -34,6 +35,7 @@ fun NavigationRoot(
 }
 
 @Composable
+@ReadOnlyComposable
 fun navigation(): Navigation {
     return LocalNavigation.current
 }
@@ -54,4 +56,14 @@ inline fun <reified T : ViewModel> screenScopedViewModel(
         ViewModelProvider(viewModelStoreOwner, it)
     } ?: ViewModelProvider(viewModelStoreOwner)
     return viewModelProvider[T::class.java]
+}
+
+/**
+ * Goes back as the system back button does: open dialogs and the current screen's BackHandlers
+ * get it first, then the back stack. For in-app back buttons.
+ */
+@Composable
+fun rememberOnBack(): () -> Unit {
+    val dispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    return remember(dispatcher) { { dispatcher?.onBackPressed() } }
 }

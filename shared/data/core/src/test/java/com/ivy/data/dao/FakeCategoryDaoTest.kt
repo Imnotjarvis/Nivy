@@ -18,85 +18,31 @@ class FakeCategoryDaoTest {
     }
 
     @Test
-    fun `find all - not deleted`() = runTest {
+    fun `find all`() = runTest {
         // given
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
         val categories = listOf(
             CategoryEntity(
                 name = "Home",
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
-                id = id1
+                id = UUID.randomUUID()
             ),
             CategoryEntity(
                 name = "Fun",
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isDeleted = true,
-                id = id2
+                id = UUID.randomUUID()
             )
         )
 
         // when
         dao.saveMany(categories)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
-        res shouldBe listOf(
-            CategoryEntity(
-                name = "Home",
-                color = 42,
-                icon = null,
-                orderNum = 1.0,
-                isDeleted = false,
-                id = id1
-            )
-        )
-    }
-
-    @Test
-    fun deleted() = runTest {
-        // given
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
-        val categories = listOf(
-            CategoryEntity(
-                name = "Home",
-                color = 42,
-                icon = null,
-                orderNum = 1.0,
-                isDeleted = false,
-                id = id1
-            ),
-            CategoryEntity(
-                name = "Fun",
-                color = 42,
-                icon = null,
-                orderNum = 2.0,
-                isDeleted = true,
-                id = id2
-            )
-        )
-
-        // when
-        dao.saveMany(categories)
-        val res = dao.findAll(true)
-
-        // then
-        res shouldBe listOf(
-            CategoryEntity(
-                name = "Fun",
-                color = 42,
-                icon = null,
-                orderNum = 2.0,
-                isDeleted = true,
-                id = id2
-            )
-        )
+        res shouldBe categories
     }
 
     @Test
@@ -106,7 +52,7 @@ class FakeCategoryDaoTest {
 
         // when
         dao.saveMany(categories)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
         res shouldBe emptyList()
@@ -122,7 +68,6 @@ class FakeCategoryDaoTest {
             color = 42,
             icon = null,
             orderNum = 2.0,
-            isDeleted = true,
             id = id2
         )
         val categories = listOf(
@@ -131,7 +76,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             ),
             category2
@@ -156,7 +100,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             ),
             CategoryEntity(
@@ -164,7 +107,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isDeleted = true,
                 id = id2
             )
         )
@@ -188,7 +130,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             ),
             CategoryEntity(
@@ -196,7 +137,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isDeleted = true,
                 id = id2
             )
         )
@@ -231,7 +171,6 @@ class FakeCategoryDaoTest {
             color = 42,
             icon = null,
             orderNum = 1.0,
-            isDeleted = false,
             id = id
         )
 
@@ -252,7 +191,6 @@ class FakeCategoryDaoTest {
             color = 42,
             icon = null,
             orderNum = 1.0,
-            isDeleted = false,
             id = id
         )
         val updated = category.copy(name = "My Home")
@@ -260,7 +198,7 @@ class FakeCategoryDaoTest {
         // when
         dao.save(category)
         dao.save(updated)
-        val res = dao.findAll(deleted = false)
+        val res = dao.findAll()
 
         // then
         res shouldBe listOf(updated)
@@ -277,7 +215,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             ),
             CategoryEntity(
@@ -285,14 +222,13 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isDeleted = false,
                 id = id2
             )
         )
 
         // when
         dao.saveMany(categories)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
         res shouldBe categories
@@ -309,7 +245,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             ),
             CategoryEntity(
@@ -317,7 +252,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isDeleted = false,
                 id = id2
             )
         )
@@ -325,7 +259,7 @@ class FakeCategoryDaoTest {
         // when
         dao.saveMany(categories)
         dao.deleteById(id2)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
         res shouldBe listOf(
@@ -334,7 +268,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             )
         )
@@ -351,7 +284,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isDeleted = false,
                 id = id1
             ),
             CategoryEntity(
@@ -359,7 +291,6 @@ class FakeCategoryDaoTest {
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isDeleted = true,
                 id = id2
             )
         )
@@ -367,11 +298,9 @@ class FakeCategoryDaoTest {
         // when
         dao.saveMany(categories)
         dao.deleteAll()
-        val notDeleted = dao.findAll(false)
-        val deleted = dao.findAll(true)
+        val res = dao.findAll()
 
         // then
-        notDeleted shouldBe emptyList()
-        deleted shouldBe emptyList()
+        res shouldBe emptyList()
     }
 }

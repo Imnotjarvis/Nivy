@@ -2,15 +2,17 @@ package com.ivy.importdata.csv.domain
 
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
-import com.ivy.data.db.dao.read.SettingsDao
+import com.ivy.data.db.entity.TransactionEntity
+import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
@@ -19,18 +21,15 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
-import com.ivy.design.IVY_COLOR_PICKER_COLORS_FREE
+import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.importdata.csv.ImportantFields
 import com.ivy.importdata.csv.OptionalFields
 import com.ivy.importdata.csv.TransferFields
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
-import com.ivy.legacy.datamodel.toEntity
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.pure.util.nextOrderNum
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.IvyDark
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.IvyDark
 import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import javax.inject.Inject
@@ -38,7 +37,6 @@ import kotlin.math.absoluteValue
 import com.ivy.importdata.csv.CSVRow as CSVRowNew
 
 class CSVImporterV2 @Inject constructor(
-    private val settingsDao: SettingsDao,
     private val transactionRepository: TransactionRepository,
     private val transactionMapper: TransactionMapper,
     private val accountDao: AccountDao,
@@ -67,13 +65,13 @@ class CSVImporterV2 @Inject constructor(
         newCategoryColorIndex = 0
         newAccountColorIndex = 0
 
-        accounts = accountDao.findAll().map { it.toLegacyDomain() }
+        accounts = accountRepository.findAll()
         val initialAccountsCount = accounts.size
 
         categories = categoryRepository.findAll()
         val initialCategoriesCount = categories.size
 
-        val baseCurrency = settingsDao.findFirst().currency
+        val baseCurrency = currencyRepository.getBaseCurrency().code
 
         val failedRows = mutableListOf<CSVRow>()
 
@@ -112,7 +110,7 @@ class CSVImporterV2 @Inject constructor(
             }
             onProgress(0.5 + progressPercent / 2)
             with(transactionMapper) {
-                transaction.toEntity().toDomain().getOrNull()?.let {
+                transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)
                 }
             }
@@ -133,7 +131,7 @@ class CSVImporterV2 @Inject constructor(
         importantFields: ImportantFields,
         transferFields: TransferFields,
         optionalFields: OptionalFields,
-    ): Transaction? {
+    ): TransactionEntity? {
         val type = parseTransactionType(
             value = row.extractValue(importantFields.type),
             metadata = importantFields.type.metadata,
@@ -226,13 +224,13 @@ class CSVImporterV2 @Inject constructor(
             optionalFields.description.metadata
         )
 
-        return Transaction(
+        return TransactionEntity(
             id = UUID.randomUUID(),
             type = type,
-            amount = amount.toBigDecimal(),
-            accountId = account.id,
-            toAccountId = toAccount?.id,
-            toAmount = toAmount?.toBigDecimal() ?: amount.toBigDecimal(),
+            amount = amount,
+            accountId = account.id.value,
+            toAccountId = toAccount?.id?.value,
+            toAmount = toAmount ?: amount,
             dateTime = with(timeConverter) { dateTime.toUTC() },
             dueDate = null,
             categoryId = category?.id?.value,
@@ -252,7 +250,7 @@ class CSVImporterV2 @Inject constructor(
         if (accountNameString == null || accountNameString.isBlank()) return null
 
         val existingAccount = accounts.firstOrNull {
-            accountNameString.toLowerCaseLocal() == it.name.toLowerCaseLocal()
+            accountNameString.trim().toLowerCaseLocal() == it.name.value.toLowerCaseLocal()
         }
         if (existingAccount != null) {
             return existingAccount
@@ -274,20 +272,21 @@ class CSVImporterV2 @Inject constructor(
             }
         }.toArgb()
 
-        val newAccount = Account(
-            name = accountNameString,
-            currency = mapCurrency(
-                baseCurrency = baseCurrency,
-                currencyCode = currencyRawString
-            ),
-            color = colorArgb,
-            icon = icon,
-            orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum()
-        )
-        val domainAccount = newAccount.toDomainAccount(currencyRepository).getOrNull()
-            ?: return null
-        accountRepository.save(domainAccount)
-        accounts = accountDao.findAll().map { it.toLegacyDomain() }
+        val newAccount = either {
+            Account(
+                id = AccountId(UUID.randomUUID()),
+                name = NotBlankTrimmedString.from(accountNameString).bind(),
+                asset = AssetCode.from(
+                    mapCurrency(baseCurrency = baseCurrency, currencyCode = currencyRawString)
+                ).bind(),
+                color = ColorInt(colorArgb),
+                icon = icon?.let(IconAsset::from)?.getOrNull(),
+                includeInBalance = true,
+                orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum(),
+            )
+        }.getOrNull() ?: return null
+        accountRepository.save(newAccount)
+        accounts = accountRepository.findAll()
 
         return newAccount
     }

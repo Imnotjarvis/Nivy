@@ -33,20 +33,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.addKeyboardListener
-import com.ivy.legacy.utils.densityScope
+import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.densityScope
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.onScreenStart
+import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.legacy.utils.springBounceSlow
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyOutlinedTextField
 import com.ivy.wallet.ui.theme.components.OnboardingButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun OnboardingSetName(
@@ -55,7 +54,7 @@ fun OnboardingSetName(
     val rootView = LocalView.current
     var keyboardShown by remember { mutableStateOf(false) }
 
-    onScreenStart {
+    LaunchedEffect(Unit) {
         rootView.addKeyboardListener {
             keyboardShown = it
         }
@@ -93,7 +92,8 @@ fun OnboardingSetName(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.enter_your_name),
-            style = UI.typo.h2.style(
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -104,12 +104,12 @@ fun OnboardingSetName(
 
         val nameFocus = FocusRequester()
 
-        onScreenStart {
+        LaunchedEffect(Unit) {
             nameFocus.requestFocus()
         }
 
         IvyOutlinedTextField(
-            Modifier
+            modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
                 .focusRequester(nameFocus),
@@ -117,7 +117,7 @@ fun OnboardingSetName(
             hint = stringResource(R.string.what_is_your_name),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
@@ -135,7 +135,7 @@ fun OnboardingSetName(
         Spacer(Modifier.height(32.dp))
 
         OnboardingButton(
-            Modifier
+            modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth(),
             text = stringResource(R.string.enter),

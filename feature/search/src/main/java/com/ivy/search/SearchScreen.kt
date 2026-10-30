@@ -20,15 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.base.legacy.Theme
-import com.ivy.design.utils.IvyComponentPreview
+import com.ivy.base.model.Theme
+import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.ui.SearchInput
 import com.ivy.legacy.ui.component.transaction.transactions
-import com.ivy.legacy.utils.densityScope
-import com.ivy.legacy.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.keyboardVisibleState
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.densityScope
+import com.ivy.design.utils.keyboardOnlyWindowInsets
+import com.ivy.design.utils.keyboardVisibleState
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.SearchScreen
 import com.ivy.navigation.screenScopedViewModel
@@ -148,7 +148,7 @@ private fun Preview(isDark: Boolean = false) {
 @Composable
 fun SearchUiTest(isDark: Boolean) {
     val theme = if (isDark) Theme.DARK else Theme.LIGHT
-    IvyComponentPreview(theme = theme) {
+    IvyWalletComponentPreview(theme = theme) {
         Preview(isDark)
     }
 }

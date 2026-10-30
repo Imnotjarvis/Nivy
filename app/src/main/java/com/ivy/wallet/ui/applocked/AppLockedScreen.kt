@@ -29,14 +29,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.utils.hasLockScreen
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyButton
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -55,12 +55,13 @@ fun BoxWithConstraintsScope.AppLockedScreen(
 
         Text(
             modifier = Modifier
-                .background(UI.colors.medium, UI.shapes.rFull)
+                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                 .padding(vertical = 12.dp)
                 .padding(horizontal = 32.dp),
             text = stringResource(R.string.app_locked),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.ExtraBold,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
         )
 
@@ -70,7 +71,7 @@ fun BoxWithConstraintsScope.AppLockedScreen(
             modifier = Modifier
                 .size(width = 96.dp, height = 138.dp),
             painter = painterResource(id = R.drawable.ic_fingerprint),
-            colorFilter = ColorFilter.tint(UI.colors.medium),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceVariant),
             contentScale = ContentScale.FillBounds,
             contentDescription = "unlock icon"
         )
@@ -79,9 +80,9 @@ fun BoxWithConstraintsScope.AppLockedScreen(
 
         Text(
             text = stringResource(R.string.authenticate_text),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.SemiBold,
-                color = Gray
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.SemiBold
             )
         )
 
@@ -98,7 +99,7 @@ fun BoxWithConstraintsScope.AppLockedScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             text = stringResource(R.string.unlock),
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = White,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center

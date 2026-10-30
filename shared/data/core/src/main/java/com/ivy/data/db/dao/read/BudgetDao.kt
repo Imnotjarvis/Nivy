@@ -7,7 +7,7 @@ import java.util.*
 
 @Dao
 interface BudgetDao {
-    @Query("SELECT * FROM budgets WHERE isDeleted = 0 ORDER BY orderId ASC")
+    @Query("SELECT * FROM budgets ORDER BY orderId ASC")
     suspend fun findAll(): List<BudgetEntity>
 
     @Query("SELECT * FROM budgets WHERE id = :id")

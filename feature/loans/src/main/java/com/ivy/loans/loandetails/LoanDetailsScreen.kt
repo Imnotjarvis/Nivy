@@ -17,7 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,28 +32,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
 import com.ivy.base.model.processByType
+import com.ivy.data.model.Account
+import com.ivy.data.model.Loan
+import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.LoanType
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Loan
-import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.humanReadableType
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.drawColoredShadow
+import com.ivy.legacy.ui.previewLoan
+import com.ivy.legacy.ui.previewLoanRecord
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.formatNicely
-import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.rememberInteractionSource
-import com.ivy.legacy.utils.setStatusBarDarkTextCompat
+import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.loans.loan.data.DisplayLoanRecord
 import com.ivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.ivy.loans.loandetails.events.LoanDetailsScreenEvent
@@ -64,31 +60,36 @@ import com.ivy.navigation.LoanDetailsScreen
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
+import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.MediumBlack
-import com.ivy.wallet.ui.theme.MediumWhite
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.MediumBlack
+import com.ivy.design.system.colors.MediumWhite
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ProgressBar
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.isDarkColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.isDarkColor
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.LoanModal
 import com.ivy.wallet.ui.theme.modal.LoanRecordModal
 import com.ivy.wallet.ui.theme.modal.ProgressModal
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop32
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberLabelMedium
+import com.ivy.design.system.typography.numberTitleLarge
 
 @Composable
 fun BoxWithConstraintsScope.LoanDetailsScreen(screen: LoanDetailsScreen) {
@@ -107,7 +108,7 @@ private fun BoxWithConstraintsScope.UI(
     state: LoanDetailsScreenState,
     onEventHandler: (LoanDetailsScreenEvent) -> Unit = {}
 ) {
-    val itemColor = state.loan?.color?.toComposeColor() ?: Gray
+    val itemColor = state.loan?.color?.value?.toComposeColor() ?: Gray
 
     Column(
         modifier = Modifier
@@ -121,8 +122,8 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .clip(UI.shapes.r1Top)
-                .background(UI.colors.pure),
+                .clip(ShapeTop32)
+                .background(MaterialTheme.colorScheme.surface),
             state = listState,
         ) {
             item {
@@ -162,7 +163,7 @@ private fun BoxWithConstraintsScope.UI(
                         .height(32.dp)
                         .fillMaxWidth()
                         .background(itemColor) // itemColor is displayed below the clip
-                        .background(UI.colors.pure, UI.shapes.r1Top)
+                        .background(MaterialTheme.colorScheme.surface, ShapeTop32)
                 )
             }
 
@@ -181,7 +182,7 @@ private fun BoxWithConstraintsScope.UI(
                 item {
                     InitialRecordItem(
                         loan = state.loan,
-                        amount = state.loan.amount,
+                        amount = state.loan.amount.value,
                         baseCurrency = state.baseCurrency,
                     )
                 }
@@ -277,7 +278,7 @@ private fun Header(
     val contrastColor = findContrastTextColor(itemColor)
 
     val darkColor = isDarkColor(itemColor)
-    setStatusBarDarkTextCompat(darkText = !darkColor)
+    StatusBarDarkText(darkText = !darkColor)
 
     Column(
         modifier = Modifier.background(itemColor)
@@ -343,7 +344,7 @@ private fun LoanItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         ItemIconMDefaultIcon(
-            iconName = loan.icon,
+            iconName = loan.icon?.id,
             defaultIcon = R.drawable.ic_custom_loan_m,
             tint = contrastColor
         )
@@ -356,8 +357,8 @@ private fun LoanItem(
             ) {
                 Text(
                     modifier = Modifier.testTag("loan_name"),
-                    text = loan.name,
-                    style = UI.typo.b1.style(
+                    text = loan.name.value,
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -367,19 +368,21 @@ private fun LoanItem(
 
                 Text(
                     text = loan.humanReadableType(),
-                    style = UI.typo.c.style(
-                        color = loan.color.toComposeColor().dynamicContrast()
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = loan.color.value.toComposeColor().dynamicContrast(),
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
 
             loan.dateTime?.let {
                 Text(
-                    text = it.formatNicely(
-                        noWeekDay = false
-                    ).uppercase(),
-                    style = UI.typo.nC.style(
-                        color = contrastColor
+                    text = with(LocalTimeFormatter.current) {
+                        it.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+                    }.uppercase(),
+                    style = MaterialTheme.typography.numberLabelMedium.copy(
+                        color = contrastColor,
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
@@ -399,7 +402,7 @@ private fun LoanInfoCard(
 
     onAddRecord: () -> Unit
 ) {
-    val backgroundColor = if (isDarkColor(loan.color)) {
+    val backgroundColor = if (isDarkColor(loan.color.value)) {
         MediumBlack.copy(alpha = 0.9f)
     } else {
         MediumWhite.copy(alpha = 0.9f)
@@ -419,7 +422,7 @@ private fun LoanInfoCard(
                 color = backgroundColor,
                 alpha = 0.1f
             )
-            .background(backgroundColor, UI.shapes.r2),
+            .background(backgroundColor, MaterialTheme.shapes.extraLarge),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -429,7 +432,7 @@ private fun LoanInfoCard(
             Text(
                 modifier = Modifier.padding(top = 8.dp, start = 24.dp),
                 text = stringResource(R.string.paid),
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -437,15 +440,15 @@ private fun LoanInfoCard(
             if (selectedLoanAccount != null) {
                 IvyButton(
                     modifier = Modifier.padding(end = 16.dp, top = 12.dp),
-                    backgroundGradient = Gradient.solid(loan.color.toComposeColor()),
+                    backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
                     hasGlow = false,
                     iconTint = contrastColor,
-                    text = selectedLoanAccount.name,
+                    text = selectedLoanAccount.name.value,
                     iconStart = getCustomIconIdS(
-                        iconName = selectedLoanAccount.icon,
+                        iconName = selectedLoanAccount.icon?.id,
                         defaultIcon = R.drawable.ic_custom_account_s
                     ),
-                    textStyle = UI.typo.c.style(
+                    textStyle = MaterialTheme.typography.labelMedium.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     ),
@@ -454,7 +457,7 @@ private fun LoanInfoCard(
                 ) {
                     nav.navigateTo(
                         TransactionsScreen(
-                            accountId = selectedLoanAccount.id,
+                            accountId = selectedLoanAccount.id.value,
                             categoryId = null
                         )
                     )
@@ -472,7 +475,7 @@ private fun LoanInfoCard(
                 .padding(horizontal = 24.dp)
                 .testTag("amount_paid"),
             text = "${amountPaid.format(baseCurrency)} / ${loanTotalAmount.format(baseCurrency)}",
-            style = UI.typo.nB1.style(
+            style = MaterialTheme.typography.numberTitleLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -480,7 +483,7 @@ private fun LoanInfoCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = IvyCurrency.fromCode(baseCurrency)?.name ?: "",
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.Normal
             )
@@ -497,7 +500,7 @@ private fun LoanInfoCard(
             Text(
                 modifier = Modifier.testTag("percent_paid"),
                 text = "${percentPaid.times(100).format(2)}%",
-                style = UI.typo.nB1.style(
+                style = MaterialTheme.typography.numberTitleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -512,7 +515,7 @@ private fun LoanInfoCard(
                     leftToPay.format(baseCurrency),
                     baseCurrency
                 ),
-                style = UI.typo.nB2.style(
+                style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -526,12 +529,12 @@ private fun LoanInfoCard(
                 .fillMaxWidth()
                 .height(24.dp)
                 .padding(horizontal = 24.dp),
-            notFilledColor = UI.colors.pure,
+            notFilledColor = MaterialTheme.colorScheme.surface,
             percent = percentPaid
         )
 
         if (loanAmountPaid != 0.0) {
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 16.dp)
                     .fillMaxWidth(),
@@ -542,7 +545,7 @@ private fun LoanInfoCard(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 text = stringResource(R.string.loan_interest),
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -559,7 +562,7 @@ private fun LoanInfoCard(
                 Text(
                     modifier = Modifier.testTag("loan_interest_percent_paid"),
                     text = "${loanPercentPaid.times(100).format(2)}%",
-                    style = UI.typo.nB1.style(
+                    style = MaterialTheme.typography.numberTitleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -574,7 +577,7 @@ private fun LoanInfoCard(
                         loanAmountPaid.format(baseCurrency),
                         baseCurrency
                     ),
-                    style = UI.typo.nB2.style(
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -588,7 +591,7 @@ private fun LoanInfoCard(
                     .fillMaxWidth()
                     .height(24.dp)
                     .padding(horizontal = 24.dp),
-                notFilledColor = UI.colors.pure,
+                notFilledColor = MaterialTheme.colorScheme.surface,
                 percent = loanPercentPaid
             )
         }
@@ -603,7 +606,7 @@ private fun LoanInfoCard(
             text = stringResource(R.string.add_record),
             shadowAlpha = 0.1f,
             backgroundGradient = Gradient.solid(contrastColor),
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = findContrastTextColor(contrastColor),
                 fontWeight = FontWeight.Bold
             ),
@@ -650,27 +653,27 @@ private fun LoanRecordItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             }
-            .background(UI.colors.medium, UI.shapes.r4)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_record_item")
     ) {
         if (account != null || loanRecord.interest) {
             Row(Modifier.padding(16.dp)) {
                 if (account != null) {
                     IvyButton(
-                        backgroundGradient = Gradient.solid(UI.colors.pure),
+                        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                         hasGlow = false,
-                        iconTint = UI.colors.pureInverse,
-                        text = account.name,
+                        iconTint = MaterialTheme.colorScheme.onSurface,
+                        text = account.name.value,
                         iconStart = getCustomIconIdS(
-                            iconName = account.icon,
+                            iconName = account.icon?.id,
                             defaultIcon = R.drawable.ic_custom_account_s
                         ),
-                        textStyle = UI.typo.c.style(
-                            color = UI.colors.pureInverse,
+                        textStyle = MaterialTheme.typography.labelMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.ExtraBold
                         ),
                         padding = 8.dp,
@@ -678,7 +681,7 @@ private fun LoanRecordItem(
                     ) {
                         nav.navigateTo(
                             TransactionsScreen(
-                                accountId = account.id,
+                                accountId = account.id.value,
                                 categoryId = null
                             )
                         )
@@ -688,11 +691,11 @@ private fun LoanRecordItem(
                 if (loanRecord.interest) {
                     // Spacer(modifier = Modifier.width(8.dp))
 
-                    val textIconColor = if (isDarkColor(loan.color)) MediumWhite else MediumBlack
+                    val textIconColor = if (isDarkColor(loan.color.value)) MediumWhite else MediumBlack
 
                     IvyButton(
                         modifier = Modifier.padding(start = 8.dp),
-                        backgroundGradient = Gradient.solid(loan.color.toComposeColor()),
+                        backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
                         hasGlow = false,
                         iconTint = textIconColor,
                         text = stringResource(R.string.interest),
@@ -700,7 +703,7 @@ private fun LoanRecordItem(
                             iconName = "currency",
                             defaultIcon = R.drawable.ic_currency
                         ),
-                        textStyle = UI.typo.c.style(
+                        textStyle = MaterialTheme.typography.labelMedium.copy(
                             color = textIconColor,
                             fontWeight = FontWeight.ExtraBold
                         ),
@@ -723,36 +726,36 @@ private fun LoanRecordItem(
                     TimeFormatter.Style.DateAndTime(includeWeekDay = true)
                 ).uppercase()
             },
-            style = UI.typo.nC.style(
+            style = MaterialTheme.typography.numberLabelMedium.copy(
                 color = Gray,
                 fontWeight = FontWeight.Bold
             )
         )
 
-        if (loanRecord.note.isNotNullOrBlank()) {
+        loanRecord.note?.let { note ->
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                text = loanRecord.note!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                text = note.value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
 
-        if (loanRecord.note.isNullOrEmpty()) {
+        if (loanRecord.note == null) {
             Spacer(Modifier.height(16.dp))
         }
         val transactionType = when (loan.type) {
             LoanType.LEND -> {
-                loanRecord.loanRecordType.processByType(
+                loanRecord.type.processByType(
                     increaseAction = { TransactionType.EXPENSE },
                     decreaseAction = { TransactionType.INCOME }
                 )
             }
 
             LoanType.BORROW -> {
-                loanRecord.loanRecordType.processByType(
+                loanRecord.type.processByType(
                     increaseAction = { TransactionType.INCOME },
                     decreaseAction = { TransactionType.EXPENSE }
                 )
@@ -762,14 +765,14 @@ private fun LoanRecordItem(
             transactionType = transactionType,
             dueDate = null,
             currency = baseCurrency,
-            amount = loanRecord.amount
+            amount = loanRecord.amount.value
         )
 
-        if (loanRecord.convertedAmount != null) {
+        loanRecord.convertedAmount?.let { convertedAmount ->
             Text(
                 modifier = Modifier.padding(start = 68.dp),
-                text = loanRecord.convertedAmount!!.format(baseCurrency) + " $loanBaseCurrency",
-                style = UI.typo.nB2.style(
+                text = convertedAmount.value.format(baseCurrency) + " $loanBaseCurrency",
+                style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.Normal
                 )
@@ -790,21 +793,21 @@ private fun InitialRecordItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
-            .background(UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_record_item")
     ) {
         IvyButton(
             modifier = Modifier.padding(16.dp),
-            backgroundGradient = Gradient.solid(UI.colors.pure),
+            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
             text = stringResource(id = R.string.initial_loan_record),
-            iconTint = UI.colors.pureInverse,
+            iconTint = MaterialTheme.colorScheme.onSurface,
             iconStart = getCustomIconIdS(
-                iconName = loan.icon,
+                iconName = loan.icon?.id,
                 defaultIcon = R.drawable.ic_custom_loan_s
             ),
-            textStyle = UI.typo.c.style(
-                color = UI.colors.pureInverse,
+            textStyle = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             ),
             padding = 8.dp,
@@ -820,25 +823,25 @@ private fun InitialRecordItem(
                         TimeFormatter.Style.DateAndTime(includeWeekDay = true)
                     ).uppercase()
                 },
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Gray,
                     fontWeight = FontWeight.Bold
                 )
             )
         }
 
-        if (loan.note.isNotNullOrBlank()) {
+        loan.note?.let { note ->
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                text = loan.note!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                text = note.value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
 
-        if (loan.note.isNullOrEmpty()) {
+        if (loan.note == null) {
             Spacer(Modifier.height(16.dp))
         }
 
@@ -869,7 +872,7 @@ private fun NoLoanRecordsEmptyState() {
 
         Text(
             text = stringResource(R.string.no_records),
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -880,7 +883,7 @@ private fun NoLoanRecordsEmptyState() {
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.no_records_for_the_loan),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -896,12 +899,12 @@ private fun Preview_Empty() {
         UI(
             LoanDetailsScreenState(
                 baseCurrency = "BGN",
-                loan = Loan(
+                loan = previewLoan(
                     name = "Loan 1",
                     amount = 4023.54,
-                    color = Red.toArgb(),
+                    color = Red,
                     type = LoanType.LEND,
-                    dateTime = LocalDateTime.now()
+                    dateTime = LocalDateTime.now(),
                 ),
                 displayLoanRecords = persistentListOf(),
                 amountPaid = 3821.00,
@@ -930,38 +933,35 @@ private fun Preview_Records(theme: Theme = Theme.LIGHT) {
         UI(
             LoanDetailsScreenState(
                 baseCurrency = "BGN",
-                loan = Loan(
+                loan = previewLoan(
                     name = "Loan 1",
                     amount = 4023.54,
-                    color = Red.toArgb(),
+                    color = Red,
                     type = LoanType.LEND,
                     dateTime = testDateTime,
                 ),
                 displayLoanRecords = persistentListOf(
                     DisplayLoanRecord(
-                        LoanRecord(
+                        previewLoanRecord(
                             amount = 123.45,
                             dateTime = testDateTime.minusDays(1).toInstant(ZoneOffset.UTC),
+                            type = LoanRecordType.INCREASE,
                             note = "Cash",
-                            loanId = UUID.randomUUID(),
-                            loanRecordType = LoanRecordType.INCREASE
                         )
                     ),
                     DisplayLoanRecord(
-                        LoanRecord(
+                        previewLoanRecord(
                             amount = 0.50,
                             dateTime = testDateTime.minusYears(1).toInstant(ZoneOffset.UTC),
-                            loanId = UUID.randomUUID(),
-                            loanRecordType = LoanRecordType.DECREASE
+                            type = LoanRecordType.DECREASE,
                         )
                     ),
                     DisplayLoanRecord(
-                        LoanRecord(
+                        previewLoanRecord(
                             amount = 1000.00,
                             dateTime = testDateTime.minusMonths(1).toInstant(ZoneOffset.UTC),
+                            type = LoanRecordType.INCREASE,
                             note = "Revolut",
-                            loanId = UUID.randomUUID(),
-                            loanRecordType = LoanRecordType.INCREASE
                         )
                     ),
                 ),

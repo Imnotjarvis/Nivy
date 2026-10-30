@@ -7,34 +7,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.base.model.Theme
+import com.ivy.base.model.next
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.model.Account
+import com.ivy.data.model.Transaction
 import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.preferences.AppSettings
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.data.repository.mapper.TransactionMapper
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.frp.fixUnit
-import com.ivy.frp.then
-import com.ivy.frp.thenInvokeAfter
+import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.MainScreenState
+import com.ivy.legacy.PeriodState
+import com.ivy.legacy.ThemeState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.data.model.toUTCCloseTimeRange
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Settings
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
-import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
 import com.ivy.legacy.domain.action.viewmodel.home.ShouldHideIncomeAct
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.MainScreen
@@ -43,17 +41,14 @@ import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
 import com.ivy.wallet.domain.action.settings.CalcBufferDiffAct
-import com.ivy.wallet.domain.action.settings.SettingsAct
 import com.ivy.wallet.domain.action.transaction.HistoryWithDateDivsAct
 import com.ivy.wallet.domain.action.viewmodel.home.HasTrnsAct
 import com.ivy.wallet.domain.action.viewmodel.home.OverdueAct
 import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideBalanceAct
 import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
-import com.ivy.wallet.domain.action.viewmodel.home.UpdateAccCacheAct
-import com.ivy.wallet.domain.action.viewmodel.home.UpdateCategoriesCacheAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,14 +63,17 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val ivyContext: IvyWalletCtx,
+    private val periodState: PeriodState,
+    private val themeState: ThemeState,
+    private val mainScreenState: MainScreenState,
     private val nav: Navigation,
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
+    private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val customerJourneyLogic: CustomerJourneyCardsProvider,
     private val historyWithDateDivsAct: HistoryWithDateDivsAct,
     private val calcIncomeExpenseAct: CalcIncomeExpenseAct,
     private val calcWalletBalanceAct: CalcWalletBalanceAct,
-    private val settingsAct: SettingsAct,
+    private val appPreferences: AppPreferences,
+    private val currencyRepository: CurrencyRepository,
     private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
     private val calcBufferDiffAct: CalcBufferDiffAct,
@@ -85,18 +83,14 @@ class HomeViewModel @Inject constructor(
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val shouldHideBalanceAct: ShouldHideBalanceAct,
     private val shouldHideIncomeAct: ShouldHideIncomeAct,
-    private val updateSettingsAct: UpdateSettingsAct,
-    private val updateAccCacheAct: UpdateAccCacheAct,
-    private val updateCategoriesCacheAct: UpdateCategoriesCacheAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
-    private val transactionMapper: TransactionMapper,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features
 ) : ComposeViewModel<HomeState, HomeEvent>() {
     private var currentTheme by mutableStateOf(Theme.AUTO)
     private var name by mutableStateOf("")
-    private var period by mutableStateOf(ivyContext.selectedPeriod)
+    private var period by mutableStateOf(periodState.selected)
     private var baseData by mutableStateOf(
         AppBaseData(
             baseCurrency = "",
@@ -114,14 +108,14 @@ class HomeViewModel @Inject constructor(
         )
     )
     private var upcoming by mutableStateOf(
-        LegacyDueSection(
+        DueSection(
             trns = persistentListOf(),
             stats = IncomeExpensePair.zero(),
             expanded = false,
         )
     )
     private var overdue by mutableStateOf(
-        LegacyDueSection(
+        DueSection(
             trns = persistentListOf(),
             stats = IncomeExpensePair.zero(),
             expanded = false,
@@ -204,12 +198,12 @@ class HomeViewModel @Inject constructor(
     }
 
     @Composable
-    private fun getUpcoming(): LegacyDueSection {
+    private fun getUpcoming(): DueSection {
         return upcoming
     }
 
     @Composable
-    private fun getOverdue(): LegacyDueSection {
+    private fun getOverdue(): DueSection {
         return overdue
     }
 
@@ -248,7 +242,7 @@ class HomeViewModel @Inject constructor(
                 is HomeEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
                 is HomeEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
                 is HomeEvent.SetBuffer -> setBuffer(event.buffer)
-                is HomeEvent.SetCurrency -> setCurrency(event.currency).fixUnit()
+                is HomeEvent.SetCurrency -> setCurrency(event.currency)
                 HomeEvent.SwitchTheme -> switchTheme()
                 is HomeEvent.DismissCustomerJourneyCard -> dismissCustomerJourneyCard(event.card)
                 is HomeEvent.SetExpanded -> setExpanded(event.expanded)
@@ -257,21 +251,23 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun start() {
-        suspend {
-            val startDay = startDayOfMonthAct(Unit)
-            ivyContext.initSelectedPeriodInMemory(
-                startDayOfMonth = startDay
-            )
-        } thenInvokeAfter ::reload
+        val startDay = startDayOfMonthAct()
+        reload(periodState.initSelected(startDayOfMonth = startDay))
     }
 
     // -----------------------------------------------------------------------------------
     private suspend fun reload(
-        timePeriod: TimePeriod = ivyContext.selectedPeriod
-    ) = suspend {
-        val settings = settingsAct(Unit)
-        val hideBalance = shouldHideBalanceAct(Unit)
-        val hideIncome = shouldHideIncomeAct(Unit)
+        timePeriod: TimePeriod = periodState.selected
+    ) {
+        val stored = appPreferences.settings()
+        val settings = AppSettings(
+            theme = stored?.theme ?: themeState.theme,
+            baseCurrency = currencyRepository.getBaseCurrency().code,
+            bufferAmount = stored?.bufferAmount ?: 0.0,
+            name = stored?.name.orEmpty(),
+        )
+        val hideBalance = shouldHideBalanceAct()
+        val hideIncome = shouldHideIncomeAct()
 
         currentTheme = settings.theme
         name = settings.name
@@ -280,44 +276,41 @@ class HomeViewModel @Inject constructor(
         this.hideIncome = hideIncome
 
         // This method is used to restore the theme when user imports locally backed up data
-        ivyContext.switchTheme(theme = settings.theme)
+        themeState.switchTheme(theme = settings.theme)
 
-        Pair(
-            settings,
-            period.toRange(
-                startDateOfMonth = ivyContext.startDayOfMonth,
-                timeConverter = timeConverter,
-                timeProvider = timeProvider
-            ).toUTCCloseTimeRange()
-        )
-    } then ::loadAppBaseData then ::loadIncomeExpenseBalance then
-            ::loadBuffer then ::loadTrnHistory then
-            ::loadDueTrns thenInvokeAfter ::loadCustomerJourney
+        val timeRange = period.toRange(
+            startDateOfMonth = periodState.startDayOfMonth,
+            timeConverter = timeConverter,
+            timeProvider = timeProvider
+        ).toUTCCloseTimeRange()
+
+        val withAccounts = loadAppBaseData(settings to timeRange)
+        val withBalance = loadIncomeExpenseBalance(withAccounts)
+        val currencyAndRange = loadBuffer(withBalance)
+        loadTrnHistory(currencyAndRange)
+        loadDueTrns(currencyAndRange)
+        loadCustomerJourney()
+    }
 
     private suspend fun loadAppBaseData(
-        input: Pair<Settings, ClosedTimeRange>
-    ): Triple<Settings, ClosedTimeRange, List<Account>> =
-        suspend {} then accountsAct then updateAccCacheAct then { accounts ->
-            accounts
-        } then { accounts ->
-            val retrievedCategories = categoryRepository.findAll()
-            val categories = updateCategoriesCacheAct(retrievedCategories)
-            accounts to categories
-        } thenInvokeAfter { (accounts, categories) ->
-            val (settings, timeRange) = input
+        input: Pair<AppSettings, ClosedTimeRange>
+    ): Triple<AppSettings, ClosedTimeRange, List<Account>> {
+        val (settings, timeRange) = input
+        val accounts = accountsAct()
+        val categories = categoryRepository.findAll()
 
-            baseData = AppBaseData(
-                baseCurrency = settings.baseCurrency,
-                categories = categories.toImmutableList(),
-                accounts = accounts.toImmutableList()
-            )
+        baseData = AppBaseData(
+            baseCurrency = settings.baseCurrency,
+            categories = categories.toImmutableList(),
+            accounts = accounts.toImmutableList()
+        )
 
-            Triple(settings, timeRange, accounts)
-        }
+        return Triple(settings, timeRange, accounts)
+    }
 
     private suspend fun loadIncomeExpenseBalance(
-        input: Triple<Settings, ClosedTimeRange, List<Account>>
-    ): Triple<Settings, ClosedTimeRange, BigDecimal> {
+        input: Triple<AppSettings, ClosedTimeRange, List<Account>>
+    ): Triple<AppSettings, ClosedTimeRange, BigDecimal> {
         val (settings, timeRange, accounts) = input
 
         val incomeExpense = calcIncomeExpenseAct(
@@ -339,16 +332,16 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadBuffer(
-        input: Triple<Settings, ClosedTimeRange, BigDecimal>
+        input: Triple<AppSettings, ClosedTimeRange, BigDecimal>
     ): Pair<String, ClosedTimeRange> {
         val (settings, timeRange, balance) = input
 
         buffer = BufferInfo(
-            amount = settings.bufferAmount,
+            amount = settings.bufferAmount.toBigDecimal(),
             bufferDiff = calcBufferDiffAct(
                 CalcBufferDiffAct.Input(
                     balance = balance,
-                    buffer = settings.bufferAmount
+                    buffer = settings.bufferAmount.toBigDecimal()
                 )
             )
         )
@@ -371,35 +364,24 @@ class HomeViewModel @Inject constructor(
         return baseCurrency to timeRange
     }
 
-    private suspend fun loadDueTrns(
-        input: Pair<String, ClosedTimeRange>
-    ): Unit = suspend {
-        UpcomingAct.Input(baseCurrency = input.first, range = input.second)
-    } then upcomingAct then { result ->
-        upcoming = LegacyDueSection(
-            trns = with(transactionMapper) {
-                result.upcomingTrns.map {
-                    it.toEntity().toLegacyDomain()
-                }.toImmutableList()
-            },
-            stats = result.upcoming,
+    private suspend fun loadDueTrns(input: Pair<String, ClosedTimeRange>) {
+        val (baseCurrency, timeRange) = input
+        val upcomingResult = upcomingAct(UpcomingAct.Input(baseCurrency = baseCurrency, range = timeRange))
+        upcoming = DueSection(
+            trns = upcomingResult.upcomingTrns.toImmutableList(),
+            stats = upcomingResult.upcoming,
             expanded = upcoming.expanded
         )
-    } then {
-        OverdueAct.Input(baseCurrency = input.first, toRange = input.second.to)
-    } then overdueAct thenInvokeAfter { result ->
-        overdue = LegacyDueSection(
-            trns = with(transactionMapper) {
-                result.overdueTrns.map {
-                    it.toEntity().toLegacyDomain()
-                }.toImmutableList()
-            },
-            stats = result.overdue,
+
+        val overdueResult = overdueAct(OverdueAct.Input(baseCurrency = baseCurrency, toRange = timeRange.to))
+        overdue = DueSection(
+            trns = overdueResult.overdueTrns.toImmutableList(),
+            stats = overdueResult.overdue,
             expanded = overdue.expanded
         )
     }
 
-    private suspend fun loadCustomerJourney(unit: Unit) {
+    private suspend fun loadCustomerJourney() {
         customerJourneyCards = ioThread {
             customerJourneyLogic.loadCards().toImmutableList()
         }
@@ -415,13 +397,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onBalanceClick() {
-        val hasTransactions = hasTrnsAct(Unit)
+        val hasTransactions = hasTrnsAct()
         if (hasTransactions) {
             // has transactions show him "Balance" screen
             nav.navigateTo(BalanceScreen)
         } else {
             // doesn't have transactions lead him to adjust balance
-            ivyContext.selectMainTab(MainTab.ACCOUNTS)
+            mainScreenState.selectTab(MainTab.ACCOUNTS)
             nav.navigateTo(MainScreen)
         }
     }
@@ -446,73 +428,52 @@ class HomeViewModel @Inject constructor(
 
     private fun switchTheme() {
         viewModelScope.launch {
-            settingsAct.getSettingsWithNextTheme().run {
-                updateSettingsAct(this)
-                ivyContext.switchTheme(this.theme)
-                currentTheme = this.theme
-            }
+            val theme = themeState.theme.next()
+            appPreferences.setTheme(theme)
+            themeState.switchTheme(theme)
+            currentTheme = theme
         }
     }
 
     private fun setBuffer(newBuffer: Double) {
         viewModelScope.launch {
-            val currentSettings =
-                settingsAct.getSettings().copy(bufferAmount = newBuffer.toBigDecimal())
-            updateSettingsAct(currentSettings)
-            buffer = buffer.copy(amount = currentSettings.bufferAmount)
+            appPreferences.setBufferAmount(newBuffer)
+            buffer = buffer.copy(amount = newBuffer.toBigDecimal())
         }
     }
 
-    private suspend fun setCurrency(newCurrency: String) = settingsAct then {
-        it.copy(
-            baseCurrency = newCurrency
-        )
-    } then updateSettingsAct then {
+    private suspend fun setCurrency(newCurrency: String) {
+        appPreferences.setBaseCurrency(newCurrency)
         // update exchange rates from POV of the new base currency
         AssetCode.from(newCurrency).onRight {
             syncExchangeRatesUseCase.sync(it)
         }
-    } then {
         reload()
     }
 
     private suspend fun payOrGetPlanned(transaction: Transaction) {
-        plannedPaymentsLogic.payOrGetLegacy(
-            transaction = transaction,
-            skipTransaction = false
-        ) {
-            reload()
-        }
+        dueTransactionsUseCase.pay(transaction)
+        reload()
     }
 
     private suspend fun skipPlanned(transaction: Transaction) {
-        plannedPaymentsLogic.payOrGetLegacy(
-            transaction = transaction,
-            skipTransaction = true
-        ) {
-            reload()
-        }
+        skipAllPlanned(listOf(transaction))
     }
 
     private suspend fun skipAllPlanned(transactions: List<Transaction>) {
-        plannedPaymentsLogic.payOrGetLegacy(
-            transactions = transactions,
-            skipTransaction = true
-        ) {
-            reload()
-        }
+        dueTransactionsUseCase.skip(transactions)
+        reload()
     }
 
-    private suspend fun dismissCustomerJourneyCard(card: CustomerJourneyCardModel) = suspend {
+    private suspend fun dismissCustomerJourneyCard(card: CustomerJourneyCardModel) {
         customerJourneyLogic.dismissCard(card)
-    } thenInvokeAfter {
         reload()
     }
 
     private suspend fun onSelectNextMonth() {
         val month = period.month
-        val year = period.year ?: dateNowUTC().year
-        val period = month?.incrementMonthPeriod(ivyContext, 1L, year = year)
+        val year = period.year ?: timeProvider.localDateNow().year
+        val period = month?.let { periodState.selectMonth(it, 1L, year) }
         if (period != null) {
             setPeriod(period)
         }
@@ -520,8 +481,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun onSelectPreviousMonth() {
         val month = period.month
-        val year = period.year ?: dateNowUTC().year
-        val period = month?.incrementMonthPeriod(ivyContext, -1L, year = year)
+        val year = period.year ?: timeProvider.localDateNow().year
+        val period = month?.let { periodState.selectMonth(it, -1L, year) }
         if (period != null) {
             setPeriod(period)
         }

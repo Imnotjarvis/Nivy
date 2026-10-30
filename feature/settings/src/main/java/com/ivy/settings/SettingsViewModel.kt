@@ -12,28 +12,27 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.refreshWidget
+import com.ivy.base.model.Theme
+import com.ivy.base.model.next
+import com.ivy.base.refreshWidget
+import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.BackupDataUseCase
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
+import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.frp.monad.Res
-import com.ivy.legacy.IvyWalletCtx
-import com.ivy.legacy.LogoutLogic
-import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
+import com.ivy.legacy.ThemeState
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.legacy.utils.uiThread
+import com.ivy.navigation.Navigation
+import com.ivy.navigation.OnboardingScreen
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
 import com.ivy.wallet.domain.action.global.UpdateStartDayOfMonthAct
-import com.ivy.wallet.domain.action.settings.SettingsAct
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -45,19 +44,18 @@ import javax.inject.Inject
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsDao: SettingsDao,
-    private val ivyContext: IvyWalletCtx,
-    private val logoutLogic: LogoutLogic,
-    private val sharedPrefs: SharedPrefs,
+    private val currencyRepository: CurrencyRepository,
+    private val themeState: ThemeState,
+    private val deleteAllDataUseCase: DeleteAllDataUseCase,
+    private val nav: Navigation,
+    private val appPreferences: AppPreferences,
     private val backupDataUseCase: BackupDataUseCase,
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val updateStartDayOfMonthAct: UpdateStartDayOfMonthAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
-    private val settingsAct: SettingsAct,
-    private val updateSettingsAct: UpdateSettingsAct,
-    private val settingsWriter: WriteSettingsDao,
     private val exportCsvUseCase: ExportCsvUseCase,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val timeProvider: TimeProvider,
 ) : ComposeViewModel<SettingsState, SettingsEvent>() {
 
     private val currencyCode = mutableStateOf("")
@@ -105,52 +103,39 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun initializeCurrency() {
-        val settings = ioThread {
-            settingsDao.findFirst()
-        }
-
-        currencyCode.value = settings.currency
+        currencyCode.value = currencyRepository.getBaseCurrency().code
     }
 
     private suspend fun initializeName() {
-        val settings = ioThread {
-            settingsDao.findFirst()
-        }
-
-        name.value = settings.name
+        name.value = appPreferences.settings()?.name.orEmpty()
     }
 
     private suspend fun initializeCurrentTheme() {
-        currentTheme.value = settingsAct(Unit).theme
+        currentTheme.value = themeState.theme
     }
 
-    private fun initializeLockApp() {
-        lockApp.value = sharedPrefs.getBoolean(SharedPrefs.APP_LOCK_ENABLED, false)
+    private suspend fun initializeLockApp() {
+        lockApp.value = appPreferences.isAppLockEnabled()
     }
 
-    private fun initializeShowNotifications() {
-        showNotifications.value = sharedPrefs.getBoolean(
-            SharedPrefs.SHOW_NOTIFICATIONS, true
-        )
+    private suspend fun initializeShowNotifications() {
+        showNotifications.value = appPreferences.showNotifications()
     }
 
-    private fun initializeHideCurrentBalance() {
-        hideCurrentBalance.value =
-            sharedPrefs.getBoolean(SharedPrefs.HIDE_CURRENT_BALANCE, false)
+    private suspend fun initializeHideCurrentBalance() {
+        hideCurrentBalance.value = appPreferences.hideCurrentBalance()
     }
 
-    private fun initializeHideIncome() {
-        hideIncome.value =
-            sharedPrefs.getBoolean(SharedPrefs.HIDE_INCOME, false)
+    private suspend fun initializeHideIncome() {
+        hideIncome.value = appPreferences.hideIncome()
     }
 
-    private fun initializeTransfersAsIncomeExpense() {
-        treatTransfersAsIncomeExpense.value =
-            sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false)
+    private suspend fun initializeTransfersAsIncomeExpense() {
+        treatTransfersAsIncomeExpense.value = appPreferences.transfersAsIncomeExpense()
     }
 
     private suspend fun initializeStartDateOfMonth() {
-        startDateOfMonth.intValue = startDayOfMonthAct(Unit)
+        startDateOfMonth.intValue = startDayOfMonthAct()
     }
 
     @Composable
@@ -240,11 +225,7 @@ class SettingsViewModel @Inject constructor(
 
         viewModelScope.launch {
             ioThread {
-                settingsWriter.save(
-                    settingsDao.findFirst().copy(
-                        currency = newCurrency
-                    )
-                )
+                appPreferences.setBaseCurrency(newCurrency)
                 AssetCode.from(newCurrency).onRight {
                     syncExchangeRatesUseCase.sync(it)
                 }
@@ -256,20 +237,14 @@ class SettingsViewModel @Inject constructor(
         name.value = newName
 
         viewModelScope.launch {
-            ioThread {
-                settingsWriter.save(
-                    settingsDao.findFirst().copy(
-                        name = newName
-                    )
-                )
-            }
+            appPreferences.setUserName(newName)
         }
     }
 
     private fun exportToCSV(rootScreen: RootScreen) {
-        ivyContext.createNewFile(
+        rootScreen.createNewFile(
             "IvyWalletExport_${
-                timeNowUTC().getISOFormattedDateTime()
+                timeProvider.localNow().getISOFormattedDateTime()
             }.csv"
         ) { fileUri ->
             viewModelScope.launch {
@@ -285,18 +260,15 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun exportToZip(rootScreen: RootScreen) {
-        ivyContext.createNewFile(
+        rootScreen.createNewFile(
             "IvyWalletBackup_${
-                timeNowUTC().getISOFormattedDateTime()
+                timeProvider.localNow().getISOFormattedDateTime()
             }.zip"
         ) { fileUri ->
             viewModelScope.launch(Dispatchers.IO) {
                 progressState.value = true
                 backupDataUseCase.exportToFile(zipFileUri = fileUri)
                 progressState.value = false
-
-                sharedPrefs.putBoolean(SharedPrefs.DATA_BACKUP_COMPLETED, true)
-                ivyContext.dataBackupCompleted = true
 
                 uiThread {
                     rootScreen.shareZipFile(
@@ -309,11 +281,10 @@ class SettingsViewModel @Inject constructor(
 
     private fun switchTheme() {
         viewModelScope.launch {
-            settingsAct.getSettingsWithNextTheme().run {
-                updateSettingsAct(this)
-                ivyContext.switchTheme(this.theme)
-                currentTheme.value = this.theme
-            }
+            val theme = themeState.theme.next()
+            appPreferences.setTheme(theme)
+            themeState.switchTheme(theme)
+            currentTheme.value = theme
         }
     }
 
@@ -321,8 +292,8 @@ class SettingsViewModel @Inject constructor(
         lockApp.value = lock
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.APP_LOCK_ENABLED, lock)
-            refreshWidget(WalletBalanceWidgetReceiver::class.java)
+            appPreferences.setAppLockEnabled(lock)
+            context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         }
     }
 
@@ -330,7 +301,7 @@ class SettingsViewModel @Inject constructor(
         showNotifications.value = notificationsShow
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.SHOW_NOTIFICATIONS, notificationsShow)
+            appPreferences.setShowNotifications(notificationsShow)
         }
     }
 
@@ -338,7 +309,7 @@ class SettingsViewModel @Inject constructor(
         hideCurrentBalance.value = hideBalance
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.HIDE_CURRENT_BALANCE, hideBalance)
+            appPreferences.setHideCurrentBalance(hideBalance)
         }
     }
 
@@ -346,7 +317,7 @@ class SettingsViewModel @Inject constructor(
         hideIncome.value = isHideIncome
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.HIDE_INCOME, isHideIncome)
+            appPreferences.setHideIncome(isHideIncome)
         }
     }
 
@@ -354,20 +325,14 @@ class SettingsViewModel @Inject constructor(
         treatTransfersAsIncomeExpense.value = setTransfersAsIncomeExpense
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(
-                SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE,
-                treatTransfersAsIncomeExpense.value
-            )
+            appPreferences.setTransfersAsIncomeExpense(setTransfersAsIncomeExpense)
         }
     }
 
     private fun setStartDateOfMonth(startDate: Int) {
         viewModelScope.launch {
-            when (val res = updateStartDayOfMonthAct(startDate)) {
-                is Res.Err -> {}
-                is Res.Ok -> {
-                    startDateOfMonth.intValue = res.data
-                }
+            updateStartDayOfMonthAct(startDate).onRight {
+                startDateOfMonth.intValue = it
             }
         }
     }
@@ -380,7 +345,9 @@ class SettingsViewModel @Inject constructor(
 
     private fun logout() {
         viewModelScope.launch {
-            logoutLogic.logout()
+            deleteAllDataUseCase()
+            nav.resetBackStack()
+            nav.navigateTo(OnboardingScreen)
         }
     }
 

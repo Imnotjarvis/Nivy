@@ -7,58 +7,50 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.budgets.model.DisplayBudget
-import com.ivy.data.db.dao.write.WriteBudgetDao
+import com.ivy.data.model.Budget
+import com.ivy.data.model.BudgetId
 import com.ivy.data.model.Category
+import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Expense
-import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
-import com.ivy.data.model.Transfer
+import com.ivy.data.model.getFromAccount
+import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.data.temp.migration.getAccountId
-import com.ivy.data.temp.migration.getValue
-import com.ivy.frp.sumOfSuspend
+import com.ivy.data.repository.CurrencyRepository
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Budget
-import com.ivy.legacy.domain.deprecated.logic.BudgetCreator
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.budget.BudgetsAct
-import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.HistoryTrnsAct
-import com.ivy.wallet.domain.deprecated.logic.model.CreateBudgetData
-import com.ivy.wallet.domain.pure.exchange.ExchangeData
-import com.ivy.wallet.domain.pure.transaction.trnCurrency
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.abs
 
 @Stable
 @HiltViewModel
 class BudgetViewModel @Inject constructor(
-    private val sharedPrefs: SharedPrefs,
-    private val budgetWriter: WriteBudgetDao,
-    private val budgetCreator: BudgetCreator,
-    private val ivyContext: com.ivy.legacy.IvyWalletCtx,
-    private val accountsAct: AccountsAct,
+    private val appPreferences: AppPreferences,
+    private val budgetRepository: BudgetRepository,
+    private val periodState: PeriodState,
     private val categoryRepository: CategoryRepository,
-    private val budgetsAct: BudgetsAct,
-    private val baseCurrencyAct: BaseCurrencyAct,
+    private val currencyRepository: CurrencyRepository,
     private val historyTrnsAct: HistoryTrnsAct,
-    private val exchangeAct: ExchangeAct,
+    private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<BudgetScreenState, BudgetScreenEvent>() {
@@ -67,7 +59,6 @@ class BudgetViewModel @Inject constructor(
     private val timeRange = mutableStateOf<FromToTimeRange?>(null)
     private val budgets = mutableStateOf<ImmutableList<DisplayBudget>>(persistentListOf())
     private val categories = mutableStateOf<ImmutableList<Category>>(persistentListOf())
-    private val accounts = mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private val categoryBudgetsTotal = mutableDoubleStateOf(0.0)
     private val appBudgetMax = mutableDoubleStateOf(0.0)
     private val totalRemainingBudget = mutableDoubleStateOf(0.0)
@@ -83,7 +74,6 @@ class BudgetViewModel @Inject constructor(
         return BudgetScreenState(
             baseCurrency = getBaseCurrency(),
             categories = getCategories(),
-            accounts = getAccounts(),
             budgets = getBudgets(),
             categoryBudgetsTotal = getCategoryBudgetsTotal(),
             appBudgetMax = getAppBudgetMax(),
@@ -107,11 +97,6 @@ class BudgetViewModel @Inject constructor(
     @Composable
     private fun getCategories(): ImmutableList<Category> {
         return categories.value
-    }
-
-    @Composable
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts.value
     }
 
     @Composable
@@ -156,7 +141,7 @@ class BudgetViewModel @Inject constructor(
     override fun onEvent(event: BudgetScreenEvent) {
         when (event) {
             is BudgetScreenEvent.OnCreateBudget -> {
-                createBudget(event.budgetData)
+                createBudget(event.name, event.amount, event.categories)
             }
 
             is BudgetScreenEvent.OnEditBudget -> {
@@ -184,121 +169,98 @@ class BudgetViewModel @Inject constructor(
     private fun start() {
         viewModelScope.launch {
             categories.value = categoryRepository.findAll().toImmutableList()
-            val accounts = accountsAct(Unit)
-            val baseCurrency = baseCurrencyAct(Unit)
-            val startDateOfMonth = ivyContext.initStartDayOfMonthInMemory(sharedPrefs = sharedPrefs)
+            val baseCurrency = currencyRepository.getBaseCurrency()
+            val startDateOfMonth = appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
             val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
-                startDayOfMonth = startDateOfMonth
+                startDayOfMonth = startDateOfMonth,
+                timeProvider = timeProvider,
             ).toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)
-            val budgets = budgetsAct(Unit)
+            val budgets = budgetRepository.findAll()
 
             appBudgetMax.doubleValue = budgets
-                .filter { it.categoryIdsSerialized.isNullOrBlank() }
-                .maxOfOrNull { it.amount } ?: 0.0
+                .filter { it.categories.isEmpty() }
+                .maxOfOrNull { it.amount.value } ?: 0.0
 
             categoryBudgetsTotal.doubleValue = budgets
-                .filter { it.categoryIdsSerialized.isNotNullOrBlank() }
-                .sumOf { it.amount }
+                .filter { it.categories.isNotEmpty() }
+                .sumOf { it.amount.value }
 
-            this@BudgetViewModel.budgets.value = com.ivy.legacy.utils.ioThread {
-                budgets.map {
-                    DisplayBudget(
+            val transactions = historyTrnsAct(timeRange.toCloseTimeRange())
+            this@BudgetViewModel.budgets.value = budgets.map {
+                DisplayBudget(
+                    budget = it,
+                    spentAmount = calculateSpentAmount(
                         budget = it,
-                        spentAmount = calculateSpentAmount(
-                            budget = it,
-                            transactions = historyTrnsAct(timeRange.toCloseTimeRange()),
-                            accounts = accounts,
-                            baseCurrencyCode = baseCurrency
-                        )
+                        transactions = transactions,
+                        baseCurrency = baseCurrency
                     )
-                }.toImmutableList()
-            }
+                )
+            }.toImmutableList()
             totalRemainingBudget.doubleValue = calculateTotalRemainingBudget(
                 budgets = this@BudgetViewModel.budgets.value,
                 categoryBudgetsTotal = categoryBudgetsTotal.doubleValue
             )
-            this@BudgetViewModel.accounts.value = accounts
-            this@BudgetViewModel.baseCurrency.value = baseCurrency
+            this@BudgetViewModel.baseCurrency.value = baseCurrency.code
             this@BudgetViewModel.timeRange.value = timeRange
         }
     }
 
+    /** Sums the budget's expenses in the base currency. Income and transfers don't count. */
     private suspend fun calculateSpentAmount(
         budget: Budget,
         transactions: List<Transaction>,
-        baseCurrencyCode: String,
-        accounts: List<Account>
+        baseCurrency: AssetCode,
     ): Double {
-        // TODO: Re-work this by creating an FPAction for it
-        val accountsFilter = budget.parseAccountIds()
-        val categoryFilter = budget.parseCategoryIds()
-
         return transactions
-            .filter { accountsFilter.isEmpty() || accountsFilter.contains(it.getAccountId()) }
-            .filter { categoryFilter.isEmpty() || categoryFilter.contains(it.category?.value) }
-            .sumOfSuspend {
-                when (it) {
-                    is Income -> {
-                        0.0 // ignore income
-                    }
-
-                    is Expense -> {
-                        // increment spent amount
-                        exchangeAct(
-                            ExchangeAct.Input(
-                                data = ExchangeData(
-                                    baseCurrency = baseCurrencyCode,
-                                    fromCurrency = trnCurrency(it, accounts, baseCurrencyCode)
-                                ),
-                                amount = it.getValue()
-                            )
-                        ).getOrNull()?.toDouble() ?: 0.0
-                    }
-
-                    is Transfer -> {
-                        // ignore transfers for simplicity
-                        0.0
-                    }
-                }
+            .filterIsInstance<Expense>()
+            .filter { budget.accounts.isEmpty() || it.getFromAccount() in budget.accounts }
+            .filter { budget.categories.isEmpty() || it.category in budget.categories }
+            .sumOf {
+                exchangeUseCase.convert(it.value, to = baseCurrency).getOrNull()?.amount?.value ?: 0.0
             }
     }
 
-    private fun createBudget(data: CreateBudgetData) {
+    private fun createBudget(
+        name: NotBlankTrimmedString,
+        amount: PositiveDouble,
+        categories: List<CategoryId>,
+    ) {
         viewModelScope.launch {
-            budgetCreator.createBudget(data) {
-                start()
-            }
+            budgetRepository.save(
+                Budget(
+                    id = BudgetId(UUID.randomUUID()),
+                    name = name,
+                    amount = amount,
+                    categories = categories,
+                    accounts = emptyList(),
+                    orderNum = budgetRepository.findMaxOrderNum() + 1,
+                )
+            )
+            start()
         }
     }
 
     private fun editBudget(budget: Budget) {
         viewModelScope.launch {
-            budgetCreator.editBudget(budget) {
-                start()
-            }
+            budgetRepository.save(budget)
+            start()
         }
     }
 
     private fun deleteBudget(budget: Budget) {
         viewModelScope.launch {
-            budgetCreator.deleteBudget(budget) {
-                start()
-            }
+            budgetRepository.deleteById(budget.id)
+            start()
         }
     }
 
     private fun reorder(newOrder: List<DisplayBudget>) {
         viewModelScope.launch {
-            com.ivy.legacy.utils.ioThread {
-                newOrder.forEachIndexed { index, item ->
-                    budgetWriter.save(
-                        item.budget.toEntity().copy(
-                            orderId = index.toDouble(),
-                            isSynced = false
-                        )
-                    )
+            budgetRepository.saveMany(
+                newOrder.mapIndexed { index, item ->
+                    item.budget.copy(orderNum = index.toDouble())
                 }
-            }
+            )
             start()
         }
     }
@@ -309,6 +271,6 @@ fun calculateTotalRemainingBudget(
     categoryBudgetsTotal: Double
 ): Double {
     return categoryBudgetsTotal - budgets
-        .filter { it.budget.categoryIdsSerialized.isNotNullOrBlank() }
+        .filter { it.budget.categories.isNotEmpty() }
         .sumOf { it.spentAmount }
 }

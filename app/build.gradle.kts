@@ -116,11 +116,8 @@ android {
         checkDependencies = true
         abortOnError = false
         checkReleaseBuilds = false
-        htmlReport = true
-        htmlOutput = file("${project.rootDir}/build/reports/lint/lint.html")
-        xmlReport = true
-        xmlOutput = file("${project.rootDir}/build/reports/lint/lint.xml")
         baseline = file("lint-baseline.xml")
+        lintConfig = rootProject.file("lint.xml")
     }
 }
 
@@ -147,8 +144,7 @@ dependencies {
     implementation(projects.shared.domain)
     implementation(projects.shared.ui.core)
     implementation(projects.shared.ui.navigation)
-    implementation(projects.temp.legacyCode)
-    implementation(projects.temp.oldDesign)
+    implementation(projects.shared.ui.components)
     implementation(projects.widget.addTransaction)
     implementation(projects.widget.balance)
 

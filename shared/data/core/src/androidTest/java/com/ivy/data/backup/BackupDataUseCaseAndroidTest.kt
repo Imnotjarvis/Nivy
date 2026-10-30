@@ -3,16 +3,17 @@ package com.ivy.data.backup
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.base.di.KotlinxSerializationModule
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.data.DataObserver
 import com.ivy.data.db.IvyRoomDatabase
 import com.ivy.data.file.FileSystem
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.fake.fakeRepositoryMemoFactory
@@ -25,6 +26,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class BackupDataUseCaseAndroidTest {
@@ -37,9 +39,15 @@ class BackupDataUseCaseAndroidTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, IvyRoomDatabase::class.java).build()
         val appContext = InstrumentationRegistry.getInstrumentation().context
+        // a new file each time: DataStore allows only one instance per file
+        val appPreferences = AppPreferences(
+            PreferenceDataStoreFactory.create {
+                File(context.cacheDir, "backup-test-${UUID.randomUUID()}.preferences_pb")
+            }
+        )
         val accountMapper = AccountMapper(
             currencyRepository = CurrencyRepository(
-                settingsDao = db.settingsDao,
+                appPreferences = appPreferences,
                 dispatchersProvider = TestDispatchersProvider,
             )
         )
@@ -50,10 +58,9 @@ class BackupDataUseCaseAndroidTest {
             loanRecordDao = db.loanRecordDao,
             loanDao = db.loanDao,
             plannedPaymentRuleDao = db.plannedPaymentRuleDao,
-            settingsDao = db.settingsDao,
             transactionDao = db.transactionDao,
             transactionWriter = db.writeTransactionDao,
-            sharedPrefs = SharedPrefs(appContext),
+            appPreferences = appPreferences,
             accountRepository = AccountRepository(
                 accountDao = db.accountDao,
                 writeAccountDao = db.writeAccountDao,
@@ -63,7 +70,6 @@ class BackupDataUseCaseAndroidTest {
             ),
             accountMapper = accountMapper,
             categoryWriter = db.writeCategoryDao,
-            settingsWriter = db.writeSettingsDao,
             budgetWriter = db.writeBudgetDao,
             loanWriter = db.writeLoanDao,
             loanRecordWriter = db.writeLoanRecordDao,
@@ -76,7 +82,8 @@ class BackupDataUseCaseAndroidTest {
             tagsReader = db.tagDao,
             tagAssociationReader = db.tagAssociationDao,
             tagsWriter = db.writeTagDao,
-            tagAssociationWriter = db.writeTagAssociationDao
+            tagAssociationWriter = db.writeTagAssociationDao,
+            db = db,
         )
     }
 

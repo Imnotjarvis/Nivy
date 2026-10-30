@@ -26,39 +26,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.stringRes
+import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.LegacyDueSection
-import com.ivy.legacy.datamodel.Account
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.legacy.ui.component.transaction.transactions
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.ReportScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenDark
-import com.ivy.wallet.ui.theme.GreenLight
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Purple1Dark
-import com.ivy.wallet.ui.theme.Red3Light
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Purple1Dark
+import com.ivy.design.system.colors.Red3Light
 import com.ivy.wallet.ui.theme.components.BackButtonType
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
@@ -67,10 +64,10 @@ import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.wallet.ui.theme.components.IvyToolbar
-import com.ivy.wallet.ui.theme.pureBlur
+import com.ivy.design.system.colors.pureBlur
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Composable
@@ -92,7 +89,6 @@ private fun BoxWithConstraintsScope.UI(
     state: ReportScreenState = ReportScreenState(),
     onEventHandler: (ReportScreenEvent) -> Unit = {}
 ) {
-    val legacyTransactions = state.transactions
     val nav = navigation()
     val context = LocalContext.current
 
@@ -111,13 +107,16 @@ private fun BoxWithConstraintsScope.UI(
         ) {
             Text(
                 text = stringResource(R.string.generating_report),
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Orange
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = Orange,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
     }
+
+    val emptyStateTitle = stringResource(R.string.no_transactions)
+    val emptyStateText = stringResource(R.string.no_transactions_for_your_filter)
 
     LazyColumn(
         modifier = Modifier
@@ -146,7 +145,8 @@ private fun BoxWithConstraintsScope.UI(
                     start = 32.dp
                 ),
                 text = stringResource(R.string.reports),
-                style = UI.typo.h2.style(
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -156,7 +156,7 @@ private fun BoxWithConstraintsScope.UI(
             BalanceRow(
                 modifier = Modifier
                     .padding(start = 32.dp),
-                textColor = UI.colors.pureInverse,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 currency = state.baseCurrency,
                 balance = state.balance,
                 balanceAmountPrefix = when {
@@ -173,13 +173,13 @@ private fun BoxWithConstraintsScope.UI(
                 income = state.income,
                 expenses = state.expenses,
                 hasAddButtons = false,
-                itemColor = UI.colors.pure,
+                itemColor = MaterialTheme.colorScheme.surface,
                 incomeHeaderCardClicked = {
                     if (state.transactions.isNotEmpty()) {
                         nav.navigateTo(
                             PieChartStatisticScreen(
                                 type = TransactionType.INCOME,
-                                transactions = legacyTransactions.toImmutableList(),
+                                transactions = state.transactions,
                                 accountList = state.accountIdFilters,
                                 treatTransfersAsIncomeExpense = state.treatTransfersAsIncExp
                             )
@@ -191,7 +191,7 @@ private fun BoxWithConstraintsScope.UI(
                         nav.navigateTo(
                             PieChartStatisticScreen(
                                 type = TransactionType.EXPENSE,
-                                transactions = legacyTransactions.toImmutableList(),
+                                transactions = state.transactions,
                                 accountList = state.accountIdFilters,
                                 treatTransfersAsIncomeExpense = state.treatTransfersAsIncExp
                             )
@@ -232,7 +232,7 @@ private fun BoxWithConstraintsScope.UI(
                     accounts = state.accounts,
                 ),
 
-                upcoming = LegacyDueSection(
+                upcoming = DueSection(
                     trns = state.upcomingTransactions,
                     stats = IncomeExpensePair(
                         income = state.upcomingIncome.toBigDecimal(),
@@ -245,7 +245,7 @@ private fun BoxWithConstraintsScope.UI(
                     onEventHandler.invoke(ReportScreenEvent.OnUpcomingExpanded(upcomingExpanded = it))
                 },
 
-                overdue = LegacyDueSection(
+                overdue = DueSection(
                     trns = state.overdueTransactions,
                     stats = IncomeExpensePair(
                         income = state.overdueIncome.toBigDecimal(),
@@ -261,16 +261,16 @@ private fun BoxWithConstraintsScope.UI(
                 lastItemSpacer = 48.dp,
 
                 onPayOrGet = {
-                    onEventHandler.invoke(ReportScreenEvent.OnPayOrGetLegacy(transaction = it))
+                    onEventHandler.invoke(ReportScreenEvent.OnPayOrGet(transaction = it))
                 },
-                emptyStateTitle = stringRes(R.string.no_transactions),
-                emptyStateText = stringRes(R.string.no_transactions_for_your_filter),
+                emptyStateTitle = emptyStateTitle,
+                emptyStateText = emptyStateText,
                 shouldShowAccountSpecificColorInTransactions = state.showAccountColorsInTransactions,
                 onSkipTransaction = {
-                    onEventHandler.invoke(ReportScreenEvent.SkipTransactionLegacy(transaction = it))
+                    onEventHandler.invoke(ReportScreenEvent.SkipTransaction(transaction = it))
                 },
                 onSkipAllTransactions = {
-                    onEventHandler.invoke(ReportScreenEvent.SkipTransactionsLegacy(transactions = it))
+                    onEventHandler.invoke(ReportScreenEvent.SkipTransactions(transactions = it))
                 }
             )
         } else {
@@ -330,7 +330,7 @@ private fun NoFilterEmptyState(
 
         Text(
             text = stringResource(R.string.no_filter),
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -341,7 +341,7 @@ private fun NoFilterEmptyState(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.invalid_filter_warning),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -405,8 +405,8 @@ private fun Toolbar(
 @Composable
 private fun Preview(theme: Theme = Theme.LIGHT) {
     IvyWalletPreview(theme) {
-        val acc1 = Account("Cash", color = Green.toArgb())
-        val acc2 = Account("DSK", color = GreenDark.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
+        val acc2 = previewAccount("DSK", color = GreenDark)
         val cat1 = Category(
             name = NotBlankTrimmedString.unsafe("Science"),
             color = ColorInt(Purple1Dark.toArgb()),
@@ -435,8 +435,8 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
             accounts = persistentListOf(
                 acc1,
                 acc2,
-                Account("phyre", color = GreenLight.toArgb(), icon = "cash"),
-                Account("Revolut", color = IvyDark.toArgb()),
+                previewAccount("phyre", color = GreenLight, icon = "cash"),
+                previewAccount("Revolut", color = IvyDark),
             ),
             categories = persistentListOf(
                 cat1,
@@ -466,8 +466,8 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
 @Composable
 private fun Preview_NO_FILTER(theme: Theme = Theme.LIGHT) {
     IvyWalletPreview(theme) {
-        val acc1 = Account("Cash", color = Green.toArgb())
-        val acc2 = Account("DSK", color = GreenDark.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
+        val acc2 = previewAccount("DSK", color = GreenDark)
         val cat1 = Category(
             name = NotBlankTrimmedString.unsafe("Science"),
             color = ColorInt(Purple1Dark.toArgb()),
@@ -498,8 +498,8 @@ private fun Preview_NO_FILTER(theme: Theme = Theme.LIGHT) {
             accounts = persistentListOf(
                 acc1,
                 acc2,
-                Account("phyre", color = GreenLight.toArgb(), icon = "cash"),
-                Account("Revolut", color = IvyDark.toArgb()),
+                previewAccount("phyre", color = GreenLight, icon = "cash"),
+                previewAccount("Revolut", color = IvyDark),
             ),
             categories = persistentListOf(
                 cat1,

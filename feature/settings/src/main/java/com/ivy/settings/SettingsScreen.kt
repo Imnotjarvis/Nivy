@@ -35,15 +35,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.base.legacy.Theme
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
-import com.ivy.design.l1_buildingBlocks.IconScale
-import com.ivy.design.l1_buildingBlocks.IvyIconScaled
+import com.ivy.base.model.Theme
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.rootScreen
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.ExchangeRatesScreen
 import com.ivy.navigation.FeaturesScreen
 import com.ivy.navigation.ImportScreen
@@ -51,11 +47,11 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvySwitch
 import com.ivy.wallet.ui.theme.components.IvyToolbar
 import com.ivy.wallet.ui.theme.modal.ChooseStartDateOfMonthModal
@@ -64,6 +60,13 @@ import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.NameModal
 import com.ivy.wallet.ui.theme.modal.ProgressModal
 import java.util.Locale
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberLabelMedium
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -161,6 +164,7 @@ private fun BoxWithConstraintsScope.UI(
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
+    val onBack = rememberOnBack()
 
     LazyColumn(
         modifier = Modifier
@@ -171,15 +175,15 @@ private fun BoxWithConstraintsScope.UI(
     ) {
         stickyHeader {
             IvyToolbar(
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
             ) {
                 Spacer(Modifier.weight(1f))
 
                 val rootScreen = rootScreen()
                 Text(
                     text = "${rootScreen.buildVersionName} (${rootScreen.buildVersionCode})",
-                    style = UI.typo.nC.style(
-                        color = UI.colors.gray,
+                    style = MaterialTheme.typography.numberLabelMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -195,7 +199,8 @@ private fun BoxWithConstraintsScope.UI(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = stringResource(R.string.settings),
-                style = UI.typo.h2.style(
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Black
                 )
             )
@@ -450,11 +455,11 @@ private fun StartDateOfMonth(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_custom_calendar_m,
-            tint = UI.colors.pureInverse,
-            iconScale = IconScale.M,
-            padding = 2.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(2.dp),
+            painter = painterResource(id = R.drawable.ic_custom_calendar_m),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(8.dp))
@@ -462,8 +467,8 @@ private fun StartDateOfMonth(
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
             text = stringResource(R.string.start_date_of_month),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -472,9 +477,9 @@ private fun StartDateOfMonth(
 
         Text(
             text = startDateOfMonth.toString(),
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.ExtraBold,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
         )
 
@@ -491,11 +496,11 @@ private fun CustomFeatures(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_custom_programming_m,
-            tint = UI.colors.pureInverse,
-            iconScale = IconScale.M,
-            padding = 0.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(0.dp),
+            painter = painterResource(id = R.drawable.ic_custom_programming_m),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -503,8 +508,8 @@ private fun CustomFeatures(
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
             text = stringResource(R.string.advanced_features),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -520,8 +525,8 @@ private fun AppThemeButton(
     SettingsPrimaryButton(
         icon = icon,
         text = label,
-        backgroundGradient = Gradient.solid(UI.colors.medium),
-        textColor = UI.colors.pureInverse,
+        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+        textColor = MaterialTheme.colorScheme.onSurface,
         iconPadding = 6.dp,
         description = stringResource(R.string.tap_to_switch_theme),
         onClick = onClick
@@ -543,11 +548,11 @@ private fun AppSwitch(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = icon,
-            tint = UI.colors.pureInverse,
-            iconScale = IconScale.M,
-            padding = 0.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(0.dp),
+            painter = painterResource(id = icon),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(8.dp))
@@ -559,8 +564,8 @@ private fun AppSwitch(
         ) {
             Text(
                 text = text,
-                style = UI.typo.b2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -568,7 +573,7 @@ private fun AppSwitch(
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
                     text = description,
-                    style = UI.typo.nB2.style(
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.Normal
                     ).copy(fontSize = 14.sp)
@@ -596,8 +601,8 @@ private fun AccountCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r2)
-            .background(UI.colors.medium, UI.shapes.r2)
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge)
             .clickable {
                 onCardClick()
             }
@@ -614,9 +619,9 @@ private fun AccountCard(
 
             Text(
                 text = stringResource(R.string.account_uppercase),
-                style = UI.typo.c.style(
-                    fontWeight = FontWeight.Black,
-                    color = UI.colors.gray
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Black
                 )
             )
         }
@@ -640,9 +645,11 @@ private fun AccountCardLocalAccount(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
-        IvyIconScaled(
-            icon = R.drawable.ic_local_account,
-            iconScale = IconScale.M
+        Icon(
+            modifier = Modifier.size(48.dp).padding(4.dp),
+            painter = painterResource(id = R.drawable.ic_local_account),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(12.dp))
@@ -652,7 +659,8 @@ private fun AccountCardLocalAccount(
                 .weight(1f)
                 .testTag("local_account_name"),
             text = if (!name.isNullOrBlank()) name else stringResource(R.string.anonymous),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -680,7 +688,7 @@ private fun SettingsPrimaryButton(
     @DrawableRes icon: Int,
     text: String,
     hasShadow: Boolean = false,
-    backgroundGradient: Gradient = Gradient.solid(UI.colors.medium),
+    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
     textColor: Color = White,
     iconPadding: Dp = 0.dp,
     description: String? = null,
@@ -693,11 +701,11 @@ private fun SettingsPrimaryButton(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = icon,
-            tint = textColor,
-            iconScale = IconScale.M,
-            padding = iconPadding
+        Icon(
+            modifier = Modifier.size(48.dp).padding(iconPadding),
+            painter = painterResource(id = icon),
+            contentDescription = "icon",
+            tint = textColor
         )
 
         Spacer(Modifier.width(8.dp))
@@ -709,16 +717,16 @@ private fun SettingsPrimaryButton(
         ) {
             Text(
                 text = text,
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = textColor,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Bold
                 )
             )
             if (!description.isNullOrEmpty()) {
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
                     text = description,
-                    style = UI.typo.nB2.style(
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.Normal
                     ).copy(fontSize = 14.sp)
@@ -732,7 +740,7 @@ private fun SettingsPrimaryButton(
 private fun SettingsButtonRow(
     onClick: (() -> Unit)?,
     hasShadow: Boolean = false,
-    backgroundGradient: Gradient = Gradient.solid(UI.colors.medium),
+    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
@@ -742,8 +750,8 @@ private fun SettingsButtonRow(
                 drawColoredShadow(color = backgroundGradient.startColor)
             }
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
-            .background(backgroundGradient.asHorizontalBrush(), UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(backgroundGradient.asHorizontalBrush(), MaterialTheme.shapes.medium)
             .thenIf(onClick != null) {
                 clickable {
                     onClick?.invoke()
@@ -764,8 +772,8 @@ private fun CurrencyButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             },
@@ -773,10 +781,11 @@ private fun CurrencyButton(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_currency,
-            iconScale = IconScale.M,
-            padding = 0.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(0.dp),
+            painter = painterResource(id = R.drawable.ic_currency),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(8.dp))
@@ -784,8 +793,8 @@ private fun CurrencyButton(
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
             text = stringResource(R.string.set_currency),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -794,17 +803,19 @@ private fun CurrencyButton(
 
         Text(
             text = currency,
-            style = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
 
         Spacer(Modifier.height(4.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_arrow_right,
-            iconScale = IconScale.M
+        Icon(
+            modifier = Modifier.size(48.dp).padding(4.dp),
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(24.dp))
@@ -822,7 +833,7 @@ private fun SettingsSectionDivider(
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = text,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = color,
                 fontWeight = FontWeight.Bold
             )
@@ -841,8 +852,8 @@ private fun SettingsDefaultButton(
     SettingsPrimaryButton(
         icon = icon,
         text = text,
-        backgroundGradient = Gradient.solid(UI.colors.medium),
-        textColor = UI.colors.pureInverse,
+        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+        textColor = MaterialTheme.colorScheme.onSurface,
         iconPadding = iconPadding,
         description = description
     ) {

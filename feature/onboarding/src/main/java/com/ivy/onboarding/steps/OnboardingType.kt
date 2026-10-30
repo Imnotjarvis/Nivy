@@ -20,20 +20,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButtonFillMaxWidth
 import com.ivy.wallet.ui.theme.components.OnboardingButton
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.navigation.rememberOnBack
 
 @Composable
 fun OnboardingType(
@@ -49,11 +49,11 @@ fun OnboardingType(
     ) {
         Spacer(Modifier.height(16.dp))
 
-        val nav = navigation()
+        val onBack = rememberOnBack()
         CloseButton(
             modifier = Modifier.padding(start = 20.dp)
         ) {
-            nav.onBackPressed()
+            onBack()
         }
 
         Spacer(Modifier.height(24.dp))
@@ -61,7 +61,8 @@ fun OnboardingType(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.import_csv_file),
-            style = UI.typo.h2.style(
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Black
             )
         )
@@ -71,9 +72,9 @@ fun OnboardingType(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.from_ivy_or_another_app),
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.Bold,
-                color = Gray
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.Bold
             )
         )
 
@@ -97,7 +98,8 @@ fun OnboardingType(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.importing_another_time_warning),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )

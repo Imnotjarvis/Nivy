@@ -9,16 +9,14 @@ import java.util.UUID
 
 @Dao
 interface TransactionDao {
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 ORDER BY dateTime DESC, dueDate ASC")
+    @Query("SELECT * FROM transactions ORDER BY dateTime DESC, dueDate ASC")
     suspend fun findAll(): List<TransactionEntity>
 
-    @Suppress("FunctionNaming")
-    @Deprecated("legacy remove")
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 LIMIT 1")
-    suspend fun findAll_LIMIT_1(): List<TransactionEntity>
+    @Query("SELECT EXISTS(SELECT 1 FROM transactions)")
+    suspend fun hasTransactions(): Boolean
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and accountId = :accountId ORDER BY dateTime DESC"
+        "SELECT * FROM transactions WHERE type = :type and accountId = :accountId ORDER BY dateTime DESC"
     )
     suspend fun findAllByTypeAndAccount(
         type: TransactionType,
@@ -26,7 +24,7 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and toAccountId = :toAccountId ORDER BY dateTime DESC"
+        "SELECT * FROM transactions WHERE type = :type and toAccountId = :toAccountId ORDER BY dateTime DESC"
     )
     suspend fun findAllTransfersToAccount(
         toAccountId: UUID,
@@ -34,7 +32,7 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions WHERE dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
     )
     suspend fun findAllBetween(
         startDate: Instant,
@@ -42,7 +40,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND accountId = :accountId AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions " +
+            "WHERE accountId = :accountId AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "ORDER BY dateTime DESC"
     )
     suspend fun findAllByAccountAndBetween(
         accountId: UUID,
@@ -51,7 +51,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions " +
+            "WHERE (categoryId = :categoryId) AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "ORDER BY dateTime DESC"
     )
     suspend fun findAllByCategoryAndBetween(
         categoryId: UUID,
@@ -60,7 +62,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId IS NULL) AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions " +
+            "WHERE (categoryId IS NULL) AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "ORDER BY dateTime DESC"
     )
     suspend fun findAllUnspecifiedAndBetween(
         startDate: Instant,
@@ -68,7 +72,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) AND type = :type AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions " +
+            "WHERE (categoryId = :categoryId) AND type = :type AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "ORDER BY dateTime DESC"
     )
     suspend fun findAllByCategoryAndTypeAndBetween(
         categoryId: UUID,
@@ -78,7 +84,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId IS NULL) AND type = :type AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions " +
+            "WHERE (categoryId IS NULL) AND type = :type AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "ORDER BY dateTime DESC"
     )
     suspend fun findAllUnspecifiedAndTypeAndBetween(
         type: TransactionType,
@@ -87,7 +95,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND toAccountId = :toAccountId AND dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
+        "SELECT * FROM transactions " +
+            "WHERE toAccountId = :toAccountId AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "ORDER BY dateTime DESC"
     )
     suspend fun findAllToAccountAndBetween(
         toAccountId: UUID,
@@ -96,7 +106,7 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate >= :startDate AND dueDate <= :endDate ORDER BY dueDate ASC"
+        "SELECT * FROM transactions WHERE dueDate >= :startDate AND dueDate <= :endDate ORDER BY dueDate ASC"
     )
     suspend fun findAllDueToBetween(
         startDate: Instant,
@@ -104,7 +114,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate >= :startDate AND dueDate <= :endDate AND (categoryId = :categoryId) ORDER BY dateTime DESC, dueDate ASC"
+        "SELECT * FROM transactions " +
+            "WHERE dueDate >= :startDate AND dueDate <= :endDate AND (categoryId = :categoryId) " +
+            "ORDER BY dateTime DESC, dueDate ASC"
     )
     suspend fun findAllDueToBetweenByCategory(
         startDate: Instant,
@@ -113,7 +125,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate >= :startDate AND dueDate <= :endDate AND (categoryId IS NULL) ORDER BY dateTime DESC, dueDate ASC"
+        "SELECT * FROM transactions " +
+            "WHERE dueDate >= :startDate AND dueDate <= :endDate AND (categoryId IS NULL) " +
+            "ORDER BY dateTime DESC, dueDate ASC"
     )
     suspend fun findAllDueToBetweenByCategoryUnspecified(
         startDate: Instant,
@@ -121,7 +135,9 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate >= :startDate AND dueDate <= :endDate AND accountId = :accountId ORDER BY dateTime DESC, dueDate ASC"
+        "SELECT * FROM transactions " +
+            "WHERE dueDate >= :startDate AND dueDate <= :endDate AND accountId = :accountId " +
+            "ORDER BY dateTime DESC, dueDate ASC"
     )
     suspend fun findAllDueToBetweenByAccount(
         startDate: Instant,
@@ -130,7 +146,7 @@ interface TransactionDao {
     ): List<TransactionEntity>
 
     @Query(
-        "SELECT * FROM transactions WHERE isDeleted = 0 AND recurringRuleId = :recurringRuleId ORDER BY dateTime DESC"
+        "SELECT * FROM transactions WHERE recurringRuleId = :recurringRuleId ORDER BY dateTime DESC"
     )
     suspend fun findAllByRecurringRuleId(recurringRuleId: UUID): List<TransactionEntity>
 
@@ -140,51 +156,51 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE id in (:ids)")
     suspend fun findByIds(ids: List<UUID>): List<TransactionEntity>
 
-    @Query("SELECT COUNT(*) FROM transactions WHERE isDeleted = 0 AND dateTime IS NOT null")
+    @Query("SELECT COUNT(*) FROM transactions WHERE dateTime IS NOT null")
     suspend fun countHappenedTransactions(): Long
 
     // Smart Title Suggestions
-    @Query("SELECT * FROM transactions WHERE title LIKE :pattern AND isDeleted = 0")
+    @Query("SELECT * FROM transactions WHERE title LIKE :pattern")
     suspend fun findAllByTitleMatchingPattern(pattern: String): List<TransactionEntity>
 
-    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND isDeleted = 0")
+    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern")
     suspend fun countByTitleMatchingPattern(
         pattern: String,
     ): Long
 
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) ORDER BY dateTime DESC")
+    @Query("SELECT * FROM transactions WHERE (categoryId = :categoryId) ORDER BY dateTime DESC")
     suspend fun findAllByCategory(
         categoryId: UUID,
     ): List<TransactionEntity>
 
-    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND categoryId = :categoryId AND isDeleted = 0")
+    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND categoryId = :categoryId")
     suspend fun countByTitleMatchingPatternAndCategoryId(
         pattern: String,
         categoryId: UUID
     ): Long
 
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 AND accountId = :accountId ORDER BY dateTime DESC")
+    @Query("SELECT * FROM transactions WHERE accountId = :accountId ORDER BY dateTime DESC")
     suspend fun findAllByAccount(
         accountId: UUID
     ): List<TransactionEntity>
 
-    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND accountId = :accountId AND isDeleted = 0")
+    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND accountId = :accountId")
     suspend fun countByTitleMatchingPatternAndAccountId(
         pattern: String,
         accountId: UUID
     ): Long
 
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 AND loanId = :loanId AND loanRecordId IS NULL")
+    @Query("SELECT * FROM transactions WHERE loanId = :loanId AND loanRecordId IS NULL")
     suspend fun findLoanTransaction(
         loanId: UUID
     ): TransactionEntity?
 
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 AND loanRecordId = :loanRecordId")
+    @Query("SELECT * FROM transactions WHERE loanRecordId = :loanRecordId")
     suspend fun findLoanRecordTransaction(
         loanRecordId: UUID
     ): TransactionEntity?
 
-    @Query("SELECT * FROM transactions WHERE isDeleted = 0 AND loanId = :loanId")
+    @Query("SELECT * FROM transactions WHERE loanId = :loanId")
     suspend fun findAllByLoanId(
         loanId: UUID
     ): List<TransactionEntity>

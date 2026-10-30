@@ -7,8 +7,8 @@ import java.util.*
 
 @Dao
 interface AccountDao {
-    @Query("SELECT * FROM accounts WHERE isDeleted = :deleted ORDER BY orderNum ASC")
-    suspend fun findAll(deleted: Boolean = false): List<AccountEntity>
+    @Query("SELECT * FROM accounts ORDER BY orderNum ASC")
+    suspend fun findAll(): List<AccountEntity>
 
     @Query("SELECT * FROM accounts WHERE id = :id")
     suspend fun findById(id: UUID): AccountEntity?

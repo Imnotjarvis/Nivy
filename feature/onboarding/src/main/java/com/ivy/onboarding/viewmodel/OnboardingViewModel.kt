@@ -5,19 +5,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.data.db.dao.read.AccountDao
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
+import com.ivy.data.model.Account
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.preferences.AppSettings
+import com.ivy.domain.usecase.data.DeleteAllDataUseCase
+import com.ivy.onboarding.StarterData
 import com.ivy.ui.ComposeViewModel
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.LogoutLogic
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Settings
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.OpResult
 import com.ivy.legacy.utils.ioThread
@@ -27,39 +26,39 @@ import com.ivy.onboarding.OnboardingDetailState
 import com.ivy.onboarding.OnboardingEvent
 import com.ivy.onboarding.OnboardingState
 import com.ivy.wallet.domain.action.account.AccountsAct
+import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
-import com.ivy.wallet.domain.deprecated.logic.WalletAccountLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderLogic
+import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// What the home screen keeps aside until the user sets their own buffer.
+private const val DefaultBufferAmount = 1000.0
+
 @Stable
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val nav: Navigation,
     private val accountDao: AccountDao,
-    private val settingsDao: SettingsDao,
-    private val accountLogic: WalletAccountLogic,
+    private val appPreferences: AppPreferences,
+    private val calcAccBalanceAct: CalcAccBalanceAct,
     private val categoryCreator: CategoryCreator,
     private val categoryRepository: CategoryRepository,
     private val accountCreator: AccountCreator,
 
     private val accountsAct: AccountsAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
-    private val settingsWriter: WriteSettingsDao,
 
     // Only OnboardingRouter stuff
-    sharedPrefs: SharedPrefs,
-    transactionReminderLogic: TransactionReminderLogic,
-    preloadDataLogic: PreloadDataLogic,
-    logoutLogic: LogoutLogic,
+    transactionReminderScheduler: TransactionReminderScheduler,
+    starterData: StarterData,
+    deleteAllDataUseCase: DeleteAllDataUseCase,
 ) : ComposeViewModel<OnboardingDetailState, OnboardingEvent>() {
 
     private val _state = mutableStateOf(OnboardingState.SPLASH)
@@ -94,25 +93,25 @@ class OnboardingViewModel @Inject constructor(
 
         nav = nav,
         accountDao = accountDao,
-        sharedPrefs = sharedPrefs,
+        appPreferences = appPreferences,
         categoryRepository = categoryRepository,
-        preloadDataLogic = preloadDataLogic,
-        transactionReminderLogic = transactionReminderLogic,
-        logoutLogic = logoutLogic,
+        starterData = starterData,
+        transactionReminderScheduler = transactionReminderScheduler,
+        deleteAllDataUseCase = deleteAllDataUseCase,
         syncExchangeRatesUseCase = syncExchangeRatesUseCase,
     )
+
+    private var restartOnboarding: () -> Unit = {}
+
+    fun onBack() {
+        router.onBack(viewModelScope = viewModelScope, restartOnboarding = restartOnboarding)
+    }
 
     fun start(screen: OnboardingScreen, isSystemDarkMode: Boolean) {
         viewModelScope.launch {
             initiateSettings(isSystemDarkMode)
 
-            router.initBackHandling(
-                screen = screen,
-                viewModelScope = viewModelScope,
-                restartOnboarding = {
-                    start(screen, isSystemDarkMode)
-                }
-            )
+            restartOnboarding = { start(screen, isSystemDarkMode) }
 
             router.splashNext()
         }
@@ -122,17 +121,15 @@ class OnboardingViewModel @Inject constructor(
         val defaultCurrency = IvyCurrency.getDefault()
         _currency.value = defaultCurrency
 
-        ioThread {
-            if (settingsDao.findAll().isEmpty()) {
-                settingsWriter.save(
-                    Settings(
-                        theme = if (isSystemDarkMode) Theme.DARK else Theme.LIGHT,
-                        name = "",
-                        baseCurrency = defaultCurrency.code,
-                        bufferAmount = 1000.0.toBigDecimal()
-                    ).toEntity()
+        if (appPreferences.settings() == null) {
+            appPreferences.saveSettings(
+                AppSettings(
+                    theme = if (isSystemDarkMode) Theme.DARK else Theme.LIGHT,
+                    name = "",
+                    baseCurrency = defaultCurrency.code,
+                    bufferAmount = DefaultBufferAmount,
                 )
-            }
+            )
         }
     }
 
@@ -189,13 +186,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun updateBaseCurrency(baseCurrency: IvyCurrency) {
-        ioThread {
-            settingsWriter.save(
-                settingsDao.findFirst().copy(
-                    currency = baseCurrency.code
-                )
-            )
-        }
+        appPreferences.setBaseCurrency(baseCurrency.code)
         _currency.value = baseCurrency
     }
 
@@ -213,11 +204,11 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun accountsWithBalance(): ImmutableList<AccountBalance> = ioThread {
-        accountsAct(Unit)
+        accountsAct()
             .map {
                 AccountBalance(
                     account = it,
-                    balance = ioThread { accountLogic.calculateAccountBalance(it) }
+                    balance = calcAccBalanceAct(CalcAccBalanceAct.Input(account = it)).balance.toDouble()
                 )
             }.toImmutableList()
     }

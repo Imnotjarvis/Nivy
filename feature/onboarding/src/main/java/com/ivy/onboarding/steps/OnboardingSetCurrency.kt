@@ -21,26 +21,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.setStatusBarDarkTextCompat
-import com.ivy.navigation.navigation
+import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BackButton
 import com.ivy.wallet.ui.theme.components.CurrencyPicker
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.OnboardingButton
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.isLight
+import com.ivy.navigation.rememberOnBack
 
 @Composable
 fun BoxWithConstraintsScope.OnboardingSetCurrency(
     preselectedCurrency: IvyCurrency,
     onSetCurrency: (IvyCurrency) -> Unit
 ) {
-    setStatusBarDarkTextCompat(darkText = UI.colors.isLight)
+    StatusBarDarkText(darkText = MaterialTheme.colorScheme.isLight())
 
     var currency by remember { mutableStateOf(preselectedCurrency) }
 
@@ -56,11 +56,11 @@ fun BoxWithConstraintsScope.OnboardingSetCurrency(
             mutableStateOf(false)
         }
 
-        val nav = navigation()
+        val onBack = rememberOnBack()
         BackButton(
             modifier = Modifier.padding(start = 20.dp)
         ) {
-            nav.onBackPressed()
+            onBack()
         }
 
         if (!keyboardVisible) {
@@ -69,7 +69,8 @@ fun BoxWithConstraintsScope.OnboardingSetCurrency(
             Text(
                 modifier = Modifier.padding(horizontal = 32.dp),
                 text = stringResource(R.string.set_currency),
-                style = UI.typo.h2.style(
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Black
                 )
             )
@@ -97,7 +98,7 @@ fun BoxWithConstraintsScope.OnboardingSetCurrency(
     )
 
     OnboardingButton(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
             .align(Alignment.BottomCenter)

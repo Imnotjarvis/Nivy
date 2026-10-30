@@ -2,8 +2,8 @@ package com.ivy.data.repository
 
 import android.icu.util.Currency
 import com.ivy.base.threading.DispatchersProvider
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.preferences.AppPreferences
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class CurrencyRepository @Inject constructor(
-    private val settingsDao: SettingsDao,
+    private val appPreferences: AppPreferences,
     private val dispatchersProvider: DispatchersProvider,
 ) {
     companion object {
@@ -19,7 +19,7 @@ class CurrencyRepository @Inject constructor(
     }
 
     suspend fun getBaseCurrency(): AssetCode = withContext(dispatchersProvider.io) {
-        val currencyCode = settingsDao.findFirstOrNull()?.currency
+        val currencyCode = appPreferences.baseCurrency()?.takeIf { it.isNotBlank() }
             ?: getDefaultFIATCurrency()?.currencyCode
         currencyCode?.let(AssetCode::from)?.getOrNull()
             ?: AssetCode.unsafe(FALLBACK_DEFAULT_CURRENCY)

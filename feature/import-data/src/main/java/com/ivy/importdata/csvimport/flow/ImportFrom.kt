@@ -27,8 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
 import com.ivy.navigation.CSVScreen
 import com.ivy.navigation.navigation
@@ -36,6 +34,8 @@ import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.IvyIcon
+import androidx.compose.material3.MaterialTheme
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -55,10 +55,10 @@ fun BoxWithConstraintsScope.ImportFrom(
             .navigationBarsPadding()
     ) {
         stickyHeader {
-            val nav = navigation()
+            val onBack = rememberOnBack()
             OnboardingToolbar(
                 hasSkip = hasSkip,
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
                 onSkip = onSkip
             )
             // onboarding toolbar include paddingBottom 16.dp
@@ -78,9 +78,9 @@ fun BoxWithConstraintsScope.ImportFrom(
             ) {
                 Text(
                     text = stringResource(id = R.string.manual_csv_import),
-                    style = UI.typo.b2.style(
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
@@ -93,7 +93,8 @@ fun BoxWithConstraintsScope.ImportFrom(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = stringResource(R.string.import_from),
-                style = UI.typo.h2.style(
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Black
                 )
             )
@@ -128,8 +129,8 @@ private fun ImportOption(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r3)
-            .background(UI.colors.medium, UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.large)
             .clickable {
                 onImportFrom(importType)
             }
@@ -147,9 +148,9 @@ private fun ImportOption(
         Text(
             modifier = Modifier.padding(start = 16.dp, end = 32.dp),
             text = importType.listName(),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
             )
         )
     }

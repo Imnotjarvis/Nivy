@@ -6,18 +6,24 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
+import arrow.core.raise.either
 import com.ivy.base.model.processByType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.LoanRecordDao
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.data.db.dao.write.WriteLoanDao
+import com.ivy.data.model.Account
+import com.ivy.data.model.Loan
+import com.ivy.data.model.LoanId
 import com.ivy.data.model.LoanType
-import com.ivy.frp.test.TestIdlingResource
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Loan
+import com.ivy.data.model.primitive.ColorInt
+import com.ivy.data.model.primitive.IconAsset
+import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
+import com.ivy.data.repository.LoanRepository
+import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.getDefaultFIATCurrency
@@ -27,8 +33,6 @@ import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.loan.LoansAct
-import com.ivy.wallet.domain.deprecated.logic.LoanCreator
-import com.ivy.wallet.domain.deprecated.logic.loantrasactions.LoanTransactionsLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateLoanData
 import com.ivy.wallet.ui.theme.modal.LoanModalData
@@ -46,15 +50,13 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class LoanViewModel @Inject constructor(
-    private val loanRecordDao: LoanRecordDao,
-    private val settingsDao: SettingsDao,
-    private val loanCreator: LoanCreator,
-    private val sharedPrefs: SharedPrefs,
+    private val loanRepository: LoanRepository,
+    private val currencyRepository: CurrencyRepository,
+    private val appPreferences: AppPreferences,
     private val accountCreator: AccountCreator,
-    private val loanTransactionsLogic: LoanTransactionsLogic,
+    private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val loansAct: LoansAct,
     private val accountsAct: AccountsAct,
-    private val loanWriter: WriteLoanDao,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker
@@ -191,12 +193,10 @@ class LoanViewModel @Inject constructor(
 
     private fun start() {
         viewModelScope.launch(Dispatchers.Default) {
-            TestIdlingResource.increment()
-
             dateTime = timeProvider.utcNow()
 
             defaultCurrencyCode = ioThread {
-                settingsDao.findFirst().currency
+                currencyRepository.getBaseCurrency().code
             }.also {
                 baseCurrencyCode = it
             }
@@ -207,7 +207,7 @@ class LoanViewModel @Inject constructor(
             totalOwedAmount = 0.0
 
             allLoans = ioThread {
-                loansAct(Unit)
+                loansAct()
                     .map { loan ->
                         val (amountPaid, loanTotalAmount) = calculateAmountPaidAndTotalAmount(loan)
                         val percentPaid = if (loanTotalAmount != 0.0) {
@@ -215,7 +215,7 @@ class LoanViewModel @Inject constructor(
                         } else {
                             0.0
                         }
-                        var currCode = findCurrencyCode(accounts, loan.accountId)
+                        val currCode = findCurrencyCode(accounts, loan.account?.value)
 
                         when (loan.type) {
                             LoanType.BORROW -> totalOweAmount += (loanTotalAmount - amountPaid)
@@ -242,8 +242,6 @@ class LoanViewModel @Inject constructor(
             }
             loadPendingLoans()
             loadCompletedLoans()
-
-            TestIdlingResource.decrement()
         }
     }
 
@@ -264,11 +262,11 @@ class LoanViewModel @Inject constructor(
     }
 
     private suspend fun initialiseAccounts() {
-        val accountsList = accountsAct(Unit)
+        val accountsList = accountsAct()
         accounts = accountsList
         selectedAccount = defaultAccountId(accountsList)
         selectedAccount?.let {
-            baseCurrencyCode = it.currency ?: defaultCurrencyCode
+            baseCurrencyCode = it.asset.code
         }
     }
 
@@ -314,37 +312,32 @@ class LoanViewModel @Inject constructor(
 
     private fun createLoan(data: CreateLoanData) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
-            val uuid = loanCreator.create(data) {
-                start()
-            }
-
-            uuid?.let {
-                loanTransactionsLogic.Loan.createAssociatedLoanTransaction(data = data, loanId = it)
-            }
-
-            TestIdlingResource.decrement()
+            val loan = either {
+                Loan(
+                    id = LoanId(UUID.randomUUID()),
+                    name = NotBlankTrimmedString.from(data.name).bind(),
+                    amount = PositiveDouble.from(data.amount).bind(),
+                    type = data.type,
+                    color = ColorInt(data.color.toArgb()),
+                    icon = data.icon?.let(IconAsset::from)?.getOrNull(),
+                    account = data.account?.id,
+                    note = data.note?.let(NotBlankTrimmedString::from)?.getOrNull(),
+                    dateTime = data.dateTime,
+                    orderNum = loanRepository.findMaxOrderNum() + 1,
+                )
+            }.getOrNull() ?: return@launch
+            loanRepository.save(loan)
+            loanTransactionsUseCase.syncLoanTransaction(loan, create = data.createLoanTransaction)
+            start()
         }
     }
 
     private fun reorder(newOrder: List<DisplayLoan>) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
-            ioThread {
-                newOrder.forEachIndexed { index, item ->
-                    loanWriter.save(
-                        item.loan.toEntity().copy(
-                            orderNum = index.toDouble(),
-                            isSynced = false
-                        )
-                    )
-                }
-            }
+            loanRepository.saveMany(
+                newOrder.mapIndexed { index, item -> item.loan.copy(orderNum = index.toDouble()) }
+            )
             start()
-
-            TestIdlingResource.decrement()
         }
     }
 
@@ -358,26 +351,21 @@ class LoanViewModel @Inject constructor(
 
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             accountCreator.createAccount(data) {
-                accounts = accountsAct(Unit)
+                accounts = accountsAct()
             }
-
-            TestIdlingResource.decrement()
         }
     }
 
-    private fun defaultAccountId(
+    private suspend fun defaultAccountId(
         accounts: List<Account>,
     ): Account? {
-        val lastSelectedId =
-            sharedPrefs.getString(SharedPrefs.LAST_SELECTED_ACCOUNT_ID, null)?.let {
-                UUID.fromString(it)
-            }
+        val lastSelectedId = appPreferences.lastSelectedAccountId()?.let {
+            UUID.fromString(it)
+        }
 
         lastSelectedId?.let { uuid ->
-            return accounts.find { it.id == uuid }
+            return accounts.find { it.id.value == uuid }
         } ?: run {
             return if (accounts.isNotEmpty()) accounts[0] else null
         }
@@ -385,7 +373,7 @@ class LoanViewModel @Inject constructor(
 
     private fun findCurrencyCode(accounts: List<Account>, accountId: UUID?): String {
         return accountId?.let {
-            accounts.find { account -> account.id == it }?.currency
+            accounts.find { account -> account.id.value == it }?.asset?.code
         } ?: defaultCurrencyCode
     }
 
@@ -394,13 +382,13 @@ class LoanViewModel @Inject constructor(
      *  @return A Pair containing the total amount paid and the total loan amount.
      */
     private suspend fun calculateAmountPaidAndTotalAmount(loan: Loan): Pair<Double, Double> {
-        val loanRecords = ioThread { loanRecordDao.findAllByLoanId(loanId = loan.id) }
-        val (amountPaid, loanTotalAmount) = loanRecords.fold(0.0 to loan.amount) { value, loanRecord ->
+        val loanRecords = loanRepository.findRecordsByLoanId(loan.id)
+        val (amountPaid, loanTotalAmount) = loanRecords.fold(0.0 to loan.amount.value) { value, loanRecord ->
             val (currentAmountPaid, currentLoanTotalAmount) = value
             if (loanRecord.interest) return@fold value
-            val convertedAmount = loanRecord.convertedAmount ?: loanRecord.amount
+            val convertedAmount = (loanRecord.convertedAmount ?: loanRecord.amount).value
 
-            loanRecord.loanRecordType.processByType(
+            loanRecord.type.processByType(
                 decreaseAction = { currentAmountPaid + convertedAmount to currentLoanTotalAmount },
                 increaseAction = { currentAmountPaid to currentLoanTotalAmount + convertedAmount }
             )

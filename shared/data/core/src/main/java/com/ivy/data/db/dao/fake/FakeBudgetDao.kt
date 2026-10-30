@@ -26,8 +26,8 @@ class FakeBudgetDao : BudgetDao, WriteBudgetDao {
         items.add(value)
     }
 
-    override suspend fun saveMany(values: List<BudgetEntity>) {
-        values.forEach { save(it) }
+    override suspend fun saveMany(value: List<BudgetEntity>) {
+        value.forEach { save(it) }
     }
 
     override suspend fun deleteById(id: UUID) {

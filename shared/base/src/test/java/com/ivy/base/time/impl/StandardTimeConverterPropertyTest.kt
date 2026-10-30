@@ -4,7 +4,7 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.instant
+import io.kotest.property.arbitrary.javaInstant
 import io.kotest.property.arbitrary.localDateTime
 import io.kotest.property.arbitrary.removeEdgecases
 import io.kotest.property.arbitrary.zoneOffset
@@ -44,7 +44,7 @@ class StandardTimeConverterPropertyTest {
 
     @Test
     fun `Instant to LocalDateTime and backwards`(): Unit = runBlocking {
-        checkAll(Arb.zoneOffset(), Arb.instant().removeEdgecases()) { zone, original ->
+        checkAll(Arb.zoneOffset(), Arb.javaInstant().removeEdgecases()) { zone, original ->
             // Given
             every { timeProvider.getZoneId() } returns zone
 
@@ -58,7 +58,7 @@ class StandardTimeConverterPropertyTest {
 
     @Test
     fun `Instant to LocalDate and backwards`(): Unit = runBlocking {
-        checkAll(Arb.zoneOffset(), Arb.instant().removeEdgecases()) { zone, original ->
+        checkAll(Arb.zoneOffset(), Arb.javaInstant().removeEdgecases()) { zone, original ->
             // Given
             every { timeProvider.getZoneId() } returns zone
 
@@ -75,7 +75,7 @@ class StandardTimeConverterPropertyTest {
 
     @Test
     fun `Instant to LocalDateTime does not crash on edge-cases`(): Unit = runBlocking {
-        checkAll(Arb.zoneOffset(), Arb.instant()) { zone, original ->
+        checkAll(Arb.zoneOffset(), Arb.javaInstant()) { zone, original ->
             // Given
             every { timeProvider.getZoneId() } returns zone
 
@@ -91,7 +91,7 @@ class StandardTimeConverterPropertyTest {
 
     @Test
     fun `Instant to LocalDate does not crash on edge-cases`(): Unit = runBlocking {
-        checkAll(Arb.zoneOffset(), Arb.instant()) { zone, original ->
+        checkAll(Arb.zoneOffset(), Arb.javaInstant()) { zone, original ->
             // Given
             every { timeProvider.getZoneId() } returns zone
 

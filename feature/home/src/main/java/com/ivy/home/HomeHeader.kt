@@ -30,38 +30,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.horizontalSwipeListener
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.rememberSwipeListenerState
 import com.ivy.legacy.utils.springBounce
 import com.ivy.legacy.utils.verticalSwipeListener
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.White
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMini
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlin.math.absoluteValue
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @ExperimentalAnimationApi
 @Composable
@@ -152,9 +152,9 @@ private fun HeaderStickyRow(
                 } else {
                     stringResource(R.string.hi)
                 },
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 ),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
@@ -194,7 +194,7 @@ private fun HeaderStickyRow(
             ),
             iconStart = R.drawable.ic_calendar,
             text = period.toDisplayShort(
-                startDateOfMonth = ivyWalletCtx().startDayOfMonth,
+                startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
                 timeConverter = LocalTimeConverter.current,
                 timeProvider = LocalTimeProvider.current,
                 timeFormatter = LocalTimeFormatter.current,
@@ -278,8 +278,9 @@ fun CashFlowInfo(
                     cashflow.format(currency),
                     currency,
                 ),
-                style = UI.typo.nB2.style(
+                style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = if (cashflow < 0) Gray else Green,
+                    fontWeight = FontWeight.Bold
                 ),
             )
 
@@ -333,8 +334,11 @@ private fun IncomeExpenses(
         HeaderCard(
             percentVisible = percentExpanded,
             icon = R.drawable.ic_expense,
-            backgroundGradient = Gradient(UI.colors.pureInverse, UI.colors.gray),
-            textColor = UI.colors.pure,
+            backgroundGradient = Gradient(
+                MaterialTheme.colorScheme.onSurface,
+                MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            textColor = MaterialTheme.colorScheme.surface,
             label = stringResource(R.string.expenses),
             currency = currency,
             amount = monthlyExpenses.absoluteValue,
@@ -369,7 +373,7 @@ private fun RowScope.HeaderCard(
             .thenIf(percentVisible == 1f) {
                 drawColoredShadow(backgroundGradient.startColor)
             }
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(backgroundGradient.asHorizontalBrush())
             .testTag(testTag)
             .clickable(
@@ -392,9 +396,9 @@ private fun RowScope.HeaderCard(
 
             Text(
                 text = label,
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = textColor,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontWeight = FontWeight.ExtraBold
                 ),
             )
         }

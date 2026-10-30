@@ -17,7 +17,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
-import io.kotest.property.arbitrary.next
 import io.kotest.property.checkAll
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -54,13 +53,13 @@ class ExportCsvUseCasePropertyTest {
             val accounts = trns.flatMap {
                 listOfNotNull(it.getFromAccount(), it.getToAccount())
             }.map {
-                Arb.account(accountId = Some(it)).next()
+                Arb.account(accountId = Some(it)).bind()
             }
             coEvery { accountRepository.findAll() } returns accounts
             val categories = trns
                 .mapNotNull(Transaction::category)
                 .map {
-                    Arb.category(categoryId = Some(it)).next()
+                    Arb.category(categoryId = Some(it)).bind()
                 }.run {
                     if (isNotEmpty()) {
                         drop(Arb.int(indices).bind()).shuffled()

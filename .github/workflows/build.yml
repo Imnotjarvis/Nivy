@@ -10,13 +10,14 @@
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
 #   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list
-# build and test also fail on Kotlin compiler warnings that config/compiler-warnings-baseline.txt
-# doesn't list (scripts/checkCompilerWarnings.sh).
+# Any Kotlin compiler warning fails the compile (allWarningsAsErrors in build.gradle.kts).
 #
 # What runs when:
 #   push to a branch        checks, build, test; device only when the change can reach app
 #                           startup or the APK build (not for other features, widgets, unit
 #                           tests or docs); no lint
+#   push to a branch named  checks and build only; build also compiles the unit tests
+#   claude/experimental-*
 #   push to main, tag,      everything
 #   nightly, manual run
 #   docs-only push          nothing
@@ -78,6 +79,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       run: ${{ steps.plan.outputs.run }}
+      test: ${{ steps.plan.outputs.test }}
       device: ${{ steps.plan.outputs.device }}
       lint: ${{ steps.plan.outputs.lint }}
     steps:
@@ -144,9 +146,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           # Open-source (MIT) cache: one entry per hash of the build files. Only the
-          # "test" job saves it; parallel jobs saving the same key collide and warn.
+          # "test" job saves it (this job when tests don't run); parallel jobs saving the same
+          # key collide and warn.
           cache-provider: basic
-          cache-read-only: true
+          cache-read-only: ${{ needs.plan.outputs.test == 'true' }}
 
       - name: Restore build cache
         id: restore-cache
@@ -160,14 +163,16 @@ jobs:
 
       # The minified demo APK (R8 takes about 4 minutes) and the instrumented tests are only
       # built for the device job, which takes the compiled tests from this job's build cache.
+      # When the test job doesn't run, the unit tests are still compiled here.
       - name: Build APKs
         env:
           DEVICE_TASKS: >-
             ${{ needs.plan.outputs.device == 'true' && ':app:assembleDemo
             :shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
+          TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug $DEVICE_TASKS --continue 2>&1 | tee gradle-output.log
+          ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
 
       # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
       - name: Drop build cache entries older than a week
@@ -181,11 +186,34 @@ jobs:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-build-${{ github.sha }}
 
-      - name: No new compiler warnings
-        run: scripts/checkCompilerWarnings.sh gradle-output.log
-
       - name: Audit shipped libraries
         run: scripts/auditRuntimeDependencies.sh
+
+      # Room writes each schema version into the module's schemas folder, and the migration tests
+      # read it from there, so a new version has to be committed. The files are in the artifact,
+      # and printed below for when the artifact can't be downloaded.
+      - name: Room schemas are committed
+        run: |
+          changed=$(git status --porcelain -- ':(glob)**/schemas/**')
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            git diff -- ':(glob)**/schemas/**'
+            git ls-files --others --exclude-standard -- ':(glob)**/schemas/**' | while read -r f; do
+              echo "::group::$f"
+              cat "$f"
+              echo
+              echo "::endgroup::"
+            done
+            echo "::error::Room wrote schema files that aren't committed. Commit the room-schemas artifact."
+            exit 1
+          fi
+
+      - name: Upload Room schemas
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: room-schemas
+          path: '**/schemas/**/*.json'
 
       - uses: actions/upload-artifact@v7
         with:
@@ -194,10 +222,25 @@ jobs:
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/demo/*.apk
 
+      # Last, so the end of a long log still shows them, followed by counts per module. Modules
+      # taken from the build cache print no warnings.
+      - name: List compiler errors and warnings
+        if: ${{ !cancelled() }}
+        run: |
+          grep -E '^[ew]: ' gradle-output.log | sed "s#file://$PWD/##" | sort -u > diagnostics.txt || true
+          cat diagnostics.txt
+          echo "== $(grep -c '^e: ' diagnostics.txt) errors, $(grep -c '^w: ' diagnostics.txt) warnings"
+          sed -E 's#^([ew]): (.*)/src/.*#\1 \2#' diagnostics.txt | sort | uniq -c | sort -rn
+
+      # A compile that fails on warnings only logs "warnings found and -Werror specified".
+      - name: Compiler problems
+        if: failure()
+        run: python3 -I scripts/printCompilerProblems.py
+
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:
     needs: plan
-    if: needs.plan.outputs.run == 'true'
+    if: needs.plan.outputs.test == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
@@ -238,6 +281,10 @@ jobs:
               | sed -E 's#^\./(.*)/src/test/snapshots$#:\1:verifyPaparazziDebug#; s#/#:#g')
           ./gradlew testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
 
+      - name: Compiler problems
+        if: failure()
+        run: python3 -I scripts/printCompilerProblems.py
+
       - name: Drop build cache entries older than a week
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
         run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
@@ -248,9 +295,6 @@ jobs:
         with:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-test-${{ github.sha }}
-
-      - name: No new compiler warnings
-        run: scripts/checkCompilerWarnings.sh gradle-output.log
 
       - uses: actions/upload-artifact@v7
         if: failure()

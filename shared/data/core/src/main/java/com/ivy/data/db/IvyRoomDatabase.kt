@@ -10,11 +10,9 @@ import com.ivy.data.db.dao.read.ExchangeRatesDao
 import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.read.TagDao
 import com.ivy.data.db.dao.read.TagAssociationDao
 import com.ivy.data.db.dao.read.TransactionDao
-import com.ivy.data.db.dao.read.UserDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
@@ -22,7 +20,6 @@ import com.ivy.data.db.dao.write.WriteExchangeRatesDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.db.dao.write.WriteLoanRecordDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.db.dao.write.WriteTagDao
 import com.ivy.data.db.dao.write.WriteTagAssociationDao
 import com.ivy.data.db.dao.write.WriteTransactionDao
@@ -33,17 +30,17 @@ import com.ivy.data.db.entity.ExchangeRateEntity
 import com.ivy.data.db.entity.LoanEntity
 import com.ivy.data.db.entity.LoanRecordEntity
 import com.ivy.data.db.entity.PlannedPaymentRuleEntity
-import com.ivy.data.db.entity.SettingsEntity
 import com.ivy.data.db.entity.TagEntity
 import com.ivy.data.db.entity.TagAssociationEntity
 import com.ivy.data.db.entity.TransactionEntity
-import com.ivy.data.db.entity.UserEntity
 import com.ivy.data.db.migration.Migration123to124_LoanIncludeDateTime
 import com.ivy.data.db.migration.Migration124to125_LoanEditDateTime
 import com.ivy.data.db.migration.Migration126to127_LoanRecordType
 import com.ivy.data.db.migration.Migration127to128_PaidForDateRecord
 import com.ivy.data.db.migration.Migration128to129_DeleteIsDeleted
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
+import com.ivy.data.db.migration.Migration130to131_DropUsers
+import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
 import com.ivy.domain.db.RoomTypeConverters
 import com.ivy.domain.db.migration.Migration105to106_TrnRecurringRules
 import com.ivy.domain.db.migration.Migration106to107_Wishlist
@@ -67,8 +64,7 @@ import com.ivy.domain.db.migration.Migration125to126_Tags
 @Database(
     entities = [
         AccountEntity::class, TransactionEntity::class, CategoryEntity::class,
-        SettingsEntity::class, PlannedPaymentRuleEntity::class,
-        UserEntity::class, ExchangeRateEntity::class, BudgetEntity::class,
+        PlannedPaymentRuleEntity::class, ExchangeRateEntity::class, BudgetEntity::class,
         LoanEntity::class, LoanRecordEntity::class, TagEntity::class, TagAssociationEntity::class
     ],
     autoMigrations = [
@@ -78,7 +74,7 @@ import com.ivy.domain.db.migration.Migration125to126_Tags
             spec = IvyRoomDatabase.DeleteSEMigration::class
         )
     ],
-    version = 130,
+    version = 132,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)
@@ -88,8 +84,6 @@ abstract class IvyRoomDatabase : RoomDatabase() {
     abstract val categoryDao: CategoryDao
     abstract val budgetDao: BudgetDao
     abstract val plannedPaymentRuleDao: PlannedPaymentRuleDao
-    abstract val settingsDao: SettingsDao
-    abstract val userDao: UserDao
     abstract val exchangeRatesDao: ExchangeRatesDao
     abstract val loanDao: LoanDao
     abstract val loanRecordDao: LoanRecordDao
@@ -101,7 +95,6 @@ abstract class IvyRoomDatabase : RoomDatabase() {
     abstract val writeCategoryDao: WriteCategoryDao
     abstract val writeBudgetDao: WriteBudgetDao
     abstract val writePlannedPaymentRuleDao: WritePlannedPaymentRuleDao
-    abstract val writeSettingsDao: WriteSettingsDao
     abstract val writeExchangeRatesDao: WriteExchangeRatesDao
     abstract val writeLoanDao: WriteLoanDao
     abstract val writeLoanRecordDao: WriteLoanRecordDao
@@ -135,7 +128,9 @@ abstract class IvyRoomDatabase : RoomDatabase() {
             Migration126to127_LoanRecordType(),
             Migration127to128_PaidForDateRecord(),
             Migration128to129_DeleteIsDeleted(),
-            Migration129to130_LoanIncludeNote()
+            Migration129to130_LoanIncludeNote(),
+            Migration130to131_DropUsers(),
+            Migration131to132_DeleteSoftDeleted()
         )
 
         @Suppress("SpreadOperator")

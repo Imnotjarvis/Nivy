@@ -18,15 +18,16 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.AppStarter
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.settings.SettingsAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import com.ivy.widgets.WidgetBase
@@ -114,7 +115,7 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var walletBalanceAct: CalcWalletBalanceAct
 
     @Inject
-    lateinit var settingsAct: SettingsAct
+    lateinit var currencyRepository: CurrencyRepository
 
     @Inject
     lateinit var accountsAct: AccountsAct
@@ -123,10 +124,10 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var calcIncomeExpenseAct: CalcIncomeExpenseAct
 
     @Inject
-    lateinit var ivyContext: com.ivy.legacy.IvyWalletCtx
+    lateinit var periodState: PeriodState
 
     @Inject
-    lateinit var sharedPrefs: SharedPrefs
+    lateinit var appPreferences: AppPreferences
 
     @Inject
     lateinit var timeProvider: TimeProvider
@@ -145,23 +146,17 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
 
     private fun updateData(context: Context) {
         coroutineScope.launch {
-            val settings = settingsAct(Unit)
-            val appLocked = com.ivy.legacy.utils.ioThread {
-                sharedPrefs.getBoolean(
-                    SharedPrefs.APP_LOCK_ENABLED,
-                    false
-                )
-            }
-            val currency = settings.baseCurrency
+            val appLocked = appPreferences.isAppLockEnabled()
+            val currency = currencyRepository.getBaseCurrency().code
             val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
-            val accounts = accountsAct(Unit)
-            val period = ivyContext.selectedPeriod
+            val accounts = accountsAct()
+            val period = periodState.selected
             val incomeExpense = calcIncomeExpenseAct(
                 CalcIncomeExpenseAct.Input(
-                    baseCurrency = settings.baseCurrency,
+                    baseCurrency = currency,
                     accounts = accounts,
                     range = period.toRange(
-                        startDateOfMonth = ivyContext.startDayOfMonth,
+                        startDateOfMonth = periodState.startDayOfMonth,
                         timeConverter = timeConverter,
                         timeProvider = timeProvider,
 

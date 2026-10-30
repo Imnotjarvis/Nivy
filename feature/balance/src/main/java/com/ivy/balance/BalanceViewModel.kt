@@ -11,12 +11,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.domain.usecase.planned.DueTransactionsUseCase
+import com.ivy.legacy.PeriodState
 import com.ivy.ui.ComposeViewModel
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.utils.ioThread
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,15 +25,15 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class BalanceViewModel @Inject constructor(
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
-    private val ivyContext: com.ivy.legacy.IvyWalletCtx,
+    private val dueTransactionsUseCase: DueTransactionsUseCase,
+    private val periodState: PeriodState,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val calcWalletBalanceAct: CalcWalletBalanceAct,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<BalanceState, BalanceEvent>() {
 
-    private var period by mutableStateOf(ivyContext.selectedPeriod)
+    private var period by mutableStateOf(periodState.selected)
     private var baseCurrencyCode by mutableStateOf("")
     private var currentBalance by mutableDoubleStateOf(0.0)
     private var plannedPaymentsAmount by mutableDoubleStateOf(0.0)
@@ -63,10 +64,10 @@ class BalanceViewModel @Inject constructor(
     }
 
     private fun start(
-        timePeriod: TimePeriod = ivyContext.selectedPeriod
+        timePeriod: TimePeriod = periodState.selected
     ) {
         viewModelScope.launch {
-            baseCurrencyCode = baseCurrencyAct(Unit)
+            baseCurrencyCode = baseCurrencyAct()
             period = timePeriod
 
             currentBalance = calcWalletBalanceAct(
@@ -74,10 +75,9 @@ class BalanceViewModel @Inject constructor(
             ).toDouble()
 
             plannedPaymentsAmount = ioThread {
-                plannedPaymentsLogic.plannedPaymentsAmountFor(
-                    timePeriod.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
-                    // + positive if Income > Expenses else - negative
-                ) * if (numberOfMonthsAhead >= 0) {
+                val range = timePeriod.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
+                // + positive if Income > Expenses else - negative
+                dueTransactionsUseCase.dueBalance(range.from(), range.to()) * if (numberOfMonthsAhead >= 0) {
                     numberOfMonthsAhead.toDouble()
                 } else {
                     1.0
@@ -94,22 +94,22 @@ class BalanceViewModel @Inject constructor(
 
     private fun nextMonth() {
         val month = period.month
-        val year = period.year ?: com.ivy.legacy.utils.dateNowUTC().year
+        val year = period.year ?: timeProvider.localDateNow().year
         numberOfMonthsAhead += 1
         if (month != null) {
             start(
-                timePeriod = month.incrementMonthPeriod(ivyContext, 1L, year = year)
+                timePeriod = periodState.selectMonth(month, 1L, year)
             )
         }
     }
 
     private fun previousMonth() {
         val month = period.month
-        val year = period.year ?: com.ivy.legacy.utils.dateNowUTC().year
+        val year = period.year ?: timeProvider.localDateNow().year
         numberOfMonthsAhead -= 1
         if (month != null) {
             start(
-                timePeriod = month.incrementMonthPeriod(ivyContext, -1L, year = year)
+                timePeriod = periodState.selectMonth(month, -1L, year)
             )
         }
     }

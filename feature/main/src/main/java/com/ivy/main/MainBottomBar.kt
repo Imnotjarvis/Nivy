@@ -39,40 +39,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.data.model.MainTab
-import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.densityScope
-import com.ivy.legacy.utils.lerp
-import com.ivy.legacy.utils.navigationBarInset
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.densityScope
+import com.ivy.design.utils.lerp
+import com.ivy.design.utils.navigationBarInset
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.springBounceFast
-import com.ivy.legacy.utils.toDensityDp
-import com.ivy.legacy.utils.toDensityPx
+import com.ivy.design.utils.toDensityDp
+import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
-import com.ivy.wallet.ui.theme.gradientExpenses
+import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
-import com.ivy.wallet.ui.theme.pureBlur
+import com.ivy.design.system.colors.pureBlur
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun BoxWithConstraintsScope.BottomBar(
     tab: MainTab,
@@ -85,7 +84,7 @@ fun BoxWithConstraintsScope.BottomBar(
 
     showAddAccountModal: () -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -98,7 +97,7 @@ fun BoxWithConstraintsScope.BottomBar(
         expanded = false
     }
 
-    val screenHeightDp = densityScope { ivyContext.screenHeight.toDp() }
+    val screenHeightDp = densityScope { screenSize.height.toDp() }
     val expandedBackgroundOffset by animateDpAsState(
         targetValue = if (expanded) 0.dp else screenHeightDp,
         animationSpec = springBounceFast()
@@ -152,7 +151,7 @@ fun BoxWithConstraintsScope.BottomBar(
             modifier = Modifier
                 .fillMaxSize()
                 .offset(y = expandedBackgroundOffset)
-                .background(UI.colors.pure.copy(alpha = 0.95f))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing
                 }
@@ -161,8 +160,8 @@ fun BoxWithConstraintsScope.BottomBar(
     }
 
     // ------------------------------------ BUTTONS--------------------------------------------------
-    val fabStartX = ivyContext.screenWidth / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
-    val fabStartY = ivyContext.screenHeight - navigationBarInset() -
+    val fabStartX = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
+    val fabStartY = screenSize.height - navigationBarInset() -
             30.dp.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
     TransactionButtons(
@@ -241,7 +240,7 @@ fun BoxWithConstraintsScope.BottomBar(
         icon = R.drawable.ic_add,
         backgroundGradient = when (tab) {
             MainTab.HOME -> {
-                if (!expanded) GradientIvy else Gradient.solid(UI.colors.gray)
+                if (!expanded) GradientIvy else Gradient.solid(MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             MainTab.ACCOUNTS -> {
@@ -278,7 +277,7 @@ private fun TransactionButtons(
     onAddTransfer: () -> Unit,
     onAddPlannedPayment: () -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     val bH = 48.dp
     val bV = 20.dp // 24.dp
@@ -286,12 +285,12 @@ private fun TransactionButtons(
 
     if (buttonsShownPercent > 0.01f) {
         val buttonLeftX = bH.toDensityPx()
-        val buttonRightX = ivyContext.screenWidth - bH.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
+        val buttonRightX = screenSize.width - bH.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
         val sideButtonsY = fabStartY - bV.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
         val buttonCenterY = fabStartY - bCenterV.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
-        val clickAreaWidth = ivyContext.screenWidth / 3
+        val clickAreaWidth = screenSize.width / 3
 
         IvyOutlinedButton(
             modifier = Modifier
@@ -299,7 +298,7 @@ private fun TransactionButtons(
                     val placealbe = measurable.measure(constraints)
                     layout(placealbe.width, placealbe.height) {
                         placealbe.place(
-                            x = ivyContext.screenWidth / 2 - placealbe.width / 2,
+                            x = screenSize.width / 2 - placealbe.width / 2,
                             y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height - FAB_BUTTON_SIZE.roundToPx()
                         )
                     }
@@ -406,8 +405,8 @@ private fun AddIncomeButton(
             }
             .zIndex(200f),
         text = stringResource(R.string.add_income_uppercase),
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -492,8 +491,8 @@ private fun AddExpenseButton(
             }
             .zIndex(200f),
         text = stringResource(R.string.add_expense_uppercase),
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -578,8 +577,8 @@ private fun AddTransferButton(
             }
             .zIndex(200f),
         text = stringResource(R.string.account_transfer),
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -620,7 +619,7 @@ private fun RowScope.Tab(
     Row(
         modifier = Modifier
             .weight(1f)
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
@@ -629,7 +628,7 @@ private fun RowScope.Tab(
     ) {
         IvyIcon(
             icon = icon,
-            tint = if (selected) selectedColor else UI.colors.pureInverse
+            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
         )
 
         if (selected) {
@@ -637,9 +636,9 @@ private fun RowScope.Tab(
 
             Text(
                 text = name,
-                style = UI.typo.c.style(
-                    fontWeight = FontWeight.Bold,
-                    color = selectedColor
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = selectedColor,
+                    fontWeight = FontWeight.Bold
                 )
             )
         }

@@ -1,13 +1,13 @@
 package com.ivy.home
 
 import androidx.compose.runtime.Immutable
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.base.model.Theme
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import kotlinx.collections.immutable.ImmutableList
 import java.math.BigDecimal
@@ -27,8 +27,8 @@ data class HomeState(
 
     val buffer: BufferInfo,
 
-    val upcoming: LegacyDueSection,
-    val overdue: LegacyDueSection,
+    val upcoming: DueSection,
+    val overdue: DueSection,
 
     val customerJourneyCards: ImmutableList<CustomerJourneyCardModel>,
     val hideBalance: Boolean,

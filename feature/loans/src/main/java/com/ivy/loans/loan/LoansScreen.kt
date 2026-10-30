@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,14 +31,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.data.model.LoanType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.typography.numberTitleSmall
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.humanReadableType
-import com.ivy.legacy.ivyWalletCtx
+import com.ivy.legacy.ui.previewLoan
 import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.horizontalSwipeListener
 import com.ivy.legacy.utils.rememberSwipeListenerState
@@ -50,8 +47,8 @@ import com.ivy.navigation.LoansScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
-import com.ivy.wallet.ui.theme.Blue
-import com.ivy.wallet.ui.theme.Gray
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
@@ -59,13 +56,15 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ProgressBar
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.LoanModal
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
+import com.ivy.design.system.shapes.ShapeTop16
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
 fun BoxWithConstraintsScope.LoansScreen(screen: LoansScreen) {
@@ -109,13 +108,7 @@ private fun BoxWithConstraintsScope.UI(
 
         Spacer(Modifier.height(8.dp))
 
-        val scrollState = rememberScrollPositionListState(
-            key = "loans_lazy_column",
-            initialFirstVisibleItemIndex = ivyWalletCtx()
-                .loanListState?.firstVisibleItemIndex ?: 0,
-            initialFirstVisibleItemScrollOffset = ivyWalletCtx()
-                .loanListState?.firstVisibleItemScrollOffset ?: 0
-        )
+        val scrollState = rememberScrollPositionListState(key = "loans_lazy_column")
 
         val loans = if (state.selectedTab == LoanTab.PENDING) {
             state.pendingLoans
@@ -132,7 +125,7 @@ private fun BoxWithConstraintsScope.UI(
                 ) {
                     nav.navigateTo(
                         screen = LoanDetailsScreen(
-                            loanId = item.loan.id
+                            loanId = item.loan.id.value
                         )
                     )
                 }
@@ -180,9 +173,9 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxWidth()
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
-            text = item.loan.name,
-            style = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            text = item.loan.name.value,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -231,25 +224,23 @@ private fun Toolbar(
         ) {
             Text(
                 text = stringResource(R.string.loans),
-                style = UI.typo.h2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
             if (totalOweAmount.isNotEmpty()) {
                 Text(
                     text = stringResource(R.string.you_owe, totalOweAmount),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.numberTitleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             if (totalOwedAmount.isNotEmpty()) {
                 Text(
                     text = stringResource(R.string.you_are_owed, totalOwedAmount),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.numberTitleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -276,14 +267,14 @@ private fun LoanItem(
     onClick: () -> Unit
 ) {
     val loan = displayLoan.loan
-    val contrastColor = findContrastTextColor(loan.color.toComposeColor())
+    val contrastColor = findContrastTextColor(loan.color.value.toComposeColor())
 
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_item")
             .clickable(
                 onClick = onClick
@@ -314,7 +305,7 @@ private fun LoanHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(loan.color.toComposeColor(), UI.shapes.r4Top)
+            .background(loan.color.value.toComposeColor(), ShapeTop16)
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -324,7 +315,7 @@ private fun LoanHeader(
             Spacer(Modifier.width(20.dp))
 
             ItemIconSDefaultIcon(
-                iconName = loan.icon,
+                iconName = loan.icon?.id,
                 defaultIcon = R.drawable.ic_custom_loan_s,
                 tint = contrastColor
             )
@@ -332,8 +323,8 @@ private fun LoanHeader(
             Spacer(Modifier.width(8.dp))
 
             Text(
-                text = loan.name,
-                style = UI.typo.b1.style(
+                text = loan.name.value,
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -342,8 +333,9 @@ private fun LoanHeader(
 
             Text(
                 text = loan.humanReadableType(),
-                style = UI.typo.c.style(
-                    color = loan.color.toComposeColor().dynamicContrast()
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = loan.color.value.toComposeColor().dynamicContrast(),
+                    fontWeight = FontWeight.Bold
                 )
             )
         }
@@ -377,7 +369,8 @@ private fun ColumnScope.LoanInfo(
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         text = displayLoan.formattedDisplayText,
-        style = UI.typo.nB2.style(
+        style = MaterialTheme.typography.numberBodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
@@ -390,7 +383,7 @@ private fun ColumnScope.LoanInfo(
             .fillMaxWidth()
             .height(24.dp)
             .padding(horizontal = 24.dp),
-        notFilledColor = UI.colors.medium,
+        notFilledColor = MaterialTheme.colorScheme.surfaceVariant,
         percent = displayLoan.percentPaid
     )
 }
@@ -416,7 +409,7 @@ private fun NoLoansEmptyState(
 
         Text(
             text = emptyStateTitle,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -427,7 +420,7 @@ private fun NoLoansEmptyState(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = emptyStateText,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -449,13 +442,13 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
         selectedTab = LoanTab.PENDING,
         completedLoans = persistentListOf(
             DisplayLoan(
-                loan = Loan(
+                loan = previewLoan(
                     name = "Loan 3",
-                    icon = "bank",
-                    color = Blue.toArgb(),
                     amount = 7000.0,
+                    color = Blue,
                     type = LoanType.LEND,
-                    dateTime = testDateTime
+                    dateTime = testDateTime,
+                    icon = "bank",
                 ),
                 loanTotalAmount = 7000.0,
                 amountPaid = 8000.0,
@@ -464,13 +457,13 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
         ),
         pendingLoans = persistentListOf(
             DisplayLoan(
-                loan = Loan(
+                loan = previewLoan(
                     name = "Loan 3",
-                    icon = "bank",
-                    color = Blue.toArgb(),
                     amount = 7000.0,
+                    color = Blue,
                     type = LoanType.LEND,
-                    dateTime = testDateTime
+                    dateTime = testDateTime,
+                    icon = "bank",
                 ),
                 loanTotalAmount = 7000.0,
                 amountPaid = 8000.0,

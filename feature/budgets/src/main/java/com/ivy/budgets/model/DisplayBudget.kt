@@ -1,7 +1,7 @@
 package com.ivy.budgets.model
 
 import androidx.compose.runtime.Immutable
-import com.ivy.legacy.datamodel.Budget
+import com.ivy.data.model.Budget
 import com.ivy.wallet.domain.data.Reorderable
 
 @Immutable
@@ -10,13 +10,13 @@ data class DisplayBudget(
     val spentAmount: Double
 ) : Reorderable {
     override fun getItemOrderNum(): Double {
-        return budget.orderId
+        return budget.orderNum
     }
 
     override fun withNewOrderNum(newOrderNum: Double): Reorderable {
         return this.copy(
             budget = budget.copy(
-                orderId = newOrderNum
+                orderNum = newOrderNum
             )
         )
     }

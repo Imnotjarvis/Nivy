@@ -29,9 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.base.legacy.Theme
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.base.model.Theme
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
@@ -39,16 +37,18 @@ import com.ivy.legacy.utils.format
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberLabelMedium
 
 val FAB_BUTTON_SIZE = 56.dp
 
@@ -137,7 +137,7 @@ private fun ColumnScope.CurrentBalance(
     Text(
         modifier = Modifier.align(Alignment.CenterHorizontally),
         text = stringResource(R.string.current_balance),
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
             color = Gray,
             fontWeight = FontWeight.ExtraBold
         )
@@ -163,7 +163,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
         modifier = Modifier
             .padding(horizontal = 32.dp),
         text = stringResource(R.string.balance_after_payments),
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
             color = Orange,
             fontWeight = FontWeight.ExtraBold
         )
@@ -197,8 +197,8 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
 
             Text(
                 text = "${currentBalance.format(2)} $currency",
-                style = UI.typo.nC.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal
                 )
             )
@@ -208,8 +208,8 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
             val plusSign = if (plannedPaymentsAmount >= 0) "+" else ""
             Text(
                 text = "${plusSign}${plannedPaymentsAmount.format(2)} $currency",
-                style = UI.typo.nC.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )

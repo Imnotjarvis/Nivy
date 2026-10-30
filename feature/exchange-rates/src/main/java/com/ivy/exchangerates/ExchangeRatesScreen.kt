@@ -19,23 +19,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.base.legacy.Theme
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
-import com.ivy.design.l1_buildingBlocks.ColumnRoot
-import com.ivy.design.l1_buildingBlocks.DividerW
-import com.ivy.design.l1_buildingBlocks.SpacerHor
-import com.ivy.design.l1_buildingBlocks.SpacerVer
+import com.ivy.base.model.Theme
 import com.ivy.exchangerates.component.RateItem
 import com.ivy.exchangerates.data.RateUi
 import com.ivy.exchangerates.modal.AddRateModal
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ui.SearchInput
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.navigation
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import com.ivy.design.system.typography.numberHeadlineMedium
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 
 @Composable
 fun BoxWithConstraintsScope.ExchangeRatesScreen() {
@@ -69,14 +74,19 @@ private fun BoxWithConstraintsScope.UI(
         amountModalVisible = true
     }
 
-    ColumnRoot {
-        SpacerVer(height = 16.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        Spacer(Modifier.height(16.dp))
         SearchField(onSearch = { onEvent(RatesEvent.Search(it)) })
-        SpacerVer(height = 4.dp)
+        Spacer(Modifier.height(4.dp))
         LazyColumn {
             ratesSection(text = "Manual")
             items(items = state.manual) { rate ->
-                SpacerVer(height = 4.dp)
+                Spacer(Modifier.height(4.dp))
                 RateItem(
                     rate = rate,
                     onDelete = { onEvent(RatesEvent.RemoveOverride(rate)) },
@@ -85,7 +95,7 @@ private fun BoxWithConstraintsScope.UI(
             }
             ratesSection(text = "Automatic")
             items(items = state.automatic) { rate ->
-                SpacerVer(height = 4.dp)
+                Spacer(Modifier.height(4.dp))
                 RateItem(
                     rate = rate,
                     onDelete = null,
@@ -93,7 +103,7 @@ private fun BoxWithConstraintsScope.UI(
                 )
             }
             item(key = "last_item_spacer") {
-                SpacerVer(height = 480.dp)
+                Spacer(Modifier.height(480.dp))
             }
         }
     }
@@ -127,15 +137,16 @@ private fun BoxWithConstraintsScope.UI(
         decimalCountMax = 12,
         Header = {
             rateToUpdate?.let {
-                SpacerVer(height = 24.dp)
+                Spacer(Modifier.height(24.dp))
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     text = "${it.from}-${it.to}",
-                    style = UI.typo.nH2.style(
-                        textAlign = TextAlign.Center,
-                        color = UI.colors.primary
+                    style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                 )
             }
@@ -152,16 +163,24 @@ private fun LazyListScope.ratesSection(
     text: String
 ) {
     item {
-        SpacerVer(height = 24.dp)
+        Spacer(Modifier.height(24.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            DividerW()
-            SpacerHor(width = 16.dp)
+            HorizontalDivider(
+                modifier = Modifier.weight(1f),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.width(16.dp))
             Text(
                 text = text,
-                style = UI.typo.h2
+                style = MaterialTheme.typography.headlineMedium
             )
-            SpacerHor(width = 16.dp)
-            DividerW()
+            Spacer(Modifier.width(16.dp))
+            HorizontalDivider(
+                modifier = Modifier.weight(1f),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

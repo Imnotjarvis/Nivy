@@ -27,39 +27,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.data.model.Account
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.datamodel.Account
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.toLowerCaseLocal
-import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
+import androidx.compose.material3.MaterialTheme
+import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
@@ -84,10 +83,10 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
             .navigationBarsPadding()
     ) {
         stickyHeader {
-            val nav = navigation()
+            val onBack = rememberOnBack()
             OnboardingToolbar(
                 hasSkip = accounts.isEmpty(),
-                onBack = { nav.onBackPressed() },
+                onBack = { onBack() },
                 onSkip = onSkip
             )
         }
@@ -99,7 +98,8 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                 Text(
                     modifier = Modifier.padding(horizontal = 32.dp),
                     text = stringResource(R.string.add_accounts),
-                    style = UI.typo.h2.style(
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Black
                     )
                 )
@@ -126,7 +126,6 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                 }
 
                 Accounts(
-                    baseCurrency = baseCurrency,
                     accounts = accounts,
                     onClick = {
                         accountModalData = AccountModalData(
@@ -145,7 +144,8 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                 Text(
                     modifier = Modifier.padding(horizontal = 32.dp),
                     text = stringResource(R.string.suggestions),
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
@@ -154,7 +154,7 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
 
                 Suggestions(
                     suggestions = suggestions.filter { suggestion ->
-                        accounts.map { it.account.name.toLowerCaseLocal() }
+                        accounts.map { it.account.name.value.toLowerCaseLocal() }
                             .contains(suggestion.name.toLowerCaseLocal()).not()
                     },
                     onAddSuggestion = {
@@ -180,7 +180,7 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
 
     if (accounts.isNotEmpty()) {
         OnboardingButton(
-            Modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .align(Alignment.BottomCenter)
@@ -209,13 +209,11 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
 
 @Composable
 private fun Accounts(
-    baseCurrency: String,
     accounts: List<AccountBalance>,
     onClick: (AccountBalance) -> Unit
 ) {
     for (account in accounts) {
         AccountCard(
-            baseCurrency = baseCurrency,
             accountBalance = account
         ) {
             onClick(account)
@@ -227,20 +225,19 @@ private fun Accounts(
 
 @Composable
 private fun AccountCard(
-    baseCurrency: String,
     accountBalance: AccountBalance,
     onClick: () -> Unit
 ) {
     val account = accountBalance.account
-    val accountColor = account.color.toComposeColor()
+    val accountColor = account.color.value.toComposeColor()
     val dynamicContrast = accountColor.dynamicContrast()
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r3)
-            .background(accountColor, UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
+            .background(accountColor, MaterialTheme.shapes.large)
             .clickable {
                 onClick()
             },
@@ -252,7 +249,7 @@ private fun AccountCard(
             modifier = Modifier
                 .padding(vertical = 16.dp)
                 .background(dynamicContrast, CircleShape),
-            iconName = account.icon,
+            iconName = account.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_m,
             tint = accountColor
         )
@@ -261,16 +258,16 @@ private fun AccountCard(
 
         Column {
             Text(
-                text = account.name,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = dynamicContrast
+                text = account.name.value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = dynamicContrast,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
             AmountCurrencyB1Row(
                 amount = accountBalance.balance,
-                currency = account.currency ?: baseCurrency,
+                currency = account.asset.code,
                 amountFontWeight = FontWeight.ExtraBold,
                 textColor = findContrastTextColor(accountColor)
             )
@@ -349,11 +346,7 @@ private fun Preview_Accounts() {
             ),
             accounts = listOf(
                 AccountBalance(
-                    account = Account(
-                        name = "Cash",
-                        color = Green.toArgb(),
-                        icon = "cash"
-                    ),
+                    account = previewAccount("Cash", color = Green, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 )
             )
@@ -394,26 +387,19 @@ private fun Preview_Premium() {
             ),
             accounts = listOf(
                 AccountBalance(
-                    account = Account(
-                        name = "Cash",
-                        color = Green.toArgb(),
-                        icon = "cash"
-                    ),
+                    account = previewAccount("Cash", color = Green, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 ),
                 AccountBalance(
-                    account = Account(
-                        name = "Revolut",
-                        color = IvyDark.toArgb(),
-                        icon = "cash"
-                    ),
+                    account = previewAccount("Revolut", color = IvyDark, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 ),
                 AccountBalance(
-                    account = Account(
-                        name = "Revolut",
-                        color = Color(0xFF4DCAFF).toArgb(),
-                        icon = "revolut"
+                    account = previewAccount(
+                        "Revolut",
+                        color = Color(0xFF4DCAFF),
+                        icon = "revolut",
+                        currency = baseCurrency
                     ),
                     balance = 0.0
                 ),

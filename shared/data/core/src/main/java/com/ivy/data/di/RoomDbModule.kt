@@ -9,11 +9,9 @@ import com.ivy.data.db.dao.read.ExchangeRatesDao
 import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.read.TagAssociationDao
 import com.ivy.data.db.dao.read.TagDao
 import com.ivy.data.db.dao.read.TransactionDao
-import com.ivy.data.db.dao.read.UserDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
@@ -21,7 +19,6 @@ import com.ivy.data.db.dao.write.WriteExchangeRatesDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.db.dao.write.WriteLoanRecordDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
-import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.db.dao.write.WriteTagAssociationDao
 import com.ivy.data.db.dao.write.WriteTagDao
 import com.ivy.data.db.dao.write.WriteTransactionDao
@@ -47,11 +44,6 @@ object RoomDbModule {
     }
 
     @Provides
-    fun provideUserDao(db: IvyRoomDatabase): UserDao {
-        return db.userDao
-    }
-
-    @Provides
     fun provideAccountDao(db: IvyRoomDatabase): AccountDao {
         return db.accountDao
     }
@@ -69,11 +61,6 @@ object RoomDbModule {
     @Provides
     fun provideBudgetDao(db: IvyRoomDatabase): BudgetDao {
         return db.budgetDao
-    }
-
-    @Provides
-    fun provideSettingsDao(db: IvyRoomDatabase): SettingsDao {
-        return db.settingsDao
     }
 
     @Provides
@@ -126,11 +113,6 @@ object RoomDbModule {
     @Provides
     fun provideWriteBudgetDao(db: IvyRoomDatabase): WriteBudgetDao {
         return db.writeBudgetDao
-    }
-
-    @Provides
-    fun provideWriteSettingsDao(db: IvyRoomDatabase): WriteSettingsDao {
-        return db.writeSettingsDao
     }
 
     @Provides

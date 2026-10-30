@@ -2,9 +2,9 @@ package com.ivy.onboarding.viewmodel
 
 import androidx.compose.runtime.MutableState
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.LogoutLogic
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.data.model.Category
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.CategoryRepository
@@ -16,11 +16,11 @@ import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingState
+import com.ivy.onboarding.StarterData
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderLogic
+import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
@@ -37,63 +37,54 @@ class OnboardingRouter(
 
     private val nav: Navigation,
     private val accountDao: AccountDao,
-    private val sharedPrefs: SharedPrefs,
-    private val transactionReminderLogic: TransactionReminderLogic,
-    private val preloadDataLogic: PreloadDataLogic,
+    private val appPreferences: AppPreferences,
+    private val transactionReminderScheduler: TransactionReminderScheduler,
+    private val starterData: StarterData,
     private val categoryRepository: CategoryRepository,
-    private val logoutLogic: LogoutLogic,
+    private val deleteAllDataUseCase: DeleteAllDataUseCase,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
 ) {
 
     var isLoginCache = false
 
-    fun initBackHandling(
-        screen: OnboardingScreen,
+    // Back goes one onboarding step back. The screen doesn't send it on the login step, where back
+    // leaves the app, and it does nothing on the splash.
+    fun onBack(
         viewModelScope: CoroutineScope,
         restartOnboarding: () -> Unit
     ) {
-        nav.onBackPressed[screen] = {
-            when (state.value) {
-                OnboardingState.SPLASH -> {
-                    // do nothing, consume back
-                    true
-                }
+        when (state.value) {
+            OnboardingState.SPLASH, OnboardingState.LOGIN -> {
+                // nothing to go back to
+            }
 
-                OnboardingState.LOGIN -> {
-                    // let the user exit the app
-                    false
-                }
+            OnboardingState.CHOOSE_PATH -> {
+                state.value = OnboardingState.LOGIN
+            }
 
-                OnboardingState.CHOOSE_PATH -> {
-                    state.value = OnboardingState.LOGIN
-                    true
-                }
-
-                OnboardingState.CURRENCY -> {
-                    if (isLoginCache) {
-                        // user with Ivy account
-                        viewModelScope.launch {
-                            logoutLogic.logout()
-                            isLoginCache = false
-                            restartOnboarding()
-                            state.value = OnboardingState.LOGIN
-                        }
-                    } else {
-                        // fresh user
-                        state.value = OnboardingState.CHOOSE_PATH
+            OnboardingState.CURRENCY -> {
+                if (isLoginCache) {
+                    // user with Ivy account
+                    viewModelScope.launch {
+                        deleteAllDataUseCase()
+                        nav.resetBackStack()
+                        nav.navigateTo(OnboardingScreen)
+                        isLoginCache = false
+                        restartOnboarding()
+                        state.value = OnboardingState.LOGIN
                     }
-                    true
+                } else {
+                    // fresh user
+                    state.value = OnboardingState.CHOOSE_PATH
                 }
+            }
 
-                OnboardingState.ACCOUNTS -> {
-                    state.value = OnboardingState.CURRENCY
-                    true
-                }
+            OnboardingState.ACCOUNTS -> {
+                state.value = OnboardingState.CURRENCY
+            }
 
-                OnboardingState.CATEGORIES -> {
-                    state.value = OnboardingState.ACCOUNTS
-                    true
-                }
+            OnboardingState.CATEGORIES -> {
+                state.value = OnboardingState.ACCOUNTS
             }
         }
     }
@@ -168,7 +159,7 @@ class OnboardingRouter(
         routeToCategories()
 
         ioThread {
-            preloadDataLogic.preloadAccounts()
+            starterData.preloadAccounts()
         }
     }
     // ------------------------------------- Step 4 -------------------------------------------------
@@ -182,7 +173,7 @@ class OnboardingRouter(
         completeOnboarding(baseCurrency = baseCurrency)
 
         ioThread {
-            preloadDataLogic.preloadCategories()
+            starterData.preloadCategories()
         }
     }
     // ------------------------------------- Step 5 -------------------------------------------------
@@ -196,14 +187,14 @@ class OnboardingRouter(
         this.accounts.value = accounts
 
         accountSuggestions.value =
-            preloadDataLogic.accountSuggestions(baseCurrency.code)
+            starterData.accountSuggestions(baseCurrency.code)
         state.value = OnboardingState.ACCOUNTS
     }
 
     private suspend fun routeToCategories() {
         categories.value =
             ioThread { categoryRepository.findAll().toImmutableList() }
-        categorySuggestions.value = preloadDataLogic.categorySuggestions()
+        categorySuggestions.value = starterData.categorySuggestions()
 
         state.value = OnboardingState.CATEGORIES
     }
@@ -211,13 +202,13 @@ class OnboardingRouter(
     private suspend fun completeOnboarding(
         baseCurrency: IvyCurrency?
     ) {
-        sharedPrefs.putBoolean(SharedPrefs.ONBOARDING_COMPLETED, true)
+        appPreferences.setOnboardingCompleted(true)
 
         navigateOutOfOnboarding()
 
         // the rest below is not UI stuff so I don't care
         ioThread {
-            transactionReminderLogic.scheduleReminder()
+            transactionReminderScheduler.scheduleReminder()
 
             AssetCode.from(baseCurrency?.code ?: IvyCurrency.getDefault().code)
                 .onRight {

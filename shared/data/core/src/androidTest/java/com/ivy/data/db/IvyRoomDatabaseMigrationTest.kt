@@ -9,6 +9,8 @@ import com.ivy.data.db.migration.Migration123to124_LoanIncludeDateTime
 import com.ivy.data.db.migration.Migration124to125_LoanEditDateTime
 import com.ivy.data.db.migration.Migration126to127_LoanRecordType
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
+import com.ivy.data.db.migration.Migration130to131_DropUsers
+import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
 import com.ivy.data.model.LoanType
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -26,6 +28,72 @@ class IvyRoomDatabaseMigrationTest {
         listOf(IvyRoomDatabase.DeleteSEMigration()),
         FrameworkSQLiteOpenHelperFactory()
     )
+
+    @Test
+    fun migrate131to132_DeleteSoftDeleted() {
+        val accountId = UUID.randomUUID().toString()
+        helper.createDatabase(TestDb, 131).apply {
+            listOf("Kept" to 0, "Deleted" to 1).forEach { (title, isDeleted) ->
+                execSQL(
+                    """
+                    INSERT INTO planned_payment_rules
+                    (oneTime, type, accountId, amount, title, isSynced, isDeleted, id)
+                    VALUES (1, 'EXPENSE', ?, 10.0, ?, 0, ?, ?)
+                    """.trimIndent(),
+                    arrayOf<Any>(accountId, title, isDeleted, UUID.randomUUID().toString())
+                )
+                execSQL(
+                    """
+                    INSERT INTO categories (name, color, orderNum, isSynced, isDeleted, id)
+                    VALUES (?, 0, 0.0, 0, ?, ?)
+                    """.trimIndent(),
+                    arrayOf<Any>(title, isDeleted, UUID.randomUUID().toString())
+                )
+            }
+            close()
+        }
+
+        val newDb = helper.runMigrationsAndValidate(
+            TestDb,
+            132,
+            true,
+            Migration131to132_DeleteSoftDeleted()
+        )
+
+        newDb.query("SELECT title FROM planned_payment_rules").use {
+            it.count shouldBe 1
+            it.moveToFirst()
+            it.getString(0) shouldBe "Kept"
+        }
+        newDb.query("SELECT name FROM categories").use {
+            it.count shouldBe 1
+            it.moveToFirst()
+            it.getString(0) shouldBe "Kept"
+        }
+        newDb.close()
+    }
+
+    @Test
+    fun migrate130to131_DropUsers() {
+        helper.createDatabase(TestDb, 130).close()
+
+        // The settings table stays in the file until LegacySettingsMigration copies it into
+        // DataStore, so tables the schema dropped aren't checked.
+        val newDb = helper.runMigrationsAndValidate(
+            TestDb,
+            131,
+            false,
+            Migration130to131_DropUsers()
+        )
+
+        newDb.query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").use {
+            it.count shouldBe 0
+        }
+        newDb.query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'settings'").use {
+            it.count shouldBe 1
+        }
+        newDb.close()
+    }
 
     @Test
     fun migrate129to130_LoanIncludeNote() {

@@ -14,18 +14,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
-import com.ivy.legacy.utils.navigationBarInset
-import com.ivy.legacy.utils.toDensityDp
+import com.ivy.design.utils.navigationBarInset
+import com.ivy.design.utils.toDensityDp
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.ActionsRow
 import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.IvyButton
-import com.ivy.wallet.ui.theme.gradientCutBackgroundTop
+import com.ivy.design.system.colors.gradientCutBackgroundTop
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.PieChartStatisticBottomBar(
@@ -38,7 +37,7 @@ fun BoxWithConstraintsScope.PieChartStatisticBottomBar(
     ActionsRow(
         modifier = modifier
             .align(Alignment.BottomCenter)
-            .gradientCutBackgroundTop(UI.colors.pure, LocalDensity.current)
+            .gradientCutBackgroundTop(MaterialTheme.colorScheme.surface, LocalDensity.current)
             .padding(bottom = bottomInset)
             .padding(bottom = 16.dp)
     ) {
@@ -60,12 +59,12 @@ fun BoxWithConstraintsScope.PieChartStatisticBottomBar(
             } else {
                 stringResource(id = R.string.add_expense)
             },
-            backgroundGradient = if (isIncome) GradientGreen else Gradient.solid(UI.colors.pureInverse),
-            textStyle = UI.typo.b2.style(
-                color = if (isIncome) White else UI.colors.pure,
+            backgroundGradient = if (isIncome) GradientGreen else Gradient.solid(MaterialTheme.colorScheme.onSurface),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = if (isIncome) White else MaterialTheme.colorScheme.surface,
                 fontWeight = FontWeight.ExtraBold
             ),
-            iconTint = if (isIncome) White else UI.colors.pure
+            iconTint = if (isIncome) White else MaterialTheme.colorScheme.surface
         ) {
             onAdd(type)
         }

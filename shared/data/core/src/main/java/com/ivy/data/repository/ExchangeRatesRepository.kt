@@ -36,6 +36,15 @@ class ExchangeRatesRepository @Inject constructor(
             }
         }.flowOn(dispatchers.io)
 
+    /** The rate from [baseCurrency] to [currency], or null when there's none. */
+    suspend fun findRate(baseCurrency: AssetCode, currency: AssetCode): ExchangeRate? =
+        withContext(dispatchers.io) {
+            exchangeRatesDao.findByBaseCurrencyAndCurrency(
+                baseCurrency = baseCurrency.code,
+                currency = currency.code
+            )?.let { with(mapper) { it.toDomain().getOrNull() } }
+        }
+
     suspend fun findAllManuallyOverridden(): List<ExchangeRate> =
         withContext(dispatchers.io) {
             exchangeRatesDao.findAllManuallyOverridden()

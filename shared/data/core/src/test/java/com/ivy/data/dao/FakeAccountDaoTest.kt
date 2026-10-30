@@ -52,100 +52,35 @@ class FakeAccountDaoTest {
     }
 
     @Test
-    fun `find all - not deleted accounts`() = runTest {
+    fun `find all`() = runTest {
         // given
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
-        val id3 = UUID.randomUUID()
-        val account1 = AccountEntity(
-            id = id1,
-            name = "Bank",
-            currency = "BGN",
-            color = 1,
-            icon = null,
-            includeInBalance = true,
-            orderNum = 1.0,
-            isDeleted = false
-        )
-        val accounts = listOf(
-            account1,
-            AccountEntity(
-                id = id2,
-                name = "Cash",
-                currency = "BGN",
-                color = 1,
-                icon = null,
-                includeInBalance = true,
-                orderNum = 2.0,
-                isDeleted = true
-            ),
-            AccountEntity(
-                id = id3,
-                name = "Bank 2",
-                currency = "BGN",
-                color = 1,
-                icon = null,
-                includeInBalance = true,
-                orderNum = 3.0,
-                isDeleted = false
-            )
-        )
-
-        // when
-        dao.saveMany(accounts)
-        val res = dao.findAll(false)
-
-        // then
-        res shouldBe listOf(
-            account1,
-            AccountEntity(
-                id = id3,
-                name = "Bank 2",
-                currency = "BGN",
-                color = 1,
-                icon = null,
-                includeInBalance = true,
-                orderNum = 3.0,
-                isDeleted = false
-            )
-        )
-    }
-
-    @Test
-    fun `find all - deleted accounts`() = runTest {
-        // given
-        val id1 = UUID.randomUUID()
-        val id2 = UUID.randomUUID()
-        val account2 = AccountEntity(
-            id = id2,
-            name = "Cash",
-            currency = "BGN",
-            color = 1,
-            icon = null,
-            includeInBalance = true,
-            orderNum = 2.0,
-            isDeleted = true
-        )
         val accounts = listOf(
             AccountEntity(
-                id = id1,
+                id = UUID.randomUUID(),
                 name = "Bank",
                 currency = "BGN",
                 color = 1,
                 icon = null,
                 includeInBalance = true,
                 orderNum = 1.0,
-                isDeleted = false
             ),
-            account2
+            AccountEntity(
+                id = UUID.randomUUID(),
+                name = "Cash",
+                currency = "BGN",
+                color = 1,
+                icon = null,
+                includeInBalance = true,
+                orderNum = 2.0,
+            ),
         )
 
         // when
         dao.saveMany(accounts)
-        val res = dao.findAll(true)
+        val res = dao.findAll()
 
         // then
-        res shouldBe listOf(account2)
+        res shouldBe accounts
     }
 
     @Test
@@ -155,7 +90,7 @@ class FakeAccountDaoTest {
 
         // when
         dao.saveMany(accounts)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
         res shouldBe emptyList()
@@ -175,7 +110,6 @@ class FakeAccountDaoTest {
                 icon = null,
                 includeInBalance = true,
                 orderNum = 0.0,
-                isDeleted = false
             ),
             AccountEntity(
                 id = id2,
@@ -185,7 +119,6 @@ class FakeAccountDaoTest {
                 icon = null,
                 includeInBalance = true,
                 orderNum = 1.0,
-                isDeleted = false
             )
         )
 
@@ -222,7 +155,6 @@ class FakeAccountDaoTest {
             icon = null,
             includeInBalance = true,
             orderNum = 0.0,
-            isDeleted = false
         )
 
         // when
@@ -245,7 +177,6 @@ class FakeAccountDaoTest {
             icon = null,
             includeInBalance = true,
             orderNum = 0.0,
-            isDeleted = false
         )
 
         // when
@@ -262,7 +193,6 @@ class FakeAccountDaoTest {
             icon = null,
             includeInBalance = true,
             orderNum = 0.0,
-            isDeleted = false
         )
     }
 
@@ -280,7 +210,6 @@ class FakeAccountDaoTest {
                 icon = null,
                 includeInBalance = true,
                 orderNum = 1.0,
-                isDeleted = false
             ),
             AccountEntity(
                 id = id2,
@@ -290,13 +219,12 @@ class FakeAccountDaoTest {
                 icon = null,
                 includeInBalance = true,
                 orderNum = 2.0,
-                isDeleted = false
             )
         )
 
         // when
         dao.saveMany(accounts)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
         res shouldBe accounts
@@ -315,14 +243,13 @@ class FakeAccountDaoTest {
                 icon = null,
                 includeInBalance = true,
                 orderNum = 1.0,
-                isDeleted = false
             )
         )
 
         // when
         dao.saveMany(accounts)
         dao.deleteById(id)
-        val res = dao.findAll(false)
+        val res = dao.findAll()
 
         // then
         res shouldBe emptyList()
@@ -345,7 +272,6 @@ class FakeAccountDaoTest {
                     icon = null,
                     includeInBalance = true,
                     orderNum = 1.0,
-                    isDeleted = false
                 ),
                 AccountEntity(
                     id = id2,
@@ -355,16 +281,13 @@ class FakeAccountDaoTest {
                     icon = null,
                     includeInBalance = true,
                     orderNum = 2.0,
-                    isDeleted = true
                 )
             )
         )
         dao.deleteAll()
-        val notDeleted = dao.findAll(false)
-        val deleted = dao.findAll(true)
+        val res = dao.findAll()
 
         // then
-        notDeleted shouldBe emptyList()
-        deleted shouldBe emptyList()
+        res shouldBe emptyList()
     }
 }

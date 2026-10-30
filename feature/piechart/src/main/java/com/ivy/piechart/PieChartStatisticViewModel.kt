@@ -7,14 +7,14 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Category
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.data.model.Transaction
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.CurrencyRepository
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.PieChartStatisticScreen
@@ -33,10 +33,10 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class PieChartStatisticViewModel @Inject constructor(
-    private val settingsDao: SettingsDao,
-    private val ivyContext: IvyWalletCtx,
+    private val currencyRepository: CurrencyRepository,
+    private val periodState: PeriodState,
     private val pieChartAct: PieChartAct,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<PieChartStatisticState, PieChartStatisticEvent>() {
@@ -144,7 +144,7 @@ class PieChartStatisticViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             startInternally(
-                period = ivyContext.selectedPeriod,
+                period = periodState.selected,
                 type = screen.type,
                 accountIdFilterList = screen.accountList,
                 filterExclude = screen.filterExcluded,
@@ -174,8 +174,7 @@ class PieChartStatisticViewModel @Inject constructor(
         filterExcludedValue: Boolean,
         transactionsValue: ImmutableList<Transaction>
     ) {
-        val settings = ioThread { settingsDao.findFirst() }
-        val baseCurrencyValue = settings.currency
+        val baseCurrencyValue = currencyRepository.getBaseCurrency().code
 
         period = periodValue
         transactionType = type
@@ -193,13 +192,10 @@ class PieChartStatisticViewModel @Inject constructor(
         val accountIdFilterList = accountIdFilterList
         val transactions = transactions
         val baseCurrency = baseCurrency
-        val range = periodValue.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+        val range = periodValue.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
-        val treatTransferAsIncExp =
-            sharedPrefs.getBoolean(
-                SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE,
-                false
-            ) && accountIdFilterList.isNotEmpty() && treatTransfersAsIncomeExpense
+        val treatTransferAsIncExp = appPreferences.transfersAsIncomeExpense() &&
+            accountIdFilterList.isNotEmpty() && treatTransfersAsIncomeExpense
 
         val pieChartActOutput = ioThread {
             pieChartAct(
@@ -225,7 +221,7 @@ class PieChartStatisticViewModel @Inject constructor(
     }
 
     private suspend fun onSetPeriod(periodValue: TimePeriod) {
-        ivyContext.updateSelectedPeriodInMemory(periodValue)
+        periodState.select(periodValue)
         load(
             periodValue = periodValue
         )
@@ -233,20 +229,20 @@ class PieChartStatisticViewModel @Inject constructor(
 
     private suspend fun nextMonth() {
         val month = period.month
-        val year = period.year ?: com.ivy.legacy.utils.dateNowUTC().year
+        val year = period.year ?: timeProvider.localDateNow().year
         if (month != null) {
             load(
-                periodValue = month.incrementMonthPeriod(ivyContext, 1L, year)
+                periodValue = periodState.selectMonth(month, 1L, year)
             )
         }
     }
 
     private suspend fun previousMonth() {
         val month = period.month
-        val year = period.year ?: com.ivy.legacy.utils.dateNowUTC().year
+        val year = period.year ?: timeProvider.localDateNow().year
         if (month != null) {
             load(
-                periodValue = month.incrementMonthPeriod(ivyContext, -1L, year)
+                periodValue = periodState.selectMonth(month, -1L, year)
             )
         }
     }

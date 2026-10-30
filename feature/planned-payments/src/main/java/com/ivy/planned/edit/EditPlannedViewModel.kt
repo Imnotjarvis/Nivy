@@ -7,34 +7,39 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
-import com.ivy.data.db.dao.read.AccountDao
-import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
+import com.ivy.data.model.PlannedPaymentInterval
+import com.ivy.data.model.PlannedPaymentRule
+import com.ivy.data.model.PlannedPaymentRuleId
+import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.model.primitive.PositiveInt
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.PlannedPaymentRule
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
+import com.ivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsGenerator
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import com.ivy.wallet.ui.theme.modal.RecurringRuleModalData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -45,16 +50,14 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class EditPlannedViewModel @Inject constructor(
-    private val accountDao: AccountDao,
+    private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
-    private val settingsDao: SettingsDao,
     private val nav: Navigation,
-    private val plannedPaymentRuleDao: PlannedPaymentRuleDao,
+    private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
     private val accountsAct: AccountsAct,
-    private val plannedPaymentRuleWriter: WritePlannedPaymentRuleDao,
     private val transactionRepository: TransactionRepository,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<EditPlannedScreenState, EditPlannedScreenEvent>() {
@@ -81,7 +84,7 @@ class EditPlannedViewModel @Inject constructor(
     private var categoryModalData by mutableStateOf<CategoryModalData?>(null)
     private var accountModalData by mutableStateOf<AccountModalData?>(null)
 
-    private var loadedRule: PlannedPaymentRule? = null
+    private var ruleId: PlannedPaymentRuleId? = null
     private var editMode = false
     private var title: String? = null
 
@@ -268,7 +271,7 @@ class EditPlannedViewModel @Inject constructor(
             transactionType = screen.type
             editMode = screen.plannedPaymentRuleId != null
 
-            val accounts = accountsAct(Unit)
+            val accounts = accountsAct()
             if (accounts.isEmpty()) {
                 nav.back()
                 return@launch
@@ -278,50 +281,53 @@ class EditPlannedViewModel @Inject constructor(
 
             reset()
 
-            loadedRule = screen.plannedPaymentRuleId?.let {
-                ioThread { plannedPaymentRuleDao.findById(it)!!.toLegacyDomain() }
-            } ?: PlannedPaymentRule(
-                startDate = null,
-                intervalN = null,
-                intervalType = null,
-                oneTime = false,
-                type = screen.type,
-                amount = screen.amount ?: 0.0,
-                accountId = screen.accountId ?: accounts.first().id,
-                categoryId = screen.categoryId,
-                title = screen.title,
-                description = screen.description
-            )
-
-            display(loadedRule!!)
+            val rule = screen.plannedPaymentRuleId?.let {
+                plannedPaymentRuleRepository.findById(PlannedPaymentRuleId(it))
+            }
+            if (rule != null) {
+                display(rule)
+            } else {
+                displayNew(screen, accounts)
+            }
         }
     }
 
     private suspend fun display(rule: PlannedPaymentRule) {
-        this.title = rule.title
-
+        ruleId = rule.id
+        title = rule.title?.value
+        initialTitle = rule.title?.value
+        description = rule.description?.value
         transactionType = rule.type
-        startDate = with(timeConverter) { rule.startDate?.toLocalDateTime() }
-        intervalN = rule.intervalN
-        oneTime = rule.oneTime
-        intervalType = rule.intervalType
-        initialTitle = rule.title
-        description = rule.description
-        val selectedAccount = ioThread { accountDao.findById(rule.accountId)!!.toLegacyDomain() }
-        account = selectedAccount
-        category = rule.categoryId?.let {
-            ioThread { categoryRepository.findById(CategoryId(it)) }
-        }
-        amount = rule.amount
+        startDate = with(timeConverter) { rule.startDate.toLocalDateTime() }
+        oneTime = rule.interval == null
+        intervalN = rule.interval?.n?.value
+        intervalType = rule.interval?.type
+        account = accountRepository.findById(rule.account)
+        category = rule.category?.let { categoryRepository.findById(it) }
+        amount = rule.amount.value
 
-        updateCurrency(account = selectedAccount)
+        account?.let(::updateCurrency)
     }
 
-    private suspend fun updateCurrency(account: Account) {
-        currency = account.currency ?: baseCurrency()
+    private suspend fun displayNew(screen: EditPlannedScreen, accounts: List<Account>) {
+        ruleId = PlannedPaymentRuleId(UUID.randomUUID())
+        title = screen.title
+        initialTitle = screen.title
+        description = screen.description
+        startDate = null
+        oneTime = false
+        intervalN = null
+        intervalType = null
+        account = accounts.find { it.id.value == screen.accountId } ?: accounts.first()
+        category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
+        amount = screen.amount ?: 0.0
+
+        account?.let(::updateCurrency)
     }
 
-    private suspend fun baseCurrency(): String = ioThread { settingsDao.findFirst().currency }
+    private fun updateCurrency(account: Account) {
+        currency = account.asset.code
+    }
 
     private fun updateRule(
         startDate: LocalDateTime,
@@ -329,12 +335,6 @@ class EditPlannedViewModel @Inject constructor(
         intervalN: Int?,
         intervalType: IntervalType?
     ) {
-        loadedRule = loadedRule().copy(
-            startDate = with(timeConverter) { startDate.toUTC() },
-            intervalN = intervalN,
-            intervalType = intervalType,
-            oneTime = oneTime
-        )
         this@EditPlannedViewModel.startDate = startDate
         this@EditPlannedViewModel.intervalN = intervalN
         this@EditPlannedViewModel.intervalType = intervalType
@@ -344,58 +344,37 @@ class EditPlannedViewModel @Inject constructor(
     }
 
     private fun updateAmount(newAmount: Double) {
-        loadedRule = loadedRule().copy(
-            amount = newAmount
-        )
         this@EditPlannedViewModel.amount = newAmount
 
         saveIfEditMode()
     }
 
     private fun updateTitle(newTitle: String?) {
-        loadedRule = loadedRule().copy(
-            title = newTitle
-        )
         this.title = newTitle
 
         saveIfEditMode()
     }
 
     private fun updateDescription(newDescription: String?) {
-        loadedRule = loadedRule().copy(
-            description = newDescription
-        )
         this@EditPlannedViewModel.description = newDescription
 
         saveIfEditMode()
     }
 
     private fun updateCategory(newCategory: Category?) {
-        loadedRule = loadedRule().copy(
-            categoryId = newCategory?.id?.value
-        )
         this@EditPlannedViewModel.category = newCategory
 
         saveIfEditMode()
     }
 
     private fun updateAccount(newAccount: Account) {
-        loadedRule = loadedRule().copy(
-            accountId = newAccount.id
-        )
         this@EditPlannedViewModel.account = newAccount
-
-        viewModelScope.launch {
-            updateCurrency(account = newAccount)
-        }
+        updateCurrency(account = newAccount)
 
         saveIfEditMode()
     }
 
     private fun updateTransactionType(newTransactionType: TransactionType) {
-        loadedRule = loadedRule().copy(
-            type = newTransactionType
-        )
         this@EditPlannedViewModel.transactionType = newTransactionType
 
         saveIfEditMode()
@@ -408,76 +387,50 @@ class EditPlannedViewModel @Inject constructor(
     }
 
     private fun save(closeScreen: Boolean = true) {
-        if (!validate()) {
-            return
-        }
+        val rule = rule() ?: return
 
         viewModelScope.launch {
-            try {
-                ioThread {
-                    loadedRule = loadedRule().copy(
-                        type = transactionType,
-                        startDate = with(timeConverter) { startDate?.toUTC() }
-                            ?: error("no startDate"),
-                        intervalN = intervalN ?: error("no intervalN"),
-                        intervalType = intervalType ?: error("no intervalType"),
-                        categoryId = category?.id?.value,
-                        accountId = account?.id ?: error("no accountId"),
-                        title = title?.trim(),
-                        description = description?.trim(),
-                        amount = amount,
+            plannedPaymentRuleRepository.save(rule)
+            plannedPaymentsGenerator.generate(rule)
 
-                        isSynced = false
-                    )
-
-                    plannedPaymentRuleWriter.save(loadedRule().toEntity())
-                    plannedPaymentsGenerator.generate(loadedRule())
-                }
-
-                if (closeScreen) {
-                    nav.back()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            if (closeScreen) {
+                nav.back()
             }
         }
     }
 
-    private fun validate(): Boolean {
-        if (transactionType == TransactionType.TRANSFER) {
-            return false
-        }
-
-        if (amount == 0.0) {
-            return false
-        }
-
-        return if (oneTime) validateOneTime() else validateRecurring()
-    }
-
-    private fun validateOneTime(): Boolean {
-        return startDate != null
-    }
-
-    private fun validateRecurring(): Boolean {
-        return startDate != null &&
-                intervalN != null &&
-                intervalN!! > 0 &&
-                intervalType != null
-    }
+    /** The rule the form describes, or null while it's incomplete. */
+    private fun rule(): PlannedPaymentRule? = either {
+        ensure(transactionType != TransactionType.TRANSFER) { "Planned transfers aren't supported" }
+        val startDate = ensureNotNull(startDate) { "No start date" }
+        PlannedPaymentRule(
+            id = ensureNotNull(ruleId) { "No rule" },
+            type = transactionType,
+            account = ensureNotNull(account) { "No account" }.id,
+            amount = PositiveDouble.from(amount).bind(),
+            category = category?.id,
+            title = title?.let(NotBlankTrimmedString::from)?.getOrNull(),
+            description = description?.let(NotBlankTrimmedString::from)?.getOrNull(),
+            startDate = with(timeConverter) { startDate.toUTC() },
+            interval = if (oneTime) {
+                null
+            } else {
+                PlannedPaymentInterval(
+                    n = PositiveInt.from(ensureNotNull(intervalN) { "No interval" }).bind(),
+                    type = ensureNotNull(intervalType) { "No interval type" },
+                )
+            },
+        )
+    }.getOrNull()
 
     private fun delete() {
         viewModelScope.launch {
             deleteTransactionModalVisible = false
-            ioThread {
-                loadedRule?.let {
-                    plannedPaymentRuleWriter.deleteById(it.id)
-                    transactionRepository.deletedByRecurringRuleIdAndNoDateTime(
-                        recurringRuleId = it.id
-                    )
-                }
-                nav.back()
+            ruleId?.let {
+                plannedPaymentRuleRepository.deleteById(it)
+                transactionRepository.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId = it.value)
             }
+            nav.back()
         }
     }
 
@@ -502,18 +455,16 @@ class EditPlannedViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct(Unit)
+                accounts = accountsAct()
             }
         }
     }
 
     private fun reset() {
-        loadedRule = null
+        ruleId = null
 
         initialTitle = null
         description = null
         category = null
     }
-
-    private fun loadedRule() = loadedRule ?: error("Loaded transaction is null")
 }

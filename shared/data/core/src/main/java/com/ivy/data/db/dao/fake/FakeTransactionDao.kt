@@ -14,22 +14,21 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
 
     override suspend fun findAll(): List<TransactionEntity> {
         return items
-            .filter { !it.isDeleted }
             .sortedWith(
                 compareByDescending<TransactionEntity> { it.dateTime }
                     .then(compareBy { it.dueDate })
             )
     }
 
-    override suspend fun findAll_LIMIT_1(): List<TransactionEntity> {
-        return findAll().take(1)
+    override suspend fun hasTransactions(): Boolean {
+        return findAll().isNotEmpty()
     }
 
     override suspend fun findAllByTypeAndAccount(
         type: TransactionType,
         accountId: UUID
     ): List<TransactionEntity> {
-        return items.filter { !it.isDeleted && type == it.type && it.accountId == accountId }
+        return items.filter { type == it.type && it.accountId == accountId }
             .sortedByDescending { it.dateTime }
     }
 
@@ -38,7 +37,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         type: TransactionType
     ): List<TransactionEntity> {
         return items.filter {
-            it.type == TransactionType.TRANSFER && it.toAccountId == toAccountId && !it.isDeleted
+            it.type == TransactionType.TRANSFER && it.toAccountId == toAccountId
         }.sortedByDescending { it.dateTime }
     }
 
@@ -48,7 +47,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && !it.isDeleted
+            isBetween(dateTime, startDate, endDate)
         }.sortedByDescending { it.dateTime }
     }
 
@@ -59,7 +58,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && it.accountId == accountId && !it.isDeleted
+            isBetween(dateTime, startDate, endDate) && it.accountId == accountId
         }.sortedByDescending { it.dateTime }
     }
 
@@ -70,7 +69,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && it.categoryId == categoryId && !it.isDeleted
+            isBetween(dateTime, startDate, endDate) && it.categoryId == categoryId
         }.sortedByDescending { it.dateTime }
     }
 
@@ -80,7 +79,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && it.categoryId == null && !it.isDeleted
+            isBetween(dateTime, startDate, endDate) && it.categoryId == null
         }.sortedByDescending { it.dateTime }
     }
 
@@ -94,8 +93,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
             val dateTime = it.dateTime ?: return@filter false
             isBetween(dateTime, startDate, endDate) &&
                     it.type == type &&
-                    it.categoryId == categoryId &&
-                    !it.isDeleted
+                    it.categoryId == categoryId
         }.sortedByDescending { it.dateTime }
     }
 
@@ -106,7 +104,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) && it.type == type && !it.isDeleted
+            isBetween(dateTime, startDate, endDate) && it.type == type
         }.sortedByDescending { it.dateTime }
     }
 
@@ -118,8 +116,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         return items.filter {
             val dateTime = it.dateTime ?: return@filter false
             isBetween(dateTime, startDate, endDate) &&
-                    it.toAccountId == toAccountId &&
-                    !it.isDeleted
+                    it.toAccountId == toAccountId
         }.sortedByDescending { it.dateTime }
     }
 
@@ -129,7 +126,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dueDate = it.dueDate ?: return@filter false
-            isBetween(dueDate, startDate, endDate) && !it.isDeleted
+            isBetween(dueDate, startDate, endDate)
         }.sortedByDescending { it.dateTime }
     }
 
@@ -140,7 +137,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dueDate = it.dueDate ?: return@filter false
-            isBetween(dueDate, startDate, endDate) && it.categoryId == categoryId && !it.isDeleted
+            isBetween(dueDate, startDate, endDate) && it.categoryId == categoryId
         }.sortedByDescending { it.dateTime }
     }
 
@@ -150,7 +147,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dueDate = it.dueDate ?: return@filter false
-            isBetween(dueDate, startDate, endDate) && it.categoryId == null && !it.isDeleted
+            isBetween(dueDate, startDate, endDate) && it.categoryId == null
         }.sortedByDescending { it.dateTime }
     }
 
@@ -161,12 +158,12 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     ): List<TransactionEntity> {
         return items.filter {
             val dueDate = it.dueDate ?: return@filter false
-            isBetween(dueDate, startDate, endDate) && it.accountId == accountId && !it.isDeleted
+            isBetween(dueDate, startDate, endDate) && it.accountId == accountId
         }.sortedByDescending { it.dateTime }
     }
 
     override suspend fun findAllByRecurringRuleId(recurringRuleId: UUID): List<TransactionEntity> {
-        return items.filter { it.recurringRuleId == recurringRuleId && !it.isDeleted }
+        return items.filter { it.recurringRuleId == recurringRuleId }
             .sortedByDescending { it.dateTime }
     }
 
@@ -179,20 +176,20 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     }
 
     override suspend fun countHappenedTransactions(): Long {
-        return items.count { it.dateTime != null && !it.isDeleted }.toLong()
+        return items.count { it.dateTime != null }.toLong()
     }
 
     override suspend fun findAllByTitleMatchingPattern(pattern: String): List<TransactionEntity> {
-        return items.filter { it.title?.contains(pattern) == true && !it.isDeleted }
+        return items.filter { it.title?.contains(pattern) == true }
             .sortedByDescending { it.dateTime }
     }
 
     override suspend fun countByTitleMatchingPattern(pattern: String): Long {
-        return items.count { it.title?.contains(pattern) == true && !it.isDeleted }.toLong()
+        return items.count { it.title?.contains(pattern) == true }.toLong()
     }
 
     override suspend fun findAllByCategory(categoryId: UUID): List<TransactionEntity> {
-        return items.filter { it.categoryId == categoryId && !it.isDeleted }
+        return items.filter { it.categoryId == categoryId }
             .sortedByDescending { it.dateTime }
     }
 
@@ -201,12 +198,12 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         categoryId: UUID
     ): Long {
         return items.count {
-            it.title?.contains(pattern) == true && it.categoryId == categoryId && !it.isDeleted
+            it.title?.contains(pattern) == true && it.categoryId == categoryId
         }.toLong()
     }
 
     override suspend fun findAllByAccount(accountId: UUID): List<TransactionEntity> {
-        return items.filter { it.accountId == accountId && !it.isDeleted }
+        return items.filter { it.accountId == accountId }
             .sortedByDescending { it.dateTime }
     }
 
@@ -215,7 +212,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         accountId: UUID
     ): Long {
         return items.count {
-            it.title?.contains(pattern) == true && it.accountId == accountId && !it.isDeleted
+            it.title?.contains(pattern) == true && it.accountId == accountId
         }.toLong()
     }
 
@@ -228,7 +225,7 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
     }
 
     override suspend fun findAllByLoanId(loanId: UUID): List<TransactionEntity> {
-        return items.filter { it.loanId == loanId && !it.isDeleted }
+        return items.filter { it.loanId == loanId }
             .sortedByDescending { it.dateTime }
     }
 
@@ -241,8 +238,8 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         }
     }
 
-    override suspend fun saveMany(values: List<TransactionEntity>) {
-        values.forEach { save(it) }
+    override suspend fun saveMany(value: List<TransactionEntity>) {
+        value.forEach { save(it) }
     }
 
     override suspend fun deletedByRecurringRuleIdAndNoDateTime(recurringRuleId: UUID) {

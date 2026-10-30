@@ -18,24 +18,23 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.Purple
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Purple
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.PlannedPaymentRule
-import com.ivy.legacy.utils.timeNowUTC
+import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewPlannedPaymentRule
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Orange
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Orange
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.persistentListOf
-import java.time.ZoneOffset
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.PlannedPaymentsScreen(screen: PlannedPaymentsScreen) {
@@ -60,9 +59,9 @@ private fun BoxWithConstraintsScope.UI(
             Text(
                 modifier = Modifier.padding(start = 24.dp),
                 text = stringResource(R.string.planned_payments_inline),
-                style = UI.typo.h2.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
@@ -108,7 +107,7 @@ private fun BoxWithConstraintsScope.UI(
 @Composable
 private fun Preview() {
     IvyWalletPreview {
-        val account = Account(name = "Cash", Green.toArgb())
+        val account = previewAccount("Cash", color = Green, currency = "BGN")
         val food = Category(
             name = NotBlankTrimmedString.unsafe("Food"),
             color = ColorInt(Purple.toArgb()),
@@ -130,31 +129,26 @@ private fun Preview() {
                 accounts = persistentListOf(account),
                 categories = persistentListOf(food, shisha),
                 oneTimePlannedPayment = persistentListOf(
-                    PlannedPaymentRule(
-                        accountId = account.id,
+                    previewPlannedPaymentRule(
+                        account = account.id,
                         title = "Lidl pazar",
-                        categoryId = food.id.value,
+                        category = food.id,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
-                        oneTime = true,
-                        intervalType = null,
-                        intervalN = null,
-                        type = TransactionType.EXPENSE
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
+                        type = TransactionType.EXPENSE,
                     )
                 ),
                 oneTimeExpenses = 250.75,
                 oneTimeIncome = 0.0,
                 recurringPlannedPayment = persistentListOf(
-                    PlannedPaymentRule(
-                        accountId = account.id,
+                    previewPlannedPaymentRule(
+                        account = account.id,
                         title = "Tabu",
-                        categoryId = shisha.id.value,
+                        category = shisha.id,
                         amount = 1025.5,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
-                        oneTime = false,
-                        intervalType = IntervalType.MONTH,
-                        intervalN = 1,
-                        type = TransactionType.EXPENSE
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
+                        type = TransactionType.EXPENSE,
+                        interval = 1 to IntervalType.MONTH,
                     )
                 ),
                 recurringExpenses = 1025.5,

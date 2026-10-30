@@ -9,7 +9,8 @@ import com.ivy.data.db.dao.fake.FakeCategoryDao
 import com.ivy.data.db.dao.fake.FakeLoanDao
 import com.ivy.data.db.dao.fake.FakeLoanRecordDao
 import com.ivy.data.db.dao.fake.FakePlannedPaymentDao
-import com.ivy.data.db.dao.fake.FakeSettingsDao
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.preferences.InMemoryPreferencesDataStore
 import com.ivy.data.db.dao.fake.FakeTagAssociationDao
 import com.ivy.data.db.dao.fake.FakeTagDao
 import com.ivy.data.db.dao.fake.FakeTransactionDao
@@ -31,7 +32,7 @@ class BackupDataUseCaseTest {
         transactionDao: FakeTransactionDao = FakeTransactionDao(),
         plannedPaymentDao: FakePlannedPaymentDao = FakePlannedPaymentDao(),
         budgetDao: FakeBudgetDao = FakeBudgetDao(),
-        settingsDao: FakeSettingsDao = FakeSettingsDao(),
+        appPreferences: AppPreferences = AppPreferences(InMemoryPreferencesDataStore()),
         loanDao: FakeLoanDao = FakeLoanDao(),
         loanRecordDao: FakeLoanRecordDao = FakeLoanRecordDao(),
         tagDao: FakeTagDao = FakeTagDao(),
@@ -39,7 +40,7 @@ class BackupDataUseCaseTest {
     ): BackupDataUseCase {
         val accountMapper = AccountMapper(
             CurrencyRepository(
-                settingsDao = settingsDao,
+                appPreferences = appPreferences,
                 dispatchersProvider = TestDispatchersProvider,
             )
         )
@@ -60,16 +61,14 @@ class BackupDataUseCaseTest {
             plannedPaymentRuleDao = plannedPaymentDao,
             transactionDao = transactionDao,
             transactionWriter = transactionDao,
-            settingsDao = settingsDao,
             categoryWriter = categoryDao,
-            settingsWriter = settingsDao,
             budgetWriter = budgetDao,
             loanWriter = loanDao,
             loanRecordWriter = loanRecordDao,
             plannedPaymentRuleWriter = plannedPaymentDao,
 
             context = mockk(relaxed = true),
-            sharedPrefs = mockk(relaxed = true),
+            appPreferences = appPreferences,
             json = KotlinxSerializationModule.provideJson(),
             dispatchersProvider = TestDispatchersProvider,
             fileSystem = mockk(relaxed = true),
@@ -77,7 +76,8 @@ class BackupDataUseCaseTest {
             tagsReader = tagDao,
             tagsWriter = tagDao,
             tagAssociationReader = tagAssociationDao,
-            tagAssociationWriter = tagAssociationDao
+            tagAssociationWriter = tagAssociationDao,
+            db = mockk(relaxed = true),
         )
     }
 

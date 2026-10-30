@@ -2,7 +2,7 @@ package com.ivy.data.repository
 
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.data.DataObserver
-import com.ivy.data.db.dao.fake.FakeSettingsDao
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.entity.AccountEntity
@@ -33,11 +33,11 @@ class AccountRepositoryTest {
 
     @Before
     fun setup() {
-        val settingsDao = FakeSettingsDao()
+        val appPreferences = mockk<AppPreferences> { coEvery { baseCurrency() } returns null }
         repository = AccountRepository(
             mapper = AccountMapper(
                 CurrencyRepository(
-                    settingsDao = settingsDao,
+                    appPreferences = appPreferences,
                     dispatchersProvider = TestDispatchersProvider
                 )
             ),
@@ -116,9 +116,9 @@ class AccountRepositoryTest {
     }
 
     @Test
-    fun `find all not deleted - empty list`() = runTest {
+    fun `find all - empty list`() = runTest {
         // given
-        coEvery { accountDao.findAll(false) } returns emptyList()
+        coEvery { accountDao.findAll() } returns emptyList()
 
         // when
         val res = repository.findAll()
@@ -128,11 +128,11 @@ class AccountRepositoryTest {
     }
 
     @Test
-    fun `find all not deleted - list of valid accounts`() = runTest {
+    fun `find all - list of valid accounts`() = runTest {
         // given
         val account1Id = AccountId(UUID.randomUUID())
         val account2Id = AccountId(UUID.randomUUID())
-        coEvery { accountDao.findAll(false) } returns listOf(
+        coEvery { accountDao.findAll() } returns listOf(
             AccountEntity(
                 name = "Bank",
                 currency = "BGN",
@@ -184,11 +184,11 @@ class AccountRepositoryTest {
     }
 
     @Test
-    fun `find all not deleted - list with valid and invalid accounts`() = runTest {
+    fun `find all - list with valid and invalid accounts`() = runTest {
         // given
         val account1Id = AccountId(UUID.randomUUID())
         val account2Id = AccountId(UUID.randomUUID())
-        coEvery { accountDao.findAll(false) } returns listOf(
+        coEvery { accountDao.findAll() } returns listOf(
             AccountEntity(
                 name = "Bank",
                 currency = "BGN",

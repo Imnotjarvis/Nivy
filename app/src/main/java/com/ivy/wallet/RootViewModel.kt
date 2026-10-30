@@ -1,24 +1,22 @@
 package com.ivy.wallet
 
 import android.content.Intent
+import androidx.core.content.IntentCompat
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
-import com.ivy.base.legacy.stringRes
+import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
-import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.frp.test.TestIdlingResource
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.legacy.PeriodState
+import com.ivy.legacy.ThemeState
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.readOnly
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
-import com.ivy.ui.R
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderLogic
+import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
 import com.ivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,11 +32,11 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class RootViewModel @Inject constructor(
-    private val ivyContext: IvyWalletCtx,
+    private val periodState: PeriodState,
+    private val themeState: ThemeState,
     private val nav: Navigation,
-    private val settingsDao: SettingsDao,
-    private val sharedPrefs: SharedPrefs,
-    private val transactionReminderLogic: TransactionReminderLogic,
+    private val appPreferences: AppPreferences,
+    private val transactionReminderScheduler: TransactionReminderScheduler,
     private val migrationsManager: MigrationsManager,
 ) : ViewModel() {
 
@@ -55,24 +53,18 @@ class RootViewModel @Inject constructor(
 
     fun start(systemDarkMode: Boolean, intent: Intent) {
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             ioThread {
-                val theme = settingsDao.findAll().firstOrNull()?.theme
+                val theme = appPreferences.settings()?.theme
                     ?: if (systemDarkMode) Theme.DARK else Theme.LIGHT
-                ivyContext.switchTheme(theme)
+                themeState.switchTheme(theme)
 
-                ivyContext.initStartDayOfMonthInMemory(sharedPrefs = sharedPrefs)
+                appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
             }
-
-            TestIdlingResource.decrement()
         }
 
         viewModelScope.launch {
-            TestIdlingResource.increment()
-
             ioThread {
-                appLockEnabled = sharedPrefs.getBoolean(SharedPrefs.APP_LOCK_ENABLED, false)
+                appLockEnabled = appPreferences.isAppLockEnabled()
                 // initial app locked state
                 _appLocked.value = appLockEnabled
 
@@ -82,8 +74,6 @@ class RootViewModel @Inject constructor(
                     nav.navigateTo(OnboardingScreen)
                 }
             }
-
-            TestIdlingResource.decrement()
         }
 
         viewModelScope.launch {
@@ -91,17 +81,21 @@ class RootViewModel @Inject constructor(
         }
     }
 
-    private fun navigateOnboardedUser(intent: Intent) {
+    private suspend fun navigateOnboardedUser(intent: Intent) {
         if (!handleSpecialStart(intent)) {
             nav.navigateTo(MainScreen)
-            transactionReminderLogic.scheduleReminder()
+            transactionReminderScheduler.scheduleReminder()
         }
     }
 
     @Suppress("SwallowedException")
     private fun handleSpecialStart(intent: Intent): Boolean {
         val addTrnType: TransactionType? = try {
-            intent.getSerializableExtra(EXTRA_ADD_TRANSACTION_TYPE) as? TransactionType
+            IntentCompat.getSerializableExtra(
+                intent,
+                EXTRA_ADD_TRANSACTION_TYPE,
+                TransactionType::class.java
+            )
                 ?: TransactionType.valueOf(intent.getStringExtra(EXTRA_ADD_TRANSACTION_TYPE) ?: "")
         } catch (e: IllegalArgumentException) {
             null
@@ -127,13 +121,13 @@ class RootViewModel @Inject constructor(
     ): BiometricPrompt.AuthenticationCallback {
         return object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                Timber.d(stringRes(R.string.authentication_succeeded))
+                Timber.d("Authentication succeeded")
                 unlockApp()
                 onAuthSuccess()
             }
 
             override fun onAuthenticationFailed() {
-                Timber.d(stringRes(R.string.authentication_failed))
+                Timber.d("Authentication failed")
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -141,8 +135,8 @@ class RootViewModel @Inject constructor(
         }
     }
 
-    private fun isOnboardingCompleted(): Boolean {
-        return sharedPrefs.getBoolean(SharedPrefs.ONBOARDING_COMPLETED, false)
+    private suspend fun isOnboardingCompleted(): Boolean {
+        return appPreferences.isOnboardingCompleted()
     }
 
     // App Lock & UserInactivity --------------------------------------------------------------------

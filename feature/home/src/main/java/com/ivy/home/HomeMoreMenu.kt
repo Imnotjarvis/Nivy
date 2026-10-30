@@ -44,20 +44,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.base.legacy.Theme
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.base.model.Theme
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.colorLerp
-import com.ivy.legacy.utils.lerp
-import com.ivy.legacy.utils.navigationBarInset
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.colorLerp
+import com.ivy.design.utils.lerp
+import com.ivy.design.utils.navigationBarInset
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.rememberSwipeListenerState
 import com.ivy.legacy.utils.springBounce
-import com.ivy.legacy.utils.statusBarInset
-import com.ivy.legacy.utils.toDensityPx
+import com.ivy.design.utils.statusBarInset
+import com.ivy.design.utils.toDensityPx
 import com.ivy.legacy.utils.verticalSwipeListener
 import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.CategoriesScreen
@@ -69,7 +67,7 @@ import com.ivy.navigation.SearchScreen
 import com.ivy.navigation.SettingsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gray
+import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.BufferBattery
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.IvyIcon
@@ -77,6 +75,8 @@ import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.util.UUID
 import kotlin.math.roundToInt
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 private const val SWIPE_UP_THRESHOLD_CLOSE_MORE_MENU = 300
 
@@ -95,7 +95,7 @@ fun BoxWithConstraintsScope.MoreMenu(
     onCurrencyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     val percentExpanded by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
@@ -110,9 +110,9 @@ fun BoxWithConstraintsScope.MoreMenu(
 
     val buttonSizePx = 40.dp.toDensityPx()
 
-    val xBase = ivyContext.screenWidth - 24.dp.toDensityPx()
+    val xBase = screenSize.width - 24.dp.toDensityPx()
     val yBaseCollapsed = 20.dp.toDensityPx() + statusBarInset()
-    val yBaseExpanded = ivyContext.screenHeight - 48.dp.toDensityPx() - navigationBarInset()
+    val yBaseExpanded = screenSize.height - 48.dp.toDensityPx() - navigationBarInset()
 
     val yButton = lerp(
         start = yBaseCollapsed,
@@ -121,7 +121,7 @@ fun BoxWithConstraintsScope.MoreMenu(
     )
 
     // Background
-    val colorMedium = UI.colors.medium
+    val colorMedium = MaterialTheme.colorScheme.surfaceVariant
     if (percentExpanded > 0.01f) {
         Canvas(
             modifier = modifier
@@ -132,7 +132,7 @@ fun BoxWithConstraintsScope.MoreMenu(
                 .zIndex(500f)
         ) {
             val radiusCollapsed = buttonSizePx / 2f
-            val radiusExpanded = ivyContext.screenHeight * 1.5f
+            val radiusExpanded = screenSize.height * 1.5f
             val radius = lerp(radiusCollapsed, radiusExpanded, percentExpanded)
 
             val yBackground = lerp(
@@ -209,7 +209,11 @@ fun BoxWithConstraintsScope.MoreMenu(
                 zIndex(520f)
             }
             .testTag("home_more_menu_arrow"),
-        backgroundColor = colorLerp(UI.colors.medium, UI.colors.pure, percentExpanded),
+        backgroundColor = colorLerp(
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surface,
+            percentExpanded
+        ),
         icon = R.drawable.ic_expandarrow
     ) {
         setExpanded(!expanded)
@@ -263,9 +267,9 @@ private fun SearchButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.rFull)
-            .background(UI.colors.pure)
-            .border(1.dp, Gray, UI.shapes.rFull)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, Gray, CircleShape)
             .clickable {
                 onClick()
             },
@@ -282,9 +286,9 @@ private fun SearchButton(
                 vertical = 12.dp,
             ),
             text = stringResource(R.string.search_transactions),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.SemiBold,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
             )
         )
 
@@ -312,8 +316,8 @@ private fun ColumnScope.Buffer(
 
         Text(
             text = stringResource(R.string.savings_goal),
-            style = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -352,7 +356,10 @@ private fun QuickAccess(
         Text(
             modifier = Modifier.padding(start = 24.dp),
             text = stringResource(R.string.quick_access),
-            style = UI.typo.b2.style()
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
         )
 
         Spacer(Modifier.height(16.dp))
@@ -396,16 +403,16 @@ private fun QuickAccess(
                     Theme.AUTO -> stringResource(R.string.auto_mode)
                 },
                 backgroundColor = when (theme) {
-                    Theme.LIGHT -> UI.colors.pure
-                    Theme.DARK -> UI.colors.pureInverse
-                    Theme.AMOLED_DARK -> UI.colors.pureInverse
-                    Theme.AUTO -> UI.colors.pure
+                    Theme.LIGHT -> MaterialTheme.colorScheme.surface
+                    Theme.DARK -> MaterialTheme.colorScheme.onSurface
+                    Theme.AMOLED_DARK -> MaterialTheme.colorScheme.onSurface
+                    Theme.AUTO -> MaterialTheme.colorScheme.surface
                 },
                 tint = when (theme) {
-                    Theme.LIGHT -> UI.colors.pureInverse
-                    Theme.DARK -> UI.colors.pure
-                    Theme.AMOLED_DARK -> UI.colors.pure
-                    Theme.AUTO -> UI.colors.pureInverse
+                    Theme.LIGHT -> MaterialTheme.colorScheme.onSurface
+                    Theme.DARK -> MaterialTheme.colorScheme.surface
+                    Theme.AMOLED_DARK -> MaterialTheme.colorScheme.surface
+                    Theme.AUTO -> MaterialTheme.colorScheme.onSurface
                 }
             ) {
                 onSwitchTheme()
@@ -468,8 +475,8 @@ private fun MoreMenuButton(
     @DrawableRes icon: Int,
     label: String,
 
-    backgroundColor: Color = UI.colors.pure,
-    tint: Color = UI.colors.pureInverse,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     expandPadding: Dp = 14.dp,
 
     onClick: () -> Unit
@@ -494,8 +501,8 @@ private fun MoreMenuButton(
                     onClick()
                 },
             text = label,
-            style = UI.typo.c.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )

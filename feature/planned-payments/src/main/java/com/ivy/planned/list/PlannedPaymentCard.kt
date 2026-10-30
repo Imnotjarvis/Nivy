@@ -26,41 +26,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
+import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.forDisplay
 import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
-import com.ivy.legacy.utils.formatDateOnly
-import com.ivy.legacy.utils.formatDateOnlyWithYear
-import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.timeNowUTC
+import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewPlannedPaymentRule
+import com.ivy.legacy.utils.formatLocal
 import com.ivy.legacy.utils.uppercaseLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Blue
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Orange
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Orange
+import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.toComposeColor
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberLabelMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -77,16 +77,16 @@ fun LazyItemScope.PlannedPaymentCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
-                if (accounts.find { it.id == plannedPayment.accountId } != null) {
+                if (accounts.find { it.id == plannedPayment.account } != null) {
                     onClick(plannedPayment)
                 }
             }
-            .background(UI.colors.medium, UI.shapes.r4)
             .testTag("planned_payment_card")
     ) {
-        val currency = accounts.find { it.id == plannedPayment.accountId }?.currency ?: baseCurrency
+        val currency = accounts.find { it.id == plannedPayment.account }?.asset?.code ?: baseCurrency
 
         Spacer(Modifier.height(20.dp))
 
@@ -99,23 +99,23 @@ fun LazyItemScope.PlannedPaymentCard(
         Spacer(Modifier.height(16.dp))
 
         RuleTextRow(
-            oneTime = plannedPayment.oneTime,
+            oneTime = plannedPayment.interval == null,
             startDate = with(LocalTimeConverter.current) {
-                plannedPayment.startDate?.toLocalDateTime()
+                plannedPayment.startDate.toLocalDateTime()
             },
-            intervalN = plannedPayment.intervalN,
-            intervalType = plannedPayment.intervalType
+            intervalN = plannedPayment.interval?.n?.value,
+            intervalType = plannedPayment.interval?.type
         )
 
-        if (plannedPayment.title.isNotNullOrBlank()) {
+        plannedPayment.title?.let { title ->
             Spacer(Modifier.height(8.dp))
 
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
-                text = plannedPayment.title!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                text = title.value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -126,7 +126,7 @@ fun LazyItemScope.PlannedPaymentCard(
             transactionType = plannedPayment.type,
             dueDate = null,
             currency = currency,
-            amount = plannedPayment.amount
+            amount = plannedPayment.amount.value
         )
 
         Spacer(Modifier.height(24.dp))
@@ -149,15 +149,15 @@ private fun PlannedPaymentHeaderRow(
 
             IvyIcon(
                 modifier = Modifier
-                    .background(UI.colors.pure, CircleShape),
+                    .background(MaterialTheme.colorScheme.surface, CircleShape),
                 icon = R.drawable.ic_planned_payments,
-                tint = UI.colors.pureInverse
+                tint = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(Modifier.width(12.dp))
 
             val category =
-                plannedPayment.categoryId?.let { targetId -> categories.find { it.id.value == targetId } }
+                plannedPayment.category?.let { targetId -> categories.find { it.id == targetId } }
             if (category != null) {
                 IvyButton(
                     iconTint = findContrastTextColor(category.color.value.toComposeColor()),
@@ -167,7 +167,7 @@ private fun PlannedPaymentHeaderRow(
                     ),
                     text = category.name.value,
                     backgroundGradient = Gradient.solid(category.color.value.toComposeColor()),
-                    textStyle = UI.typo.c.style(
+                    textStyle = MaterialTheme.typography.labelMedium.copy(
                         color = findContrastTextColor(category.color.value.toComposeColor()),
                         fontWeight = FontWeight.ExtraBold
                     ),
@@ -185,14 +185,14 @@ private fun PlannedPaymentHeaderRow(
                 Spacer(Modifier.width(12.dp))
             }
 
-            val account = accounts.find { it.id == plannedPayment.accountId }
+            val account = accounts.find { it.id == plannedPayment.account }
             IvyButton(
-                backgroundGradient = Gradient.solid(UI.colors.pure),
-                text = account?.name ?: stringResource(R.string.deleted),
-                iconTint = UI.colors.pureInverse,
-                iconStart = getCustomIconIdS(account?.icon, R.drawable.ic_custom_account_s),
-                textStyle = UI.typo.c.style(
-                    color = UI.colors.pureInverse,
+                backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
+                text = account?.name?.value ?: stringResource(R.string.deleted),
+                iconTint = MaterialTheme.colorScheme.onSurface,
+                iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),
+                textStyle = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 ),
                 padding = 8.dp,
@@ -201,7 +201,7 @@ private fun PlannedPaymentHeaderRow(
                 account?.let {
                     nav.navigateTo(
                         TransactionsScreen(
-                            accountId = account.id,
+                            accountId = account.id.value,
                             categoryId = null
                         )
                     )
@@ -227,25 +227,25 @@ private fun RuleTextRow(
         if (oneTime) {
             Text(
                 text = stringResource(R.string.planned_for_uppercase),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.SemiBold
                 )
             )
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
-                text = startDate?.toLocalDate()?.formatDateOnlyWithYear()?.uppercaseLocal()
+                text = startDate?.toLocalDate()?.formatLocal("dd MMM, yyyy")?.uppercaseLocal()
                     ?: stringResource(R.string.null_text),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
         } else {
-            val startDateFormatted = startDate?.toLocalDate()?.formatDateOnly()?.uppercaseLocal()
+            val startDateFormatted = startDate?.toLocalDate()?.formatLocal("MMM. dd")?.uppercaseLocal()
             Text(
                 text = stringResource(R.string.starts_date, startDateFormatted ?: ""),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -258,7 +258,7 @@ private fun RuleTextRow(
                     intervalN ?: 0,
                     intervalTypeFormatted ?: ""
                 ),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -274,7 +274,7 @@ private fun RuleTextRow(
 private fun Preview_oneTime() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "Cash", Green.toArgb())
+            val cash = previewAccount("Cash", color = Green, currency = "BGN")
             val food = Category(
                 name = NotBlankTrimmedString.unsafe("Food"),
                 color = ColorInt(Blue.toArgb()),
@@ -290,16 +290,13 @@ private fun Preview_oneTime() {
                     baseCurrency = "BGN",
                     categories = persistentListOf(food),
                     accounts = persistentListOf(cash),
-                    plannedPayment = PlannedPaymentRule(
-                        accountId = cash.id,
+                    plannedPayment = previewPlannedPaymentRule(
+                        account = cash.id,
                         title = "Lidl pazar",
-                        categoryId = food.id.value,
+                        category = food.id,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
-                        oneTime = true,
-                        intervalType = null,
-                        intervalN = null,
-                        type = TransactionType.EXPENSE
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
+                        type = TransactionType.EXPENSE,
                     )
                 ) {}
             }
@@ -312,7 +309,7 @@ private fun Preview_oneTime() {
 private fun Preview_recurring() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val account = Account(name = "Revolut", Blue.toArgb())
+            val account = previewAccount("Revolut", color = Blue, currency = "BGN")
             val shisha = Category(
                 name = NotBlankTrimmedString.unsafe("Shisha"),
                 color = ColorInt(Orange.toArgb()),
@@ -328,55 +325,15 @@ private fun Preview_recurring() {
                     baseCurrency = "BGN",
                     categories = persistentListOf(shisha),
                     accounts = persistentListOf(account),
-                    plannedPayment = PlannedPaymentRule(
-                        accountId = account.id,
+                    plannedPayment = previewPlannedPaymentRule(
+                        account = account.id,
                         title = "Tabu",
-                        categoryId = shisha.id.value,
+                        category = shisha.id,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
-                        oneTime = false,
-                        intervalType = IntervalType.MONTH,
-                        intervalN = 1,
-                        type = TransactionType.EXPENSE
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
+                        type = TransactionType.EXPENSE,
+                        interval = 1 to IntervalType.MONTH,
                     )
-                ) {}
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun Preview_recurringError() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val account = Account(name = "Revolut", Blue.toArgb())
-            val shisha = Category(
-                name = NotBlankTrimmedString.unsafe("Shisha"),
-                color = ColorInt(Orange.toArgb()),
-                icon = null,
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                Spacer(Modifier.height(68.dp))
-
-                PlannedPaymentCard(
-                    baseCurrency = "BGN",
-                    categories = persistentListOf(shisha),
-                    accounts = persistentListOf(account),
-                    plannedPayment = PlannedPaymentRule(
-                        accountId = account.id,
-                        title = "Tabu",
-                        categoryId = shisha.id.value,
-                        amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
-                        oneTime = false,
-                        intervalType = null,
-                        intervalN = null,
-                        type = TransactionType.EXPENSE
-                    ),
                 ) {}
             }
         }
