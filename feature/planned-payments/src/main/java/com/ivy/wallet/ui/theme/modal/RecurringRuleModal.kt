@@ -38,7 +38,6 @@ import com.ivy.domain.RootScreen
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.legacy.utils.closeDay
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
@@ -427,6 +426,28 @@ private fun Preview_multipleTimes() {
                 dismiss = {},
                 onRuleChanged = { _, _, _, _ -> }
             )
+        }
+    }
+}
+
+@Composable
+private fun LocalDate.closeDay(): String? {
+    val today = LocalTimeProvider.current.localDateNow()
+    return when (this) {
+        today -> {
+            stringResource(R.string.today)
+        }
+
+        today.minusDays(1) -> {
+            stringResource(R.string.yesterday)
+        }
+
+        today.plusDays(1) -> {
+            stringResource(R.string.tomorrow)
+        }
+
+        else -> {
+            null
         }
     }
 }

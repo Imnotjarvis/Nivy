@@ -1,12 +1,8 @@
 package com.ivy.legacy.utils
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import com.ivy.base.time.INSTANT_MAX_SAFE
 import com.ivy.base.time.INSTANT_MIN_SAFE
 import com.ivy.base.time.TimeConverter
-import com.ivy.ui.R
-import com.ivy.ui.time.LocalTimeProvider
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -20,28 +16,6 @@ fun LocalDateTime.toEpochSeconds() = this.toEpochSecond(ZoneOffset.UTC)
 
 // A timestamp for file names, like 20261030-0915.
 fun LocalDateTime.getISOFormattedDateTime(): String = this.format("yyyyMMdd-HHmm")
-
-@Composable
-fun LocalDate.closeDay(): String? {
-    val today = LocalTimeProvider.current.localDateNow()
-    return when (this) {
-        today -> {
-            stringResource(R.string.today)
-        }
-
-        today.minusDays(1) -> {
-            stringResource(R.string.yesterday)
-        }
-
-        today.plusDays(1) -> {
-            stringResource(R.string.tomorrow)
-        }
-
-        else -> {
-            null
-        }
-    }
-}
 
 fun LocalDateTime.format(
     pattern: String

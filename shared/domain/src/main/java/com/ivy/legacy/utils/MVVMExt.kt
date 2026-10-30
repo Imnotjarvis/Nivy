@@ -1,25 +1,12 @@
 package com.ivy.legacy.utils
 
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 
-fun <T> MutableLiveData<T>.asLiveData(): LiveData<T> {
-    return this
-}
-
 fun <T> MutableStateFlow<T>.readOnly(): StateFlow<T> {
-    return this
-}
-
-fun Fragment.args(putArgs: Bundle.() -> Unit): Fragment {
-    arguments = Bundle().apply { putArgs() }
     return this
 }
 
