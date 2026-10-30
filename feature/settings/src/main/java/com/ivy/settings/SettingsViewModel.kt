@@ -22,13 +22,15 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
+import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.LogoutLogic
 import com.ivy.legacy.ThemeState
 import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.uiThread
+import com.ivy.navigation.Navigation
+import com.ivy.navigation.OnboardingScreen
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
 import com.ivy.wallet.domain.action.global.UpdateStartDayOfMonthAct
@@ -46,7 +48,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsDao: SettingsDao,
     private val themeState: ThemeState,
-    private val logoutLogic: LogoutLogic,
+    private val deleteAllDataUseCase: DeleteAllDataUseCase,
+    private val nav: Navigation,
     private val appPreferences: AppPreferences,
     private val backupDataUseCase: BackupDataUseCase,
     private val startDayOfMonthAct: StartDayOfMonthAct,
@@ -366,7 +369,9 @@ class SettingsViewModel @Inject constructor(
 
     private fun logout() {
         viewModelScope.launch {
-            logoutLogic.logout()
+            deleteAllDataUseCase()
+            nav.resetBackStack()
+            nav.navigateTo(OnboardingScreen)
         }
     }
 

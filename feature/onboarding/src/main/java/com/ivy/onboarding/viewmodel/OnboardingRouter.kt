@@ -3,8 +3,8 @@ package com.ivy.onboarding.viewmodel
 import androidx.compose.runtime.MutableState
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.LogoutLogic
 import com.ivy.data.model.Category
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.CategoryRepository
@@ -14,12 +14,13 @@ import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.ImportScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
+import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingState
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderLogic
+import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
@@ -37,10 +38,10 @@ class OnboardingRouter(
     private val nav: Navigation,
     private val accountDao: AccountDao,
     private val appPreferences: AppPreferences,
-    private val transactionReminderLogic: TransactionReminderLogic,
+    private val transactionReminderScheduler: TransactionReminderScheduler,
     private val preloadDataLogic: PreloadDataLogic,
     private val categoryRepository: CategoryRepository,
-    private val logoutLogic: LogoutLogic,
+    private val deleteAllDataUseCase: DeleteAllDataUseCase,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
 ) {
 
@@ -65,7 +66,9 @@ class OnboardingRouter(
                 if (isLoginCache) {
                     // user with Ivy account
                     viewModelScope.launch {
-                        logoutLogic.logout()
+                        deleteAllDataUseCase()
+                        nav.resetBackStack()
+                        nav.navigateTo(OnboardingScreen)
                         isLoginCache = false
                         restartOnboarding()
                         state.value = OnboardingState.LOGIN
@@ -205,7 +208,7 @@ class OnboardingRouter(
 
         // the rest below is not UI stuff so I don't care
         ioThread {
-            transactionReminderLogic.scheduleReminder()
+            transactionReminderScheduler.scheduleReminder()
 
             AssetCode.from(baseCurrency?.code ?: IvyCurrency.getDefault().code)
                 .onRight {

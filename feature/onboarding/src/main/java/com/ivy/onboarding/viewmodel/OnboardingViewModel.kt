@@ -10,9 +10,9 @@ import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.ui.ComposeViewModel
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.LogoutLogic
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.legacy.data.model.AccountBalance
@@ -33,7 +33,7 @@ import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
 import com.ivy.wallet.domain.deprecated.logic.WalletAccountLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderLogic
+import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -57,9 +57,9 @@ class OnboardingViewModel @Inject constructor(
 
     // Only OnboardingRouter stuff
     appPreferences: AppPreferences,
-    transactionReminderLogic: TransactionReminderLogic,
+    transactionReminderScheduler: TransactionReminderScheduler,
     preloadDataLogic: PreloadDataLogic,
-    logoutLogic: LogoutLogic,
+    deleteAllDataUseCase: DeleteAllDataUseCase,
 ) : ComposeViewModel<OnboardingDetailState, OnboardingEvent>() {
 
     private val _state = mutableStateOf(OnboardingState.SPLASH)
@@ -97,8 +97,8 @@ class OnboardingViewModel @Inject constructor(
         appPreferences = appPreferences,
         categoryRepository = categoryRepository,
         preloadDataLogic = preloadDataLogic,
-        transactionReminderLogic = transactionReminderLogic,
-        logoutLogic = logoutLogic,
+        transactionReminderScheduler = transactionReminderScheduler,
+        deleteAllDataUseCase = deleteAllDataUseCase,
         syncExchangeRatesUseCase = syncExchangeRatesUseCase,
     )
 
