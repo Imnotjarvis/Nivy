@@ -38,8 +38,6 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.navigation.navigation
@@ -48,23 +46,24 @@ import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.OrangeLight
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.RedLight
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.OrangeLight
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.RedLight
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Composable
@@ -102,7 +101,8 @@ fun BoxWithConstraintsScope.OnboardingCategories(
                 Text(
                     modifier = Modifier.padding(horizontal = 32.dp),
                     text = stringResource(R.string.add_categories),
-                    style = UI.typo.h2.style(
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Black
                     )
                 )
@@ -144,7 +144,8 @@ fun BoxWithConstraintsScope.OnboardingCategories(
                 Text(
                     modifier = Modifier.padding(horizontal = 32.dp),
                     text = stringResource(R.string.suggestions),
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
@@ -231,8 +232,8 @@ private fun CategoryCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r3)
-            .background(UI.colors.medium, UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.large)
             .clickable {
                 onClick()
             },
@@ -255,7 +256,8 @@ private fun CategoryCard(
                 .padding(start = 16.dp, end = 24.dp)
                 .padding(vertical = 24.dp),
             text = category.name.value,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )

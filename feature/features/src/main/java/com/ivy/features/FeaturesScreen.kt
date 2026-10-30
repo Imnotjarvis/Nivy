@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.ivy.design.system.colors.IvyColors.Gray
+import com.ivy.design.system.colors.Gray
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import kotlinx.collections.immutable.ImmutableList

@@ -13,10 +13,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Red
 import java.util.UUID
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -25,7 +25,7 @@ fun BoxWithConstraintsScope.ProgressModal(
     title: String,
     description: String,
     visible: Boolean,
-    color: Color = UI.colors.orange,
+    color: Color = MaterialTheme.colorScheme.tertiary,
     dismiss: () -> Unit = {},
 ) {
     IvyModal(
@@ -39,7 +39,7 @@ fun BoxWithConstraintsScope.ProgressModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Red,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -50,8 +50,8 @@ fun BoxWithConstraintsScope.ProgressModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = description,
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             )
         )
@@ -64,7 +64,7 @@ fun BoxWithConstraintsScope.ProgressModal(
                 .padding(horizontal = 32.dp)
                 .height(8.dp)
                 .clip(
-                    UI.shapes.rFull
+                    CircleShape
                 ),
             color = color
         )

@@ -25,10 +25,10 @@ import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.ui.SearchInput
 import com.ivy.legacy.ui.component.transaction.transactions
-import com.ivy.legacy.utils.densityScope
-import com.ivy.legacy.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.keyboardVisibleState
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.densityScope
+import com.ivy.design.utils.keyboardOnlyWindowInsets
+import com.ivy.design.utils.keyboardVisibleState
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.SearchScreen
 import com.ivy.navigation.screenScopedViewModel

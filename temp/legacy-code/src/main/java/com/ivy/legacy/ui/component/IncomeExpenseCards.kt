@@ -23,19 +23,19 @@ import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.format
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.MediumBlack
-import com.ivy.wallet.ui.theme.MediumWhite
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.MediumBlack
+import com.ivy.design.system.colors.MediumWhite
 import com.ivy.wallet.ui.theme.components.IvyButton
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.isDarkColor
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.isDarkColor
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberTitleLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -128,7 +128,7 @@ private fun RowScope.HeaderCard(
                 color = backgroundColor,
                 alpha = 0.1f
             )
-            .background(backgroundColor, UI.shapes.r2)
+            .background(backgroundColor, MaterialTheme.shapes.extraLarge)
             .clickable { onHeaderCardClicked() },
     ) {
         Spacer(Modifier.height(24.dp))
@@ -136,7 +136,7 @@ private fun RowScope.HeaderCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = title,
-            style = UI.typo.c.style(
+            style = MaterialTheme.typography.labelMedium.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -147,7 +147,7 @@ private fun RowScope.HeaderCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = amount.format(currencyCode),
-            style = UI.typo.nB1.style(
+            style = MaterialTheme.typography.numberTitleLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -155,7 +155,7 @@ private fun RowScope.HeaderCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = IvyCurrency.fromCode(currencyCode)?.name ?: "",
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.Normal
             )
@@ -166,7 +166,7 @@ private fun RowScope.HeaderCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = transactionCount.toString(),
-            style = UI.typo.nB1.style(
+            style = MaterialTheme.typography.numberTitleLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -174,7 +174,7 @@ private fun RowScope.HeaderCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = stringRes(R.string.transactions),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.Normal
             )
@@ -192,7 +192,7 @@ private fun RowScope.HeaderCard(
                 text = addButtonText,
                 shadowAlpha = 0.1f,
                 backgroundGradient = Gradient.solid(addButtonBackground),
-                textStyle = UI.typo.b2.style(
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = findContrastTextColor(addButtonBackground),
                     fontWeight = FontWeight.Bold
                 ).copy(fontSize = 12.sp),

@@ -6,8 +6,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import com.ivy.design.system.colors.IvyColors
+import com.ivy.design.system.colors.Black
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.IvyLight
+import com.ivy.design.system.colors.MediumBlack
+import com.ivy.design.system.colors.MediumWhite
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.OrangeDark
+import com.ivy.design.system.colors.OrangeLight
+import com.ivy.design.system.colors.Purple
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.RedDark
+import com.ivy.design.system.colors.RedLight
+import com.ivy.design.system.colors.TrueBlack
+import com.ivy.design.system.colors.White
+import com.ivy.design.system.shapes.IvyShapes
+import com.ivy.design.system.typography.IvyTypography
 
+// How the Ivy design maps onto Material3 color roles:
+//   surface, background   the screen background ("pure")
+//   onSurface             text and icons on it ("pureInverse")
+//   surfaceVariant        cards, chips and input backgrounds ("medium")
+//   onSurfaceVariant      secondary text and icons (gray)
+//   inverseSurface        the opposite theme's surfaceVariant ("mediumInverse")
+//   primary               Ivy purple; secondary green; tertiary orange; error red
+//   secondaryContainer    the theme's soft green ("green1")
 @Composable
 fun IvyMaterial3Theme(
     isTrueBlack: Boolean,
@@ -16,6 +43,8 @@ fun IvyMaterial3Theme(
 ) {
     MaterialTheme(
         colorScheme = if (dark) ivyDarkColorScheme(isTrueBlack) else ivyLightColorScheme(),
+        typography = IvyTypography,
+        shapes = IvyShapes,
         content = content,
     )
 }
@@ -24,81 +53,81 @@ fun IvyMaterial3Theme(
 // Material3 1.3+ blends surfaceContainer into TopAppBar/Switch colors, and an unspecified
 // role there yields an invalid color space ("Invalid ID") and crashes drawing.
 private fun ivyLightColorScheme(): ColorScheme = lightColorScheme(
-    primary = IvyColors.Purple.primary,
-    onPrimary = IvyColors.White,
-    primaryContainer = IvyColors.Purple.light,
-    onPrimaryContainer = IvyColors.White,
-    inversePrimary = IvyColors.Purple.dark,
-    secondary = IvyColors.Green.primary,
-    onSecondary = IvyColors.White,
-    secondaryContainer = IvyColors.Green.light,
-    onSecondaryContainer = IvyColors.White,
-    tertiary = IvyColors.Green.primary,
-    onTertiary = IvyColors.White,
-    tertiaryContainer = IvyColors.Green.light,
-    onTertiaryContainer = IvyColors.White,
+    primary = Purple,
+    onPrimary = White,
+    primaryContainer = IvyLight,
+    onPrimaryContainer = IvyDark,
+    inversePrimary = IvyLight,
+    secondary = Green,
+    onSecondary = White,
+    secondaryContainer = GreenLight,
+    onSecondaryContainer = GreenDark,
+    tertiary = Orange,
+    onTertiary = White,
+    tertiaryContainer = OrangeLight,
+    onTertiaryContainer = OrangeDark,
 
-    error = IvyColors.Red.primary,
-    onError = IvyColors.White,
-    errorContainer = IvyColors.Red.light,
-    onErrorContainer = IvyColors.White,
+    error = Red,
+    onError = White,
+    errorContainer = RedLight,
+    onErrorContainer = RedDark,
 
-    background = IvyColors.White,
-    onBackground = IvyColors.Black,
-    surface = IvyColors.White,
-    onSurface = IvyColors.Black,
-    surfaceVariant = IvyColors.ExtraLightGray,
-    onSurfaceVariant = IvyColors.Black,
-    surfaceTint = IvyColors.Black,
-    inverseSurface = IvyColors.DarkGray,
-    inverseOnSurface = IvyColors.White,
+    background = White,
+    onBackground = Black,
+    surface = White,
+    onSurface = Black,
+    surfaceVariant = MediumWhite,
+    onSurfaceVariant = Gray,
+    surfaceTint = Black,
+    inverseSurface = MediumBlack,
+    inverseOnSurface = White,
 
-    outline = IvyColors.Gray,
-    outlineVariant = IvyColors.DarkGray,
-    scrim = IvyColors.ExtraDarkGray.copy(alpha = 0.8f),
+    outline = Gray,
+    outlineVariant = MediumWhite,
+    scrim = MediumBlack.copy(alpha = 0.8f),
 
-    surfaceBright = IvyColors.White,
-    surfaceDim = IvyColors.White,
-    surfaceContainer = IvyColors.White,
-    surfaceContainerHigh = IvyColors.White,
-    surfaceContainerHighest = IvyColors.White,
-    surfaceContainerLow = IvyColors.White,
-    surfaceContainerLowest = IvyColors.White,
+    surfaceBright = White,
+    surfaceDim = White,
+    surfaceContainer = White,
+    surfaceContainerHigh = White,
+    surfaceContainerHighest = White,
+    surfaceContainerLow = White,
+    surfaceContainerLowest = White,
 )
 
 private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorScheme(
-    primary = IvyColors.Purple.primary,
-    onPrimary = IvyColors.White,
-    primaryContainer = IvyColors.Purple.light,
-    onPrimaryContainer = IvyColors.White,
-    inversePrimary = IvyColors.Purple.dark,
-    secondary = IvyColors.Green.primary,
-    onSecondary = IvyColors.White,
-    secondaryContainer = IvyColors.Green.light,
-    onSecondaryContainer = IvyColors.White,
-    tertiary = IvyColors.Green.primary,
-    onTertiary = IvyColors.White,
-    tertiaryContainer = IvyColors.Green.light,
-    onTertiaryContainer = IvyColors.White,
+    primary = Purple,
+    onPrimary = White,
+    primaryContainer = IvyDark,
+    onPrimaryContainer = IvyLight,
+    inversePrimary = IvyDark,
+    secondary = Green,
+    onSecondary = White,
+    secondaryContainer = GreenDark,
+    onSecondaryContainer = GreenLight,
+    tertiary = Orange,
+    onTertiary = White,
+    tertiaryContainer = OrangeDark,
+    onTertiaryContainer = OrangeLight,
 
-    error = IvyColors.Red.primary,
-    onError = IvyColors.White,
-    errorContainer = IvyColors.Red.light,
-    onErrorContainer = IvyColors.White,
+    error = Red,
+    onError = White,
+    errorContainer = RedDark,
+    onErrorContainer = RedLight,
 
-    background = if (isTrueBlack) IvyColors.TrueBlack else IvyColors.Black,
-    onBackground = IvyColors.White,
-    surface = if (isTrueBlack) IvyColors.TrueBlack else IvyColors.Black,
-    onSurface = IvyColors.White,
-    surfaceVariant = IvyColors.ExtraDarkGray,
-    onSurfaceVariant = IvyColors.White,
-    surfaceTint = IvyColors.White,
-    inverseSurface = IvyColors.LightGray,
-    inverseOnSurface = if (isTrueBlack) IvyColors.TrueBlack else IvyColors.Black,
+    background = darkSurface(isTrueBlack),
+    onBackground = White,
+    surface = darkSurface(isTrueBlack),
+    onSurface = White,
+    surfaceVariant = MediumBlack,
+    onSurfaceVariant = Gray,
+    surfaceTint = White,
+    inverseSurface = MediumWhite,
+    inverseOnSurface = darkSurface(isTrueBlack),
 
-    outline = IvyColors.Gray,
-    outlineVariant = IvyColors.LightGray,
-    scrim = IvyColors.ExtraLightGray.copy(alpha = 0.8f),
+    outline = Gray,
+    outlineVariant = MediumBlack,
+    scrim = MediumWhite.copy(alpha = 0.8f),
 
     surfaceBright = darkSurface(isTrueBlack),
     surfaceDim = darkSurface(isTrueBlack),
@@ -109,4 +138,4 @@ private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorSch
     surfaceContainerLowest = darkSurface(isTrueBlack),
 )
 
-private fun darkSurface(isTrueBlack: Boolean) = if (isTrueBlack) IvyColors.TrueBlack else IvyColors.Black
+private fun darkSurface(isTrueBlack: Boolean) = if (isTrueBlack) TrueBlack else Black

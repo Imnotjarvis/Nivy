@@ -25,13 +25,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -44,8 +43,8 @@ fun IvyChecklistTextField(
     readOnly: Boolean = false,
     fontWeight: FontWeight = FontWeight.Medium,
     hintFontWeight: FontWeight = FontWeight.Medium,
-    textColor: Color = UI.colors.pureInverse,
-    hintColor: Color = UI.colors.mediumInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    hintColor: Color = MaterialTheme.colorScheme.inverseSurface,
     textAlign: TextAlign = TextAlign.Start,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions? = KeyboardOptions.Default,
@@ -78,7 +77,7 @@ fun IvyChecklistTextField(
                     .padding(vertical = paddingVertical),
                 text = hint!!,
                 textAlign = textAlign,
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = hintColor,
                     fontWeight = hintFontWeight,
                     textAlign = textAlign
@@ -97,13 +96,13 @@ fun IvyChecklistTextField(
             value = value,
             onValueChange = onValueChanged,
             readOnly = readOnly,
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = fontWeight,
                 textAlign = textAlign
             ),
             singleLine = false,
-            cursorBrush = SolidColor(UI.colors.pureInverse),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions ?: KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
@@ -127,7 +126,7 @@ private fun PreviewIvyTextField() {
         IvyChecklistTextField(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .background(UI.colors.red)
+                .background(MaterialTheme.colorScheme.error)
                 .padding(horizontal = 24.dp),
             value = TextFieldValue(),
             hint = "Hint",
@@ -142,7 +141,7 @@ private fun PreviewIvyTextField_longText() {
     IvyWalletComponentPreview {
         IvyChecklistTextField(
             modifier = Modifier
-                .background(UI.colors.red)
+                .background(MaterialTheme.colorScheme.error)
                 .padding(horizontal = 24.dp),
             value = TextFieldValue(
                 "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."

@@ -3,15 +3,15 @@ package com.ivy.legacy.domain.deprecated.logic.csv.model
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import com.ivy.design.l0_system.Blue
-import com.ivy.design.l0_system.Green
-import com.ivy.design.l0_system.Green2Light
-import com.ivy.design.l0_system.Ivy
-import com.ivy.design.l0_system.Red
-import com.ivy.design.l0_system.Red3
-import com.ivy.design.l0_system.RedLight
-import com.ivy.design.l0_system.White
-import com.ivy.design.l0_system.Yellow
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Green2Light
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.Red3
+import com.ivy.design.system.colors.RedLight
+import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.Yellow
 import com.ivy.ui.R
 
 @Immutable

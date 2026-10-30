@@ -20,8 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.legacy.Theme
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.l1_buildingBlocks.ColumnRoot
 import com.ivy.design.l1_buildingBlocks.DividerW
 import com.ivy.design.l1_buildingBlocks.SpacerHor
@@ -31,11 +29,14 @@ import com.ivy.exchangerates.data.RateUi
 import com.ivy.exchangerates.modal.AddRateModal
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ui.SearchInput
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.navigation
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import com.ivy.design.system.typography.numberHeadlineMedium
 
 @Composable
 fun BoxWithConstraintsScope.ExchangeRatesScreen() {
@@ -133,9 +134,10 @@ private fun BoxWithConstraintsScope.UI(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     text = "${it.from}-${it.to}",
-                    style = UI.typo.nH2.style(
-                        textAlign = TextAlign.Center,
-                        color = UI.colors.primary
+                    style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                 )
             }
@@ -158,7 +160,7 @@ private fun LazyListScope.ratesSection(
             SpacerHor(width = 16.dp)
             Text(
                 text = text,
-                style = UI.typo.h2
+                style = MaterialTheme.typography.headlineMedium
             )
             SpacerHor(width = 16.dp)
             DividerW()

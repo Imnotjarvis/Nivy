@@ -7,8 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.wallet.ui.theme.gradientCutBackgroundBottom
+import com.ivy.design.system.colors.gradientCutBackgroundBottom
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 enum class BackButtonType {
@@ -27,7 +27,7 @@ fun IvyToolbar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .gradientCutBackgroundBottom(UI.colors.pure, paddingBottom = paddingBottom)
+            .gradientCutBackgroundBottom(MaterialTheme.colorScheme.surface, paddingBottom = paddingBottom)
             .padding(top = paddingTop),
         verticalAlignment = Alignment.CenterVertically
     ) {

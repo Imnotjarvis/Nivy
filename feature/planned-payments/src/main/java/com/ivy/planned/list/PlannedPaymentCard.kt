@@ -32,8 +32,6 @@ import com.ivy.data.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
@@ -47,20 +45,22 @@ import com.ivy.legacy.utils.uppercaseLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Blue
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Orange
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberLabelMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -77,13 +77,13 @@ fun LazyItemScope.PlannedPaymentCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .clickable {
                 if (accounts.find { it.id == plannedPayment.accountId } != null) {
                     onClick(plannedPayment)
                 }
             }
-            .background(UI.colors.medium, UI.shapes.r4)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("planned_payment_card")
     ) {
         val currency = accounts.find { it.id == plannedPayment.accountId }?.currency ?: baseCurrency
@@ -113,9 +113,9 @@ fun LazyItemScope.PlannedPaymentCard(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 text = plannedPayment.title!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -149,9 +149,9 @@ private fun PlannedPaymentHeaderRow(
 
             IvyIcon(
                 modifier = Modifier
-                    .background(UI.colors.pure, CircleShape),
+                    .background(MaterialTheme.colorScheme.surface, CircleShape),
                 icon = R.drawable.ic_planned_payments,
-                tint = UI.colors.pureInverse
+                tint = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(Modifier.width(12.dp))
@@ -167,7 +167,7 @@ private fun PlannedPaymentHeaderRow(
                     ),
                     text = category.name.value,
                     backgroundGradient = Gradient.solid(category.color.value.toComposeColor()),
-                    textStyle = UI.typo.c.style(
+                    textStyle = MaterialTheme.typography.labelMedium.copy(
                         color = findContrastTextColor(category.color.value.toComposeColor()),
                         fontWeight = FontWeight.ExtraBold
                     ),
@@ -187,12 +187,12 @@ private fun PlannedPaymentHeaderRow(
 
             val account = accounts.find { it.id == plannedPayment.accountId }
             IvyButton(
-                backgroundGradient = Gradient.solid(UI.colors.pure),
+                backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                 text = account?.name ?: stringResource(R.string.deleted),
-                iconTint = UI.colors.pureInverse,
+                iconTint = MaterialTheme.colorScheme.onSurface,
                 iconStart = getCustomIconIdS(account?.icon, R.drawable.ic_custom_account_s),
-                textStyle = UI.typo.c.style(
-                    color = UI.colors.pureInverse,
+                textStyle = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 ),
                 padding = 8.dp,
@@ -227,7 +227,7 @@ private fun RuleTextRow(
         if (oneTime) {
             Text(
                 text = stringResource(R.string.planned_for_uppercase),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -236,7 +236,7 @@ private fun RuleTextRow(
                 modifier = Modifier.padding(bottom = 1.dp),
                 text = startDate?.toLocalDate()?.formatDateOnlyWithYear()?.uppercaseLocal()
                     ?: stringResource(R.string.null_text),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -245,7 +245,7 @@ private fun RuleTextRow(
             val startDateFormatted = startDate?.toLocalDate()?.formatDateOnly()?.uppercaseLocal()
             Text(
                 text = stringResource(R.string.starts_date, startDateFormatted ?: ""),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -258,7 +258,7 @@ private fun RuleTextRow(
                     intervalN ?: 0,
                     intervalTypeFormatted ?: ""
                 ),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.ExtraBold
                 )

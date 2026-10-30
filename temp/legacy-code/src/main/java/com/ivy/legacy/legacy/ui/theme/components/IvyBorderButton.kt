@@ -21,25 +21,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
+import com.ivy.design.system.colors.Gradient
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun IvyBorderButton(
     modifier: Modifier = Modifier,
     text: String,
-    textStyle: TextStyle = UI.typo.b2.style(
-        color = UI.colors.pureInverse,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
+        color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.Bold
     ),
-    backgroundGradient: Gradient = Gradient.solid(UI.colors.mediumInverse),
+    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.inverseSurface),
     @DrawableRes iconStart: Int? = null,
     @DrawableRes iconEnd: Int? = null,
-    iconTint: Color = UI.colors.pureInverse,
+    iconTint: Color = MaterialTheme.colorScheme.onSurface,
     enabled: Boolean = true,
     wrapContentMode: Boolean = true,
 
@@ -48,15 +48,15 @@ fun IvyBorderButton(
 ) {
     Row(
         modifier = modifier
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .border(
                 width = 2.dp,
                 brush = if (enabled) {
                     backgroundGradient.asHorizontalBrush()
                 } else {
-                    SolidColor(UI.colors.gray)
+                    SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
                 },
-                shape = UI.shapes.rFull
+                shape = CircleShape
             )
             .clickable(onClick = onClick, enabled = enabled),
         verticalAlignment = Alignment.CenterVertically

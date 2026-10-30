@@ -24,17 +24,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.forDisplay
 import com.ivy.legacy.utils.capitalizeLocal
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.White
+import androidx.compose.material3.MaterialTheme
 
 private const val RepeatIntervalCharLimit = 5
 
@@ -65,14 +64,14 @@ fun IntervalPickerRow(
                         GradientIvy.asHorizontalBrush()
                     } else {
                         Gradient
-                            .solid(UI.colors.medium)
+                            .solid(MaterialTheme.colorScheme.surfaceVariant)
                             .asHorizontalBrush()
                     },
-                    shape = UI.shapes.rFull
+                    shape = CircleShape
                 )
                 .padding(vertical = 12.dp),
             value = interNTextFieldValue,
-            textColor = if (validInput) White else UI.colors.pureInverse,
+            textColor = if (validInput) White else MaterialTheme.colorScheme.onSurface,
             hint = "0"
         ) {
             val filteredText = it.text.take(RepeatIntervalCharLimit)
@@ -108,7 +107,7 @@ private fun RowScope.IntervalTypeSelector(
     Row(
         modifier = Modifier
             .weight(1f)
-            .border(2.dp, UI.colors.medium, UI.shapes.rFull),
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
@@ -137,8 +136,8 @@ private fun RowScope.IntervalTypeSelector(
 
         Text(
             text = intervalType.forDisplay(intervalN).capitalizeLocal(),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )

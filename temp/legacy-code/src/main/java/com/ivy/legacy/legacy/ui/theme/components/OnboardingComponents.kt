@@ -19,14 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientIvy
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientIvy
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -51,14 +51,14 @@ fun OnboardingButton(
                     offsetY = 8.dp
                 )
             }
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .background(
                 brush = if (enabled) {
                     backgroundGradient.asHorizontalBrush()
                 } else {
-                    SolidColor(UI.colors.gray)
+                    SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
                 },
-                shape = UI.shapes.rFull
+                shape = CircleShape
             )
             .clickable(onClick = onClick, enabled = enabled),
         contentAlignment = Alignment.Center
@@ -77,7 +77,7 @@ fun OnboardingButton(
         Text(
             modifier = Modifier.padding(vertical = 16.dp),
             text = text,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.Bold
             )
@@ -120,7 +120,7 @@ private fun PreviewOnboardingButton() {
             text = "Login",
             backgroundGradient = GradientIvy,
             hasNext = true,
-            textColor = UI.colors.pure,
+            textColor = MaterialTheme.colorScheme.surface,
             iconStart = null,
             enabled = false,
             onClick = { }

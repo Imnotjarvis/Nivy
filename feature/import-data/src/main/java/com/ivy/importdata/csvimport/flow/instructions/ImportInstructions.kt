@@ -30,21 +30,21 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.importdata.csvimport.flow.ImportSteps
 import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @ExperimentalFoundationApi
 @Composable
@@ -77,7 +77,8 @@ fun BoxWithConstraintsScope.ImportInstructions(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = stringResource(R.string.how_to_import),
-                style = UI.typo.h2.style(
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Black
                 )
             )
@@ -87,7 +88,7 @@ fun BoxWithConstraintsScope.ImportInstructions(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = stringResource(R.string.open),
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = Gray,
                     fontWeight = Bold
                 )
@@ -112,7 +113,8 @@ fun BoxWithConstraintsScope.ImportInstructions(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = stringResource(R.string.steps),
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Black
                 )
             )
@@ -208,8 +210,8 @@ fun InstructionButton(
 ) {
     Row(
         modifier = modifier
-            .clip(UI.shapes.r3)
-            .background(UI.colors.medium, UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.large)
             .clickable {
                 onClick()
             }
@@ -220,7 +222,7 @@ fun InstructionButton(
 
         if (icon != null) {
             IvyIcon(
-                modifier = Modifier.background(UI.colors.pure, CircleShape),
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface, CircleShape),
                 icon = icon,
                 tint = Color.Unspecified
             )
@@ -231,7 +233,7 @@ fun InstructionButton(
         Column {
             Text(
                 text = caption,
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = Gray,
                     fontWeight = Bold
                 )
@@ -241,7 +243,8 @@ fun InstructionButton(
 
             Text(
                 text = text,
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = Bold
                 )
             )
@@ -292,9 +295,10 @@ fun StepTitle(
         Text(
             modifier = Modifier
                 .size(24.dp)
-                .background(UI.colors.medium, CircleShape),
+                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
             text = number.toString(),
-            style = UI.typo.nB2.style(
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = Bold,
                 textAlign = TextAlign.Center
             )
@@ -305,7 +309,8 @@ fun StepTitle(
                 .weight(1f)
                 .padding(start = 8.dp, end = 32.dp),
             text = title,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = Bold
             )
         )
@@ -317,9 +322,9 @@ fun StepTitle(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = description,
-            style = UI.typo.c.style(
-                fontWeight = Bold,
-                color = Gray
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = Gray,
+                fontWeight = Bold
             )
         )
     }
@@ -353,7 +358,8 @@ private fun App(
 
         Text(
             text = importType.appName(),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = Bold
             )
         )

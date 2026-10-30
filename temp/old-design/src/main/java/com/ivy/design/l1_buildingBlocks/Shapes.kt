@@ -11,8 +11,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.design.utils.IvyComponentPreview
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -58,8 +59,8 @@ private fun Preview_Circle() {
     IvyComponentPreview {
         Shape(
             size = 32.dp,
-            shape = UI.shapes.circle,
-            color = UI.colors.primary
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -70,9 +71,9 @@ private fun PreviewOutlined() {
     IvyComponentPreview {
         ShapeOutlined(
             size = 64.dp,
-            shape = UI.shapes.r3,
+            shape = MaterialTheme.shapes.large,
             borderWidth = 2.dp,
-            borderColor = UI.colors.gray
+            borderColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

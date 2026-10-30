@@ -11,11 +11,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.legacy.utils.navigationBarInset
-import com.ivy.legacy.utils.toDensityDp
+import com.ivy.design.utils.navigationBarInset
+import com.ivy.design.utils.toDensityDp
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.gradientCutBackgroundTop
+import com.ivy.design.system.colors.gradientCutBackgroundTop
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -28,7 +28,7 @@ fun BoxWithConstraintsScope.BackBottomBar(
     ActionsRow(
         modifier = Modifier
             .align(Alignment.BottomCenter)
-            .gradientCutBackgroundTop(UI.colors.pure, density)
+            .gradientCutBackgroundTop(MaterialTheme.colorScheme.surface, density)
             .padding(bottom = bottomInset)
             .padding(bottom = 16.dp)
     ) {

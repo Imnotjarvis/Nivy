@@ -45,9 +45,7 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.api.LocalTimeConverter
 import com.ivy.design.api.LocalTimeFormatter
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.BlueLight
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.BlueLight
 import com.ivy.design.l1_buildingBlocks.IvyText
 import com.ivy.design.l1_buildingBlocks.SpacerHor
 import com.ivy.legacy.IvyWalletPreview
@@ -64,32 +62,35 @@ import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Blue
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.GradientOrangeRevert
-import com.ivy.wallet.ui.theme.GradientRed
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenDark
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.GradientOrangeRevert
+import com.ivy.design.system.colors.GradientRed
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.gradientExpenses
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.gradientExpenses
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberLabelMedium
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
@@ -108,13 +109,13 @@ fun TransactionCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp)
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .clickable {
                 if (baseData.accounts.find { it.id == transaction.accountId } != null) {
                     onClick(transaction)
                 }
             }
-            .background(UI.colors.medium, UI.shapes.r4)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("transaction_card")
     ) {
         // TODO: Optimize this
@@ -151,11 +152,11 @@ fun TransactionCard(
                         )
                     }
                 ).uppercase(),
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = if (transaction.dueDate!!.isAfter(timeProvider.utcNow())) {
                         Orange
                     } else {
-                        UI.colors.gray
+                        MaterialTheme.colorScheme.onSurfaceVariant
                     },
                     fontWeight = FontWeight.Bold
                 )
@@ -171,9 +172,9 @@ fun TransactionCard(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 text = transaction.title!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -184,8 +185,8 @@ fun TransactionCard(
             Text(
                 text = description,
                 modifier = Modifier.padding(horizontal = 24.dp),
-                style = UI.typo.nC.style(
-                    color = UI.colors.gray,
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 ),
                 maxLines = 3,
@@ -215,7 +216,7 @@ fun TransactionCard(
                     transaction.toAmount.toDouble()
                         .format(IvyCurrency.getDecimalPlaces(toAccountCurrency))
                 } $toAccountCurrency",
-                style = UI.typo.nB2.style(
+                style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.Normal
                 )
@@ -233,9 +234,9 @@ fun TransactionCard(
                         .padding(start = 24.dp),
                     text = stringResource(R.string.skip),
                     wrapContentMode = false,
-                    backgroundGradient = Gradient.solid(UI.colors.pure),
-                    textStyle = UI.typo.b2.style(
-                        color = UI.colors.pureInverse,
+                    backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 ) {
@@ -251,8 +252,8 @@ fun TransactionCard(
                     text = if (isExpense) stringResource(R.string.pay) else stringResource(R.string.get),
                     wrapContentMode = false,
                     backgroundGradient = if (isExpense) gradientExpenses() else GradientGreen,
-                    textStyle = UI.typo.b2.style(
-                        color = if (isExpense) UI.colors.pure else White,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        color = if (isExpense) MaterialTheme.colorScheme.surface else White,
                         fontWeight = FontWeight.Bold
                     )
                 ) {
@@ -280,8 +281,8 @@ private fun ColumnScope.TransactionTags(tags: ImmutableList<LegacyTag>) {
             // Tag Text
             Text(
                 text = "Tags:",
-                style = UI.typo.nC.style(
-                    color = UI.colors.gray,
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Normal
                 )
             )
@@ -292,7 +293,7 @@ private fun ColumnScope.TransactionTags(tags: ImmutableList<LegacyTag>) {
         items(tags, key = { it.id }) { tag ->
             Text(
                 text = "#${tag.name}",
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = BlueLight,
                     fontWeight = FontWeight.Normal
                 )
@@ -347,9 +348,9 @@ private fun TransactionHeaderRow(
             )
 
             val accountBackgroundColor = if (shouldShowAccountSpecificColorInTransactions) {
-                account?.color?.toComposeColor() ?: UI.colors.pure
+                account?.color?.toComposeColor() ?: MaterialTheme.colorScheme.surface
             } else {
-                UI.colors.pure
+                MaterialTheme.colorScheme.surface
             }
 
             TransactionBadge(
@@ -425,8 +426,8 @@ private fun TransactionBadge(
 ) {
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
-            .background(backgroundColor, UI.shapes.rFull)
+            .clip(CircleShape)
+            .background(backgroundColor, CircleShape)
             .clickable {
                 onClick()
             }
@@ -447,7 +448,7 @@ private fun TransactionBadge(
 
         IvyText(
             text = text,
-            typo = UI.typo.c.style(
+            typo = MaterialTheme.typography.labelMedium.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -484,10 +485,10 @@ private fun TransferHeader(
                                 (1f - TransferHeaderGradientThreshold) to toAccount.color.toComposeColor(),
                                 1f to toAccount.color.toComposeColor()
                             ),
-                            shape = UI.shapes.rFull
+                            shape = CircleShape
                         )
                 } else {
-                    Modifier.background(UI.colors.pure, UI.shapes.rFull)
+                    Modifier.background(MaterialTheme.colorScheme.surface, CircleShape)
                 }
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -498,7 +499,7 @@ private fun TransferHeader(
             if (shouldShowAccountSpecificColorInTransactions && account != null) {
                 findContrastTextColor(account.color.toComposeColor())
             } else {
-                UI.colors.pureInverse
+                MaterialTheme.colorScheme.onSurface
             }
 
         ItemIconSDefaultIcon(
@@ -514,9 +515,9 @@ private fun TransferHeader(
                 .padding(vertical = 8.dp),
             // used toString() in case of null
             text = account?.name.toString(),
-            style = UI.typo.c.style(
-                fontWeight = FontWeight.ExtraBold,
-                color = accountContrastColor
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = accountContrastColor,
+                fontWeight = FontWeight.ExtraBold
             )
         )
 
@@ -530,7 +531,7 @@ private fun TransferHeader(
             if (shouldShowAccountSpecificColorInTransactions && toAccount != null) {
                 findContrastTextColor(toAccount.color.toComposeColor())
             } else {
-                UI.colors.pureInverse
+                MaterialTheme.colorScheme.onSurface
             }
 
         ItemIconSDefaultIcon(
@@ -546,9 +547,9 @@ private fun TransferHeader(
                 .padding(vertical = 8.dp),
             // used toString() in case of null
             text = toAccount?.name.toString(),
-            style = UI.typo.c.style(
-                fontWeight = FontWeight.ExtraBold,
-                color = toAccountContrastColor
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = toAccountContrastColor,
+                fontWeight = FontWeight.ExtraBold
             )
         )
 
@@ -608,7 +609,7 @@ fun TypeAmountCurrency(
                             icon = R.drawable.ic_expense,
                             gradient = Gradient.black(),
                             iconTint = White,
-                            textColor = UI.colors.pureInverse
+                            textColor = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

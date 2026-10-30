@@ -27,7 +27,7 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
-import com.ivy.design.l0_system.RedLight
+import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
 import com.ivy.frp.then
 import com.ivy.legacy.IvyWalletCtx
@@ -40,7 +40,7 @@ import com.ivy.legacy.utils.computationThread
 import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.ui.ComposeViewModel

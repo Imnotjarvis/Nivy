@@ -22,14 +22,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.White
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -203,7 +203,7 @@ private fun NumberView(
         modifier = Modifier
             .size(48.dp)
             .clip(CircleShape)
-            .border(2.dp, if (selected) Ivy else UI.colors.medium, CircleShape)
+            .border(2.dp, if (selected) Ivy else MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .thenIf(selected) {
                 background(Ivy, CircleShape)
             }
@@ -214,9 +214,9 @@ private fun NumberView(
     ) {
         Text(
             text = number.toString(),
-            style = UI.typo.nB2.style(
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = if (selected) White else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold,
-                color = if (selected) White else UI.colors.pureInverse,
                 textAlign = TextAlign.Center
             )
         )

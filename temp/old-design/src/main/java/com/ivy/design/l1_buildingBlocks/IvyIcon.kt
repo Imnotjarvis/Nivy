@@ -14,15 +14,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.design.utils.thenWhen
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun IvyIcon(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     contentDescription: String = "icon"
 ) {
     Icon(
@@ -38,7 +38,7 @@ fun IvyIcon(
 fun IvyIconScaled(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     iconScale: IconScale,
     padding: Dp = when (iconScale) {
         IconScale.S -> 4.dp

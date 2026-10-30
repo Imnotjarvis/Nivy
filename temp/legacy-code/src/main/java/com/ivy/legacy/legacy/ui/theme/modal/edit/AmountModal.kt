@@ -38,8 +38,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.domain.di.FeaturesEntryPoint
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.utils.amountToDouble
@@ -47,11 +45,11 @@ import com.ivy.legacy.utils.amountToDoubleOrNull
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.formatInputAmount
 import com.ivy.legacy.utils.formatInt
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.localDecimalSeparator
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
@@ -59,6 +57,8 @@ import com.ivy.wallet.ui.theme.modal.modalPreviewActionRowHeight
 import dagger.hilt.android.EntryPointAccessors
 import java.util.UUID
 import kotlin.math.truncate
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberHeadlineMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
@@ -107,7 +107,7 @@ fun BoxWithConstraintsScope.AmountModal(
                     .testTag("btn_calculator")
                     .padding(all = 4.dp),
                 icon = R.drawable.ic_custom_calculator_m,
-                tint = UI.colors.pureInverse
+                tint = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(Modifier.width(16.dp))
@@ -203,17 +203,17 @@ fun AmountCurrency(
 
         Text(
             text = amount.ifBlank { "0" },
-            style = UI.typo.nH2.style(
-                fontWeight = FontWeight.Bold,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
             )
         )
         Spacer(Modifier.width(4.dp))
         Text(
             text = currency,
-            style = UI.typo.nH2.style(
-                fontWeight = FontWeight.Normal,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Normal
             )
         )
 
@@ -453,7 +453,7 @@ fun CircleNumberButton(
 fun KeypadCircleButton(
     text: String,
     testTag: String,
-    textColor: Color = UI.colors.pureInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     fontSize: TextUnit = 32.sp,
     btnSize: Dp = 80.dp,
     onClick: () -> Unit,
@@ -463,7 +463,7 @@ fun KeypadCircleButton(
             .testTag(testTag),
         text = text,
         fontSize = fontSize,
-        style = UI.typo.nH2.style(
+        style = MaterialTheme.typography.numberHeadlineMedium.copy(
             color = textColor,
             fontWeight = FontWeight.Bold
         ).copy(
@@ -484,8 +484,8 @@ private fun circleButtonModifier(
         .clickable(
             onClick = onClick
         )
-        .background(UI.colors.pure, UI.shapes.rFull)
-        .border(2.dp, UI.colors.medium, UI.shapes.rFull)
+        .background(MaterialTheme.colorScheme.surface, CircleShape)
+        .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
         .wrapContentHeight()
 }
 

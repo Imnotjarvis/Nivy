@@ -22,9 +22,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.widget.addTextChangedListener
-import com.ivy.design.l0_system.*
+import com.ivy.design.system.colors.Purple1Dark
+import com.ivy.design.system.colors.Purple1Light
+import com.ivy.design.system.colors.Transparent
 import com.ivy.design.utils.*
 import kotlin.math.roundToInt
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import com.ivy.design.system.colors.isLight
 
 /**
  * Limitations:
@@ -38,19 +43,21 @@ fun InputField(
     modifier: Modifier = Modifier,
     initialText: String = "",
     hint: String = "",
-    textStyle: TextStyle = UI.typo.b1.style(
-        color = UI.colors.pureInverse,
+    textStyle: TextStyle = MaterialTheme.typography.titleLarge.copy(
+        color = MaterialTheme.colorScheme.onSurface,
+        fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Start
     ),
-    hintStyle: TextStyle = UI.typo.b1.style(
+    hintStyle: TextStyle = MaterialTheme.typography.titleLarge.copy(
         color = Color.Gray,
+        fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Start
     ),
     inputType: IvyInputType = IvyInputType.SHORT_TEXT,
     imeAction: IvyImeAction = IvyImeAction.DONE,
     onImeActionListener: ((EditText) -> Unit)? = null,
-    cursorColor: Color = UI.colors.pureInverse,
-    highlightColor: Color = if (UI.colors.isLight) Purple1Light else Purple1Dark,
+    cursorColor: Color = MaterialTheme.colorScheme.onSurface,
+    highlightColor: Color = if (MaterialTheme.colorScheme.isLight()) Purple1Light else Purple1Dark,
     focus: InputFieldFocus? = null,
     onTextChanged: (String) -> Unit
 ) {

@@ -31,24 +31,25 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Black
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.RedLight
+import com.ivy.design.system.colors.Black
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.RedLight
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import timber.log.Timber
 import java.util.UUID
 import kotlin.math.acos
 import kotlin.math.sqrt
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.isLight
 
 const val PIE_CHART_RADIUS_DP = 128
 const val RADIUS_DP = 112f
@@ -70,15 +71,15 @@ fun PieChart(
                 .size((PIE_CHART_RADIUS_DP * 2).dp)
                 .drawColoredShadow(
                     color = Black,
-                    alpha = if (UI.colors.isLight) 0.05f else 0.5f,
+                    alpha = if (MaterialTheme.colorScheme.isLight()) 0.05f else 0.5f,
                     offsetY = 32.dp,
                     shadowRadius = 48.dp
                 )
                 .clip(CircleShape)
                 .background(
                     brush = Gradient(
-                        UI.colors.medium,
-                        UI.colors.pure
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        MaterialTheme.colorScheme.surface
                     ).asVerticalBrush(),
                     shape = CircleShape
                 )
@@ -99,7 +100,7 @@ fun PieChart(
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(UI.colors.medium)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(all = 20.dp),
             icon = if (type == TransactionType.INCOME) R.drawable.ic_income else R.drawable.ic_expense,
             tint = Gray
@@ -115,8 +116,8 @@ private class PieChartView(context: Context) : View(context) {
     val rectangle = RectF(
         0f,
         0f,
-        com.ivy.legacy.utils.convertDpToPixel(context, 2 * RADIUS_DP),
-        com.ivy.legacy.utils.convertDpToPixel(context, 2 * RADIUS_DP)
+        com.ivy.design.utils.convertDpToPixel(context, 2 * RADIUS_DP),
+        com.ivy.design.utils.convertDpToPixel(context, 2 * RADIUS_DP)
     )
 
     var onCategoryClicked: (Category?) -> Unit = {}
@@ -159,7 +160,7 @@ private class PieChartView(context: Context) : View(context) {
     private fun paintFor(color: Color): Paint {
         return Paint().apply {
             this.color = color.toArgb()
-            this.strokeWidth = com.ivy.legacy.utils.convertDpToPixel(context, 2f)
+            this.strokeWidth = com.ivy.design.utils.convertDpToPixel(context, 2f)
             this.strokeCap = Paint.Cap.ROUND
             this.strokeJoin = Paint.Join.ROUND
             this.isAntiAlias = true

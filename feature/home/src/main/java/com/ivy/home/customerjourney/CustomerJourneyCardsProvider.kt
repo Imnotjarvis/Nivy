@@ -6,11 +6,11 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.design.l0_system.Gradient
-import com.ivy.design.l0_system.GreenLight
-import com.ivy.design.l0_system.Ivy
-import com.ivy.design.l0_system.Orange
-import com.ivy.design.l0_system.Red
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.navigation.EditPlannedScreen

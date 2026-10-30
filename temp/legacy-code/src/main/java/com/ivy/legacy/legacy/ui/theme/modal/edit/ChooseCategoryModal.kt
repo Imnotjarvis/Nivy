@@ -32,28 +32,27 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.drawColoredShadow
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.drawColoredShadow
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.WrapContentRow
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSkip
 import com.ivy.wallet.ui.theme.modal.ModalTitle
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -192,22 +191,22 @@ private fun CategoryButton(
 ) {
     val categoryColor = category.color.value.toComposeColor()
 
-    val rFull = UI.shapes.rFull
+    val rFull = CircleShape
 
     Row(
         modifier = Modifier
             .thenIf(selected) {
                 drawColoredShadow(categoryColor)
             }
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
             .border(
                 width = 2.dp,
-                color = if (selected) UI.colors.pureInverse else UI.colors.medium,
-                shape = UI.shapes.rFull
+                color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
+                shape = CircleShape
             )
             .thenIf(selected) {
                 background(categoryColor, rFull)
@@ -233,11 +232,11 @@ private fun CategoryButton(
                     end = if (selected) 20.dp else 24.dp
                 ),
             text = category.name.value,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = if (selected) {
                     findContrastTextColor(categoryColor)
                 } else {
-                    UI.colors.pureInverse
+                    MaterialTheme.colorScheme.onSurface
                 },
                 fontWeight = FontWeight.SemiBold
             )
@@ -269,13 +268,13 @@ fun AddNewButton(
     IvyBorderButton(
         modifier = modifier,
         text = stringResource(R.string.add_new),
-        backgroundGradient = Gradient.solid(UI.colors.mediumInverse),
+        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.inverseSurface),
         iconStart = R.drawable.ic_plus,
-        textStyle = UI.typo.b2.style(
-            color = UI.colors.pureInverse,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold
         ),
-        iconTint = UI.colors.pureInverse,
+        iconTint = MaterialTheme.colorScheme.onSurface,
         padding = 10.dp,
         onClick = onClick
     )

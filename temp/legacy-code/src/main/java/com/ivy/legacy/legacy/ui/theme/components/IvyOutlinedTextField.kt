@@ -24,11 +24,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.thenIf
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -37,11 +37,11 @@ fun IvyOutlinedTextField(
     modifier: Modifier = Modifier,
     value: TextFieldValue,
     hint: String?,
-    hintColor: Color = UI.colors.gray,
-    backgroundColor: Color = UI.colors.primary,
-    emptyBorderColor: Color = UI.colors.gray,
-    textColor: Color = UI.colors.pureInverse,
-    cursorColor: Color = UI.colors.pureInverse,
+    hintColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    emptyBorderColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    cursorColor: Color = MaterialTheme.colorScheme.onSurface,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -49,14 +49,14 @@ fun IvyOutlinedTextField(
     onValueChanged: (TextFieldValue) -> Unit
 ) {
     val isEmpty = value.text.isBlank()
-    val rFull = UI.shapes.rFull
+    val rFull = CircleShape
     Box(
         modifier = modifier
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .border(
                 width = 2.dp,
                 color = if (isEmpty) emptyBorderColor else backgroundColor,
-                shape = UI.shapes.rFull
+                shape = CircleShape
             )
             .thenIf(validateInput(value)) {
                 background(backgroundColor.copy(alpha = 0.1f), rFull)
@@ -75,7 +75,7 @@ fun IvyOutlinedTextField(
                     .padding(vertical = 16.dp),
                 text = hint!!,
                 textAlign = TextAlign.Center,
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = hintColor,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -92,7 +92,7 @@ fun IvyOutlinedTextField(
                 .padding(vertical = 16.dp, horizontal = 24.dp),
             value = value,
             onValueChange = onValueChanged,
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center

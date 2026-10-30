@@ -12,12 +12,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gray
+import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyToolbar
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun OnboardingToolbar(
@@ -32,13 +32,13 @@ fun OnboardingToolbar(
 
             Text(
                 modifier = Modifier
-                    .clip(UI.shapes.rFull)
+                    .clip(CircleShape)
                     .clickable {
                         onSkip()
                     }
                     .padding(all = 16.dp), // enlarge click area
                 text = stringResource(R.string.skip),
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.Bold
                 )

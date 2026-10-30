@@ -16,12 +16,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.shortenAmount
 import com.ivy.legacy.utils.shouldShortAmount
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberHeadlineLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -29,7 +29,7 @@ fun BalanceRowMedium(
     currency: String,
     balance: Double,
     modifier: Modifier = Modifier,
-    textColor: Color = UI.colors.pureInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     balanceAmountPrefix: String? = null,
     currencyUpfront: Boolean = true,
     shortenBigNumbers: Boolean = false,
@@ -57,7 +57,7 @@ fun BalanceRowMini(
     currency: String,
     balance: Double,
     modifier: Modifier = Modifier,
-    textColor: Color = UI.colors.pureInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     balanceAmountPrefix: String? = null,
     currencyUpfront: Boolean = true,
     shortenBigNumbers: Boolean = false,
@@ -87,7 +87,7 @@ fun BalanceRow(
     currency: String,
     balance: Double,
     modifier: Modifier = Modifier,
-    textColor: Color = UI.colors.pureInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     hiddenMode: Boolean = false,
     spacerCurrency: Dp = 12.dp,
     currencyFontSize: TextUnit? = null,
@@ -137,14 +137,14 @@ fun BalanceRow(
                 Text(
                     text = balanceCurrencyText,
                     style = if (balanceFontSize == null) {
-                        UI.typo.nH1.style(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = textColor
+                        MaterialTheme.typography.numberHeadlineLarge.copy(
+                            color = textColor,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     } else {
-                        UI.typo.nH1.style(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = textColor
+                        MaterialTheme.typography.numberHeadlineLarge.copy(
+                            color = textColor,
+                            fontWeight = FontWeight.ExtraBold
                         ).copy(fontSize = balanceFontSize)
                     }
                 )
@@ -163,14 +163,14 @@ fun BalanceRow(
                         else -> integerPartFormatted
                     },
                     style = if (balanceFontSize == null) {
-                        UI.typo.nH1.style(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = textColor
+                        MaterialTheme.typography.numberHeadlineLarge.copy(
+                            color = textColor,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     } else {
-                        UI.typo.nH1.style(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = textColor
+                        MaterialTheme.typography.numberHeadlineLarge.copy(
+                            color = textColor,
+                            fontWeight = FontWeight.ExtraBold
                         ).copy(fontSize = balanceFontSize)
                     }
                 )
@@ -188,14 +188,14 @@ private fun Currency(
     Text(
         text = currency,
         style = if (currencyFontSize == null) {
-            UI.typo.h1.style(
-                fontWeight = FontWeight.Light,
-                color = textColor
+            MaterialTheme.typography.headlineLarge.copy(
+                color = textColor,
+                fontWeight = FontWeight.Light
             )
         } else {
-            UI.typo.h1.style(
-                fontWeight = FontWeight.Light,
-                color = textColor
+            MaterialTheme.typography.headlineLarge.copy(
+                color = textColor,
+                fontWeight = FontWeight.Light
             ).copy(fontSize = currencyFontSize)
         }
     )
@@ -206,7 +206,7 @@ private fun Currency(
 private fun Preview_Default() {
     IvyWalletComponentPreview {
         BalanceRow(
-            textColor = UI.colors.pureInverse,
+            textColor = MaterialTheme.colorScheme.onSurface,
             currency = "BGN",
             balance = 3520000.60,
             balanceAmountPrefix = null,
@@ -220,7 +220,7 @@ private fun Preview_Default() {
 private fun Preview_Medium() {
     IvyWalletComponentPreview {
         BalanceRowMedium(
-            textColor = UI.colors.pureInverse,
+            textColor = MaterialTheme.colorScheme.onSurface,
             currency = "BGN",
             balance = 3520.60,
             balanceAmountPrefix = null
@@ -233,7 +233,7 @@ private fun Preview_Medium() {
 private fun Preview_Mini() {
     IvyWalletComponentPreview {
         BalanceRowMini(
-            textColor = UI.colors.pureInverse,
+            textColor = MaterialTheme.colorScheme.onSurface,
             currency = "BGN",
             balance = 3520.60,
             balanceAmountPrefix = null,

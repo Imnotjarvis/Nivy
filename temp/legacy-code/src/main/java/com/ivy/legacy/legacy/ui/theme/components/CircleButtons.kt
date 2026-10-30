@@ -15,10 +15,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
+import com.ivy.design.system.colors.Gradient
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -40,9 +40,9 @@ fun CircleButton(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     contentDescription: String = "icon",
-    backgroundColor: Color = UI.colors.pure,
-    borderColor: Color = UI.colors.medium,
-    tint: Color? = UI.colors.pureInverse,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    tint: Color? = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit,
 ) {
     Icon(
@@ -64,8 +64,8 @@ fun CircleButtonFilled(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     contentDescription: String = "icon",
-    backgroundColor: Color = UI.colors.medium,
-    tint: Color? = UI.colors.pureInverse,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    tint: Color? = MaterialTheme.colorScheme.onSurface,
     clickAreaPadding: Dp = 8.dp,
     onClick: () -> Unit,
 ) {
@@ -88,8 +88,8 @@ fun CircleButtonFilledGradient(
     @DrawableRes icon: Int,
     contentDescription: String = "icon",
     iconPadding: Dp = 8.dp,
-    backgroundGradient: Gradient = Gradient.solid(UI.colors.medium),
-    tint: Color? = UI.colors.pureInverse,
+    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+    tint: Color? = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit,
 ) {
     Icon(

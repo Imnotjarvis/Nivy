@@ -19,18 +19,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.springBounce
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyDividerDot
 import com.ivy.wallet.ui.theme.components.IvyIcon
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberLabelMedium
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -67,9 +67,9 @@ fun SectionDivider(
             Text(
                 modifier = Modifier.testTag("upcoming_title"),
                 text = title,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = titleColor
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = titleColor,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
@@ -110,17 +110,17 @@ private fun SectionDividerIncomeExpenseRow(
             Text(
                 modifier = Modifier.testTag("upcoming_expense"),
                 text = "${expenses.format(baseCurrency)} $baseCurrency",
-                style = UI.typo.nC.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = stringResource(R.string.expenses_lowercase),
-                style = UI.typo.c.style(
-                    fontWeight = FontWeight.Normal,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Normal
                 )
             )
         }
@@ -137,17 +137,17 @@ private fun SectionDividerIncomeExpenseRow(
             Text(
                 modifier = Modifier.testTag("upcoming_income"),
                 text = "${income.format(baseCurrency)} $baseCurrency",
-                style = UI.typo.nC.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.green
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = stringResource(R.string.income_lowercase),
-                style = UI.typo.c.style(
-                    fontWeight = FontWeight.Normal,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Normal
                 )
             )
         }

@@ -10,17 +10,23 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun View.showKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.showSoftInput(this, InputMethodManager.SHOW_FORCED)
+    imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @SuppressLint("ComposableNaming")
 @Composable
 fun hideKeyboard() {
     LocalView.current.hideKeyboard()
+}
+
+@Suppress("SwallowedException")
+fun hideKeyboard(view: View) {
+    try {
+        view.hideKeyboard()
+    } catch (ignore: Exception) {
+    }
 }
 
 fun View.hideKeyboard() {
@@ -29,7 +35,6 @@ fun View.hideKeyboard() {
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun keyboardVisibleState(): State<Boolean> {
     val rootView = LocalView.current
@@ -38,16 +43,16 @@ fun keyboardVisibleState(): State<Boolean> {
         mutableStateOf(false)
     }
 
-    onEvent {
+    DisposableEffect(Unit) {
         rootView.addKeyboardListener {
             keyboardVisible.value = it
         }
+        onDispose { }
     }
 
     return keyboardVisible
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun View.addKeyboardListener(keyboardCallback: (visible: Boolean) -> Unit) {
     doOnLayout {
         // get init state of keyboard
@@ -68,7 +73,6 @@ fun View.addKeyboardListener(keyboardCallback: (visible: Boolean) -> Unit) {
     }
 }
 
-@Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun isKeyboardOpen(rootView: View): Boolean {
     return try {
         WindowInsetsCompat.toWindowInsetsCompat(rootView.rootWindowInsets, rootView)

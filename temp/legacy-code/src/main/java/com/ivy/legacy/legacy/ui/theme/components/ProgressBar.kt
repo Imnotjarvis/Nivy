@@ -12,21 +12,25 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.wallet.ui.theme.*
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ProgressBar(
     modifier: Modifier = Modifier,
-    notFilledColor: Color = UI.colors.pure,
+    notFilledColor: Color = MaterialTheme.colorScheme.surface,
     positiveProgress: Boolean = true,
     percent: Double
 ) {
     Spacer(
         modifier = modifier
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(notFilledColor)
             .drawBehind {
                 drawRect(

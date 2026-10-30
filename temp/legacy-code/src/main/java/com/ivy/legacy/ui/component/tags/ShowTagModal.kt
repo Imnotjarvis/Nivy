@@ -30,19 +30,17 @@ import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.data.repository.mapper.TagMapper.Companion.createNewTagId
-import com.ivy.design.l0_system.Blue2Dark
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Blue2Dark
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.ui.SearchInput
-import com.ivy.legacy.utils.drawColoredShadow
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.drawColoredShadow
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.onScreenStart
-import com.ivy.legacy.utils.selectEndTextFieldValue
-import com.ivy.wallet.ui.theme.Gradient
+import com.ivy.design.utils.selectEndTextFieldValue
+import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
@@ -51,6 +49,8 @@ import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.WrapContentRow
 import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Suppress("ParameterNaming")
@@ -240,22 +240,22 @@ private fun ExistingTag(
     onDeselect: () -> Unit,
 ) {
     val tagColor = Blue2Dark
-    val rFull = UI.shapes.rFull
+    val rFull = CircleShape
 
     Row(
         modifier = Modifier
             .thenIf(selected) {
                 drawColoredShadow(tagColor)
             }
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
             .border(
                 width = 2.dp,
-                color = if (selected) UI.colors.pureInverse else UI.colors.medium,
-                shape = UI.shapes.rFull
+                color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
+                shape = CircleShape
             )
             .thenIf(selected) {
                 background(tagColor, rFull)
@@ -274,8 +274,8 @@ private fun ExistingTag(
                 )
                 .weight(1f, fill = false),
             text = "#${tag.name.value}",
-            style = UI.typo.b2.style(
-                color = if (selected) findContrastTextColor(tagColor) else UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = if (selected) findContrastTextColor(tagColor) else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             ),
             maxLines = 1,
@@ -312,13 +312,13 @@ private fun AddNewTagButton(
     IvyBorderButton(
         modifier = modifier,
         text = stringResource(R.string.add_new),
-        backgroundGradient = Gradient.solid(UI.colors.mediumInverse),
+        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.inverseSurface),
         iconStart = R.drawable.ic_plus,
-        textStyle = UI.typo.b2.style(
-            color = UI.colors.pureInverse,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold
         ),
-        iconTint = UI.colors.pureInverse,
+        iconTint = MaterialTheme.colorScheme.onSurface,
         padding = 10.dp,
         onClick = onClick
     )

@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.legacy.stringRes
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Transparent
+import com.ivy.design.system.colors.Transparent
 import com.ivy.wallet.ui.theme.components.CircleButton
 import com.ivy.wallet.ui.theme.components.DeleteButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton

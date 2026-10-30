@@ -14,13 +14,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.Gray
-import com.ivy.design.l0_system.UI
+import com.ivy.design.system.colors.Gray
 import com.ivy.design.l1_buildingBlocks.IvyIcon
 import com.ivy.legacy.utils.onScreenStart
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyBasicTextField
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("MagicNumber")
@@ -36,9 +37,9 @@ fun SearchInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.rFull)
-            .background(UI.colors.pure)
-            .border(1.dp, Gray, UI.shapes.rFull),
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, Gray, CircleShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IvyIcon(icon = R.drawable.ic_search, modifier = Modifier.weight(1f))

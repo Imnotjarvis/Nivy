@@ -10,13 +10,13 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ActionsRow(
     modifier: Modifier = Modifier,
-    lineColor: Color = UI.colors.medium,
+    lineColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     Content: @Composable RowScope.() -> Unit
 ) {
     Row(

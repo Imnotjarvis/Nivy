@@ -18,22 +18,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.backup.ImportResult
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.importdata.csv.Spacer8
 import com.ivy.legacy.utils.format
 import com.ivy.navigation.CSVScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BackButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import kotlinx.collections.immutable.persistentListOf
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberHeadlineMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -65,9 +66,9 @@ fun ImportResultUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = if (importSuccess) stringResource(R.string.success) else stringResource(R.string.failure),
-            style = UI.typo.h2.style(
-                fontWeight = FontWeight.Black,
-                color = if (importSuccess) UI.colors.pureInverse else Red
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = if (importSuccess) MaterialTheme.colorScheme.onSurface else Red,
+                fontWeight = FontWeight.Black
             )
         )
 
@@ -103,7 +104,7 @@ fun ImportResultUI(
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp),
                 text = stringResource(R.string.csv_import_failed),
-                color = UI.colors.pureInverse,
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -119,9 +120,9 @@ fun ImportResultUI(
             ) {
                 Text(
                     text = stringResource(id = R.string.manual_csv_import),
-                    style = UI.typo.b2.style(
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
@@ -171,7 +172,7 @@ private fun SuccessSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.imported),
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Green,
                 fontWeight = FontWeight.Black
             )
@@ -182,7 +183,8 @@ private fun SuccessSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = "${successPercent.format(2)}%",
-            style = UI.typo.nH2.style(
+            style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Normal
             )
         )
@@ -190,9 +192,9 @@ private fun SuccessSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.transactions_imported, result.transactionsImported),
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.Bold,
-                color = Gray
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.Bold
             )
         )
 
@@ -201,9 +203,9 @@ private fun SuccessSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.accounts_imported, result.accountsImported),
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.Bold,
-                color = Gray
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.Bold
             )
         )
 
@@ -212,9 +214,9 @@ private fun SuccessSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.categories_imported, result.categoriesImported),
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.Bold,
-                color = Gray
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.Bold
             )
         )
 
@@ -233,9 +235,9 @@ private fun FailedSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.failed),
-            style = UI.typo.b1.style(
-                fontWeight = FontWeight.Black,
-                color = Red
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = Red,
+                fontWeight = FontWeight.Black
             )
         )
 
@@ -244,7 +246,8 @@ private fun FailedSectionUI(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = "${(100 - successPercent).format(2)}%",
-            style = UI.typo.nH2.style(
+            style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Normal
             )
         )
@@ -255,9 +258,9 @@ private fun FailedSectionUI(
                 R.string.rows_from_csv_not_recognized,
                 result.rowsFound - result.transactionsImported
             ),
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.Bold,
-                color = Gray
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.Bold
             )
         )
     }

@@ -15,17 +15,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.dateNowLocal
 import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.formatLocal
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
 import java.time.LocalDate
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -52,7 +52,8 @@ fun HistoryDateDivider(
                 text = date.formatLocal(
                     if (today.year == date.year) "MMMM dd." else "MMM dd. yyy"
                 ),
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -74,7 +75,8 @@ fun HistoryDateDivider(
                         date.formatLocal("EEEE")
                     }
                 },
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -85,9 +87,9 @@ fun HistoryDateDivider(
         val cashflow = income - expenses
         Text(
             text = "${cashflow.format(baseCurrency)} $baseCurrency",
-            style = UI.typo.nB2.style(
-                fontWeight = FontWeight.Bold,
-                color = if (cashflow > 0) Green else Gray
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = if (cashflow > 0) Green else Gray,
+                fontWeight = FontWeight.Bold
             )
         )
 

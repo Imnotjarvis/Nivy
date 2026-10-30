@@ -22,18 +22,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
 import kotlin.math.abs
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -42,7 +41,7 @@ fun BufferBattery(
     buffer: Double,
     balance: Double,
     currency: String,
-    backgroundNotFilled: Color = UI.colors.pure,
+    backgroundNotFilled: Color = MaterialTheme.colorScheme.surface,
     onClick: (() -> Unit)? = null,
 ) {
     val bufferExceeded = balance < buffer
@@ -56,7 +55,7 @@ fun BufferBattery(
 
     val textColor = when {
         bufferExceededPercent <= 0.25 -> {
-            UI.colors.pureInverse
+            MaterialTheme.colorScheme.onSurface
         }
         bufferExceededPercent <= 0.50 -> {
             White
@@ -70,7 +69,7 @@ fun BufferBattery(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(backgroundNotFilled)
             .drawBehind {
                 drawRect(
@@ -120,7 +119,7 @@ fun BufferBattery(
                         R.string.left_to_spend
                     )
                 },
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = textColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -144,7 +143,7 @@ private fun Preview_buffer_0() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -164,7 +163,7 @@ private fun Preview_buffer_balance_0() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -184,7 +183,7 @@ private fun Preview_buffer_very_low() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -204,7 +203,7 @@ private fun Preview_buffer_25() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -224,7 +223,7 @@ private fun Preview_buffer_50() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -244,7 +243,7 @@ private fun Preview_buffer_75() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -264,7 +263,7 @@ private fun Preview_buffer_90() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -284,7 +283,7 @@ private fun Preview_buffer_100() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(
@@ -304,7 +303,7 @@ private fun Preview_buffer_125() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BufferBattery(

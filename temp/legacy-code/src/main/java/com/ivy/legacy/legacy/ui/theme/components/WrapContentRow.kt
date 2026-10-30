@@ -18,9 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.design.l0_system.UI
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Category
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -92,27 +92,27 @@ private fun PreviewWrapContentRow() {
         WrapContentRow(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 24.dp)
-                .background(UI.colors.red),
+                .background(MaterialTheme.colorScheme.error),
             items = listOf(
-                Category("Todo", UI.colors.primary.toArgb()),
-                Category("Ivy", UI.colors.primary.toArgb()),
-                Category("Qredo", UI.colors.primary.toArgb()),
-                Category("Home", UI.colors.primary.toArgb()),
-                Category("Inspiration", UI.colors.primary.toArgb()),
-                Category("Business and marketing", UI.colors.primary.toArgb()),
-                Category("Testdfsgdfgdf", UI.colors.primary.toArgb()),
+                Category("Todo", MaterialTheme.colorScheme.primary.toArgb()),
+                Category("Ivy", MaterialTheme.colorScheme.primary.toArgb()),
+                Category("Qredo", MaterialTheme.colorScheme.primary.toArgb()),
+                Category("Home", MaterialTheme.colorScheme.primary.toArgb()),
+                Category("Inspiration", MaterialTheme.colorScheme.primary.toArgb()),
+                Category("Business and marketing", MaterialTheme.colorScheme.primary.toArgb()),
+                Category("Testdfsgdfgdf", MaterialTheme.colorScheme.primary.toArgb()),
             ),
             verticalMarginBetweenRows = 8.dp
         ) {
             Text(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(UI.colors.medium, RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                     .clickable(onClick = { })
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 text = it.name,
                 style = TextStyle(
-                    color = UI.colors.mediumInverse,
+                    color = MaterialTheme.colorScheme.inverseSurface,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold
                 )

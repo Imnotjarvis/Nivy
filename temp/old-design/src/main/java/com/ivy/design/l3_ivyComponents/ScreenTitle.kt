@@ -9,22 +9,21 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.colorAs
 import com.ivy.design.utils.IvyComponentPreview
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ScreenTitleLarge(
     text: String,
     paddingStart: Dp = 0.dp,
-    textColor: Color = UI.colors.primary
+    textColor: Color = MaterialTheme.colorScheme.primary
 ) {
     ScreenTitle(
         modifier = Modifier
             .padding(start = paddingStart),
         text = text,
-        textStyle = UI.typo.h1.colorAs(textColor)
+        textStyle = MaterialTheme.typography.headlineLarge.copy(color = textColor)
     )
 }
 
@@ -33,13 +32,13 @@ fun ScreenTitleLarge(
 fun ScreenTitle(
     text: String,
     paddingStart: Dp = 0.dp,
-    textColor: Color = UI.colors.primary
+    textColor: Color = MaterialTheme.colorScheme.primary
 ) {
     ScreenTitle(
         modifier = Modifier
             .padding(start = paddingStart),
         text = text,
-        textStyle = UI.typo.h2.colorAs(textColor)
+        textStyle = MaterialTheme.typography.headlineMedium.copy(color = textColor)
     )
 }
 

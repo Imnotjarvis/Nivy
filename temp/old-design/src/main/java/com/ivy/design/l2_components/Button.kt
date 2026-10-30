@@ -10,15 +10,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.White
-import com.ivy.design.l0_system.colorAs
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.White
 import com.ivy.design.l1_buildingBlocks.data.Background
 import com.ivy.design.l1_buildingBlocks.data.background
 import com.ivy.design.l1_buildingBlocks.data.clipBackground
 import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.design.utils.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -26,15 +26,16 @@ fun Button(
     modifier: Modifier = Modifier,
     text: String,
     background: Background = Background.Solid(
-        color = UI.colors.primary,
-        shape = UI.shapes.rFull,
+        color = MaterialTheme.colorScheme.primary,
+        shape = CircleShape,
         padding = padding(
             horizontal = 24.dp,
             vertical = 12.dp
         )
     ),
-    textStyle: TextStyle = UI.typo.b2.style(
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
         color = White,
+        fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center
     ),
     onClick: () -> Unit
@@ -58,14 +59,14 @@ private fun Preview_Solid() {
         Button(
             text = "Okay",
             background = Background.Solid(
-                color = UI.colors.primary,
-                shape = UI.shapes.rFull,
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape,
                 padding = padding(
                     horizontal = 24.dp,
                     vertical = 12.dp
                 )
             ),
-            textStyle = UI.typo.b1.colorAs(White)
+            textStyle = MaterialTheme.typography.titleLarge.copy(color = White)
         ) {
         }
     }
@@ -78,15 +79,15 @@ private fun Preview_Outlined() {
         Button(
             text = "Continue",
             background = Background.Outlined(
-                color = UI.colors.pureInverse,
+                color = MaterialTheme.colorScheme.onSurface,
                 width = 1.dp,
-                shape = UI.shapes.rFull,
+                shape = CircleShape,
                 padding = padding(
                     horizontal = 24.dp,
                     vertical = 12.dp
                 )
             ),
-            textStyle = UI.typo.b1.colorAs(UI.colors.pureInverse)
+            textStyle = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onSurface)
         ) {
         }
     }

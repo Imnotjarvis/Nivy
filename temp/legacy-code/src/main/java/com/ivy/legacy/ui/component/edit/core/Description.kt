@@ -11,13 +11,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.ui.component.edit.PrimaryAttributeColumn
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -59,7 +60,9 @@ private fun DescriptionText(
                 .padding(horizontal = 24.dp)
                 .testTag("trn_description"),
             text = description,
-            style = UI.typo.nB2.style(
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Left
             ),
         )

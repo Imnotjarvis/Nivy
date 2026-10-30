@@ -15,19 +15,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.design.l1_buildingBlocks.SpacerHor
 import com.ivy.design.l1_buildingBlocks.SpacerWeight
 import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.design.utils.springBounce
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun Switch(
     modifier: Modifier = Modifier,
     enabled: Boolean,
-    enabledColor: Color = UI.colors.green,
-    disabledColor: Color = UI.colors.gray,
+    enabledColor: Color = MaterialTheme.colorScheme.secondary,
+    disabledColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     animationColor: AnimationSpec<Color> = springBounce(),
     animationMove: AnimationSpec<Float> = springBounce(),
     onEnabledChange: (checked: Boolean) -> Unit
@@ -40,8 +40,8 @@ fun Switch(
     Row(
         modifier = modifier
             .width(40.dp)
-            .clip(UI.shapes.rFull)
-            .border(2.dp, color, UI.shapes.rFull)
+            .clip(CircleShape)
+            .border(2.dp, color, CircleShape)
             .clickable {
                 onEnabledChange(!enabled)
             }

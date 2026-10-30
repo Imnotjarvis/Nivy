@@ -35,9 +35,7 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.l0_system.Orange
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.data.EditTransactionDisplayLoan
 import com.ivy.legacy.datamodel.Account
@@ -86,6 +84,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.math.roundToInt
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @ExperimentalFoundationApi
 @Composable
@@ -331,8 +331,8 @@ private fun BoxWithConstraintsScope.UI(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 text = loanData.loanCaption!!,
-                style = UI.typo.nB2.style(
-                    color = UI.colors.mediumInverse,
+                style = MaterialTheme.typography.numberBodyLarge.copy(
+                    color = MaterialTheme.colorScheme.inverseSurface,
                     fontWeight = FontWeight.Normal
                 )
             )

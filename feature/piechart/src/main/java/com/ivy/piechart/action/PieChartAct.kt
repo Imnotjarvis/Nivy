@@ -10,7 +10,7 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.design.l0_system.RedLight
+import com.ivy.design.system.colors.RedLight
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
 import com.ivy.frp.action.FPAction

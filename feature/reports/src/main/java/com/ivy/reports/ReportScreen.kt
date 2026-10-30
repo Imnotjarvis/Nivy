@@ -34,8 +34,6 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.LegacyDueSection
@@ -43,22 +41,22 @@ import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.legacy.ui.component.transaction.transactions
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.ReportScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenDark
-import com.ivy.wallet.ui.theme.GreenLight
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Purple1Dark
-import com.ivy.wallet.ui.theme.Red3Light
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Purple1Dark
+import com.ivy.design.system.colors.Red3Light
 import com.ivy.wallet.ui.theme.components.BackButtonType
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
@@ -67,10 +65,11 @@ import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.wallet.ui.theme.components.IvyToolbar
-import com.ivy.wallet.ui.theme.pureBlur
+import com.ivy.design.system.colors.pureBlur
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Composable
@@ -111,9 +110,9 @@ private fun BoxWithConstraintsScope.UI(
         ) {
             Text(
                 text = stringResource(R.string.generating_report),
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Orange
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = Orange,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -146,7 +145,8 @@ private fun BoxWithConstraintsScope.UI(
                     start = 32.dp
                 ),
                 text = stringResource(R.string.reports),
-                style = UI.typo.h2.style(
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -156,7 +156,7 @@ private fun BoxWithConstraintsScope.UI(
             BalanceRow(
                 modifier = Modifier
                     .padding(start = 32.dp),
-                textColor = UI.colors.pureInverse,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 currency = state.baseCurrency,
                 balance = state.balance,
                 balanceAmountPrefix = when {
@@ -173,7 +173,7 @@ private fun BoxWithConstraintsScope.UI(
                 income = state.income,
                 expenses = state.expenses,
                 hasAddButtons = false,
-                itemColor = UI.colors.pure,
+                itemColor = MaterialTheme.colorScheme.surface,
                 incomeHeaderCardClicked = {
                     if (state.transactions.isNotEmpty()) {
                         nav.navigateTo(
@@ -330,7 +330,7 @@ private fun NoFilterEmptyState(
 
         Text(
             text = stringResource(R.string.no_filter),
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -341,7 +341,7 @@ private fun NoFilterEmptyState(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.invalid_filter_warning),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center

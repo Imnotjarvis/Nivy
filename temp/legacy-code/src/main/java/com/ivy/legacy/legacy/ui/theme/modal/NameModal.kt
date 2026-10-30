@@ -15,13 +15,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyTitleTextField
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -51,9 +50,9 @@ fun BoxWithConstraintsScope.NameModal(
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.edit_name),
-            style = UI.typo.b1.style(
-                fontWeight = FontWeight.ExtraBold,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
         )
 

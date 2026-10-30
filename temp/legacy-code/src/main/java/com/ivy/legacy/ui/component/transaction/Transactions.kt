@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.legacy.stringRes
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.LegacyDueSection
 import com.ivy.navigation.EditTransactionScreen
@@ -28,14 +26,15 @@ import com.ivy.navigation.Navigation
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
-import com.ivy.wallet.ui.theme.Black
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Black
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 fun LazyListScope.transactions(
@@ -175,7 +174,7 @@ private fun LazyListScope.overdueSection(
 
         if (overdue.expanded) {
             item {
-                val isLightTheme = UI.colors.pure == White
+                val isLightTheme = MaterialTheme.colorScheme.surface == White
                 IvyButton(
                     modifier = Modifier.padding(horizontal = 24.dp),
                     text = stringRes(R.string.skip_all),
@@ -188,7 +187,7 @@ private fun LazyListScope.overdueSection(
                             Black
                         )
                     },
-                    textStyle = UI.typo.b2.style(
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = if (isLightTheme) Black else White,
                         fontWeight = FontWeight.Bold
                     )
@@ -323,7 +322,7 @@ private fun LazyItemScope.NoTransactionsEmptyState(
 
         Text(
             text = emptyStateTitle,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -334,7 +333,7 @@ private fun LazyItemScope.NoTransactionsEmptyState(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = emptyStateText,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center

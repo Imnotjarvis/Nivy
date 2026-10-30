@@ -3,7 +3,7 @@ package com.ivy.home.customerjourney
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeProvider
-import com.ivy.design.l0_system.Gradient
+import com.ivy.design.system.colors.Gradient
 import com.ivy.domain.RootScreen
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.navigation.Navigation

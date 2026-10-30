@@ -22,16 +22,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.utils.numberBetween
 import com.ivy.legacy.utils.swap
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.Reorderable
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import java.util.*
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("UNCHECKED_CAST", "ParameterNaming")
@@ -43,9 +42,9 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.reorder),
-            style = UI.typo.b1.style(
-                UI.colors.pureInverse,
-                FontWeight.ExtraBold
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
         )
     },
@@ -85,9 +84,9 @@ fun <T : Reorderable> BoxScope.ReorderModal(
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.reorder),
-            style = UI.typo.b1.style(
-                UI.colors.pureInverse,
-                FontWeight.ExtraBold
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
         )
     },
@@ -140,7 +139,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
 
         Spacer(Modifier.height(24.dp))
 
-        val colorMedium = UI.colors.medium
+        val colorMedium = MaterialTheme.colorScheme.surfaceVariant
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()
@@ -256,7 +255,7 @@ private class Adapter<T : Reorderable>(
                                 }
                                 .testTag("reorder_drag_handle"),
                             icon = R.drawable.ic_drag_handle,
-                            tint = UI.colors.gray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             contentDescription = "reorder_$position"
                         )
 

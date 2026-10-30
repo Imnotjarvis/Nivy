@@ -29,11 +29,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.isNotNullOrBlank
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -42,7 +41,7 @@ fun IvyNameTextField(
     modifier: Modifier = Modifier,
     underlineModifier: Modifier = Modifier,
     value: TextFieldValue,
-    textColor: Color = UI.colors.pureInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     hint: String?,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
@@ -66,8 +65,8 @@ fun IvyNameTextField(
                 Text(
                     modifier = Modifier,
                     text = hint!!,
-                    style = UI.typo.b2.style(
-                        color = UI.colors.gray,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Start
                     ),
@@ -81,13 +80,13 @@ fun IvyNameTextField(
                     .focusRequester(focusRequester),
                 value = value,
                 onValueChange = onValueChanged,
-                textStyle = UI.typo.b1.style(
+                textStyle = MaterialTheme.typography.titleLarge.copy(
                     color = textColor,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Start
                 ),
                 singleLine = false,
-                cursorBrush = SolidColor(UI.colors.pureInverse),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                 visualTransformation = visualTransformation,
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions ?: KeyboardActions(

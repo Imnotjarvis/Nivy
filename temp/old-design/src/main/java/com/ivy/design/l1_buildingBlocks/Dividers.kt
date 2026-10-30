@@ -9,9 +9,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.design.utils.thenWhen
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -20,8 +21,8 @@ fun DividerH(
         padding = 16.dp
     ),
     width: Dp = 1.dp,
-    color: Color = UI.colors.gray,
-    shape: Shape = UI.shapes.rFull
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    shape: Shape = CircleShape
 ) {
     Spacer(
         modifier = Modifier
@@ -48,8 +49,8 @@ fun DividerV(
         padding = 16.dp
     ),
     width: Dp = 1.dp,
-    color: Color = UI.colors.gray,
-    shape: Shape = UI.shapes.rFull
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    shape: Shape = CircleShape
 ) {
     Spacer(
         modifier = Modifier
@@ -74,8 +75,8 @@ fun DividerV(
 fun RowScope.DividerW(
     weight: Float = 1f,
     height: Dp = 1.dp,
-    color: Color = UI.colors.gray,
-    shape: Shape = UI.shapes.rFull
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    shape: Shape = CircleShape
 ) {
     Divider(
         modifier = Modifier
@@ -90,8 +91,8 @@ fun RowScope.DividerW(
 @Composable
 fun Divider(
     modifier: Modifier = Modifier,
-    color: Color = UI.colors.gray,
-    shape: Shape = UI.shapes.rFull
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    shape: Shape = CircleShape
 ) {
     Spacer(
         modifier = modifier

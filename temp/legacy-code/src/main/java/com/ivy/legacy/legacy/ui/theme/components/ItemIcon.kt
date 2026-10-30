@@ -15,17 +15,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
 import com.ivy.design.utils.thenWhen
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.toLowerCaseLocal
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun ItemIconL(
     modifier: Modifier = Modifier,
     iconName: String?,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
 ) {
@@ -45,7 +45,7 @@ fun ItemIconL(
 fun ItemIconMDefaultIcon(
     modifier: Modifier = Modifier,
     iconName: String?,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     @DrawableRes defaultIcon: Int
 ) {
     ItemIconM(
@@ -68,7 +68,7 @@ fun ItemIconMDefaultIcon(
 fun ItemIconM(
     modifier: Modifier = Modifier,
     iconName: String?,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
 ) {
@@ -88,7 +88,7 @@ fun ItemIconM(
 fun ItemIconSDefaultIcon(
     modifier: Modifier = Modifier,
     iconName: String?,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     @DrawableRes defaultIcon: Int
 ) {
     ItemIconS(
@@ -111,7 +111,7 @@ fun ItemIconSDefaultIcon(
 fun ItemIconS(
     modifier: Modifier = Modifier,
     iconName: String?,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
 ) {
@@ -132,7 +132,7 @@ private fun ItemIcon(
     modifier: Modifier = Modifier,
     iconName: String?,
     size: String,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
 ) {

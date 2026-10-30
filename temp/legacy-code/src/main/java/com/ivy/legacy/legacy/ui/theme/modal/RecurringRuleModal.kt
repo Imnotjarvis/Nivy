@@ -34,25 +34,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.addKeyboardListener
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.closeDay
 import com.ivy.legacy.utils.formatDateWeekDayLong
 import com.ivy.legacy.utils.formatNicely
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IntervalPickerRow
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
@@ -61,6 +59,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class RecurringRuleModalData(
@@ -179,7 +179,7 @@ private fun TimesSelector(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
-            .background(UI.colors.medium, UI.shapes.r2),
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(8.dp))
@@ -210,12 +210,12 @@ private fun RowScope.TimesSelectorButton(
     label: String,
     onClick: () -> Unit
 ) {
-    val rFull = UI.shapes.rFull
+    val rFull = CircleShape
 
     Text(
         modifier = Modifier
             .weight(1f)
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable {
                 onClick()
             }
@@ -225,7 +225,7 @@ private fun RowScope.TimesSelectorButton(
             }
             .padding(vertical = 8.dp),
         text = label,
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
             color = if (selected) White else Gray,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
@@ -266,8 +266,8 @@ private fun MultipleTimes(
         modifier = Modifier
             .padding(start = 32.dp),
         text = stringResource(R.string.starts_on),
-        style = UI.typo.b2.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )
@@ -290,9 +290,9 @@ private fun MultipleTimes(
         modifier = Modifier
             .padding(start = 32.dp),
         text = stringResource(R.string.repeats_every_text),
-        style = UI.typo.b2.style(
-            fontWeight = FontWeight.ExtraBold,
-            color = UI.colors.pureInverse
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.ExtraBold
         )
     )
 
@@ -349,9 +349,9 @@ private fun DateRow(
                 text = closeDay ?: date.formatNicely(
                     pattern = "EEEE, dd MMM"
                 ),
-                style = UI.typo.h2.style(
-                    fontWeight = FontWeight.Normal,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Normal
                 )
             )
 
@@ -360,9 +360,9 @@ private fun DateRow(
 
                 Text(
                     text = date.formatDateWeekDayLong(),
-                    style = UI.typo.b2.style(
-                        fontWeight = FontWeight.SemiBold,
-                        color = Gray
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Gray,
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
             }
@@ -377,8 +377,8 @@ private fun DateRow(
                 .testTag("recurring_modal_pick_date"),
             backgroundPadding = 4.dp,
             icon = R.drawable.ic_calendar,
-            backgroundGradient = Gradient.solid(UI.colors.pureInverse),
-            tint = UI.colors.pure
+            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
+            tint = MaterialTheme.colorScheme.surface
         ) {
             ivyContext.pickDate(dateTime.toLocalDate(), onDatePicked)
         }

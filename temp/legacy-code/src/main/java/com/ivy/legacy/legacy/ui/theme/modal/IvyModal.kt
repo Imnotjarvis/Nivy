@@ -40,26 +40,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.design.l0_system.UI
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.addKeyboardListener
-import com.ivy.legacy.utils.consumeClicks
-import com.ivy.legacy.utils.densityScope
-import com.ivy.legacy.utils.hideKeyboard
-import com.ivy.legacy.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.navigationBarInsets
+import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.consumeClicks
+import com.ivy.design.utils.densityScope
+import com.ivy.design.utils.hideKeyboard
+import com.ivy.design.utils.keyboardOnlyWindowInsets
+import com.ivy.design.utils.navigationBarInsets
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.thenIf
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.navigation
 import com.ivy.wallet.ui.theme.components.ActionsRow
 import com.ivy.wallet.ui.theme.components.CloseButton
-import com.ivy.wallet.ui.theme.gradientCutBackgroundTop
-import com.ivy.wallet.ui.theme.mediumBlur
+import com.ivy.design.system.colors.gradientCutBackgroundTop
+import com.ivy.design.system.colors.mediumBlur
 import java.util.UUID
 import kotlin.math.roundToInt
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop24
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 private const val DURATION_BACKGROUND_BLUR_ANIM = 400
@@ -152,7 +153,7 @@ fun BoxScope.IvyModal(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(top = 24.dp)
-                .background(UI.colors.pure, UI.shapes.r2Top)
+                .background(MaterialTheme.colorScheme.surface, ShapeTop24)
                 .consumeClicks(rememberInteractionSource())
                 .thenIf(scrollState != null) {
                     verticalScroll(scrollState!!)
@@ -293,7 +294,7 @@ fun ModalActionsRow(
                     }
                 }
                 .gradientCutBackgroundTop(
-                    pure = UI.colors.pure,
+                    pure = MaterialTheme.colorScheme.surface,
                     density = LocalDensity.current,
                     endY = 16.dp
                 )

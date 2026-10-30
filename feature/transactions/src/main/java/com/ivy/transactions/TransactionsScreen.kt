@@ -43,8 +43,6 @@ import com.ivy.data.model.Category
 import com.ivy.design.api.LocalTimeConverter
 import com.ivy.design.api.LocalTimeFormatter
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletPreview
@@ -58,11 +56,12 @@ import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.transactions
 import com.ivy.legacy.utils.balancePrefix
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.horizontalSwipeListener
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.rememberSwipeListenerState
-import com.ivy.legacy.utils.setStatusBarDarkTextCompat
+import com.ivy.design.utils.StatusBarDarkText
+import com.ivy.design.utils.setStatusBarDarkTextCompat
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.PieChartStatisticScreen
@@ -72,14 +71,14 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.GreenDark
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.GreenDark
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMedium
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.isDarkColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.isDarkColor
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.ivy.wallet.ui.theme.modal.DeleteConfirmationModal
@@ -88,12 +87,14 @@ import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.math.BigDecimal
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop32
 
 @Composable
 fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
@@ -299,8 +300,8 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .clip(UI.shapes.r1Top)
-                .background(UI.colors.pure)
+                .clip(ShapeTop32)
+                .background(MaterialTheme.colorScheme.surface)
                 .testTag("item_stats_lazy_column"),
             state = listState,
         ) {
@@ -492,7 +493,7 @@ private fun LazyListScope.choosePeriodModal(
                     .height(32.dp)
                     .fillMaxWidth()
                     .background(itemColor) // itemColor is displayed below the clip
-                    .background(UI.colors.pure, UI.shapes.r1Top)
+                    .background(MaterialTheme.colorScheme.surface, ShapeTop32)
             )
 
             PeriodSelector(
@@ -608,7 +609,7 @@ private fun Header(
     val contrastColor = findContrastTextColor(itemColor)
 
     val darkColor = isDarkColor(itemColor)
-    setStatusBarDarkTextCompat(darkText = !darkColor)
+    StatusBarDarkText(darkText = !darkColor)
 
     Column(
         modifier = Modifier.background(itemColor)
@@ -765,7 +766,7 @@ private fun Item(
 
                 Text(
                     text = account.name,
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -776,8 +777,9 @@ private fun Item(
 
                     Text(
                         text = stringRes(R.string.excluded),
-                        style = UI.typo.c.style(
-                            color = account.color.toComposeColor().dynamicContrast()
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = account.color.toComposeColor().dynamicContrast(),
+                            fontWeight = FontWeight.Bold
                         )
                     )
                 }
@@ -794,7 +796,7 @@ private fun Item(
 
                 Text(
                     text = category.name.value,
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -813,7 +815,7 @@ private fun Item(
 
                 Text(
                     text = Constants.CATEGORY_UNSPECIFIED_NAME,
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )

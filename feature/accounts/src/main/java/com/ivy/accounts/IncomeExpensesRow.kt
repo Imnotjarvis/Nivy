@@ -16,10 +16,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun IncomeExpensesRow(
@@ -27,8 +27,8 @@ fun IncomeExpensesRow(
     expenses: Double,
     currency: String,
     modifier: Modifier = Modifier,
-    textColor: Color = UI.colors.pureInverse,
-    dividerColor: Color = UI.colors.medium,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    dividerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     incomeLabel: String = stringResource(R.string.income_uppercase),
     expensesLabel: String = stringResource(R.string.expenses_uppercase),
     center: Boolean = true,
@@ -63,7 +63,7 @@ fun IncomeExpensesRow(
             modifier = Modifier
                 .width(2.dp)
                 .height(48.dp)
-                .background(dividerColor, UI.shapes.rFull)
+                .background(dividerColor, CircleShape)
         )
 
         if (center) {
@@ -101,7 +101,7 @@ private fun LabelAmountColumn(
     ) {
         Text(
             text = label,
-            style = UI.typo.c.style(
+            style = MaterialTheme.typography.labelMedium.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )

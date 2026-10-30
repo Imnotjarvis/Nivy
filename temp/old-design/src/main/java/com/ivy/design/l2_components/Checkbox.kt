@@ -16,13 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.R
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.l1_buildingBlocks.IvyIcon
 import com.ivy.design.l1_buildingBlocks.SpacerHor
 import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -42,7 +41,7 @@ fun Checkbox(
             .padding(all = 12.dp),
         icon = if (checked) R.drawable.ic_checkbox_checked else R.drawable.ic_checkbox_unchecked,
         contentDescription = contentDescription,
-        tint = if (checked) Color.Unspecified else UI.colors.gray
+        tint = if (checked) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 
@@ -52,8 +51,8 @@ fun CheckboxWithText(
     modifier: Modifier = Modifier,
     checked: Boolean,
     text: String,
-    textStyle: TextStyle = UI.typo.b2.style(
-        color = UI.colors.pureInverse,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
+        color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.SemiBold
     ),
     onCheckedChange: (checked: Boolean) -> Unit

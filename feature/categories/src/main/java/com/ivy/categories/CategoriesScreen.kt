@@ -50,13 +50,11 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.ui.SearchInput
 import com.ivy.legacy.utils.balancePrefix
 import com.ivy.legacy.utils.compactBalancePrefix
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.CategoriesScreen
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
@@ -64,31 +62,35 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.data.SortOrder
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenDark
-import com.ivy.wallet.ui.theme.GreenLight
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop16
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberTitleLarge
 
 @Composable
 fun BoxWithConstraintsScope.CategoriesScreen(screen: CategoriesScreen) {
@@ -139,8 +141,8 @@ private fun BoxWithConstraintsScope.UI(
 
                 Text(
                     text = stringResource(R.string.categories),
-                    style = UI.typo.h2.style(
-                        color = UI.colors.pureInverse,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
@@ -222,7 +224,7 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
             text = item.category.name.value,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = item.category.color.value.toComposeColor(),
                 fontWeight = FontWeight.Bold
             )
@@ -287,8 +289,8 @@ private fun DefaultCategoryCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick
             )
@@ -328,7 +330,7 @@ private fun CompactCategoryCard(
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick
             ),
@@ -363,7 +365,8 @@ private fun CompactCategoryCard(
             ) {
                 Text(
                     text = category.name.value,
-                    style = UI.typo.b2.style(
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -379,16 +382,16 @@ private fun CompactCategoryCard(
 
                     Text(
                         text = "$balancePrefixValue$currencyFormatted",
-                        style = UI.typo.nB1.style(
-                            color = UI.colors.pureInverse,
+                        style = MaterialTheme.typography.numberTitleLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = currency,
-                        style = UI.typo.nB2.style(
-                            color = UI.colors.pureInverse,
+                        style = MaterialTheme.typography.numberBodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Medium
                         )
                     )
@@ -404,8 +407,8 @@ fun AddedSpent(
     monthlyExpenses: Double,
     currency: String,
     modifier: Modifier = Modifier,
-    textColor: Color = UI.colors.pureInverse,
-    dividerColor: Color = UI.colors.medium,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    dividerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     center: Boolean = true,
     dividerSpacer: Dp? = null,
 
@@ -439,7 +442,7 @@ fun AddedSpent(
             modifier = Modifier
                 .width(2.dp)
                 .height(48.dp)
-                .background(dividerColor, UI.shapes.rFull)
+                .background(dividerColor, CircleShape)
         )
 
         if (center) {
@@ -477,7 +480,7 @@ private fun LabelAmount(
     ) {
         Text(
             text = label,
-            style = UI.typo.c.style(
+            style = MaterialTheme.typography.labelMedium.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -512,7 +515,7 @@ private fun CategoryHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(category.color.value.toComposeColor(), UI.shapes.r4Top)
+            .background(category.color.value.toComposeColor(), ShapeTop16)
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -531,7 +534,7 @@ private fun CategoryHeader(
 
             Text(
                 text = category.name.value,
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -628,10 +631,14 @@ private fun SelectTypeButton(
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .height(64.dp)
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(
-                brush = if (selected) selectedGradient.asHorizontalBrush() else SolidColor(UI.colors.medium),
-                shape = UI.shapes.r4
+                brush = if (selected) {
+                    selectedGradient.asHorizontalBrush()
+                } else {
+                    SolidColor(MaterialTheme.colorScheme.surfaceVariant)
+                },
+                shape = MaterialTheme.shapes.medium
             )
             .clickable {
                 onClick()
@@ -641,7 +648,7 @@ private fun SelectTypeButton(
     ) {
         Spacer(Modifier.width(16.dp))
 
-        val textColor = if (selected) textSelectedColor else UI.colors.pureInverse
+        val textColor = if (selected) textSelectedColor else MaterialTheme.colorScheme.onSurface
 
         IvyIcon(
             icon = icon,
@@ -654,8 +661,9 @@ private fun SelectTypeButton(
         Text(
             modifier = Modifier.wrapContentHeight(),
             text = text,
-            style = UI.typo.b1.style(
-                color = textColor
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = textColor,
+                fontWeight = FontWeight.Bold
             ),
             textAlign = TextAlign.Center,
         )
@@ -670,9 +678,9 @@ private fun SelectTypeButton(
 
             Text(
                 text = stringResource(R.string.selected_text),
-                style = UI.typo.b2.style(
-                    fontWeight = FontWeight.SemiBold,
-                    color = textSelectedColor
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = textSelectedColor,
+                    fontWeight = FontWeight.SemiBold
                 )
             )
 

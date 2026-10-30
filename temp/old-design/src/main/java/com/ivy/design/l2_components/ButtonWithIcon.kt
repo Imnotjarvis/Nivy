@@ -17,10 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.design.R
-import com.ivy.design.l0_system.Transparent
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.White
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Transparent
+import com.ivy.design.system.colors.White
 import com.ivy.design.l1_buildingBlocks.IvyIcon
 import com.ivy.design.l1_buildingBlocks.SpacerHor
 import com.ivy.design.l1_buildingBlocks.data.Background
@@ -28,6 +26,9 @@ import com.ivy.design.l1_buildingBlocks.data.background
 import com.ivy.design.l1_buildingBlocks.data.clipBackground
 import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.design.utils.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -36,15 +37,16 @@ fun Button(
     text: String,
     mode: Mode = Mode.WRAP_CONTENT,
     background: Background = Background.Solid(
-        color = UI.colors.primary,
-        shape = UI.shapes.rFull,
+        color = MaterialTheme.colorScheme.primary,
+        shape = CircleShape,
         padding = padding(
             horizontal = 24.dp,
             vertical = 12.dp
         )
     ),
-    textStyle: TextStyle = UI.typo.b1.style(
+    textStyle: TextStyle = MaterialTheme.typography.titleLarge.copy(
         color = White,
+        fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center
     ),
     @DrawableRes iconLeft: Int? = null,

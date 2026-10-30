@@ -20,12 +20,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -33,7 +32,7 @@ import com.ivy.legacy.utils.selectEndTextFieldValue
 fun IvyBasicTextField(
     modifier: Modifier = Modifier,
     value: TextFieldValue,
-    textColor: Color = UI.colors.pureInverse,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     hint: String?,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
@@ -55,8 +54,8 @@ fun IvyBasicTextField(
             Text(
                 modifier = Modifier,
                 text = hint!!,
-                style = UI.typo.b2.style(
-                    color = UI.colors.gray,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Start
                 ),
@@ -69,13 +68,13 @@ fun IvyBasicTextField(
                 .testTag("base_input"),
             value = value,
             onValueChange = onValueChanged,
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
-                color = UI.colors.pureInverse,
                 textAlign = TextAlign.Start
             ),
             singleLine = false,
-            cursorBrush = SolidColor(UI.colors.pureInverse),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions ?: KeyboardActions(

@@ -9,14 +9,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.R
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.White
+import com.ivy.design.system.colors.White
 import com.ivy.design.l1_buildingBlocks.IvyIcon
 import com.ivy.design.l1_buildingBlocks.data.Background
 import com.ivy.design.l1_buildingBlocks.data.background
 import com.ivy.design.l1_buildingBlocks.data.clipBackground
 import com.ivy.design.utils.IvyComponentPreview
 import com.ivy.design.utils.padding
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -25,7 +25,7 @@ fun IconButton(
     @DrawableRes icon: Int,
     iconTint: Color = White,
     background: Background = Background.Solid(
-        color = UI.colors.primary,
+        color = MaterialTheme.colorScheme.primary,
         shape = CircleShape,
         padding = padding(all = 8.dp)
     ),

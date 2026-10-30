@@ -21,23 +21,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.Month.Companion.monthsList
 import com.ivy.legacy.utils.dateNowUTC
-import com.ivy.legacy.utils.drawColoredShadow
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.drawColoredShadow
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Ivy
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.theme.components.WrapContentRow
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import java.time.LocalDate
 import java.util.UUID
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("ComposeModifierMissing")
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
@@ -121,15 +121,15 @@ private fun MonthButton(
 ) {
     val monthColor = Ivy
 
-    val medium = UI.colors.medium
-    val rFull = UI.shapes.rFull
+    val medium = MaterialTheme.colorScheme.surfaceVariant
+    val rFull = CircleShape
 
     Text(
         modifier = Modifier
             .thenIf(selected) {
                 drawColoredShadow(monthColor)
             }
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable(onClick = onClick)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)
@@ -144,12 +144,8 @@ private fun MonthButton(
             }
             .padding(horizontal = 40.dp, vertical = 12.dp),
         text = month.name,
-        style = UI.typo.b2.style(
-            color = if (selected) {
-                findContrastTextColor(monthColor)
-            } else {
-                UI.colors.pureInverse
-            },
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = if (selected) { findContrastTextColor(monthColor) } else { MaterialTheme.colorScheme.onSurface },
             fontWeight = FontWeight.SemiBold
         )
     )

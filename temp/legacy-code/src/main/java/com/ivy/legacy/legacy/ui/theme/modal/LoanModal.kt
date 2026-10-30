@@ -37,8 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.ivy.data.model.LoanType
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.frp.test.TestingContext
 import com.ivy.legacy.IvyWalletPreview
@@ -48,30 +46,32 @@ import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
 import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.legacy.utils.onScreenStart
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateLoanData
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import com.ivy.wallet.ui.theme.modal.edit.IconNameRow
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class LoanModalData(
@@ -238,8 +238,8 @@ fun BoxWithConstraintsScope.LoanModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.note),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -260,8 +260,8 @@ fun BoxWithConstraintsScope.LoanModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.associated_account),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -449,14 +449,14 @@ private fun Account(
 ) {
     val accountColor = account.color.toComposeColor()
     val textColor =
-        if (selected) findContrastTextColor(accountColor) else UI.colors.pureInverse
+        if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
-    val medium = UI.colors.medium
-    val rFull = UI.shapes.rFull
+    val medium = MaterialTheme.colorScheme.surfaceVariant
+    val rFull = CircleShape
 
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)
             }
@@ -480,7 +480,7 @@ private fun Account(
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
             text = account.name,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -498,8 +498,8 @@ private fun AddAccount(
 ) {
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
-            .border(2.dp, UI.colors.medium, UI.shapes.rFull)
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -507,7 +507,7 @@ private fun AddAccount(
 
         IvyIcon(
             icon = R.drawable.ic_plus,
-            tint = UI.colors.pureInverse
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(4.dp))
@@ -515,8 +515,8 @@ private fun AddAccount(
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
             text = stringResource(R.string.add_account),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -536,8 +536,8 @@ private fun ColumnScope.LoanTypePicker(
     Text(
         modifier = Modifier.padding(horizontal = 32.dp),
         text = stringResource(R.string.loan_type),
-        style = UI.typo.b2.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )
@@ -548,7 +548,7 @@ private fun ColumnScope.LoanTypePicker(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
-            .background(UI.colors.medium, UI.shapes.r2),
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(8.dp))
@@ -579,11 +579,11 @@ private fun RowScope.SelectorButton(
     label: String,
     onClick: () -> Unit
 ) {
-    val rFull = UI.shapes.rFull
+    val rFull = CircleShape
     Text(
         modifier = Modifier
             .weight(1f)
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable {
                 onClick()
             }
@@ -593,7 +593,7 @@ private fun RowScope.SelectorButton(
             }
             .padding(vertical = 8.dp),
         text = label,
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
             color = if (selected) White else Gray,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center

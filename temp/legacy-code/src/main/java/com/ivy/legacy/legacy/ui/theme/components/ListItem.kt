@@ -16,11 +16,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -32,14 +32,14 @@ fun ListItem(
     onClick: (selected: Boolean) -> Unit
 ) {
     val textColor =
-        if (selectedColor != null) findContrastTextColor(selectedColor) else UI.colors.pureInverse
+        if (selectedColor != null) findContrastTextColor(selectedColor) else MaterialTheme.colorScheme.onSurface
 
-    val medium = UI.colors.medium
-    val rFull = UI.shapes.rFull
+    val medium = MaterialTheme.colorScheme.surfaceVariant
+    val rFull = CircleShape
 
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .thenIf(selectedColor == null) {
                 border(2.dp, medium, rFull)
             }
@@ -66,7 +66,7 @@ fun ListItem(
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
             text = text,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )

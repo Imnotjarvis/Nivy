@@ -43,23 +43,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.addKeyboardListener
-import com.ivy.legacy.utils.densityScope
-import com.ivy.legacy.utils.hideKeyboard
-import com.ivy.legacy.utils.keyboardOnlyWindowInsets
+import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.densityScope
+import com.ivy.design.utils.hideKeyboard
+import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import java.util.Locale
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -148,8 +148,8 @@ private fun SearchInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.rFull)
-            .border(2.dp, UI.colors.mediumInverse, UI.shapes.rFull)
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.inverseSurface, CircleShape)
             .clickable {
                 inputFocus.requestFocus()
             },
@@ -171,7 +171,8 @@ private fun SearchInput(
                 // Hint
                 Text(
                     text = stringResource(R.string.search_currency),
-                    style = UI.typo.c.style(
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -188,12 +189,13 @@ private fun SearchInput(
                 onValueChange = {
                     onSetSearchTextFieldValue(it.copy(it.text.trim()))
                 },
-                textStyle = UI.typo.b2.style(
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start
                 ),
                 singleLine = true,
-                cursorBrush = SolidColor(UI.colors.pureInverse),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         hideKeyboard(view)
@@ -218,10 +220,10 @@ private fun SelectedCurrencyCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
             .background(
                 brush = (if (preselected) GradientGreen else GradientIvy).asHorizontalBrush(),
-                shape = UI.shapes.r3
+                shape = MaterialTheme.shapes.large
             )
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -231,7 +233,7 @@ private fun SelectedCurrencyCard(
         Column {
             Text(
                 text = currency.name,
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = White,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -241,7 +243,7 @@ private fun SelectedCurrencyCard(
 
             Text(
                 text = currency.code,
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = White,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -257,7 +259,7 @@ private fun SelectedCurrencyCard(
 
         Text(
             text = if (preselected) stringResource(R.string.pre_selected) else stringResource(R.string.selected_text),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = White,
                 fontWeight = FontWeight.SemiBold
             )
@@ -351,10 +353,10 @@ private fun CurrencyItemCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(
-                color = if (selected) Ivy else UI.colors.medium,
-                shape = UI.shapes.r4
+                color = if (selected) Ivy else MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
             )
             .clickable {
                 onClick()
@@ -366,8 +368,8 @@ private fun CurrencyItemCard(
 
         Text(
             text = currency.code,
-            style = UI.typo.b1.style(
-                color = if (selected) White else UI.colors.pureInverse,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = if (selected) White else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -376,8 +378,8 @@ private fun CurrencyItemCard(
 
         Text(
             text = currency.name.take(20),
-            style = UI.typo.b2.style(
-                color = if (selected) White else UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = if (selected) White else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
         )
@@ -398,8 +400,8 @@ private fun LetterDividerItem(
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = letterDivider.letter,
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
     )

@@ -18,14 +18,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.api.LocalTimeFormatter
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import java.time.Instant
 import java.util.concurrent.TimeUnit
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -50,8 +50,8 @@ private fun DueDateCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
-            .background(UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -64,9 +64,9 @@ private fun DueDateCard(
 
         Text(
             text = stringResource(R.string.planned_for),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.ExtraBold,
-                color = UI.colors.pureInverse
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
         )
 
@@ -76,7 +76,8 @@ private fun DueDateCard(
             text = with(LocalTimeFormatter.current) {
                 dueDate.formatLocal(TimeFormatter.Style.DateOnly(includeWeekDay = false))
             },
-            style = UI.typo.nB2.style(
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )

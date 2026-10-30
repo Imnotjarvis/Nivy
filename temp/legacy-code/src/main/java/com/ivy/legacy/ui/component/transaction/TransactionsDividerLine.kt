@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -19,7 +19,7 @@ fun TransactionsDividerLine(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = paddingHorizontal),
-        color = UI.colors.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
         thickness = 2.dp
     )
 }

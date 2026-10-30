@@ -28,23 +28,23 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.l1_buildingBlocks.DividerW
 import com.ivy.design.l1_buildingBlocks.IvyText
 import com.ivy.design.l1_buildingBlocks.SpacerHor
 import com.ivy.design.l1_buildingBlocks.SpacerVer
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Ivy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.theme.components.ItemIconS
-import com.ivy.wallet.ui.theme.dynamicContrast
+import com.ivy.design.system.colors.dynamicContrast
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 private const val ICON_PICKER_ICONS_PER_ROW = 5
@@ -285,7 +285,7 @@ private fun Icon(
     ItemIconS(
         modifier = Modifier
             .clip(CircleShape)
-            .border(2.dp, if (selected) color else UI.colors.medium, CircleShape)
+            .border(2.dp, if (selected) color else MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .thenIf(selected) {
                 background(color, CircleShape)
             }
@@ -295,7 +295,7 @@ private fun Icon(
             .padding(all = 8.dp)
             .testTag(icon),
         iconName = icon,
-        tint = if (selected) color.dynamicContrast() else UI.colors.mediumInverse
+        tint = if (selected) color.dynamicContrast() else MaterialTheme.colorScheme.inverseSurface
     )
 }
 
@@ -315,8 +315,9 @@ private fun Section(
 
         IvyText(
             text = title,
-            typo = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            typo = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
             )
         )
 

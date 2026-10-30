@@ -24,21 +24,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ivy.budgets.model.DisplayBudget
 import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.legacy.ui.theme.components.BudgetBattery
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gray
+import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberLabelMedium
 
 @Composable
 fun BoxWithConstraintsScope.BudgetScreen(screen: BudgetScreen) {
@@ -145,8 +145,8 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
             text = item.budget.name,
-            style = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -183,8 +183,8 @@ private fun Toolbar(
         ) {
             Text(
                 text = stringResource(R.string.budgets),
-                style = UI.typo.h2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -194,8 +194,8 @@ private fun Toolbar(
 
                 Text(
                     text = timeRange.toDisplay(LocalTimeFormatter.current),
-                    style = UI.typo.b2.style(
-                        color = UI.colors.pureInverse,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                 )
@@ -237,7 +237,7 @@ private fun Toolbar(
                     } else {
                         stringResource(R.string.budget_info, categoryBudgetText, appBudgetMaxText)
                     },
-                    style = UI.typo.nC.style(
+                    style = MaterialTheme.typography.numberLabelMedium.copy(
                         color = Gray,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -246,7 +246,7 @@ private fun Toolbar(
                 if (totalRemainingBudgetText != null) {
                     Text(
                         text = totalRemainingBudgetText,
-                        style = UI.typo.nC.style(
+                        style = MaterialTheme.typography.numberLabelMedium.copy(
                             color = Gray,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -285,8 +285,8 @@ private fun BudgetItem(
         ) {
             Text(
                 text = displayBudget.budget.name,
-                style = UI.typo.b1.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -295,8 +295,9 @@ private fun BudgetItem(
 
             Text(
                 text = determineBudgetType(displayBudget.budget.parseCategoryIds().size),
-                style = UI.typo.c.style(
-                    color = Gray
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = Gray,
+                    fontWeight = FontWeight.Bold
                 )
             )
         }
@@ -317,7 +318,7 @@ private fun BudgetItem(
         currency = baseCurrency,
         expenses = displayBudget.spentAmount,
         budget = displayBudget.budget.amount,
-        backgroundNotFilled = UI.colors.medium
+        backgroundNotFilled = MaterialTheme.colorScheme.surfaceVariant
     ) {
         onClick()
     }
@@ -344,7 +345,7 @@ private fun NoBudgetsEmptyState(
 
         Text(
             text = emptyStateTitle,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -355,7 +356,7 @@ private fun NoBudgetsEmptyState(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = emptyStateText,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center

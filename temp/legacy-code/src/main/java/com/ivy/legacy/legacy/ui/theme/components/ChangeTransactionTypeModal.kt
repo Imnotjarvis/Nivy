@@ -26,18 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -94,8 +93,11 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
         TransactionTypeButton(
             transactionType = TransactionType.EXPENSE,
             selected = transactionType == TransactionType.EXPENSE,
-            selectedGradient = Gradient(UI.colors.pureInverse, UI.colors.gray),
-            textSelectedColor = UI.colors.pure
+            selectedGradient = Gradient(
+                MaterialTheme.colorScheme.onSurface,
+                MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            textSelectedColor = MaterialTheme.colorScheme.surface
         ) {
             transactionType = TransactionType.EXPENSE
             save(
@@ -148,10 +150,14 @@ private fun TransactionTypeButton(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(
-                brush = if (selected) selectedGradient.asHorizontalBrush() else SolidColor(UI.colors.medium),
-                shape = UI.shapes.r4
+                brush = if (selected) {
+                    selectedGradient.asHorizontalBrush()
+                } else {
+                    SolidColor(MaterialTheme.colorScheme.surfaceVariant)
+                },
+                shape = MaterialTheme.shapes.medium
             )
             .clickable {
                 onClick()
@@ -162,7 +168,7 @@ private fun TransactionTypeButton(
     ) {
         Spacer(Modifier.width(16.dp))
 
-        val textColor = if (selected) textSelectedColor else UI.colors.pureInverse
+        val textColor = if (selected) textSelectedColor else MaterialTheme.colorScheme.onSurface
 
         IvyIcon(
             icon = when (transactionType) {
@@ -181,8 +187,9 @@ private fun TransactionTypeButton(
                 TransactionType.EXPENSE -> stringResource(R.string.expense)
                 TransactionType.TRANSFER -> stringResource(R.string.transfer)
             },
-            style = UI.typo.b1.style(
-                color = textColor
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = textColor,
+                fontWeight = FontWeight.Bold
             )
         )
 
@@ -196,9 +203,9 @@ private fun TransactionTypeButton(
 
             Text(
                 text = stringResource(R.string.selected_text),
-                style = UI.typo.b2.style(
-                    fontWeight = FontWeight.SemiBold,
-                    color = textSelectedColor
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = textSelectedColor,
+                    fontWeight = FontWeight.SemiBold
                 )
             )
 

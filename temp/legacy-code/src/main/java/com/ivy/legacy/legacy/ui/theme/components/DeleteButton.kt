@@ -6,8 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientRed
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientRed
+import com.ivy.design.system.colors.White
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable

@@ -37,25 +37,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.drawColoredShadow
-import com.ivy.legacy.utils.lerp
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.drawColoredShadow
+import com.ivy.design.utils.lerp
 import com.ivy.legacy.utils.springBounceSlow
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.utils.rememberInteractionSource
-import com.ivy.legacy.utils.toDensityDp
-import com.ivy.legacy.utils.toDensityPx
+import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.design.utils.toDensityDp
+import com.ivy.design.utils.toDensityPx
 import com.ivy.onboarding.OnboardingState
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Gray
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import kotlin.math.roundToInt
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.OnboardingSplashLogin(
@@ -137,7 +136,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(UI.colors.pure)
+            .background(MaterialTheme.colorScheme.surface)
             .systemBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -178,8 +177,8 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
                 percentTransition = percentTransition
             ),
             text = "Ivy Wallet",
-            style = UI.typo.h2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -192,8 +191,8 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
                 percentTransition = percentTransition
             ),
             text = stringResource(R.string.your_personal_money_manager),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
         )
@@ -244,8 +243,8 @@ private fun LoginSection(
             LoginButton(
                 icon = R.drawable.ic_local_account,
                 text = stringResource(R.string.continue_offline),
-                textColor = UI.colors.pureInverse,
-                backgroundGradient = Gradient.solid(UI.colors.medium),
+                textColor = MaterialTheme.colorScheme.onSurface,
+                backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
                 hasShadow = false
             ) {
                 onSkip()
@@ -262,7 +261,7 @@ private fun LocalAccountExplanation() {
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = stringResource(R.string.enter_with_offline_account),
-        style = UI.typo.c.style(
+        style = MaterialTheme.typography.labelMedium.copy(
             color = Gray,
             fontWeight = FontWeight.ExtraBold
         )
@@ -273,7 +272,7 @@ private fun LocalAccountExplanation() {
     Text(
         modifier = Modifier.padding(start = 32.dp, end = 32.dp),
         text = stringResource(R.string.your_data_will_be_saved_only_locally),
-        style = UI.typo.c.style(
+        style = MaterialTheme.typography.labelMedium.copy(
             color = Gray,
             fontWeight = FontWeight.Medium
         )
@@ -296,8 +295,8 @@ private fun LoginButton(
             .thenIf(hasShadow) {
                 drawColoredShadow(backgroundGradient.startColor)
             }
-            .clip(UI.shapes.r4)
-            .background(backgroundGradient.asHorizontalBrush(), UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(backgroundGradient.asHorizontalBrush(), MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             },
@@ -315,7 +314,7 @@ private fun LoginButton(
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
             text = text,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )

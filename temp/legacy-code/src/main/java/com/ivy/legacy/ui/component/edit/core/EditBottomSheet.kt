@@ -45,51 +45,54 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.legacy.datamodel.Account
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.frp.test.TestingContext
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.addKeyboardListener
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.consumeClicks
-import com.ivy.legacy.utils.densityScope
+import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.consumeClicks
+import com.ivy.design.utils.densityScope
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.hideKeyboard
-import com.ivy.legacy.utils.keyboardOnlyWindowInsets
-import com.ivy.legacy.utils.lerp
-import com.ivy.legacy.utils.navigationBarInsets
+import com.ivy.design.utils.hideKeyboard
+import com.ivy.design.utils.keyboardOnlyWindowInsets
+import com.ivy.design.utils.lerp
+import com.ivy.design.utils.navigationBarInsets
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.legacy.utils.springBounce
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.utils.verticalSwipeListener
 import com.ivy.base.model.TransactionType
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.rememberSwipeListenerState
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenDark
-import com.ivy.wallet.ui.theme.GreenLight
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.IvyDark
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.IvyDark
 import com.ivy.wallet.ui.theme.components.ActionsRow
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButton
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import com.ivy.wallet.ui.theme.modal.ModalSave
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.UUID
 import kotlin.math.roundToInt
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop24
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberLabelMedium
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 const val SWIPE_UP_EXPANDED_THRESHOLD = 200
@@ -173,10 +176,10 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             .padding(top = 24.dp)
             .border(
                 width = 2.dp,
-                color = UI.colors.medium,
-                shape = UI.shapes.r2Top
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = ShapeTop24
             )
-            .background(UI.colors.pure, UI.shapes.r2Top)
+            .background(MaterialTheme.colorScheme.surface, ShapeTop24)
             .verticalSwipeListener(
                 sensitivity = SWIPE_UP_EXPANDED_THRESHOLD,
                 state = rememberSwipeListenerState(),
@@ -281,8 +284,8 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = stringResource(R.string.account),
-                style = UI.typo.b1.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -341,7 +344,7 @@ private fun BottomBar(
 //            .gradientCutBackground()
             .padding(bottom = 12.dp)
             .padding(bottom = navBarPadding),
-        lineColor = UI.colors.medium
+        lineColor = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Spacer(Modifier.width(24.dp))
 
@@ -404,7 +407,7 @@ private fun TransferRowMini(
             iconStart = R.drawable.ic_accounts,
             backgroundGradient = Gradient.solid(fromColor),
             iconTint = fromContrastColor,
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = fromContrastColor,
                 fontWeight = FontWeight.ExtraBold
             ),
@@ -415,7 +418,7 @@ private fun TransferRowMini(
 
         IvyIcon(
             icon = R.drawable.ic_arrow_right,
-            tint = UI.colors.pureInverse
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         val toColor = toAccount?.color?.toComposeColor() ?: Ivy
@@ -425,7 +428,7 @@ private fun TransferRowMini(
             iconStart = R.drawable.ic_accounts,
             backgroundGradient = Gradient.solid(toColor),
             iconTint = toContrastColor,
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = toContrastColor,
                 fontWeight = FontWeight.ExtraBold
             ),
@@ -477,8 +480,8 @@ private fun SheetHeader(
             Text(
                 modifier = Modifier.padding(start = 32.dp),
                 text = label,
-                style = UI.typo.b1.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -499,8 +502,8 @@ private fun SheetHeader(
                 Text(
                     modifier = Modifier.padding(start = 32.dp),
                     text = stringResource(R.string.to),
-                    style = UI.typo.b1.style(
-                        color = UI.colors.pureInverse,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
@@ -587,14 +590,14 @@ private fun Account(
 ) {
     val accountColor = account.color.toComposeColor()
     val textColor =
-        if (selected) findContrastTextColor(accountColor) else UI.colors.pureInverse
+        if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
-    val medium = UI.colors.medium
-    val rFull = UI.shapes.rFull
+    val medium = MaterialTheme.colorScheme.surfaceVariant
+    val rFull = CircleShape
 
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)
             }
@@ -619,7 +622,7 @@ private fun Account(
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
             text = account.name,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -635,8 +638,8 @@ private fun AddAccount(
 ) {
     Row(
         modifier = Modifier
-            .clip(UI.shapes.rFull)
-            .border(2.dp, UI.colors.medium, UI.shapes.rFull)
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .clickable(onClick = onClick)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -645,7 +648,7 @@ private fun AddAccount(
 
         IvyIcon(
             icon = R.drawable.ic_plus,
-            tint = UI.colors.pureInverse
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(4.dp))
@@ -653,8 +656,8 @@ private fun AddAccount(
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
             text = stringResource(R.string.add_account),
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -714,8 +717,8 @@ private fun Amount(
             if (showConvertedAmountText != null) {
                 Text(
                     text = showConvertedAmountText,
-                    style = UI.typo.nB2.style(
-                        color = UI.colors.pureInverse,
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                 )
@@ -767,8 +770,8 @@ private fun LabelAccountMini(
     ) {
         Text(
             text = label,
-            style = UI.typo.nC.style(
-                color = UI.colors.mediumInverse,
+            style = MaterialTheme.typography.numberLabelMedium.copy(
+                color = MaterialTheme.colorScheme.inverseSurface,
                 fontWeight = FontWeight.Medium
             )
         )
@@ -777,8 +780,8 @@ private fun LabelAccountMini(
 
         Text(
             text = account?.name?.uppercase(Locale.getDefault()) ?: "",
-            style = UI.typo.nB2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )

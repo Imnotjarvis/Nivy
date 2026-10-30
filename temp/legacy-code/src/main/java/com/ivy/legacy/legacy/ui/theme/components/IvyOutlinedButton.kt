@@ -21,12 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Green
+import com.ivy.design.system.colors.Green
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -37,22 +37,22 @@ fun IvyOutlinedButton(
     solidBackground: Boolean = false,
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
-    iconTint: Color = UI.colors.pureInverse,
-    borderColor: Color = UI.colors.medium,
-    textColor: Color = UI.colors.pureInverse,
+    iconTint: Color = MaterialTheme.colorScheme.onSurface,
+    borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     padding: Dp = 12.dp,
     onClick: () -> Unit,
 ) {
-    val pure = UI.colors.pure
-    val rFull = UI.shapes.rFull
+    val pure = MaterialTheme.colorScheme.surface
+    val rFull = CircleShape
     Row(
         modifier = modifier
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable(
                 onClick = onClick,
             )
             .defaultMinSize(minWidth, minHeight)
-            .border(2.dp, borderColor, UI.shapes.rFull)
+            .border(2.dp, borderColor, CircleShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
             },
@@ -74,9 +74,9 @@ fun IvyOutlinedButton(
         Text(
             modifier = Modifier.padding(vertical = padding, horizontal = 4.dp),
             text = text,
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
+                fontWeight = FontWeight.Bold
             ),
         )
 
@@ -90,22 +90,22 @@ fun IvyOutlinedButtonFillMaxWidth(
     text: String,
     @DrawableRes iconStart: Int?,
     solidBackground: Boolean = false,
-    iconTint: Color = UI.colors.pureInverse,
-    borderColor: Color = UI.colors.medium,
-    textColor: Color = UI.colors.pureInverse,
+    iconTint: Color = MaterialTheme.colorScheme.onSurface,
+    borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     padding: Dp = 16.dp,
     onClick: () -> Unit,
 ) {
-    val pure = UI.colors.pure
-    val rFull = UI.shapes.rFull
+    val pure = MaterialTheme.colorScheme.surface
+    val rFull = CircleShape
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable(
                 onClick = onClick,
             )
-            .border(2.dp, borderColor, UI.shapes.rFull)
+            .border(2.dp, borderColor, CircleShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
             },
@@ -125,9 +125,9 @@ fun IvyOutlinedButtonFillMaxWidth(
         Text(
             modifier = Modifier.padding(vertical = padding),
             text = text,
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
+                fontWeight = FontWeight.Bold
             ),
         )
 

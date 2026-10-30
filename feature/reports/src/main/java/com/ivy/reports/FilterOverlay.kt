@@ -49,8 +49,6 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.api.LocalTimeConverter
 import com.ivy.design.api.LocalTimeFormatter
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.domain.legacy.ui.theme.components.ListItem
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
@@ -60,14 +58,14 @@ import com.ivy.legacy.ui.component.tags.ShowTagModal
 import com.ivy.legacy.utils.capitalizeLocal
 import com.ivy.legacy.utils.springBounce
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenDark
-import com.ivy.wallet.ui.theme.GreenLight
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Purple1Dark
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.Red3Light
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.GreenLight
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Purple1Dark
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.Red3Light
 import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.IvyButton
@@ -81,13 +79,14 @@ import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import kotlin.math.roundToInt
+import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("ComposeModifierMissing")
 @Suppress("LongMethod")
@@ -161,7 +160,7 @@ fun BoxWithConstraintsScope.FilterOverlay(
                         )
                     }
                 }
-                .background(UI.colors.pure)
+                .background(MaterialTheme.colorScheme.surface)
                 .systemBarsPadding()
                 .verticalScroll(rememberScrollState()),
         ) {
@@ -186,7 +185,8 @@ fun BoxWithConstraintsScope.FilterOverlay(
                         start = 32.dp
                     ),
                     text = stringResource(R.string.filter),
-                    style = UI.typo.h2.style(
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
@@ -201,9 +201,9 @@ fun BoxWithConstraintsScope.FilterOverlay(
                         }
                         .padding(all = 4.dp), // expand click area
                     text = stringResource(R.string.clean_filter),
-                    style = UI.typo.b2.style(
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Bold
                     )
                 )
 
@@ -489,7 +489,8 @@ fun ColumnScope.TagsFilter(
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = stringResource(R.string.includes_uppercase),
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )
@@ -504,7 +505,8 @@ fun ColumnScope.TagsFilter(
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = stringResource(R.string.excludes_uppercase),
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )
@@ -825,9 +827,9 @@ private fun ListFilterTitle(
                 }
                 .padding(all = 4.dp), // expand click area
             text = if (itemsSelected > 0) stringResource(R.string.clear_all) else stringResource(R.string.select_all),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Bold,
-                color = Color.Gray
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = Color.Gray,
+                fontWeight = FontWeight.Bold
             )
         )
 
@@ -864,7 +866,8 @@ private fun AmountFilter(
         ) {
             Text(
                 text = stringResource(R.string.from),
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -885,7 +888,8 @@ private fun AmountFilter(
         ) {
             Text(
                 text = stringResource(R.string.to),
-                style = UI.typo.b2.style(
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -920,7 +924,8 @@ private fun KeywordsFilter(
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = stringResource(R.string.includes_uppercase),
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )
@@ -936,7 +941,7 @@ private fun KeywordsFilter(
             is String -> {
                 Keyword(
                     keyword = item,
-                    borderColor = UI.colors.pureInverse
+                    borderColor = MaterialTheme.colorScheme.onSurface
                 ) {
                     // Remove keyword
                     onSetFilter(
@@ -961,7 +966,8 @@ private fun KeywordsFilter(
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = stringResource(R.string.excludes_uppercase),
-        style = UI.typo.b2.style(
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )
@@ -977,7 +983,7 @@ private fun KeywordsFilter(
             is String -> {
                 Keyword(
                     keyword = item,
-                    borderColor = UI.colors.pureInverse
+                    borderColor = MaterialTheme.colorScheme.onSurface
                 ) {
                     // Remove keyword
                     onSetFilter(
@@ -1050,9 +1056,9 @@ private fun FilterTitleText(
     Text(
         modifier = Modifier.padding(start = 32.dp),
         text = text,
-        style = UI.typo.b1.style(
-            fontWeight = FontWeight.Medium,
-            color = if (active) UI.colors.pureInverse else inactiveColor
+        style = MaterialTheme.typography.titleLarge.copy(
+            color = if (active) MaterialTheme.colorScheme.onSurface else inactiveColor,
+            fontWeight = FontWeight.Medium
         )
     )
 }

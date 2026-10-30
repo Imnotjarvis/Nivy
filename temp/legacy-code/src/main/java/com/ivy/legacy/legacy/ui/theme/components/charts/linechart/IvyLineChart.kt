@@ -28,17 +28,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.design.l0_system.UI
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.data.model.Month
-import com.ivy.legacy.utils.lerp
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
+import com.ivy.design.utils.lerp
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
 import timber.log.Timber
 import java.text.DecimalFormat
 import kotlin.math.pow
 import kotlin.math.sqrt
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class Value(
@@ -313,8 +313,8 @@ fun IvyLineChart(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .clip(UI.shapes.r2)
-            .border(2.dp, Gray, UI.shapes.r2),
+            .clip(MaterialTheme.shapes.extraLarge)
+            .border(2.dp, Gray, MaterialTheme.shapes.extraLarge),
         title = title,
         allValues = allValues,
         xLabel = xLabel,
@@ -345,7 +345,7 @@ private fun IvyChart(
         mutableStateOf(emptyList())
     }
 
-    val xLabelColor = UI.colors.pureInverse
+    val xLabelColor = MaterialTheme.colorScheme.onSurface
 
     Canvas(
         modifier = modifier

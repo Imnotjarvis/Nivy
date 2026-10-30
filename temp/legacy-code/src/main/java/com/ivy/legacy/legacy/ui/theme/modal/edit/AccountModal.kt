@@ -25,21 +25,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.legacy.utils.onScreenStart
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.legacy.utils.toUpperCaseLocal
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Ivy
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.modal.ChooseIconModal
 import com.ivy.wallet.ui.theme.modal.CurrencyModal
@@ -48,6 +46,7 @@ import com.ivy.wallet.ui.theme.modal.ModalAddSave
 import com.ivy.wallet.ui.theme.modal.ModalAmountSection
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 data class AccountModalData(
@@ -296,8 +295,8 @@ private fun AccountCurrency(
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .background(UI.colors.medium, UI.shapes.r4)
-            .clip(UI.shapes.r4)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             }
@@ -309,7 +308,8 @@ private fun AccountCurrency(
 
         Text(
             text = currencyCode.toUpperCaseLocal(),
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -319,9 +319,9 @@ private fun AccountCurrency(
         val currencyName = IvyCurrency.fromCode(currencyCode)?.name ?: ""
         Text(
             text = "-$currencyName".toLowerCaseLocal(),
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.SemiBold,
-                color = Gray
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.SemiBold
             )
         )
 

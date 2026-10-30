@@ -39,8 +39,6 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.model.processByType
 import com.ivy.data.model.LoanType
 import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
@@ -48,13 +46,13 @@ import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.humanReadableType
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.formatNicely
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.rememberInteractionSource
-import com.ivy.legacy.utils.setStatusBarDarkTextCompat
+import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.loans.loan.data.DisplayLoanRecord
 import com.ivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.ivy.loans.loandetails.events.LoanDetailsScreenEvent
@@ -66,29 +64,34 @@ import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.MediumBlack
-import com.ivy.wallet.ui.theme.MediumWhite
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.MediumBlack
+import com.ivy.design.system.colors.MediumWhite
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ProgressBar
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.isDarkColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.isDarkColor
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.LoanModal
 import com.ivy.wallet.ui.theme.modal.LoanRecordModal
 import com.ivy.wallet.ui.theme.modal.ProgressModal
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop32
+import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.typography.numberLabelMedium
+import com.ivy.design.system.typography.numberTitleLarge
 
 @Composable
 fun BoxWithConstraintsScope.LoanDetailsScreen(screen: LoanDetailsScreen) {
@@ -121,8 +124,8 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .clip(UI.shapes.r1Top)
-                .background(UI.colors.pure),
+                .clip(ShapeTop32)
+                .background(MaterialTheme.colorScheme.surface),
             state = listState,
         ) {
             item {
@@ -162,7 +165,7 @@ private fun BoxWithConstraintsScope.UI(
                         .height(32.dp)
                         .fillMaxWidth()
                         .background(itemColor) // itemColor is displayed below the clip
-                        .background(UI.colors.pure, UI.shapes.r1Top)
+                        .background(MaterialTheme.colorScheme.surface, ShapeTop32)
                 )
             }
 
@@ -277,7 +280,7 @@ private fun Header(
     val contrastColor = findContrastTextColor(itemColor)
 
     val darkColor = isDarkColor(itemColor)
-    setStatusBarDarkTextCompat(darkText = !darkColor)
+    StatusBarDarkText(darkText = !darkColor)
 
     Column(
         modifier = Modifier.background(itemColor)
@@ -357,7 +360,7 @@ private fun LoanItem(
                 Text(
                     modifier = Modifier.testTag("loan_name"),
                     text = loan.name,
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -367,8 +370,9 @@ private fun LoanItem(
 
                 Text(
                     text = loan.humanReadableType(),
-                    style = UI.typo.c.style(
-                        color = loan.color.toComposeColor().dynamicContrast()
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = loan.color.toComposeColor().dynamicContrast(),
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
@@ -378,8 +382,9 @@ private fun LoanItem(
                     text = it.formatNicely(
                         noWeekDay = false
                     ).uppercase(),
-                    style = UI.typo.nC.style(
-                        color = contrastColor
+                    style = MaterialTheme.typography.numberLabelMedium.copy(
+                        color = contrastColor,
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
@@ -419,7 +424,7 @@ private fun LoanInfoCard(
                 color = backgroundColor,
                 alpha = 0.1f
             )
-            .background(backgroundColor, UI.shapes.r2),
+            .background(backgroundColor, MaterialTheme.shapes.extraLarge),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -429,7 +434,7 @@ private fun LoanInfoCard(
             Text(
                 modifier = Modifier.padding(top = 8.dp, start = 24.dp),
                 text = stringResource(R.string.paid),
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -445,7 +450,7 @@ private fun LoanInfoCard(
                         iconName = selectedLoanAccount.icon,
                         defaultIcon = R.drawable.ic_custom_account_s
                     ),
-                    textStyle = UI.typo.c.style(
+                    textStyle = MaterialTheme.typography.labelMedium.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     ),
@@ -472,7 +477,7 @@ private fun LoanInfoCard(
                 .padding(horizontal = 24.dp)
                 .testTag("amount_paid"),
             text = "${amountPaid.format(baseCurrency)} / ${loanTotalAmount.format(baseCurrency)}",
-            style = UI.typo.nB1.style(
+            style = MaterialTheme.typography.numberTitleLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -480,7 +485,7 @@ private fun LoanInfoCard(
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = IvyCurrency.fromCode(baseCurrency)?.name ?: "",
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.Normal
             )
@@ -497,7 +502,7 @@ private fun LoanInfoCard(
             Text(
                 modifier = Modifier.testTag("percent_paid"),
                 text = "${percentPaid.times(100).format(2)}%",
-                style = UI.typo.nB1.style(
+                style = MaterialTheme.typography.numberTitleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -512,7 +517,7 @@ private fun LoanInfoCard(
                     leftToPay.format(baseCurrency),
                     baseCurrency
                 ),
-                style = UI.typo.nB2.style(
+                style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -526,7 +531,7 @@ private fun LoanInfoCard(
                 .fillMaxWidth()
                 .height(24.dp)
                 .padding(horizontal = 24.dp),
-            notFilledColor = UI.colors.pure,
+            notFilledColor = MaterialTheme.colorScheme.surface,
             percent = percentPaid
         )
 
@@ -542,7 +547,7 @@ private fun LoanInfoCard(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 text = stringResource(R.string.loan_interest),
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -559,7 +564,7 @@ private fun LoanInfoCard(
                 Text(
                     modifier = Modifier.testTag("loan_interest_percent_paid"),
                     text = "${loanPercentPaid.times(100).format(2)}%",
-                    style = UI.typo.nB1.style(
+                    style = MaterialTheme.typography.numberTitleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -574,7 +579,7 @@ private fun LoanInfoCard(
                         loanAmountPaid.format(baseCurrency),
                         baseCurrency
                     ),
-                    style = UI.typo.nB2.style(
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -588,7 +593,7 @@ private fun LoanInfoCard(
                     .fillMaxWidth()
                     .height(24.dp)
                     .padding(horizontal = 24.dp),
-                notFilledColor = UI.colors.pure,
+                notFilledColor = MaterialTheme.colorScheme.surface,
                 percent = loanPercentPaid
             )
         }
@@ -603,7 +608,7 @@ private fun LoanInfoCard(
             text = stringResource(R.string.add_record),
             shadowAlpha = 0.1f,
             backgroundGradient = Gradient.solid(contrastColor),
-            textStyle = UI.typo.b2.style(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = findContrastTextColor(contrastColor),
                 fontWeight = FontWeight.Bold
             ),
@@ -650,27 +655,27 @@ private fun LoanRecordItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             }
-            .background(UI.colors.medium, UI.shapes.r4)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_record_item")
     ) {
         if (account != null || loanRecord.interest) {
             Row(Modifier.padding(16.dp)) {
                 if (account != null) {
                     IvyButton(
-                        backgroundGradient = Gradient.solid(UI.colors.pure),
+                        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                         hasGlow = false,
-                        iconTint = UI.colors.pureInverse,
+                        iconTint = MaterialTheme.colorScheme.onSurface,
                         text = account.name,
                         iconStart = getCustomIconIdS(
                             iconName = account.icon,
                             defaultIcon = R.drawable.ic_custom_account_s
                         ),
-                        textStyle = UI.typo.c.style(
-                            color = UI.colors.pureInverse,
+                        textStyle = MaterialTheme.typography.labelMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.ExtraBold
                         ),
                         padding = 8.dp,
@@ -700,7 +705,7 @@ private fun LoanRecordItem(
                             iconName = "currency",
                             defaultIcon = R.drawable.ic_currency
                         ),
-                        textStyle = UI.typo.c.style(
+                        textStyle = MaterialTheme.typography.labelMedium.copy(
                             color = textIconColor,
                             fontWeight = FontWeight.ExtraBold
                         ),
@@ -723,7 +728,7 @@ private fun LoanRecordItem(
                     TimeFormatter.Style.DateAndTime(includeWeekDay = true)
                 ).uppercase()
             },
-            style = UI.typo.nC.style(
+            style = MaterialTheme.typography.numberLabelMedium.copy(
                 color = Gray,
                 fontWeight = FontWeight.Bold
             )
@@ -733,9 +738,9 @@ private fun LoanRecordItem(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                 text = loanRecord.note!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -769,7 +774,7 @@ private fun LoanRecordItem(
             Text(
                 modifier = Modifier.padding(start = 68.dp),
                 text = loanRecord.convertedAmount!!.format(baseCurrency) + " $loanBaseCurrency",
-                style = UI.typo.nB2.style(
+                style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.Normal
                 )
@@ -790,21 +795,21 @@ private fun InitialRecordItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
-            .background(UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_record_item")
     ) {
         IvyButton(
             modifier = Modifier.padding(16.dp),
-            backgroundGradient = Gradient.solid(UI.colors.pure),
+            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
             text = stringResource(id = R.string.initial_loan_record),
-            iconTint = UI.colors.pureInverse,
+            iconTint = MaterialTheme.colorScheme.onSurface,
             iconStart = getCustomIconIdS(
                 iconName = loan.icon,
                 defaultIcon = R.drawable.ic_custom_loan_s
             ),
-            textStyle = UI.typo.c.style(
-                color = UI.colors.pureInverse,
+            textStyle = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             ),
             padding = 8.dp,
@@ -820,7 +825,7 @@ private fun InitialRecordItem(
                         TimeFormatter.Style.DateAndTime(includeWeekDay = true)
                     ).uppercase()
                 },
-                style = UI.typo.nC.style(
+                style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Gray,
                     fontWeight = FontWeight.Bold
                 )
@@ -831,9 +836,9 @@ private fun InitialRecordItem(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                 text = loan.note!!,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -869,7 +874,7 @@ private fun NoLoanRecordsEmptyState() {
 
         Text(
             text = stringResource(R.string.no_records),
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -880,7 +885,7 @@ private fun NoLoanRecordsEmptyState() {
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.no_records_for_the_loan),
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center

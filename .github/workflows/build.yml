@@ -200,12 +200,15 @@ jobs:
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/demo/*.apk
 
-      # Last, so the end of a long log still shows them. Modules taken from the build cache
-      # print no warnings.
+      # Last, so the end of a long log still shows them, followed by counts per module. Modules
+      # taken from the build cache print no warnings.
       - name: List compiler errors and warnings
         if: ${{ !cancelled() }}
         run: |
-          grep -E '^[ew]: ' gradle-output.log | sed "s#file://$PWD/##" | sort -u || true
+          grep -E '^[ew]: ' gradle-output.log | sed "s#file://$PWD/##" | sort -u > diagnostics.txt || true
+          cat diagnostics.txt
+          echo "== $(grep -c '^e: ' diagnostics.txt) errors, $(grep -c '^w: ' diagnostics.txt) warnings"
+          sed -E 's#^([ew]): (.*)/src/.*#\1 \2#' diagnostics.txt | sort | uniq -c | sort -rn
 
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:

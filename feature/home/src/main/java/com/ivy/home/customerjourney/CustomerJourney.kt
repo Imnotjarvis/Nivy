@@ -20,21 +20,20 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.domain.RootScreen
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.rootScreen
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
+import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
 import kotlinx.collections.immutable.ImmutableList
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun CustomerJourney(
@@ -82,8 +81,8 @@ fun CustomerJourneyCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .drawColoredShadow(cardData.background.startColor)
-            .background(cardData.background.asHorizontalBrush(), UI.shapes.r3)
-            .clip(UI.shapes.r3)
+            .background(cardData.background.asHorizontalBrush(), MaterialTheme.shapes.large)
+            .clip(MaterialTheme.shapes.large)
             .clickable {
                 onCTA()
             }
@@ -98,9 +97,9 @@ fun CustomerJourneyCard(
                     .weight(1f)
                     .padding(start = 24.dp, end = 16.dp),
                 text = cardData.title,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = findContrastTextColor(cardData.background.startColor)
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = findContrastTextColor(cardData.background.startColor),
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
@@ -127,9 +126,9 @@ fun CustomerJourneyCard(
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 32.dp),
             text = cardData.description,
-            style = UI.typo.b2.style(
-                fontWeight = FontWeight.Medium,
-                color = findContrastTextColor(cardData.background.startColor)
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = findContrastTextColor(cardData.background.startColor),
+                fontWeight = FontWeight.Medium
             )
         )
 
@@ -145,7 +144,7 @@ fun CustomerJourneyCard(
                 shadowAlpha = 0f,
                 iconStart = cardData.ctaIcon,
                 iconTint = cardData.background.startColor,
-                textStyle = UI.typo.b2.style(
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = cardData.background.startColor,
                     fontWeight = FontWeight.Bold
                 ),

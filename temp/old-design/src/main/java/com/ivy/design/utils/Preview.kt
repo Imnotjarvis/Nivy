@@ -17,9 +17,9 @@ import com.ivy.design.IvyContext
 import com.ivy.design.api.IvyDesign
 import com.ivy.design.api.IvyUI
 import com.ivy.design.api.systems.IvyWalletDesign
-import com.ivy.design.l0_system.UI
 import com.ivy.ui.time.impl.AndroidDevicePreferences
 import com.ivy.ui.time.impl.IvyTimeFormatter
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -36,7 +36,7 @@ fun IvyComponentPreview(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(UI.colors.pure),
+                .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
             content()

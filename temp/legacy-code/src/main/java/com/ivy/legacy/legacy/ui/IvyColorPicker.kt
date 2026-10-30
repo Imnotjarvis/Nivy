@@ -25,11 +25,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ivy.design.IVY_COLOR_PICKER_COLORS_FREE
-import com.ivy.design.IVY_COLOR_PICKER_COLORS_PREMIUM
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.dynamicContrast
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
+import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_PREMIUM
+import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.design.l1_buildingBlocks.IvyIcon
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.thenIf
@@ -39,6 +37,7 @@ import com.ivy.legacy.ivyWalletCtx
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import kotlinx.coroutines.launch
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 private data class IvyColor(
@@ -56,8 +55,8 @@ fun ColumnScope.IvyColorPicker(
     Text(
         modifier = Modifier.padding(horizontal = 32.dp),
         text = stringResource(R.string.choose_color),
-        style = UI.typo.b2.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )

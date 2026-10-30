@@ -23,11 +23,9 @@
     <ID>ClassNaming:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime : Migration</ID>
     <ID>ClassNaming:Migration129to130_LoanIncludeNote.kt$Migration129to130_LoanIncludeNote : Migration</ID>
     <ID>ComplexCondition:Transactions.kt$(upcoming == null || upcoming.trns.isEmpty()) &amp;&amp; (overdue == null || overdue.trns.isEmpty()) &amp;&amp; history.isEmpty()</ID>
-    <ID>ComposableNaming:Compose.kt$onEvent</ID>
     <ID>ComposableNaming:ComposeExt.kt$onScreenStart</ID>
     <ID>ComposableNaming:Keyboard.kt$hideKeyboard</ID>
     <ID>ComposableNaming:OnScreenStart.kt$onScreenStart</ID>
-    <ID>ComposableNaming:UIExt.kt$setStatusBarDarkTextCompat</ID>
     <ID>ComposableParamOrder:AddKeywordModal.kt$AddKeywordModal</ID>
     <ID>ComposableParamOrder:BackBottomBar.kt$BackBottomBar</ID>
     <ID>ComposableParamOrder:BudgetBattery.kt$BudgetBattery</ID>
@@ -131,7 +129,7 @@
     <ID>FunctionParameterNaming:ReorderModal.kt$Adapter.ItemViewHolder$ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ReorderModal.kt$ItemContent: @Composable (Int, T) -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ReorderModal.kt$ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
-    <ID>FunctionParameterNaming:ReorderModal.kt$TitleContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = Modifier.padding(start = 32.dp), text = stringResource(R.string.reorder), style = UI.typo.b1.style( UI.colors.pureInverse, FontWeight.ExtraBold ) ) }</ID>
+    <ID>FunctionParameterNaming:ReorderModal.kt$TitleContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = Modifier.padding(start = 32.dp), text = stringResource(R.string.reorder), style = MaterialTheme.typography.titleLarge.copy( color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold ) ) }</ID>
     <ID>FunctionParameterNaming:WrapContentRow.kt$ItemContent: @Composable (item: T) -&gt; Unit</ID>
     <ID>InvalidPackageDeclaration:AccTrnsAct.kt$package com.ivy.wallet.domain.action.account</ID>
     <ID>InvalidPackageDeclaration:AccountByIdAct.kt$package com.ivy.wallet.domain.action.account</ID>
@@ -218,7 +216,6 @@
     <ID>InvalidPackageDeclaration:IvyChecklistTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IvyCircleButton.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IvyColorPicker.kt$package com.ivy.domain.legacy.ui</ID>
-    <ID>InvalidPackageDeclaration:IvyColors.kt$package com.ivy.wallet.ui.theme</ID>
     <ID>InvalidPackageDeclaration:IvyComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IvyCurrency.kt$package com.ivy.wallet.domain.data</ID>
     <ID>InvalidPackageDeclaration:IvyDataStore.kt$package com.ivy.wallet.io.persistence.datastore</ID>
@@ -385,13 +382,6 @@
     <ID>MagicNumber:ImportViewModel.kt$ImportViewModel$100</ID>
     <ID>MagicNumber:InputField.kt$100</ID>
     <ID>MagicNumber:IntervalPickerRow.kt$180f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.1f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.4f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.5</ID>
-    <ID>MagicNumber:IvyColors.kt$0.5f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.6f</ID>
-    <ID>MagicNumber:IvyColors.kt$0.8f</ID>
-    <ID>MagicNumber:IvyColors.kt$3</ID>
     <ID>MagicNumber:IvyLineChart.kt$3</ID>
     <ID>MagicNumber:IvyModal.kt$0.01f</ID>
     <ID>MagicNumber:IvyModal.kt$1000f</ID>
@@ -553,6 +543,13 @@
     <ID>MaximumLineLength:ReportViewModel.kt$ReportViewModel$ </ID>
     <ID>MaximumLineLength:TransactionDao.kt$TransactionDao$ </ID>
     <ID>MaximumLineLength:WalletByBudgetBakersSteps.kt$ </ID>
+    <ID>ModifierClickableOrder:ChooseCategoryModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
+    <ID>ModifierClickableOrder:IvyOutlinedButton.kt$clickable( onClick = onClick, )</ID>
+    <ID>ModifierClickableOrder:LoanDetailsScreen.kt$clickable { onClick() }</ID>
+    <ID>ModifierClickableOrder:PlannedPaymentCard.kt$clickable { if (accounts.find { it.id == plannedPayment.accountId } != null) { onClick(plannedPayment) } }</ID>
+    <ID>ModifierClickableOrder:RateItem.kt$clickable(onClick = onClick)</ID>
+    <ID>ModifierClickableOrder:ShowTagModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
+    <ID>ModifierClickableOrder:TransactionCard.kt$clickable { if (baseData.accounts.find { it.id == transaction.accountId } != null) { onClick(transaction) } }</ID>
     <ID>ModifierMissing:AccountModal.kt$AccountModal</ID>
     <ID>ModifierMissing:AddKeywordModal.kt$AddKeywordModal</ID>
     <ID>ModifierMissing:AddPrimaryAttributeButton.kt$AddPrimaryAttributeButton</ID>
@@ -708,7 +705,6 @@
     <ID>NoWildcardImports:BufferModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ComposeExt.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:Dividers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:InputField.kt$import com.ivy.design.l0_system.*</ID>
     <ID>NoWildcardImports:InputField.kt$import com.ivy.design.utils.*</ID>
     <ID>NoWildcardImports:IvyRoomDatabase.kt$import androidx.room.*</ID>
     <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
@@ -716,7 +712,6 @@
     <ID>NoWildcardImports:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:IvyWalletDesign.kt$import com.ivy.design.l0_system.*</ID>
     <ID>NoWildcardImports:Keyboard.kt$import androidx.compose.runtime.*</ID>
-    <ID>NoWildcardImports:ProgressBar.kt$import com.ivy.wallet.ui.theme.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
@@ -779,7 +774,6 @@
     <ID>PrintStackTrace:LoanCreator.kt$LoanCreator$e</ID>
     <ID>PrintStackTrace:LoanRecordCreator.kt$LoanRecordCreator$e</ID>
     <ID>PrintStackTrace:NotificationService.kt$NotificationService$e</ID>
-    <ID>PrintStackTrace:UIExt.kt$e</ID>
     <ID>ReturnCount:CSVImporter.kt$CSVImporter$private fun mapDate( rowMapping: RowMapping, dateString: String? ): LocalDateTime?</ID>
     <ID>ReturnCount:CSVImporter.kt$CSVImporter$private fun mapType( row: List&lt;String&gt;, rowMapping: RowMapping ): TransactionType?</ID>
     <ID>ReturnCount:CSVImporter.kt$CSVImporter$private suspend fun mapCategory( categoryNameString: String?, color: Int?, icon: String?, orderNum: Double? ): Category?</ID>
@@ -841,7 +835,7 @@
     <ID>UnusedParameter:Composition2.kt$crossinline f: () -&gt; Unit</ID>
     <ID>UnusedParameter:HomeMoreMenu.kt$onCurrencyClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:HomeViewModel.kt$HomeViewModel$unit: Unit</ID>
-    <ID>UnusedParameter:IvyBasicTextField.kt$textColor: Color = UI.colors.pureInverse</ID>
+    <ID>UnusedParameter:IvyBasicTextField.kt$textColor: Color = MaterialTheme.colorScheme.onSurface</ID>
     <ID>UnusedParameter:IvyLineChart.kt$cellSize: Float</ID>
     <ID>UnusedParameter:IvyLineChart.kt$chartWidth: Float</ID>
     <ID>UnusedParameter:IvyLineChart.kt$offsetRight: Float</ID>
@@ -864,7 +858,6 @@
     <ID>WildcardImport:BufferModal.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ComposeExt.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:Dividers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:InputField.kt$import com.ivy.design.l0_system.*</ID>
     <ID>WildcardImport:InputField.kt$import com.ivy.design.utils.*</ID>
     <ID>WildcardImport:IvyRoomDatabase.kt$import androidx.room.*</ID>
     <ID>WildcardImport:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
@@ -872,7 +865,6 @@
     <ID>WildcardImport:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:IvyWalletDesign.kt$import com.ivy.design.l0_system.*</ID>
     <ID>WildcardImport:Keyboard.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ProgressBar.kt$import com.ivy.wallet.ui.theme.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>

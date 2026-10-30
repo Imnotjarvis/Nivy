@@ -46,11 +46,9 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.api.LocalTimeConverter
 import com.ivy.design.api.LocalTimeFormatter
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.drawColoredShadow
+import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.horizontalSwipeListener
 import com.ivy.legacy.utils.rememberSwipeListenerState
@@ -61,15 +59,15 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.IvyLight
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.RedLight
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.IvyLight
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.RedLight
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMini
 import com.ivy.wallet.ui.theme.components.CircleButtonFilledGradient
@@ -77,14 +75,16 @@ import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.ItemIconM
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.gradientExpenses
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
-import com.ivy.wallet.ui.theme.pureBlur
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.pureBlur
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @ExperimentalFoundationApi
 @Composable
@@ -170,7 +170,8 @@ private fun BoxWithConstraintsScope.UI(
                 } else {
                     stringResource(R.string.income)
                 },
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -326,12 +327,12 @@ private fun Header(
                             drawColoredShadow(backgroundGradient.startColor)
                         }
                         .alpha(percentExpanded)
-                        .size(com.ivy.legacy.utils.lerp(1, 40, percentExpanded).dp),
+                        .size(com.ivy.design.utils.lerp(1, 40, percentExpanded).dp),
                     iconPadding = 4.dp,
                     icon = R.drawable.ic_plus,
                     backgroundGradient = backgroundGradient,
                     tint = if (transactionType == TransactionType.EXPENSE) {
-                        UI.colors.pure
+                        MaterialTheme.colorScheme.surface
                     } else {
                         White
                     }
@@ -373,7 +374,7 @@ private fun CategoryAmountCard(
 
         else -> false
     }
-    val backgroundColor = if (selectedState) categoryColor else UI.colors.medium
+    val backgroundColor = if (selectedState) categoryColor else MaterialTheme.colorScheme.surfaceVariant
 
     val textColor = findContrastTextColor(
         backgroundColor = backgroundColor
@@ -386,8 +387,8 @@ private fun CategoryAmountCard(
             .thenIf(selectedState) {
                 drawColoredShadow(backgroundColor)
             }
-            .clip(UI.shapes.r3)
-            .background(backgroundColor, UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
+            .background(backgroundColor, MaterialTheme.shapes.large)
             .clickable {
                 onClick()
             }
@@ -425,7 +426,7 @@ private fun CategoryAmountCard(
                         .weight(1f)
                         .padding(end = 16.dp),
                     text = category?.name?.value ?: stringResource(R.string.unspecified),
-                    style = UI.typo.b2.style(
+                    style = MaterialTheme.typography.bodyLarge.copy(
                         color = textColor,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Start
@@ -467,8 +468,8 @@ private fun PercentText(
         } else {
             stringResource(R.string.percent, "0")
         },
-        style = UI.typo.nB2.style(
-            color = if (selectedState) contrastColor else UI.colors.pureInverse,
+        style = MaterialTheme.typography.numberBodyLarge.copy(
+            color = if (selectedState) contrastColor else MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Normal
         )
     )

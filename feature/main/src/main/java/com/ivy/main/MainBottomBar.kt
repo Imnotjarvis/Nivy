@@ -39,35 +39,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.densityScope
-import com.ivy.legacy.utils.lerp
-import com.ivy.legacy.utils.navigationBarInset
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.densityScope
+import com.ivy.design.utils.lerp
+import com.ivy.design.utils.navigationBarInset
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.springBounceFast
-import com.ivy.legacy.utils.toDensityDp
-import com.ivy.legacy.utils.toDensityPx
+import com.ivy.design.utils.toDensityDp
+import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
-import com.ivy.wallet.ui.theme.gradientExpenses
+import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
-import com.ivy.wallet.ui.theme.pureBlur
+import com.ivy.design.system.colors.pureBlur
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
@@ -152,7 +152,7 @@ fun BoxWithConstraintsScope.BottomBar(
             modifier = Modifier
                 .fillMaxSize()
                 .offset(y = expandedBackgroundOffset)
-                .background(UI.colors.pure.copy(alpha = 0.95f))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing
                 }
@@ -241,7 +241,7 @@ fun BoxWithConstraintsScope.BottomBar(
         icon = R.drawable.ic_add,
         backgroundGradient = when (tab) {
             MainTab.HOME -> {
-                if (!expanded) GradientIvy else Gradient.solid(UI.colors.gray)
+                if (!expanded) GradientIvy else Gradient.solid(MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             MainTab.ACCOUNTS -> {
@@ -406,8 +406,8 @@ private fun AddIncomeButton(
             }
             .zIndex(200f),
         text = stringResource(R.string.add_income_uppercase),
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -492,8 +492,8 @@ private fun AddExpenseButton(
             }
             .zIndex(200f),
         text = stringResource(R.string.add_expense_uppercase),
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -578,8 +578,8 @@ private fun AddTransferButton(
             }
             .zIndex(200f),
         text = stringResource(R.string.account_transfer),
-        style = UI.typo.c.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -620,7 +620,7 @@ private fun RowScope.Tab(
     Row(
         modifier = Modifier
             .weight(1f)
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
@@ -629,7 +629,7 @@ private fun RowScope.Tab(
     ) {
         IvyIcon(
             icon = icon,
-            tint = if (selected) selectedColor else UI.colors.pureInverse
+            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
         )
 
         if (selected) {
@@ -637,9 +637,9 @@ private fun RowScope.Tab(
 
             Text(
                 text = name,
-                style = UI.typo.c.style(
-                    fontWeight = FontWeight.Bold,
-                    color = selectedColor
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = selectedColor,
+                    fontWeight = FontWeight.Bold
                 )
             )
         }

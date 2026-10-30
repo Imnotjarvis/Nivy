@@ -27,22 +27,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
-import com.ivy.legacy.utils.navigationBarInset
-import com.ivy.legacy.utils.toDensityPx
+import com.ivy.design.utils.navigationBarInset
+import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Blue
-import com.ivy.wallet.ui.theme.GradientPurple
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Purple
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.GradientPurple
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Violet
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.wallet.ui.theme.pureBlur
+import com.ivy.design.system.colors.pureBlur
 import kotlin.math.roundToInt
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 val FAB_BUTTON_SIZE = 56.dp
 const val ZINDEX = 200f
@@ -65,7 +65,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
             icon = R.drawable.ic_custom_loan_s,
             name = "Pending",
             selected = tab == LoanTab.PENDING,
-            selectedColor = Purple
+            selectedColor = Violet
         ) {
             selectTab(LoanTab.PENDING)
         }
@@ -121,7 +121,7 @@ private fun RowScope.Tab(
     Row(
         modifier = Modifier
             .weight(1f)
-            .clip(UI.shapes.rFull)
+            .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
@@ -130,7 +130,7 @@ private fun RowScope.Tab(
     ) {
         IvyIcon(
             icon = icon,
-            tint = if (selected) selectedColor else UI.colors.pureInverse
+            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
         )
 
         if (selected) {
@@ -138,9 +138,9 @@ private fun RowScope.Tab(
 
             Text(
                 text = name,
-                style = UI.typo.c.style(
-                    fontWeight = FontWeight.Bold,
-                    color = selectedColor
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = selectedColor,
+                    fontWeight = FontWeight.Bold
                 )
             )
         }

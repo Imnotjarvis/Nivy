@@ -24,13 +24,12 @@ import androidx.compose.ui.unit.dp
 import com.ivy.design.api.LocalTimeConverter
 import com.ivy.design.api.LocalTimeFormatter
 import com.ivy.design.api.LocalTimeProvider
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyIcon
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -45,7 +44,7 @@ fun PeriodSelector(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .border(2.dp, UI.colors.medium, UI.shapes.rFull),
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
@@ -70,7 +69,7 @@ fun PeriodSelector(
             modifier = Modifier
                 .height(48.dp)
                 .defaultMinSize(minWidth = 48.dp)
-                .clip(UI.shapes.rFull)
+                .clip(CircleShape)
                 .clickable {
                     onShowChoosePeriodModal()
                 },
@@ -79,7 +78,7 @@ fun PeriodSelector(
         ) {
             IvyIcon(
                 icon = R.drawable.ic_calendar,
-                tint = UI.colors.pureInverse
+                tint = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(Modifier.width(4.dp))
@@ -91,8 +90,8 @@ fun PeriodSelector(
                     timeProvider = LocalTimeProvider.current,
                     timeFormatter = LocalTimeFormatter.current,
                 ),
-                style = UI.typo.b2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             )

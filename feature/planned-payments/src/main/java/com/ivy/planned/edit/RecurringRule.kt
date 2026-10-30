@@ -19,18 +19,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.forDisplay
 import com.ivy.legacy.utils.formatDateOnly
 import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.legacy.utils.uppercaseLocal
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Orange
+import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import java.time.LocalDateTime
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
 fun RecurringRule(
@@ -88,8 +88,8 @@ private fun RecurringRuleCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
-            .background(UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -103,9 +103,9 @@ private fun RecurringRuleCard(
         Column {
             Text(
                 text = if (oneTime) stringResource(R.string.planned_for) else stringResource(R.string.planned_start_at),
-                style = UI.typo.b2.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
@@ -115,9 +115,9 @@ private fun RecurringRuleCard(
                 val intervalTypeLabel = intervalType.forDisplay(intervalN).uppercaseLocal()
                 Text(
                     text = stringResource(R.string.repeats_every, intervalN, intervalTypeLabel),
-                    style = UI.typo.c.style(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Orange
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = Orange,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 )
             }
@@ -127,7 +127,8 @@ private fun RecurringRuleCard(
 
         Text(
             text = startDate.toLocalDate().formatDateOnly(),
-            style = UI.typo.nB2.style(
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )

@@ -10,15 +10,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.GradientGreen
-import com.ivy.wallet.ui.theme.GradientRed
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.GradientRed
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -210,8 +209,8 @@ fun ModalTitle(
     Text(
         modifier = Modifier.padding(horizontal = 32.dp),
         text = text,
-        style = UI.typo.b1.style(
-            color = UI.colors.pureInverse,
+        style = MaterialTheme.typography.titleLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold
         )
     )

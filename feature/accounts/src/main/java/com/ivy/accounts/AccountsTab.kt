@@ -37,31 +37,31 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.AccountData
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.horizontalSwipeListener
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.utils.rememberSwipeListenerState
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.GreenLight
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.GreenLight
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMini
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.shapes.ShapeTop16
 
 @Composable
 fun BoxWithConstraintsScope.AccountsTab() {
@@ -118,8 +118,8 @@ private fun BoxWithConstraintsScope.UI(
                 Column {
                     Text(
                         text = stringResource(R.string.accounts),
-                        style = UI.typo.b1.style(
-                            color = UI.colors.pureInverse,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.ExtraBold
                         )
                     )
@@ -194,7 +194,7 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
             text = item.account.name.value,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = item.account.color.value.toComposeColor(),
                 fontWeight = FontWeight.Bold
             )
@@ -214,8 +214,8 @@ private fun AccountCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick
             )
@@ -261,7 +261,7 @@ private fun AccountHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(account.color.value.toComposeColor(), UI.shapes.r4Top)
+            .background(account.color.value.toComposeColor(), ShapeTop16)
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -280,7 +280,7 @@ private fun AccountHeader(
 
             Text(
                 text = account.name.value,
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -291,8 +291,9 @@ private fun AccountHeader(
 
                 Text(
                     text = stringResource(R.string.excluded),
-                    style = UI.typo.c.style(
-                        color = account.color.value.toComposeColor().dynamicContrast()
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = account.color.value.toComposeColor().dynamicContrast(),
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }

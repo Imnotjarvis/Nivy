@@ -22,13 +22,12 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
-import com.ivy.legacy.utils.hideKeyboard
+import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("ComposeModifierMissing")
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
@@ -61,7 +60,7 @@ fun BoxWithConstraintsScope.DeleteModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Red,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -72,8 +71,8 @@ fun BoxWithConstraintsScope.DeleteModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = description,
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             )
         )
@@ -119,7 +118,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Red,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -130,8 +129,8 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = description,
-            style = UI.typo.b2.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             )
         )

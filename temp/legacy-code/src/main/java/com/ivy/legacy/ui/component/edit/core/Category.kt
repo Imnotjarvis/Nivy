@@ -7,15 +7,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Category
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gradient
+import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.wallet.ui.theme.findContrastTextColor
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.toComposeColor
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -31,7 +30,7 @@ fun Category(
         IvyBorderButton(
             modifier = Modifier.padding(start = 24.dp),
             iconStart = R.drawable.ic_plus,
-            iconTint = UI.colors.pureInverse,
+            iconTint = MaterialTheme.colorScheme.onSurface,
             text = stringResource(R.string.add_category)
         ) {
             onChooseCategory()
@@ -53,7 +52,7 @@ private fun CategoryButton(
             defaultIcon = R.drawable.ic_custom_category_s
         ),
         backgroundGradient = Gradient.from(category.color.value, category.color.value),
-        textStyle = UI.typo.b2.style(
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = contrastColor,
             fontWeight = FontWeight.Bold
         ),

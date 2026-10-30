@@ -14,20 +14,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.Orange
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
+import com.ivy.design.system.colors.Orange
 import com.ivy.design.l1_buildingBlocks.SpacerVer
 import com.ivy.exchangerates.RatesEvent
 import com.ivy.exchangerates.data.RateUi
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalAdd
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import com.ivy.design.system.typography.numberHeadlineMedium
 
 @Composable
 fun BoxWithConstraintsScope.AddRateModal(
@@ -83,9 +84,10 @@ fun BoxWithConstraintsScope.AddRateModal(
                 }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             text = "$baseCurrency-${toCurrency.text} = ${rate ?: "???"}",
-            style = UI.typo.nH2.style(
+            style = MaterialTheme.typography.numberHeadlineMedium.copy(
                 color = Orange,
-                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
         )
         SpacerVer(height = 24.dp)

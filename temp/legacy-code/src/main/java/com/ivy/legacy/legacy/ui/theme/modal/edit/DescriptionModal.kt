@@ -24,20 +24,19 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.rootView
-import com.ivy.legacy.utils.clickableNoIndication
+import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.onScreenStart
-import com.ivy.legacy.utils.rememberInteractionSource
-import com.ivy.legacy.utils.selectEndTextFieldValue
+import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyDescriptionTextField
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalDynamicPrimaryAction
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Suppress("ParameterNaming")
@@ -85,8 +84,8 @@ fun BoxWithConstraintsScope.DescriptionModal(
             modifier = Modifier
                 .padding(start = 32.dp),
             text = stringResource(R.string.description),
-            style = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )

@@ -34,8 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.legacy.Theme
 import com.ivy.data.model.LoanType
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.humanReadableType
@@ -50,8 +48,8 @@ import com.ivy.navigation.LoansScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
-import com.ivy.wallet.ui.theme.Blue
-import com.ivy.wallet.ui.theme.Gray
+import com.ivy.design.system.colors.Blue
+import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
@@ -59,13 +57,15 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ProgressBar
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.LoanModal
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
+import com.ivy.design.system.shapes.ShapeTop16
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
 fun BoxWithConstraintsScope.LoansScreen(screen: LoansScreen) {
@@ -181,8 +181,8 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
             text = item.loan.name,
-            style = UI.typo.b1.style(
-                color = UI.colors.pureInverse,
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -231,8 +231,8 @@ private fun Toolbar(
         ) {
             Text(
                 text = stringResource(R.string.loans),
-                style = UI.typo.h2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -282,8 +282,8 @@ private fun LoanItem(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_item")
             .clickable(
                 onClick = onClick
@@ -314,7 +314,7 @@ private fun LoanHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(loan.color.toComposeColor(), UI.shapes.r4Top)
+            .background(loan.color.toComposeColor(), ShapeTop16)
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -333,7 +333,7 @@ private fun LoanHeader(
 
             Text(
                 text = loan.name,
-                style = UI.typo.b1.style(
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -342,8 +342,9 @@ private fun LoanHeader(
 
             Text(
                 text = loan.humanReadableType(),
-                style = UI.typo.c.style(
-                    color = loan.color.toComposeColor().dynamicContrast()
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = loan.color.toComposeColor().dynamicContrast(),
+                    fontWeight = FontWeight.Bold
                 )
             )
         }
@@ -377,7 +378,8 @@ private fun ColumnScope.LoanInfo(
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         text = displayLoan.formattedDisplayText,
-        style = UI.typo.nB2.style(
+        style = MaterialTheme.typography.numberBodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
@@ -390,7 +392,7 @@ private fun ColumnScope.LoanInfo(
             .fillMaxWidth()
             .height(24.dp)
             .padding(horizontal = 24.dp),
-        notFilledColor = UI.colors.medium,
+        notFilledColor = MaterialTheme.colorScheme.surfaceVariant,
         percent = displayLoan.percentPaid
     )
 }
@@ -416,7 +418,7 @@ private fun NoLoansEmptyState(
 
         Text(
             text = emptyStateTitle,
-            style = UI.typo.b1.style(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -427,7 +429,7 @@ private fun NoLoansEmptyState(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = emptyStateText,
-            style = UI.typo.b2.style(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center

@@ -33,8 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.AccountBalance
 import com.ivy.legacy.datamodel.Account
@@ -45,21 +43,22 @@ import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.ui.theme.GradientIvy
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.IvyDark
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
-import com.ivy.wallet.ui.theme.dynamicContrast
-import com.ivy.wallet.ui.theme.findContrastTextColor
+import com.ivy.design.system.colors.dynamicContrast
+import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.ivy.wallet.ui.theme.toComposeColor
+import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Composable
@@ -99,7 +98,8 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                 Text(
                     modifier = Modifier.padding(horizontal = 32.dp),
                     text = stringResource(R.string.add_accounts),
-                    style = UI.typo.h2.style(
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Black
                     )
                 )
@@ -145,7 +145,8 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                 Text(
                     modifier = Modifier.padding(horizontal = 32.dp),
                     text = stringResource(R.string.suggestions),
-                    style = UI.typo.b1.style(
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
@@ -239,8 +240,8 @@ private fun AccountCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r3)
-            .background(accountColor, UI.shapes.r3)
+            .clip(MaterialTheme.shapes.large)
+            .background(accountColor, MaterialTheme.shapes.large)
             .clickable {
                 onClick()
             },
@@ -262,9 +263,9 @@ private fun AccountCard(
         Column {
             Text(
                 text = account.name,
-                style = UI.typo.b1.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = dynamicContrast
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = dynamicContrast,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 

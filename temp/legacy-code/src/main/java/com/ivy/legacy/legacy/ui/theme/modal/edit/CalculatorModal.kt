@@ -19,8 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.utils.amountToDoubleOrNull
 import com.ivy.legacy.utils.format
@@ -28,13 +26,15 @@ import com.ivy.legacy.utils.formatInputAmount
 import com.ivy.legacy.utils.localDecimalSeparator
 import com.ivy.legacy.utils.normalizeExpression
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Red
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.notkamui.keval.Keval
 import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberHeadlineMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
@@ -79,10 +79,10 @@ fun BoxWithConstraintsScope.CalculatorModal(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             text = if (isEmpty) stringResource(R.string.calculator_empty_expression) else expression,
-            style = UI.typo.nH2.style(
+            style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                color = if (isEmpty) Gray else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = if (isEmpty) Gray else UI.colors.pureInverse
+                textAlign = TextAlign.Center
             )
         )
 

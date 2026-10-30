@@ -22,20 +22,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.format
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.Green
-import com.ivy.wallet.ui.theme.Ivy
-import com.ivy.wallet.ui.theme.Orange
-import com.ivy.wallet.ui.theme.Red
-import com.ivy.wallet.ui.theme.White
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
 import kotlin.math.abs
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberLabelMedium
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -44,7 +44,7 @@ fun BudgetBattery(
     currency: String,
     expenses: Double,
     budget: Double,
-    backgroundNotFilled: Color = UI.colors.pure,
+    backgroundNotFilled: Color = MaterialTheme.colorScheme.surface,
     onClick: (() -> Unit)? = null,
 ) {
     if (budget == 0.0) return
@@ -52,7 +52,7 @@ fun BudgetBattery(
 
     val textColor = when {
         percentSpent <= 0.30 -> {
-            UI.colors.pureInverse
+            MaterialTheme.colorScheme.onSurface
         }
 
         percentSpent <= 0.50 -> {
@@ -68,7 +68,7 @@ fun BudgetBattery(
 
     val captionTextColor = when {
         percentSpent <= 0.30 -> {
-            UI.colors.mediumInverse
+            MaterialTheme.colorScheme.inverseSurface
         }
 
         percentSpent <= 0.50 -> {
@@ -85,7 +85,7 @@ fun BudgetBattery(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
             .background(backgroundNotFilled)
             .drawBehind {
                 drawRect(
@@ -135,7 +135,7 @@ fun BudgetBattery(
 
                     else -> stringResource(R.string.budget_exceeded_by)
                 },
-                style = UI.typo.c.style(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = textColor,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -153,9 +153,9 @@ fun BudgetBattery(
 
             Text(
                 text = "${expenses.format(currency)}/${budget.format(currency)} $currency",
-                style = UI.typo.nC.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = captionTextColor
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = captionTextColor,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
         }
@@ -169,7 +169,7 @@ private fun Preview_budget_0() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -189,7 +189,7 @@ private fun Preview_expenses_0() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -209,7 +209,7 @@ private fun Preview_spent_very_low() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -229,7 +229,7 @@ private fun Preview_buffer_25() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -249,7 +249,7 @@ private fun Preview_buffer_50() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -269,7 +269,7 @@ private fun Preview_buffer_75() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -289,7 +289,7 @@ private fun Preview_buffer_90() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -309,7 +309,7 @@ private fun Preview_buffer_100() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -329,7 +329,7 @@ private fun Preview_buffer_125() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(
@@ -349,7 +349,7 @@ private fun Preview_expenses_negative() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(UI.colors.medium),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             BudgetBattery(

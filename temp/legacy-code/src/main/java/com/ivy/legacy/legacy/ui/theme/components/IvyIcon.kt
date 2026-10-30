@@ -6,14 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import com.ivy.design.l0_system.UI
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
 fun IvyIcon(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
-    tint: Color = UI.colors.pureInverse,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     contentDescription: String = "icon"
 ) {
     Icon(

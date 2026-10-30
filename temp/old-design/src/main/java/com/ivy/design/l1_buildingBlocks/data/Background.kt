@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.asBrush
+import com.ivy.design.system.colors.asBrush
 import com.ivy.design.utils.ivyPadding
 import com.ivy.design.utils.thenWhen
 

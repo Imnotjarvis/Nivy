@@ -19,13 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.utils.format
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.ui.theme.Orange
+import com.ivy.design.system.colors.Orange
+import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.typography.numberBodyLarge
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -42,8 +42,8 @@ fun CustomExchangeRateCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(UI.shapes.r4)
-            .background(UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -61,9 +61,9 @@ fun CustomExchangeRateCard(
         ) {
             Text(
                 text = title,
-                style = UI.typo.b2.style(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = UI.colors.pureInverse
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
@@ -74,17 +74,17 @@ fun CustomExchangeRateCard(
             ) {
                 Text(
                     text = fromCurrencyCode,
-                    style = UI.typo.b2.style(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Orange
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Orange,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 )
                 IvyIcon(icon = R.drawable.ic_arrow_right, tint = Orange)
                 Text(
                     text = toCurrencyCode,
-                    style = UI.typo.nB2.style(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Orange
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
+                        color = Orange,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 )
             }
@@ -96,17 +96,17 @@ fun CustomExchangeRateCard(
             ) {
                 Text(
                     text = "1",
-                    style = UI.typo.nB2.style(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Orange
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
+                        color = Orange,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 )
                 IvyIcon(icon = R.drawable.ic_arrow_right, tint = Orange)
                 Text(
                     text = exchangeRate.format(IvyCurrency.getDecimalPlaces(toCurrencyCode)),
-                    style = UI.typo.nB2.style(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Orange
+                    style = MaterialTheme.typography.numberBodyLarge.copy(
+                        color = Orange,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 )
             }

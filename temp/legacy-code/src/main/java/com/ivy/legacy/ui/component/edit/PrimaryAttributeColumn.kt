@@ -20,13 +20,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l0_system.UI
-import com.ivy.design.l0_system.style
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.clickableNoIndication
-import com.ivy.legacy.utils.rememberInteractionSource
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyIcon
+import androidx.compose.material3.MaterialTheme
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 @Composable
@@ -41,8 +40,8 @@ fun PrimaryAttributeColumn(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(UI.shapes.r4)
-            .border(2.dp, UI.colors.medium, UI.shapes.r4)
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickableNoIndication(rememberInteractionSource(), onClick = onClick),
     ) {
         Spacer(modifier = Modifier.height(12.dp))
@@ -57,8 +56,8 @@ fun PrimaryAttributeColumn(
 
             Text(
                 text = title,
-                style = UI.typo.b2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -91,8 +90,8 @@ private fun PreviewPrimaryAttributeColumn() {
                         "Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.\n" +
                         "Use '--warning-mode all' to show the individual deprecation warnings.\n" +
                         "See https://docs.gradle.org/7.0-rc-1/userguide/command_line_interface.html#sec:command_line_warnings",
-                style = UI.typo.b2.style(
-                    color = UI.colors.pureInverse,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
                 )
             )
