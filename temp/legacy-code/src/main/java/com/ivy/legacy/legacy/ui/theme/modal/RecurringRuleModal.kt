@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
@@ -50,6 +49,7 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.IntervalPickerRow
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine

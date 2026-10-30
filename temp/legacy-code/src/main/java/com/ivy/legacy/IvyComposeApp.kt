@@ -28,24 +28,15 @@ import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.domain.RootScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.NavigationRoot
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.ui.time.impl.AndroidDevicePreferences
 import com.ivy.ui.time.impl.IvyTimeFormatter
 
 @Suppress("CompositionLocalAllowlist")
 val LocalIvyWalletCtx = compositionLocalOf<IvyWalletCtx> { error("No IvyWalletCtx") }
-
-@Suppress("CompositionLocalAllowlist")
-@Deprecated("Used only for time migration to Instant. Never use it in new code!")
-val LocalTimeConverter = compositionLocalOf<TimeConverter> { error("No LocalTimeConverter") }
-
-@Suppress("CompositionLocalAllowlist")
-@Deprecated("Used only for time migration to Instant. Never use it in new code!")
-val LocalTimeProvider = compositionLocalOf<TimeProvider> { error("No LocalTimeProvider") }
-
-@Suppress("CompositionLocalAllowlist")
-@Deprecated("Used only for time migration to Instant. Never use it in new code!")
-val LocalTimeFormatter = compositionLocalOf<TimeFormatter> { error("No LocalTimeFormatter") }
 
 @Deprecated("Legacy code. Don't use it, please.")
 @Composable

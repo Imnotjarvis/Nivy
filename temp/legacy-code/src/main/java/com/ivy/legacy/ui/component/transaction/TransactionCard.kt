@@ -42,9 +42,6 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.LocalTimeConverter
-import com.ivy.legacy.LocalTimeFormatter
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.design.system.colors.BlueLight
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
@@ -58,6 +55,9 @@ import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.design.system.colors.Blue

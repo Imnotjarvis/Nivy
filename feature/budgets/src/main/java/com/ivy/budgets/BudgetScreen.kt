@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ivy.budgets.model.DisplayBudget
-import com.ivy.legacy.LocalTimeFormatter
 import com.ivy.legacy.legacy.ui.theme.components.BudgetBattery
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.format
@@ -33,6 +32,7 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
+import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType

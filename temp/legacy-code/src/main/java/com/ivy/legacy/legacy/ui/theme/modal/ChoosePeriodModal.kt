@@ -33,8 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.legacy.LocalTimeConverter
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.LastNTimeRange
@@ -51,6 +49,8 @@ import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.IntervalPickerRow
 import com.ivy.wallet.ui.theme.components.IvyDividerLine

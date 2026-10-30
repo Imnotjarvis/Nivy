@@ -39,9 +39,6 @@ import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
-import com.ivy.legacy.LocalTimeConverter
-import com.ivy.legacy.LocalTimeFormatter
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletPreview
@@ -69,6 +66,9 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.GreenDark

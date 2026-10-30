@@ -17,11 +17,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.LocalTimeConverter
-import com.ivy.legacy.LocalTimeFormatter
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.ui.R
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import java.time.Instant

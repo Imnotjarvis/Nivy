@@ -46,9 +46,6 @@ import com.ivy.data.model.TagId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.LocalTimeConverter
-import com.ivy.legacy.LocalTimeFormatter
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.domain.legacy.ui.theme.components.ListItem
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
@@ -66,6 +63,9 @@ import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Purple1Dark
 import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.Red3Light
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.IvyButton

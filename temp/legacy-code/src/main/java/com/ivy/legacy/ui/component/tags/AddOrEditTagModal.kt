@@ -1,6 +1,5 @@
 package com.ivy.legacy.ui.component.tags
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
@@ -37,13 +36,12 @@ import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.ui.R
 
-@Suppress("DEPRECATION")
-@SuppressLint("ComposeModifierMissing")
+// A full-screen modal: it places itself, so it takes no modifier.
+@Suppress("ModifierMissing")
 @ExperimentalFoundationApi
 @Composable
 fun BoxWithConstraintsScope.AddOrEditTagModal(
     id: TagId,
-    @Suppress("UNUSED_PARAMETER") modifier: Modifier = Modifier,
     visible: Boolean = false,
     initialTag: Tag? = null,
     onTagAdd: (String) -> Unit = {},

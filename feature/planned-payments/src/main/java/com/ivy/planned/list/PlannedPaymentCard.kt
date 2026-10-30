@@ -31,7 +31,6 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.LocalTimeConverter
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
@@ -49,6 +48,7 @@ import com.ivy.design.system.colors.Blue
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Orange
+import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS

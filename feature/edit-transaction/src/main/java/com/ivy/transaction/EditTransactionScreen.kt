@@ -34,7 +34,6 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
-import com.ivy.legacy.LocalTimeConverter
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.data.EditTransactionDisplayLoan
@@ -50,6 +49,7 @@ import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
+import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData

@@ -43,9 +43,6 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.LocalTimeConverter
-import com.ivy.legacy.LocalTimeFormatter
-import com.ivy.legacy.LocalTimeProvider
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.drawColoredShadow
@@ -68,6 +65,9 @@ import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.RedLight
 import com.ivy.design.system.colors.White
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMini
 import com.ivy.wallet.ui.theme.components.CircleButtonFilledGradient
