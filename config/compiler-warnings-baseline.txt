@@ -1,2 +1,0 @@
-# Kotlin compiler warnings that already existed when scripts/checkCompilerWarnings.sh was added.
-# One "path message" per line, line numbers left out. Remove a line once its warning is fixed.

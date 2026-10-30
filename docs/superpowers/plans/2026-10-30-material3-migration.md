@@ -46,7 +46,7 @@ New models exist for accounts, categories, transactions, tags and exchange rates
 
 ## Progress
 
-Warning counts are from the build job's "List compiler errors and warnings" step.
+Warning counts are from the build job's "List compiler errors and warnings" step. It only shows the modules a build recompiled; the 0 was confirmed by the build that turned `allWarningsAsErrors` on, which recompiled everything.
 
 | Phase | State | Warnings after |
 |---|---|---|
@@ -54,8 +54,8 @@ Warning counts are from the build job's "List compiler errors and warnings" step
 | 2. Third-party deprecations | Done | |
 | 3. Design system | Done: tokens, components and call sites on Material3; `temp:old-design` deleted | 2,563 |
 | 4. Legacy helpers | Done: `SharedPrefs` → `AppPreferences` (DataStore, keeps stored values), `stringRes` and the global `appContext`, the FRP `Action`/`then` library, `IvyWalletCtx` (split into `ThemeState`, `PeriodState`, `MainScreenState`, `LocalScreenSize` and `RootScreen` methods), the legacy clock and date helpers, `LogoutLogic` → `DeleteAllDataUseCase` | 996 before the last two items |
-| 5. Data layer | Done: domain models and repositories for budgets, loans, loan records and planned-payment rules (schemas 131 and 132, with tested migrations); every feature on the domain `Account`, `Budget`, `Loan`, `PlannedPaymentRule` and `Transaction`; `ExchangeUseCase`, `TransactionAmountsUseCase`, `DueTransactionsUseCase`, `LoanTransactionsUseCase` and `PlannedPaymentsGenerator` replace the legacy logic classes; the legacy models and their mappers are deleted | |
-| 6. Dissolve `temp:legacy-code` | Not started | |
+| 5. Data layer | Done: domain models and repositories for budgets, loans, loan records and planned-payment rules (schemas 131 and 132, with tested migrations); every feature on the domain `Account`, `Budget`, `Loan`, `PlannedPaymentRule` and `Transaction`; `ExchangeUseCase`, `TransactionAmountsUseCase`, `DueTransactionsUseCase`, `LoanTransactionsUseCase` and `PlannedPaymentsGenerator` replace the legacy logic classes; the legacy models and their mappers are deleted | 0 |
+| 6. Dissolve `temp:legacy-code` | `allWarningsAsErrors` is on for every Kotlin compile, so a warning fails the build; that first build recompiled all 31 modules and their unit tests with none. The warning-baseline script is gone. Moving the module's code is not started | 0 |
 | 7. Review | Not started | |
 
 Behaviour changes found on the way, each a fix of an upstream bug:

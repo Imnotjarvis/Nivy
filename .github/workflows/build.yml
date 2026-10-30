@@ -10,8 +10,7 @@
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
 #   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list
-# build and test also fail on Kotlin compiler warnings that config/compiler-warnings-baseline.txt
-# doesn't list (scripts/checkCompilerWarnings.sh).
+# Any Kotlin compiler warning fails the compile (allWarningsAsErrors in build.gradle.kts).
 #
 # What runs when:
 #   push to a branch        checks, build, test; device only when the change can reach app
@@ -173,7 +172,8 @@ jobs:
           TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
+          ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue --warning-mode all 2>&1 \
+              | tee gradle-output.log
 
       # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
       - name: Drop build cache entries older than a week
@@ -186,9 +186,6 @@ jobs:
         with:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-build-${{ github.sha }}
-
-      - name: No new compiler warnings
-        run: scripts/checkCompilerWarnings.sh gradle-output.log
 
       - name: Audit shipped libraries
         run: scripts/auditRuntimeDependencies.sh
@@ -290,9 +287,6 @@ jobs:
         with:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-test-${{ github.sha }}
-
-      - name: No new compiler warnings
-        run: scripts/checkCompilerWarnings.sh gradle-output.log
 
       - uses: actions/upload-artifact@v7
         if: failure()

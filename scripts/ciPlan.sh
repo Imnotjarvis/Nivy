@@ -22,7 +22,7 @@ device_relevant() {
     changed=$(cat)
     {
         echo "$changed" \
-            | grep -vE '(^|/)src/test/|\.md$|^docs/|^LICENSE$|^config/detekt/|^config/compiler-warnings-baseline\.txt$' \
+            | grep -vE '(^|/)src/test/|\.md$|^docs/|^LICENSE$|^config/detekt/' \
             | grep -vE '^(feature|widget)/[^/]+/src/main/(java|kotlin|res)/'
         echo "$changed" | grep -E '^feature/onboarding/src/main/'
     } | grep . | sort -u
