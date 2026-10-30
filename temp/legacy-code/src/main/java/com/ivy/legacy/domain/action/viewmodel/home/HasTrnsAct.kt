@@ -9,7 +9,7 @@ class HasTrnsAct @Inject constructor(
 ) : FPAction<Unit, Boolean>() {
     override suspend fun Unit.compose(): suspend () -> Boolean = suspend {
         io {
-            transactionDao.findAll_LIMIT_1().isNotEmpty()
+            transactionDao.hasTransactions()
         }
     }
 }
