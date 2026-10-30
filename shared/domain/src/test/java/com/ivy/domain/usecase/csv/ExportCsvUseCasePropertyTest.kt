@@ -57,13 +57,13 @@ class ExportCsvUseCasePropertyTest {
             val accounts = trns.flatMap {
                 listOfNotNull(it.getFromAccount(), it.getToAccount())
             }.map {
-                Arb.account(accountId = Some(it)).next()
+                Arb.account(accountId = Some(it)).bind()
             }
             coEvery { accountRepository.findAll() } returns accounts
             val categories = trns
                 .mapNotNull(Transaction::category)
                 .map {
-                    Arb.category(categoryId = Some(it)).next()
+                    Arb.category(categoryId = Some(it)).bind()
                 }.run {
                     if (isNotEmpty()) {
                         drop(Arb.int(indices).bind()).shuffled()

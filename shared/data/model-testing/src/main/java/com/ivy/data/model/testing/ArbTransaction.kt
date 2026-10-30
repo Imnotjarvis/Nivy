@@ -19,7 +19,7 @@ import io.kotest.property.arbitrary.ArbitraryBuilderContext
 import io.kotest.property.arbitrary.arbitrary
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.filter
-import io.kotest.property.arbitrary.instant
+import io.kotest.property.arbitrary.javaInstant
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.map
 import io.kotest.property.arbitrary.removeEdgecases
@@ -161,18 +161,18 @@ private suspend fun ArbitraryBuilderContext.arbInstant(
     val safeMaxValue = Instant.MAX.minusSeconds(safeOffset)
     val safeMinValue = Instant.MIN.plusSeconds(safeOffset)
     return when (time) {
-        None -> Arb.instant(
+        None -> Arb.javaInstant(
             minValue = safeMinValue,
             maxValue = safeMaxValue
         ).removeEdgecases().bind()
 
         is Some -> when (val arbTime = time.value) {
-            is ArbTime.Before -> Arb.instant(
+            is ArbTime.Before -> Arb.javaInstant(
                 minValue = safeMinValue,
                 maxValue = minOf(arbTime.before, safeMaxValue)
             ).bind()
 
-            is ArbTime.After -> Arb.instant(
+            is ArbTime.After -> Arb.javaInstant(
                 minValue = maxOf(arbTime.after, safeMinValue),
                 maxValue = safeMaxValue
             ).bind()

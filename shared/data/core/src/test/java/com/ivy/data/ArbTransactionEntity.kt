@@ -11,7 +11,7 @@ import io.kotest.property.arbitrary.arbitrary
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.double
 import io.kotest.property.arbitrary.filter
-import io.kotest.property.arbitrary.instant
+import io.kotest.property.arbitrary.javaInstant
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.negativeDouble
 import io.kotest.property.arbitrary.of
@@ -68,13 +68,13 @@ fun Arb.Companion.validTransfer(): Arb<TransactionEntity> = arbitrary {
         toAmount = Arb.maybe(Arb.positiveDoubleExact()).bind()?.value,
         title = Arb.maybe(Arb.string()).bind(),
         description = Arb.maybe(Arb.string()).bind(),
-        dateTime = Arb.instant().bind().takeIf {
+        dateTime = Arb.javaInstant().bind().takeIf {
             !isPlannedPayment || Arb.boolean().bind()
         },
-        dueDate = Arb.instant().bind().takeIf {
+        dueDate = Arb.javaInstant().bind().takeIf {
             isPlannedPayment || Arb.boolean().bind()
         },
-        paidForDateTime = Arb.instant().bind().takeIf {
+        paidForDateTime = Arb.javaInstant().bind().takeIf {
             !isPlannedPayment || Arb.boolean().bind()
         },
         categoryId = Arb.maybe(Arb.uuid()).bind(),
@@ -125,13 +125,13 @@ fun Arb.Companion.validIncomeOrExpense(): Arb<TransactionEntity> = arbitrary {
         toAmount = Arb.maybe(Arb.double()).bind(),
         title = Arb.maybe(Arb.string()).bind(),
         description = Arb.maybe(Arb.string()).bind(),
-        dateTime = Arb.instant().bind().takeIf {
+        dateTime = Arb.javaInstant().bind().takeIf {
             !isPlannedPayment || Arb.boolean().bind()
         },
-        dueDate = Arb.instant().bind().takeIf {
+        dueDate = Arb.javaInstant().bind().takeIf {
             isPlannedPayment || Arb.boolean().bind()
         },
-        paidForDateTime = Arb.instant().bind().takeIf {
+        paidForDateTime = Arb.javaInstant().bind().takeIf {
             !isPlannedPayment || Arb.boolean().bind()
         },
         categoryId = Arb.maybe(Arb.uuid()).bind(),

@@ -26,7 +26,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.arbitrary
 import io.kotest.property.arbitrary.boolean
-import io.kotest.property.arbitrary.instant
+import io.kotest.property.arbitrary.javaInstant
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.map
 import io.kotest.property.arbitrary.next
@@ -209,8 +209,8 @@ class TransactionRepositoryTest {
 
     @Test
     fun `find all between`() {
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
@@ -231,8 +231,8 @@ class TransactionRepositoryTest {
     @Test
     fun findAllByAccountAndBetween() {
         val account = ModelFixtures.AccountId
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
@@ -255,8 +255,8 @@ class TransactionRepositoryTest {
     @Test
     fun findAllToAccountAndBetween() {
         val account = ModelFixtures.AccountId
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
@@ -279,8 +279,8 @@ class TransactionRepositoryTest {
     @Test
     fun findAllDueToBetweenByCategory() {
         val category = ModelFixtures.CategoryId
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
@@ -302,8 +302,8 @@ class TransactionRepositoryTest {
 
     @Test
     fun findAllDueToBetweenByCategoryUnspecified() {
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
@@ -324,8 +324,8 @@ class TransactionRepositoryTest {
     @Test
     fun findAllDueToBetweenByAccount() {
         val account = ModelFixtures.AccountId
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
@@ -349,8 +349,8 @@ class TransactionRepositoryTest {
     fun findAllByCategoryAndTypeAndBetween() {
         val categoryId = ModelFixtures.CategoryId
         val trnType = TransactionType.EXPENSE
-        val startDate = Arb.instant().next()
-        val endDate = Arb.instant().next()
+        val startDate = Arb.javaInstant().next()
+        val endDate = Arb.javaInstant().next()
 
         transactionsTestCase(
             daoMethod = {
