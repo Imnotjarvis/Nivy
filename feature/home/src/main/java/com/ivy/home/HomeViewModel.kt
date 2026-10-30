@@ -19,7 +19,9 @@ import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.MainScreenState
+import com.ivy.legacy.PeriodState
+import com.ivy.legacy.ThemeState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
 import com.ivy.legacy.data.LegacyDueSection
@@ -31,7 +33,6 @@ import com.ivy.legacy.datamodel.Settings
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
 import com.ivy.legacy.domain.action.viewmodel.home.ShouldHideIncomeAct
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.MainScreen
@@ -63,7 +64,9 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val ivyContext: IvyWalletCtx,
+    private val periodState: PeriodState,
+    private val themeState: ThemeState,
+    private val mainScreenState: MainScreenState,
     private val nav: Navigation,
     private val plannedPaymentsLogic: PlannedPaymentsLogic,
     private val customerJourneyLogic: CustomerJourneyCardsProvider,
@@ -89,7 +92,7 @@ class HomeViewModel @Inject constructor(
 ) : ComposeViewModel<HomeState, HomeEvent>() {
     private var currentTheme by mutableStateOf(Theme.AUTO)
     private var name by mutableStateOf("")
-    private var period by mutableStateOf(ivyContext.selectedPeriod)
+    private var period by mutableStateOf(periodState.selected)
     private var baseData by mutableStateOf(
         AppBaseData(
             baseCurrency = "",
@@ -251,12 +254,12 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun start() {
         val startDay = startDayOfMonthAct()
-        reload(ivyContext.initSelectedPeriodInMemory(startDayOfMonth = startDay))
+        reload(periodState.initSelected(startDayOfMonth = startDay))
     }
 
     // -----------------------------------------------------------------------------------
     private suspend fun reload(
-        timePeriod: TimePeriod = ivyContext.selectedPeriod
+        timePeriod: TimePeriod = periodState.selected
     ) {
         val settings = settingsAct()
         val hideBalance = shouldHideBalanceAct()
@@ -269,10 +272,10 @@ class HomeViewModel @Inject constructor(
         this.hideIncome = hideIncome
 
         // This method is used to restore the theme when user imports locally backed up data
-        ivyContext.switchTheme(theme = settings.theme)
+        themeState.switchTheme(theme = settings.theme)
 
         val timeRange = period.toRange(
-            startDateOfMonth = ivyContext.startDayOfMonth,
+            startDateOfMonth = periodState.startDayOfMonth,
             timeConverter = timeConverter,
             timeProvider = timeProvider
         ).toUTCCloseTimeRange()
@@ -404,7 +407,7 @@ class HomeViewModel @Inject constructor(
             nav.navigateTo(BalanceScreen)
         } else {
             // doesn't have transactions lead him to adjust balance
-            ivyContext.selectMainTab(MainTab.ACCOUNTS)
+            mainScreenState.selectTab(MainTab.ACCOUNTS)
             nav.navigateTo(MainScreen)
         }
     }
@@ -431,7 +434,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             settingsAct.getSettingsWithNextTheme().run {
                 updateSettingsAct(this)
-                ivyContext.switchTheme(this.theme)
+                themeState.switchTheme(this.theme)
                 currentTheme = this.theme
             }
         }
@@ -489,8 +492,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun onSelectNextMonth() {
         val month = period.month
-        val year = period.year ?: dateNowUTC().year
-        val period = month?.incrementMonthPeriod(ivyContext, 1L, year = year)
+        val year = period.year ?: timeProvider.localDateNow().year
+        val period = month?.let { periodState.selectMonth(it, 1L, year) }
         if (period != null) {
             setPeriod(period)
         }
@@ -498,8 +501,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun onSelectPreviousMonth() {
         val month = period.month
-        val year = period.year ?: dateNowUTC().year
-        val period = month?.incrementMonthPeriod(ivyContext, -1L, year = year)
+        val year = period.year ?: timeProvider.localDateNow().year
+        val period = month?.let { periodState.selectMonth(it, -1L, year) }
         if (period != null) {
             setPeriod(period)
         }

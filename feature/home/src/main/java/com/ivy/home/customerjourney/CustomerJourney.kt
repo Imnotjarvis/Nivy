@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.ivyWalletCtx
+import com.ivy.legacy.LocalMainScreenState
 import com.ivy.legacy.rootScreen
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.IvyPreview
@@ -42,7 +42,7 @@ fun CustomerJourney(
     modifier: Modifier = Modifier,
     onDismiss: (CustomerJourneyCardModel) -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val mainScreenState = LocalMainScreenState.current
     val nav = navigation()
     // Check is added for Paparazzi Test where context is different
     if (LocalContext.current is RootScreen) {
@@ -62,7 +62,7 @@ fun CustomerJourney(
                     onDismiss(card)
                 }
             ) {
-                card.onAction(nav, ivyContext, rootScreen)
+                card.onAction(nav, mainScreenState, rootScreen)
             }
         }
     } else {

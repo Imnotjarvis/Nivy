@@ -31,8 +31,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.design.utils.thenIf
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.drawColoredShadow
@@ -194,7 +194,7 @@ private fun HeaderStickyRow(
             ),
             iconStart = R.drawable.ic_calendar,
             text = period.toDisplayShort(
-                startDateOfMonth = ivyWalletCtx().startDayOfMonth,
+                startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
                 timeConverter = LocalTimeConverter.current,
                 timeProvider = LocalTimeProvider.current,
                 timeFormatter = LocalTimeFormatter.current,

@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.legacy.utils.atEndOfDay
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.endOfMonth
 import com.ivy.legacy.utils.startOfMonth
 import com.ivy.legacy.utils.withDayOfMonthSafe
@@ -35,9 +34,9 @@ data class TimePeriod(
          * 3. startDateOfMonth = 10, today = Nov. 10
          * return Nov. 10 - Dec. 9
          */
-        fun currentMonth(startDayOfMonth: Int): TimePeriod {
-            val dateNowUTC = dateNowUTC()
-            val dayToday = dateNowUTC.dayOfMonth
+        fun currentMonth(startDayOfMonth: Int, timeProvider: TimeProvider): TimePeriod {
+            val today = timeProvider.localDateNow()
+            val dayToday = today.dayOfMonth
 
             // Examples month = Nov. startDate = 7; Period = from Nov (7) till Dec (6)
             // => new period starts if today => startDayOfMonth
@@ -45,10 +44,10 @@ data class TimePeriod(
 
             val periodDate = if (newPeriodStarted) {
                 // new monthly period has already started then observe it => current month
-                dateNowUTC
+                today
             } else {
                 // new monthly period hasn't yet started then observe the ongoing one => previous month
-                dateNowUTC.minusMonths(1)
+                today.minusMonths(1)
             }
 
             return TimePeriod(
@@ -70,7 +69,7 @@ data class TimePeriod(
     ): FromToTimeRange = with(timeConverter) {
         when {
             month != null -> {
-                val date = if (year != null) month.toDate().withYear(year) else month.toDate()
+                val date = month.firstDay(year ?: timeProvider.localDateNow().year)
                 val (from, to) = if (startDateOfMonth != 1) {
                     customStartDayOfMonthPeriodRange(
                         date = date,
@@ -99,7 +98,7 @@ data class TimePeriod(
             }
 
             else -> {
-                val date = dateNowUTC()
+                val date = timeProvider.localDateNow()
                 FromToTimeRange(
                     from = startOfMonth(date, timeConverter),
                     to = endOfMonth(date, timeConverter)

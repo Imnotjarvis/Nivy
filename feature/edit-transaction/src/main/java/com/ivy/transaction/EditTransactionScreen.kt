@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,9 +37,9 @@ import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
+import com.ivy.domain.RootScreen
 import com.ivy.legacy.data.EditTransactionDisplayLoan
 import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.edit.TransactionDateTime
 import com.ivy.legacy.ui.component.edit.core.Description
 import com.ivy.legacy.ui.component.tags.AddTagButton
@@ -351,12 +352,14 @@ private fun BoxWithConstraintsScope.UI(
 
         Spacer(Modifier.height(32.dp))
 
-        val ivyContext = ivyWalletCtx()
+        // looked up on tap, so previews without the activity still draw
+
+        val context = LocalContext.current
 
         val timeConverter = LocalTimeConverter.current
         if (dueDate != null) {
             DueDate(dueDate = dueDate) {
-                ivyContext.datePicker(
+                (context as RootScreen).pickDate(
                     initialDate = with(timeConverter) {
                         dueDate.toLocalDate()
                     }

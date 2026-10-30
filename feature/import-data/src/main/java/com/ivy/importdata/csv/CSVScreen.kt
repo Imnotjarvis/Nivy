@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.design.utils.thenIf
+import com.ivy.domain.RootScreen
 import com.ivy.importdata.csvimport.flow.ImportProcessing
 import com.ivy.importdata.csvimport.flow.ImportResultUI
 import com.ivy.navigation.CSVScreen
@@ -145,13 +147,14 @@ private fun ImportUI(
 private fun ImportButton(
     onFilePick: (Uri) -> Unit,
 ) {
-    val ivyContext = com.ivy.legacy.ivyWalletCtx()
+    // looked up on tap, so previews without the activity still draw
+    val context = LocalContext.current
     Button(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
         onClick = {
-            ivyContext.openFile {
+            (context as RootScreen).openFile {
                 onFilePick(it)
             }
         }

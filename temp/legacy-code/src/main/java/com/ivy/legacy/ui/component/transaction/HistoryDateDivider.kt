@@ -16,13 +16,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.dateNowLocal
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
+import com.ivy.ui.time.LocalTimeProvider
 import java.time.LocalDate
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
@@ -44,7 +43,7 @@ fun HistoryDateDivider(
     ) {
         Spacer(Modifier.width(24.dp))
 
-        val today = dateNowLocal()
+        val today = LocalTimeProvider.current.localDateNow()
 
         Column {
             Text(
@@ -103,7 +102,7 @@ fun HistoryDateDivider(
 private fun Preview_Today() {
     IvyWalletComponentPreview {
         HistoryDateDivider(
-            date = dateNowUTC(),
+            date = LocalDate.now(),
             spacerTop = 32.dp,
             baseCurrency = "BGN",
             income = 13.50,
@@ -117,7 +116,7 @@ private fun Preview_Today() {
 private fun Preview_Yesterday() {
     IvyWalletComponentPreview {
         HistoryDateDivider(
-            date = dateNowUTC().minusDays(1),
+            date = LocalDate.now().minusDays(1),
             spacerTop = 32.dp,
             baseCurrency = "BGN",
             income = 13.50,
@@ -131,7 +130,7 @@ private fun Preview_Yesterday() {
 private fun Preview_OneYear_Ago() {
     IvyWalletComponentPreview {
         HistoryDateDivider(
-            date = dateNowUTC().minusYears(1),
+            date = LocalDate.now().minusYears(1),
             spacerTop = 32.dp,
             baseCurrency = "BGN",
             income = 13.50,

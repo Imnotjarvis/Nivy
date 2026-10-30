@@ -38,14 +38,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.base.model.TransactionType
+import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.drawColoredShadow
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.horizontalSwipeListener
 import com.ivy.legacy.utils.rememberSwipeListenerState
@@ -303,7 +304,7 @@ private fun Header(
                 ),
                 iconStart = R.drawable.ic_calendar,
                 text = period.toDisplayShort(
-                    startDateOfMonth = ivyWalletCtx().startDayOfMonth,
+                    startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
                     timeConverter = LocalTimeConverter.current,
                     timeProvider = LocalTimeProvider.current,
                     timeFormatter = LocalTimeFormatter.current,
@@ -483,7 +484,8 @@ private fun Preview_Expense() {
         val state = PieChartStatisticState(
             transactionType = TransactionType.EXPENSE,
             period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             baseCurrency = "BGN",
             totalAmount = 1828.0,
@@ -574,7 +576,8 @@ private fun Preview_Income() {
         val state = PieChartStatisticState(
             transactionType = TransactionType.INCOME,
             period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             baseCurrency = "BGN",
             totalAmount = 1828.0,

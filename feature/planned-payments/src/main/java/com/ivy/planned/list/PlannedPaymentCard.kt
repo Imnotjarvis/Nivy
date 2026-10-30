@@ -36,10 +36,8 @@ import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.forDisplay
 import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
-import com.ivy.legacy.utils.formatDateOnly
-import com.ivy.legacy.utils.formatDateOnlyWithYear
+import com.ivy.legacy.utils.formatLocal
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.legacy.utils.uppercaseLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
@@ -54,10 +52,11 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.toComposeColor
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberLabelMedium
@@ -234,7 +233,7 @@ private fun RuleTextRow(
             )
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
-                text = startDate?.toLocalDate()?.formatDateOnlyWithYear()?.uppercaseLocal()
+                text = startDate?.toLocalDate()?.formatLocal("dd MMM, yyyy")?.uppercaseLocal()
                     ?: stringResource(R.string.null_text),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
@@ -242,7 +241,7 @@ private fun RuleTextRow(
                 )
             )
         } else {
-            val startDateFormatted = startDate?.toLocalDate()?.formatDateOnly()?.uppercaseLocal()
+            val startDateFormatted = startDate?.toLocalDate()?.formatLocal("MMM. dd")?.uppercaseLocal()
             Text(
                 text = stringResource(R.string.starts_date, startDateFormatted ?: ""),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
@@ -295,7 +294,7 @@ private fun Preview_oneTime() {
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         oneTime = true,
                         intervalType = null,
                         intervalN = null,
@@ -333,7 +332,7 @@ private fun Preview_recurring() {
                         title = "Tabu",
                         categoryId = shisha.id.value,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         oneTime = false,
                         intervalType = IntervalType.MONTH,
                         intervalN = 1,
@@ -371,7 +370,7 @@ private fun Preview_recurringError() {
                         title = "Tabu",
                         categoryId = shisha.id.value,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         oneTime = false,
                         intervalType = null,
                         intervalN = null,

@@ -5,6 +5,7 @@ import arrow.core.raise.either
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
+import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
@@ -24,8 +25,6 @@ import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.datamodel.toEntity
-import com.ivy.legacy.utils.convertLocalToUTC
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.csv.model.RowMapping
@@ -53,6 +52,7 @@ class CSVImporter @Inject constructor(
     private val accountRepository: AccountRepository,
     private val currencyRepository: CurrencyRepository,
     private val timeConverter: TimeConverter,
+    private val timeProvider: TimeProvider,
 ) {
 
     lateinit var accounts: List<LegacyAccount>
@@ -410,7 +410,7 @@ class CSVImporter @Inject constructor(
 
         Timber.e("Import: Cannot parse $dateString")
         // As a fallback set all transactions 1 year before now
-        return timeNowUTC()
+        return timeProvider.localNow()
             .minusYears(1)
     }
 
@@ -420,7 +420,7 @@ class CSVImporter @Inject constructor(
         return LocalDate.parse(
             this,
             DateTimeFormatter.ofPattern(dateFormat)
-        ).atTime(12, 0).convertLocalToUTC()
+        ).atTime(12, 0)
     }
 
     private fun String.parseDateTime(
@@ -429,7 +429,7 @@ class CSVImporter @Inject constructor(
         return LocalDateTime.parse(
             this,
             DateTimeFormatter.ofPattern(dateTimeFormat)
-        ).convertLocalToUTC()
+        )
     }
 
     @Suppress("ReturnCount")

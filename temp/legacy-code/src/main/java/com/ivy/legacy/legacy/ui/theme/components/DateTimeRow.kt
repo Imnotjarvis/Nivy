@@ -8,9 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.utils.formatNicely
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import java.time.LocalDateTime
 
@@ -30,7 +30,9 @@ fun DateTimeRow(
         Spacer(Modifier.width(24.dp))
 
         IvyOutlinedButton(
-            text = dateTime.formatNicely(),
+            text = with(timeFormatter) {
+                dateTime.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+            },
             iconStart = R.drawable.ic_date,
             onClick = onEditDate
         )

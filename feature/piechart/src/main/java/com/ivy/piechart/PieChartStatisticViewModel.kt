@@ -14,7 +14,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Category
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.PieChartStatisticScreen
@@ -34,7 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PieChartStatisticViewModel @Inject constructor(
     private val settingsDao: SettingsDao,
-    private val ivyContext: IvyWalletCtx,
+    private val periodState: PeriodState,
     private val pieChartAct: PieChartAct,
     private val appPreferences: AppPreferences,
     private val timeProvider: TimeProvider,
@@ -144,7 +144,7 @@ class PieChartStatisticViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             startInternally(
-                period = ivyContext.selectedPeriod,
+                period = periodState.selected,
                 type = screen.type,
                 accountIdFilterList = screen.accountList,
                 filterExclude = screen.filterExcluded,
@@ -193,7 +193,7 @@ class PieChartStatisticViewModel @Inject constructor(
         val accountIdFilterList = accountIdFilterList
         val transactions = transactions
         val baseCurrency = baseCurrency
-        val range = periodValue.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+        val range = periodValue.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         val treatTransferAsIncExp = appPreferences.transfersAsIncomeExpense() &&
             accountIdFilterList.isNotEmpty() && treatTransfersAsIncomeExpense
@@ -222,7 +222,7 @@ class PieChartStatisticViewModel @Inject constructor(
     }
 
     private suspend fun onSetPeriod(periodValue: TimePeriod) {
-        ivyContext.updateSelectedPeriodInMemory(periodValue)
+        periodState.select(periodValue)
         load(
             periodValue = periodValue
         )
@@ -230,20 +230,20 @@ class PieChartStatisticViewModel @Inject constructor(
 
     private suspend fun nextMonth() {
         val month = period.month
-        val year = period.year ?: com.ivy.legacy.utils.dateNowUTC().year
+        val year = period.year ?: timeProvider.localDateNow().year
         if (month != null) {
             load(
-                periodValue = month.incrementMonthPeriod(ivyContext, 1L, year)
+                periodValue = periodState.selectMonth(month, 1L, year)
             )
         }
     }
 
     private suspend fun previousMonth() {
         val month = period.month
-        val year = period.year ?: com.ivy.legacy.utils.dateNowUTC().year
+        val year = period.year ?: timeProvider.localDateNow().year
         if (month != null) {
             load(
-                periodValue = month.incrementMonthPeriod(ivyContext, -1L, year)
+                periodValue = periodState.selectMonth(month, -1L, year)
             )
         }
     }

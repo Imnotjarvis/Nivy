@@ -38,9 +38,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope
@@ -235,7 +235,7 @@ fun ModalActionsRow(
     PrimaryAction: @Composable () -> Unit
 ) {
     if (visible || modalPercentVisible > 0.01f) {
-        val ivyContext = ivyWalletCtx()
+        val screenSize = LocalScreenSize.current
         ActionsRow(
             modifier = Modifier
                 .onSizeChanged {
@@ -246,7 +246,7 @@ fun ModalActionsRow(
 
                     val systemOffsetBottom = keyboardShownInsetDp.toPx()
                     val visibleHeight = placeable.height * modalPercentVisible
-                    val y = ivyContext.screenHeight - visibleHeight - systemOffsetBottom
+                    val y = screenSize.height - visibleHeight - systemOffsetBottom
 
                     layout(placeable.width, placeable.height) {
                         placeable.place(

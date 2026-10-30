@@ -25,7 +25,6 @@ import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.Month.Companion.monthsList
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
@@ -155,7 +154,7 @@ private fun MonthButton(
 private fun Preview() {
     IvyWalletPreview {
         MonthPickerModal(
-            initialDate = dateNowUTC(),
+            initialDate = LocalDate.now(),
             visible = true,
             dismiss = {},
             onMonthSelected = {}

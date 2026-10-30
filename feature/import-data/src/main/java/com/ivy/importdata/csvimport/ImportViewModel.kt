@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ivy.domain.RootScreen
 import com.ivy.legacy.domain.deprecated.logic.csv.CSVImporter
 import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
 import com.ivy.data.backup.BackupDataUseCase
@@ -26,7 +27,6 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class ImportViewModel @Inject constructor(
-    private val ivyContext: com.ivy.legacy.IvyWalletCtx,
     private val nav: Navigation,
     private val fileReader: FileSystem,
     private val csvNormalizer: CSVNormalizer,
@@ -59,7 +59,7 @@ class ImportViewModel @Inject constructor(
     fun uploadFile(context: Context) {
         val importType = importType.value ?: return
 
-        ivyContext.openFile { fileUri ->
+        (context as RootScreen).openFile { fileUri ->
             viewModelScope.launch {
                 _importStep.value = ImportStep.LOADING
 

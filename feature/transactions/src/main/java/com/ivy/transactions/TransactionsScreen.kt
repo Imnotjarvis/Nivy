@@ -38,16 +38,19 @@ import com.ivy.base.model.Theme
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.TransactionType
+import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.data.model.Category
+import com.ivy.design.system.colors.isLight
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.LegacyDueSection
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.transactions
@@ -99,8 +102,6 @@ import androidx.compose.runtime.DisposableEffect
 @Composable
 fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
     val viewModel: TransactionsViewModel = screenScopedViewModel()
-
-    val ivyContext = ivyWalletCtx()
     val uiState = viewModel.uiState()
 
     val view = LocalView.current
@@ -112,7 +113,7 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
         onDispose {
             setStatusBarDarkTextCompat(
                 view = view,
-                darkText = ivyContext.theme == Theme.LIGHT
+                darkText = MaterialTheme.colorScheme.isLight()
             )
         }
     }
@@ -263,7 +264,8 @@ private fun BoxWithConstraintsScope.UI(
     onSkipAllTransactions: (List<Transaction>) -> Unit = {},
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val periodState = LocalPeriodState.current
+    val screenSize = LocalScreenSize.current
     val itemColor = (account?.color ?: category?.color?.value)?.toComposeColor() ?: Gray
 
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
@@ -299,7 +301,7 @@ private fun BoxWithConstraintsScope.UI(
         val emptyStateText = stringResource(
             R.string.no_transactions_for_period,
             period.toDisplayLong(
-                startDateOfMonth = ivyContext.startDayOfMonth,
+                startDateOfMonth = periodState.startDayOfMonth,
                 timeProvider = timeProvider,
                 timeConverter = timeConverter,
                 timeFormatter = timeFormatter,
@@ -422,7 +424,7 @@ private fun BoxWithConstraintsScope.UI(
 
                 history = history,
                 lastItemSpacer = with(density) {
-                    (ivyContext.screenHeight * 0.7f).toDp()
+                    (screenSize.height * 0.7f).toDp()
                 },
 
                 onPayOrGet = onPayOrGet,
@@ -834,7 +836,8 @@ private fun BoxWithConstraintsScope.Preview_empty() {
     IvyPreview {
         UI(
             period = TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             baseCurrency = "BGN",
             currency = "BGN",
@@ -876,7 +879,8 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
     IvyPreview {
         UI(
             period = TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             baseCurrency = "BGN",
             currency = "ADA",

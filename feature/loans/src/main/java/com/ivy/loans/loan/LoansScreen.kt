@@ -37,7 +37,6 @@ import com.ivy.data.model.LoanType
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.humanReadableType
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.horizontalSwipeListener
 import com.ivy.legacy.utils.rememberSwipeListenerState
@@ -109,13 +108,7 @@ private fun BoxWithConstraintsScope.UI(
 
         Spacer(Modifier.height(8.dp))
 
-        val scrollState = rememberScrollPositionListState(
-            key = "loans_lazy_column",
-            initialFirstVisibleItemIndex = ivyWalletCtx()
-                .loanListState?.firstVisibleItemIndex ?: 0,
-            initialFirstVisibleItemScrollOffset = ivyWalletCtx()
-                .loanListState?.firstVisibleItemScrollOffset ?: 0
-        )
+        val scrollState = rememberScrollPositionListState(key = "loans_lazy_column")
 
         val loans = if (state.selectedTab == LoanTab.PENDING) {
             state.pendingLoans

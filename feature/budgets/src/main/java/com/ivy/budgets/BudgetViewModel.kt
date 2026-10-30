@@ -20,6 +20,7 @@ import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.temp.migration.getAccountId
 import com.ivy.data.temp.migration.getValue
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.datamodel.Account
@@ -51,7 +52,7 @@ class BudgetViewModel @Inject constructor(
     private val appPreferences: AppPreferences,
     private val budgetWriter: WriteBudgetDao,
     private val budgetCreator: BudgetCreator,
-    private val ivyContext: com.ivy.legacy.IvyWalletCtx,
+    private val periodState: PeriodState,
     private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
     private val budgetsAct: BudgetsAct,
@@ -185,9 +186,10 @@ class BudgetViewModel @Inject constructor(
             categories.value = categoryRepository.findAll().toImmutableList()
             val accounts = accountsAct()
             val baseCurrency = baseCurrencyAct()
-            val startDateOfMonth = ivyContext.initStartDayOfMonthInMemory(appPreferences)
+            val startDateOfMonth = appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
             val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
-                startDayOfMonth = startDateOfMonth
+                startDayOfMonth = startDateOfMonth,
+                timeProvider = timeProvider,
             ).toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)
             val budgets = budgetsAct()
 

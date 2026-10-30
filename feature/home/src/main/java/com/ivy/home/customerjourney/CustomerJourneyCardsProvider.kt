@@ -10,7 +10,6 @@ import com.ivy.design.system.colors.GreenLight
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
-import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PieChartStatisticScreen
@@ -23,7 +22,6 @@ class CustomerJourneyCardsProvider @Inject constructor(
   private val transactionRepository: TransactionRepository,
   private val plannedPaymentRuleDao: PlannedPaymentRuleDao,
   private val appPreferences: AppPreferences,
-  private val ivyContext: IvyWalletCtx,
   private val timeProvider: TimeProvider,
 ) {
 
@@ -39,7 +37,6 @@ class CustomerJourneyCardsProvider @Inject constructor(
         it.condition(
           trnCount,
           plannedPaymentsCount,
-          ivyContext,
           deps
         ) && !isCardDismissed(it)
       }
@@ -63,7 +60,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun adjustBalanceCard() = CustomerJourneyCardModel(
       id = "adjust_balance",
-      condition = { trnCount, _, _, _ ->
+      condition = { trnCount, _, _ ->
         trnCount == 0L
       },
       title = R.string.adjust_initial_balance,
@@ -72,14 +69,14 @@ class CustomerJourneyCardsProvider @Inject constructor(
       ctaIcon = R.drawable.ic_custom_account_s,
       background = Gradient.solid(Ivy),
       hasDismiss = false,
-      onAction = { _, ivyContext, _ ->
-        ivyContext.selectMainTab(MainTab.ACCOUNTS)
+      onAction = { _, mainScreenState, _ ->
+        mainScreenState.selectTab(MainTab.ACCOUNTS)
       }
     )
 
     fun addPlannedPaymentCard() = CustomerJourneyCardModel(
       id = "add_planned_payment",
-      condition = { trnCount, plannedPaymentCount, _, _ ->
+      condition = { trnCount, plannedPaymentCount, _ ->
         trnCount >= 1 && plannedPaymentCount == 0L
       },
       title = R.string.create_first_planned_payment,
@@ -100,7 +97,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun didYouKnow_pinAddTransactionWidgetCard() = CustomerJourneyCardModel(
       id = "add_transaction_widget",
-      condition = { trnCount, _, _, _ ->
+      condition = { trnCount, _, _ ->
         trnCount >= 3
       },
       title = R.string.did_you_know,
@@ -116,7 +113,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun didYouKnow_expensesPieChart() = CustomerJourneyCardModel(
       id = "expenses_pie_chart",
-      condition = { trnCount, _, _, _ ->
+      condition = { trnCount, _, _ ->
         trnCount >= 7
       },
       title = R.string.did_you_know,

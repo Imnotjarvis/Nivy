@@ -35,12 +35,11 @@ import com.ivy.data.temp.migration.getValue
 import com.ivy.domain.RootScreen
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toLegacy
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.scopedIOThread
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.legacy.utils.uiThread
 import com.ivy.ui.ComposeViewModel
@@ -68,7 +67,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
-import java.time.ZoneId
 import java.util.UUID
 import javax.inject.Inject
 
@@ -77,7 +75,7 @@ import javax.inject.Inject
 class ReportViewModel @Inject constructor(
     private val plannedPaymentsLogic: PlannedPaymentsLogic,
     private val transactionRepository: TransactionRepository,
-    private val ivyContext: IvyWalletCtx,
+    private val periodState: PeriodState,
     private val exchangeAct: ExchangeAct,
     private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
@@ -282,14 +280,11 @@ class ReportViewModel @Inject constructor(
 
             val accountFilterIdList = scope.async { reportFilter.accounts.map { it.id } }
 
-            val timeNowUTC = timeNowUTC()
+            val now = timeProvider.utcNow()
 
             // Upcoming
             val upcomingTransactionsList = transactionsList
-                .filter {
-                    !it.settled && it.time.atZone(ZoneId.systemDefault()).toLocalDateTime()
-                        .isAfter(timeNowUTC)
-                }
+                .filter { !it.settled && it.time.isAfter(now) }
                 .sortedBy { it.time }
                 .toImmutableList()
 
@@ -302,8 +297,7 @@ class ReportViewModel @Inject constructor(
             )
             // Overdue
             val overdue = transactionsList.filter {
-                !it.settled && it.time.atZone(ZoneId.systemDefault()).toLocalDateTime()
-                    .isBefore(timeNowUTC)
+                !it.settled && it.time.isBefore(now)
             }.sortedByDescending {
                 it.time
             }.toImmutableList()
@@ -381,7 +375,7 @@ class ReportViewModel @Inject constructor(
         val filterCategoryIds =
             filter.categories.map { if (it.id.value == unSpecifiedCategory.id.value) null else it.id }
         val filterRange =
-            filter.period?.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+            filter.period?.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         val transactions = if (filter.includedTags.isNotEmpty()) {
             tagRepository.findByAllAssociatedIdForTagId(filter.includedTags)
@@ -528,9 +522,10 @@ class ReportViewModel @Inject constructor(
         val filter = filter ?: return
         if (!filter.validate()) return
 
-        ivyContext.createNewFile(
+        val rootScreen = context as RootScreen
+        rootScreen.createNewFile(
             "IvyWalletReport-${
-                timeNowUTC().getISOFormattedDateTime()
+                timeProvider.localNow().getISOFormattedDateTime()
             }.csv"
         ) { fileUri ->
             viewModelScope.launch {
@@ -547,7 +542,7 @@ class ReportViewModel @Inject constructor(
                     }
                 )
 
-                (context as RootScreen).shareCSVFile(
+                rootScreen.shareCSVFile(
                     fileUri = fileUri
                 )
 

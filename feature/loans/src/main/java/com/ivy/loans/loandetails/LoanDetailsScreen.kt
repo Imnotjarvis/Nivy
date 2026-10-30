@@ -48,7 +48,6 @@ import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.formatNicely
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.StatusBarDarkText
@@ -379,9 +378,9 @@ private fun LoanItem(
 
             loan.dateTime?.let {
                 Text(
-                    text = it.formatNicely(
-                        noWeekDay = false
-                    ).uppercase(),
+                    text = with(LocalTimeFormatter.current) {
+                        it.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+                    }.uppercase(),
                     style = MaterialTheme.typography.numberLabelMedium.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.Bold

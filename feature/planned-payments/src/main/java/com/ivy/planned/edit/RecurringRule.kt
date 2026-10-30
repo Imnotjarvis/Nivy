@@ -21,8 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.forDisplay
-import com.ivy.legacy.utils.formatDateOnly
-import com.ivy.legacy.utils.timeNowUTC
+import com.ivy.legacy.utils.formatLocal
 import com.ivy.legacy.utils.uppercaseLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Orange
@@ -126,7 +125,7 @@ private fun RecurringRuleCard(
         Spacer(Modifier.weight(1f))
 
         Text(
-            text = startDate.toLocalDate().formatDateOnly(),
+            text = startDate.toLocalDate().formatLocal("MMM. dd"),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
@@ -156,7 +155,7 @@ private fun Preview_Empty() {
 private fun Preview_Repeat() {
     IvyWalletComponentPreview {
         RecurringRule(
-            startDate = timeNowUTC(),
+            startDate = LocalDateTime.now(),
             intervalN = 1,
             intervalType = IntervalType.MONTH,
             oneTime = false
@@ -170,7 +169,7 @@ private fun Preview_Repeat() {
 private fun Preview_OneTime() {
     IvyWalletComponentPreview {
         RecurringRule(
-            startDate = timeNowUTC().plusDays(5),
+            startDate = LocalDateTime.now().plusDays(5),
             intervalN = null,
             intervalType = null,
             oneTime = true

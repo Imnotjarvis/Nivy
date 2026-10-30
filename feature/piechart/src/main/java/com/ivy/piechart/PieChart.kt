@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import androidx.compose.foundation.background
@@ -25,14 +26,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ivy.base.legacy.toEpochMilli
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.drawColoredShadow
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Black
 import com.ivy.design.system.colors.Gradient
@@ -209,12 +208,12 @@ private class PieChartView(context: Context) : View(context) {
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                startClickTime = timeNowUTC().toEpochMilli()
+                startClickTime = SystemClock.elapsedRealtime()
             }
 
             MotionEvent.ACTION_UP -> {
                 val clickDuration: Long =
-                    timeNowUTC().toEpochMilli() - startClickTime
+                    SystemClock.elapsedRealtime() - startClickTime
                 if (clickDuration < MAX_CLICK_DURATION) {
                     val touchX = event.x
                     val touchY = event.y

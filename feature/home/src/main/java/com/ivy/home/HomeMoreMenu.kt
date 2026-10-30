@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.base.model.Theme
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.colorLerp
 import com.ivy.design.utils.lerp
@@ -95,7 +95,7 @@ fun BoxWithConstraintsScope.MoreMenu(
     onCurrencyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     val percentExpanded by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
@@ -110,9 +110,9 @@ fun BoxWithConstraintsScope.MoreMenu(
 
     val buttonSizePx = 40.dp.toDensityPx()
 
-    val xBase = ivyContext.screenWidth - 24.dp.toDensityPx()
+    val xBase = screenSize.width - 24.dp.toDensityPx()
     val yBaseCollapsed = 20.dp.toDensityPx() + statusBarInset()
-    val yBaseExpanded = ivyContext.screenHeight - 48.dp.toDensityPx() - navigationBarInset()
+    val yBaseExpanded = screenSize.height - 48.dp.toDensityPx() - navigationBarInset()
 
     val yButton = lerp(
         start = yBaseCollapsed,
@@ -132,7 +132,7 @@ fun BoxWithConstraintsScope.MoreMenu(
                 .zIndex(500f)
         ) {
             val radiusCollapsed = buttonSizePx / 2f
-            val radiusExpanded = ivyContext.screenHeight * 1.5f
+            val radiusExpanded = screenSize.height * 1.5f
             val radius = lerp(radiusCollapsed, radiusExpanded, percentExpanded)
 
             val yBackground = lerp(

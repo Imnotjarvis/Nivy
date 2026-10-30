@@ -47,10 +47,8 @@ import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.capitalizeLocal
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.isNotNullOrBlank
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
@@ -81,10 +79,11 @@ import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
@@ -580,7 +579,7 @@ fun TypeAmountCurrency(
 
             TransactionType.EXPENSE -> {
                 when {
-                    dueDate != null && dueDate.isAfter(timeNowUTC()) -> {
+                    dueDate != null && dueDate.isAfter(LocalTimeProvider.current.localNow()) -> {
                         // Upcoming Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
@@ -590,7 +589,7 @@ fun TypeAmountCurrency(
                         )
                     }
 
-                    dueDate != null && dueDate.isBefore(dateNowUTC().atStartOfDay()) -> {
+                    dueDate != null && dueDate.isBefore(LocalTimeProvider.current.localDateNow().atStartOfDay()) -> {
                         // Overdue Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_overdue,
@@ -675,7 +674,7 @@ private fun PreviewUpcomingExpense() {
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75.toBigDecimal(),
-                        dueDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        dueDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         dateTime = null,
                         type = TransactionType.EXPENSE,
                     ),
@@ -714,7 +713,7 @@ private fun PreviewUpcomingExpenseBadgeSecondRow() {
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75.toBigDecimal(),
-                        dueDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        dueDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         dateTime = null,
                         type = TransactionType.EXPENSE,
                     ),
@@ -753,7 +752,7 @@ private fun PreviewOverdueExpense() {
                         title = "Rent",
                         categoryId = food.id.value,
                         amount = 500.0.toBigDecimal(),
-                        dueDate = timeNowUTC().minusDays(5).toInstant(ZoneOffset.UTC),
+                        dueDate = Instant.now().minus(5, ChronoUnit.DAYS),
                         dateTime = null,
                         type = TransactionType.EXPENSE
                     ),
@@ -792,7 +791,7 @@ private fun PreviewNormalExpense() {
                         title = "Близкия магазин",
                         categoryId = food.id.value,
                         amount = 32.51.toBigDecimal(),
-                        dateTime = timeNowUTC().toInstant(ZoneOffset.UTC),
+                        dateTime = Instant.now(),
                         type = TransactionType.EXPENSE
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
@@ -830,7 +829,7 @@ private fun PreviewIncome() {
                         title = "Qredo Salary May",
                         categoryId = category.id.value,
                         amount = 8049.70.toBigDecimal(),
-                        dateTime = timeNowUTC().toInstant(ZoneOffset.UTC),
+                        dateTime = Instant.now(),
                         type = TransactionType.INCOME
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
@@ -862,7 +861,7 @@ private fun PreviewTransfer() {
                         toAccountId = acc2.id,
                         title = "Top-up revolut",
                         amount = 1000.0.toBigDecimal(),
-                        dateTime = timeNowUTC().toInstant(ZoneOffset.UTC),
+                        dateTime = Instant.now(),
                         type = TransactionType.TRANSFER
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
@@ -900,7 +899,7 @@ private fun PreviewTransfer_differentCurrency() {
                         title = "Top-up revolut",
                         amount = 1000.0.toBigDecimal(),
                         toAmount = 510.toBigDecimal(),
-                        dateTime = timeNowUTC().toInstant(ZoneOffset.UTC),
+                        dateTime = Instant.now(),
                         type = TransactionType.TRANSFER
                     ),
                     shouldShowAccountSpecificColorInTransactions = true,

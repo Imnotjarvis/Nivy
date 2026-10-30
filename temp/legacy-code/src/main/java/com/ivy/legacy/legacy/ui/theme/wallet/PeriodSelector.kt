@@ -21,9 +21,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
@@ -84,7 +85,7 @@ fun PeriodSelector(
 
             Text(
                 text = period.toDisplayShort(
-                    startDateOfMonth = ivyWalletCtx().startDayOfMonth,
+                    startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
                     timeConverter = LocalTimeConverter.current,
                     timeProvider = LocalTimeProvider.current,
                     timeFormatter = LocalTimeFormatter.current,
@@ -121,7 +122,8 @@ private fun Preview() {
     IvyWalletComponentPreview {
         PeriodSelector(
             period = TimePeriod.currentMonth(
-                startDayOfMonth = 1
+                startDayOfMonth = 1,
+                timeProvider = DeviceTimeProvider(),
             ), // preview
             onPreviousMonth = { },
             onNextMonth = { },

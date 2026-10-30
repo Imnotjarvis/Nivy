@@ -15,8 +15,8 @@ import com.ivy.accounts.AccountsTab
 import com.ivy.base.model.TransactionType
 import com.ivy.home.HomeTab
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalMainScreenState
 import com.ivy.legacy.data.model.MainTab
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
@@ -39,14 +39,14 @@ fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
         viewModel.start()
     }
 
-    val ivyContext = ivyWalletCtx()
+    val mainScreenState = LocalMainScreenState.current
     // Back from the accounts tab goes to home; from home it leaves the app.
-    BackHandler(enabled = ivyContext.mainTab == MainTab.ACCOUNTS) {
-        ivyContext.selectMainTab(MainTab.HOME)
+    BackHandler(enabled = mainScreenState.tab == MainTab.ACCOUNTS) {
+        mainScreenState.selectTab(MainTab.HOME)
     }
     UI(
         screen = screen,
-        tab = ivyContext.mainTab,
+        tab = mainScreenState.tab,
         baseCurrency = currency,
         selectTab = viewModel::selectTab,
         onCreateAccount = viewModel::createAccount

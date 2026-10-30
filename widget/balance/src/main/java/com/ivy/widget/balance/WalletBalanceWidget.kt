@@ -23,6 +23,7 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.AppStarter
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -123,7 +124,7 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var calcIncomeExpenseAct: CalcIncomeExpenseAct
 
     @Inject
-    lateinit var ivyContext: com.ivy.legacy.IvyWalletCtx
+    lateinit var periodState: PeriodState
 
     @Inject
     lateinit var appPreferences: AppPreferences
@@ -150,13 +151,13 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
             val currency = settings.baseCurrency
             val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
             val accounts = accountsAct()
-            val period = ivyContext.selectedPeriod
+            val period = periodState.selected
             val incomeExpense = calcIncomeExpenseAct(
                 CalcIncomeExpenseAct.Input(
                     baseCurrency = settings.baseCurrency,
                     accounts = accounts,
                     range = period.toRange(
-                        startDateOfMonth = ivyContext.startDayOfMonth,
+                        startDateOfMonth = periodState.startDayOfMonth,
                         timeConverter = timeConverter,
                         timeProvider = timeProvider,
 

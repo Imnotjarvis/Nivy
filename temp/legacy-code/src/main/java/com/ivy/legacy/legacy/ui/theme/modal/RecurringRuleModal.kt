@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -33,17 +34,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.domain.RootScreen
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.closeDay
-import com.ivy.legacy.utils.formatDateWeekDayLong
-import com.ivy.legacy.utils.formatNicely
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.legacy.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -333,20 +332,20 @@ private fun DateRow(
     ) {
         Spacer(Modifier.width(32.dp))
 
-        val ivyContext = ivyWalletCtx()
+        // looked up on tap, so previews without the activity still draw
+
+        val context = LocalContext.current
 
         Column(
             modifier = Modifier.clickableNoIndication(rememberInteractionSource()) {
-                ivyContext.pickDate(dateTime.toLocalDate(), onDatePicked)
+                (context as RootScreen).pickDateAtNoon(dateTime.toLocalDate(), onDatePicked)
             }
         ) {
             val date = dateTime.toLocalDate()
             val closeDay = date.closeDay()
 
             Text(
-                text = closeDay ?: date.formatNicely(
-                    pattern = "EEEE, dd MMM"
-                ),
+                text = closeDay ?: date.formatLocal("EEEE, dd MMM"),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal
@@ -357,7 +356,7 @@ private fun DateRow(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = date.formatDateWeekDayLong(),
+                    text = date.formatLocal("EEEE, dd MMM"),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.SemiBold
@@ -378,22 +377,18 @@ private fun DateRow(
             backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
             tint = MaterialTheme.colorScheme.surface
         ) {
-            ivyContext.pickDate(dateTime.toLocalDate(), onDatePicked)
+            (context as RootScreen).pickDateAtNoon(dateTime.toLocalDate(), onDatePicked)
         }
 
         Spacer(Modifier.width(32.dp))
     }
 }
 
-private fun IvyWalletCtx.pickDate(
+private fun RootScreen.pickDateAtNoon(
     initialDate: LocalDate,
-    onDatePicked: (
-        LocalDateTime
-    ) -> Unit
+    onDatePicked: (LocalDateTime) -> Unit
 ) {
-    datePicker(
-        initialDate = initialDate
-    ) {
+    pickDate(initialDate = initialDate) {
         onDatePicked(it.atTime(12, 0))
     }
 }

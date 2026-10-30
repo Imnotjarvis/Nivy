@@ -11,12 +11,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import com.ivy.base.model.Theme
 import com.ivy.base.resource.AndroidResourceProvider
 import com.ivy.base.time.TimeConverter
@@ -24,6 +24,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.base.time.impl.StandardTimeConverter
 import com.ivy.design.system.IvyMaterial3Theme
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.domain.RootScreen
 import com.ivy.navigation.Navigation
@@ -36,11 +37,10 @@ import com.ivy.ui.time.impl.AndroidDevicePreferences
 import com.ivy.ui.time.impl.IvyTimeFormatter
 
 @Suppress("CompositionLocalAllowlist")
-val LocalIvyWalletCtx = compositionLocalOf<IvyWalletCtx> { error("No IvyWalletCtx") }
+val LocalPeriodState = staticCompositionLocalOf<PeriodState> { error("No PeriodState") }
 
-@Deprecated("Legacy code. Don't use it, please.")
-@Composable
-fun ivyWalletCtx(): IvyWalletCtx = LocalIvyWalletCtx.current
+@Suppress("CompositionLocalAllowlist")
+val LocalMainScreenState = staticCompositionLocalOf<MainScreenState> { error("No MainScreenState") }
 
 @Composable
 fun rootScreen(): RootScreen = LocalContext.current as RootScreen
@@ -54,41 +54,39 @@ fun isDarkTheme(theme: Theme, systemDark: Boolean): Boolean = when (theme) {
 
 /**
  * The app's screens in the Ivy Material3 theme the user picked, with the status bar icons to
- * match. Also provides the legacy app context and time services to the screens that still
- * read them from the composition.
+ * match. Also gives the screens the app's shared state, its time services and the screen size.
  */
 @Suppress("ModifierMissing") // a theme around whole screens, not a layout
 @Composable
 fun IvyWalletTheme(
-    ivyContext: IvyWalletCtx,
+    theme: Theme,
+    periodState: PeriodState,
+    mainScreenState: MainScreenState,
     timeConverter: TimeConverter,
     timeProvider: TimeProvider,
     timeFormatter: TimeFormatter,
     includeSurface: Boolean = true,
     content: @Composable BoxWithConstraintsScope.() -> Unit
 ) {
-    val dark = isDarkTheme(ivyContext.theme, isSystemInDarkTheme())
+    val dark = isDarkTheme(theme, isSystemInDarkTheme())
     CompositionLocalProvider(
-        LocalIvyWalletCtx provides ivyContext,
+        LocalPeriodState provides periodState,
+        LocalMainScreenState provides mainScreenState,
         LocalTimeConverter provides timeConverter,
         LocalTimeProvider provides timeProvider,
         LocalTimeFormatter provides timeFormatter,
     ) {
         IvyMaterial3Theme(
-            isTrueBlack = ivyContext.theme == Theme.AMOLED_DARK,
+            isTrueBlack = theme == Theme.AMOLED_DARK,
             dark = dark,
         ) {
             StatusBarDarkText(darkText = !dark)
             WrapWithSurface(includeSurface = includeSurface) {
                 BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    ivyContext.screenWidth = with(LocalDensity.current) {
-                        maxWidth.roundToPx()
+                    val screenSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+                    CompositionLocalProvider(LocalScreenSize provides screenSize) {
+                        content()
                     }
-                    ivyContext.screenHeight = with(LocalDensity.current) {
-                        maxHeight.roundToPx()
-                    }
-
-                    content()
                 }
             }
         }
@@ -134,12 +132,12 @@ fun IvyWalletPreview(
     content: @Composable BoxWithConstraintsScope.() -> Unit
 ) {
     val context = LocalContext.current
-    val ivyContext = remember { IvyWalletCtx() }
-    ivyContext.switchTheme(theme)
     val timeProvider = remember { DeviceTimeProvider() }
     val timeConverter = remember { StandardTimeConverter(timeProvider) }
     IvyWalletTheme(
-        ivyContext = ivyContext,
+        theme = theme,
+        periodState = remember { PeriodState(timeProvider) },
+        mainScreenState = remember { MainScreenState() },
         timeConverter = timeConverter,
         timeProvider = timeProvider,
         timeFormatter = IvyTimeFormatter(

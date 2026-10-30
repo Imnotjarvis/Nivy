@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.base.refreshWidget
+import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.BackupDataUseCase
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteSettingsDao
@@ -22,12 +23,11 @@ import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.LogoutLogic
+import com.ivy.legacy.ThemeState
 import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.legacy.utils.uiThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
@@ -45,7 +45,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsDao: SettingsDao,
-    private val ivyContext: IvyWalletCtx,
+    private val themeState: ThemeState,
     private val logoutLogic: LogoutLogic,
     private val appPreferences: AppPreferences,
     private val backupDataUseCase: BackupDataUseCase,
@@ -56,7 +56,8 @@ class SettingsViewModel @Inject constructor(
     private val updateSettingsAct: UpdateSettingsAct,
     private val settingsWriter: WriteSettingsDao,
     private val exportCsvUseCase: ExportCsvUseCase,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val timeProvider: TimeProvider,
 ) : ComposeViewModel<SettingsState, SettingsEvent>() {
 
     private val currencyCode = mutableStateOf("")
@@ -261,9 +262,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun exportToCSV(rootScreen: RootScreen) {
-        ivyContext.createNewFile(
+        rootScreen.createNewFile(
             "IvyWalletExport_${
-                timeNowUTC().getISOFormattedDateTime()
+                timeProvider.localNow().getISOFormattedDateTime()
             }.csv"
         ) { fileUri ->
             viewModelScope.launch {
@@ -279,9 +280,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun exportToZip(rootScreen: RootScreen) {
-        ivyContext.createNewFile(
+        rootScreen.createNewFile(
             "IvyWalletBackup_${
-                timeNowUTC().getISOFormattedDateTime()
+                timeProvider.localNow().getISOFormattedDateTime()
             }.zip"
         ) { fileUri ->
             viewModelScope.launch(Dispatchers.IO) {
@@ -302,7 +303,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsAct.getSettingsWithNextTheme().run {
                 updateSettingsAct(this)
-                ivyContext.switchTheme(this.theme)
+                themeState.switchTheme(this.theme)
                 currentTheme.value = this.theme
             }
         }

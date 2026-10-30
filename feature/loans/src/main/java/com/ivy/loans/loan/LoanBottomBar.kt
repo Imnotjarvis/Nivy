@@ -27,8 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
@@ -82,9 +82,9 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
         }
     }
 
-    val ivyContext = ivyWalletCtx()
-    val fabStartX = ivyContext.screenWidth / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
-    val fabStartY = ivyContext.screenHeight - navigationBarInset() -
+    val screenSize = LocalScreenSize.current
+    val fabStartX = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
+    val fabStartY = screenSize.height - navigationBarInset() -
             30.dp.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
     IvyCircleButton(

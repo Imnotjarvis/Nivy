@@ -29,14 +29,13 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.datamodel.temp.toImmutableLegacyTags
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.computationThread
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
@@ -73,7 +72,7 @@ class TransactionsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val accountDao: AccountDao,
     private val categoryRepository: CategoryRepository,
-    private val ivyContext: IvyWalletCtx,
+    private val periodState: PeriodState,
     private val nav: Navigation,
     private val accountLogic: WalletAccountLogic,
     private val categoryLogic: WalletCategoryLogic,
@@ -99,7 +98,7 @@ class TransactionsViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
 ) : ComposeViewModel<TransactionsState, TransactionsEvent>() {
 
-    private val period = mutableStateOf(ivyContext.selectedPeriod)
+    private val period = mutableStateOf(periodState.selected)
     private val categories = mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private val accounts = mutableStateOf<ImmutableList<LegacyAccount>>(persistentListOf())
     private val baseCurrency = mutableStateOf("")
@@ -340,7 +339,7 @@ class TransactionsViewModel @Inject constructor(
             accountDao.findById(accountId)?.toLegacyDomain() ?: error("account not found")
         }
         account.value = initialAccount
-        val range = period.value.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+        val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         if (initialAccount.currency.isNotNullOrBlank()) {
             currency.value = initialAccount.currency!!
@@ -435,7 +434,7 @@ class TransactionsViewModel @Inject constructor(
             categoryRepository.findById(CategoryId(categoryId)) ?: error("category not found")
         }
         category.value = initialCategory
-        val range = period.value.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+        val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         balance.doubleValue = ioThread {
             categoryLogic.calculateCategoryBalance(initialCategory, range, accountFilterSet)
@@ -505,7 +504,7 @@ class TransactionsViewModel @Inject constructor(
             }
             category.value = initialCategory
             val range =
-                period.value.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+                period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
             val incomeTrans = transactions.filter {
                 it.categoryId == categoryId && it.type == TransactionType.INCOME
@@ -579,7 +578,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private suspend fun initForUnspecifiedCategory() {
-        val range = period.value.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
+        val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         balance.doubleValue = ioThread {
             categoryLogic.calculateUnspecifiedBalance(range)
@@ -693,11 +692,11 @@ class TransactionsViewModel @Inject constructor(
 
     private fun nextMonth(screen: TransactionsScreen) {
         val month = period.value.month
-        val year = period.value.year ?: dateNowUTC().year
+        val year = period.value.year ?: timeProvider.localDateNow().year
         if (month != null) {
             start(
                 screen = screen,
-                timePeriod = month.incrementMonthPeriod(ivyContext, 1L, year),
+                timePeriod = periodState.selectMonth(month, 1L, year),
                 reset = false
             )
         }
@@ -705,11 +704,11 @@ class TransactionsViewModel @Inject constructor(
 
     private fun previousMonth(screen: TransactionsScreen) {
         val month = period.value.month
-        val year = period.value.year ?: dateNowUTC().year
+        val year = period.value.year ?: timeProvider.localDateNow().year
         if (month != null) {
             start(
                 screen = screen,
-                timePeriod = month.incrementMonthPeriod(ivyContext, -1L, year),
+                timePeriod = periodState.selectMonth(month, -1L, year),
                 reset = false
             )
         }
@@ -826,7 +825,7 @@ class TransactionsViewModel @Inject constructor(
 
     fun start(
         screen: TransactionsScreen,
-        timePeriod: TimePeriod? = ivyContext.selectedPeriod,
+        timePeriod: TimePeriod? = periodState.selected,
         reset: Boolean = true,
     ) {
         if (reset) {
@@ -834,7 +833,7 @@ class TransactionsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            period.value = timePeriod ?: ivyContext.selectedPeriod
+            period.value = timePeriod ?: periodState.selected
 
             val baseCurrencyValue = baseCurrencyAct()
             baseCurrency.value = baseCurrencyValue

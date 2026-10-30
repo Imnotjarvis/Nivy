@@ -39,9 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.data.model.MainTab
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.lerp
@@ -84,7 +84,7 @@ fun BoxWithConstraintsScope.BottomBar(
 
     showAddAccountModal: () -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -97,7 +97,7 @@ fun BoxWithConstraintsScope.BottomBar(
         expanded = false
     }
 
-    val screenHeightDp = densityScope { ivyContext.screenHeight.toDp() }
+    val screenHeightDp = densityScope { screenSize.height.toDp() }
     val expandedBackgroundOffset by animateDpAsState(
         targetValue = if (expanded) 0.dp else screenHeightDp,
         animationSpec = springBounceFast()
@@ -160,8 +160,8 @@ fun BoxWithConstraintsScope.BottomBar(
     }
 
     // ------------------------------------ BUTTONS--------------------------------------------------
-    val fabStartX = ivyContext.screenWidth / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
-    val fabStartY = ivyContext.screenHeight - navigationBarInset() -
+    val fabStartX = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
+    val fabStartY = screenSize.height - navigationBarInset() -
             30.dp.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
     TransactionButtons(
@@ -277,7 +277,7 @@ private fun TransactionButtons(
     onAddTransfer: () -> Unit,
     onAddPlannedPayment: () -> Unit,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     val bH = 48.dp
     val bV = 20.dp // 24.dp
@@ -285,12 +285,12 @@ private fun TransactionButtons(
 
     if (buttonsShownPercent > 0.01f) {
         val buttonLeftX = bH.toDensityPx()
-        val buttonRightX = ivyContext.screenWidth - bH.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
+        val buttonRightX = screenSize.width - bH.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
         val sideButtonsY = fabStartY - bV.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
         val buttonCenterY = fabStartY - bCenterV.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
-        val clickAreaWidth = ivyContext.screenWidth / 3
+        val clickAreaWidth = screenSize.width / 3
 
         IvyOutlinedButton(
             modifier = Modifier
@@ -298,7 +298,7 @@ private fun TransactionButtons(
                     val placealbe = measurable.measure(constraints)
                     layout(placealbe.width, placealbe.height) {
                         placealbe.place(
-                            x = ivyContext.screenWidth / 2 - placealbe.width / 2,
+                            x = screenSize.width / 2 - placealbe.width / 2,
                             y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height - FAB_BUTTON_SIZE.roundToPx()
                         )
                     }

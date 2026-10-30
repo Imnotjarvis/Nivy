@@ -1,16 +1,16 @@
 package com.ivy.wallet.domain.action.global
 
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.PeriodState
 import javax.inject.Inject
 
 class StartDayOfMonthAct @Inject constructor(
     private val appPreferences: AppPreferences,
-    private val ivyWalletCtx: IvyWalletCtx
+    private val periodState: PeriodState
 ) {
     suspend operator fun invoke(): Int {
         val startDay = appPreferences.startDayOfMonth()
-        ivyWalletCtx.setStartDayOfMonth(startDay)
+        periodState.setStartDayOfMonth(startDay)
         return startDay
     }
 }

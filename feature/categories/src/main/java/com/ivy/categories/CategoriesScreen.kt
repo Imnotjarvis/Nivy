@@ -113,16 +113,9 @@ private fun BoxWithConstraintsScope.UI(
     onEvent: (CategoriesScreenEvent) -> Unit = {}
 ) {
     val nav = navigation()
-    val ivyContext = com.ivy.legacy.ivyWalletCtx()
     var listState = rememberLazyListState()
     if (!state.categories.isEmpty()) {
-        listState = rememberScrollPositionListState(
-            key = "categories_lazy_column",
-            initialFirstVisibleItemIndex = ivyContext.categoriesListState?.firstVisibleItemIndex
-                ?: 0,
-            initialFirstVisibleItemScrollOffset = ivyContext.categoriesListState?.firstVisibleItemScrollOffset
-                ?: 0
-        )
+        listState = rememberScrollPositionListState(key = "categories_lazy_column")
     }
     LazyColumn(
         modifier = Modifier

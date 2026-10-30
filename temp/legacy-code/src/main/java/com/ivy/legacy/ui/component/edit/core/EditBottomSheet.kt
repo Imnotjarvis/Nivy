@@ -44,9 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.consumeClicks
@@ -316,7 +316,7 @@ private fun BottomBar(
     navBarPadding: Dp,
     ActionButton: @Composable () -> Unit
 ) {
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     ActionsRow(
         modifier = Modifier
@@ -328,7 +328,7 @@ private fun BottomBar(
 
                 val systemOffsetBottom = keyboardShownInsetDp.toPx()
                 val visibleHeight = placeable.height * 1f
-                val y = ivyContext.screenHeight - visibleHeight - systemOffsetBottom
+                val y = screenSize.height - visibleHeight - systemOffsetBottom
 
                 layout(placeable.width, placeable.height) {
                     placeable.place(
@@ -459,7 +459,7 @@ private fun SheetHeader(
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
 
-//                    val x = lerp(0, ivyContext.screenWidth, (1f - percentExpanded))
+//                    val x = lerp(0, screenSize.width, (1f - percentExpanded))
                     val height = placeable.height * percentExpanded
 
                     layout(placeable.width, height.roundToInt()) {

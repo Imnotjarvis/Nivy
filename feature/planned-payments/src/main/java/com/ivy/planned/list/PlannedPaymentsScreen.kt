@@ -22,7 +22,6 @@ import com.ivy.design.system.colors.Purple
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
-import com.ivy.legacy.utils.timeNowUTC
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation
@@ -31,8 +30,9 @@ import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Orange
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.persistentListOf
-import java.time.ZoneOffset
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
@@ -134,7 +134,7 @@ private fun Preview() {
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         oneTime = true,
                         intervalType = null,
                         intervalN = null,
@@ -149,7 +149,7 @@ private fun Preview() {
                         title = "Tabu",
                         categoryId = shisha.id.value,
                         amount = 1025.5,
-                        startDate = timeNowUTC().plusDays(5).toInstant(ZoneOffset.UTC),
+                        startDate = Instant.now().plus(5, ChronoUnit.DAYS),
                         oneTime = false,
                         intervalType = IntervalType.MONTH,
                         intervalN = 1,

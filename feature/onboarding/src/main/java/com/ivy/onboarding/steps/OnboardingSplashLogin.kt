@@ -37,9 +37,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.lerp
@@ -92,7 +91,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
         }
     }
 
-    val ivyContext = ivyWalletCtx()
+    val screenSize = LocalScreenSize.current
 
     val spacerTop by transition.animateDp(
         transitionSpec = {
@@ -102,7 +101,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
     ) {
         when (it) {
             OnboardingState.SPLASH -> {
-                (ivyContext.screenHeight / 2f - logoHeight.toDensityPx() / 2f).toDensityDp()
+                (screenSize.height / 2f - logoHeight.toDensityPx() / 2f).toDensityDp()
             }
 
             else -> 56.dp
@@ -151,7 +150,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
 
-                    val xSplash = ivyContext.screenWidth / 2f - placeable.width / 2
+                    val xSplash = screenSize.width / 2f - placeable.width / 2
                     val xLogin = 24.dp.toPx()
 
                     layout(placeable.width, placeable.height) {
@@ -173,7 +172,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
 
         Text(
             modifier = Modifier.animateXCenterToLeft(
-                ivyContext = ivyContext,
+                screenWidth = screenSize.width,
                 percentTransition = percentTransition
             ),
             text = "Ivy Wallet",
@@ -187,7 +186,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
 
         Text(
             modifier = Modifier.animateXCenterToLeft(
-                ivyContext = ivyContext,
+                screenWidth = screenSize.width,
                 percentTransition = percentTransition
             ),
             text = stringResource(R.string.your_personal_money_manager),
@@ -205,14 +204,14 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
 }
 
 private fun Modifier.animateXCenterToLeft(
-    ivyContext: IvyWalletCtx,
+    screenWidth: Int,
     percentTransition: Float
 ): Modifier {
     return this.layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
 
         layout(placeable.width, placeable.height) {
-            val xSplash = ivyContext.screenWidth / 2f - placeable.width / 2
+            val xSplash = screenWidth / 2f - placeable.width / 2
             val xLogin = 32.dp.toPx()
 
             placeable.placeRelative(

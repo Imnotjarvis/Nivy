@@ -5,8 +5,8 @@ import androidx.compose.ui.res.stringResource
 import com.ivy.base.time.INSTANT_MAX_SAFE
 import com.ivy.base.time.INSTANT_MIN_SAFE
 import com.ivy.base.time.TimeConverter
-import com.ivy.frp.Total
 import com.ivy.ui.R
+import com.ivy.ui.time.LocalTimeProvider
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -16,101 +16,14 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-@Deprecated("Use the TimeProvider interface via DI")
-fun timeNowLocal(): LocalDateTime = LocalDateTime.now()
-
-@Deprecated("Use the TimeProvider interface via DI")
-fun dateNowLocal(): LocalDate = LocalDate.now()
-
-@Deprecated("Use the TimeProvider interface via DI")
-@Total
-fun timeNowUTC(): LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
-
-@Deprecated("Use the TimeProvider interface via DI")
-@Total
-fun dateNowUTC(): LocalDate = LocalDate.now(ZoneOffset.UTC)
-
-@Deprecated("Use the TimeProvider interface via DI + atStartOfDay()")
-fun startOfDayNowUTC(): LocalDateTime = dateNowUTC().atStartOfDay()
-
 fun LocalDateTime.toEpochSeconds() = this.toEpochSecond(ZoneOffset.UTC)
 
-@Deprecated("Use the TimeConverter interface via DI")
-@Composable
-fun LocalDateTime.formatNicely(
-    noWeekDay: Boolean = false,
-    zone: ZoneId = ZoneOffset.systemDefault()
-): String {
-    val today = dateNowUTC()
-    val isThisYear = today.year == this.year
-
-    val patternNoWeekDay = "dd MMM"
-
-    if (noWeekDay) {
-        return if (isThisYear) {
-            this.formatLocal(patternNoWeekDay)
-        } else {
-            this.formatLocal("dd MMM, yyyy")
-        }
-    }
-
-    return when (this.toLocalDate()) {
-        today -> {
-            stringResource(R.string.today_date, this.formatLocal(patternNoWeekDay, zone))
-        }
-
-        today.minusDays(1) -> {
-            stringResource(R.string.yesterday_date, this.formatLocal(patternNoWeekDay, zone))
-        }
-
-        today.plusDays(1) -> {
-            stringResource(R.string.tomorrow_date, this.formatLocal(patternNoWeekDay, zone))
-        }
-
-        else -> {
-            if (isThisYear) {
-                this.formatLocal("EEE, dd MMM", zone)
-            } else {
-                this.formatLocal("dd MMM, yyyy", zone)
-            }
-        }
-    }
-}
-
-fun LocalDateTime.getISOFormattedDateTime(): String = this.formatLocal("yyyyMMdd-HHmm")
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDate.formatDateOnly(): String = this.formatLocal("MMM. dd", ZoneOffset.systemDefault())
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDate.formatDateOnlyWithYear(): String =
-    this.formatLocal("dd MMM, yyyy", ZoneOffset.systemDefault())
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDate.formatDateWeekDayLong(): String =
-    this.formatLocal("EEEE, dd MMM", ZoneOffset.systemDefault())
-
-@Deprecated("Use the TimeConverter interface via DI")
-@Composable
-fun LocalDate.formatNicely(
-    pattern: String = "EEE, dd MMM",
-    patternNoWeekDay: String = "dd MMM",
-    zone: ZoneId = ZoneOffset.systemDefault()
-): String {
-    val closeDay = closeDay()
-    return if (closeDay != null) {
-        "$closeDay, ${this.formatLocal(patternNoWeekDay, zone)}"
-    } else {
-        this.formatLocal(
-            pattern,
-            zone
-        )
-    }
-}
+// A timestamp for file names, like 20261030-0915.
+fun LocalDateTime.getISOFormattedDateTime(): String = this.format("yyyyMMdd-HHmm")
 
 @Composable
 fun LocalDate.closeDay(): String? {
-    val today = dateNowUTC()
+    val today = LocalTimeProvider.current.localDateNow()
     return when (this) {
         today -> {
             stringResource(R.string.today)
@@ -130,47 +43,12 @@ fun LocalDate.closeDay(): String? {
     }
 }
 
-fun LocalDateTime.formatLocal(
-    pattern: String = "dd MMM yyyy, HH:mm",
-    zone: ZoneId = ZoneOffset.systemDefault()
-): String {
-    val localDateTime = this.convertUTCtoLocal(zone)
-    return localDateTime.atZone(zone).format(
-        DateTimeFormatter
-            .ofPattern(pattern)
-            .withLocale(Locale.getDefault())
-            .withZone(zone) // this is if you want to display the Zone in the pattern
-    )
-}
-
 fun LocalDateTime.format(
     pattern: String
 ): String {
     return this.format(
         DateTimeFormatter.ofPattern(pattern)
     )
-}
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDateTime.convertUTCtoLocal(zone: ZoneId = ZoneOffset.systemDefault()): LocalDateTime {
-    return this.convertUTCto(zone)
-}
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDateTime.convertUTCto(zone: ZoneId): LocalDateTime {
-    return plusSeconds(atZone(zone).offset.totalSeconds.toLong())
-}
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalTime.convertLocalToUTC(): LocalTime {
-    val offset = timeNowLocal().atZone(ZoneOffset.systemDefault()).offset.totalSeconds.toLong()
-    return this.minusSeconds(offset)
-}
-
-@Deprecated("Use the TimeConverter interface via DI")
-fun LocalDateTime.convertLocalToUTC(): LocalDateTime {
-    val offset = timeNowLocal().atZone(ZoneOffset.systemDefault()).offset.totalSeconds.toLong()
-    return this.minusSeconds(offset)
 }
 
 fun LocalDate.formatLocal(

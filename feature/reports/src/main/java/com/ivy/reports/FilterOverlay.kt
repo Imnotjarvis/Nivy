@@ -48,8 +48,8 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.domain.legacy.ui.theme.components.ListItem
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.tags.AddTagButton
 import com.ivy.legacy.ui.component.tags.ShowTagModal
 import com.ivy.legacy.utils.capitalizeLocal
@@ -220,12 +220,12 @@ fun BoxWithConstraintsScope.FilterOverlay(
 
             FilterDivider()
 
-            val ivyContext = ivyWalletCtx()
+            val periodState = LocalPeriodState.current
             PeriodFilter(
                 filter = localFilter,
                 onShowPeriodChooserModal = {
                     choosePeriodModal = ChoosePeriodModalData(
-                        period = filter?.period ?: ivyContext.selectedPeriod
+                        period = filter?.period ?: periodState.selected
                     )
                 }
             )
@@ -643,7 +643,7 @@ private fun PeriodFilter(
             .padding(horizontal = 24.dp),
         iconStart = R.drawable.ic_calendar,
         text = filter?.period?.toDisplayLong(
-            startDateOfMonth = ivyWalletCtx().startDayOfMonth,
+            startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
             timeProvider = LocalTimeProvider.current,
             timeConverter = LocalTimeConverter.current,
             timeFormatter = LocalTimeFormatter.current,

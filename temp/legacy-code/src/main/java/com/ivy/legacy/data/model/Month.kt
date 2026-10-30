@@ -4,8 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.res.stringResource
-import com.ivy.legacy.IvyWalletCtx
-import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.ui.R
 import java.time.LocalDate
 
@@ -34,25 +32,19 @@ data class Month(
             monthsList().first { it.monthValue == code }
     }
 
-    fun toDate(): LocalDate =
-        dateNowUTC()
-            .withMonth(monthValue)
+    /** The first day of this month in [year]. */
+    fun firstDay(year: Int): LocalDate = LocalDate.of(year, monthValue, 1)
+
+    /** The month [increment] months away from this month of [year]. */
+    fun incrementMonthPeriod(increment: Long, year: Int): TimePeriod {
+        val incrementedMonth = firstDay(year).plusMonths(increment)
+        return TimePeriod(
+            month = fromMonthValue(incrementedMonth.monthValue),
+            year = incrementedMonth.year
+        )
+    }
 
     // The month's name in the app's language.
     @Composable
     fun displayName(): String = stringResource(nameRes)
-
-    fun incrementMonthPeriod(
-        ivyContext: IvyWalletCtx,
-        increment: Long,
-        year: Int
-    ): TimePeriod {
-        val incrementedMonth = toDate().withYear(year).plusMonths(increment)
-        val incrementedPeriod = TimePeriod(
-            month = fromMonthValue(incrementedMonth.monthValue),
-            year = incrementedMonth.year
-        )
-        ivyContext.updateSelectedPeriodInMemory(incrementedPeriod)
-        return incrementedPeriod
-    }
 }

@@ -31,13 +31,14 @@ import com.ivy.home.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.home.customerjourney.CustomerJourney
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalMainScreenState
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
 import com.ivy.legacy.data.LegacyDueSection
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.legacy.ui.component.transaction.transactions
 import com.ivy.legacy.utils.horizontalSwipeListener
@@ -81,18 +82,18 @@ fun BoxWithConstraintsScope.HomeUi(
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val ivyContext = ivyWalletCtx()
+    val mainScreenState = LocalMainScreenState.current
 
     var bufferModalData: BufferModalData? by remember { mutableStateOf(null) }
     var currencyModalVisible by remember { mutableStateOf(false) }
     var choosePeriodModal: ChoosePeriodModalData? by remember {
         mutableStateOf(null)
     }
-    var moreMenuExpanded by remember { mutableStateOf(ivyContext.moreMenuExpanded) }
+    var moreMenuExpanded by remember { mutableStateOf(mainScreenState.homeMenuExpanded) }
     var skipAllModalVisible by remember { mutableStateOf(false) }
     val setMoreMenuExpanded = { expanded: Boolean ->
         moreMenuExpanded = expanded
-        ivyContext.setMoreMenuExpanded(expanded)
+        mainScreenState.homeMenuExpanded = expanded
     }
 
     val baseCurrency = uiState.baseData.baseCurrency
@@ -112,20 +113,14 @@ fun BoxWithConstraintsScope.HomeUi(
                 sensitivity = SWIPE_HORIZONTAL_THRESHOLD,
                 state = rememberSwipeListenerState(),
                 onSwipeLeft = {
-                    ivyContext.selectMainTab(MainTab.ACCOUNTS)
+                    mainScreenState.selectTab(MainTab.ACCOUNTS)
                 },
                 onSwipeRight = {
-                    ivyContext.selectMainTab(MainTab.ACCOUNTS)
+                    mainScreenState.selectTab(MainTab.ACCOUNTS)
                 }
             )
     ) {
-        val listState = rememberScrollPositionListState(
-            key = "home_lazy_column",
-            initialFirstVisibleItemIndex = ivyContext.transactionsListState
-                ?.firstVisibleItemIndex ?: 0,
-            initialFirstVisibleItemScrollOffset = ivyContext.transactionsListState
-                ?.firstVisibleItemScrollOffset ?: 0
-        )
+        val listState = rememberScrollPositionListState(key = "home_lazy_column")
 
         HomeHeader(
             expanded = uiState.expanded,
@@ -295,7 +290,7 @@ fun HomeLazyColumn(
     onSkipAllTransactions: (List<Transaction>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val ivyContext = ivyWalletCtx()
+    val periodState = LocalPeriodState.current
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -317,7 +312,7 @@ fun HomeLazyColumn(
     val emptyStateText = stringResource(
         R.string.no_transactions_description,
         period.toDisplayLong(
-            startDateOfMonth = ivyContext.startDayOfMonth,
+            startDateOfMonth = periodState.startDayOfMonth,
             timeProvider = timeProvider,
             timeConverter = timeConverter,
             timeFormatter = timeFormatter,

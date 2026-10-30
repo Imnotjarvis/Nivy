@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.MainScreenState
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.asLiveData
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val ivyContext: IvyWalletCtx,
+    private val mainScreenState: MainScreenState,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val accountCreator: AccountCreator,
     private val currencyRepository: CurrencyRepository,
@@ -39,7 +39,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun selectTab(tab: MainTab) {
-        ivyContext.selectMainTab(tab)
+        mainScreenState.selectTab(tab)
     }
 
     fun createAccount(data: CreateAccountData) {

@@ -27,22 +27,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
+import com.ivy.domain.RootScreen
 import com.ivy.legacy.IvyWalletPreview
+import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.LastNTimeRange
 import com.ivy.legacy.data.model.Month.Companion.fromMonthValue
 import com.ivy.legacy.data.model.Month.Companion.monthsList
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.addKeyboardListener
-import com.ivy.legacy.utils.dateNowUTC
-import com.ivy.legacy.utils.formatDateOnlyWithYear
+import com.ivy.legacy.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -82,7 +83,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
         mutableStateOf(modal?.period)
     }
 
-    val ivyContext = ivyWalletCtx()
+    val periodState = LocalPeriodState.current
     val modalScrollState = rememberScrollState()
 
     IvyModal(
@@ -95,7 +96,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
                 enabled = period != null && period!!.isValid()
             ) {
                 if (period != null) {
-                    ivyContext.updateSelectedPeriodInMemory(period!!)
+                    periodState.select(period!!)
                     dismiss()
                     onPeriodSelected(period!!)
                 }
@@ -106,7 +107,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
 
         ChooseMonth(
             selectedMonthYear = period?.month?.let {
-                MonthYear(month = it, year = period?.year ?: dateNowUTC().year)
+                MonthYear(month = it, year = period?.year ?: LocalTimeProvider.current.localDateNow().year)
             }
         ) {
             period = TimePeriod(
@@ -176,7 +177,8 @@ private fun ColumnScope.ChooseMonth(
 
     Spacer(Modifier.height(24.dp))
 
-    val currentYear = dateNowUTC().year
+    val today = LocalTimeProvider.current.localDateNow()
+    val currentYear = today.year
     val months = remember(currentYear) {
         monthsList()
             .map {
@@ -203,7 +205,7 @@ private fun ColumnScope.ChooseMonth(
             }
         } else {
             val currentMonthYear = MonthYear(
-                month = fromMonthValue(dateNowUTC().monthValue),
+                month = fromMonthValue(today.monthValue),
                 year = currentYear
             )
             val currentMonthIndex = months.indexOf(currentMonthYear)
@@ -352,7 +354,8 @@ private fun IntervalFromToDate(
     otherEndDateTime: LocalDateTime?,
     onSelected: (LocalDateTime?) -> Unit
 ) {
-    val ivyContext = ivyWalletCtx()
+    // looked up on tap, so previews without the activity still draw
+    val context = LocalContext.current
 
     Row(
         modifier = Modifier
@@ -361,7 +364,7 @@ private fun IntervalFromToDate(
             .clip(CircleShape)
             .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .clickable {
-                ivyContext.datePicker(
+                (context as RootScreen).pickDate(
                     minDate = if (border == IntervalBorder.TO) {
                         otherEndDateTime
                             ?.toLocalDate()
@@ -410,7 +413,7 @@ private fun IntervalFromToDate(
         }
 
         Text(
-            text = dateTime?.toLocalDate()?.formatDateOnlyWithYear()
+            text = dateTime?.toLocalDate()?.formatLocal("dd MMM, yyyy")
                 ?: stringResource(R.string.add_date),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = if (dateTime != null) MaterialTheme.colorScheme.onSurface else Gray,

@@ -36,7 +36,9 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.design.system.IvyMaterial3Theme
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.IvyWalletCtx
+import com.ivy.legacy.MainScreenState
+import com.ivy.legacy.PeriodState
+import com.ivy.legacy.ThemeState
 import com.ivy.legacy.IvyWalletTheme
 import com.ivy.legacy.isDarkTheme
 import com.ivy.legacy.utils.activityForResultLauncher
@@ -59,7 +61,13 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 class RootActivity : AppCompatActivity(), RootScreen {
     @Inject
-    lateinit var ivyContext: IvyWalletCtx
+    lateinit var themeState: ThemeState
+
+    @Inject
+    lateinit var periodState: PeriodState
+
+    @Inject
+    lateinit var mainScreenState: MainScreenState
 
     @Inject
     lateinit var navigation: Navigation
@@ -104,7 +112,9 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 }
                 true -> {
                     IvyWalletTheme(
-                        ivyContext = ivyContext,
+                        theme = themeState.theme,
+                        periodState = periodState,
+                        mainScreenState = mainScreenState,
                         timeConverter = timeConverter,
                         timeProvider = timeProvider,
                         timeFormatter = timeFormatter,
@@ -125,7 +135,9 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 false -> {
                     NavigationRoot(navigation = navigation) { screen ->
                         IvyWalletTheme(
-                            ivyContext = ivyContext,
+                            theme = themeState.theme,
+                            periodState = periodState,
+                            mainScreenState = mainScreenState,
                             includeSurface = screen?.isLegacy ?: true,
                             timeConverter = timeConverter,
                             timeProvider = timeProvider,
@@ -138,8 +150,8 @@ class RootActivity : AppCompatActivity(), RootScreen {
             }
 
             IvyMaterial3Theme(
-                dark = isDarkTheme(ivyContext.theme, isSystemInDarkTheme),
-                isTrueBlack = ivyContext.theme == Theme.AMOLED_DARK
+                dark = isDarkTheme(themeState.theme, isSystemInDarkTheme),
+                isTrueBlack = themeState.theme == Theme.AMOLED_DARK
             ) {
                 dateTimePicker.Content()
             }
@@ -149,8 +161,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
     private fun setupApp() {
         setupActivityForResultLaunchers()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setupDatePicker()
-        setupTimePicker()
         AddTransactionWidget.updateBroadcast(this)
         AddTransactionWidgetCompact.updateBroadcast(this)
         WalletBalanceWidgetReceiver.updateBroadcast(this)
@@ -160,65 +170,62 @@ class RootActivity : AppCompatActivity(), RootScreen {
         private const val MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000
     }
 
-    private fun setupDatePicker() {
-        ivyContext.onShowDatePicker = { minDate,
-                                        maxDate,
-                                        initialDate,
-                                        onDatePicked ->
-            val datePicker =
-                MaterialDatePicker.Builder.datePicker()
-                    .setSelection(
-                        if (initialDate != null) {
-                            initialDate.toEpochDay() * MILLISECONDS_IN_DAY
-                        } else {
-                            MaterialDatePicker.todayInUtcMilliseconds()
-                        }
-                    )
-                    .build()
-            datePicker.show(supportFragmentManager, "datePicker")
-            datePicker.addOnPositiveButtonClickListener {
-                onDatePicked(LocalDate.ofEpochDay(it / MILLISECONDS_IN_DAY))
-            }
+    override fun pickDate(
+        initialDate: LocalDate?,
+        minDate: LocalDate?,
+        maxDate: LocalDate?,
+        onPicked: (LocalDate) -> Unit,
+    ) {
+        val datePicker =
+            MaterialDatePicker.Builder.datePicker()
+                .setSelection(
+                    if (initialDate != null) {
+                        initialDate.toEpochDay() * MILLISECONDS_IN_DAY
+                    } else {
+                        MaterialDatePicker.todayInUtcMilliseconds()
+                    }
+                )
+                .build()
+        datePicker.show(supportFragmentManager, "datePicker")
+        datePicker.addOnPositiveButtonClickListener {
+            onPicked(LocalDate.ofEpochDay(it / MILLISECONDS_IN_DAY))
+        }
 
-            if (minDate != null) {
-                datePicker.addOnCancelListener {
-                    onDatePicked(minDate)
-                }
+        if (minDate != null) {
+            datePicker.addOnCancelListener {
+                onPicked(minDate)
             }
+        }
 
-            if (maxDate != null) {
-                datePicker.addOnCancelListener {
-                    onDatePicked(maxDate)
-                }
+        if (maxDate != null) {
+            datePicker.addOnCancelListener {
+                onPicked(maxDate)
             }
+        }
 
-            if (initialDate != null) {
-                datePicker.addOnCancelListener {
-                    onDatePicked(initialDate)
-                }
+        if (initialDate != null) {
+            datePicker.addOnCancelListener {
+                onPicked(initialDate)
             }
         }
     }
 
-    private fun setupTimePicker() {
-        ivyContext.onShowTimePicker = { initialTime,
-                                        onTimePicked ->
-            val nowLocal = initialTime ?: timeProvider.localTimeNow()
-            val is24Hour = android.text.format.DateFormat.is24HourFormat(this)
-            val timeFormat = if (is24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+    override fun pickTime(initialTime: LocalTime?, onPicked: (LocalTime) -> Unit) {
+        val nowLocal = initialTime ?: timeProvider.localTimeNow()
+        val is24Hour = android.text.format.DateFormat.is24HourFormat(this)
+        val timeFormat = if (is24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
 
-            val picker =
-                MaterialTimePicker.Builder()
-                    .setTimeFormat(timeFormat)
-                    .setHour(nowLocal.hour)
-                    .setMinute(nowLocal.minute)
-                    .build()
-            picker.show(supportFragmentManager, "timePicker")
-            picker.addOnPositiveButtonClickListener {
-                onTimePicked(
-                    LocalTime.of(picker.hour, picker.minute).withSecond(0)
-                )
-            }
+        val picker =
+            MaterialTimePicker.Builder()
+                .setTimeFormat(timeFormat)
+                .setHour(nowLocal.hour)
+                .setMinute(nowLocal.minute)
+                .build()
+        picker.show(supportFragmentManager, "timePicker")
+        picker.addOnPositiveButtonClickListener {
+            onPicked(
+                LocalTime.of(picker.hour, picker.minute).withSecond(0)
+            )
         }
     }
 
@@ -250,12 +257,11 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 onFileCreated(it)
             }
         }
+    }
 
-        ivyContext.createNewFile = { fileName, onFileCreatedCallback ->
-            onFileCreated = onFileCreatedCallback
-
-            createFileLauncher.launch(fileName)
-        }
+    override fun createNewFile(fileName: String, onCreated: (Uri) -> Unit) {
+        onFileCreated = onCreated
+        createFileLauncher.launch(fileName)
     }
 
     private fun openFileLauncher() {
@@ -269,12 +275,11 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 onFileOpened(it)
             }
         }
+    }
 
-        ivyContext.openFile = { onFileOpenedCallback ->
-            onFileOpened = onFileOpenedCallback
-
-            openFileLauncher.launch(Unit)
-        }
+    override fun openFile(onOpened: (Uri) -> Unit) {
+        onFileOpened = onOpened
+        openFileLauncher.launch(Unit)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
