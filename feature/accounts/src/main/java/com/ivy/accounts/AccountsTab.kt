@@ -323,7 +323,7 @@ private fun AccountHeader(
                     .testTag("baseCurrencyEquivalent"),
                 textColor = account.color.value.toComposeColor().dynamicContrast(),
                 currency = baseCurrency,
-                balance = accountData.balanceBaseCurrency!!,
+                balance = accountData.balanceBaseCurrency,
                 currencyUpfront = false
             )
         }
