@@ -1,6 +1,7 @@
 package com.ivy.wallet.domain.deprecated.logic
 
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.model.Account
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.repository.TransactionRepository
