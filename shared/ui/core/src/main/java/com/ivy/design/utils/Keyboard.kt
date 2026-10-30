@@ -2,18 +2,12 @@ package com.ivy.design.utils
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
-
-fun View.showKeyboard() {
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
-}
 
 @SuppressLint("ComposableNaming")
 @Composable

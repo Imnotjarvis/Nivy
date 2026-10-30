@@ -13,7 +13,6 @@ dependencies {
     implementation(projects.shared.domain)
     implementation(projects.shared.ui.core)
     implementation(projects.shared.ui.navigation)
-    implementation(projects.temp.oldDesign)
 
     implementation(libs.bundles.activity)
     implementation(libs.bundles.opencsv)

@@ -46,8 +46,6 @@ import com.ivy.legacy.LocalTimeConverter
 import com.ivy.legacy.LocalTimeFormatter
 import com.ivy.legacy.LocalTimeProvider
 import com.ivy.design.system.colors.BlueLight
-import com.ivy.design.l1_buildingBlocks.IvyText
-import com.ivy.design.l1_buildingBlocks.SpacerHor
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.datamodel.Account
@@ -434,7 +432,7 @@ private fun TransactionBadge(
             .padding(end = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SpacerHor(width = 8.dp)
+        Spacer(Modifier.width(8.dp))
 
         val contrastColor = findContrastTextColor(backgroundColor)
 
@@ -444,17 +442,17 @@ private fun TransactionBadge(
             tint = contrastColor
         )
 
-        SpacerHor(width = 4.dp)
+        Spacer(Modifier.width(4.dp))
 
-        IvyText(
+        Text(
             text = text,
-            typo = MaterialTheme.typography.labelMedium.copy(
+            style = MaterialTheme.typography.labelMedium.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
         )
 
-        SpacerHor(width = 20.dp)
+        Spacer(Modifier.width(20.dp))
     }
 }
 

@@ -25,7 +25,6 @@ moduleGraphAssert {
         ":widget:.* -X> :(app|feature):.*",
         ":temp:.* -X> :(app|feature|widget):.*",
         ".* -X> :app",
-        ":temp:old-design -X> :temp:legacy-code",
         // Features don't depend on each other; main and import-data keep their existing links.
         ":feature:(?!(?:main|import-data) )[a-z-]+ -X> :feature:.*",
         ":feature:main -X> :feature:(?!(?:accounts|home)$).*",

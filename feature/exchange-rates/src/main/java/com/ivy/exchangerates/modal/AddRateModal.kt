@@ -15,7 +15,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.l1_buildingBlocks.SpacerVer
 import com.ivy.exchangerates.RatesEvent
 import com.ivy.exchangerates.data.RateUi
 import com.ivy.legacy.IvyWalletPreview
@@ -29,6 +28,8 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import com.ivy.design.system.typography.numberHeadlineMedium
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 
 @Composable
 fun BoxWithConstraintsScope.AddRateModal(
@@ -62,9 +63,9 @@ fun BoxWithConstraintsScope.AddRateModal(
             }
         }
     ) {
-        SpacerVer(height = 16.dp)
+        Spacer(Modifier.height(16.dp))
         ModalTitle(text = "Add rate")
-        SpacerVer(height = 24.dp)
+        Spacer(Modifier.height(24.dp))
 
         IvyNameTextField(
             modifier = Modifier.padding(horizontal = 32.dp),
@@ -75,7 +76,7 @@ fun BoxWithConstraintsScope.AddRateModal(
             toCurrency = it
         }
 
-        SpacerVer(height = 12.dp)
+        Spacer(Modifier.height(12.dp))
         Text(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,7 +91,7 @@ fun BoxWithConstraintsScope.AddRateModal(
                 textAlign = TextAlign.Center
             )
         )
-        SpacerVer(height = 24.dp)
+        Spacer(Modifier.height(24.dp))
     }
 
     AmountModal(

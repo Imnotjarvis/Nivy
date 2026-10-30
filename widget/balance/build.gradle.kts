@@ -12,7 +12,6 @@ dependencies {
     implementation(projects.shared.ui.core)
     implementation(projects.shared.ui.navigation)
 
-    implementation(projects.temp.oldDesign)
     implementation(projects.widget.sharedBase)
     implementation(projects.temp.legacyCode)
 }

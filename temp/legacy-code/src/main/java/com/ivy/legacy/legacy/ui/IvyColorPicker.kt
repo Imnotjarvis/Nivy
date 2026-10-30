@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_PREMIUM
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.l1_buildingBlocks.IvyIcon
+import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.thenIf
 import com.ivy.frp.test.TestingContext

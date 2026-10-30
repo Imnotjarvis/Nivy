@@ -15,7 +15,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.l1_buildingBlocks.IvyIcon
+import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.legacy.utils.onScreenStart
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R

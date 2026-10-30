@@ -36,8 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.base.legacy.Theme
-import com.ivy.design.l1_buildingBlocks.IconScale
-import com.ivy.design.l1_buildingBlocks.IvyIconScaled
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.rootScreen
@@ -65,6 +63,9 @@ import java.util.Locale
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
 
 @ExperimentalFoundationApi
 @Composable
@@ -452,11 +453,11 @@ private fun StartDateOfMonth(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_custom_calendar_m,
-            tint = MaterialTheme.colorScheme.onSurface,
-            iconScale = IconScale.M,
-            padding = 2.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(2.dp),
+            painter = painterResource(id = R.drawable.ic_custom_calendar_m),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(8.dp))
@@ -493,11 +494,11 @@ private fun CustomFeatures(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_custom_programming_m,
-            tint = MaterialTheme.colorScheme.onSurface,
-            iconScale = IconScale.M,
-            padding = 0.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(0.dp),
+            painter = painterResource(id = R.drawable.ic_custom_programming_m),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -545,11 +546,11 @@ private fun AppSwitch(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = icon,
-            tint = MaterialTheme.colorScheme.onSurface,
-            iconScale = IconScale.M,
-            padding = 0.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(0.dp),
+            painter = painterResource(id = icon),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(8.dp))
@@ -642,9 +643,11 @@ private fun AccountCardLocalAccount(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
-        IvyIconScaled(
-            icon = R.drawable.ic_local_account,
-            iconScale = IconScale.M
+        Icon(
+            modifier = Modifier.size(48.dp).padding(4.dp),
+            painter = painterResource(id = R.drawable.ic_local_account),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(12.dp))
@@ -696,11 +699,11 @@ private fun SettingsPrimaryButton(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = icon,
-            tint = textColor,
-            iconScale = IconScale.M,
-            padding = iconPadding
+        Icon(
+            modifier = Modifier.size(48.dp).padding(iconPadding),
+            painter = painterResource(id = icon),
+            contentDescription = "icon",
+            tint = textColor
         )
 
         Spacer(Modifier.width(8.dp))
@@ -776,10 +779,11 @@ private fun CurrencyButton(
     ) {
         Spacer(Modifier.width(12.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_currency,
-            iconScale = IconScale.M,
-            padding = 0.dp
+        Icon(
+            modifier = Modifier.size(48.dp).padding(0.dp),
+            painter = painterResource(id = R.drawable.ic_currency),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(8.dp))
@@ -805,9 +809,11 @@ private fun CurrencyButton(
 
         Spacer(Modifier.height(4.dp))
 
-        IvyIconScaled(
-            icon = R.drawable.ic_arrow_right,
-            iconScale = IconScale.M
+        Icon(
+            modifier = Modifier.size(48.dp).padding(4.dp),
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = "icon",
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.width(24.dp))

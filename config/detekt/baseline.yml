@@ -30,11 +30,7 @@
     <ID>ComposableParamOrder:BackBottomBar.kt$BackBottomBar</ID>
     <ID>ComposableParamOrder:BudgetBattery.kt$BudgetBattery</ID>
     <ID>ComposableParamOrder:BufferBattery.kt$BufferBattery</ID>
-    <ID>ComposableParamOrder:Button.kt$Button</ID>
-    <ID>ComposableParamOrder:ButtonWithIcon.kt$Button</ID>
     <ID>ComposableParamOrder:ChangeTransactionTypeModal.kt$ChangeTransactionTypeModal</ID>
-    <ID>ComposableParamOrder:Checkbox.kt$Checkbox</ID>
-    <ID>ComposableParamOrder:Checkbox.kt$CheckboxWithText</ID>
     <ID>ComposableParamOrder:ChooseCategoryModal.kt$ChooseCategoryModal</ID>
     <ID>ComposableParamOrder:ChooseIconModal.kt$ChooseIconModal</ID>
     <ID>ComposableParamOrder:ChooseStartDateOfMonthModal.kt$ChooseStartDateOfMonthModal</ID>
@@ -44,7 +40,6 @@
     <ID>ComposableParamOrder:CurrencyPicker.kt$CurrencyPicker</ID>
     <ID>ComposableParamOrder:DescriptionModal.kt$DescriptionModal</ID>
     <ID>ComposableParamOrder:FilterOverlay.kt$TypeFilterCheckbox</ID>
-    <ID>ComposableParamOrder:IconButton.kt$IconButton</ID>
     <ID>ComposableParamOrder:ImportInstructions.kt$InstructionButton</ID>
     <ID>ComposableParamOrder:ItemIcon.kt$ItemIcon</ID>
     <ID>ComposableParamOrder:ItemIcon.kt$ItemIconL</ID>
@@ -61,7 +56,6 @@
     <ID>ComposableParamOrder:IvyCircleButton.kt$IvyCircleButton</ID>
     <ID>ComposableParamOrder:IvyDescriptionTextField.kt$IvyDescriptionTextField</ID>
     <ID>ComposableParamOrder:IvyIcon.kt$IvyIcon</ID>
-    <ID>ComposableParamOrder:IvyIcon.kt$IvyIconScaled</ID>
     <ID>ComposableParamOrder:IvyLineChart.kt$IvyLineChart</ID>
     <ID>ComposableParamOrder:IvyModal.kt$IvyModal</ID>
     <ID>ComposableParamOrder:IvyModalComponents.kt$ModalCheck</ID>
@@ -73,7 +67,6 @@
     <ID>ComposableParamOrder:IvyOutlinedButton.kt$IvyOutlinedButtonFillMaxWidth</ID>
     <ID>ComposableParamOrder:IvyOutlinedTextField.kt$IvyOutlinedTextField</ID>
     <ID>ComposableParamOrder:IvySwitch.kt$IvySwitch</ID>
-    <ID>ComposableParamOrder:IvyText.kt$IvyText</ID>
     <ID>ComposableParamOrder:IvyTitleTextField.kt$IvyTitleTextField</ID>
     <ID>ComposableParamOrder:LoanModal.kt$AccountsRow</ID>
     <ID>ComposableParamOrder:OnboardingComponents.kt$OnboardingButton</ID>
@@ -84,10 +77,6 @@
     <ID>ComposableParamOrder:ProgressModal.kt$ProgressModal</ID>
     <ID>ComposableParamOrder:ReorderModal.kt$ReorderModal</ID>
     <ID>ComposableParamOrder:ReorderModal.kt$ReorderModalSingleType</ID>
-    <ID>ComposableParamOrder:ScreenTitle.kt$ScreenTitle</ID>
-    <ID>ComposableParamOrder:Shapes.kt$Shape</ID>
-    <ID>ComposableParamOrder:Shapes.kt$ShapeOutlined</ID>
-    <ID>ComposableParamOrder:Switch.kt$Switch</ID>
     <ID>ComposableParamOrder:WrapContentRow.kt$WrapContentRow</ID>
     <ID>CompositionLocalAllowlist:NavigationRoot.kt$LocalNavigation</ID>
     <ID>ConstructorParameterNaming:LoanTransactionsLogic.kt$LoanTransactionsLogic$val Loan: LTLoanMapper</ID>
@@ -109,7 +98,6 @@
     <ID>FunctionParameterNaming:AmountModal.kt$ThirdRowExtra: (@Composable RowScope.() -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:AmountModal.kt$ZeroRow: (@Composable RowScope.() -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:BackBottomBar.kt$PrimaryAction: @Composable () -&gt; Unit</ID>
-    <ID>FunctionParameterNaming:ColumnRoot.kt$Content: @Composable ColumnScope.() -&gt; Unit</ID>
     <ID>FunctionParameterNaming:EditBottomSheet.kt$ActionButton: @Composable () -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ItemIcon.kt$Default: (@Composable () -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:IvyComponents.kt$Content: @Composable RowScope.() -&gt; Unit</ID>
@@ -368,7 +356,6 @@
     <ID>MagicNumber:ImportProcessing.kt$100</ID>
     <ID>MagicNumber:ImportResultUI.kt$100</ID>
     <ID>MagicNumber:ImportViewModel.kt$ImportViewModel$100</ID>
-    <ID>MagicNumber:InputField.kt$100</ID>
     <ID>MagicNumber:IntervalPickerRow.kt$180f</ID>
     <ID>MagicNumber:IvyLineChart.kt$3</ID>
     <ID>MagicNumber:IvyModal.kt$0.01f</ID>
@@ -569,9 +556,6 @@
     <ID>ModifierMissing:DeleteModal.kt$DeleteConfirmationModal</ID>
     <ID>ModifierMissing:DeleteModal.kt$DeleteModal</ID>
     <ID>ModifierMissing:DescriptionModal.kt$DescriptionModal</ID>
-    <ID>ModifierMissing:Dividers.kt$DividerH</ID>
-    <ID>ModifierMissing:Dividers.kt$DividerV</ID>
-    <ID>ModifierMissing:Dividers.kt$DividerW</ID>
     <ID>ModifierMissing:FilterOverlay.kt$FilterOverlay</ID>
     <ID>ModifierMissing:FinancistoSteps.kt$FinancistoSteps</ID>
     <ID>ModifierMissing:GradientCut.kt$GradientCutBottom</ID>
@@ -621,12 +605,7 @@
     <ID>ModifierMissing:RecurringRuleModal.kt$RecurringRuleModal</ID>
     <ID>ModifierMissing:ReorderModal.kt$ReorderModal</ID>
     <ID>ModifierMissing:ReorderModal.kt$ReorderModalSingleType</ID>
-    <ID>ModifierMissing:ScreenTitle.kt$ScreenTitle</ID>
-    <ID>ModifierMissing:ScreenTitle.kt$ScreenTitleLarge</ID>
     <ID>ModifierMissing:SearchInput.kt$SearchInput</ID>
-    <ID>ModifierMissing:Spacers.kt$SpacerHor</ID>
-    <ID>ModifierMissing:Spacers.kt$SpacerVer</ID>
-    <ID>ModifierMissing:Spacers.kt$SpacerWeight</ID>
     <ID>ModifierMissing:SpendeeSteps.kt$SpendeeSteps</ID>
     <ID>ModifierMissing:Suggestions.kt$Suggestions</ID>
     <ID>ModifierMissing:Title.kt$Title</ID>
@@ -691,8 +670,6 @@
     <ID>NestedBlockDepth:ZipUtils.kt$fun unzip(fileInputStream: FileInputStream, location: File)</ID>
     <ID>NoWildcardImports:BufferModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ComposeExt.kt$import androidx.compose.runtime.*</ID>
-    <ID>NoWildcardImports:Dividers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:InputField.kt$import com.ivy.design.utils.*</ID>
     <ID>NoWildcardImports:IvyRoomDatabase.kt$import androidx.room.*</ID>
     <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.runtime.*</ID>
@@ -701,40 +678,7 @@
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
-    <ID>NoWildcardImports:Spacers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:Switch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:Switch.kt$import androidx.compose.runtime.*</ID>
     <ID>ObjectPropertyNaming:SharedPrefs.kt$SharedPrefs.Companion$// -------------------------------- Customer Journey ---------------------------------------- const val _CARD_DISMISSED = "_cj_dismissed"</ID>
-    <ID>PackageName:Background.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageName:Button.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:ButtonWithIcon.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:Checkbox.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:ColumnRoot.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:Dividers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:IconButton.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:InputField.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:IvyIcon.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:IvyPadding.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageName:IvyText.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:ScreenTitle.kt$package com.ivy.design.l3_ivyComponents</ID>
-    <ID>PackageName:Shapes.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:Spacers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:Switch.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:Background.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageNaming:Button.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:ButtonWithIcon.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:Checkbox.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:ColumnRoot.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:Dividers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:IconButton.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:InputField.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:IvyIcon.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:IvyPadding.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageNaming:IvyText.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:ScreenTitle.kt$package com.ivy.design.l3_ivyComponents</ID>
-    <ID>PackageNaming:Shapes.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:Spacers.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:Switch.kt$package com.ivy.design.l2_components</ID>
     <ID>PrintStackTrace:Budget.kt$Budget$e</ID>
     <ID>PrintStackTrace:BudgetCreator.kt$BudgetCreator$e</ID>
     <ID>PrintStackTrace:BudgetExt.kt$e</ID>
@@ -821,7 +765,6 @@
     <ID>UnusedParameter:PlannedPaymentsScreen.kt$screen: PlannedPaymentsScreen</ID>
     <ID>UnusedParameter:ReportScreen.kt$screen: ReportScreen</ID>
     <ID>UnusedParameter:SearchScreen.kt$screen: SearchScreen</ID>
-    <ID>UnusedParameter:Shapes.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:Title.kt$initialTransactionId: UUID?</ID>
     <ID>UnusedPrivateMember:Migration109to110_PlannedPayments.kt$Migration109to110_PlannedPayments$private fun SupportSQLiteDatabase.addSyncColumns(tableName: String)</ID>
     <ID>UseCheckOrError:SharedPrefs.kt$SharedPrefs$throw IllegalStateException("SharePrefs key '$key' cannot be null")</ID>
@@ -829,8 +772,6 @@
     <ID>UtilityClassWithPublicConstructor:WidgetBase.kt$WidgetBase</ID>
     <ID>WildcardImport:BufferModal.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ComposeExt.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:Dividers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:InputField.kt$import com.ivy.design.utils.*</ID>
     <ID>WildcardImport:IvyRoomDatabase.kt$import androidx.room.*</ID>
     <ID>WildcardImport:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:IvySwitch.kt$import androidx.compose.runtime.*</ID>
@@ -839,8 +780,5 @@
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
-    <ID>WildcardImport:Spacers.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:Switch.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:Switch.kt$import androidx.compose.runtime.*</ID>
   </CurrentIssues>
 </SmellBaseline>

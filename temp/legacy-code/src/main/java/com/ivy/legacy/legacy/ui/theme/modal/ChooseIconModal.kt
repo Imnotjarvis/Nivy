@@ -28,10 +28,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.l1_buildingBlocks.DividerW
-import com.ivy.design.l1_buildingBlocks.IvyText
-import com.ivy.design.l1_buildingBlocks.SpacerHor
-import com.ivy.design.l1_buildingBlocks.SpacerVer
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.legacy.utils.onScreenStart
@@ -45,6 +41,8 @@ import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 
 @Deprecated("Old design system. Use `:ivy-design` and Material3")
 private const val ICON_PICKER_ICONS_PER_ROW = 5
@@ -303,30 +301,36 @@ private fun Icon(
 private fun Section(
     title: String
 ) {
-    SpacerVer(height = 20.dp)
-
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        DividerW()
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
-        SpacerHor(width = 16.dp)
+        Spacer(Modifier.width(16.dp))
 
-        IvyText(
+        Text(
             text = title,
-            typo = MaterialTheme.typography.titleLarge.copy(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         )
 
-        SpacerHor(width = 16.dp)
+        Spacer(Modifier.width(16.dp))
 
-        DividerW()
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
-
-    SpacerVer(height = 20.dp)
 }
 
 @Preview
