@@ -204,7 +204,8 @@ jobs:
       # print no warnings.
       - name: List compiler errors and warnings
         if: ${{ !cancelled() }}
-        run: grep -E '^[ew]: ' gradle-output.log | sed "s#file://$PWD/##" | sort -u || true
+        run: |
+          grep -E '^[ew]: ' gradle-output.log | sed "s#file://$PWD/##" | sort -u || true
 
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:
