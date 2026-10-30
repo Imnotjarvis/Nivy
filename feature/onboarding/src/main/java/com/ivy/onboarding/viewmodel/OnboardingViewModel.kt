@@ -11,6 +11,7 @@ import com.ivy.data.model.Account
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
+import com.ivy.onboarding.StarterData
 import com.ivy.ui.ComposeViewModel
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.data.model.Category
@@ -28,7 +29,6 @@ import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
@@ -57,7 +57,7 @@ class OnboardingViewModel @Inject constructor(
 
     // Only OnboardingRouter stuff
     transactionReminderScheduler: TransactionReminderScheduler,
-    preloadDataLogic: PreloadDataLogic,
+    starterData: StarterData,
     deleteAllDataUseCase: DeleteAllDataUseCase,
 ) : ComposeViewModel<OnboardingDetailState, OnboardingEvent>() {
 
@@ -95,7 +95,7 @@ class OnboardingViewModel @Inject constructor(
         accountDao = accountDao,
         appPreferences = appPreferences,
         categoryRepository = categoryRepository,
-        preloadDataLogic = preloadDataLogic,
+        starterData = starterData,
         transactionReminderScheduler = transactionReminderScheduler,
         deleteAllDataUseCase = deleteAllDataUseCase,
         syncExchangeRatesUseCase = syncExchangeRatesUseCase,

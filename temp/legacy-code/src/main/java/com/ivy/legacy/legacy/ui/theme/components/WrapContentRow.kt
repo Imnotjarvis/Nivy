@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -19,7 +18,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Category
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -93,13 +91,13 @@ private fun PreviewWrapContentRow() {
                 .padding(horizontal = 16.dp, vertical = 24.dp)
                 .background(MaterialTheme.colorScheme.error),
             items = listOf(
-                Category("Todo", MaterialTheme.colorScheme.primary.toArgb()),
-                Category("Ivy", MaterialTheme.colorScheme.primary.toArgb()),
-                Category("Qredo", MaterialTheme.colorScheme.primary.toArgb()),
-                Category("Home", MaterialTheme.colorScheme.primary.toArgb()),
-                Category("Inspiration", MaterialTheme.colorScheme.primary.toArgb()),
-                Category("Business and marketing", MaterialTheme.colorScheme.primary.toArgb()),
-                Category("Testdfsgdfgdf", MaterialTheme.colorScheme.primary.toArgb()),
+                "Todo",
+                "Ivy",
+                "Qredo",
+                "Home",
+                "Inspiration",
+                "Business and marketing",
+                "Testdfsgdfgdf",
             ),
             verticalMarginBetweenRows = 8.dp
         ) {
@@ -109,7 +107,7 @@ private fun PreviewWrapContentRow() {
                     .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                     .clickable(onClick = { })
                     .padding(horizontal = 20.dp, vertical = 12.dp),
-                text = it.name,
+                text = it,
                 style = TextStyle(
                     color = MaterialTheme.colorScheme.inverseSurface,
                     fontSize = 14.sp,

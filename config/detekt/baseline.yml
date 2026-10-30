@@ -230,7 +230,6 @@
     <ID>InvalidPackageDeclaration:OnboardingComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:OverdueAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
     <ID>InvalidPackageDeclaration:PeriodSelector.kt$package com.ivy.wallet.ui.theme.wallet</ID>
-    <ID>InvalidPackageDeclaration:PreloadDataLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
     <ID>InvalidPackageDeclaration:ProgressBar.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:ProgressModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
     <ID>InvalidPackageDeclaration:RecurringRuleModal.kt$package com.ivy.wallet.ui.theme.modal</ID>

@@ -2,8 +2,8 @@ package com.ivy.home.customerjourney
 
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GreenLight
@@ -17,17 +17,16 @@ import com.ivy.ui.R
 import com.ivy.widget.transaction.AddTransactionWidgetCompact
 import javax.inject.Inject
 
-@Deprecated("Legacy code")
 class CustomerJourneyCardsProvider @Inject constructor(
   private val transactionRepository: TransactionRepository,
-  private val plannedPaymentRuleDao: PlannedPaymentRuleDao,
+  private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
   private val appPreferences: AppPreferences,
   private val timeProvider: TimeProvider,
 ) {
 
   suspend fun loadCards(): List<CustomerJourneyCardModel> {
     val trnCount = transactionRepository.countHappenedTransactions().value
-    val plannedPaymentsCount = plannedPaymentRuleDao.countPlannedPayments()
+    val plannedPaymentsCount = plannedPaymentRuleRepository.count().value
     val deps = CustomerJourneyDeps(
       timeProvider = timeProvider,
     )

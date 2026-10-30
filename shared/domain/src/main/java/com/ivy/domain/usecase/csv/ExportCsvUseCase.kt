@@ -27,7 +27,6 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.experimental.ExperimentalTypeInference
 
 class ExportCsvUseCase @Inject constructor(
     private val accountRepository: AccountRepository,
@@ -106,8 +105,7 @@ class ExportCsvUseCase @Inject constructor(
         csvAppend(id.value.toString())
     }
 
-    @OptIn(ExperimentalTypeInference::class)
-    private fun csvRow(@BuilderInference build: CsvRowScope.() -> Unit): String {
+    private fun csvRow(build: CsvRowScope.() -> Unit): String {
         val columns = mutableListOf<String>()
         val rowScope = object : CsvRowScope {
             override fun csvAppend(value: String?) {

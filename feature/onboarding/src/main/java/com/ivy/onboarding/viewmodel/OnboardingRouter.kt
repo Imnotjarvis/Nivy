@@ -16,8 +16,8 @@ import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingState
+import com.ivy.onboarding.StarterData
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
@@ -39,7 +39,7 @@ class OnboardingRouter(
     private val accountDao: AccountDao,
     private val appPreferences: AppPreferences,
     private val transactionReminderScheduler: TransactionReminderScheduler,
-    private val preloadDataLogic: PreloadDataLogic,
+    private val starterData: StarterData,
     private val categoryRepository: CategoryRepository,
     private val deleteAllDataUseCase: DeleteAllDataUseCase,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
@@ -159,7 +159,7 @@ class OnboardingRouter(
         routeToCategories()
 
         ioThread {
-            preloadDataLogic.preloadAccounts()
+            starterData.preloadAccounts()
         }
     }
     // ------------------------------------- Step 4 -------------------------------------------------
@@ -173,7 +173,7 @@ class OnboardingRouter(
         completeOnboarding(baseCurrency = baseCurrency)
 
         ioThread {
-            preloadDataLogic.preloadCategories()
+            starterData.preloadCategories()
         }
     }
     // ------------------------------------- Step 5 -------------------------------------------------
@@ -187,14 +187,14 @@ class OnboardingRouter(
         this.accounts.value = accounts
 
         accountSuggestions.value =
-            preloadDataLogic.accountSuggestions(baseCurrency.code)
+            starterData.accountSuggestions(baseCurrency.code)
         state.value = OnboardingState.ACCOUNTS
     }
 
     private suspend fun routeToCategories() {
         categories.value =
             ioThread { categoryRepository.findAll().toImmutableList() }
-        categorySuggestions.value = preloadDataLogic.categorySuggestions()
+        categorySuggestions.value = starterData.categorySuggestions()
 
         state.value = OnboardingState.CATEGORIES
     }

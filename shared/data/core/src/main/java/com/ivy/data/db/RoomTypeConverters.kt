@@ -1,23 +1,25 @@
 package com.ivy.domain.db
 
 import androidx.room.TypeConverter
-import com.ivy.base.legacy.epochMilliToDateTime
-import com.ivy.base.legacy.toEpochMilli
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.LoanType
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 @SuppressWarnings("unused")
 class RoomTypeConverters {
+    // A LocalDateTime column holds the epoch millis of that date-time read as UTC.
     @TypeConverter
-    fun saveDate(localDateTime: LocalDateTime?): Long? = localDateTime?.toEpochMilli()
+    fun saveDate(localDateTime: LocalDateTime?): Long? =
+        localDateTime?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
 
     @TypeConverter
-    fun parseDate(timestampMillis: Long?): LocalDateTime? = timestampMillis?.epochMilliToDateTime()
+    fun parseDate(timestampMillis: Long?): LocalDateTime? =
+        timestampMillis?.let { LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneOffset.UTC) }
 
     @TypeConverter
     fun saveUUID(id: UUID?) = id?.toString()

@@ -1,4 +1,4 @@
-package com.ivy.wallet.domain.deprecated.logic
+package com.ivy.onboarding
 
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
@@ -47,15 +47,13 @@ import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import javax.inject.Inject
 
-@Deprecated("Legacy, get rid of it.")
-class PreloadDataLogic @Inject constructor(
+/** The accounts and categories a new wallet can start with. */
+class StarterData @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val accountRepository: AccountRepository,
     private val currencyRepository: CurrencyRepository,
     private val resourceProvider: ResourceProvider,
 ) {
-    private var categoryOrderNum = 0.0
-
     suspend fun preloadAccounts() {
         val baseCurrency = currencyRepository.getBaseCurrency()
         listOf(
@@ -102,12 +100,8 @@ class PreloadDataLogic @Inject constructor(
         )
 
     suspend fun preloadCategories() {
-        categoryOrderNum = 0.0
-
-        val categoriesToPreload = preloadCategoriesCreateData()
-
-        for (createData in categoriesToPreload) {
-            preloadCategory(createData)
+        preloadCategoriesCreateData().forEachIndexed { index, createData ->
+            preloadCategory(createData, orderNum = index.toDouble())
         }
     }
 
@@ -175,13 +169,14 @@ class PreloadDataLogic @Inject constructor(
 
     private suspend fun preloadCategory(
         data: CreateCategoryData,
+        orderNum: Double,
     ) {
         val category: Category? = either {
             Category(
                 name = NotBlankTrimmedString.from(data.name).bind(),
                 color = ColorInt(data.color.toArgb()),
                 icon = data.icon?.let(IconAsset::from)?.getOrNull(),
-                orderNum = categoryOrderNum++,
+                orderNum = orderNum,
                 id = CategoryId(UUID.randomUUID()),
             )
         }.getOrNull()

@@ -259,7 +259,7 @@ private class Adapter<T : Reorderable>(
                         Spacer(Modifier.width(4.dp))
                     }
 
-                    ItemContent(adapterPosition, item)
+                    ItemContent(bindingAdapterPosition, item)
                 }
             }
         }
@@ -284,8 +284,8 @@ private fun <T : Reorderable> itemTouchHelper(
         ): Boolean {
             val adapter = recyclerView.adapter<T>()
 
-            val from = viewHolder.adapterPosition
-            val to = target.adapterPosition
+            val from = viewHolder.bindingAdapterPosition
+            val to = target.bindingAdapterPosition
 
             val targetItem = adapter.data[from] as? T ?: return false
 
