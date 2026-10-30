@@ -54,7 +54,7 @@ Warning counts are from the build job's "List compiler errors and warnings" step
 | 2. Third-party deprecations | Done | |
 | 3. Design system | Done: tokens, components and call sites on Material3; `temp:old-design` deleted | 2,563 |
 | 4. Legacy helpers | Done: `SharedPrefs` → `AppPreferences` (DataStore, keeps stored values), `stringRes` and the global `appContext`, the FRP `Action`/`then` library, `IvyWalletCtx` (split into `ThemeState`, `PeriodState`, `MainScreenState`, `LocalScreenSize` and `RootScreen` methods), the legacy clock and date helpers, `LogoutLogic` → `DeleteAllDataUseCase` | 996 before the last two items |
-| 5. Data layer | In progress | |
+| 5. Data layer | Done: domain models and repositories for budgets, loans, loan records and planned-payment rules (schemas 131 and 132, with tested migrations); every feature on the domain `Account`, `Budget`, `Loan`, `PlannedPaymentRule` and `Transaction`; `ExchangeUseCase`, `TransactionAmountsUseCase`, `DueTransactionsUseCase`, `LoanTransactionsUseCase` and `PlannedPaymentsGenerator` replace the legacy logic classes; the legacy models and their mappers are deleted | |
 | 6. Dissolve `temp:legacy-code` | Not started | |
 | 7. Review | Not started | |
 
@@ -65,3 +65,10 @@ Behaviour changes found on the way, each a fix of an upstream bug:
 - "Today", the current month and the overdue/upcoming split now use the device's time zone, like the date ranges they are compared with. They used UTC before.
 - Loan dates were formatted as if they were UTC, though they are stored in local time.
 - `AndroidResourceProvider` passed format arguments as a single array.
+- A transfer's income in Reports and the pie chart was the amount that left the source account, in its currency; it's now what arrived.
+- The CSV import's failed rows were added to an immutable list and dropped; they're reported again.
+- Changing a loan's account to one in another currency left its records' converted amounts in the old currency.
+- Planned payments of deleted accounts were only flagged as deleted, so they stayed in the database; deleting an account now deletes them, and migration 131→132 and backup import remove flagged rows.
+- The planned payment editor crashed when the rule's account had been deleted.
+- The transaction card drew its background over the click ripple.
+- Category and account-transfer histories now show tags, like an account's history.
