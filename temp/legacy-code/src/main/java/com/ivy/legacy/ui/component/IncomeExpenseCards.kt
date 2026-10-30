@@ -19,13 +19,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Expense
+import com.ivy.data.model.Income
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.legacy.utils.format
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
+import com.ivy.legacy.domain.data.TransactionHistoryEntry
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.MediumBlack
@@ -62,8 +64,8 @@ fun IncomeExpensesCards(
             currencyCode = currency,
             amount = income,
             transactionCount = history
-                .filterIsInstance(Transaction::class.java)
-                .count { it.type == TransactionType.INCOME },
+                .filterIsInstance<TransactionHistoryEntry>()
+                .count { it.transaction is Income },
             addButtonText = if (hasAddButtons) stringResource(R.string.add_income) else null,
             isIncome = true,
 
@@ -80,8 +82,8 @@ fun IncomeExpensesCards(
             currencyCode = currency,
             amount = expenses,
             transactionCount = history
-                .filterIsInstance(Transaction::class.java)
-                .count { it.type == TransactionType.EXPENSE },
+                .filterIsInstance<TransactionHistoryEntry>()
+                .count { it.transaction is Expense },
             addButtonText = if (hasAddButtons) stringResource(R.string.add_expense) else null,
             isIncome = false,
 

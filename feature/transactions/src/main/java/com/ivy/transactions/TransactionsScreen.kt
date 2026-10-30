@@ -34,12 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.Theme
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.Transaction
+import com.ivy.data.model.Transfer
 import com.ivy.design.system.colors.isLight
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
@@ -47,13 +47,14 @@ import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.transactions
 import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewTransaction
 import com.ivy.legacy.utils.balancePrefix
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.horizontalSwipeListener
@@ -72,6 +73,7 @@ import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.GreenDark
@@ -93,7 +95,6 @@ import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import java.math.BigDecimal
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop32
@@ -403,7 +404,7 @@ private fun BoxWithConstraintsScope.UI(
                     accounts,
                     categories
                 ),
-                upcoming = LegacyDueSection(
+                upcoming = DueSection(
                     trns = upcoming,
                     stats = IncomeExpensePair(
                         income = upcomingIncome.toBigDecimal(),
@@ -413,7 +414,7 @@ private fun BoxWithConstraintsScope.UI(
                 ),
                 setUpcomingExpanded = setUpcomingExpanded,
 
-                overdue = LegacyDueSection(
+                overdue = DueSection(
                     trns = overdue,
                     stats = IncomeExpensePair(
                         income = overdueIncome.toBigDecimal(),
@@ -623,7 +624,7 @@ private fun Header(
         Spacer(Modifier.height(20.dp))
 
         val hideEditAndDeleteButtonForAccountTransfer =
-            screen.transactions.none { it.type == TransactionType.TRANSFER }
+            screen.transactions.none { it is Transfer }
 
         ItemStatisticToolbar(
             contrastColor = contrastColor,
@@ -944,10 +945,10 @@ private fun BoxWithConstraintsScope.Preview_empty_upcoming() {
             onEditAccount = { _, _ -> },
             onEditCategory = {},
             upcoming = persistentListOf(
-                Transaction(
-                    UUID(1L, 2L),
-                    TransactionType.EXPENSE,
-                    BigDecimal.valueOf(10L)
+                previewTransaction(
+                    type = TransactionType.EXPENSE,
+                    account = previewAccount("Cash", color = GreenDark, currency = "BGN", id = UUID(1L, 2L)),
+                    amount = 10.0,
                 )
             ),
             updateAccountNameConfirmation = {},

@@ -7,6 +7,8 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.Expense
+import com.ivy.data.model.Income
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
@@ -16,6 +18,11 @@ import com.ivy.data.model.LoanType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PlannedPaymentRuleId
+import com.ivy.data.model.PositiveValue
+import com.ivy.data.model.Transaction
+import com.ivy.data.model.TransactionId
+import com.ivy.data.model.TransactionMetadata
+import com.ivy.data.model.Transfer
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
@@ -106,3 +113,76 @@ fun previewPlannedPaymentRule(
         PlannedPaymentInterval(n = PositiveInt.unsafe(n), type = intervalType)
     },
 )
+
+/**
+ * A transaction for previews and screenshot tests: a transfer needs a [toAccount].
+ * It's due at [time] unless [settled].
+ */
+@Suppress("LongParameterList")
+fun previewTransaction(
+    type: TransactionType,
+    account: Account,
+    amount: Double,
+    time: Instant = Instant.now(),
+    settled: Boolean = true,
+    title: String? = null,
+    category: CategoryId? = null,
+    toAccount: Account? = null,
+    toAmount: Double = amount,
+    id: UUID = UUID.randomUUID(),
+): Transaction {
+    val value = PositiveValue(PositiveDouble.unsafe(amount), account.asset)
+    val metadata = TransactionMetadata(
+        recurringRuleId = null,
+        paidForDateTime = null,
+        loanId = null,
+        loanRecordId = null,
+    )
+    val transactionId = TransactionId(id)
+    val notBlankTitle = title?.let(NotBlankTrimmedString::unsafe)
+    return when (type) {
+        TransactionType.INCOME -> Income(
+            id = transactionId,
+            title = notBlankTitle,
+            description = null,
+            category = category,
+            time = time,
+            settled = settled,
+            metadata = metadata,
+            tags = emptyList(),
+            value = value,
+            account = account.id,
+        )
+
+        TransactionType.EXPENSE -> Expense(
+            id = transactionId,
+            title = notBlankTitle,
+            description = null,
+            category = category,
+            time = time,
+            settled = settled,
+            metadata = metadata,
+            tags = emptyList(),
+            value = value,
+            account = account.id,
+        )
+
+        TransactionType.TRANSFER -> {
+            val destination = requireNotNull(toAccount) { "A transfer needs a destination account" }
+            Transfer(
+                id = transactionId,
+                title = notBlankTitle,
+                description = null,
+                category = category,
+                time = time,
+                settled = settled,
+                metadata = metadata,
+                tags = emptyList(),
+                fromAccount = account.id,
+                fromValue = value,
+                toAccount = destination.id,
+                toValue = PositiveValue(PositiveDouble.unsafe(toAmount), destination.asset),
+            )
+        }
+    }
+}

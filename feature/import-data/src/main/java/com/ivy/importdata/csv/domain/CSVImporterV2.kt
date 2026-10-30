@@ -2,12 +2,12 @@ package com.ivy.importdata.csv.domain
 
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
@@ -25,7 +25,6 @@ import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.importdata.csv.ImportantFields
 import com.ivy.importdata.csv.OptionalFields
 import com.ivy.importdata.csv.TransferFields
-import com.ivy.legacy.datamodel.toEntity
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.pure.util.nextOrderNum
@@ -111,7 +110,7 @@ class CSVImporterV2 @Inject constructor(
             }
             onProgress(0.5 + progressPercent / 2)
             with(transactionMapper) {
-                transaction.toEntity().toDomain().getOrNull()?.let {
+                transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)
                 }
             }
@@ -132,7 +131,7 @@ class CSVImporterV2 @Inject constructor(
         importantFields: ImportantFields,
         transferFields: TransferFields,
         optionalFields: OptionalFields,
-    ): Transaction? {
+    ): TransactionEntity? {
         val type = parseTransactionType(
             value = row.extractValue(importantFields.type),
             metadata = importantFields.type.metadata,
@@ -225,13 +224,13 @@ class CSVImporterV2 @Inject constructor(
             optionalFields.description.metadata
         )
 
-        return Transaction(
+        return TransactionEntity(
             id = UUID.randomUUID(),
             type = type,
-            amount = amount.toBigDecimal(),
+            amount = amount,
             accountId = account.id.value,
             toAccountId = toAccount?.id?.value,
-            toAmount = toAmount?.toBigDecimal() ?: amount.toBigDecimal(),
+            toAmount = toAmount ?: amount,
             dateTime = with(timeConverter) { dateTime.toUTC() },
             dueDate = null,
             categoryId = category?.id?.value,

@@ -8,20 +8,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.next
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
+import com.ivy.data.model.Transaction
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
 import com.ivy.legacy.MainScreenState
@@ -29,11 +28,10 @@ import com.ivy.legacy.PeriodState
 import com.ivy.legacy.ThemeState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.data.model.toUTCCloseTimeRange
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.action.viewmodel.home.ShouldHideIncomeAct
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.BalanceScreen
@@ -50,7 +48,7 @@ import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideBalanceAct
 import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,7 +67,7 @@ class HomeViewModel @Inject constructor(
     private val themeState: ThemeState,
     private val mainScreenState: MainScreenState,
     private val nav: Navigation,
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
+    private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val customerJourneyLogic: CustomerJourneyCardsProvider,
     private val historyWithDateDivsAct: HistoryWithDateDivsAct,
     private val calcIncomeExpenseAct: CalcIncomeExpenseAct,
@@ -86,7 +84,6 @@ class HomeViewModel @Inject constructor(
     private val shouldHideBalanceAct: ShouldHideBalanceAct,
     private val shouldHideIncomeAct: ShouldHideIncomeAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
-    private val transactionMapper: TransactionMapper,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features
@@ -111,14 +108,14 @@ class HomeViewModel @Inject constructor(
         )
     )
     private var upcoming by mutableStateOf(
-        LegacyDueSection(
+        DueSection(
             trns = persistentListOf(),
             stats = IncomeExpensePair.zero(),
             expanded = false,
         )
     )
     private var overdue by mutableStateOf(
-        LegacyDueSection(
+        DueSection(
             trns = persistentListOf(),
             stats = IncomeExpensePair.zero(),
             expanded = false,
@@ -201,12 +198,12 @@ class HomeViewModel @Inject constructor(
     }
 
     @Composable
-    private fun getUpcoming(): LegacyDueSection {
+    private fun getUpcoming(): DueSection {
         return upcoming
     }
 
     @Composable
-    private fun getOverdue(): LegacyDueSection {
+    private fun getOverdue(): DueSection {
         return overdue
     }
 
@@ -370,23 +367,15 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadDueTrns(input: Pair<String, ClosedTimeRange>) {
         val (baseCurrency, timeRange) = input
         val upcomingResult = upcomingAct(UpcomingAct.Input(baseCurrency = baseCurrency, range = timeRange))
-        upcoming = LegacyDueSection(
-            trns = with(transactionMapper) {
-                upcomingResult.upcomingTrns.map {
-                    it.toEntity().toLegacyDomain()
-                }.toImmutableList()
-            },
+        upcoming = DueSection(
+            trns = upcomingResult.upcomingTrns.toImmutableList(),
             stats = upcomingResult.upcoming,
             expanded = upcoming.expanded
         )
 
         val overdueResult = overdueAct(OverdueAct.Input(baseCurrency = baseCurrency, toRange = timeRange.to))
-        overdue = LegacyDueSection(
-            trns = with(transactionMapper) {
-                overdueResult.overdueTrns.map {
-                    it.toEntity().toLegacyDomain()
-                }.toImmutableList()
-            },
+        overdue = DueSection(
+            trns = overdueResult.overdueTrns.toImmutableList(),
             stats = overdueResult.overdue,
             expanded = overdue.expanded
         )
@@ -463,30 +452,17 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun payOrGetPlanned(transaction: Transaction) {
-        plannedPaymentsLogic.payOrGetLegacy(
-            transaction = transaction,
-            skipTransaction = false
-        ) {
-            reload()
-        }
+        dueTransactionsUseCase.pay(transaction)
+        reload()
     }
 
     private suspend fun skipPlanned(transaction: Transaction) {
-        plannedPaymentsLogic.payOrGetLegacy(
-            transaction = transaction,
-            skipTransaction = true
-        ) {
-            reload()
-        }
+        skipAllPlanned(listOf(transaction))
     }
 
     private suspend fun skipAllPlanned(transactions: List<Transaction>) {
-        plannedPaymentsLogic.payOrGetLegacy(
-            transactions = transactions,
-            skipTransaction = true
-        ) {
-            reload()
-        }
+        dueTransactionsUseCase.skip(transactions)
+        reload()
     }
 
     private suspend fun dismissCustomerJourneyCard(card: CustomerJourneyCardModel) {

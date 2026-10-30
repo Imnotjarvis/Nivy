@@ -1,22 +1,24 @@
 package com.ivy.piechart.action
 
 import androidx.compose.ui.graphics.toArgb
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.resource.ResourceProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.Transaction
+import com.ivy.data.model.Transfer
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.design.system.colors.RedLight
 import com.ivy.piechart.CategoryAmount
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.category.LegacyCategoryIncomeWithAccountFiltersAct
-import com.ivy.wallet.domain.action.transaction.LegacyCalcTrnsIncomeExpenseAct
+import com.ivy.wallet.domain.action.category.CategoryIncomeWithAccountFiltersAct
+import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithRangeAndAccFiltersAct
 import com.ivy.wallet.domain.pure.account.filterExcluded
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
@@ -31,9 +33,9 @@ import kotlinx.coroutines.withContext
 class PieChartAct @Inject constructor(
     private val accountsAct: AccountsAct,
     private val trnsWithRangeAndAccFiltersAct: TrnsWithRangeAndAccFiltersAct,
-    private val calcTrnsIncomeExpenseAct: LegacyCalcTrnsIncomeExpenseAct,
+    private val calcTrnsIncomeExpenseAct: CalcTrnsIncomeExpenseAct,
     private val categoryRepository: CategoryRepository,
-    private val categoryIncomeWithAccountFiltersAct: LegacyCategoryIncomeWithAccountFiltersAct,
+    private val categoryIncomeWithAccountFiltersAct: CategoryIncomeWithAccountFiltersAct,
     private val resourceProvider: ResourceProvider,
 ) {
 
@@ -58,7 +60,7 @@ class PieChartAct @Inject constructor(
         }
 
         val incomeExpenseTransfer = calcTrnsIncomeExpenseAct(
-            LegacyCalcTrnsIncomeExpenseAct.Input(
+            CalcTrnsIncomeExpenseAct.Input(
                 transactions = transactions,
                 accounts = accountsUsed,
                 baseCurrency = input.baseCurrency
@@ -104,14 +106,14 @@ class PieChartAct @Inject constructor(
         return allCategories.map { category ->
             val categoryTransactions = if (addAssociatedTransactions) {
                 transactions.filter {
-                    it.type == input.type && it.categoryId == category?.id?.value
+                    it.getTransactionType() == input.type && it.category?.value == category?.id?.value
                 }
             } else {
                 emptyList()
             }
 
             val catIncomeExpense = categoryIncomeWithAccountFiltersAct(
-                LegacyCategoryIncomeWithAccountFiltersAct.Input(
+                CategoryIncomeWithAccountFiltersAct.Input(
                     transactions = transactions,
                     accountFilterList = accountsUsed,
                     category = category,
@@ -170,13 +172,11 @@ class PieChartAct @Inject constructor(
             incomeExpenseTransfer.transferExpense.toDouble()
         }
         val accountIdFilterSet = input.accountIdFilterList.toHashSet()
-        val transferTransactions = transactions.filter {
-            it.type == TransactionType.TRANSFER
-        }.filter {
+        val transferTransactions = transactions.filterIsInstance<Transfer>().filter {
             if (input.type == TransactionType.EXPENSE) {
-                accountIdFilterSet.contains(it.accountId)
+                accountIdFilterSet.contains(it.fromAccount.value)
             } else {
-                accountIdFilterSet.contains(it.toAccountId)
+                accountIdFilterSet.contains(it.toAccount.value)
             }
         }
 

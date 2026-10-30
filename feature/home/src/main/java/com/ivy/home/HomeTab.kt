@@ -25,8 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.Theme
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.data.model.Transaction
 import com.ivy.home.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.home.customerjourney.CustomerJourney
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
@@ -35,7 +34,7 @@ import com.ivy.legacy.LocalMainScreenState
 import com.ivy.legacy.LocalPeriodState
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.BufferInfo
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.data.model.MainTab
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
@@ -52,6 +51,7 @@ import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.domain.data.IvyCurrency
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.wallet.ui.theme.modal.BufferModal
 import com.ivy.wallet.ui.theme.modal.BufferModalData
@@ -268,8 +268,8 @@ fun HomeLazyColumn(
     baseData: AppBaseData,
     shouldShowAccountSpecificColorInTransactions: Boolean,
 
-    upcoming: LegacyDueSection,
-    overdue: LegacyDueSection,
+    upcoming: DueSection,
+    overdue: DueSection,
     balance: BigDecimal,
     stats: IncomeExpensePair,
     history: ImmutableList<TransactionHistoryItem>,
@@ -397,12 +397,12 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
                 customerJourneyCards = persistentListOf(),
                 history = persistentListOf(),
                 stats = IncomeExpensePair.zero(),
-                upcoming = LegacyDueSection(
+                upcoming = DueSection(
                     trns = persistentListOf(),
                     stats = IncomeExpensePair.zero(),
                     expanded = false,
                 ),
-                overdue = LegacyDueSection(
+                overdue = DueSection(
                     trns = persistentListOf(),
                     stats = IncomeExpensePair.zero(),
                     expanded = false,

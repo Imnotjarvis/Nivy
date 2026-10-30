@@ -10,8 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.LegacyTransaction
-import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.TransactionType
 import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
@@ -30,14 +28,13 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.data.temp.migration.getValue
 import com.ivy.domain.RootScreen
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
+import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.legacy.PeriodState
-import com.ivy.legacy.datamodel.temp.toLegacy
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.scopedIOThread
 import com.ivy.legacy.utils.toLowerCaseLocal
@@ -49,7 +46,7 @@ import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.wallet.domain.pure.transaction.trnCurrency
@@ -73,7 +70,7 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class ReportViewModel @Inject constructor(
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
+    private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val transactionRepository: TransactionRepository,
     private val periodState: PeriodState,
     private val exchangeAct: ExchangeAct,
@@ -82,7 +79,6 @@ class ReportViewModel @Inject constructor(
     private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
     private val calcTrnsIncomeExpenseAct: CalcTrnsIncomeExpenseAct,
     private val baseCurrencyAct: BaseCurrencyAct,
-    private val transactionMapper: TransactionMapper,
     private val tagRepository: TagRepository,
     private val exportCsvUseCase: ExportCsvUseCase,
     private val timeProvider: TimeProvider,
@@ -111,15 +107,15 @@ class ReportViewModel @Inject constructor(
     private var overdueExpenses by mutableDoubleStateOf(0.0)
     private var history by mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
     private var upcomingTransactions by
-    mutableStateOf<ImmutableList<LegacyTransaction>>(persistentListOf())
+    mutableStateOf<ImmutableList<Transaction>>(persistentListOf())
     private var overdueTransactions by
-    mutableStateOf<ImmutableList<LegacyTransaction>>(persistentListOf())
+    mutableStateOf<ImmutableList<Transaction>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var upcomingExpanded by mutableStateOf(false)
     private var overdueExpanded by mutableStateOf(false)
     private var loading by mutableStateOf(false)
     private var accountIdFilters by mutableStateOf<ImmutableList<UUID>>(persistentListOf())
-    private var transactions by mutableStateOf<ImmutableList<LegacyTransaction>>(persistentListOf())
+    private var transactions by mutableStateOf<ImmutableList<Transaction>>(persistentListOf())
     private var filterOverlayVisible by mutableStateOf(false)
     private var showTransfersAsIncExpCheckbox by mutableStateOf(false)
     private var treatTransfersAsIncExp by mutableStateOf(false)
@@ -173,11 +169,8 @@ class ReportViewModel @Inject constructor(
                 is ReportScreenEvent.OnFilter -> setFilter(event.filter)
                 is ReportScreenEvent.OnExport -> export(event.context)
                 is ReportScreenEvent.OnPayOrGet -> payOrGet(event.transaction)
-                is ReportScreenEvent.SkipTransaction -> skipTransaction(event.transaction)
+                is ReportScreenEvent.SkipTransaction -> skipTransactions(listOf(event.transaction))
                 is ReportScreenEvent.SkipTransactions -> skipTransactions(event.transactions)
-                is ReportScreenEvent.OnPayOrGetLegacy -> payOrGetLegacy(event.transaction)
-                is ReportScreenEvent.SkipTransactionLegacy -> skipTransactionLegacy(event.transaction)
-                is ReportScreenEvent.SkipTransactionsLegacy -> skipTransactionsLegacy(event.transactions)
                 is ReportScreenEvent.OnOverdueExpanded -> setOverdueExpandedValue(event.overdueExpanded)
                 is ReportScreenEvent.OnUpcomingExpanded -> setUpcomingExpandedValue(event.upcomingExpanded)
                 is ReportScreenEvent.OnFilterOverlayVisible -> setFilterOverlayVisibleValue(event.filterOverlayVisible)
@@ -315,18 +308,12 @@ class ReportViewModel @Inject constructor(
                 upcomingIncomeExpenseTransferPair = upcomingIncomeExpense,
                 overDueIncomeExpenseTransferPair = overdueIncomeExpense,
                 history = historyWithDateDividers.await().toImmutableList(),
-                upcomingTransactions = upcomingTransactionsList.map {
-                    it.toLegacy(transactionMapper)
-                }.toImmutableList(),
-                overdueTransactions = overdue.map {
-                    it.toLegacy(transactionMapper)
-                }.toImmutableList(),
+                upcomingTransactions = upcomingTransactionsList,
+                overdueTransactions = overdue,
                 accounts = tempAccounts.toImmutableList(),
                 reportFilter = reportFilter,
                 accountIdFilters = accountFilterIdList.await().toImmutableList(),
-                transactions = transactionsList.map {
-                    it.toLegacy(transactionMapper)
-                }.toImmutableList(),
+                transactions = transactionsList,
                 balanceValue = tempBalance
             )
 
@@ -340,12 +327,12 @@ class ReportViewModel @Inject constructor(
         upcomingIncomeExpenseTransferPair: IncomeExpenseTransferPair,
         overDueIncomeExpenseTransferPair: IncomeExpenseTransferPair,
         history: ImmutableList<TransactionHistoryItem>,
-        upcomingTransactions: ImmutableList<LegacyTransaction>,
-        overdueTransactions: ImmutableList<LegacyTransaction>,
+        upcomingTransactions: ImmutableList<Transaction>,
+        overdueTransactions: ImmutableList<Transaction>,
         accounts: ImmutableList<Account>,
         reportFilter: ReportFilter? = null,
         accountIdFilters: ImmutableList<UUID>,
-        transactions: ImmutableList<LegacyTransaction>,
+        transactions: ImmutableList<Transaction>,
         balanceValue: Double
     ) {
         this.income = income
@@ -560,24 +547,8 @@ class ReportViewModel @Inject constructor(
     }
 
     private suspend fun payOrGet(transaction: Transaction) {
-        uiThread {
-            plannedPaymentsLogic.payOrGet(
-                transaction = transaction
-            ) {
-                start()
-                setFilter(filter)
-            }
-        }
-    }
-
-    @Deprecated("Uses legacy Transaction")
-    private suspend fun payOrGetLegacy(transaction: com.ivy.base.legacy.Transaction) {
-        uiThread {
-            plannedPaymentsLogic.payOrGetLegacy(transaction = transaction) {
-                start()
-                setFilter(filter)
-            }
-        }
+        dueTransactionsUseCase.pay(transaction)
+        reloadReport()
     }
 
     private fun setFilterOverlayVisibleValue(visible: Boolean) {
@@ -592,53 +563,15 @@ class ReportViewModel @Inject constructor(
         treatTransfersAsIncExp = transfersAsIncExp
     }
 
-    private suspend fun skipTransaction(transaction: Transaction) {
-        uiThread {
-            plannedPaymentsLogic.payOrGet(
-                transaction = transaction,
-                skipTransaction = true
-            ) {
-                start()
-                setFilter(filter)
-            }
-        }
-    }
-
-    @Deprecated("Uses legacy Transaction")
-    private suspend fun skipTransactionLegacy(transaction: com.ivy.base.legacy.Transaction) {
-        uiThread {
-            plannedPaymentsLogic.payOrGetLegacy(
-                transaction = transaction,
-                skipTransaction = true
-            ) {
-                start()
-                setFilter(filter)
-            }
-        }
-    }
-
     private suspend fun skipTransactions(transactions: List<Transaction>) {
-        uiThread {
-            plannedPaymentsLogic.payOrGet(
-                transactions = transactions,
-                skipTransaction = true
-            ) {
-                start()
-                setFilter(filter)
-            }
-        }
+        dueTransactionsUseCase.skip(transactions)
+        reloadReport()
     }
 
-    @Deprecated("Uses legacy Transaction")
-    private suspend fun skipTransactionsLegacy(transactions: List<com.ivy.base.legacy.Transaction>) {
+    private suspend fun reloadReport() {
         uiThread {
-            plannedPaymentsLogic.payOrGetLegacy(
-                transactions = transactions,
-                skipTransaction = true
-            ) {
-                start()
-                setFilter(filter)
-            }
+            start()
+            setFilter(filter)
         }
     }
 }

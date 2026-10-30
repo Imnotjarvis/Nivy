@@ -2,13 +2,13 @@ package com.ivy.legacy.domain.deprecated.logic.csv
 
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
@@ -25,7 +25,6 @@ import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.IvyDark
-import com.ivy.legacy.datamodel.toEntity
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.csv.model.RowMapping
@@ -33,7 +32,7 @@ import com.ivy.wallet.domain.pure.util.nextOrderNum
 import com.opencsv.CSVReaderBuilder
 import com.opencsv.validators.LineValidator
 import com.opencsv.validators.RowValidator
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import timber.log.Timber
 import java.io.StringReader
 import java.time.LocalDate
@@ -102,7 +101,7 @@ class CSVImporter @Inject constructor(
 
         val baseCurrency = currencyRepository.getBaseCurrency().code
 
-        val failedRows = persistentListOf<CSVRow>()
+        val failedRows = mutableListOf<CSVRow>()
 
         // Some importers require postprocessing transactions
         // Example: Financisto separates in and out transfers
@@ -143,7 +142,7 @@ class CSVImporter @Inject constructor(
             }
             onProgress(0.5 + progressPercent / 2)
             with(transactionMapper) {
-                transaction.toEntity().toDomain().getOrNull()?.let {
+                transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)
                 }
             }
@@ -154,7 +153,7 @@ class CSVImporter @Inject constructor(
             transactionsImported = transactions.size,
             accountsImported = accounts.size - initialAccountsCount,
             categoriesImported = categories.size - initialCategoriesCount,
-            failedRows = failedRows
+            failedRows = failedRows.toImmutableList()
         )
     }
 
@@ -162,7 +161,7 @@ class CSVImporter @Inject constructor(
         baseCurrency: String,
         row: List<String>,
         rowMapping: RowMapping
-    ): Transaction? {
+    ): TransactionEntity? {
         val type = mapType(
             row = row,
             rowMapping = rowMapping
@@ -237,13 +236,13 @@ class CSVImporter @Inject constructor(
         val id = mapId(row.extract(rowMapping.id))
 
         return rowMapping.transformTransaction(
-            Transaction(
+            TransactionEntity(
                 id = id,
                 type = type,
-                amount = amount.toBigDecimal(),
+                amount = amount,
                 accountId = account.id.value,
                 toAccountId = toAccount?.id?.value,
-                toAmount = toAmount?.toBigDecimal() ?: amount.toBigDecimal(),
+                toAmount = toAmount ?: amount,
                 dateTime = with(timeConverter) { dateTime?.toUTC() },
                 dueDate = with(timeConverter) { dueDate?.toUTC() },
                 categoryId = category?.id?.value,

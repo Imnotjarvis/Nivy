@@ -17,15 +17,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.data.model.Transaction
+import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
+import com.ivy.legacy.domain.data.TransactionHistoryDateDivider
+import com.ivy.legacy.domain.data.TransactionHistoryEntry
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.design.system.colors.Black
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
@@ -39,8 +41,8 @@ import androidx.compose.material3.MaterialTheme
 fun LazyListScope.transactions(
     baseData: AppBaseData,
 
-    upcoming: LegacyDueSection?,
-    overdue: LegacyDueSection?,
+    upcoming: DueSection?,
+    overdue: DueSection?,
     history: List<TransactionHistoryItem>,
 
     emptyStateTitle: String,
@@ -108,7 +110,7 @@ fun LazyListScope.transactions(
 private fun LazyListScope.upcomingSection(
     baseData: AppBaseData,
 
-    upcoming: LegacyDueSection?,
+    upcoming: DueSection?,
     shouldShowAccountSpecificColorInTransactions: Boolean,
     onPayOrGet: (Transaction) -> Unit,
     onSkipTransaction: (Transaction) -> Unit,
@@ -147,7 +149,7 @@ private fun LazyListScope.upcomingSection(
 private fun LazyListScope.overdueSection(
     baseData: AppBaseData,
 
-    overdue: LegacyDueSection?,
+    overdue: DueSection?,
     shouldShowAccountSpecificColorInTransactions: Boolean,
     onPayOrGet: (Transaction) -> Unit,
     onSkipTransaction: (Transaction) -> Unit,
@@ -217,7 +219,7 @@ private fun LazyListScope.trnItems(
 ) {
     items(
         items = transactions,
-        key = { it.id }
+        key = { it.id.value }
     ) {
         val nav = navigation()
         TransactionCard(
@@ -250,20 +252,20 @@ private fun LazyListScope.historySection(
             items = history,
             key = {
                 when (it) {
-                    is Transaction -> it.id.toString()
+                    is TransactionHistoryEntry -> it.transaction.id.value.toString()
                     is TransactionHistoryDateDivider -> it.date.toString()
-                    else -> "unknown"
                 }
             }
         ) {
             when (it) {
-                is Transaction -> {
+                is TransactionHistoryEntry -> {
                     val nav = navigation()
 
                     TransactionCard(
                         baseData = baseData,
 
-                        transaction = it,
+                        transaction = it.transaction,
+                        tags = it.tags,
                         shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
                         onPayOrGet = onPayOrGet
                     ) { trn ->
@@ -295,8 +297,8 @@ private fun onTransactionClick(
 ) {
     nav.navigateTo(
         EditTransactionScreen(
-            initialTransactionId = transaction.id,
-            type = transaction.type
+            initialTransactionId = transaction.id.value,
+            type = transaction.getTransactionType()
         )
     )
 }
@@ -345,8 +347,8 @@ private fun LazyItemScope.NoTransactionsEmptyState(
 
 private fun LazyListScope.scrollHackSpacer(
     history: List<TransactionHistoryItem>,
-    upcoming: LegacyDueSection?,
-    overdue: LegacyDueSection?,
+    upcoming: DueSection?,
+    overdue: DueSection?,
 
     lastItemSpacer: Dp?,
 ) {

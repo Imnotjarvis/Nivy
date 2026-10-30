@@ -10,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.Toaster
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeConverter
@@ -21,9 +20,11 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
+import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.primitive.AssociationId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
@@ -32,9 +33,10 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TagMapper
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
+import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.legacy.data.EditTransactionDisplayLoan
-import com.ivy.legacy.datamodel.temp.toDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.computationThread
 import com.ivy.legacy.utils.ioThread
@@ -51,9 +53,7 @@ import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.transaction.TrnByIdAct
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
 import com.ivy.wallet.domain.deprecated.logic.SmartTitleSuggestionsLogic
-import com.ivy.wallet.domain.deprecated.logic.currency.ExchangeRatesLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
@@ -71,7 +71,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -89,10 +88,10 @@ class EditTransactionViewModel @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val nav: Navigation,
     private val appPreferences: AppPreferences,
-    private val exchangeRatesLogic: ExchangeRatesLogic,
+    private val exchangeUseCase: ExchangeUseCase,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
+    private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val smartTitleSuggestionsLogic: SmartTitleSuggestionsLogic,
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val accountsAct: AccountsAct,
@@ -135,7 +134,7 @@ class EditTransactionViewModel @Inject constructor(
 
     private var customExchangeRateState by mutableStateOf(CustomExchangeRateState())
 
-    private var loadedTransaction: Transaction? = null
+    private var loadedTransaction: TransactionDraft? = null
     private var editMode = false
 
     private var title: String? = null
@@ -163,16 +162,16 @@ class EditTransactionViewModel @Inject constructor(
             reset()
 
             loadedTransaction = screen.initialTransactionId?.let {
-                trnByIdAct(it)
-            } ?: Transaction(
+                trnByIdAct(it)?.toDraft()
+            } ?: TransactionDraft(
                 accountId = defaultAccountId(
                     screen = screen,
                     accounts = getAccounts
                 ),
                 categoryId = screen.categoryId,
                 type = screen.type,
-                amount = BigDecimal.ZERO,
-                toAmount = BigDecimal.ZERO
+                amount = 0.0,
+                toAmount = 0.0
             )
 
             tags = tagList.await()
@@ -370,7 +369,7 @@ class EditTransactionViewModel @Inject constructor(
         return accounts.first().id.value
     }
 
-    private suspend fun display(transaction: Transaction) {
+    private suspend fun display(transaction: TransactionDraft) {
         this.title = transaction.title
 
         transactionType = transaction.type
@@ -387,7 +386,7 @@ class EditTransactionViewModel @Inject constructor(
         category = transaction.categoryId?.let {
             categoryRepository.findById(CategoryId(it))
         }
-        amount = transaction.amount.toDouble()
+        amount = transaction.amount
 
         updateCurrency(account = selectedAccount)
 
@@ -399,8 +398,8 @@ class EditTransactionViewModel @Inject constructor(
                 accounts.find { acc -> acc.id.value == transaction.toAccountId }?.asset?.code
             CustomExchangeRateState(
                 showCard = toAccountCurrency != account?.asset?.code,
-                exchangeRate = exchangeRate.toDouble(),
-                convertedAmount = transaction.toAmount.toDouble(),
+                exchangeRate = exchangeRate,
+                convertedAmount = transaction.toAmount,
                 toCurrencyCode = toAccountCurrency,
                 fromCurrencyCode = currency
             )
@@ -409,7 +408,7 @@ class EditTransactionViewModel @Inject constructor(
         displayLoanHelper = getDisplayLoanHelper(trans = transaction)
     }
 
-    private suspend fun getDisplayLoanHelper(trans: Transaction): EditTransactionDisplayLoan {
+    private suspend fun getDisplayLoanHelper(trans: TransactionDraft): EditTransactionDisplayLoan {
         if (trans.loanId == null) {
             return EditTransactionDisplayLoan()
         }
@@ -454,7 +453,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun onAmountChanged(newAmount: Double) {
         viewModelScope.launch {
             loadedTransaction = loadedTransaction().copy(
-                amount = newAmount.toBigDecimal()
+                amount = newAmount
             )
             amount = newAmount
             updateCustomExchangeRateState(amt = newAmount)
@@ -538,9 +537,6 @@ class EditTransactionViewModel @Inject constructor(
             val localTime = loadedTransaction().dateTime?.let {
                 with(timeConverter) { it.toLocalTime() }
             } ?: timeProvider.localTimeNow()
-            loadedTransaction = loadedTransaction().copy(
-                date = localDate,
-            )
             updateDateTime(localDate.atTime(localTime))
         }
     }
@@ -556,9 +552,6 @@ class EditTransactionViewModel @Inject constructor(
             val localDate = loadedTransaction().dateTime?.let {
                 with(timeConverter) { it.toLocalDate() }
             } ?: timeProvider.localDateNow()
-            loadedTransaction = loadedTransaction().copy(
-                time = localTime,
-            )
             updateDateTime(localDate.atTime(localTime))
         }
     }
@@ -583,19 +576,18 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun onPayPlannedPayment() {
         viewModelScope.launch {
-            plannedPaymentsLogic.payOrGetLegacy(
-                transaction = loadedTransaction(),
-                syncTransaction = false
-            ) { paidTransaction ->
-                loadedTransaction = paidTransaction
-                paidHistory = paidTransaction.paidFor
-                dueDate = paidTransaction.dueDate
-                dateTime = paidTransaction.dateTime
+            val paidTransaction = loadedTransaction().toDomain(transactionMapper)
+                ?.let { dueTransactionsUseCase.pay(it) }
+                ?.toDraft()
+                ?: return@launch
+            loadedTransaction = paidTransaction
+            paidHistory = paidTransaction.paidFor
+            dueDate = paidTransaction.dueDate
+            dateTime = paidTransaction.dateTime
 
-                saveIfEditMode(
-                    closeScreen = true
-                )
-            }
+            saveIfEditMode(
+                closeScreen = true
+            )
         }
     }
 
@@ -614,7 +606,7 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             ioThread {
                 val id = UUID.randomUUID()
-                 loadedTransaction()
+                loadedTransaction()
                     .copy(
                         id = id,
                         dateTime = timeProvider.utcNow(),
@@ -698,13 +690,10 @@ class EditTransactionViewModel @Inject constructor(
     private suspend fun saveInternal(closeScreen: Boolean) {
         try {
             ioThread {
-                val amount = amount.toBigDecimal()
-
                 loadedTransaction = loadedTransaction().copy(
                     accountId = account?.id?.value ?: error("no accountId"),
                     toAccountId = toAccount?.id?.value,
-                    toAmount = customExchangeRateState.convertedAmount?.toBigDecimal()
-                        ?: amount,
+                    toAmount = customExchangeRateState.convertedAmount ?: amount,
                     title = title?.trim(),
                     description = description?.trim(),
                     amount = amount,
@@ -720,7 +709,6 @@ class EditTransactionViewModel @Inject constructor(
                         else -> loadedTransaction().dateTime
                     },
                     categoryId = category?.id?.value,
-                    isSynced = false
                 )
 
                 loadedTransaction().toDomain(transactionMapper)?.let {
@@ -835,12 +823,10 @@ class EditTransactionViewModel @Inject constructor(
                 ) {
                     customExchangeRateState.exchangeRate
                 } else {
-                    exchangeRatesLogic.convertAmount(
-                        baseCurrency = baseUserCurrency,
-                        amount = 1.0,
-                        fromCurrency = fromAccCurrencyCode,
-                        toCurrency = toAccCurrencyCode
-                    )
+                    exchangeUseCase.convert(
+                        PositiveValue(PositiveDouble.unsafe(1.0), fromAcc.asset),
+                        to = toAcc.asset
+                    ).getOrNull()?.amount?.value ?: 1.0
                 }
 
             val amount = amt ?: amount

@@ -1,42 +1,32 @@
 package com.ivy.legacy.domain.pure.transaction
 
 import arrow.core.Option
-import arrow.core.toOption
-import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.time.TimeConverter
-import com.ivy.base.time.convertToLocal
-import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.model.Account
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.data.model.Transaction
-import com.ivy.data.repository.AccountRepository
-import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.mapper.AccountMapper
-import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
-import com.ivy.legacy.datamodel.temp.toImmutableLegacyTags
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
-import com.ivy.legacy.utils.toEpochSeconds
-import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
-import com.ivy.wallet.domain.deprecated.logic.currency.ExchangeRatesLogic
+import com.ivy.legacy.domain.data.TransactionHistoryDateDivider
+import com.ivy.legacy.domain.data.TransactionHistoryEntry
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.wallet.domain.pure.exchange.ExchangeTrnArgument
 import com.ivy.wallet.domain.pure.exchange.exchangeInBaseCurrency
-import com.ivy.wallet.domain.pure.transaction.LegacyFoldTransactions
-import com.ivy.wallet.domain.pure.transaction.LegacyTrnFunctions
 import com.ivy.wallet.domain.pure.transaction.expenses
 import com.ivy.wallet.domain.pure.transaction.incomes
 import com.ivy.wallet.domain.pure.transaction.sumTrns
+import kotlinx.collections.immutable.toImmutableList
 import java.math.BigDecimal
 import java.util.UUID
 
+/** Groups [transactions] by local day, newest first, each day headed by its income and expenses. */
 @Pure
 suspend fun transactionsWithDateDividers(
     transactions: List<Transaction>,
     baseCurrencyCode: String,
-    accountRepository: AccountRepository,
+    timeConverter: TimeConverter,
     @SideEffect
     getAccount: suspend (accountId: UUID) -> Account?,
     @SideEffect
@@ -45,120 +35,33 @@ suspend fun transactionsWithDateDividers(
     getTags: suspend (tagIds: List<TagId>) -> List<Tag> = { emptyList() },
 ): List<TransactionHistoryItem> {
     if (transactions.isEmpty()) return emptyList()
-    val transactionsMapper = TransactionMapper(accountRepository)
+    val arg = ExchangeTrnArgument(
+        baseCurrency = baseCurrencyCode,
+        getAccount = getAccount,
+        exchange = exchange
+    )
     return transactions
-        .groupBy { it.time.convertToLocal().toLocalDate() }
-        .filterKeys { it != null }
-        .toSortedMap { date1, date2 ->
-            if (date1 == null || date2 == null) return@toSortedMap 0 // this case shouldn't happen
-            (date2.atStartOfDay().toEpochSeconds() - date1.atStartOfDay().toEpochSeconds()).toInt()
-        }
+        .groupBy { with(timeConverter) { it.time.toLocalDate() } }
+        .toSortedMap(compareByDescending { it })
         .flatMap { (date, transactionsForDate) ->
-            val arg = ExchangeTrnArgument(
-                baseCurrency = baseCurrencyCode,
-                getAccount = getAccount,
-                exchange = exchange
+            val divider = TransactionHistoryDateDivider(
+                date = date,
+                income = sumTrns(
+                    incomes(transactionsForDate),
+                    ::exchangeInBaseCurrency,
+                    arg
+                ).toDouble(),
+                expenses = sumTrns(
+                    expenses(transactionsForDate),
+                    ::exchangeInBaseCurrency,
+                    arg
+                ).toDouble()
             )
-
-            // Required to be interoperable with [TransactionHistoryItem]
-            val legacyTransactionsForDate = with(transactionsMapper) {
-                transactionsForDate.map {
-                    it.toEntity()
-                        .toLegacyDomain(tags = getTags(it.tags).toImmutableLegacyTags())
-                }
-            }
-            listOf<TransactionHistoryItem>(
-                TransactionHistoryDateDivider(
-                    date = date!!,
-                    income = sumTrns(
-                        incomes(transactionsForDate),
-                        ::exchangeInBaseCurrency,
-                        arg
-                    ).toDouble(),
-                    expenses = sumTrns(
-                        expenses(transactionsForDate),
-                        ::exchangeInBaseCurrency,
-                        arg
-                    ).toDouble()
-                ),
-            ).plus(legacyTransactionsForDate)
-        }
-}
-
-@Deprecated("Uses legacy Transaction")
-object LegacyTrnDateDividers {
-    @Deprecated("Migrate to actions")
-    suspend fun List<com.ivy.base.legacy.Transaction>.withDateDividers(
-        exchangeRatesLogic: ExchangeRatesLogic,
-        currencyRepository: CurrencyRepository,
-        accountDao: AccountDao,
-        timeConverter: TimeConverter,
-    ): List<TransactionHistoryItem> {
-        return transactionsWithDateDividers(
-            transactions = this,
-            baseCurrencyCode = currencyRepository.getBaseCurrency().code,
-            getAccount = { accountId ->
-                accountDao.findById(accountId)?.let {
-                    with(AccountMapper(currencyRepository)) { it.toDomain() }.getOrNull()
-                }
-            },
-            exchange = { data, amount ->
-                exchangeRatesLogic.convertAmount(
-                    baseCurrency = data.baseCurrency,
-                    fromCurrency = data.fromCurrency.getOrNull() ?: "",
-                    toCurrency = data.toCurrency,
-                    amount = amount.toDouble()
-                ).toBigDecimal().toOption()
-            },
-            timeConverter = timeConverter,
-        )
-    }
-
-    @Pure
-    suspend fun transactionsWithDateDividers(
-        transactions: List<com.ivy.base.legacy.Transaction>,
-        baseCurrencyCode: String,
-        timeConverter: TimeConverter,
-
-        @SideEffect
-        getAccount: suspend (accountId: UUID) -> Account?,
-        @SideEffect
-        exchange: suspend (ExchangeData, BigDecimal) -> Option<BigDecimal>
-    ): List<TransactionHistoryItem> {
-        if (transactions.isEmpty()) return emptyList()
-
-        return transactions
-            .groupBy { with(timeConverter) { it.dateTime?.toLocalDate() } }
-            .filterKeys { it != null }
-            .toSortedMap { date1, date2 ->
-                if (date1 == null || date2 == null) return@toSortedMap 0 // this case shouldn't happen
-                (
-                        date2.atStartOfDay().toEpochSeconds() - date1.atStartOfDay()
-                            .toEpochSeconds()
-                        ).toInt()
-            }
-            .flatMap { (date, transactionsForDate) ->
-                val arg = ExchangeTrnArgument(
-                    baseCurrency = baseCurrencyCode,
-                    getAccount = getAccount,
-                    exchange = exchange
+            listOf<TransactionHistoryItem>(divider) + transactionsForDate.map {
+                TransactionHistoryEntry(
+                    transaction = it,
+                    tags = getTags(it.tags).toImmutableList(),
                 )
-
-                listOf<TransactionHistoryItem>(
-                    TransactionHistoryDateDivider(
-                        date = date!!,
-                        income = LegacyFoldTransactions.sumTrns(
-                            LegacyTrnFunctions.incomes(transactionsForDate),
-                            ::exchangeInBaseCurrency,
-                            arg
-                        ).toDouble(),
-                        expenses = LegacyFoldTransactions.sumTrns(
-                            LegacyTrnFunctions.expenses(transactionsForDate),
-                            ::exchangeInBaseCurrency,
-                            arg
-                        ).toDouble()
-                    ),
-                ).plus(transactionsForDate)
             }
-    }
+        }
 }

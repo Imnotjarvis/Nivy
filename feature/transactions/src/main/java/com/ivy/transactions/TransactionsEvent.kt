@@ -1,8 +1,8 @@
 package com.ivy.transactions
 
-import com.ivy.base.legacy.Transaction
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.Transaction
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData

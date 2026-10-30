@@ -35,7 +35,7 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.LegacyDueSection
+import com.ivy.legacy.data.DueSection
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.legacy.ui.component.transaction.transactions
@@ -66,7 +66,6 @@ import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.wallet.ui.theme.components.IvyToolbar
 import com.ivy.design.system.colors.pureBlur
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
@@ -90,7 +89,6 @@ private fun BoxWithConstraintsScope.UI(
     state: ReportScreenState = ReportScreenState(),
     onEventHandler: (ReportScreenEvent) -> Unit = {}
 ) {
-    val legacyTransactions = state.transactions
     val nav = navigation()
     val context = LocalContext.current
 
@@ -181,7 +179,7 @@ private fun BoxWithConstraintsScope.UI(
                         nav.navigateTo(
                             PieChartStatisticScreen(
                                 type = TransactionType.INCOME,
-                                transactions = legacyTransactions.toImmutableList(),
+                                transactions = state.transactions,
                                 accountList = state.accountIdFilters,
                                 treatTransfersAsIncomeExpense = state.treatTransfersAsIncExp
                             )
@@ -193,7 +191,7 @@ private fun BoxWithConstraintsScope.UI(
                         nav.navigateTo(
                             PieChartStatisticScreen(
                                 type = TransactionType.EXPENSE,
-                                transactions = legacyTransactions.toImmutableList(),
+                                transactions = state.transactions,
                                 accountList = state.accountIdFilters,
                                 treatTransfersAsIncomeExpense = state.treatTransfersAsIncExp
                             )
@@ -234,7 +232,7 @@ private fun BoxWithConstraintsScope.UI(
                     accounts = state.accounts,
                 ),
 
-                upcoming = LegacyDueSection(
+                upcoming = DueSection(
                     trns = state.upcomingTransactions,
                     stats = IncomeExpensePair(
                         income = state.upcomingIncome.toBigDecimal(),
@@ -247,7 +245,7 @@ private fun BoxWithConstraintsScope.UI(
                     onEventHandler.invoke(ReportScreenEvent.OnUpcomingExpanded(upcomingExpanded = it))
                 },
 
-                overdue = LegacyDueSection(
+                overdue = DueSection(
                     trns = state.overdueTransactions,
                     stats = IncomeExpensePair(
                         income = state.overdueIncome.toBigDecimal(),
@@ -263,16 +261,16 @@ private fun BoxWithConstraintsScope.UI(
                 lastItemSpacer = 48.dp,
 
                 onPayOrGet = {
-                    onEventHandler.invoke(ReportScreenEvent.OnPayOrGetLegacy(transaction = it))
+                    onEventHandler.invoke(ReportScreenEvent.OnPayOrGet(transaction = it))
                 },
                 emptyStateTitle = emptyStateTitle,
                 emptyStateText = emptyStateText,
                 shouldShowAccountSpecificColorInTransactions = state.showAccountColorsInTransactions,
                 onSkipTransaction = {
-                    onEventHandler.invoke(ReportScreenEvent.SkipTransactionLegacy(transaction = it))
+                    onEventHandler.invoke(ReportScreenEvent.SkipTransaction(transaction = it))
                 },
                 onSkipAllTransactions = {
-                    onEventHandler.invoke(ReportScreenEvent.SkipTransactionsLegacy(transactions = it))
+                    onEventHandler.invoke(ReportScreenEvent.SkipTransactions(transactions = it))
                 }
             )
         } else {

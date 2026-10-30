@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Category
+import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.legacy.PeriodState

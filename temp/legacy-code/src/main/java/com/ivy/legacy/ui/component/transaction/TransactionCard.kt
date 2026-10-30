@@ -34,22 +34,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.base.legacy.LegacyTag
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
+import com.ivy.data.model.Tag
+import com.ivy.data.model.Transaction
+import com.ivy.data.model.Transfer
+import com.ivy.data.model.getFromAccount
+import com.ivy.data.model.getFromValue
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.design.system.colors.BlueLight
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.ui.previewAccount
+import com.ivy.legacy.ui.previewTransaction
 import com.ivy.legacy.utils.capitalizeLocal
 import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
@@ -98,9 +102,13 @@ fun TransactionCard(
     shouldShowAccountSpecificColorInTransactions: Boolean,
     onPayOrGet: (Transaction) -> Unit,
     modifier: Modifier = Modifier,
+    tags: ImmutableList<Tag> = persistentListOf(),
     onSkipTransaction: (Transaction) -> Unit = {},
     onClick: (Transaction) -> Unit,
 ) {
+    val type = transaction.getTransactionType()
+    val dueDate = transaction.time.takeUnless { transaction.settled }
+    val title = transaction.title?.value
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -109,20 +117,14 @@ fun TransactionCard(
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
-                if (baseData.accounts.find { it.id.value == transaction.accountId } != null) {
+                if (baseData.accounts.find { it.id == transaction.getFromAccount() } != null) {
                     onClick(transaction)
                 }
             }
             .testTag("transaction_card")
     ) {
-        // TODO: Optimize this
-        val transactionCurrency =
-            baseData.accounts.find { it.id.value == transaction.accountId }?.asset?.code
-                ?: baseData.baseCurrency
-
-        val toAccountCurrency =
-            baseData.accounts.find { it.id.value == transaction.toAccountId }?.asset?.code
-                ?: baseData.baseCurrency
+        val transactionCurrency = transaction.getFromValue().asset.code
+        val toAccountCurrency = (transaction as? Transfer)?.toValue?.asset?.code ?: transactionCurrency
 
         Spacer(Modifier.height(20.dp))
 
@@ -133,7 +135,7 @@ fun TransactionCard(
             shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions
         )
 
-        if (transaction.dueDate != null) {
+        if (dueDate != null) {
             Spacer(Modifier.height(12.dp))
             val timeFormatter = LocalTimeFormatter.current
             val timeProvider = LocalTimeProvider.current
@@ -142,7 +144,7 @@ fun TransactionCard(
                 text = stringResource(
                     R.string.due_on,
                     with(timeFormatter) {
-                        transaction.dueDate!!.formatLocal(
+                        dueDate.formatLocal(
                             TimeFormatter.Style.DateOnly(
                                 includeWeekDay = true
                             )
@@ -150,7 +152,7 @@ fun TransactionCard(
                     }
                 ).uppercase(),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
-                    color = if (transaction.dueDate!!.isAfter(timeProvider.utcNow())) {
+                    color = if (dueDate.isAfter(timeProvider.utcNow())) {
                         Orange
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
@@ -160,15 +162,15 @@ fun TransactionCard(
             )
         }
 
-        if (transaction.title.isNotNullOrBlank()) {
+        if (title != null) {
             Spacer(
                 Modifier.height(
-                    if (transaction.dueDate != null) 8.dp else 12.dp
+                    if (dueDate != null) 8.dp else 12.dp
                 )
             )
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
-                text = transaction.title!!,
+                text = title,
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
@@ -178,7 +180,7 @@ fun TransactionCard(
 
         val description = getTransactionDescription(transaction)
         if (!description.isNullOrBlank()) {
-            Spacer(Modifier.height(if (transaction.title.isNotNullOrBlank()) 4.dp else 8.dp))
+            Spacer(Modifier.height(if (title != null) 4.dp else 8.dp))
             Text(
                 text = description,
                 modifier = Modifier.padding(horizontal = 24.dp),
@@ -191,26 +193,26 @@ fun TransactionCard(
             )
         }
 
-        if (transaction.dueDate != null) {
+        if (dueDate != null) {
             Spacer(Modifier.height(12.dp))
         } else {
             Spacer(Modifier.height(16.dp))
         }
 
         TypeAmountCurrency(
-            transactionType = transaction.type,
+            transactionType = type,
             dueDate = with(LocalTimeConverter.current) {
-                transaction.dueDate?.toLocalDateTime()
+                dueDate?.toLocalDateTime()
             },
             currency = transactionCurrency,
-            amount = transaction.amount.toDouble()
+            amount = transaction.getFromValue().amount.value
         )
 
-        if (transaction.type == TransactionType.TRANSFER && toAccountCurrency != transactionCurrency) {
+        if (transaction is Transfer && toAccountCurrency != transactionCurrency) {
             Text(
                 modifier = Modifier.padding(start = 68.dp),
                 text = "${
-                    transaction.toAmount.toDouble()
+                    transaction.toValue.amount.value
                         .format(IvyCurrency.getDecimalPlaces(toAccountCurrency))
                 } $toAccountCurrency",
                 style = MaterialTheme.typography.numberBodyLarge.copy(
@@ -220,10 +222,10 @@ fun TransactionCard(
             )
         }
 
-        if (transaction.dueDate != null && transaction.dateTime == null) {
+        if (!transaction.settled) {
             // Pay/Get button
             Spacer(Modifier.height(16.dp))
-            val isExpense = transaction.type == TransactionType.EXPENSE
+            val isExpense = type == TransactionType.EXPENSE
             Row {
                 IvyButton(
                     modifier = Modifier
@@ -259,8 +261,8 @@ fun TransactionCard(
             }
         }
 
-        if (transaction.tags.isNotEmpty()) {
-            TransactionTags(transaction.tags)
+        if (tags.isNotEmpty()) {
+            TransactionTags(tags)
         }
 
         Spacer(Modifier.height(20.dp))
@@ -268,7 +270,7 @@ fun TransactionCard(
 }
 
 @Composable
-private fun ColumnScope.TransactionTags(tags: ImmutableList<LegacyTag>) {
+private fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
     Spacer(Modifier.height(12.dp))
 
     LazyRow(
@@ -287,9 +289,9 @@ private fun ColumnScope.TransactionTags(tags: ImmutableList<LegacyTag>) {
             Spacer(modifier = Modifier.width(8.dp))
         }
 
-        items(tags, key = { it.id }) { tag ->
+        items(tags, key = { it.id.value }) { tag ->
             Text(
-                text = "#${tag.name}",
+                text = "#${tag.name.value}",
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = BlueLight,
                     fontWeight = FontWeight.Normal
@@ -311,11 +313,11 @@ private fun TransactionHeaderRow(
     val nav = navigation()
 
     val category = category(
-        categoryId = transaction.categoryId,
+        categoryId = transaction.category?.value,
         categories = categories
     )
 
-    if (transaction.type == TransactionType.TRANSFER) {
+    if (transaction is Transfer) {
         Column(
             modifier = Modifier.padding(horizontal = 20.dp),
         ) {
@@ -340,7 +342,7 @@ private fun TransactionHeaderRow(
             }
 
             val account = account(
-                accountId = transaction.accountId,
+                accountId = transaction.getFromAccount().value,
                 accounts = accounts
             )
 
@@ -393,12 +395,13 @@ fun CategoryBadgeDisplay(
 @Composable
 private fun getTransactionDescription(transaction: Transaction): String? {
     val paidFor = with(LocalTimeConverter.current) {
-        transaction.paidFor?.toLocalDateTime()
+        transaction.metadata.paidForDateTime?.toLocalDateTime()
     }
+    val description = transaction.description?.value
     return when {
-        transaction.description.isNotNullOrBlank() -> transaction.description!!
-        transaction.recurringRuleId != null &&
-                transaction.dueDate == null &&
+        description != null -> description
+        transaction.metadata.recurringRuleId != null &&
+                transaction.settled &&
                 paidFor != null -> {
             stringResource(
                 R.string.bill_paid,
@@ -460,14 +463,14 @@ private const val TransferHeaderGradientThreshold = 0.35f
 @Composable
 private fun TransferHeader(
     accounts: List<Account>,
-    transaction: Transaction,
+    transaction: Transfer,
     shouldShowAccountSpecificColorInTransactions: Boolean
 ) {
     val account = remember(accounts, transaction) {
-        accounts.find { transaction.accountId == it.id.value }
+        accounts.find { it.id == transaction.fromAccount }
     }
     val toAccount = remember(accounts, transaction) {
-        accounts.find { transaction.toAccountId == it.id.value }
+        accounts.find { it.id == transaction.toAccount }
     }
 
     Row(
@@ -670,14 +673,14 @@ private fun PreviewUpcomingExpense() {
                         categories = persistentListOf(food),
                         accounts = persistentListOf(cash)
                     ),
-                    transaction = Transaction(
-                        accountId = cash.id.value,
-                        title = "Lidl pazar",
-                        categoryId = food.id.value,
-                        amount = 250.75.toBigDecimal(),
-                        dueDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        dateTime = null,
+                    transaction = previewTransaction(
                         type = TransactionType.EXPENSE,
+                        account = cash,
+                        amount = 250.75,
+                        time = Instant.now().plus(5, ChronoUnit.DAYS),
+                        settled = false,
+                        title = "Lidl pazar",
+                        category = food.id,
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
                     onPayOrGet = {},
@@ -709,14 +712,14 @@ private fun PreviewUpcomingExpenseBadgeSecondRow() {
                         categories = persistentListOf(food),
                         accounts = persistentListOf(cash)
                     ),
-                    transaction = Transaction(
-                        accountId = cash.id.value,
-                        title = "Lidl pazar",
-                        categoryId = food.id.value,
-                        amount = 250.75.toBigDecimal(),
-                        dueDate = Instant.now().plus(5, ChronoUnit.DAYS),
-                        dateTime = null,
+                    transaction = previewTransaction(
                         type = TransactionType.EXPENSE,
+                        account = cash,
+                        amount = 250.75,
+                        time = Instant.now().plus(5, ChronoUnit.DAYS),
+                        settled = false,
+                        title = "Lidl pazar",
+                        category = food.id,
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
                     onPayOrGet = {},
@@ -748,14 +751,14 @@ private fun PreviewOverdueExpense() {
                         categories = persistentListOf(food),
                         accounts = persistentListOf(cash)
                     ),
-                    transaction = Transaction(
-                        accountId = cash.id.value,
+                    transaction = previewTransaction(
+                        type = TransactionType.EXPENSE,
+                        account = cash,
+                        amount = 500.0,
+                        time = Instant.now().minus(5, ChronoUnit.DAYS),
+                        settled = false,
                         title = "Rent",
-                        categoryId = food.id.value,
-                        amount = 500.0.toBigDecimal(),
-                        dueDate = Instant.now().minus(5, ChronoUnit.DAYS),
-                        dateTime = null,
-                        type = TransactionType.EXPENSE
+                        category = food.id,
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
                     onPayOrGet = {},
@@ -787,13 +790,12 @@ private fun PreviewNormalExpense() {
                         categories = persistentListOf(food),
                         accounts = persistentListOf(cash)
                     ),
-                    transaction = Transaction(
-                        accountId = cash.id.value,
+                    transaction = previewTransaction(
+                        type = TransactionType.EXPENSE,
+                        account = cash,
+                        amount = 32.51,
                         title = "Близкия магазин",
-                        categoryId = food.id.value,
-                        amount = 32.51.toBigDecimal(),
-                        dateTime = Instant.now(),
-                        type = TransactionType.EXPENSE
+                        category = food.id,
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
                     onPayOrGet = {},
@@ -825,13 +827,12 @@ private fun PreviewIncome() {
                         categories = persistentListOf(category),
                         accounts = persistentListOf(cash)
                     ),
-                    transaction = Transaction(
-                        accountId = cash.id.value,
+                    transaction = previewTransaction(
+                        type = TransactionType.INCOME,
+                        account = cash,
+                        amount = 8049.70,
                         title = "Qredo Salary May",
-                        categoryId = category.id.value,
-                        amount = 8049.70.toBigDecimal(),
-                        dateTime = Instant.now(),
-                        type = TransactionType.INCOME
+                        category = category.id,
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
                     onPayOrGet = {},
@@ -857,13 +858,12 @@ private fun PreviewTransfer() {
                         categories = persistentListOf(),
                         accounts = persistentListOf(acc1, acc2)
                     ),
-                    transaction = Transaction(
-                        accountId = acc1.id.value,
-                        toAccountId = acc2.id.value,
+                    transaction = previewTransaction(
+                        type = TransactionType.TRANSFER,
+                        account = acc1,
+                        amount = 1000.0,
                         title = "Top-up revolut",
-                        amount = 1000.0.toBigDecimal(),
-                        dateTime = Instant.now(),
-                        type = TransactionType.TRANSFER
+                        toAccount = acc2,
                     ),
                     shouldShowAccountSpecificColorInTransactions = false,
                     onPayOrGet = {},
@@ -889,14 +889,13 @@ private fun PreviewTransfer_differentCurrency() {
                         categories = persistentListOf(),
                         accounts = persistentListOf(acc1, acc2)
                     ),
-                    transaction = Transaction(
-                        accountId = acc1.id.value,
-                        toAccountId = acc2.id.value,
+                    transaction = previewTransaction(
+                        type = TransactionType.TRANSFER,
+                        account = acc1,
+                        amount = 1000.0,
                         title = "Top-up revolut",
-                        amount = 1000.0.toBigDecimal(),
-                        toAmount = 510.toBigDecimal(),
-                        dateTime = Instant.now(),
-                        type = TransactionType.TRANSFER
+                        toAccount = acc2,
+                        toAmount = 510.0,
                     ),
                     shouldShowAccountSpecificColorInTransactions = true,
                     onPayOrGet = {},

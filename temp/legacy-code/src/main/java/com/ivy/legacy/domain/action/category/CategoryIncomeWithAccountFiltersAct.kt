@@ -5,7 +5,6 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.Transaction
 import com.ivy.data.temp.migration.getAccountId
 import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
-import com.ivy.wallet.domain.action.transaction.LegacyCalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -30,32 +29,6 @@ class CategoryIncomeWithAccountFiltersAct @Inject constructor(
 
     data class Input(
         val transactions: List<Transaction>,
-        val accountFilterList: List<Account>,
-        val category: Category?,
-        val baseCurrency: String
-    )
-}
-
-@Deprecated("Uses legacy Transaction")
-class LegacyCategoryIncomeWithAccountFiltersAct @Inject constructor(
-    private val calcTrnsIncomeExpenseAct: LegacyCalcTrnsIncomeExpenseAct
-) {
-    suspend operator fun invoke(input: Input): IncomeExpenseTransferPair = withContext(Dispatchers.IO) {
-        val accountFilterSet = input.accountFilterList.map { it.id.value }.toHashSet()
-        val transactions = input.transactions
-            .filter { it.categoryId == input.category?.id?.value }
-            .filter { accountFilterSet.isEmpty() || accountFilterSet.contains(it.accountId) }
-        calcTrnsIncomeExpenseAct(
-            LegacyCalcTrnsIncomeExpenseAct.Input(
-                transactions = transactions,
-                baseCurrency = input.baseCurrency,
-                accounts = input.accountFilterList
-            )
-        )
-    }
-
-    data class Input(
-        val transactions: List<com.ivy.base.legacy.Transaction>,
         val accountFilterList: List<Account>,
         val category: Category?,
         val baseCurrency: String

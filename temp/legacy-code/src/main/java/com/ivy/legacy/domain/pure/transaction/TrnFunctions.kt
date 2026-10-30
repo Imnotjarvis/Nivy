@@ -2,15 +2,12 @@ package com.ivy.wallet.domain.pure.transaction
 
 import arrow.core.Option
 import arrow.core.toOption
-import com.ivy.base.model.TransactionType
-import com.ivy.base.time.convertToLocal
 import com.ivy.data.model.Account
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
 import com.ivy.data.temp.migration.getAccountId
-
 import com.ivy.frp.Pure
 import com.ivy.wallet.domain.pure.account.accountCurrency
 import java.time.LocalDate
@@ -31,14 +28,12 @@ fun transfers(transactions: List<Transaction>): List<Transaction> {
 }
 
 @Pure
-fun isUpcoming(transaction: Transaction, dateNow: LocalDate): Boolean {
-    val dueDate = transaction.time.convertToLocal().toLocalDate() ?: return false
+fun isUpcoming(dueDate: LocalDate, dateNow: LocalDate): Boolean {
     return dateNow.isBefore(dueDate) || dateNow.isEqual(dueDate)
 }
 
 @Pure
-fun isOverdue(transaction: Transaction, dateNow: LocalDate): Boolean {
-    val dueDate = transaction.time.convertToLocal().toLocalDate() ?: return false
+fun isOverdue(dueDate: LocalDate, dateNow: LocalDate): Boolean {
     return dateNow.isAfter(dueDate)
 }
 
@@ -53,28 +48,4 @@ fun trnCurrency(
     }
         ?: return baseCurrency.toOption()
     return accountCurrency(account).toOption()
-}
-
-@Deprecated("Uses legacy Transaction")
-object LegacyTrnFunctions {
-    @Pure
-    fun expenses(transactions: List<com.ivy.base.legacy.Transaction>): List<com.ivy.base.legacy.Transaction> {
-        return transactions.filter { it.type == TransactionType.EXPENSE }
-    }
-
-    @Pure
-    fun incomes(transactions: List<com.ivy.base.legacy.Transaction>): List<com.ivy.base.legacy.Transaction> {
-        return transactions.filter { it.type == TransactionType.INCOME }
-    }
-
-    @Pure
-    fun trnCurrency(
-        transaction: com.ivy.base.legacy.Transaction,
-        accounts: List<Account>,
-        baseCurrency: String
-    ): Option<String> {
-        val account = accounts.find { it.id.value == transaction.accountId }
-            ?: return baseCurrency.toOption()
-        return accountCurrency(account).toOption()
-    }
 }

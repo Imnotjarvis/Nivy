@@ -6,10 +6,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.Transaction
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
+import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
@@ -18,7 +18,7 @@ import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.category.LegacyCategoryIncomeWithAccountFiltersAct
+import com.ivy.wallet.domain.action.category.CategoryIncomeWithAccountFiltersAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithRangeAndAccFiltersAct
 import com.ivy.wallet.domain.data.SortOrder
@@ -46,7 +46,7 @@ class CategoriesViewModel @Inject constructor(
     private val baseCurrencyAct: BaseCurrencyAct,
     private val accountsAct: AccountsAct,
     private val trnsWithRangeAndAccFiltersAct: TrnsWithRangeAndAccFiltersAct,
-    private val categoryIncomeWithAccountFiltersAct: LegacyCategoryIncomeWithAccountFiltersAct,
+    private val categoryIncomeWithAccountFiltersAct: CategoryIncomeWithAccountFiltersAct,
     private val features: Features,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
@@ -167,7 +167,7 @@ class CategoriesViewModel @Inject constructor(
         com.ivy.legacy.utils.scopedIOThread { scope ->
             val categories = categoryRepository.findAll().mapAsync(scope) {
                 val catIncomeExpense = categoryIncomeWithAccountFiltersAct(
-                    LegacyCategoryIncomeWithAccountFiltersAct.Input(
+                    CategoryIncomeWithAccountFiltersAct.Input(
                         transactions = transactions,
                         accountFilterList = allAccounts,
                         category = it,

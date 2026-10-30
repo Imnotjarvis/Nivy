@@ -2,7 +2,6 @@ package com.ivy.wallet.domain.action.exchange
 
 import arrow.core.Option
 import com.ivy.data.db.dao.read.ExchangeRatesDao
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.wallet.domain.pure.exchange.exchange
 import java.math.BigDecimal
@@ -18,7 +17,7 @@ class ExchangeAct @Inject constructor(
             data = input.data,
             amount = input.amount,
             getExchangeRate = { baseCurrency, currency ->
-                exchangeRatesDao.findByBaseCurrencyAndCurrency(baseCurrency, currency)?.toLegacyDomain()
+                exchangeRatesDao.findByBaseCurrencyAndCurrency(baseCurrency, currency)?.rate
             }
         )
     }

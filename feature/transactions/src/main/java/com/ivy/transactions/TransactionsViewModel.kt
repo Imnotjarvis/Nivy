@@ -7,33 +7,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.toOption
-import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.base.model.TransactionType
 import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.Expense
+import com.ivy.data.model.Income
+import com.ivy.data.model.Transaction
+import com.ivy.data.model.Transfer
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.data.repository.TagRepository
+import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.datamodel.temp.toImmutableLegacyTags
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.computationThread
 import com.ivy.legacy.utils.ioThread
@@ -48,12 +46,10 @@ import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.action.account.CalcAccIncomeExpenseAct
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.transaction.LegacyCalcTrnsIncomeExpenseAct
-import com.ivy.wallet.domain.action.transaction.LegacyTrnsWithDateDivsAct
+import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
+import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
+import com.ivy.legacy.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.PlannedPaymentsLogic
-import com.ivy.wallet.domain.deprecated.logic.WalletAccountLogic
-import com.ivy.wallet.domain.deprecated.logic.WalletCategoryLogic
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,24 +67,22 @@ class TransactionsViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val periodState: PeriodState,
     private val nav: Navigation,
-    private val accountLogic: WalletAccountLogic,
-    private val categoryLogic: WalletCategoryLogic,
+    private val accountLogic: AccountTransactionsLogic,
+    private val categoryLogic: CategoryTransactionsLogic,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
-    private val plannedPaymentsLogic: PlannedPaymentsLogic,
+    private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val appPreferences: AppPreferences,
     private val accountsAct: AccountsAct,
     private val accTrnsAct: AccTrnsAct,
-    private val trnsWithDateDivsAct: LegacyTrnsWithDateDivsAct,
+    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val calcAccBalanceAct: CalcAccBalanceAct,
     private val calcAccIncomeExpenseAct: CalcAccIncomeExpenseAct,
-    private val calcTrnsIncomeExpenseAct: LegacyCalcTrnsIncomeExpenseAct,
+    private val calcTrnsIncomeExpenseAct: CalcTrnsIncomeExpenseAct,
     private val exchangeAct: ExchangeAct,
     private val transactionRepository: TransactionRepository,
-    private val plannedPaymentRuleWriter: WritePlannedPaymentRuleDao,
-    private val transactionMapper: TransactionMapper,
-    private val tagRepository: TagRepository,
+    private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
@@ -376,14 +370,9 @@ class TransactionsViewModel @Inject constructor(
             )
         )
         history.value = trnsWithDateDivsAct(
-            LegacyTrnsWithDateDivsAct.Input(
+            TrnsWithDateDivsAct.Input(
                 baseCurrency = baseCurrency.value,
-                transactions = with(transactionMapper) {
-                    accountTransactions.map {
-                        val tags = tagRepository.findByIds(it.tags).toImmutableLegacyTags()
-                        it.toEntity().toLegacyDomain(tags = tags)
-                    }
-                }
+                transactions = accountTransactions.filter { it.settled }
             )
         ).toImmutableList()
 
@@ -397,9 +386,7 @@ class TransactionsViewModel @Inject constructor(
         }
 
         upcoming.value = ioThread {
-            with(transactionMapper) {
-                accountLogic.upcoming(initialAccount, range).map { it.toEntity().toLegacyDomain() }
-            }.toImmutableList()
+            accountLogic.upcoming(initialAccount, range).toImmutableList()
         }
 
         // Overdue
@@ -412,11 +399,7 @@ class TransactionsViewModel @Inject constructor(
         }
 
         overdue.value = ioThread {
-            with(transactionMapper) {
-                accountLogic.overdue(initialAccount, range).map {
-                    it.toEntity().toLegacyDomain()
-                }.toImmutableList()
-            }
+            accountLogic.overdue(initialAccount, range).toImmutableList()
         }
     }
 
@@ -459,7 +442,7 @@ class TransactionsViewModel @Inject constructor(
         }
 
         upcoming.value = ioThread {
-            categoryLogic.upcomingByCategoryLegacy(initialCategory, range).toImmutableList()
+            categoryLogic.upcomingByCategory(initialCategory, range).toImmutableList()
         }
 
         // Overdue
@@ -474,7 +457,7 @@ class TransactionsViewModel @Inject constructor(
 
         overdue.value =
             ioThread {
-                categoryLogic.overdueByCategoryLegacy(initialCategory, range).toImmutableList()
+                categoryLogic.overdueByCategory(initialCategory, range).toImmutableList()
             }
     }
 
@@ -487,7 +470,7 @@ class TransactionsViewModel @Inject constructor(
             initWithTransactions.value = true
 
             val trans = transactions.filter {
-                it.type != TransactionType.TRANSFER && it.categoryId == categoryId
+                it !is Transfer && it.category?.value == categoryId
             }
 
             val accountFilterSet = accountFilterList.toSet()
@@ -499,11 +482,11 @@ class TransactionsViewModel @Inject constructor(
                 period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
             val incomeTrans = transactions.filter {
-                it.categoryId == categoryId && it.type == TransactionType.INCOME
+                it is Income && it.category?.value == categoryId
             }
 
             val expenseTrans = transactions.filter {
-                it.categoryId == categoryId && it.type == TransactionType.EXPENSE
+                it is Expense && it.category?.value == categoryId
             }
 
             balance.value = ioThread {
@@ -549,7 +532,7 @@ class TransactionsViewModel @Inject constructor(
             }
 
             upcoming.value = ioThread {
-                categoryLogic.upcomingByCategoryLegacy(initialCategory, range).toImmutableList()
+                categoryLogic.upcomingByCategory(initialCategory, range).toImmutableList()
             }
 
             // Overdue
@@ -564,7 +547,7 @@ class TransactionsViewModel @Inject constructor(
 
             overdue.value =
                 ioThread {
-                    categoryLogic.overdueByCategoryLegacy(initialCategory, range).toImmutableList()
+                    categoryLogic.overdueByCategory(initialCategory, range).toImmutableList()
                 }
         }
     }
@@ -598,7 +581,7 @@ class TransactionsViewModel @Inject constructor(
         }
 
         upcoming.value = ioThread {
-            categoryLogic.upcomingUnspecifiedLegacy(range).toImmutableList()
+            categoryLogic.upcomingUnspecified(range).toImmutableList()
         }
 
         // Overdue
@@ -610,7 +593,7 @@ class TransactionsViewModel @Inject constructor(
             categoryLogic.calculateOverdueExpensesUnspecified(range)
         }
 
-        overdue.value = ioThread { categoryLogic.overdueUnspecifiedLegacy(range).toImmutableList() }
+        overdue.value = ioThread { categoryLogic.overdueUnspecified(range).toImmutableList() }
     }
 
     private suspend fun initForAccountTransfersCategory(
@@ -628,15 +611,13 @@ class TransactionsViewModel @Inject constructor(
         category.value = accountTransferCategory
         val accountFilterIdSet = accountFilterList.toHashSet()
         val trans = transactions.filter {
-            it.categoryId == null && (
-                    accountFilterIdSet.contains(it.accountId) || accountFilterIdSet.contains(
-                        it.toAccountId
+            it is Transfer && it.category == null && (
+                    it.fromAccount.value in accountFilterIdSet || it.toAccount.value in accountFilterIdSet
                     )
-                    ) && it.type == TransactionType.TRANSFER
         }
 
         val historyIncomeExpense = calcTrnsIncomeExpenseAct(
-            LegacyCalcTrnsIncomeExpenseAct.Input(
+            CalcTrnsIncomeExpenseAct.Input(
                 transactions = trans,
                 accounts = accountFilterList.mapNotNull { accID -> accounts.value.find { it.id.value == accID } },
                 baseCurrency = baseCurrency.value
@@ -647,9 +628,9 @@ class TransactionsViewModel @Inject constructor(
         expenses.doubleValue = historyIncomeExpense.transferExpense.toDouble()
         balance.doubleValue = income.doubleValue - expenses.doubleValue
         history.value = trnsWithDateDivsAct(
-            LegacyTrnsWithDateDivsAct.Input(
+            TrnsWithDateDivsAct.Input(
                 baseCurrency = baseCurrency.value,
-                transactions = transactions
+                transactions = transactions.filter { it.settled }
             )
         ).toImmutableList()
     }
@@ -723,7 +704,7 @@ class TransactionsViewModel @Inject constructor(
     private suspend fun deleteAccount(accountId: UUID) {
         ioThread {
             transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            plannedPaymentRuleWriter.deleteAllByAccountId(accountId = accountId)
+            plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
             accountRepository.deleteById(AccountId(accountId))
 
             nav.back()
@@ -772,40 +753,25 @@ class TransactionsViewModel @Inject constructor(
 
     private fun payOrGet(screen: TransactionsScreen, transaction: Transaction) {
         viewModelScope.launch {
-            plannedPaymentsLogic.payOrGetLegacy(transaction = transaction) {
-                start(
-                    screen = screen,
-                    reset = false
-                )
-            }
+            dueTransactionsUseCase.pay(transaction)
+            start(
+                screen = screen,
+                reset = false
+            )
         }
     }
 
     private fun skipTransaction(screen: TransactionsScreen, transaction: Transaction) {
-        viewModelScope.launch {
-            plannedPaymentsLogic.payOrGetLegacy(
-                transaction = transaction,
-                skipTransaction = true
-            ) {
-                start(
-                    screen = screen,
-                    reset = false
-                )
-            }
-        }
+        skipTransactions(screen, listOf(transaction))
     }
 
     private fun skipTransactions(screen: TransactionsScreen, transactions: List<Transaction>) {
         viewModelScope.launch {
-            plannedPaymentsLogic.payOrGetLegacy(
-                transactions = transactions,
-                skipTransaction = true
-            ) {
-                start(
-                    screen = screen,
-                    reset = false
-                )
-            }
+            dueTransactionsUseCase.skip(transactions)
+            start(
+                screen = screen,
+                reset = false
+            )
         }
     }
 

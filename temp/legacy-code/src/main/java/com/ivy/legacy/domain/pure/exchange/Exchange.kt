@@ -7,7 +7,6 @@ import arrow.core.raise.option
 import arrow.core.toOption
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
-import com.ivy.legacy.datamodel.ExchangeRate
 import com.ivy.legacy.utils.isNotNullOrBlank
 import java.math.BigDecimal
 
@@ -23,7 +22,7 @@ suspend fun exchange(
     amount: BigDecimal,
 
     @SideEffect
-    getExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> ExchangeRate?,
+    getExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> Double?,
 ): Option<BigDecimal> = option {
     if (amount == BigDecimal.ZERO) {
         return@option BigDecimal.ZERO
@@ -102,7 +101,7 @@ private fun String.validateCurrency(): Option<String> {
 suspend fun validExchangeRate(
     baseCurrency: String,
     toCurrency: String,
-    retrieveExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> ExchangeRate?,
+    retrieveExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> Double?,
 ): Option<BigDecimal> = option {
     retrieveExchangeRate(
         baseCurrency,
@@ -112,7 +111,7 @@ suspend fun validExchangeRate(
 }
 
 @Pure
-fun ExchangeRate.validateRate(): Option<BigDecimal> {
+private fun Double.validateRate(): Option<BigDecimal> {
     // exchange rate which <= 0 is invalid!
-    return if (rate > 0) return Some(rate.toBigDecimal()) else None
+    return if (this > 0) return Some(toBigDecimal()) else None
 }

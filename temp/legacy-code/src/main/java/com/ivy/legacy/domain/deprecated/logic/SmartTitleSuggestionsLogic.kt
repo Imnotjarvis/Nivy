@@ -1,16 +1,13 @@
 package com.ivy.wallet.domain.deprecated.logic
 
-import com.ivy.base.legacy.Transaction
 import com.ivy.data.db.dao.read.TransactionDao
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
+import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.legacy.utils.capitalizeWords
-import com.ivy.legacy.utils.isNotNullOrBlank
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 const val SUGGESTIONS_LIMIT = 10
 
-@Deprecated("Use FP style, look into `domain.fp` package")
 class SmartTitleSuggestionsLogic @Inject constructor(
     private val transactionDao: TransactionDao
 ) {
@@ -28,11 +25,10 @@ class SmartTitleSuggestionsLogic @Inject constructor(
     ): Set<String> {
         val suggestions = mutableSetOf<String>()
 
-        if (title != null && title.isNotEmpty()) {
+        if (!title.isNullOrEmpty()) {
             // suggest by title
             val suggestionsByTitle = transactionDao.findAllByTitleMatchingPattern("$title%")
-                .map { it.toLegacyDomain() }
-                .extractUniqueTitles()
+                .uniqueTitles()
                 .sortedByMostUsedFirst {
                     transactionDao.countByTitleMatchingPattern("$it%")
                 }
@@ -49,9 +45,8 @@ class SmartTitleSuggestionsLogic @Inject constructor(
                 .findAllByCategory(
                     categoryId = categoryId
                 )
-                .map { it.toLegacyDomain() }
                 // exclude already suggested suggestions so they're ordered by priority at the end
-                .extractUniqueTitles(excludeSuggestions = suggestions)
+                .uniqueTitles(excludeSuggestions = suggestions)
                 .sortedByMostUsedFirst {
                     transactionDao.countByTitleMatchingPatternAndCategoryId(
                         pattern = it,
@@ -71,9 +66,8 @@ class SmartTitleSuggestionsLogic @Inject constructor(
                 .findAllByAccount(
                     accountId = accountId
                 )
-                .map { it.toLegacyDomain() }
                 // exclude already suggested suggestions so they're ordered by priority at the end
-                .extractUniqueTitles(excludeSuggestions = suggestions)
+                .uniqueTitles(excludeSuggestions = suggestions)
                 .sortedByMostUsedFirst {
                     transactionDao.countByTitleMatchingPatternAndAccountId(
                         pattern = it,
@@ -90,30 +84,14 @@ class SmartTitleSuggestionsLogic @Inject constructor(
     }
 }
 
-@Deprecated("Use FP style, look into `domain.fp` package")
-private fun List<Transaction>.extractUniqueTitles(
-    excludeSuggestions: Set<String>? = null
-): Set<String> {
-    return this
-        .filter { it.title.isNotNullOrBlank() }
-        .map { it.title!!.trim().capitalizeWords() }
-        .filter { excludeSuggestions == null || !excludeSuggestions.contains(it) }
-        .toSet()
-}
+private fun List<TransactionEntity>.uniqueTitles(
+    excludeSuggestions: Set<String> = emptySet()
+): Set<String> = mapNotNull { it.title?.takeIf(String::isNotBlank) }
+    .map { it.trim().capitalizeWords() }
+    .filterNot { it in excludeSuggestions }
+    .toSet()
 
-@Deprecated("Use FP style, look into `domain.fp` package")
 private suspend fun Set<String>.sortedByMostUsedFirst(countUses: suspend (String) -> Long): Set<String> {
-    val titleCountMap = this
-        .map {
-            it to countUses(it)
-        }
-        .toMap()
-
-    val sortedSuggestions = this
-        .sortedByDescending {
-            titleCountMap.getOrDefault(it, 0)
-        }
-        .toSet()
-
-    return sortedSuggestions
+    val uses = associateWith { countUses(it) }
+    return sortedByDescending { uses.getValue(it) }.toSet()
 }
