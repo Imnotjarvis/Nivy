@@ -87,7 +87,6 @@
     <string name="hi_name">नमस्ते %1$s</string>
     <string name="cashflow">कैशफ़्लो: %1$s%2$s %3$s</string>
     <string name="search_transactions">लेनदेन खोजें</string>
-    <string name="ivy_wallet_open_source">Ivy वॉलेट ओपन सोर्स हैं</string>
     <string name="savings_goal">बचत लक्ष्य</string>
     <string name="quick_access">क्विक ऐक्सेस</string>
     <string name="settings">सेटिंग्स</string>
@@ -139,8 +138,7 @@
     <string name="suggestions">सुझाव</string>
     <string name="set">संग्रह</string>
     <string name="your_personal_money_manager">आपका व्यक्तिगत मनी मैनेजर</string>
-    <string name="opensource">#ओपनसोर्स</string>
-    <string name="offline_account">ऑफलाइन खाता</string>
+    <string name="continue_offline">ऑफलाइन जारी रखें</string>
     <string name="import_csv_file">CSV फाइल इम्पोर्ट करे</string>
     <string name="from_ivy_or_another_app">Ivy या किसी अन्य ऐप से</string>
     <string name="import_backup_file">बैकअप फ़ाइल इम्पोर्ट करें</string>

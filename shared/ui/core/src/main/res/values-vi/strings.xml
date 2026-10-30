@@ -88,7 +88,6 @@
     <string name="hi_name">Xin chào %1$s</string>
     <string name="cashflow">Dòng tiền: %1$s%2$s %3$s</string>
     <string name="search_transactions">Tìm giao dịch</string>
-    <string name="ivy_wallet_open_source">Ivy Wallet là mã nguồn mở</string>
     <string name="savings_goal">Mục tiêu tiết kiệm</string>
     <string name="quick_access">Truy cập nhanh</string>
     <string name="settings">Cài đặt</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">Gợi ý</string>
     <string name="set">Đặt</string>
     <string name="your_personal_money_manager">Quản lý tài chính cá nhân của bạn</string>
-    <string name="opensource">#manguonmo</string>
-    <string name="offline_account">Tài khoản ngoại tuyến</string>
+    <string name="continue_offline">Tiếp tục ngoại tuyến</string>
     <string name="import_csv_file">Tải lên tệp CSV</string>
     <string name="from_ivy_or_another_app">từ Ivy hoặc ứng dụng khác</string>
     <string name="importing_another_time_warning">Việc tải tệp sao lưu từ ứng dụng khác có thể mất tối đa 5 phút. Bạn luôn có thể tải lên dữ liệu của mình sau này nếu muốn.</string>

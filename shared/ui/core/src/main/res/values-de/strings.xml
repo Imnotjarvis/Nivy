@@ -88,7 +88,6 @@
     <string name="hi_name">Hi %1$s</string>
     <string name="cashflow">Cashflow: %1$s%2$s %3$s</string>
     <string name="search_transactions">Transaktionen suchen</string>
-    <string name="ivy_wallet_open_source">Ivy Wallet ist Open-Source</string>
     <string name="savings_goal">Sparziel</string>
     <string name="quick_access">Schnellzugriff</string>
     <string name="settings">Einstellungen</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">Vorschläge</string>
     <string name="set">Festlegen</string>
     <string name="your_personal_money_manager">Dein persönlicher Geldverwalter</string>
-    <string name="opensource">#opensource</string>
-    <string name="offline_account">Offline-Konto</string>
+    <string name="continue_offline">Offline fortfahren</string>
     <string name="import_csv_file">CSV-Datei importieren</string>
     <string name="from_ivy_or_another_app">von Ivy oder einer anderen App</string>
     <string name="importing_another_time_warning">Das Importieren einer Sicherungsdatei von einer anderen kann bis zu 5 Minuten dauern. Du kannst deine Daten jederzeit später importieren, wenn du das möchtest.</string>

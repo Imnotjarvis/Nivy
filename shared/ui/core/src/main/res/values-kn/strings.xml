@@ -88,7 +88,6 @@
     <string name="hi_name">ನಮಸ್ಕಾರ %1$s</string>
     <string name="cashflow">ಹಣದ ಹರಿವು: %1$s%2$s %3$s</string>
     <string name="search_transactions">ವಹಿವಾಟುಗಳನ್ನು ಹುಡುಕಿ</string>
-    <string name="ivy_wallet_open_source">Ivy ವ್ಯಾಲೆಟ್ ಮುಕ್ತ ಸಂಪನ್ಮೂಲ ಆಗಿದೆ</string>
     <string name="savings_goal">ಉಳಿತಾಯದ ಗುರಿ</string>
     <string name="quick_access">ತ್ವರಿತ ಪ್ರವೇಶ</string>
     <string name="settings">ಸಂಯೋಜನೆಗಳು</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">ಸಲಹೆಗಳು</string>
     <string name="set">ಸ್ಥಾಪಿಸಿ</string>
     <string name="your_personal_money_manager">ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಹಣ ನಿರ್ವಾಹಕ</string>
-    <string name="opensource">#ಮುಕ್ತಸಂಪನ್ಮೂಲ</string>
-    <string name="offline_account">ಆಫ್ಲೈನ್ ಖಾತೆ</string>
+    <string name="continue_offline">ಆಫ್ಲೈನ್ ಆಗಿ ಮುಂದುವರಿಯಿರಿ</string>
     <string name="import_csv_file">CSV ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿ</string>
     <string name="from_ivy_or_another_app">Ivy ಅಥವಾ ಇನ್ನೊಂದು ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ</string>
     <string name="importing_another_time_warning">ಇನ್ನೊಂದರಿಂದ ಬ್ಯಾಕಪ್ ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಲು 5 ನಿಮಿಷಗಳವರೆಗೆ ತೆಗೆದುಕೊಳ್ಳಬಹುದು. ನೀವು ಬಯಸಿದಲ್ಲಿ ಯಾವಾಗಲೂ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಬಹುದು.</string>

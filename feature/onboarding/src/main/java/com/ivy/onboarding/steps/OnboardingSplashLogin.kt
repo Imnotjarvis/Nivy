@@ -32,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,14 +39,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.l0_system.UI
 import com.ivy.design.l0_system.style
-import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.legacy.utils.clickableNoIndication
 import com.ivy.legacy.utils.drawColoredShadow
 import com.ivy.legacy.utils.lerp
-import com.ivy.legacy.utils.openUrl
 import com.ivy.legacy.utils.springBounceSlow
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.utils.rememberInteractionSource
@@ -57,7 +54,6 @@ import com.ivy.onboarding.OnboardingState
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.Gradient
 import com.ivy.wallet.ui.theme.Gray
-import com.ivy.wallet.ui.theme.Green
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import kotlin.math.roundToInt
 
@@ -202,28 +198,6 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
             )
         )
 
-        val uriHandler = LocalUriHandler.current
-        Text(
-            modifier = Modifier
-                .animateXCenterToLeft(
-                    ivyContext = ivyContext,
-                    percentTransition = percentTransition
-                )
-                .clickable {
-                    openUrl(
-                        uriHandler = uriHandler,
-                        url = Constants.URL_IVY_WALLET_REPO
-                    )
-                }
-                .padding(vertical = 8.dp)
-                .padding(end = 8.dp),
-            text = stringResource(R.string.opensource),
-            style = UI.typo.c.style(
-                color = Green,
-                fontWeight = FontWeight.Bold
-            )
-        )
-
         LoginSection(
             percentTransition = percentTransition,
             onSkip = onSkip
@@ -269,7 +243,7 @@ private fun LoginSection(
 
             LoginButton(
                 icon = R.drawable.ic_local_account,
-                text = stringResource(R.string.offline_account),
+                text = stringResource(R.string.continue_offline),
                 textColor = UI.colors.pureInverse,
                 backgroundGradient = Gradient.solid(UI.colors.medium),
                 hasShadow = false

@@ -88,7 +88,6 @@
     <string name="hi_name">Сайн уу, %1$s</string>
     <string name="cashflow">Урсгал: %1$s%2$s %3$s</string>
     <string name="search_transactions">Гүйлгээ хайх</string>
-    <string name="ivy_wallet_open_source">Ivy Хэтэвч бол open-source апп</string>
     <string name="savings_goal">Хадгаламжийн зорилт</string>
     <string name="quick_access">Шуурхай цэс</string>
     <string name="settings">Тохиргоо</string>
@@ -141,8 +140,7 @@
     <string name="suggestions">Санал болгох</string>
     <string name="set">Тохируулах</string>
     <string name="your_personal_money_manager">Таны хувийн санхүүч</string>
-    <string name="opensource">#нээлттэй_эхийн</string>
-    <string name="offline_account">Оффлайн горим</string>
+    <string name="continue_offline">Оффлайнаар үргэлжлүүлэх</string>
     <string name="import_csv_file">CSV файлаас сэргээх</string>
     <string name="from_ivy_or_another_app">Ivy эсвэл өөр аппаас</string>
     <string name="importing_another_time_warning">Өгөгдөл нөөцөөс сэргээхэд 5 хүртэлх минут болдог шүү. Мөн та дараа хүссэн үедээ сэргээх боломжтой.</string>
