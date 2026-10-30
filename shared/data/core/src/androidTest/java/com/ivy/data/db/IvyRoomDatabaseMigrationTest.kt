@@ -40,14 +40,14 @@ class IvyRoomDatabaseMigrationTest {
                     (oneTime, type, accountId, amount, title, isSynced, isDeleted, id)
                     VALUES (1, 'EXPENSE', ?, 10.0, ?, 0, ?, ?)
                     """.trimIndent(),
-                    arrayOf(accountId, title, isDeleted, UUID.randomUUID().toString())
+                    arrayOf<Any>(accountId, title, isDeleted, UUID.randomUUID().toString())
                 )
                 execSQL(
                     """
                     INSERT INTO categories (name, color, orderNum, isSynced, isDeleted, id)
                     VALUES (?, 0, 0.0, 0, ?, ?)
                     """.trimIndent(),
-                    arrayOf(title, isDeleted, UUID.randomUUID().toString())
+                    arrayOf<Any>(title, isDeleted, UUID.randomUUID().toString())
                 )
             }
             close()

@@ -10,6 +10,7 @@ import com.ivy.data.db.dao.fake.FakeLoanDao
 import com.ivy.data.db.dao.fake.FakeLoanRecordDao
 import com.ivy.data.db.dao.fake.FakePlannedPaymentDao
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.preferences.InMemoryPreferencesDataStore
 import com.ivy.data.db.dao.fake.FakeTagAssociationDao
 import com.ivy.data.db.dao.fake.FakeTagDao
 import com.ivy.data.db.dao.fake.FakeTransactionDao
@@ -20,7 +21,6 @@ import com.ivy.data.repository.mapper.AccountMapper
 import com.ivy.data.testResource
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -32,7 +32,7 @@ class BackupDataUseCaseTest {
         transactionDao: FakeTransactionDao = FakeTransactionDao(),
         plannedPaymentDao: FakePlannedPaymentDao = FakePlannedPaymentDao(),
         budgetDao: FakeBudgetDao = FakeBudgetDao(),
-        appPreferences: AppPreferences = mockk(relaxed = true) { coEvery { baseCurrency() } returns null },
+        appPreferences: AppPreferences = AppPreferences(InMemoryPreferencesDataStore()),
         loanDao: FakeLoanDao = FakeLoanDao(),
         loanRecordDao: FakeLoanRecordDao = FakeLoanRecordDao(),
         tagDao: FakeTagDao = FakeTagDao(),
