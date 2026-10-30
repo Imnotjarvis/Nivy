@@ -131,6 +131,7 @@ data class TimePeriod(
     }
 
     @Composable
+    @ReadOnlyComposable
     fun toDisplayShort(
         startDateOfMonth: Int,
         timeConverter: TimeConverter,
@@ -165,6 +166,7 @@ data class TimePeriod(
     }
 
     @Composable
+    @ReadOnlyComposable
     fun toDisplayLong(
         startDateOfMonth: Int,
         timeProvider: TimeProvider,
