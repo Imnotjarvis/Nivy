@@ -172,8 +172,7 @@ jobs:
           TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue --warning-mode all 2>&1 \
-              | tee gradle-output.log
+          ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
 
       # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
       - name: Drop build cache entries older than a week
@@ -233,6 +232,11 @@ jobs:
           echo "== $(grep -c '^e: ' diagnostics.txt) errors, $(grep -c '^w: ' diagnostics.txt) warnings"
           sed -E 's#^([ew]): (.*)/src/.*#\1 \2#' diagnostics.txt | sort | uniq -c | sort -rn
 
+      # A compile that fails on warnings only logs "warnings found and -Werror specified".
+      - name: Compiler problems
+        if: failure()
+        run: python3 -I scripts/printCompilerProblems.py
+
   # Separate from "build" so the device job doesn't wait on (or get skipped by) unit tests.
   test:
     needs: plan
@@ -276,6 +280,10 @@ jobs:
               -path '*/src/test/snapshots' -type d -print \
               | sed -E 's#^\./(.*)/src/test/snapshots$#:\1:verifyPaparazziDebug#; s#/#:#g')
           ./gradlew testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
+
+      - name: Compiler problems
+        if: failure()
+        run: python3 -I scripts/printCompilerProblems.py
 
       - name: Drop build cache entries older than a week
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}

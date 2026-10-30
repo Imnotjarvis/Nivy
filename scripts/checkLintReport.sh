@@ -1,6 +1,7 @@
 #!/bin/bash
 # Fails when Android Lint found an issue of severity Error or Fatal that app/lint-baseline.xml
-# doesn't cover (lint leaves baseline issues out of its report). Warnings are listed, not fatal.
+# doesn't cover (lint leaves baseline issues out of its report). New warnings are printed too,
+# as annotations, but aren't fatal.
 # The build itself never fails on lint (abortOnError = false), so CI checks the report here.
 # Usage: scripts/checkLintReport.sh [report.xml]   (default: the :app:lintDebug XML report)
 set -euo pipefail
@@ -42,6 +43,15 @@ for i in blocking:
     line = loc.get("line", "1") if loc is not None else "1"
     msg = (i.get("message") or "").replace("%", "%25").replace("\n", " ")
     print(f"::error file={file},line={line}::[{i.get('id')}] {msg}")
+
+for i in issues:
+    if i in blocking:
+        continue
+    loc = i.find("location")
+    file = loc.get("file", "") if loc is not None else ""
+    line = loc.get("line", "1") if loc is not None else "1"
+    msg = (i.get("message") or "").replace("%", "%25").replace("\n", " ")
+    print(f"::warning file={file},line={line}::[{i.get('id')}] {msg}")
 
 others = len(issues) - len(blocking)
 if blocking:
