@@ -37,6 +37,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 
 @Composable
 fun BoxWithConstraintsScope.ExchangeRatesScreen() {
@@ -70,7 +74,12 @@ private fun BoxWithConstraintsScope.UI(
         amountModalVisible = true
     }
 
-    ColumnRoot {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
         Spacer(Modifier.height(16.dp))
         SearchField(onSearch = { onEvent(RatesEvent.Search(it)) })
         Spacer(Modifier.height(4.dp))
