@@ -2,8 +2,8 @@ package com.ivy.piechart.action
 
 import androidx.compose.ui.graphics.toArgb
 import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
+import com.ivy.base.resource.ResourceProvider
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
@@ -38,11 +38,12 @@ class PieChartAct @Inject constructor(
     private val calcTrnsIncomeExpenseAct: LegacyCalcTrnsIncomeExpenseAct,
     private val categoryRepository: CategoryRepository,
     private val categoryIncomeWithAccountFiltersAct: LegacyCategoryIncomeWithAccountFiltersAct,
+    private val resourceProvider: ResourceProvider,
 ) : FPAction<PieChartAct.Input, PieChartAct.Output>() {
 
     private val accountTransfersCategory =
         Category(
-            name = NotBlankTrimmedString.unsafe(stringRes(R.string.account_transfers)),
+            name = NotBlankTrimmedString.unsafe(resourceProvider.getString(R.string.account_transfers)),
             color = ColorInt(RedLight.toArgb()),
             icon = IconAsset.unsafe("transfer"),
             id = CategoryId(UUID.randomUUID()),

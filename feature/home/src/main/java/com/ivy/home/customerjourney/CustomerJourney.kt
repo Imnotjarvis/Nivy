@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,7 @@ fun CustomerJourneyCard(
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 24.dp, end = 16.dp),
-                text = cardData.title,
+                text = stringResource(cardData.title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = findContrastTextColor(cardData.background.startColor),
                     fontWeight = FontWeight.ExtraBold
@@ -125,7 +126,7 @@ fun CustomerJourneyCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 32.dp),
-            text = cardData.description,
+            text = stringResource(cardData.description),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = findContrastTextColor(cardData.background.startColor),
                 fontWeight = FontWeight.Medium
@@ -134,13 +135,14 @@ fun CustomerJourneyCard(
 
         Spacer(Modifier.height(32.dp))
 
-        if (cardData.cta != null) {
+        val cta = cardData.cta
+        if (cta != null) {
             IvyButton(
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(horizontal = 20.dp)
                     .testTag("cta_prompt_${cardData.id}"),
-                text = cardData.cta,
+                text = stringResource(cta),
                 shadowAlpha = 0f,
                 iconStart = cardData.ctaIcon,
                 iconTint = cardData.background.startColor,

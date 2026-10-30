@@ -1,6 +1,7 @@
 package com.ivy.legacy.utils
 
-import com.ivy.base.legacy.stringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.ivy.base.time.INSTANT_MAX_SAFE
 import com.ivy.base.time.INSTANT_MIN_SAFE
 import com.ivy.base.time.TimeConverter
@@ -35,6 +36,7 @@ fun startOfDayNowUTC(): LocalDateTime = dateNowUTC().atStartOfDay()
 fun LocalDateTime.toEpochSeconds() = this.toEpochSecond(ZoneOffset.UTC)
 
 @Deprecated("Use the TimeConverter interface via DI")
+@Composable
 fun LocalDateTime.formatNicely(
     noWeekDay: Boolean = false,
     zone: ZoneId = ZoneOffset.systemDefault()
@@ -54,15 +56,15 @@ fun LocalDateTime.formatNicely(
 
     return when (this.toLocalDate()) {
         today -> {
-            stringRes(R.string.today_date, this.formatLocal(patternNoWeekDay, zone))
+            stringResource(R.string.today_date, this.formatLocal(patternNoWeekDay, zone))
         }
 
         today.minusDays(1) -> {
-            stringRes(R.string.yesterday_date, this.formatLocal(patternNoWeekDay, zone))
+            stringResource(R.string.yesterday_date, this.formatLocal(patternNoWeekDay, zone))
         }
 
         today.plusDays(1) -> {
-            stringRes(R.string.tomorrow_date, this.formatLocal(patternNoWeekDay, zone))
+            stringResource(R.string.tomorrow_date, this.formatLocal(patternNoWeekDay, zone))
         }
 
         else -> {
@@ -105,19 +107,20 @@ fun LocalDate.formatNicely(
     }
 }
 
+@Composable
 fun LocalDate.closeDay(): String? {
     val today = dateNowUTC()
     return when (this) {
         today -> {
-            stringRes(R.string.today)
+            stringResource(R.string.today)
         }
 
         today.minusDays(1) -> {
-            stringRes(R.string.yesterday)
+            stringResource(R.string.yesterday)
         }
 
         today.plusDays(1) -> {
-            stringRes(R.string.tomorrow)
+            stringResource(R.string.tomorrow)
         }
 
         else -> {

@@ -1,6 +1,5 @@
 package com.ivy.home.customerjourney
 
-import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
@@ -67,9 +66,9 @@ class CustomerJourneyCardsProvider @Inject constructor(
       condition = { trnCount, _, _, _ ->
         trnCount == 0L
       },
-      title = stringRes(R.string.adjust_initial_balance),
-      description = stringRes(R.string.adjust_initial_balance_description),
-      cta = stringRes(R.string.to_accounts),
+      title = R.string.adjust_initial_balance,
+      description = R.string.adjust_initial_balance_description,
+      cta = R.string.to_accounts,
       ctaIcon = R.drawable.ic_custom_account_s,
       background = Gradient.solid(Ivy),
       hasDismiss = false,
@@ -83,9 +82,9 @@ class CustomerJourneyCardsProvider @Inject constructor(
       condition = { trnCount, plannedPaymentCount, _, _ ->
         trnCount >= 1 && plannedPaymentCount == 0L
       },
-      title = stringRes(R.string.create_first_planned_payment),
-      description = stringRes(R.string.create_first_planned_payment_description),
-      cta = stringRes(R.string.add_planned_payment),
+      title = R.string.create_first_planned_payment,
+      description = R.string.create_first_planned_payment_description,
+      cta = R.string.add_planned_payment,
       ctaIcon = R.drawable.ic_planned_payments,
       background = Gradient.solid(Orange),
       hasDismiss = true,
@@ -104,9 +103,9 @@ class CustomerJourneyCardsProvider @Inject constructor(
       condition = { trnCount, _, _, _ ->
         trnCount >= 3
       },
-      title = stringRes(R.string.did_you_know),
-      description = stringRes(R.string.widget_description),
-      cta = stringRes(R.string.add_widget),
+      title = R.string.did_you_know,
+      description = R.string.widget_description,
+      cta = R.string.add_widget,
       ctaIcon = R.drawable.ic_custom_atom_s,
       background = Gradient.solid(GreenLight),
       hasDismiss = true,
@@ -120,9 +119,9 @@ class CustomerJourneyCardsProvider @Inject constructor(
       condition = { trnCount, _, _, _ ->
         trnCount >= 7
       },
-      title = stringRes(R.string.did_you_know),
-      description = stringRes(R.string.you_can_see_a_piechart),
-      cta = stringRes(R.string.expenses_piechart),
+      title = R.string.did_you_know,
+      description = R.string.you_can_see_a_piechart,
+      cta = R.string.expenses_piechart,
       ctaIcon = R.drawable.ic_custom_bills_s,
       background = Gradient.solid(Red),
       hasDismiss = true,

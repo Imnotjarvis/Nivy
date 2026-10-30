@@ -1,14 +1,16 @@
 package com.ivy.legacy
 
-import com.ivy.base.legacy.stringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.ivy.data.model.LoanType
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.ui.R
 
+@Composable
 fun Loan.humanReadableType(): String {
     return if (type == LoanType.BORROW) {
-        stringRes(R.string.borrowed_uppercase)
+        stringResource(R.string.borrowed_uppercase)
     } else {
-        stringRes(R.string.lent_uppercase)
+        stringResource(R.string.lent_uppercase)
     }
 }

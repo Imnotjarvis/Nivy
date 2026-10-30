@@ -15,5 +15,5 @@ class AndroidResourceProvider @Inject constructor(
     override fun getString(
         @StringRes resId: Int,
         vararg args: Any
-    ): String = context.getString(resId, args)
+    ): String = context.getString(resId, *args)
 }

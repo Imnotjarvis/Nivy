@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.Theme
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.legacy.LocalTimeConverter
@@ -296,6 +295,17 @@ private fun BoxWithConstraintsScope.UI(
         val timeProvider = LocalTimeProvider.current
         val timeConverter = LocalTimeConverter.current
         val timeFormatter = LocalTimeFormatter.current
+        val emptyStateTitle = stringResource(R.string.no_transactions)
+        val emptyStateText = stringResource(
+            R.string.no_transactions_for_period,
+            period.toDisplayLong(
+                startDateOfMonth = ivyContext.startDayOfMonth,
+                timeProvider = timeProvider,
+                timeConverter = timeConverter,
+                timeFormatter = timeFormatter,
+            )
+        )
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -420,16 +430,8 @@ private fun BoxWithConstraintsScope.UI(
                 onSkipAllTransactions = {
                     onSkipAllModalVisible(true)
                 },
-                emptyStateTitle = stringRes(R.string.no_transactions),
-                emptyStateText = stringRes(
-                    R.string.no_transactions_for_period,
-                    period.toDisplayLong(
-                        startDateOfMonth = ivyContext.startDayOfMonth,
-                        timeProvider = timeProvider,
-                        timeConverter = timeConverter,
-                        timeFormatter = timeFormatter,
-                    )
-                ),
+                emptyStateTitle = emptyStateTitle,
+                emptyStateText = emptyStateText,
                 shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions
             )
         }
@@ -777,7 +779,7 @@ private fun Item(
                     Spacer(Modifier.width(8.dp))
 
                     Text(
-                        text = stringRes(R.string.excluded),
+                        text = stringResource(R.string.excluded),
                         style = MaterialTheme.typography.labelMedium.copy(
                             color = account.color.toComposeColor().dynamicContrast(),
                             fontWeight = FontWeight.Bold

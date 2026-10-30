@@ -6,7 +6,6 @@ import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
-import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.preferences.AppPreferences
@@ -17,7 +16,6 @@ import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
-import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderLogic
 import com.ivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -123,13 +121,13 @@ class RootViewModel @Inject constructor(
     ): BiometricPrompt.AuthenticationCallback {
         return object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                Timber.d(stringRes(R.string.authentication_succeeded))
+                Timber.d("Authentication succeeded")
                 unlockApp()
                 onAuthSuccess()
             }
 
             override fun onAuthenticationFailed() {
-                Timber.d(stringRes(R.string.authentication_failed))
+                Timber.d("Authentication failed")
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {

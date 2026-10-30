@@ -659,6 +659,7 @@ private fun Preview_IvyChart() {
                 y = 1000.0
             ),
         )
+        val monthInitials = Month.monthsList().map { it.displayName().first().toString() }
 
         IvyLineChart(
             modifier = Modifier
@@ -673,7 +674,7 @@ private fun Preview_IvyChart() {
                 )
             ),
             xLabel = {
-                Month.monthsList()[it.toInt()].name.first().toString()
+                monthInitials[it.toInt()]
             },
             yLabel = {
                 DecimalFormat("#,###").format(it)

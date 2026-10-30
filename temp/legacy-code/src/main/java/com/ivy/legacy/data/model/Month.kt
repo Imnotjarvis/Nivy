@@ -1,7 +1,9 @@
 package com.ivy.legacy.data.model
 
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import com.ivy.base.legacy.stringRes
+import androidx.compose.ui.res.stringResource
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.utils.dateNowUTC
 import com.ivy.ui.R
@@ -10,22 +12,22 @@ import java.time.LocalDate
 @Immutable
 data class Month(
     val monthValue: Int,
-    val name: String
+    @StringRes val nameRes: Int,
 ) {
     companion object {
         fun monthsList(): MutableList<Month> = mutableListOf(
-            Month(1, stringRes(R.string.january)),
-            Month(2, stringRes(R.string.february)),
-            Month(3, stringRes(R.string.march)),
-            Month(4, stringRes(R.string.april)),
-            Month(5, stringRes(R.string.may)),
-            Month(6, stringRes(R.string.june)),
-            Month(7, stringRes(R.string.july)),
-            Month(8, stringRes(R.string.august)),
-            Month(9, stringRes(R.string.september)),
-            Month(10, stringRes(R.string.october)),
-            Month(11, stringRes(R.string.november)),
-            Month(12, stringRes(R.string.december)),
+            Month(1, R.string.january),
+            Month(2, R.string.february),
+            Month(3, R.string.march),
+            Month(4, R.string.april),
+            Month(5, R.string.may),
+            Month(6, R.string.june),
+            Month(7, R.string.july),
+            Month(8, R.string.august),
+            Month(9, R.string.september),
+            Month(10, R.string.october),
+            Month(11, R.string.november),
+            Month(12, R.string.december),
         )
 
         fun fromMonthValue(code: Int): Month =
@@ -35,6 +37,10 @@ data class Month(
     fun toDate(): LocalDate =
         dateNowUTC()
             .withMonth(monthValue)
+
+    // The month's name in the app's language.
+    @Composable
+    fun displayName(): String = stringResource(nameRes)
 
     fun incrementMonthPeriod(
         ivyContext: IvyWalletCtx,

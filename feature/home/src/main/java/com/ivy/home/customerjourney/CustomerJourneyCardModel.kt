@@ -1,6 +1,7 @@
 package com.ivy.home.customerjourney
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeProvider
 import com.ivy.design.system.colors.Gradient
@@ -13,9 +14,9 @@ data class CustomerJourneyCardModel(
     val id: String,
     @Suppress("MaximumLineLength", "ParameterWrapping", "MaxLineLength", "ParameterListWrapping")
     val condition: suspend (trnCount: Long, plannedPaymentsCount: Long, ivyContext: IvyWalletCtx, deps: CustomerJourneyDeps) -> Boolean,
-    val title: String,
-    val description: String,
-    val cta: String?,
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    @StringRes val cta: Int?,
     @DrawableRes val ctaIcon: Int,
 
     val hasDismiss: Boolean = true,

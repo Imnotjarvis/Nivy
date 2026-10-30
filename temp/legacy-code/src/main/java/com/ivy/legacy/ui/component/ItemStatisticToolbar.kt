@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ivy.base.legacy.stringRes
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Transparent
@@ -48,7 +48,7 @@ fun ItemStatisticToolbar(
         if (showEditButton) {
             IvyOutlinedButton(
                 iconStart = R.drawable.ic_edit,
-                text = stringRes(R.string.edit),
+                text = stringResource(R.string.edit),
                 borderColor = contrastColor,
                 iconTint = contrastColor,
                 textColor = contrastColor,

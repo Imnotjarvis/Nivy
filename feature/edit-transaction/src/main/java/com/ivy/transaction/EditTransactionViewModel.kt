@@ -11,8 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.Toaster
 import com.ivy.base.legacy.Transaction
-import com.ivy.base.legacy.refreshWidget
 import com.ivy.base.model.TransactionType
+import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.LoanDao
@@ -633,7 +633,7 @@ class EditTransactionViewModel @Inject constructor(
                     associateTagToTransaction(it, id)
                 }
 
-                refreshWidget(WalletBalanceWidgetReceiver::class.java)
+                context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
             }
 
             closeScreen()
@@ -748,7 +748,7 @@ class EditTransactionViewModel @Inject constructor(
                     transactionRepo.save(it)
                 }
 
-                refreshWidget(WalletBalanceWidgetReceiver::class.java)
+                context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
             }
 
             if (closeScreen) {

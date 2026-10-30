@@ -2,7 +2,7 @@ package com.ivy.wallet.domain.deprecated.logic
 
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
-import com.ivy.base.legacy.stringRes
+import com.ivy.base.resource.ResourceProvider
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
@@ -51,12 +51,13 @@ class PreloadDataLogic @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val accountRepository: AccountRepository,
     private val currencyRepository: CurrencyRepository,
+    private val resourceProvider: ResourceProvider,
 ) {
     private var categoryOrderNum = 0.0
 
     suspend fun preloadAccounts() {
         val cash = Account(
-            name = stringRes(R.string.cash),
+            name = resourceProvider.getString(R.string.cash),
             currency = null,
             color = Green.toArgb(),
             icon = "cash",
@@ -65,7 +66,7 @@ class PreloadDataLogic @Inject constructor(
         )
 
         val bank = Account(
-            name = stringRes(R.string.bank),
+            name = resourceProvider.getString(R.string.bank),
             currency = null,
             color = IvyDark.toArgb(),
             icon = "bank",
@@ -82,21 +83,21 @@ class PreloadDataLogic @Inject constructor(
     fun accountSuggestions(baseCurrency: String): ImmutableList<CreateAccountData> =
         persistentListOf(
             CreateAccountData(
-                name = stringRes(R.string.cash),
+                name = resourceProvider.getString(R.string.cash),
                 currency = baseCurrency,
                 color = Green,
                 icon = "cash",
                 balance = 0.0
             ),
             CreateAccountData(
-                name = stringRes(R.string.bank),
+                name = resourceProvider.getString(R.string.bank),
                 currency = baseCurrency,
                 color = IvyDark,
                 icon = "bank",
                 balance = 0.0
             ),
             CreateAccountData(
-                name = stringRes(R.string.revoult),
+                name = resourceProvider.getString(R.string.revoult),
                 currency = baseCurrency,
                 color = Blue,
                 icon = "revolut",
@@ -116,61 +117,61 @@ class PreloadDataLogic @Inject constructor(
 
     private fun preloadCategoriesCreateData() = listOf(
         CreateCategoryData(
-            name = stringRes(R.string.food_drinks),
+            name = resourceProvider.getString(R.string.food_drinks),
             color = Green,
             icon = "fooddrink"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.bills_fees),
+            name = resourceProvider.getString(R.string.bills_fees),
             color = Red,
             icon = "bills"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.transport),
+            name = resourceProvider.getString(R.string.transport),
             color = YellowLight,
             icon = "transport"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.groceries),
+            name = resourceProvider.getString(R.string.groceries),
             color = GreenLight,
             icon = "groceries"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.entertainment),
+            name = resourceProvider.getString(R.string.entertainment),
             color = Orange,
             icon = "game"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.shopping),
+            name = resourceProvider.getString(R.string.shopping),
             color = Ivy,
             icon = "shopping"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.gifts),
+            name = resourceProvider.getString(R.string.gifts),
             color = RedLight,
             icon = "gift"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.health),
+            name = resourceProvider.getString(R.string.health),
             color = IvyLight,
             icon = "health"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.investments),
+            name = resourceProvider.getString(R.string.investments),
             color = IvyDark,
             icon = "leaf"
         ),
 
         CreateCategoryData(
-            name = stringRes(R.string.loans),
+            name = resourceProvider.getString(R.string.loans),
             color = BlueDark,
             icon = "loan"
         ),
@@ -198,91 +199,91 @@ class PreloadDataLogic @Inject constructor(
         .plus(
             listOf(
                 CreateCategoryData(
-                    name = stringRes(R.string.car),
+                    name = resourceProvider.getString(R.string.car),
                     color = Blue3,
                     icon = "vehicle"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.work),
+                    name = resourceProvider.getString(R.string.work),
                     color = Blue2Light,
                     icon = "work"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.home_category),
+                    name = resourceProvider.getString(R.string.home_category),
                     color = Green2,
                     icon = "house"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.restaurant),
+                    name = resourceProvider.getString(R.string.restaurant),
                     color = Orange3,
                     icon = "restaurant"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.family),
+                    name = resourceProvider.getString(R.string.family),
                     color = Red3Light,
                     icon = "family"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.social_life),
+                    name = resourceProvider.getString(R.string.social_life),
                     color = Blue2,
                     icon = "people"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.order_food),
+                    name = resourceProvider.getString(R.string.order_food),
                     color = Orange2,
                     icon = "orderfood2"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.travel),
+                    name = resourceProvider.getString(R.string.travel),
                     color = BlueLight,
                     icon = "travel"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.fitness),
+                    name = resourceProvider.getString(R.string.fitness),
                     color = Purple2,
                     icon = "fitness"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.self_development),
+                    name = resourceProvider.getString(R.string.self_development),
                     color = Yellow,
                     icon = "selfdevelopment"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.clothes),
+                    name = resourceProvider.getString(R.string.clothes),
                     color = Green2Light,
                     icon = "clothes2"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.beauty),
+                    name = resourceProvider.getString(R.string.beauty),
                     color = Red3,
                     icon = "makeup"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.education),
+                    name = resourceProvider.getString(R.string.education),
                     color = Blue,
                     icon = "education"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.pet),
+                    name = resourceProvider.getString(R.string.pet),
                     color = Orange3Light,
                     icon = "pet"
                 ),
 
                 CreateCategoryData(
-                    name = stringRes(R.string.sports),
+                    name = resourceProvider.getString(R.string.sports),
                     color = Purple1,
                     icon = "sports"
                 ),

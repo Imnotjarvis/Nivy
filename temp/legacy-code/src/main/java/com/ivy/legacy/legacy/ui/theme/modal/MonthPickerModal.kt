@@ -142,7 +142,7 @@ private fun MonthButton(
                 )
             }
             .padding(horizontal = 40.dp, vertical = 12.dp),
-        text = month.name,
+        text = month.displayName(),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = if (selected) { findContrastTextColor(monthColor) } else { MaterialTheme.colorScheme.onSurface },
             fontWeight = FontWeight.SemiBold

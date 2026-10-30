@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.toOption
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
+import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.AccountDao
@@ -96,7 +96,8 @@ class TransactionsViewModel @Inject constructor(
     private val tagRepository: TagRepository,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
-    private val features: Features
+    private val features: Features,
+    private val resourceProvider: ResourceProvider,
 ) : ComposeViewModel<TransactionsState, TransactionsEvent>() {
 
     private val period = mutableStateOf(ivyContext.selectedPeriod)
@@ -632,7 +633,7 @@ class TransactionsViewModel @Inject constructor(
     ) {
         initWithTransactions.value = true
         val accountTransferCategory = Category(
-            name = NotBlankTrimmedString.unsafe(stringRes(R.string.account_transfers)),
+            name = NotBlankTrimmedString.unsafe(resourceProvider.getString(R.string.account_transfers)),
             color = ColorInt(RedLight.toArgb()),
             icon = IconAsset.unsafe("transfer"),
             id = CategoryId(UUID.randomUUID()),

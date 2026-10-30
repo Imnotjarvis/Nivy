@@ -13,7 +13,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
-import com.ivy.base.legacy.refreshWidget
+import com.ivy.base.refreshWidget
 import com.ivy.data.backup.BackupDataUseCase
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteSettingsDao
@@ -317,7 +317,7 @@ class SettingsViewModel @Inject constructor(
 
         viewModelScope.launch {
             appPreferences.setAppLockEnabled(lock)
-            refreshWidget(WalletBalanceWidgetReceiver::class.java)
+            context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         }
     }
 

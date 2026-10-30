@@ -240,15 +240,16 @@ data class MonthYear(
     val month: com.ivy.legacy.data.model.Month,
     val year: Int
 ) {
+    @Composable
     fun forDisplay(
         currentYear: Int
     ): String {
         return if (year != currentYear) {
             // not current year
-            "${month.name}, $year"
+            "${month.displayName()}, $year"
         } else {
             // current year
-            month.name
+            month.displayName()
         }
     }
 }

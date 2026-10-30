@@ -12,13 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.base.legacy.stringRes
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.LegacyDueSection
 import com.ivy.navigation.EditTransactionScreen
@@ -43,7 +43,7 @@ fun LazyListScope.transactions(
     overdue: LegacyDueSection?,
     history: List<TransactionHistoryItem>,
 
-    emptyStateTitle: String = stringRes(R.string.no_transactions),
+    emptyStateTitle: String,
     emptyStateText: String,
 
     dateDividerMarginTop: Dp? = null,
@@ -123,7 +123,7 @@ private fun LazyListScope.upcomingSection(
             SectionDivider(
                 expanded = upcoming.expanded,
                 setExpanded = setExpanded,
-                title = stringRes(R.string.upcoming),
+                title = stringResource(R.string.upcoming),
                 titleColor = Orange,
                 baseCurrency = baseData.baseCurrency,
                 income = upcoming.stats.income.toDouble(),
@@ -163,7 +163,7 @@ private fun LazyListScope.overdueSection(
             SectionDivider(
                 expanded = overdue.expanded,
                 setExpanded = setExpanded,
-                title = stringRes(R.string.overdue),
+                title = stringResource(R.string.overdue),
                 titleColor = Red,
                 baseCurrency = baseData.baseCurrency,
                 income = overdue.stats.income.toDouble(),
@@ -176,7 +176,7 @@ private fun LazyListScope.overdueSection(
                 val isLightTheme = MaterialTheme.colorScheme.surface == White
                 IvyButton(
                     modifier = Modifier.padding(horizontal = 24.dp),
-                    text = stringRes(R.string.skip_all),
+                    text = stringResource(R.string.skip_all),
                     wrapContentMode = false,
                     backgroundGradient = if (isLightTheme) {
                         Gradient(White, White)
