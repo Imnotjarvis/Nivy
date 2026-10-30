@@ -109,11 +109,12 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
         viewModel.start(screen)
     }
     // This screen colors the status bar after the account; put the theme's back when leaving.
+    val lightTheme = MaterialTheme.colorScheme.isLight()
     DisposableEffect(Unit) {
         onDispose {
             setStatusBarDarkTextCompat(
                 view = view,
-                darkText = MaterialTheme.colorScheme.isLight()
+                darkText = lightTheme
             )
         }
     }
