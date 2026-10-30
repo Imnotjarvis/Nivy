@@ -3,8 +3,8 @@ package com.ivy.wallet.domain.deprecated.logic.loantrasactions
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.LoanType
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
@@ -28,7 +28,7 @@ class LTLoanMapper @Inject constructor(
                 loanId = loanId,
                 amount = data.amount,
                 loanType = data.type,
-                selectedAccountId = data.account?.id,
+                selectedAccountId = data.account?.id?.value,
                 title = data.name,
                 isLoanRecord = false,
                 loanRecordType = LoanRecordType.DECREASE
@@ -66,7 +66,7 @@ class LTLoanMapper @Inject constructor(
         newLoanAccountId: UUID?,
         loanId: UUID
     ) {
-        val accounts = ltCore.fetchAccounts().map { it.toLegacyDomain() }
+        val accounts = ltCore.fetchAccounts()
         computationThread {
             if (oldLoanAccountId == newLoanAccountId || oldLoanAccountId.fetchAssociatedCurrencyCode(
                     accounts
@@ -135,7 +135,7 @@ class LTLoanMapper @Inject constructor(
                                     newLoanRecordAccountID = loanRecord.accountId,
                                     newLoanRecordAmount = loanRecord.amount,
                                     loanAccountId = newAccountId,
-                                    accounts = ltCore.fetchAccounts().map { it.toLegacyDomain() },
+                                    accounts = ltCore.fetchAccounts(),
                                 )
                             loanRecord.copy(convertedAmount = convertedAmount)
                         }
@@ -145,6 +145,6 @@ class LTLoanMapper @Inject constructor(
     }
 
     private suspend fun UUID?.fetchAssociatedCurrencyCode(accountsList: List<Account>): String {
-        return ltCore.findAccount(accountsList, this)?.currency ?: ltCore.baseCurrency()
+        return ltCore.findAccount(accountsList, this)?.asset?.code ?: ltCore.baseCurrency()
     }
 }

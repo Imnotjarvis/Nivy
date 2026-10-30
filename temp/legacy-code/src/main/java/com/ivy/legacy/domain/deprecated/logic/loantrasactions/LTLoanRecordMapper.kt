@@ -50,7 +50,7 @@ class LTLoanRecordMapper @Inject constructor(
                 time = data.dateTime,
                 loanRecordId = loanRecordId,
                 loanId = loan.id,
-                selectedAccountId = data.account?.id,
+                selectedAccountId = data.account?.id?.value,
                 isLoanRecord = true,
                 loanRecordType = data.loanRecordType
             )
@@ -82,7 +82,7 @@ class LTLoanRecordMapper @Inject constructor(
                 newLoanRecordAccountID = transaction.accountId,
                 newLoanRecordAmount = transaction.amount.toDouble(),
                 loanAccountId = loan.accountId,
-                accounts = ltCore.fetchAccounts().map { it.toLegacyDomain() }
+                accounts = ltCore.fetchAccounts()
             )
 
             val modifiedLoanRecord = loanRecord.copy(
@@ -110,7 +110,7 @@ class LTLoanRecordMapper @Inject constructor(
             newLoanRecordAccountID = newLoanRecord.accountId,
             newLoanRecordAmount = newLoanRecord.amount,
             loanAccountId = loanAccountId,
-            accounts = ltCore.fetchAccounts().map { it.toLegacyDomain() },
+            accounts = ltCore.fetchAccounts(),
             reCalculateLoanAmount = reCalculateLoanAmount
         )
     }
@@ -123,10 +123,10 @@ class LTLoanRecordMapper @Inject constructor(
             oldLoanRecordAccountId = null,
             oldLonRecordConvertedAmount = null,
             oldLoanRecordAmount = 0.0,
-            newLoanRecordAccountID = data.account?.id,
+            newLoanRecordAccountID = data.account?.id?.value,
             newLoanRecordAmount = data.amount,
             loanAccountId = loanAccountId,
-            accounts = ltCore.fetchAccounts().map { it.toLegacyDomain() },
+            accounts = ltCore.fetchAccounts(),
         )
     }
 }

@@ -12,10 +12,10 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.write.WriteLoanDao
+import com.ivy.data.model.Account
 import com.ivy.data.model.LoanType
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.format
@@ -263,7 +263,7 @@ class LoanViewModel @Inject constructor(
         accounts = accountsList
         selectedAccount = defaultAccountId(accountsList)
         selectedAccount?.let {
-            baseCurrencyCode = it.currency ?: defaultCurrencyCode
+            baseCurrencyCode = it.asset.code
         }
     }
 
@@ -359,7 +359,7 @@ class LoanViewModel @Inject constructor(
         }
 
         lastSelectedId?.let { uuid ->
-            return accounts.find { it.id == uuid }
+            return accounts.find { it.id.value == uuid }
         } ?: run {
             return if (accounts.isNotEmpty()) accounts[0] else null
         }
@@ -367,7 +367,7 @@ class LoanViewModel @Inject constructor(
 
     private fun findCurrencyCode(accounts: List<Account>, accountId: UUID?): String {
         return accountId?.let {
-            accounts.find { account -> account.id == it }?.currency
+            accounts.find { account -> account.id.value == it }?.asset?.code
         } ?: defaultCurrencyCode
     }
 

@@ -1,6 +1,6 @@
 package com.ivy.loans.loan.data
 
-import com.ivy.legacy.datamodel.Account
+import com.ivy.data.model.Account
 import com.ivy.legacy.datamodel.LoanRecord
 
 data class DisplayLoanRecord(

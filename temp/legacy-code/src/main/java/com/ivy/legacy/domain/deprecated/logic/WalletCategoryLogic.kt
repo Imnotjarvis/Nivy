@@ -8,13 +8,13 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.legacy.data.model.filterOverdueLegacy
 import com.ivy.legacy.data.model.filterUpcomingLegacy
 import com.ivy.legacy.datamodel.temp.toLegacy
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.pure.transaction.LegacyTrnDateDividers
 import com.ivy.wallet.domain.deprecated.logic.currency.ExchangeRatesLogic
 import com.ivy.wallet.domain.deprecated.logic.currency.sumInBaseCurrency
@@ -24,6 +24,7 @@ import javax.inject.Inject
 @Deprecated("Migrate to FP Style")
 class WalletCategoryLogic @Inject constructor(
     private val accountDao: AccountDao,
+    private val accountRepository: AccountRepository,
     private val currencyRepository: CurrencyRepository,
     private val exchangeRatesLogic: ExchangeRatesLogic,
     private val transactionRepository: TransactionRepository,
@@ -39,7 +40,7 @@ class WalletCategoryLogic @Inject constructor(
         transactions: List<Transaction> = emptyList()
     ): Double {
         val baseCurrency = currencyRepository.getBaseCurrency().code
-        val accounts = accountDao.findAll().map { it.toLegacyDomain() }
+        val accounts = accountRepository.findAll()
 
         return historyByCategory(
             category,

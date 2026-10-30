@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.legacy.LegacyTag
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
@@ -45,7 +46,7 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.system.colors.BlueLight
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.datamodel.Account
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.capitalizeLocal
 import com.ivy.legacy.utils.format
 import com.ivy.legacy.utils.isNotNullOrBlank
@@ -106,21 +107,21 @@ fun TransactionCard(
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp)
             .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
-                if (baseData.accounts.find { it.id == transaction.accountId } != null) {
+                if (baseData.accounts.find { it.id.value == transaction.accountId } != null) {
                     onClick(transaction)
                 }
             }
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("transaction_card")
     ) {
         // TODO: Optimize this
         val transactionCurrency =
-            baseData.accounts.find { it.id == transaction.accountId }?.currency
+            baseData.accounts.find { it.id.value == transaction.accountId }?.asset?.code
                 ?: baseData.baseCurrency
 
         val toAccountCurrency =
-            baseData.accounts.find { it.id == transaction.toAccountId }?.currency
+            baseData.accounts.find { it.id.value == transaction.toAccountId }?.asset?.code
                 ?: baseData.baseCurrency
 
         Spacer(Modifier.height(20.dp))
@@ -344,21 +345,21 @@ private fun TransactionHeaderRow(
             )
 
             val accountBackgroundColor = if (shouldShowAccountSpecificColorInTransactions) {
-                account?.color?.toComposeColor() ?: MaterialTheme.colorScheme.surface
+                account?.color?.value?.toComposeColor() ?: MaterialTheme.colorScheme.surface
             } else {
                 MaterialTheme.colorScheme.surface
             }
 
             TransactionBadge(
-                text = account?.name ?: stringResource(R.string.deleted),
+                text = account?.name?.value ?: stringResource(R.string.deleted),
                 backgroundColor = accountBackgroundColor,
-                icon = account?.icon,
+                icon = account?.icon?.id,
                 defaultIcon = R.drawable.ic_custom_account_s
             ) {
                 account?.let {
                     nav.navigateTo(
                         TransactionsScreen(
-                            accountId = account.id,
+                            accountId = account.id.value,
                             categoryId = null
                         )
                     )
@@ -463,10 +464,10 @@ private fun TransferHeader(
     shouldShowAccountSpecificColorInTransactions: Boolean
 ) {
     val account = remember(accounts, transaction) {
-        accounts.find { transaction.accountId == it.id }
+        accounts.find { transaction.accountId == it.id.value }
     }
     val toAccount = remember(accounts, transaction) {
-        accounts.find { transaction.toAccountId == it.id }
+        accounts.find { transaction.toAccountId == it.id.value }
     }
 
     Row(
@@ -476,10 +477,10 @@ private fun TransferHeader(
                     Modifier
                         .background(
                             brush = Brush.horizontalGradient(
-                                0f to account.color.toComposeColor(),
-                                (TransferHeaderGradientThreshold) to account.color.toComposeColor(),
-                                (1f - TransferHeaderGradientThreshold) to toAccount.color.toComposeColor(),
-                                1f to toAccount.color.toComposeColor()
+                                0f to account.color.value.toComposeColor(),
+                                (TransferHeaderGradientThreshold) to account.color.value.toComposeColor(),
+                                (1f - TransferHeaderGradientThreshold) to toAccount.color.value.toComposeColor(),
+                                1f to toAccount.color.value.toComposeColor()
                             ),
                             shape = CircleShape
                         )
@@ -493,13 +494,13 @@ private fun TransferHeader(
 
         val accountContrastColor =
             if (shouldShowAccountSpecificColorInTransactions && account != null) {
-                findContrastTextColor(account.color.toComposeColor())
+                findContrastTextColor(account.color.value.toComposeColor())
             } else {
                 MaterialTheme.colorScheme.onSurface
             }
 
         ItemIconSDefaultIcon(
-            iconName = account?.icon,
+            iconName = account?.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_s,
             tint = accountContrastColor
         )
@@ -510,7 +511,7 @@ private fun TransferHeader(
             modifier = Modifier
                 .padding(vertical = 8.dp),
             // used toString() in case of null
-            text = account?.name.toString(),
+            text = account?.name?.value.toString(),
             style = MaterialTheme.typography.labelMedium.copy(
                 color = accountContrastColor,
                 fontWeight = FontWeight.ExtraBold
@@ -525,13 +526,13 @@ private fun TransferHeader(
 
         val toAccountContrastColor =
             if (shouldShowAccountSpecificColorInTransactions && toAccount != null) {
-                findContrastTextColor(toAccount.color.toComposeColor())
+                findContrastTextColor(toAccount.color.value.toComposeColor())
             } else {
                 MaterialTheme.colorScheme.onSurface
             }
 
         ItemIconSDefaultIcon(
-            iconName = toAccount?.icon,
+            iconName = toAccount?.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_s,
             tint = toAccountContrastColor
         )
@@ -542,7 +543,7 @@ private fun TransferHeader(
             modifier = Modifier
                 .padding(vertical = 8.dp),
             // used toString() in case of null
-            text = toAccount?.name.toString(),
+            text = toAccount?.name?.value.toString(),
             style = MaterialTheme.typography.labelMedium.copy(
                 color = toAccountContrastColor,
                 fontWeight = FontWeight.ExtraBold
@@ -653,7 +654,7 @@ private data class AmountTypeStyle(
 private fun PreviewUpcomingExpense() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "Cash", Green.toArgb())
+            val cash = previewAccount("Cash", color = Green, currency = "BGN")
             val food = Category(
                 name = NotBlankTrimmedString.unsafe("Food"),
                 color = ColorInt(Blue.toArgb()),
@@ -670,7 +671,7 @@ private fun PreviewUpcomingExpense() {
                         accounts = persistentListOf(cash)
                     ),
                     transaction = Transaction(
-                        accountId = cash.id,
+                        accountId = cash.id.value,
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75.toBigDecimal(),
@@ -692,7 +693,7 @@ private fun PreviewUpcomingExpense() {
 private fun PreviewUpcomingExpenseBadgeSecondRow() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "Cash", Green.toArgb())
+            val cash = previewAccount("Cash", color = Green, currency = "BGN")
             val food = Category(
                 name = NotBlankTrimmedString.unsafe("Food-Travel-Entertaiment-Food"),
                 color = ColorInt(Blue.toArgb()),
@@ -709,7 +710,7 @@ private fun PreviewUpcomingExpenseBadgeSecondRow() {
                         accounts = persistentListOf(cash)
                     ),
                     transaction = Transaction(
-                        accountId = cash.id,
+                        accountId = cash.id.value,
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75.toBigDecimal(),
@@ -731,7 +732,7 @@ private fun PreviewUpcomingExpenseBadgeSecondRow() {
 private fun PreviewOverdueExpense() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "Cash", color = Green.toArgb())
+            val cash = previewAccount("Cash", color = Green, currency = "BGN")
             val food = Category(
                 name = NotBlankTrimmedString.unsafe("Rent"),
                 color = ColorInt(Green.toArgb()),
@@ -748,7 +749,7 @@ private fun PreviewOverdueExpense() {
                         accounts = persistentListOf(cash)
                     ),
                     transaction = Transaction(
-                        accountId = cash.id,
+                        accountId = cash.id.value,
                         title = "Rent",
                         categoryId = food.id.value,
                         amount = 500.0.toBigDecimal(),
@@ -770,7 +771,7 @@ private fun PreviewOverdueExpense() {
 private fun PreviewNormalExpense() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "Cash", color = Green.toArgb())
+            val cash = previewAccount("Cash", color = Green, currency = "BGN")
             val food = Category(
                 name = NotBlankTrimmedString.unsafe("Bitovi"),
                 color = ColorInt(Orange.toArgb()),
@@ -787,7 +788,7 @@ private fun PreviewNormalExpense() {
                         accounts = persistentListOf(cash)
                     ),
                     transaction = Transaction(
-                        accountId = cash.id,
+                        accountId = cash.id.value,
                         title = "Близкия магазин",
                         categoryId = food.id.value,
                         amount = 32.51.toBigDecimal(),
@@ -808,7 +809,7 @@ private fun PreviewNormalExpense() {
 private fun PreviewIncome() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "DSK Bank", color = Green.toArgb())
+            val cash = previewAccount("DSK Bank", color = Green, currency = "BGN")
             val category = Category(
                 name = NotBlankTrimmedString.unsafe("Salary"),
                 color = ColorInt(GreenDark.toArgb()),
@@ -825,7 +826,7 @@ private fun PreviewIncome() {
                         accounts = persistentListOf(cash)
                     ),
                     transaction = Transaction(
-                        accountId = cash.id,
+                        accountId = cash.id.value,
                         title = "Qredo Salary May",
                         categoryId = category.id.value,
                         amount = 8049.70.toBigDecimal(),
@@ -846,8 +847,8 @@ private fun PreviewIncome() {
 private fun PreviewTransfer() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val acc1 = Account(name = "DSK Bank", color = Green.toArgb(), icon = "bank")
-            val acc2 = Account(name = "Revolut", color = IvyDark.toArgb(), icon = "revolut")
+            val acc1 = previewAccount("DSK Bank", color = Green, icon = "bank", currency = "BGN")
+            val acc2 = previewAccount("Revolut", color = IvyDark, icon = "revolut", currency = "BGN")
 
             item {
                 TransactionCard(
@@ -857,8 +858,8 @@ private fun PreviewTransfer() {
                         accounts = persistentListOf(acc1, acc2)
                     ),
                     transaction = Transaction(
-                        accountId = acc1.id,
-                        toAccountId = acc2.id,
+                        accountId = acc1.id.value,
+                        toAccountId = acc2.id.value,
                         title = "Top-up revolut",
                         amount = 1000.0.toBigDecimal(),
                         dateTime = Instant.now(),
@@ -878,13 +879,8 @@ private fun PreviewTransfer() {
 private fun PreviewTransfer_differentCurrency() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val acc1 = Account(name = "DSK Bank", color = Green.toArgb(), icon = "bank")
-            val acc2 = Account(
-                name = "Revolut",
-                currency = "EUR",
-                color = IvyDark.toArgb(),
-                icon = "revolut"
-            )
+            val acc1 = previewAccount("DSK Bank", color = Green, icon = "bank", currency = "BGN")
+            val acc2 = previewAccount("Revolut", color = IvyDark, icon = "revolut", currency = "EUR")
 
             item {
                 TransactionCard(
@@ -894,8 +890,8 @@ private fun PreviewTransfer_differentCurrency() {
                         accounts = persistentListOf(acc1, acc2)
                     ),
                     transaction = Transaction(
-                        accountId = acc1.id,
-                        toAccountId = acc2.id,
+                        accountId = acc1.id.value,
+                        toAccountId = acc2.id.value,
                         title = "Top-up revolut",
                         amount = 1000.0.toBigDecimal(),
                         toAmount = 510.toBigDecimal(),

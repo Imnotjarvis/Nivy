@@ -1,12 +1,6 @@
 package com.ivy.wallet.domain.action.wallet
 
 import arrow.core.toOption
-import com.ivy.data.model.Account
-import com.ivy.data.model.AccountId
-import com.ivy.data.model.primitive.AssetCode
-import com.ivy.data.model.primitive.ColorInt
-import com.ivy.data.model.primitive.IconAsset
-import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
@@ -25,7 +19,9 @@ class CalcWalletBalanceAct @Inject constructor(
     suspend operator fun invoke(input: Input): BigDecimal = withContext(Dispatchers.IO) {
         accountsAct()
             .filter { input.withExcluded || it.includeInBalance }
-            .map { account -> calcAccBalanceAct(balanceInput(account, input)) }
+            .map { account ->
+                calcAccBalanceAct(CalcAccBalanceAct.Input(account = account, range = input.range))
+            }
             .map {
                 exchangeAct(
                     ExchangeAct.Input(
@@ -40,24 +36,6 @@ class CalcWalletBalanceAct @Inject constructor(
             }
             .fold(BigDecimal.ZERO) { sum, balance -> sum + (balance.getOrNull() ?: BigDecimal.ZERO) }
     }
-
-    private fun balanceInput(
-        account: com.ivy.legacy.datamodel.Account,
-        input: Input,
-    ) = CalcAccBalanceAct.Input(
-        account = Account(
-            id = AccountId(account.id),
-            name = NotBlankTrimmedString.from(account.name).getOrNull()
-                ?: error("account name cannot be blank"),
-            asset = AssetCode.from(account.currency ?: input.baseCurrency).getOrNull()
-                ?: error("account currency cannot be blank"),
-            color = ColorInt(account.color),
-            icon = account.icon?.let { IconAsset.from(it).getOrNull() },
-            includeInBalance = account.includeInBalance,
-            orderNum = account.orderNum,
-        ),
-        range = input.range
-    )
 
     @Suppress("DataClassDefaultValues")
     data class Input(

@@ -6,16 +6,16 @@ import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.convertToLocal
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.model.Account
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.data.model.Transaction
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.TagRepository
+import com.ivy.data.repository.mapper.AccountMapper
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toImmutableLegacyTags
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.utils.toEpochSeconds
@@ -31,31 +31,6 @@ import com.ivy.wallet.domain.pure.transaction.incomes
 import com.ivy.wallet.domain.pure.transaction.sumTrns
 import java.math.BigDecimal
 import java.util.UUID
-
-@Deprecated("Migrate to actions")
-suspend fun List<Transaction>.withDateDividers(
-    exchangeRatesLogic: ExchangeRatesLogic,
-    currencyRepository: CurrencyRepository,
-    accountDao: AccountDao,
-    tagRepository: TagRepository,
-    accountRepository: AccountRepository,
-): List<TransactionHistoryItem> {
-    return transactionsWithDateDividers(
-        transactions = this,
-        baseCurrencyCode = currencyRepository.getBaseCurrency().code,
-        getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
-        getTags = { tagsIds -> tagRepository.findByIds(tagsIds) },
-        accountRepository = accountRepository,
-        exchange = { data, amount ->
-            exchangeRatesLogic.convertAmount(
-                baseCurrency = data.baseCurrency,
-                fromCurrency = data.fromCurrency.getOrNull() ?: "",
-                toCurrency = data.toCurrency,
-                amount = amount.toDouble()
-            ).toBigDecimal().toOption()
-        }
-    )
-}
 
 @Pure
 suspend fun transactionsWithDateDividers(
@@ -122,7 +97,11 @@ object LegacyTrnDateDividers {
         return transactionsWithDateDividers(
             transactions = this,
             baseCurrencyCode = currencyRepository.getBaseCurrency().code,
-            getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
+            getAccount = { accountId ->
+                accountDao.findById(accountId)?.let {
+                    with(AccountMapper(currencyRepository)) { it.toDomain() }.getOrNull()
+                }
+            },
             exchange = { data, amount ->
                 exchangeRatesLogic.convertAmount(
                     baseCurrency = data.baseCurrency,

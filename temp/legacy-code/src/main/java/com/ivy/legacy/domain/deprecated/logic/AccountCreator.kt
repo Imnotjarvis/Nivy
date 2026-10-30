@@ -10,20 +10,17 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.AccountRepository
-import com.ivy.data.repository.CurrencyRepository
+import com.ivy.legacy.domain.action.account.AdjustAccBalanceAct
 import com.ivy.legacy.utils.ioThread
-import com.ivy.wallet.domain.deprecated.logic.WalletAccountLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.pure.util.nextOrderNum
 import java.util.UUID
 import javax.inject.Inject
-import com.ivy.legacy.datamodel.Account as LegacyAccount
 
 class AccountCreator @Inject constructor(
-    private val accountLogic: WalletAccountLogic,
+    private val adjustAccBalanceAct: AdjustAccBalanceAct,
     private val accountDao: AccountDao,
     private val accountRepository: AccountRepository,
-    private val currencyRepository: CurrencyRepository,
 ) {
 
     suspend fun createAccount(
@@ -44,19 +41,9 @@ class AccountCreator @Inject constructor(
             }.getOrNull() ?: return@ioThread
             accountRepository.save(account)
 
-            val legacyAccount = LegacyAccount(
-                name = data.name,
-                currency = data.currency,
-                color = data.color.toArgb(),
-                icon = data.icon,
-                includeInBalance = data.includeBalance,
-                orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
-                isSynced = false,
-                id = account.id.value
-            )
-            accountLogic.adjustBalance(
-                account = legacyAccount,
-                actualBalance = 0.0,
+            adjustAccBalanceAct(
+                account = account,
+                currentBalance = 0.0,
                 newBalance = data.balance
             )
         }
@@ -65,23 +52,13 @@ class AccountCreator @Inject constructor(
     }
 
     suspend fun editAccount(
-        legacyAccount: LegacyAccount,
+        account: Account,
         newBalance: Double,
         onRefreshUI: suspend () -> Unit
     ) {
-        val updatedLegacyAccount = legacyAccount.copy(
-            isSynced = false
-        )
         ioThread {
-            val account = legacyAccount.toDomainAccount(currencyRepository).getOrNull()
-                ?: return@ioThread
             accountRepository.save(account)
-
-            accountLogic.adjustBalance(
-                account = updatedLegacyAccount,
-                actualBalance = accountLogic.calculateAccountBalance(updatedLegacyAccount),
-                newBalance = newBalance
-            )
+            adjustAccBalanceAct(account = account, newBalance = newBalance)
         }
 
         onRefreshUI()

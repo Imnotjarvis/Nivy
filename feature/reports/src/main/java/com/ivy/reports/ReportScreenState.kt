@@ -1,9 +1,9 @@
 package com.ivy.reports
 
 import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
-import com.ivy.legacy.datamodel.Account
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.*

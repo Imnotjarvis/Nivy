@@ -25,9 +25,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.data.model.Account
+import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.model.primitive.ColorInt
+import com.ivy.data.model.primitive.IconAsset
+import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.legacy.utils.toLowerCaseLocal
@@ -67,19 +71,19 @@ fun BoxWithConstraintsScope.AccountModal(
 ) {
     val account = modal?.account
     var nameTextFieldValue by remember(modal) {
-        mutableStateOf(selectEndTextFieldValue(account?.name))
+        mutableStateOf(selectEndTextFieldValue(account?.name?.value))
     }
     var color by remember(modal) {
-        mutableStateOf(account?.color?.let { Color(it) } ?: Ivy)
+        mutableStateOf(account?.color?.let { Color(it.value) } ?: Ivy)
     }
     var amount by remember(modal) {
         mutableStateOf(modal?.balance ?: 0.0)
     }
     var currencyCode by remember(modal) {
-        mutableStateOf(account?.currency ?: modal?.baseCurrency ?: "")
+        mutableStateOf(account?.asset?.code ?: modal?.baseCurrency ?: "")
     }
     var icon by remember(modal) {
-        mutableStateOf(account?.icon)
+        mutableStateOf(account?.icon?.id)
     }
     var includeInBalance by remember(modal) {
         mutableStateOf(account?.includeInBalance ?: true)
@@ -258,16 +262,20 @@ private fun save(
     dismiss: () -> Unit
 ) {
     if (account != null) {
-        onEditAccount(
-            account.copy(
-                name = nameTextFieldValue.text.trim(),
-                currency = currency,
-                includeInBalance = includeInBalance,
-                icon = icon,
-                color = color.toArgb()
-            ),
-            amount
-        )
+        val name = NotBlankTrimmedString.from(nameTextFieldValue.text).getOrNull()
+        val asset = AssetCode.from(currency).getOrNull()
+        if (name != null && asset != null) {
+            onEditAccount(
+                account.copy(
+                    name = name,
+                    asset = asset,
+                    includeInBalance = includeInBalance,
+                    icon = icon?.let(IconAsset::from)?.getOrNull(),
+                    color = ColorInt(color.toArgb())
+                ),
+                amount
+            )
+        }
     } else {
         onCreateAccount(
             CreateAccountData(

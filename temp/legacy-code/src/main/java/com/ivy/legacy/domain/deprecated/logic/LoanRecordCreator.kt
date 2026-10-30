@@ -27,7 +27,7 @@ class LoanRecordCreator @Inject constructor(
                     dateTime = data.dateTime,
                     isSynced = false,
                     interest = data.interest,
-                    accountId = data.account?.id,
+                    accountId = data.account?.id?.value,
                     convertedAmount = data.convertedAmount,
                     loanRecordType = data.loanRecordType
                 )

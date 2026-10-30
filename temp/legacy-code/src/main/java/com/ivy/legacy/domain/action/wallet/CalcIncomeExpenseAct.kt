@@ -2,7 +2,7 @@ package com.ivy.wallet.domain.action.wallet
 
 import arrow.core.nonEmptyListOf
 import arrow.core.toOption
-import com.ivy.legacy.datamodel.Account
+import com.ivy.data.model.Account
 import com.ivy.wallet.domain.action.account.AccTrnsAct
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.pure.account.filterExcluded
@@ -25,7 +25,7 @@ class CalcIncomeExpenseAct @Inject constructor(
         val statsList = filterExcluded(input.accounts).map { acc ->
             val trns = accTrnsAct(
                 AccTrnsAct.Input(
-                    accountId = acc.id,
+                    accountId = acc.id.value,
                     range = input.range
                 )
             )
@@ -36,7 +36,7 @@ class CalcIncomeExpenseAct @Inject constructor(
                     AccountValueFunctions::income,
                     AccountValueFunctions::expense
                 ),
-                arg = acc.id
+                arg = acc.id.value
             )
             Timber.i("acc_stats: $acc - $stats")
             stats.map {
@@ -44,7 +44,7 @@ class CalcIncomeExpenseAct @Inject constructor(
                     ExchangeAct.Input(
                         data = ExchangeData(
                             baseCurrency = input.baseCurrency,
-                            fromCurrency = (acc.currency ?: input.baseCurrency).toOption()
+                            fromCurrency = acc.asset.code.toOption()
                         ),
                         amount = it
                     ),

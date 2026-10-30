@@ -3,6 +3,8 @@ package com.ivy.wallet.domain.deprecated.logic
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
 import com.ivy.base.resource.ResourceProvider
+import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
@@ -36,7 +38,6 @@ import com.ivy.design.system.colors.Red3Light
 import com.ivy.design.system.colors.RedLight
 import com.ivy.design.system.colors.Yellow
 import com.ivy.design.system.colors.YellowLight
-import com.ivy.legacy.datamodel.Account
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
@@ -56,28 +57,23 @@ class PreloadDataLogic @Inject constructor(
     private var categoryOrderNum = 0.0
 
     suspend fun preloadAccounts() {
-        val cash = Account(
-            name = resourceProvider.getString(R.string.cash),
-            currency = null,
-            color = Green.toArgb(),
-            icon = "cash",
-            orderNum = 0.0,
-            isSynced = false
-        )
-
-        val bank = Account(
-            name = resourceProvider.getString(R.string.bank),
-            currency = null,
-            color = IvyDark.toArgb(),
-            icon = "bank",
-            orderNum = 1.0,
-            isSynced = false
-        )
-
-        cash.toDomainAccount(currencyRepository).getOrNull()
-            ?.let { accountRepository.save(it) }
-        bank.toDomainAccount(currencyRepository).getOrNull()
-            ?.let { accountRepository.save(it) }
+        val baseCurrency = currencyRepository.getBaseCurrency()
+        listOf(
+            Triple(R.string.cash, Green, "cash"),
+            Triple(R.string.bank, IvyDark, "bank"),
+        ).forEachIndexed { index, (name, color, icon) ->
+            either {
+                Account(
+                    id = AccountId(UUID.randomUUID()),
+                    name = NotBlankTrimmedString.from(resourceProvider.getString(name)).bind(),
+                    asset = baseCurrency,
+                    color = ColorInt(color.toArgb()),
+                    icon = IconAsset.from(icon).getOrNull(),
+                    includeInBalance = true,
+                    orderNum = index.toDouble(),
+                )
+            }.getOrNull()?.let { accountRepository.save(it) }
+        }
     }
 
     fun accountSuggestions(baseCurrency: String): ImmutableList<CreateAccountData> =

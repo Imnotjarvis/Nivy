@@ -1,7 +1,7 @@
 package com.ivy.legacy.data.model
 
 import androidx.compose.runtime.Immutable
-import com.ivy.legacy.datamodel.Account
+import com.ivy.data.model.Account
 
 @Immutable
 data class AccountBalance(

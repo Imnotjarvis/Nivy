@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalView
@@ -44,13 +43,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ivy.data.model.Account
 import com.ivy.design.utils.LocalScreenSize
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.format
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.keyboardOnlyWindowInsets
@@ -396,10 +396,10 @@ private fun TransferRowMini(
     ) {
         Spacer(Modifier.width(24.dp))
 
-        val fromColor = fromAccount?.color?.toComposeColor() ?: Ivy
+        val fromColor = fromAccount?.color?.value?.toComposeColor() ?: Ivy
         val fromContrastColor = findContrastTextColor(fromColor)
         IvyButton(
-            text = fromAccount?.name ?: "Null",
+            text = fromAccount?.name?.value ?: "Null",
             iconStart = R.drawable.ic_accounts,
             backgroundGradient = Gradient.solid(fromColor),
             iconTint = fromContrastColor,
@@ -417,10 +417,10 @@ private fun TransferRowMini(
             tint = MaterialTheme.colorScheme.onSurface
         )
 
-        val toColor = toAccount?.color?.toComposeColor() ?: Ivy
+        val toColor = toAccount?.color?.value?.toComposeColor() ?: Ivy
         val toContrastColor = findContrastTextColor(toColor)
         IvyButton(
-            text = toAccount?.name ?: "Null",
+            text = toAccount?.name?.value ?: "Null",
             iconStart = R.drawable.ic_accounts,
             backgroundGradient = Gradient.solid(toColor),
             iconTint = toContrastColor,
@@ -582,7 +582,7 @@ private fun Account(
     testTag: String,
     onClick: () -> Unit
 ) {
-    val accountColor = account.color.toComposeColor()
+    val accountColor = account.color.value.toComposeColor()
     val textColor =
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
@@ -606,7 +606,7 @@ private fun Account(
         Spacer(Modifier.width(12.dp))
 
         ItemIconSDefaultIcon(
-            iconName = account.icon,
+            iconName = account.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_s,
             tint = textColor
         )
@@ -615,7 +615,7 @@ private fun Account(
 
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
-            text = account.name,
+            text = account.name.value,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
@@ -773,7 +773,7 @@ private fun LabelAccountMini(
         Spacer(Modifier.height(2.dp))
 
         Text(
-            text = account?.name?.uppercase(Locale.getDefault()) ?: "",
+            text = account?.name?.value?.uppercase(Locale.getDefault()) ?: "",
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
@@ -786,7 +786,7 @@ private fun LabelAccountMini(
 @Composable
 private fun Preview() {
     IvyWalletPreview {
-        val acc1 = Account("Cash", color = Green.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
 
         BoxWithConstraints(
             modifier = Modifier
@@ -803,9 +803,9 @@ private fun Preview() {
                 },
                 accounts = listOf(
                     acc1,
-                    Account("DSK", color = GreenDark.toArgb()),
-                    Account("phyre", color = GreenLight.toArgb()),
-                    Account("Revolut", color = IvyDark.toArgb()),
+                    previewAccount("DSK", color = GreenDark),
+                    previewAccount("phyre", color = GreenLight),
+                    previewAccount("Revolut", color = IvyDark),
                 ),
                 selectedAccount = acc1,
                 toAccount = null,
@@ -824,8 +824,8 @@ private fun Preview() {
 @Composable
 private fun Preview_Transfer() {
     IvyWalletPreview {
-        val acc1 = Account("Cash", color = Green.toArgb())
-        val acc2 = Account("DSK", color = GreenDark.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
+        val acc2 = previewAccount("DSK", color = GreenDark)
 
         BoxWithConstraints(
             modifier = Modifier
@@ -843,8 +843,8 @@ private fun Preview_Transfer() {
                 accounts = listOf(
                     acc1,
                     acc2,
-                    Account("phyre", color = GreenLight.toArgb(), icon = "cash"),
-                    Account("Revolut", color = IvyDark.toArgb()),
+                    previewAccount("phyre", color = GreenLight, icon = "cash"),
+                    previewAccount("Revolut", color = IvyDark),
                 ),
                 selectedAccount = acc1,
                 toAccount = acc2,

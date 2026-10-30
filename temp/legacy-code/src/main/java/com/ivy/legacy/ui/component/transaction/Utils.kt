@@ -1,7 +1,7 @@
 package com.ivy.legacy.ui.component.transaction
 
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
-import com.ivy.legacy.datamodel.Account
 import java.util.UUID
 
 fun category(
@@ -17,5 +17,5 @@ fun account(
     accounts: List<Account>
 ): Account? {
     val targetId = accountId ?: return null
-    return accounts.find { it.id == targetId }
+    return accounts.find { it.id.value == targetId }
 }

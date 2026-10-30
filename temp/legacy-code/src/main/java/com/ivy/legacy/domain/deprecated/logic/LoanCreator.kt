@@ -35,7 +35,7 @@ class LoanCreator @Inject constructor(
                     note = data.note,
                     orderNum = dao.findMaxOrderNum().nextOrderNum(),
                     isSynced = false,
-                    accountId = data.account?.id,
+                    accountId = data.account?.id?.value,
                     dateTime = data.dateTime
                 )
                 loanId = item.id

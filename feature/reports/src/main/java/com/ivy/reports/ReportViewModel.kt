@@ -16,6 +16,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Expense
@@ -36,7 +37,6 @@ import com.ivy.domain.RootScreen
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.legacy.PeriodState
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toLegacy
 import com.ivy.legacy.utils.getISOFormattedDateTime
 import com.ivy.legacy.utils.scopedIOThread
@@ -278,7 +278,7 @@ class ReportViewModel @Inject constructor(
 
             val tempBalance = calculateBalance(historyIncomeExpense).toDouble()
 
-            val accountFilterIdList = scope.async { reportFilter.accounts.map { it.id } }
+            val accountFilterIdList = scope.async { reportFilter.accounts.map { it.id.value } }
 
             val now = timeProvider.utcNow()
 
@@ -371,7 +371,7 @@ class ReportViewModel @Inject constructor(
         accounts: List<Account>,
         filter: ReportFilter,
     ): ImmutableList<Transaction> {
-        val filterAccountIds = filter.accounts.map { it.id }
+        val filterAccountIds = filter.accounts.map { it.id.value }
         val filterCategoryIds =
             filter.categories.map { if (it.id.value == unSpecifiedCategory.id.value) null else it.id }
         val filterRange =

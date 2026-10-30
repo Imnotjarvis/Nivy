@@ -20,8 +20,8 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.system.colors.Purple
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation
@@ -107,7 +107,7 @@ private fun BoxWithConstraintsScope.UI(
 @Composable
 private fun Preview() {
     IvyWalletPreview {
-        val account = Account(name = "Cash", Green.toArgb())
+        val account = previewAccount("Cash", color = Green, currency = "BGN")
         val food = Category(
             name = NotBlankTrimmedString.unsafe("Food"),
             color = ColorInt(Purple.toArgb()),
@@ -130,7 +130,7 @@ private fun Preview() {
                 categories = persistentListOf(food, shisha),
                 oneTimePlannedPayment = persistentListOf(
                     PlannedPaymentRule(
-                        accountId = account.id,
+                        accountId = account.id.value,
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75,
@@ -145,7 +145,7 @@ private fun Preview() {
                 oneTimeIncome = 0.0,
                 recurringPlannedPayment = persistentListOf(
                     PlannedPaymentRule(
-                        accountId = account.id,
+                        accountId = account.id.value,
                         title = "Tabu",
                         categoryId = shisha.id.value,
                         amount = 1025.5,

@@ -16,6 +16,7 @@ import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.LoanDao
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
@@ -32,7 +33,6 @@ import com.ivy.data.repository.mapper.TagMapper
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.features.Features
 import com.ivy.legacy.data.EditTransactionDisplayLoan
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.computationThread
@@ -362,7 +362,7 @@ class EditTransactionViewModel @Inject constructor(
         val lastSelectedId = appPreferences.lastSelectedAccountId()?.let { UUID.fromString(it) }
         if (lastSelectedId != null && ioThread {
                 accounts.find {
-                    it.id == lastSelectedId
+                    it.id.value == lastSelectedId
                 }
             } != null
         ) {
@@ -370,7 +370,7 @@ class EditTransactionViewModel @Inject constructor(
             return lastSelectedId
         }
 
-        return accounts.first().id
+        return accounts.first().id.value
     }
 
     private suspend fun display(transaction: Transaction) {
@@ -399,9 +399,9 @@ class EditTransactionViewModel @Inject constructor(
         } else {
             val exchangeRate = transaction.toAmount / transaction.amount
             val toAccountCurrency =
-                accounts.find { acc -> acc.id == transaction.toAccountId }?.currency
+                accounts.find { acc -> acc.id.value == transaction.toAccountId }?.asset?.code
             CustomExchangeRateState(
-                showCard = toAccountCurrency != account?.currency,
+                showCard = toAccountCurrency != account?.asset?.code,
                 exchangeRate = exchangeRate.toDouble(),
                 convertedAmount = transaction.toAmount.toDouble(),
                 toCurrencyCode = toAccountCurrency,
@@ -489,7 +489,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun onAccountChanged(newAccount: Account) {
         viewModelScope.launch {
             loadedTransaction = loadedTransaction().copy(
-                accountId = newAccount.id
+                accountId = newAccount.id.value
             )
             account = newAccount
 
@@ -502,7 +502,7 @@ class EditTransactionViewModel @Inject constructor(
             accountsChanged = true
 
             // update last selected account
-            appPreferences.setLastSelectedAccountId(newAccount.id.toString())
+            appPreferences.setLastSelectedAccountId(newAccount.id.value.toString())
 
             saveIfEditMode()
 
@@ -510,14 +510,14 @@ class EditTransactionViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateCurrency(account: Account) {
-        currency = account.currency ?: baseCurrency()
+    private fun updateCurrency(account: Account) {
+        currency = account.asset.code
     }
 
     private fun onToAccountChanged(newAccount: Account) {
         viewModelScope.launch {
             loadedTransaction = loadedTransaction().copy(
-                toAccountId = newAccount.id
+                toAccountId = newAccount.id.value
             )
             toAccount = newAccount
             updateCustomExchangeRateState(toAccountValue = newAccount)
@@ -668,7 +668,7 @@ class EditTransactionViewModel @Inject constructor(
                 smartTitleSuggestionsLogic.suggest(
                     title = title,
                     categoryId = category?.id?.value,
-                    accountId = account?.id
+                    accountId = account?.id?.value
                 )
             }.toPersistentSet()
         }
@@ -706,8 +706,8 @@ class EditTransactionViewModel @Inject constructor(
                 val amount = amount.toBigDecimal()
 
                 loadedTransaction = loadedTransaction().copy(
-                    accountId = account?.id ?: error("no accountId"),
-                    toAccountId = toAccount?.id,
+                    accountId = account?.id?.value ?: error("no accountId"),
+                    toAccountId = toAccount?.id?.value,
                     toAmount = customExchangeRateState.convertedAmount?.toBigDecimal()
                         ?: amount,
                     title = title?.trim(),
@@ -835,8 +835,8 @@ class EditTransactionViewModel @Inject constructor(
             val toAcc = toAccountValue ?: toAccount
             val fromAcc = fromAccount ?: account
 
-            val toAccCurrencyCode = toAcc?.currency ?: baseUserCurrency
-            val fromAccCurrencyCode = fromAcc?.currency ?: baseUserCurrency
+            val toAccCurrencyCode = toAcc?.asset?.code ?: baseUserCurrency
+            val fromAccCurrencyCode = fromAcc?.asset?.code ?: baseUserCurrency
 
             if (toAcc == null || fromAcc == null || (toAccCurrencyCode == fromAccCurrencyCode)) {
                 customExchangeRateState = CustomExchangeRateState()

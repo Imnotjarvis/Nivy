@@ -1,7 +1,7 @@
 package com.ivy.wallet.domain.deprecated.logic.model
 
 import com.ivy.base.model.LoanRecordType
-import com.ivy.legacy.datamodel.Account
+import com.ivy.data.model.Account
 import java.time.Instant
 
 data class CreateLoanRecordData(

@@ -126,7 +126,6 @@
     <ID>InvalidPackageDeclaration:BackBottomBar.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:BalanceRow.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:BaseCurrencyAct.kt$package com.ivy.wallet.domain.action.settings</ID>
-    <ID>InvalidPackageDeclaration:BudgetsAct.kt$package com.ivy.wallet.domain.action.budget</ID>
     <ID>InvalidPackageDeclaration:BufferBattery.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:BufferModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
     <ID>InvalidPackageDeclaration:CSVMapper.kt$package com.ivy.wallet.domain.deprecated.logic.csv</ID>
@@ -151,7 +150,6 @@
     <ID>InvalidPackageDeclaration:CircleButtons.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:ClosedTimeRange.kt$package com.ivy.wallet.domain.pure.data</ID>
     <ID>InvalidPackageDeclaration:CreateAccountData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateBudgetData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
     <ID>InvalidPackageDeclaration:CreateCategoryData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
     <ID>InvalidPackageDeclaration:CreateLoanData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
     <ID>InvalidPackageDeclaration:CreateLoanRecordData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
@@ -437,7 +435,6 @@
     <ID>MagicNumber:Transactions.kt$5</ID>
     <ID>MagicNumber:TransactionsScreen.kt$0.7f</ID>
     <ID>MagicNumber:TransactionsScreen.kt$10L</ID>
-    <ID>MagicNumber:WalletAccountLogic.kt$WalletAccountLogic$0.009</ID>
     <ID>MaxLineLength:FortuneCitySteps.kt$articleUrl = "https://fourdesire.helpshift.com/hc/en/5-fortune-city/faq/242-can-i-export-my-fortune-city-records/"</ID>
     <ID>MaxLineLength:IvyChecklistTextField.kt$"Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."</ID>
     <ID>MaxLineLength:IvyDescriptionTextField.kt$"Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."</ID>
@@ -477,10 +474,8 @@
     <ID>ModifierClickableOrder:ChooseCategoryModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
     <ID>ModifierClickableOrder:IvyOutlinedButton.kt$clickable( onClick = onClick, )</ID>
     <ID>ModifierClickableOrder:LoanDetailsScreen.kt$clickable { onClick() }</ID>
-    <ID>ModifierClickableOrder:PlannedPaymentCard.kt$clickable { if (accounts.find { it.id == plannedPayment.accountId } != null) { onClick(plannedPayment) } }</ID>
     <ID>ModifierClickableOrder:RateItem.kt$clickable(onClick = onClick)</ID>
     <ID>ModifierClickableOrder:ShowTagModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
-    <ID>ModifierClickableOrder:TransactionCard.kt$clickable { if (baseData.accounts.find { it.id == transaction.accountId } != null) { onClick(transaction) } }</ID>
     <ID>ModifierMissing:AccountModal.kt$AccountModal</ID>
     <ID>ModifierMissing:AddKeywordModal.kt$AddKeywordModal</ID>
     <ID>ModifierMissing:AddPrimaryAttributeButton.kt$AddPrimaryAttributeButton</ID>
@@ -631,9 +626,6 @@
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
-    <ID>PrintStackTrace:Budget.kt$Budget$e</ID>
-    <ID>PrintStackTrace:BudgetCreator.kt$BudgetCreator$e</ID>
-    <ID>PrintStackTrace:BudgetExt.kt$e</ID>
     <ID>PrintStackTrace:CSVImporter.kt$CSVImporter$e</ID>
     <ID>PrintStackTrace:CSVViewModel.kt$CSVViewModel$e</ID>
     <ID>PrintStackTrace:CategoryCreator.kt$CategoryCreator$e</ID>
@@ -674,7 +666,6 @@
     <ID>TopLevelPropertyNaming:ZipUtils.kt$private const val MODE_READ = "r"</ID>
     <ID>TopLevelPropertyNaming:ZipUtils.kt$private const val MODE_WRITE = "w"</ID>
     <ID>UnstableCollections:BudgetModal.kt$List&lt;Category&gt;</ID>
-    <ID>UnstableCollections:BudgetModal.kt$List&lt;UUID&gt;</ID>
     <ID>UnstableCollections:CSVViewModel.kt$CSVViewModel$List&lt;CSVRow&gt;?</ID>
     <ID>UnstableCollections:ChooseCategoryModal.kt$List&lt;Category&gt;</ID>
     <ID>UnstableCollections:EditBottomSheet.kt$List&lt;Account&gt;</ID>

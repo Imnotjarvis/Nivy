@@ -13,7 +13,6 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
@@ -37,7 +36,6 @@ import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.computationThread
 import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
@@ -64,13 +62,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
-import com.ivy.legacy.datamodel.Account as LegacyAccount
 
 @Stable
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
-    private val accountDao: AccountDao,
     private val categoryRepository: CategoryRepository,
     private val periodState: PeriodState,
     private val nav: Navigation,
@@ -100,7 +96,7 @@ class TransactionsViewModel @Inject constructor(
 
     private val period = mutableStateOf(periodState.selected)
     private val categories = mutableStateOf<ImmutableList<Category>>(persistentListOf())
-    private val accounts = mutableStateOf<ImmutableList<LegacyAccount>>(persistentListOf())
+    private val accounts = mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private val baseCurrency = mutableStateOf("")
     private val currency = mutableStateOf("")
     private val balance = mutableDoubleStateOf(0.0)
@@ -124,7 +120,7 @@ class TransactionsViewModel @Inject constructor(
     private val history =
         mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
 
-    private val account = mutableStateOf<LegacyAccount?>(null)
+    private val account = mutableStateOf<Account?>(null)
     private val category = mutableStateOf<Category?>(null)
     private val initWithTransactions = mutableStateOf(false)
     private val treatTransfersAsIncomeExpense = mutableStateOf(false)
@@ -183,7 +179,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     @Composable
-    private fun getAccount(): LegacyAccount? {
+    private fun getAccount(): Account? {
         return account.value
     }
 
@@ -198,7 +194,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     @Composable
-    private fun getAccounts(): ImmutableList<LegacyAccount> {
+    private fun getAccounts(): ImmutableList<Account> {
         return accounts.value
     }
 
@@ -335,21 +331,16 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private suspend fun initForAccount(accountId: UUID) {
-        val initialAccount = ioThread {
-            accountDao.findById(accountId)?.toLegacyDomain() ?: error("account not found")
-        }
+        val initialAccount = accountRepository.findById(AccountId(accountId))
+            ?: error("account not found")
         account.value = initialAccount
         val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
-        if (initialAccount.currency.isNotNullOrBlank()) {
-            currency.value = initialAccount.currency!!
-        }
-
-        val account = accountRepository.findById(AccountId(accountId)) ?: error("account not found")
+        currency.value = initialAccount.asset.code
 
         val balanceValue = calcAccBalanceAct(
             CalcAccBalanceAct.Input(
-                account = account
+                account = initialAccount
             )
         ).balance.toDouble()
         balance.doubleValue = balanceValue
@@ -369,7 +360,7 @@ class TransactionsViewModel @Inject constructor(
 
         val incomeExpensePair = calcAccIncomeExpenseAct(
             CalcAccIncomeExpenseAct.Input(
-                account = account,
+                account = initialAccount,
                 range = range.toCloseTimeRange(),
                 includeTransfersInCalc = includeTransfersInCalc
             )
@@ -379,7 +370,7 @@ class TransactionsViewModel @Inject constructor(
 
         val accountTransactions = accTrnsAct(
             AccTrnsAct.Input(
-                accountId = initialAccount.id,
+                accountId = initialAccount.id.value,
                 range = range.toCloseTimeRange()
             )
         )
@@ -646,7 +637,7 @@ class TransactionsViewModel @Inject constructor(
         val historyIncomeExpense = calcTrnsIncomeExpenseAct(
             LegacyCalcTrnsIncomeExpenseAct.Input(
                 transactions = trans,
-                accounts = accountFilterList.mapNotNull { accID -> accounts.value.find { it.id == accID } },
+                accounts = accountFilterList.mapNotNull { accID -> accounts.value.find { it.id.value == accID } },
                 baseCurrency = baseCurrency.value
             )
         )
@@ -764,7 +755,7 @@ class TransactionsViewModel @Inject constructor(
 
     private fun editAccount(
         screen: TransactionsScreen,
-        account: LegacyAccount,
+        account: Account,
         newBalance: Double,
     ) {
         viewModelScope.launch {
@@ -819,7 +810,7 @@ class TransactionsViewModel @Inject constructor(
 
     private fun updateAccountDeletionState(confirmationText: String) {
         accountNameConfirmation.value = selectEndTextFieldValue(confirmationText)
-        enableDeletionButton.value = account.value?.name == confirmationText ||
+        enableDeletionButton.value = account.value?.name?.value == confirmationText ||
                 category.value?.name?.value == confirmationText
     }
 

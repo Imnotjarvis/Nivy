@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
@@ -49,9 +50,9 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.domain.legacy.ui.theme.components.ListItem
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.LocalPeriodState
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.ui.component.tags.AddTagButton
 import com.ivy.legacy.ui.component.tags.ShowTagModal
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.capitalizeLocal
 import com.ivy.legacy.utils.springBounce
 import com.ivy.ui.R
@@ -693,10 +694,10 @@ private fun AccountsFilter(
 
         items(items = allAccounts) { account ->
             ListItem(
-                icon = account.icon,
+                icon = account.icon?.id,
                 defaultIcon = R.drawable.ic_custom_account_s,
-                text = account.name,
-                selectedColor = account.color.toComposeColor().takeIf {
+                text = account.name.value,
+                selectedColor = account.color.value.toComposeColor().takeIf {
                     filter?.accounts?.contains(account) == true
                 }
             ) { selected ->
@@ -1067,8 +1068,8 @@ private fun FilterTitleText(
 @Composable
 private fun Preview() {
     IvyWalletPreview {
-        val acc1 = Account("Cash", color = Green.toArgb())
-        val acc2 = Account("DSK", color = GreenDark.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
+        val acc2 = previewAccount("DSK", color = GreenDark)
         val cat1 = Category(
             name = NotBlankTrimmedString.unsafe("Science"),
             color = ColorInt(Purple1Dark.toArgb()),
@@ -1084,8 +1085,8 @@ private fun Preview() {
             accounts = listOf(
                 acc1,
                 acc2,
-                Account("phyre", color = GreenLight.toArgb(), icon = "cash"),
-                Account("Revolut", color = IvyDark.toArgb()),
+                previewAccount("phyre", color = GreenLight, icon = "cash"),
+                previewAccount("Revolut", color = IvyDark),
             ),
             categories = listOf(
                 cat1,

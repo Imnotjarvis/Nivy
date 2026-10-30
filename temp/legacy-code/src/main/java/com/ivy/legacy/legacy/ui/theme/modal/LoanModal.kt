@@ -34,14 +34,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.data.model.Account
 import com.ivy.data.model.LoanType
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
-import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.utils.thenIf
@@ -152,10 +151,8 @@ fun BoxWithConstraintsScope.LoanModal(
                 enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && selectedAcc != null
             ) {
                 accountChangeModal =
-                    loan != null && modal.selectedAccount != null && currencyCode != (
-                        modal.selectedAccount.currency
-                            ?: modal.baseCurrency
-                        )
+                    loan != null && modal.selectedAccount != null &&
+                    currencyCode != modal.selectedAccount.asset.code
 
                 if (!accountChangeModal) {
                     save(
@@ -269,12 +266,12 @@ fun BoxWithConstraintsScope.LoanModal(
             selectedAccount = selectedAcc,
             onSelectedAccountChanged = {
                 selectedAcc = it
-                currencyCode = it.currency ?: getDefaultFIATCurrency().currencyCode
+                currencyCode = it.asset.code
             },
             onAddNewAccount = {
                 accountModalData = AccountModalData(
                     account = null,
-                    baseCurrency = selectedAcc?.currency ?: "USD",
+                    baseCurrency = selectedAcc?.asset?.code ?: "USD",
                     balance = 0.0
                 )
             },
@@ -441,7 +438,7 @@ private fun Account(
     testTag: String,
     onClick: () -> Unit
 ) {
-    val accountColor = account.color.toComposeColor()
+    val accountColor = account.color.value.toComposeColor()
     val textColor =
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
@@ -464,7 +461,7 @@ private fun Account(
         Spacer(Modifier.width(12.dp))
 
         ItemIconSDefaultIcon(
-            iconName = account.icon,
+            iconName = account.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_s,
             tint = textColor
         )
@@ -473,7 +470,7 @@ private fun Account(
 
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
-            text = account.name,
+            text = account.name.value,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold
@@ -621,7 +618,7 @@ private fun save(
                 amount = amount,
                 color = color.toArgb(),
                 icon = icon,
-                accountId = selectedAccount?.id
+                accountId = selectedAccount?.id?.value
             ),
             createLoanTransaction
         )

@@ -37,9 +37,9 @@ import com.ivy.base.model.Theme
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
 import com.ivy.base.model.processByType
+import com.ivy.data.model.Account
 import com.ivy.data.model.LoanType
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.humanReadableType
@@ -444,9 +444,9 @@ private fun LoanInfoCard(
                     backgroundGradient = Gradient.solid(loan.color.toComposeColor()),
                     hasGlow = false,
                     iconTint = contrastColor,
-                    text = selectedLoanAccount.name,
+                    text = selectedLoanAccount.name.value,
                     iconStart = getCustomIconIdS(
-                        iconName = selectedLoanAccount.icon,
+                        iconName = selectedLoanAccount.icon?.id,
                         defaultIcon = R.drawable.ic_custom_account_s
                     ),
                     textStyle = MaterialTheme.typography.labelMedium.copy(
@@ -458,7 +458,7 @@ private fun LoanInfoCard(
                 ) {
                     nav.navigateTo(
                         TransactionsScreen(
-                            accountId = selectedLoanAccount.id,
+                            accountId = selectedLoanAccount.id.value,
                             categoryId = null
                         )
                     )
@@ -668,9 +668,9 @@ private fun LoanRecordItem(
                         backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                         hasGlow = false,
                         iconTint = MaterialTheme.colorScheme.onSurface,
-                        text = account.name,
+                        text = account.name.value,
                         iconStart = getCustomIconIdS(
-                            iconName = account.icon,
+                            iconName = account.icon?.id,
                             defaultIcon = R.drawable.ic_custom_account_s
                         ),
                         textStyle = MaterialTheme.typography.labelMedium.copy(
@@ -682,7 +682,7 @@ private fun LoanRecordItem(
                     ) {
                         nav.navigateTo(
                             TransactionsScreen(
-                                accountId = account.id,
+                                accountId = account.id.value,
                                 categoryId = null
                             )
                         )

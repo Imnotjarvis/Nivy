@@ -36,12 +36,12 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.LegacyDueSection
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
 import com.ivy.legacy.ui.component.transaction.transactions
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.ReportScreen
 import com.ivy.navigation.navigation
@@ -407,8 +407,8 @@ private fun Toolbar(
 @Composable
 private fun Preview(theme: Theme = Theme.LIGHT) {
     IvyWalletPreview(theme) {
-        val acc1 = Account("Cash", color = Green.toArgb())
-        val acc2 = Account("DSK", color = GreenDark.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
+        val acc2 = previewAccount("DSK", color = GreenDark)
         val cat1 = Category(
             name = NotBlankTrimmedString.unsafe("Science"),
             color = ColorInt(Purple1Dark.toArgb()),
@@ -437,8 +437,8 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
             accounts = persistentListOf(
                 acc1,
                 acc2,
-                Account("phyre", color = GreenLight.toArgb(), icon = "cash"),
-                Account("Revolut", color = IvyDark.toArgb()),
+                previewAccount("phyre", color = GreenLight, icon = "cash"),
+                previewAccount("Revolut", color = IvyDark),
             ),
             categories = persistentListOf(
                 cat1,
@@ -468,8 +468,8 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
 @Composable
 private fun Preview_NO_FILTER(theme: Theme = Theme.LIGHT) {
     IvyWalletPreview(theme) {
-        val acc1 = Account("Cash", color = Green.toArgb())
-        val acc2 = Account("DSK", color = GreenDark.toArgb())
+        val acc1 = previewAccount("Cash", color = Green)
+        val acc2 = previewAccount("DSK", color = GreenDark)
         val cat1 = Category(
             name = NotBlankTrimmedString.unsafe("Science"),
             color = ColorInt(Purple1Dark.toArgb()),
@@ -500,8 +500,8 @@ private fun Preview_NO_FILTER(theme: Theme = Theme.LIGHT) {
             accounts = persistentListOf(
                 acc1,
                 acc2,
-                Account("phyre", color = GreenLight.toArgb(), icon = "cash"),
-                Account("Revolut", color = IvyDark.toArgb()),
+                previewAccount("phyre", color = GreenLight, icon = "cash"),
+                previewAccount("Revolut", color = IvyDark),
             ),
             categories = persistentListOf(
                 cat1,

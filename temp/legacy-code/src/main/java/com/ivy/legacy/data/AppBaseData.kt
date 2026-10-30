@@ -1,8 +1,8 @@
 package com.ivy.legacy.data
 
 import androidx.compose.runtime.Immutable
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
-import com.ivy.legacy.datamodel.Account
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable

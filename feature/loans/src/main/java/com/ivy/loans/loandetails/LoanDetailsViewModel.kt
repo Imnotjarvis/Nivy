@@ -11,10 +11,10 @@ import com.ivy.base.model.LoanRecordType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.LoanRecordDao
+import com.ivy.data.model.Account
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.datamodel.temp.toLegacy
@@ -263,11 +263,11 @@ class LoanDetailsViewModel @Inject constructor(
 
             loan.value?.let { loan ->
                 selectedLoanAccount.value = accounts.value.find {
-                    loan.accountId == it.id
+                    loan.accountId == it.id.value
                 }
 
                 selectedLoanAccount.value?.let { acc ->
-                    baseCurrency.value = acc.currency ?: defaultCurrencyCode
+                    baseCurrency.value = acc.asset.code
                 }
             }
 
@@ -289,8 +289,8 @@ class LoanDetailsViewModel @Inject constructor(
                             it.toLegacyDomain(),
                             account = account,
                             loanRecordTransaction = trans != null,
-                            loanRecordCurrencyCode = account?.currency ?: defaultCurrencyCode,
-                            loanCurrencyCode = selectedLoanAccount.value?.currency
+                            loanRecordCurrencyCode = account?.asset?.code ?: defaultCurrencyCode,
+                            loanCurrencyCode = selectedLoanAccount.value?.asset?.code
                                 ?: defaultCurrencyCode
                         )
                     }.toImmutableList()
@@ -549,7 +549,7 @@ class LoanDetailsViewModel @Inject constructor(
     ): Account? {
         return accountId?.let { uuid ->
             accounts.find { acc ->
-                acc.id == uuid
+                acc.id.value == uuid
             }
         }
     }

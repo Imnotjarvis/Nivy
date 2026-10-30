@@ -2,12 +2,12 @@ package com.ivy.wallet.domain.pure.exchange
 
 import arrow.core.Option
 import arrow.core.toOption
+import com.ivy.data.model.Account
 import com.ivy.data.model.Transaction
 import com.ivy.data.temp.migration.getAccountId
 import com.ivy.data.temp.migration.getValue
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
-import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.pure.account.accountCurrency
 import com.ivy.wallet.domain.pure.transaction.LegacyTrnFunctions
 import com.ivy.wallet.domain.pure.transaction.trnCurrency
@@ -29,9 +29,7 @@ suspend fun exchangeInBaseCurrency(
     transaction: Transaction,
     arg: ExchangeTrnArgument
 ): BigDecimal {
-    val fromCurrency = arg.getAccount(transaction.getAccountId())?.let {
-        accountCurrency(it, arg.baseCurrency)
-    }.toOption()
+    val fromCurrency = arg.getAccount(transaction.getAccountId())?.let(::accountCurrency).toOption()
 
     return exchangeInCurrency(
         transaction = transaction,
@@ -48,9 +46,7 @@ suspend fun exchangeInBaseCurrency(
     transaction: com.ivy.base.legacy.Transaction,
     arg: ExchangeTrnArgument
 ): BigDecimal {
-    val fromCurrency = arg.getAccount(transaction.accountId)?.let {
-        accountCurrency(it, arg.baseCurrency)
-    }.toOption()
+    val fromCurrency = arg.getAccount(transaction.accountId)?.let(::accountCurrency).toOption()
 
     return exchangeInCurrency(
         transaction = transaction,

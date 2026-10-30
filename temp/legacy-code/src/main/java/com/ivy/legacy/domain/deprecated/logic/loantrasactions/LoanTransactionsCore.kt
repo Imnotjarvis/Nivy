@@ -5,12 +5,12 @@ import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.db.dao.write.WriteLoanRecordDao
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.LoanType
@@ -18,12 +18,12 @@ import com.ivy.data.model.TransactionId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.datamodel.temp.toDomain
@@ -45,7 +45,7 @@ class LoanTransactionsCore @Inject constructor(
     private val loanRecordDao: LoanRecordDao,
     private val loanDao: LoanDao,
     private val currencyRepository: CurrencyRepository,
-    private val accountsDao: AccountDao,
+    private val accountRepository: AccountRepository,
     private val exchangeRatesLogic: ExchangeRatesLogic,
     private val transactionRepo: TransactionRepository,
     private val transactionMapper: TransactionMapper,
@@ -94,7 +94,7 @@ class LoanTransactionsCore @Inject constructor(
     ): Account? {
         return accountId?.let { uuid ->
             accounts.find { acc ->
-                acc.id == uuid
+                acc.id.value == uuid
             }
         }
     }
@@ -288,12 +288,10 @@ class LoanTransactionsCore @Inject constructor(
     }
 
     private suspend fun UUID?.fetchAssociatedCurrencyCode(accountsList: List<Account>): String {
-        return findAccount(accountsList, this)?.currency ?: baseCurrency()
+        return findAccount(accountsList, this)?.asset?.code ?: baseCurrency()
     }
 
-    suspend fun fetchAccounts() = ioThread {
-        accountsDao.findAll()
-    }
+    suspend fun fetchAccounts(): List<Account> = accountRepository.findAll()
 
     suspend fun saveLoanRecords(loanRecords: List<LoanRecord>) = ioThread {
         writeLoanRecordDao.saveMany(loanRecords.map { it.toEntity() })

@@ -9,16 +9,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
-import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
+import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
@@ -45,9 +45,8 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class EditPlannedViewModel @Inject constructor(
-    private val accountDao: AccountDao,
+    private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
-    private val currencyRepository: CurrencyRepository,
     private val nav: Navigation,
     private val plannedPaymentRuleDao: PlannedPaymentRuleDao,
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
@@ -287,7 +286,7 @@ class EditPlannedViewModel @Inject constructor(
                 oneTime = false,
                 type = screen.type,
                 amount = screen.amount ?: 0.0,
-                accountId = screen.accountId ?: accounts.first().id,
+                accountId = screen.accountId ?: accounts.first().id.value,
                 categoryId = screen.categoryId,
                 title = screen.title,
                 description = screen.description
@@ -307,21 +306,19 @@ class EditPlannedViewModel @Inject constructor(
         intervalType = rule.intervalType
         initialTitle = rule.title
         description = rule.description
-        val selectedAccount = ioThread { accountDao.findById(rule.accountId)!!.toLegacyDomain() }
+        val selectedAccount = accountRepository.findById(AccountId(rule.accountId))
         account = selectedAccount
         category = rule.categoryId?.let {
             ioThread { categoryRepository.findById(CategoryId(it)) }
         }
         amount = rule.amount
 
-        updateCurrency(account = selectedAccount)
+        selectedAccount?.let(::updateCurrency)
     }
 
-    private suspend fun updateCurrency(account: Account) {
-        currency = account.currency ?: baseCurrency()
+    private fun updateCurrency(account: Account) {
+        currency = account.asset.code
     }
-
-    private suspend fun baseCurrency(): String = ioThread { currencyRepository.getBaseCurrency().code }
 
     private fun updateRule(
         startDate: LocalDateTime,
@@ -381,7 +378,7 @@ class EditPlannedViewModel @Inject constructor(
 
     private fun updateAccount(newAccount: Account) {
         loadedRule = loadedRule().copy(
-            accountId = newAccount.id
+            accountId = newAccount.id.value
         )
         this@EditPlannedViewModel.account = newAccount
 
@@ -422,7 +419,7 @@ class EditPlannedViewModel @Inject constructor(
                         intervalN = intervalN ?: error("no intervalN"),
                         intervalType = intervalType ?: error("no intervalType"),
                         categoryId = category?.id?.value,
-                        accountId = account?.id ?: error("no accountId"),
+                        accountId = account?.id?.value ?: error("no accountId"),
                         title = title?.trim(),
                         description = description?.trim(),
                         amount = amount,

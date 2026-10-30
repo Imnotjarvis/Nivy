@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -39,6 +38,7 @@ import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.impl.DeviceTimeProvider
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.design.system.colors.isLight
 import com.ivy.design.utils.LocalScreenSize
@@ -50,10 +50,10 @@ import com.ivy.legacy.data.AppBaseData
 import com.ivy.legacy.data.LegacyDueSection
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.ui.component.IncomeExpensesCards
 import com.ivy.legacy.ui.component.ItemStatisticToolbar
 import com.ivy.legacy.ui.component.transaction.transactions
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.balancePrefix
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.legacy.utils.horizontalSwipeListener
@@ -267,7 +267,7 @@ private fun BoxWithConstraintsScope.UI(
 ) {
     val periodState = LocalPeriodState.current
     val screenSize = LocalScreenSize.current
-    val itemColor = (account?.color ?: category?.color?.value)?.toComposeColor() ?: Gray
+    val itemColor = (account?.color?.value ?: category?.color?.value)?.toComposeColor() ?: Gray
 
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
@@ -558,7 +558,7 @@ private fun BoxWithConstraintsScope.DeleteModals(
         description = if (account != null) {
             stringResource(
                 id = R.string.account_confirm_deletion_type_account_name,
-                account.name
+                account.name.value
             )
         } else {
             stringResource(R.string.please_type_category_name, category?.name?.value ?: "")
@@ -701,7 +701,7 @@ private fun Header(
                     nav.navigateTo(
                         PieChartStatisticScreen(
                             type = TransactionType.INCOME,
-                            accountList = persistentListOf(account.id),
+                            accountList = persistentListOf(account.id.value),
                             filterExcluded = false,
                             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
                         )
@@ -713,7 +713,7 @@ private fun Header(
                     nav.navigateTo(
                         PieChartStatisticScreen(
                             type = TransactionType.EXPENSE,
-                            accountList = persistentListOf(account.id),
+                            accountList = persistentListOf(account.id.value),
                             filterExcluded = false,
                             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
                         )
@@ -725,7 +725,7 @@ private fun Header(
                 EditTransactionScreen(
                     initialTransactionId = null,
                     type = trnType,
-                    accountId = account?.id,
+                    accountId = account?.id?.value,
                     categoryId = category?.id?.value
                 )
             )
@@ -763,7 +763,7 @@ private fun Item(
         when {
             account != null -> {
                 ItemIconMDefaultIcon(
-                    iconName = account.icon,
+                    iconName = account.icon?.id,
                     defaultIcon = R.drawable.ic_custom_account_m,
                     tint = contrastColor
                 )
@@ -771,7 +771,7 @@ private fun Item(
                 Spacer(Modifier.width(8.dp))
 
                 Text(
-                    text = account.name,
+                    text = account.name.value,
                     style = MaterialTheme.typography.titleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
@@ -784,7 +784,7 @@ private fun Item(
                     Text(
                         text = stringResource(R.string.excluded),
                         style = MaterialTheme.typography.labelMedium.copy(
-                            color = account.color.toComposeColor().dynamicContrast(),
+                            color = account.color.value.toComposeColor().dynamicContrast(),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -853,7 +853,7 @@ private fun BoxWithConstraintsScope.Preview_empty() {
 
             history = persistentListOf(),
             category = null,
-            account = Account("DSK", color = GreenDark.toArgb(), icon = "pet"),
+            account = previewAccount("DSK", color = GreenDark, icon = "pet"),
             onSetPeriod = { },
             onPreviousMonth = {},
             onNextMonth = {},
@@ -896,12 +896,7 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
 
             history = persistentListOf(),
             category = null,
-            account = Account(
-                name = "DSK",
-                color = GreenDark.toArgb(),
-                icon = "pet",
-                includeInBalance = false
-            ),
+            account = previewAccount("DSK", color = GreenDark, icon = "pet", includeInBalance = false),
             onSetPeriod = { },
             onPreviousMonth = {},
             onNextMonth = {},
@@ -941,7 +936,7 @@ private fun BoxWithConstraintsScope.Preview_empty_upcoming() {
 
             history = persistentListOf(),
             category = null,
-            account = Account("DSK", color = GreenDark.toArgb(), icon = "pet"),
+            account = previewAccount("DSK", color = GreenDark, icon = "pet"),
             onSetPeriod = { },
             onPreviousMonth = {},
             onNextMonth = {},

@@ -4,6 +4,7 @@ import arrow.core.Option
 import arrow.core.toOption
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.convertToLocal
+import com.ivy.data.model.Account
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
@@ -11,7 +12,6 @@ import com.ivy.data.model.Transfer
 import com.ivy.data.temp.migration.getAccountId
 
 import com.ivy.frp.Pure
-import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.pure.account.accountCurrency
 import java.time.LocalDate
 
@@ -49,10 +49,10 @@ fun trnCurrency(
     baseCurrency: String
 ): Option<String> {
     val account = accounts.find {
-        it.id == transaction.getAccountId()
+        it.id.value == transaction.getAccountId()
     }
         ?: return baseCurrency.toOption()
-    return accountCurrency(account, baseCurrency).toOption()
+    return accountCurrency(account).toOption()
 }
 
 @Deprecated("Uses legacy Transaction")
@@ -73,8 +73,8 @@ object LegacyTrnFunctions {
         accounts: List<Account>,
         baseCurrency: String
     ): Option<String> {
-        val account = accounts.find { it.id == transaction.accountId }
+        val account = accounts.find { it.id.value == transaction.accountId }
             ?: return baseCurrency.toOption()
-        return accountCurrency(account, baseCurrency).toOption()
+        return accountCurrency(account).toOption()
     }
 }

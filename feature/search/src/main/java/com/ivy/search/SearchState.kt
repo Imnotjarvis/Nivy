@@ -1,8 +1,8 @@
 package com.ivy.search
 
 import com.ivy.base.legacy.TransactionHistoryItem
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
-import com.ivy.legacy.datamodel.Account
 import kotlinx.collections.immutable.ImmutableList
 
 data class SearchState(

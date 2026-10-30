@@ -8,8 +8,11 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
@@ -22,8 +25,6 @@ import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.importdata.csv.ImportantFields
 import com.ivy.importdata.csv.OptionalFields
 import com.ivy.importdata.csv.TransferFields
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.datamodel.toEntity
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
@@ -65,7 +66,7 @@ class CSVImporterV2 @Inject constructor(
         newCategoryColorIndex = 0
         newAccountColorIndex = 0
 
-        accounts = accountDao.findAll().map { it.toLegacyDomain() }
+        accounts = accountRepository.findAll()
         val initialAccountsCount = accounts.size
 
         categories = categoryRepository.findAll()
@@ -228,8 +229,8 @@ class CSVImporterV2 @Inject constructor(
             id = UUID.randomUUID(),
             type = type,
             amount = amount.toBigDecimal(),
-            accountId = account.id,
-            toAccountId = toAccount?.id,
+            accountId = account.id.value,
+            toAccountId = toAccount?.id?.value,
             toAmount = toAmount?.toBigDecimal() ?: amount.toBigDecimal(),
             dateTime = with(timeConverter) { dateTime.toUTC() },
             dueDate = null,
@@ -250,7 +251,7 @@ class CSVImporterV2 @Inject constructor(
         if (accountNameString == null || accountNameString.isBlank()) return null
 
         val existingAccount = accounts.firstOrNull {
-            accountNameString.toLowerCaseLocal() == it.name.toLowerCaseLocal()
+            accountNameString.trim().toLowerCaseLocal() == it.name.value.toLowerCaseLocal()
         }
         if (existingAccount != null) {
             return existingAccount
@@ -272,20 +273,21 @@ class CSVImporterV2 @Inject constructor(
             }
         }.toArgb()
 
-        val newAccount = Account(
-            name = accountNameString,
-            currency = mapCurrency(
-                baseCurrency = baseCurrency,
-                currencyCode = currencyRawString
-            ),
-            color = colorArgb,
-            icon = icon,
-            orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum()
-        )
-        val domainAccount = newAccount.toDomainAccount(currencyRepository).getOrNull()
-            ?: return null
-        accountRepository.save(domainAccount)
-        accounts = accountDao.findAll().map { it.toLegacyDomain() }
+        val newAccount = either {
+            Account(
+                id = AccountId(UUID.randomUUID()),
+                name = NotBlankTrimmedString.from(accountNameString).bind(),
+                asset = AssetCode.from(
+                    mapCurrency(baseCurrency = baseCurrency, currencyCode = currencyRawString)
+                ).bind(),
+                color = ColorInt(colorArgb),
+                icon = icon?.let(IconAsset::from)?.getOrNull(),
+                includeInBalance = true,
+                orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum(),
+            )
+        }.getOrNull() ?: return null
+        accountRepository.save(newAccount)
+        accounts = accountRepository.findAll()
 
         return newAccount
     }

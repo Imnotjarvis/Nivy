@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -28,7 +27,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.IntervalType
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -438,7 +437,7 @@ private fun Preview() {
                 currency = "BGN",
                 description = null,
                 category = null,
-                account = Account(name = "phyre", Orange.toArgb()),
+                account = previewAccount("phyre", color = Orange, currency = "BGN"),
                 amount = 0.0,
                 transactionType = TransactionType.INCOME,
                 categories = persistentListOf(),

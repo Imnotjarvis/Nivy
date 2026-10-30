@@ -7,13 +7,14 @@ import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
+import com.ivy.data.model.Account
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.TransactionId
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.data.temp.migration.settleNow
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.datamodel.temp.toDomain
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
@@ -29,6 +30,7 @@ class PlannedPaymentsLogic @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val exchangeRatesLogic: ExchangeRatesLogic,
     private val accountDao: AccountDao,
+    private val accountRepository: AccountRepository,
     private val transactionMapper: TransactionMapper,
     private val plannedPaymentRuleWriter: WritePlannedPaymentRuleDao,
     private val transactionRepository: TransactionRepository,
@@ -40,7 +42,7 @@ class PlannedPaymentsLogic @Inject constructor(
 
     suspend fun plannedPaymentsAmountFor(range: com.ivy.legacy.data.model.FromToTimeRange): Double {
         val baseCurrency = currencyRepository.getBaseCurrency().code
-        val accounts = accountDao.findAll()
+        val accounts = accountRepository.findAll()
 
         return transactionDao.findAllDueToBetween(
             startDate = range.from(),
@@ -49,7 +51,7 @@ class PlannedPaymentsLogic @Inject constructor(
             val amount = exchangeRatesLogic.amountBaseCurrency(
                 transaction = it.toLegacyDomain(),
                 baseCurrency = baseCurrency,
-                accounts = accounts.map { it.toLegacyDomain() }
+                accounts = accounts
             )
 
             when (it.type) {
@@ -100,14 +102,14 @@ class PlannedPaymentsLogic @Inject constructor(
     }
 
     private suspend fun Iterable<PlannedPaymentRule>.sumByDoubleRecurringForMonthInBaseCurrency(): Double {
-        val accounts = accountDao.findAll()
+        val accounts = accountRepository.findAll()
         val baseCurrency = currencyRepository.getBaseCurrency().code
 
         return sumOf {
             amountForMonthInBaseCurrency(
                 plannedPayment = it,
                 baseCurrency = baseCurrency,
-                accounts = accounts.map { it.toLegacyDomain() }
+                accounts = accounts
             )
         }
     }

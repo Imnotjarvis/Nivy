@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
@@ -39,11 +39,11 @@ import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.domain.RootScreen
 import com.ivy.legacy.data.EditTransactionDisplayLoan
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.ui.component.edit.TransactionDateTime
 import com.ivy.legacy.ui.component.edit.core.Description
 import com.ivy.legacy.ui.component.tags.AddTagButton
 import com.ivy.legacy.ui.component.tags.ShowTagModal
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.IvyPreview
@@ -416,7 +416,7 @@ private fun BoxWithConstraintsScope.UI(
                             plannedPaymentRuleId = null,
                             type = transactionType,
                             amount = amount,
-                            accountId = account?.id,
+                            accountId = account?.id?.value,
                             categoryId = category?.id?.value,
                             title = titleTextFieldValue.text,
                             description = description,
@@ -499,7 +499,7 @@ private fun BoxWithConstraintsScope.UI(
             }
         },
         onSelectedAccountChanged = {
-            if (loanData.isLoan && account?.currency != it.currency) {
+            if (loanData.isLoan && account?.asset != it.asset) {
                 selectedAcc = it
                 accountChangeModal = true
             } else {
@@ -672,7 +672,7 @@ private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
             dateTime = testDateTime,
             description = null,
             category = null,
-            account = Account(name = "phyre", Orange.toArgb()),
+            account = previewAccount("phyre", color = Orange, currency = "BGN"),
             toAccount = null,
             amount = 0.0,
             dueDate = null,

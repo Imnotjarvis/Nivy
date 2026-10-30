@@ -9,12 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.model.Account
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
 import com.ivy.legacy.PeriodState
 import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -151,7 +151,7 @@ class CategoriesViewModel @Inject constructor(
             transactions = trnsWithRangeAndAccFiltersAct(
                 TrnsWithRangeAndAccFiltersAct.Input(
                     range = range,
-                    accountIdFilterSet = allAccounts.map { it.id }.toHashSet()
+                    accountIdFilterSet = allAccounts.map { it.id.value }.toHashSet()
                 )
             )
 

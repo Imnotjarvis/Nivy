@@ -12,14 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Purple
 import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.ui.R
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
@@ -147,9 +145,9 @@ private fun Preview() {
     IvyWalletComponentPreview {
         Suggestions(
             suggestions = listOf(
-                Account("Cash", Green.toArgb()),
-                Account("Bank", Red.toArgb()),
-                Account("Revolut", Purple.toArgb())
+                CreateAccountData(name = "Cash", currency = "USD", color = Green, icon = null, balance = 0.0),
+                CreateAccountData(name = "Bank", currency = "USD", color = Red, icon = null, balance = 0.0),
+                CreateAccountData(name = "Revolut", currency = "USD", color = Purple, icon = null, balance = 0.0)
             ),
             onAddSuggestion = { }
         ) {

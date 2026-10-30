@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.model.Account
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
@@ -15,7 +16,6 @@ import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
 import com.ivy.legacy.utils.OpResult
 import com.ivy.legacy.utils.ioThread
@@ -25,10 +25,10 @@ import com.ivy.onboarding.OnboardingDetailState
 import com.ivy.onboarding.OnboardingEvent
 import com.ivy.onboarding.OnboardingState
 import com.ivy.wallet.domain.action.account.AccountsAct
+import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
 import com.ivy.wallet.domain.deprecated.logic.PreloadDataLogic
-import com.ivy.wallet.domain.deprecated.logic.WalletAccountLogic
 import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
 import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
 import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
@@ -47,7 +47,7 @@ class OnboardingViewModel @Inject constructor(
     private val nav: Navigation,
     private val accountDao: AccountDao,
     private val appPreferences: AppPreferences,
-    private val accountLogic: WalletAccountLogic,
+    private val calcAccBalanceAct: CalcAccBalanceAct,
     private val categoryCreator: CategoryCreator,
     private val categoryRepository: CategoryRepository,
     private val accountCreator: AccountCreator,
@@ -208,7 +208,7 @@ class OnboardingViewModel @Inject constructor(
             .map {
                 AccountBalance(
                     account = it,
-                    balance = ioThread { accountLogic.calculateAccountBalance(it) }
+                    balance = calcAccBalanceAct(CalcAccBalanceAct.Input(account = it)).balance.toDouble()
                 )
             }.toImmutableList()
     }

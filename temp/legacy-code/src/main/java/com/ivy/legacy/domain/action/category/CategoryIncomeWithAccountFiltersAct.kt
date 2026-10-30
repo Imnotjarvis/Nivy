@@ -1,9 +1,9 @@
 package com.ivy.wallet.domain.action.category
 
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Transaction
 import com.ivy.data.temp.migration.getAccountId
-import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.action.transaction.LegacyCalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
@@ -15,7 +15,7 @@ class CategoryIncomeWithAccountFiltersAct @Inject constructor(
     private val calcTrnsIncomeExpenseAct: CalcTrnsIncomeExpenseAct
 ) {
     suspend operator fun invoke(input: Input): IncomeExpenseTransferPair = withContext(Dispatchers.IO) {
-        val accountFilterSet = input.accountFilterList.map { it.id }.toHashSet()
+        val accountFilterSet = input.accountFilterList.map { it.id.value }.toHashSet()
         val transactions = input.transactions
             .filter { it.category?.value == input.category?.id?.value }
             .filter { accountFilterSet.isEmpty() || accountFilterSet.contains(it.getAccountId()) }
@@ -41,7 +41,7 @@ class LegacyCategoryIncomeWithAccountFiltersAct @Inject constructor(
     private val calcTrnsIncomeExpenseAct: LegacyCalcTrnsIncomeExpenseAct
 ) {
     suspend operator fun invoke(input: Input): IncomeExpenseTransferPair = withContext(Dispatchers.IO) {
-        val accountFilterSet = input.accountFilterList.map { it.id }.toHashSet()
+        val accountFilterSet = input.accountFilterList.map { it.id.value }.toHashSet()
         val transactions = input.transactions
             .filter { it.categoryId == input.category?.id?.value }
             .filter { accountFilterSet.isEmpty() || accountFilterSet.contains(it.accountId) }

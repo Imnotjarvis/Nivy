@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.resource.ResourceProvider
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
@@ -11,7 +12,6 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.design.system.colors.RedLight
-import com.ivy.legacy.datamodel.Account
 import com.ivy.piechart.CategoryAmount
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -52,7 +52,7 @@ class PieChartAct @Inject constructor(
             trnsWithRangeAndAccFiltersAct(
                 TrnsWithRangeAndAccFiltersAct.Input(
                     range = input.range,
-                    accountIdFilterSet = accountsUsed.map { it.id }.toHashSet()
+                    accountIdFilterSet = accountsUsed.map { it.id.value }.toHashSet()
                 )
             )
         }
@@ -87,7 +87,7 @@ class PieChartAct @Inject constructor(
         return if (accountIdFilterList.isEmpty()) {
             filterExcluded(allAccounts)
         } else {
-            allAccounts.filter { accountIdFilterList.contains(it.id) }
+            allAccounts.filter { accountIdFilterList.contains(it.id.value) }
         }
     }
 

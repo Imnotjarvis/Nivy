@@ -1,7 +1,6 @@
 package com.ivy.wallet.domain.action.viewmodel.account
 
 import arrow.core.toOption
-import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.action.account.CalcAccIncomeExpenseAct
 import com.ivy.wallet.domain.action.exchange.ExchangeAct

@@ -32,14 +32,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.LoanRecordType
+import com.ivy.data.model.Account
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.LoanRecord
 import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
 import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
-import com.ivy.legacy.utils.getDefaultFIATCurrency
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
@@ -225,7 +224,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
             accounts = accounts,
             selectedAccount = selectedAcc,
             onSelectedAccountChanged = {
-                currencyCode = it.currency ?: getDefaultFIATCurrency().currencyCode
+                currencyCode = it.asset.code
 
                 reCalculateVisible =
                     initialRecord?.convertedAmount != null && selectedAcc != null && currencyCode == modal.baseCurrency
@@ -237,7 +236,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
             onAddNewAccount = {
                 accountModalData = AccountModalData(
                     account = null,
-                    baseCurrency = selectedAcc?.currency ?: "USD",
+                    baseCurrency = selectedAcc?.asset?.code ?: "USD",
                     balance = 0.0
                 )
             },
@@ -398,7 +397,7 @@ private fun save(
             amount = amount,
             dateTime = dateTime,
             interest = loanRecordInterest,
-            accountId = selectedAccount?.id,
+            accountId = selectedAccount?.id?.value,
             loanRecordType = loanRecordType
         )
         onEdit(
@@ -571,7 +570,7 @@ private fun Account(
     testTag: String,
     onClick: () -> Unit
 ) {
-    val accountColor = account.color.toComposeColor()
+    val accountColor = account.color.value.toComposeColor()
     val textColor =
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
@@ -594,7 +593,7 @@ private fun Account(
         Spacer(Modifier.width(12.dp))
 
         ItemIconSDefaultIcon(
-            iconName = account.icon,
+            iconName = account.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_s,
             tint = textColor
         )
@@ -603,7 +602,7 @@ private fun Account(
 
         Text(
             modifier = Modifier.padding(vertical = 10.dp),
-            text = account.name,
+            text = account.name.value,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.ExtraBold

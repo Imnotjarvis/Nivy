@@ -27,15 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.data.model.Account
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.datamodel.Account
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.toLowerCaseLocal
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.onboarding.components.OnboardingToolbar
@@ -126,7 +126,6 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
                 }
 
                 Accounts(
-                    baseCurrency = baseCurrency,
                     accounts = accounts,
                     onClick = {
                         accountModalData = AccountModalData(
@@ -155,7 +154,7 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
 
                 Suggestions(
                     suggestions = suggestions.filter { suggestion ->
-                        accounts.map { it.account.name.toLowerCaseLocal() }
+                        accounts.map { it.account.name.value.toLowerCaseLocal() }
                             .contains(suggestion.name.toLowerCaseLocal()).not()
                     },
                     onAddSuggestion = {
@@ -210,13 +209,11 @@ fun BoxWithConstraintsScope.OnboardingAccounts(
 
 @Composable
 private fun Accounts(
-    baseCurrency: String,
     accounts: List<AccountBalance>,
     onClick: (AccountBalance) -> Unit
 ) {
     for (account in accounts) {
         AccountCard(
-            baseCurrency = baseCurrency,
             accountBalance = account
         ) {
             onClick(account)
@@ -228,12 +225,11 @@ private fun Accounts(
 
 @Composable
 private fun AccountCard(
-    baseCurrency: String,
     accountBalance: AccountBalance,
     onClick: () -> Unit
 ) {
     val account = accountBalance.account
-    val accountColor = account.color.toComposeColor()
+    val accountColor = account.color.value.toComposeColor()
     val dynamicContrast = accountColor.dynamicContrast()
 
     Row(
@@ -253,7 +249,7 @@ private fun AccountCard(
             modifier = Modifier
                 .padding(vertical = 16.dp)
                 .background(dynamicContrast, CircleShape),
-            iconName = account.icon,
+            iconName = account.icon?.id,
             defaultIcon = R.drawable.ic_custom_account_m,
             tint = accountColor
         )
@@ -262,7 +258,7 @@ private fun AccountCard(
 
         Column {
             Text(
-                text = account.name,
+                text = account.name.value,
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = dynamicContrast,
                     fontWeight = FontWeight.ExtraBold
@@ -271,7 +267,7 @@ private fun AccountCard(
 
             AmountCurrencyB1Row(
                 amount = accountBalance.balance,
-                currency = account.currency ?: baseCurrency,
+                currency = account.asset.code,
                 amountFontWeight = FontWeight.ExtraBold,
                 textColor = findContrastTextColor(accountColor)
             )
@@ -350,11 +346,7 @@ private fun Preview_Accounts() {
             ),
             accounts = listOf(
                 AccountBalance(
-                    account = Account(
-                        name = "Cash",
-                        color = Green.toArgb(),
-                        icon = "cash"
-                    ),
+                    account = previewAccount("Cash", color = Green, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 )
             )
@@ -395,26 +387,19 @@ private fun Preview_Premium() {
             ),
             accounts = listOf(
                 AccountBalance(
-                    account = Account(
-                        name = "Cash",
-                        color = Green.toArgb(),
-                        icon = "cash"
-                    ),
+                    account = previewAccount("Cash", color = Green, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 ),
                 AccountBalance(
-                    account = Account(
-                        name = "Revolut",
-                        color = IvyDark.toArgb(),
-                        icon = "cash"
-                    ),
+                    account = previewAccount("Revolut", color = IvyDark, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 ),
                 AccountBalance(
-                    account = Account(
-                        name = "Revolut",
-                        color = Color(0xFF4DCAFF).toArgb(),
-                        icon = "revolut"
+                    account = previewAccount(
+                        "Revolut",
+                        color = Color(0xFF4DCAFF),
+                        icon = "revolut",
+                        currency = baseCurrency
                     ),
                     balance = 0.0
                 ),

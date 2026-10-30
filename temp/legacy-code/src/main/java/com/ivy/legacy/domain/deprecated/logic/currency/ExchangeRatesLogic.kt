@@ -3,10 +3,11 @@ package com.ivy.wallet.domain.deprecated.logic.currency
 import com.ivy.base.legacy.Transaction
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.ExchangeRatesDao
+import com.ivy.data.db.entity.AccountEntity
+import com.ivy.data.model.Account
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.legacy.datamodel.Account
+import com.ivy.data.repository.mapper.AccountMapper
 import com.ivy.legacy.datamodel.PlannedPaymentRule
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import java.util.UUID
 import javax.inject.Inject
 
@@ -46,7 +47,7 @@ class ExchangeRatesLogic @Inject constructor(
         baseCurrency: String,
         accounts: List<Account> // helper
     ): Double {
-        val trnCurrency = accounts.find { it.id == accountId }?.currency
+        val trnCurrency = accounts.find { it.id.value == accountId }?.asset?.code
             ?: return amount // no conversion
 
         return amountBaseCurrency(
@@ -108,13 +109,13 @@ suspend fun Iterable<Transaction>.sumInBaseCurrency(
     accountDao: AccountDao,
 ): Double {
     val baseCurrency = currencyRepository.getBaseCurrency().code
-    val accounts = accountDao.findAll()
+    val accounts = accountDao.findAll().toDomainAccounts(currencyRepository)
 
     return sumOf {
         exchangeRatesLogic.amountBaseCurrency(
             transaction = it,
             baseCurrency = baseCurrency,
-            accounts = accounts.map { it.toLegacyDomain() }
+            accounts = accounts
         )
     }
 }
@@ -126,13 +127,19 @@ suspend fun Iterable<PlannedPaymentRule>.sumByDoublePlannedInBaseCurrency(
     accountDao: AccountDao,
 ): Double {
     val baseCurrency = currencyRepository.getBaseCurrency().code
-    val accounts = accountDao.findAll()
+    val accounts = accountDao.findAll().toDomainAccounts(currencyRepository)
 
     return sumOf {
         exchangeRatesLogic.amountBaseCurrency(
             plannedPayment = it,
             baseCurrency = baseCurrency,
-            accounts = accounts.map { it.toLegacyDomain() }
+            accounts = accounts
         )
     }
+}
+
+private suspend fun List<AccountEntity>.toDomainAccounts(
+    currencyRepository: CurrencyRepository,
+): List<Account> = with(AccountMapper(currencyRepository)) {
+    mapNotNull { it.toDomain().getOrNull() }
 }

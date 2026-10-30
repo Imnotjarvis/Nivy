@@ -3,10 +3,9 @@ package com.ivy.wallet.domain.action.transaction
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.time.TimeConverter
-import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.model.AccountId
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.TagRepository
-import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.pure.transaction.LegacyTrnDateDividers
 import com.ivy.legacy.domain.pure.transaction.transactionsWithDateDividers
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
@@ -15,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class TrnsWithDateDivsAct @Inject constructor(
-    private val accountDao: AccountDao,
     private val exchangeAct: ExchangeAct,
     private val tagRepository: TagRepository,
     private val accountRepository: AccountRepository,
@@ -25,7 +23,7 @@ class TrnsWithDateDivsAct @Inject constructor(
             transactions = input.transactions,
             baseCurrencyCode = input.baseCurrency,
             getTags = { tagIds -> tagRepository.findByIds(tagIds) },
-            getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
+            getAccount = { accountId -> accountRepository.findById(AccountId(accountId)) },
             accountRepository = accountRepository,
             exchange = exchangeAct::convert
         )
@@ -39,7 +37,7 @@ class TrnsWithDateDivsAct @Inject constructor(
 
 @Deprecated("Uses legacy Transaction")
 class LegacyTrnsWithDateDivsAct @Inject constructor(
-    private val accountDao: AccountDao,
+    private val accountRepository: AccountRepository,
     private val exchangeAct: ExchangeAct,
     private val timeConverter: TimeConverter,
 ) {
@@ -47,7 +45,7 @@ class LegacyTrnsWithDateDivsAct @Inject constructor(
         LegacyTrnDateDividers.transactionsWithDateDividers(
             transactions = input.transactions,
             baseCurrencyCode = input.baseCurrency,
-            getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
+            getAccount = { accountId -> accountRepository.findById(AccountId(accountId)) },
             exchange = exchangeAct::convert,
             timeConverter = timeConverter,
         )

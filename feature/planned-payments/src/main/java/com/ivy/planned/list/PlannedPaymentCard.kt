@@ -26,16 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
+import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule
 import com.ivy.legacy.forDisplay
 import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
+import com.ivy.legacy.ui.previewAccount
 import com.ivy.legacy.utils.formatLocal
 import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.legacy.utils.uppercaseLocal
@@ -77,15 +78,15 @@ fun LazyItemScope.PlannedPaymentCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
-                if (accounts.find { it.id == plannedPayment.accountId } != null) {
+                if (accounts.find { it.id.value == plannedPayment.accountId } != null) {
                     onClick(plannedPayment)
                 }
             }
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("planned_payment_card")
     ) {
-        val currency = accounts.find { it.id == plannedPayment.accountId }?.currency ?: baseCurrency
+        val currency = accounts.find { it.id.value == plannedPayment.accountId }?.asset?.code ?: baseCurrency
 
         Spacer(Modifier.height(20.dp))
 
@@ -184,12 +185,12 @@ private fun PlannedPaymentHeaderRow(
                 Spacer(Modifier.width(12.dp))
             }
 
-            val account = accounts.find { it.id == plannedPayment.accountId }
+            val account = accounts.find { it.id.value == plannedPayment.accountId }
             IvyButton(
                 backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
-                text = account?.name ?: stringResource(R.string.deleted),
+                text = account?.name?.value ?: stringResource(R.string.deleted),
                 iconTint = MaterialTheme.colorScheme.onSurface,
-                iconStart = getCustomIconIdS(account?.icon, R.drawable.ic_custom_account_s),
+                iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),
                 textStyle = MaterialTheme.typography.labelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
@@ -200,7 +201,7 @@ private fun PlannedPaymentHeaderRow(
                 account?.let {
                     nav.navigateTo(
                         TransactionsScreen(
-                            accountId = account.id,
+                            accountId = account.id.value,
                             categoryId = null
                         )
                     )
@@ -273,7 +274,7 @@ private fun RuleTextRow(
 private fun Preview_oneTime() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val cash = Account(name = "Cash", Green.toArgb())
+            val cash = previewAccount("Cash", color = Green, currency = "BGN")
             val food = Category(
                 name = NotBlankTrimmedString.unsafe("Food"),
                 color = ColorInt(Blue.toArgb()),
@@ -290,7 +291,7 @@ private fun Preview_oneTime() {
                     categories = persistentListOf(food),
                     accounts = persistentListOf(cash),
                     plannedPayment = PlannedPaymentRule(
-                        accountId = cash.id,
+                        accountId = cash.id.value,
                         title = "Lidl pazar",
                         categoryId = food.id.value,
                         amount = 250.75,
@@ -311,7 +312,7 @@ private fun Preview_oneTime() {
 private fun Preview_recurring() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val account = Account(name = "Revolut", Blue.toArgb())
+            val account = previewAccount("Revolut", color = Blue, currency = "BGN")
             val shisha = Category(
                 name = NotBlankTrimmedString.unsafe("Shisha"),
                 color = ColorInt(Orange.toArgb()),
@@ -328,7 +329,7 @@ private fun Preview_recurring() {
                     categories = persistentListOf(shisha),
                     accounts = persistentListOf(account),
                     plannedPayment = PlannedPaymentRule(
-                        accountId = account.id,
+                        accountId = account.id.value,
                         title = "Tabu",
                         categoryId = shisha.id.value,
                         amount = 250.75,
@@ -349,7 +350,7 @@ private fun Preview_recurring() {
 private fun Preview_recurringError() {
     IvyWalletPreview {
         LazyColumn(Modifier.fillMaxSize()) {
-            val account = Account(name = "Revolut", Blue.toArgb())
+            val account = previewAccount("Revolut", color = Blue, currency = "BGN")
             val shisha = Category(
                 name = NotBlankTrimmedString.unsafe("Shisha"),
                 color = ColorInt(Orange.toArgb()),
@@ -366,7 +367,7 @@ private fun Preview_recurringError() {
                     categories = persistentListOf(shisha),
                     accounts = persistentListOf(account),
                     plannedPayment = PlannedPaymentRule(
-                        accountId = account.id,
+                        accountId = account.id.value,
                         title = "Tabu",
                         categoryId = shisha.id.value,
                         amount = 250.75,
