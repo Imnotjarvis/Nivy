@@ -24,8 +24,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.PlannedPaymentsBottomBar(
-    bottomInset: Dp = navigationBarInset().toDensityDp(),
     onClose: () -> Unit,
+    bottomInset: Dp = navigationBarInset().toDensityDp(),
     onAdd: () -> Unit
 ) {
     ActionsRow(

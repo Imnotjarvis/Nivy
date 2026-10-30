@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -84,7 +86,7 @@ fun BoxWithConstraintsScope.RecurringRuleModal(
         mutableStateOf(modal?.initialOneTime ?: false)
     }
     var intervalN by remember(modal) {
-        mutableStateOf(modal?.initialIntervalN ?: 1)
+        mutableIntStateOf(modal?.initialIntervalN ?: 1)
     }
     var intervalType by remember(modal) {
         mutableStateOf(modal?.initialIntervalType ?: IntervalType.MONTH)
@@ -431,6 +433,7 @@ private fun Preview_multipleTimes() {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun LocalDate.closeDay(): String? {
     val today = LocalTimeProvider.current.localDateNow()
     return when (this) {

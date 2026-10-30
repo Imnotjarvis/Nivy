@@ -29,7 +29,7 @@ fun BoxWithConstraintsScope.BufferModal(
     onBufferChanged: (Double) -> Unit
 ) {
     var newBufferAmount by remember(modal) {
-        mutableStateOf(modal?.buffer ?: 0.0)
+        mutableDoubleStateOf(modal?.buffer ?: 0.0)
     }
 
     var amountModalVisible by remember { mutableStateOf(false) }

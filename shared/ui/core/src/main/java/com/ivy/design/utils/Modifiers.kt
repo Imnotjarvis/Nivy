@@ -6,6 +6,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -24,8 +25,8 @@ fun Modifier.drawColoredShadow(
     offsetX: Dp = 0.dp,
     offsetY: Dp = 8.dp
 ) = this.drawBehind {
-    val transparentColor = android.graphics.Color.toArgb(color.copy(alpha = 0.0f).value.toLong())
-    val shadowColor = android.graphics.Color.toArgb(color.copy(alpha = alpha).value.toLong())
+    val transparentColor = color.copy(alpha = 0.0f).toArgb()
+    val shadowColor = color.copy(alpha = alpha).toArgb()
     this.drawIntoCanvas {
         val frameworkPaint = android.graphics.Paint()
         frameworkPaint.color = transparentColor

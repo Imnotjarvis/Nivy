@@ -70,6 +70,7 @@ fun BoxScope.IvyModal(
     visible: Boolean,
     dismiss: () -> Unit,
     PrimaryAction: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     SecondaryActions: (@Composable () -> Unit)? = null,
     scrollState: ScrollState? = rememberScrollState(),
     shiftIfKeyboardShown: Boolean = true,
@@ -130,7 +131,7 @@ fun BoxScope.IvyModal(
         var actionsRowHeight by remember { mutableIntStateOf(0) }
 
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .align(Alignment.BottomCenter)
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)

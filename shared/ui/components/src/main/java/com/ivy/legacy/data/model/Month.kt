@@ -2,6 +2,7 @@ package com.ivy.legacy.data.model
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.res.stringResource
 import com.ivy.ui.R
@@ -46,5 +47,6 @@ data class Month(
 
     // The month's name in the app's language.
     @Composable
+    @ReadOnlyComposable
     fun displayName(): String = stringResource(nameRes)
 }

@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -110,7 +111,7 @@ fun BoxWithConstraintsScope.LoanModal(
         mutableStateOf(modal?.loan?.type ?: LoanType.BORROW)
     }
     var amount by remember(modal) {
-        mutableStateOf(modal?.loan?.amount?.value ?: 0.0)
+        mutableDoubleStateOf(modal?.loan?.amount?.value ?: 0.0)
     }
     var color by remember(modal) {
         mutableStateOf(loan?.color?.let { Color(it.value) } ?: Ivy)
@@ -383,9 +384,9 @@ fun BoxWithConstraintsScope.LoanModal(
 private fun AccountsRow(
     accounts: List<Account>,
     selectedAccount: Account?,
+    onSelectedAccountChanged: (Account) -> Unit,
     modifier: Modifier = Modifier,
     childrenTestTag: String? = null,
-    onSelectedAccountChanged: (Account) -> Unit,
     onAddNewAccount: () -> Unit
 ) {
     val lazyState = rememberLazyListState()

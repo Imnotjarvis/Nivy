@@ -31,8 +31,8 @@ import androidx.compose.material3.MaterialTheme
 fun PrimaryAttributeColumn(
     @DrawableRes icon: Int,
     title: String,
-    TitleRowExtra: (@Composable RowScope.() -> Unit)? = null,
     onClick: () -> Unit,
+    TitleRowExtra: (@Composable RowScope.() -> Unit)? = null,
     Content: @Composable ColumnScope.() -> Unit
 ) {
     Column(

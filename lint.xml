@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- App-wide state the screens read; keep in sync with config/detekt/config.yml. -->
+    <issue id="ComposeCompositionLocalUsage">
+        <option name="allowed-composition-locals" value="LocalNavigation,LocalPeriodState,LocalMainScreenState,LocalTimeConverter,LocalTimeProvider,LocalTimeFormatter,LocalScreenSize" />
+    </issue>
+</lint>

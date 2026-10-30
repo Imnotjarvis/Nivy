@@ -36,12 +36,11 @@ import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.ui.R
 
-// A full-screen modal: it places itself, so it takes no modifier.
-@Suppress("ModifierMissing")
 @ExperimentalFoundationApi
 @Composable
 fun BoxWithConstraintsScope.AddOrEditTagModal(
     id: TagId,
+    modifier: Modifier = Modifier,
     visible: Boolean = false,
     initialTag: Tag? = null,
     onTagAdd: (String) -> Unit = {},
@@ -65,6 +64,7 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id.value,
         visible = visible,
         dismiss = onDismiss,

@@ -1,6 +1,7 @@
 package com.ivy.legacy.data.model
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
@@ -202,6 +203,7 @@ data class TimePeriod(
     }
 
     @Composable
+    @ReadOnlyComposable
     private fun displayMonthStartingOn1st(
         month: Month,
         timeProvider: TimeProvider,

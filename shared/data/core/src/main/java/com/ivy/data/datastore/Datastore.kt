@@ -2,6 +2,7 @@ package com.ivy.data.datastore
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -25,6 +26,7 @@ val Context.dataStore: IvyDataStore by preferencesDataStore(
 )
 
 @Composable
+@ReadOnlyComposable
 fun datastore(): IvyDataStore {
     return LocalContext.current.dataStore
 }

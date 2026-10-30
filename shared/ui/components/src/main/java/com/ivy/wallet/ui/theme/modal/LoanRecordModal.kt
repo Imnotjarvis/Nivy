@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -94,7 +95,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         mutableStateOf(modal?.baseCurrency ?: "")
     }
     var amount by remember(modal) {
-        mutableStateOf(modal?.loanRecord?.amount?.value ?: 0.0)
+        mutableDoubleStateOf(modal?.loanRecord?.amount?.value ?: 0.0)
     }
     var selectedAcc by remember(modal) {
         mutableStateOf(modal?.selectedAccount)

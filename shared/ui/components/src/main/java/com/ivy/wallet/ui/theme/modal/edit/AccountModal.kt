@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,7 +78,7 @@ fun BoxWithConstraintsScope.AccountModal(
         mutableStateOf(account?.color?.let { Color(it.value) } ?: Ivy)
     }
     var amount by remember(modal) {
-        mutableStateOf(modal?.balance ?: 0.0)
+        mutableDoubleStateOf(modal?.balance ?: 0.0)
     }
     var currencyCode by remember(modal) {
         mutableStateOf(account?.asset?.code ?: modal?.baseCurrency ?: "")

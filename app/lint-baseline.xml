@@ -25,7 +25,7 @@
         errorLine1="            searchQueryLowercase = searchTextFieldValue.text.lowercase(Locale.getDefault()),"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CurrencyPicker.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CurrencyPicker.kt"
             line="124"
             column="72"/>
     </issue>
@@ -47,7 +47,7 @@
         errorLine1="        val inputFocus = FocusRequester()"
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/AddKeywordModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/AddKeywordModal.kt"
             line="65"
             column="26"/>
     </issue>
@@ -69,7 +69,7 @@
         errorLine1="        val nameFocus = FocusRequester()"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/CategoryModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/CategoryModal.kt"
             line="190"
             column="25"/>
     </issue>
@@ -80,7 +80,7 @@
         errorLine1="    val inputFocus = FocusRequester()"
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CurrencyPicker.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CurrencyPicker.kt"
             line="145"
             column="22"/>
     </issue>
@@ -91,7 +91,7 @@
         errorLine1="        val focus = FocusRequester()"
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/DescriptionModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/DescriptionModal.kt"
             line="96"
             column="21"/>
     </issue>
@@ -124,7 +124,7 @@
         errorLine1="        val inputFieldFocus = FocusRequester()"
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyChecklistTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyChecklistTextField.kt"
             line="70"
             column="31"/>
     </issue>
@@ -135,7 +135,7 @@
         errorLine1="        val inputFieldFocus = FocusRequester()"
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyOutlinedTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyOutlinedTextField.kt"
             line="66"
             column="31"/>
     </issue>
@@ -179,7 +179,7 @@
         errorLine1="                titleFocus = FocusRequester(),"
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/ui/component/edit/core/Title.kt"
+            file="src/main/java/com/ivy/wallet/ui/edit/core/Title.kt"
             line="138"
             column="30"/>
     </issue>
@@ -344,7 +344,7 @@
         errorLine1="            val itemId = context.resources.getIdentifier("
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="219"
             column="44"/>
     </issue>
@@ -355,20 +355,9 @@
         errorLine1="            val iconId = context.resources.getIdentifier("
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="272"
             column="44"/>
-    </issue>
-
-    <issue
-        id="LogNotTimber"
-        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
-        errorLine1="            Log.d(&quot;ivyInputField&quot;, &quot;Triggering recomposition: ${focus?.triggerRecomposition}&quot;)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/InputField.kt"
-            line="113"
-            column="13"/>
     </issue>
 
     <issue
@@ -619,7 +608,7 @@
         errorLine1="        mutableStateOf(modal?.balance ?: 0.0)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/AccountModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/AccountModal.kt"
             line="79"
             column="9"/>
     </issue>
@@ -630,7 +619,7 @@
         errorLine1="        mutableStateOf(modal?.buffer ?: 0.0)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/BufferModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/BufferModal.kt"
             line="34"
             column="9"/>
     </issue>
@@ -641,7 +630,7 @@
         errorLine1="        mutableStateOf(modal?.loan?.amount ?: 0.0)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/LoanModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/LoanModal.kt"
             line="115"
             column="9"/>
     </issue>
@@ -652,7 +641,7 @@
         errorLine1="        mutableStateOf(modal?.loanRecord?.amount ?: 0.0)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/LoanRecordModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/LoanRecordModal.kt"
             line="101"
             column="9"/>
     </issue>
@@ -663,7 +652,7 @@
         errorLine1="        mutableStateOf(initialDate.monthValue)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/MonthPickerModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/MonthPickerModal.kt"
             line="54"
             column="9"/>
     </issue>
@@ -674,7 +663,7 @@
         errorLine1="        mutableStateOf(modal?.initialIntervalN ?: 1)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/RecurringRuleModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/RecurringRuleModal.kt"
             line="91"
             column="9"/>
     </issue>
@@ -729,7 +718,7 @@
         errorLine1="@Composable"
         errorLine2="~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="66"
             column="1"/>
     </issue>
@@ -753,17 +742,6 @@
         <location
             file="src/main/java/com/ivy/importdata/csvimport/flow/instructions/OneMoneySteps.kt"
             line="5"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeNonRestartableComposable"
-        message="This composable&apos;s body only delegates to another composable. Consider marking it @NonRestartableComposable when its own restart and skip boundary is unlikely to be useful. The annotation avoids generating that code, but also prevents the wrapper from being restarted or skipped independently.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#avoid-unnecessary-restart-groups for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l3_ivyComponents/ScreenTitle.kt"
-            line="47"
             column="1"/>
     </issue>
 
@@ -8061,28 +8039,6 @@
 
     <issue
         id="UseKtx"
-        message="Use the KTX extension function `Long.toColorInt` instead?"
-        errorLine1="    val transparentColor = android.graphics.Color.toArgb(color.copy(alpha = 0.0f).value.toLong())"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/utils/ComposeExt.kt"
-            line="112"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `Long.toColorInt` instead?"
-        errorLine1="    val shadowColor = android.graphics.Color.toArgb(color.copy(alpha = alpha).value.toLong())"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/utils/ComposeExt.kt"
-            line="113"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
         message="Use the KTX extension function `String.toUri` instead?"
         errorLine1="            browserIntent.data = Uri.parse(url)"
         errorLine2="                                 ~~~~~~~~~~~~~~">
@@ -8126,166 +8082,12 @@
     </issue>
 
     <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = preferences.edit()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="49"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = preferences.edit()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="55"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = preferences.edit()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="61"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = preferences.edit()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="67"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = preferences.edit()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="73"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().remove(key).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="104"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().clear().apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/base/legacy/SharedPrefs.kt"
-            line="108"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="@Deprecated(&quot;Old design system. Use `:ivy-design` and Material3&quot;)"
-        errorLine2="^">
-        <location
-            file="src/main/java/com/ivy/design/l0_system/IvyTheme.kt"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="@Deprecated(&quot;Old design system. Use `:ivy-design` and Material3&quot;)"
-        errorLine2="^">
-        <location
-            file="src/main/java/com/ivy/design/l0_system/IvyTheme.kt"
-            line="21"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="@Deprecated(&quot;Old design system. Use `:ivy-design` and Material3&quot;)"
-        errorLine2="^">
-        <location
-            file="src/main/java/com/ivy/design/l0_system/IvyTheme.kt"
-            line="24"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="val LocalIvyContext = compositionLocalOf&lt;IvyContext> { error(&quot;No LocalIvyContext&quot;) }"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/api/IvyUI.kt"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="@Suppress(&quot;CompositionLocalAllowlist&quot;)"
-        errorLine2="^">
-        <location
-            file="src/main/java/com/ivy/design/api/IvyUI.kt"
-            line="21"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="@Suppress(&quot;CompositionLocalAllowlist&quot;)"
-        errorLine2="^">
-        <location
-            file="src/main/java/com/ivy/design/api/IvyUI.kt"
-            line="25"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeCompositionLocalUsage"
-        message="`CompositionLocal`s are implicit dependencies and creating new ones should be avoided.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#compositionlocals for more information."
-        errorLine1="@Suppress(&quot;CompositionLocalAllowlist&quot;)"
-        errorLine2="^">
-        <location
-            file="src/main/java/com/ivy/design/api/IvyUI.kt"
-            line="29"
-            column="1"/>
-    </issue>
-
-    <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
         errorLine1="fun BoxWithConstraintsScope.AccountModal("
         errorLine2="                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/AccountModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/AccountModal.kt"
             line="65"
             column="29"/>
     </issue>
@@ -8296,7 +8098,7 @@
         errorLine1="fun BoxWithConstraintsScope.AddKeywordModal("
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/AddKeywordModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/AddKeywordModal.kt"
             line="32"
             column="29"/>
     </issue>
@@ -8307,7 +8109,7 @@
         errorLine1="fun AddPrimaryAttributeButton("
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/AddPrimaryAttributeButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/AddPrimaryAttributeButton.kt"
             line="26"
             column="5"/>
     </issue>
@@ -8329,7 +8131,7 @@
         errorLine1="fun BoxWithConstraintsScope.BackBottomBar("
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/BackBottomBar.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/BackBottomBar.kt"
             line="22"
             column="29"/>
     </issue>
@@ -8351,7 +8153,7 @@
         errorLine1="fun BoxWithConstraintsScope.BufferModal("
         errorLine2="                            ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/BufferModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/BufferModal.kt"
             line="28"
             column="29"/>
     </issue>
@@ -8384,7 +8186,7 @@
         errorLine1="fun Category("
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/ui/component/edit/core/Category.kt"
+            file="src/main/java/com/ivy/wallet/ui/edit/core/Category.kt"
             line="22"
             column="5"/>
     </issue>
@@ -8395,7 +8197,7 @@
         errorLine1="fun BoxWithConstraintsScope.CategoryModal("
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/CategoryModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/CategoryModal.kt"
             line="68"
             column="29"/>
     </issue>
@@ -8406,7 +8208,7 @@
         errorLine1="fun IconNameRow("
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/CategoryModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/CategoryModal.kt"
             line="174"
             column="5"/>
     </issue>
@@ -8417,7 +8219,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChangeTransactionTypeModal("
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ChangeTransactionTypeModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ChangeTransactionTypeModal.kt"
             line="45"
             column="29"/>
     </issue>
@@ -8428,7 +8230,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChooseCategoryModal("
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/ChooseCategoryModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/ChooseCategoryModal.kt"
             line="62"
             column="29"/>
     </issue>
@@ -8439,7 +8241,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChooseIconModal("
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/ChooseIconModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/ChooseIconModal.kt"
             line="55"
             column="29"/>
     </issue>
@@ -8450,7 +8252,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal("
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/ChooseStartDateOfMonthModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/ChooseStartDateOfMonthModal.kt"
             line="37"
             column="29"/>
     </issue>
@@ -8461,7 +8263,7 @@
         errorLine1="fun BoxWithConstraintsScope.CurrencyModal("
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/CurrencyModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/CurrencyModal.kt"
             line="32"
             column="29"/>
     </issue>
@@ -8483,42 +8285,9 @@
         errorLine1="fun BoxWithConstraintsScope.DescriptionModal("
         errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/DescriptionModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/DescriptionModal.kt"
             line="45"
             column="29"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun DividerH("
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Dividers.kt"
-            line="18"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun DividerV("
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Dividers.kt"
-            line="46"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun RowScope.DividerW("
-        errorLine2="             ~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Dividers.kt"
-            line="74"
-            column="14"/>
     </issue>
 
     <issue
@@ -8538,7 +8307,7 @@
         errorLine1="fun BoxWithConstraintsScope.GradientCutBottom("
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/GradientCut.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/GradientCut.kt"
             line="22"
             column="29"/>
     </issue>
@@ -8637,7 +8406,7 @@
         errorLine1="fun IntervalPickerRow("
         errorLine2="    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IntervalPickerRow.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IntervalPickerRow.kt"
             line="43"
             column="5"/>
     </issue>
@@ -8648,7 +8417,7 @@
         errorLine1="fun ColumnScope.IvyColorPicker("
         errorLine2="                ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/IvyColorPicker.kt"
+            file="src/main/java/com/ivy/domain/legacy/ui/IvyColorPicker.kt"
             line="52"
             column="17"/>
     </issue>
@@ -8670,7 +8439,7 @@
         errorLine1="fun IvyDividerDot() {"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyDividerDot.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyDividerDot.kt"
             line="16"
             column="5"/>
     </issue>
@@ -8681,7 +8450,7 @@
         errorLine1="fun BoxScope.IvyModal("
         errorLine2="             ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModal.kt"
             line="72"
             column="14"/>
     </issue>
@@ -8692,7 +8461,7 @@
         errorLine1="fun ModalActionsRow("
         errorLine2="    ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModal.kt"
             line="262"
             column="5"/>
     </issue>
@@ -8703,7 +8472,7 @@
         errorLine1="fun ModalPreviewActionRowSpacer() {"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModal.kt"
             line="348"
             column="5"/>
     </issue>
@@ -8714,7 +8483,7 @@
         errorLine1="fun ModalDynamicPrimaryAction("
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="25"
             column="5"/>
     </issue>
@@ -8725,7 +8494,7 @@
         errorLine1="fun ModalAdd("
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="136"
             column="5"/>
     </issue>
@@ -8736,7 +8505,7 @@
         errorLine1="fun ModalDelete("
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="188"
             column="5"/>
     </issue>
@@ -8747,7 +8516,7 @@
         errorLine1="fun ModalTitle("
         errorLine2="    ~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="207"
             column="5"/>
     </issue>
@@ -8758,7 +8527,7 @@
         errorLine1="fun IvyToolbar("
         errorLine2="    ~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyToolbar.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyToolbar.kt"
             line="20"
             column="5"/>
     </issue>
@@ -8780,7 +8549,7 @@
         errorLine1="fun ListItem("
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ListItem.kt"
+            file="src/main/java/com/ivy/domain/legacy/ui/theme/components/ListItem.kt"
             line="27"
             column="5"/>
     </issue>
@@ -8791,7 +8560,7 @@
         errorLine1="fun BoxWithConstraintsScope.LoanModal("
         errorLine2="                            ~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/LoanModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/LoanModal.kt"
             line="90"
             column="29"/>
     </issue>
@@ -8835,7 +8604,7 @@
         errorLine1="fun BoxWithConstraintsScope.NameModal("
         errorLine2="                            ~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/NameModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/NameModal.kt"
             line="29"
             column="29"/>
     </issue>
@@ -8956,7 +8725,7 @@
         errorLine1="fun BoxWithConstraintsScope.ProgressModal("
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/ProgressModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/ProgressModal.kt"
             line="23"
             column="29"/>
     </issue>
@@ -8967,7 +8736,7 @@
         errorLine1="fun BoxWithConstraintsScope.RecurringRuleModal("
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/RecurringRuleModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/RecurringRuleModal.kt"
             line="77"
             column="29"/>
     </issue>
@@ -8978,7 +8747,7 @@
         errorLine1="fun &lt;T : Reorderable> BoxScope.ReorderModalSingleType("
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ReorderModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ReorderModal.kt"
             line="39"
             column="32"/>
     </issue>
@@ -8989,31 +8758,9 @@
         errorLine1="fun &lt;T : Reorderable> BoxScope.ReorderModal("
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ReorderModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ReorderModal.kt"
             line="81"
             column="32"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ScreenTitleLarge("
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l3_ivyComponents/ScreenTitle.kt"
-            line="18"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ScreenTitle("
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l3_ivyComponents/ScreenTitle.kt"
-            line="33"
-            column="5"/>
     </issue>
 
     <issue
@@ -9025,39 +8772,6 @@
             file="src/main/java/com/ivy/legacy/ui/SearchInput.kt"
             line="28"
             column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SpacerVer("
-        errorLine2="    ~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Spacers.kt"
-            line="10"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SpacerHor("
-        errorLine2="    ~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Spacers.kt"
-            line="18"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun RowScope.SpacerWeight("
-        errorLine2="             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Spacers.kt"
-            line="26"
-            column="14"/>
     </issue>
 
     <issue
@@ -9088,7 +8802,7 @@
         errorLine1="fun ColumnScope.Title("
         errorLine2="                ~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/ui/component/edit/core/Title.kt"
+            file="src/main/java/com/ivy/wallet/ui/edit/core/Title.kt"
             line="41"
             column="17"/>
     </issue>
@@ -9099,7 +8813,7 @@
         errorLine1="fun Toolbar("
         errorLine2="    ~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/ui/component/edit/core/Toolbar.kt"
+            file="src/main/java/com/ivy/wallet/ui/edit/core/Toolbar.kt"
             line="34"
             column="5"/>
     </issue>
@@ -9121,7 +8835,7 @@
         errorLine1="        modifier = modifier,"
         errorLine2="                   ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="52"
             column="20"/>
     </issue>
@@ -9132,7 +8846,7 @@
         errorLine1="                modifier = modifier,"
         errorLine2="                           ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="57"
             column="28"/>
     </issue>
@@ -9143,7 +8857,7 @@
         errorLine1="        modifier = modifier,"
         errorLine2="                   ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="95"
             column="20"/>
     </issue>
@@ -9154,20 +8868,9 @@
         errorLine1="                modifier = modifier,"
         errorLine2="                           ~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="100"
             column="28"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/charts/linechart/IvyLineChart.kt"
-            line="333"
-            column="5"/>
     </issue>
 
     <issue
@@ -9220,7 +8923,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CurrencyPicker.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CurrencyPicker.kt"
             line="341"
             column="1"/>
     </issue>
@@ -9231,7 +8934,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CurrencyPicker.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CurrencyPicker.kt"
             line="389"
             column="1"/>
     </issue>
@@ -9297,7 +9000,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyBorderButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyBorderButton.kt"
             line="118"
             column="1"/>
     </issue>
@@ -9308,7 +9011,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyBorderButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyBorderButton.kt"
             line="135"
             column="1"/>
     </issue>
@@ -9319,7 +9022,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyButton.kt"
             line="145"
             column="1"/>
     </issue>
@@ -9330,7 +9033,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyButton.kt"
             line="164"
             column="1"/>
     </issue>
@@ -9341,7 +9044,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/IvyColorPicker.kt"
+            file="src/main/java/com/ivy/domain/legacy/ui/IvyColorPicker.kt"
             line="129"
             column="1"/>
     </issue>
@@ -9363,7 +9066,7 @@
         errorLine1="@Deprecated(&quot;Old design system. Use `:ivy-design` and Material3&quot;)"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ListItem.kt"
+            file="src/main/java/com/ivy/domain/legacy/ui/theme/components/ListItem.kt"
             line="25"
             column="1"/>
     </issue>
@@ -9374,7 +9077,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/LoanModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/LoanModal.kt"
             line="443"
             column="1"/>
     </issue>
@@ -9385,7 +9088,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/LoanModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/LoanModal.kt"
             line="495"
             column="1"/>
     </issue>
@@ -9484,7 +9187,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/RecurringRuleModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/RecurringRuleModal.kt"
             line="236"
             column="1"/>
     </issue>
@@ -9495,7 +9198,7 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/RecurringRuleModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/RecurringRuleModal.kt"
             line="251"
             column="1"/>
     </issue>
@@ -9536,17 +9239,6 @@
     <issue
         id="ComposeNamingUppercase"
         message="Composable functions that return Unit should start with an uppercase letter. They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun onScreenStart("
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/utils/ComposeExt.kt"
-            line="69"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter. They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
         errorLine1="fun hideKeyboard() {"
         errorLine2="    ~~~~~~~~~~~~">
         <location
@@ -9556,34 +9248,12 @@
     </issue>
 
     <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter. They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun onScreenStart("
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/frp/OnScreenStart.kt"
-            line="13"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter. They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun setStatusBarDarkTextCompat(darkText: Boolean) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/utils/UIExt.kt"
-            line="89"
-            column="5"/>
-    </issue>
-
-    <issue
         id="ComposeParameterOrder"
         message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[id: UUID = UUID.randomUUID(), keyword: String, visible: Boolean, dismiss: () -> Unit, onKeywordChanged: (String) -> Unit]` but should be `[keyword: String, visible: Boolean, dismiss: () -> Unit, id: UUID = UUID.randomUUID(), onKeywordChanged: (String) -> Unit]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
         errorLine1="fun BoxWithConstraintsScope.AddKeywordModal("
         errorLine2="                                           ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/AddKeywordModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/AddKeywordModal.kt"
             line="32"
             column="44"/>
     </issue>
@@ -9594,7 +9264,7 @@
         errorLine1="fun BoxWithConstraintsScope.BackBottomBar("
         errorLine2="                                         ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/BackBottomBar.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/BackBottomBar.kt"
             line="22"
             column="42"/>
     </issue>
@@ -9616,31 +9286,9 @@
         errorLine1="fun BufferBattery("
         errorLine2="                 ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/BufferBattery.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/BufferBattery.kt"
             line="40"
             column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: `[modifier: Modifier = Modifier, text: String, background: Background = Background.Solid(&#xA;    color = UI.colors.primary,&#xA;    shape = UI.shapes.rFull,&#xA;    padding = padding(&#xA;        horizontal = 24.dp,&#xA;        vertical = 12.dp&#xA;    )&#xA;), textStyle: TextStyle = UI.typo.b2.style(&#xA;    color = White,&#xA;    textAlign = TextAlign.Center&#xA;), onClick: () -> Unit]` but should be `[text: String, modifier: Modifier = Modifier, background: Background = Background.Solid(&#xA;    color = UI.colors.primary,&#xA;    shape = UI.shapes.rFull,&#xA;    padding = padding(&#xA;        horizontal = 24.dp,&#xA;        vertical = 12.dp&#xA;    )&#xA;), textStyle: TextStyle = UI.typo.b2.style(&#xA;    color = White,&#xA;    textAlign = TextAlign.Center&#xA;), onClick: () -> Unit]`.&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun Button("
-        errorLine2="          ^">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/Button.kt"
-            line="25"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: `[modifier: Modifier = Modifier, text: String, mode: Mode = Mode.WRAP_CONTENT, background: Background = Background.Solid(&#xA;    color = UI.colors.primary,&#xA;    shape = UI.shapes.rFull,&#xA;    padding = padding(&#xA;        horizontal = 24.dp,&#xA;        vertical = 12.dp&#xA;    )&#xA;), textStyle: TextStyle = UI.typo.b1.style(&#xA;    color = White,&#xA;    textAlign = TextAlign.Center&#xA;), @DrawableRes iconLeft: Int? = null, @DrawableRes iconRight: Int? = null, iconTint: Color = White, iconPadding: Dp = 12.dp, onClick: () -> Unit]` but should be `[text: String, modifier: Modifier = Modifier, mode: Mode = Mode.WRAP_CONTENT, background: Background = Background.Solid(&#xA;    color = UI.colors.primary,&#xA;    shape = UI.shapes.rFull,&#xA;    padding = padding(&#xA;        horizontal = 24.dp,&#xA;        vertical = 12.dp&#xA;    )&#xA;), textStyle: TextStyle = UI.typo.b1.style(&#xA;    color = White,&#xA;    textAlign = TextAlign.Center&#xA;), @DrawableRes iconLeft: Int? = null, @DrawableRes iconRight: Int? = null, iconTint: Color = White, iconPadding: Dp = 12.dp, onClick: () -> Unit]`.&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun Button("
-        errorLine2="          ^">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/ButtonWithIcon.kt"
-            line="34"
-            column="11"/>
     </issue>
 
     <issue
@@ -9649,31 +9297,9 @@
         errorLine1="fun BoxWithConstraintsScope.ChangeTransactionTypeModal("
         errorLine2="                                                      ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ChangeTransactionTypeModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ChangeTransactionTypeModal.kt"
             line="45"
             column="55"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, checked: Boolean, contentDescription: String = &quot;checkbox&quot;, onCheckedChange: (checked: Boolean) -> Unit]` but should be `[checked: Boolean, modifier: Modifier = Modifier, contentDescription: String = &quot;checkbox&quot;, onCheckedChange: (checked: Boolean) -> Unit]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun Checkbox("
-        errorLine2="            ^">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/Checkbox.kt"
-            line="29"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: `[modifier: Modifier = Modifier, checked: Boolean, text: String, textStyle: TextStyle = UI.typo.b2.style(&#xA;    color = UI.colors.pureInverse,&#xA;    fontWeight = FontWeight.SemiBold&#xA;), onCheckedChange: (checked: Boolean) -> Unit]` but should be `[checked: Boolean, text: String, modifier: Modifier = Modifier, textStyle: TextStyle = UI.typo.b2.style(&#xA;    color = UI.colors.pureInverse,&#xA;    fontWeight = FontWeight.SemiBold&#xA;), onCheckedChange: (checked: Boolean) -> Unit]`.&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun CheckboxWithText("
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/Checkbox.kt"
-            line="51"
-            column="21"/>
     </issue>
 
     <issue
@@ -9682,7 +9308,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChooseCategoryModal("
         errorLine2="                                               ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/ChooseCategoryModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/ChooseCategoryModal.kt"
             line="62"
             column="48"/>
     </issue>
@@ -9693,7 +9319,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChooseIconModal("
         errorLine2="                                           ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/ChooseIconModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/ChooseIconModal.kt"
             line="55"
             column="44"/>
     </issue>
@@ -9704,7 +9330,7 @@
         errorLine1="fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal("
         errorLine2="                                                       ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/ChooseStartDateOfMonthModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/ChooseStartDateOfMonthModal.kt"
             line="37"
             column="56"/>
     </issue>
@@ -9715,7 +9341,7 @@
         errorLine1="fun CircleButton("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CircleButtons.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CircleButtons.kt"
             line="39"
             column="17"/>
     </issue>
@@ -9726,7 +9352,7 @@
         errorLine1="fun CircleButtonFilled("
         errorLine2="                      ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CircleButtons.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CircleButtons.kt"
             line="63"
             column="23"/>
     </issue>
@@ -9737,7 +9363,7 @@
         errorLine1="fun CircleButtonFilledGradient("
         errorLine2="                              ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CircleButtons.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CircleButtons.kt"
             line="86"
             column="31"/>
     </issue>
@@ -9748,7 +9374,7 @@
         errorLine1="fun CurrencyPicker("
         errorLine2="                  ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/CurrencyPicker.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/CurrencyPicker.kt"
             line="67"
             column="19"/>
     </issue>
@@ -9759,20 +9385,9 @@
         errorLine1="fun BoxWithConstraintsScope.DescriptionModal("
         errorLine2="                                            ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/DescriptionModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/DescriptionModal.kt"
             line="45"
             column="45"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: `[modifier: Modifier = Modifier, @DrawableRes icon: Int, iconTint: Color = White, background: Background = Background.Solid(&#xA;    color = UI.colors.primary,&#xA;    shape = CircleShape,&#xA;    padding = padding(all = 8.dp)&#xA;), onClick: () -> Unit]` but should be `[@DrawableRes icon: Int, modifier: Modifier = Modifier, iconTint: Color = White, background: Background = Background.Solid(&#xA;    color = UI.colors.primary,&#xA;    shape = CircleShape,&#xA;    padding = padding(all = 8.dp)&#xA;), onClick: () -> Unit]`.&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun IconButton("
-        errorLine2="              ^">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/IconButton.kt"
-            line="23"
-            column="15"/>
     </issue>
 
     <issue
@@ -9792,7 +9407,7 @@
         errorLine1="fun ItemIconL("
         errorLine2="             ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="25"
             column="14"/>
     </issue>
@@ -9803,7 +9418,7 @@
         errorLine1="fun ItemIconMDefaultIcon("
         errorLine2="                        ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="45"
             column="25"/>
     </issue>
@@ -9814,7 +9429,7 @@
         errorLine1="fun ItemIconM("
         errorLine2="             ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="68"
             column="14"/>
     </issue>
@@ -9825,7 +9440,7 @@
         errorLine1="fun ItemIconSDefaultIcon("
         errorLine2="                        ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="88"
             column="25"/>
     </issue>
@@ -9836,7 +9451,7 @@
         errorLine1="fun ItemIconS("
         errorLine2="             ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="111"
             column="14"/>
     </issue>
@@ -9847,7 +9462,7 @@
         errorLine1="private fun ItemIcon("
         errorLine2="                    ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="131"
             column="21"/>
     </issue>
@@ -9858,7 +9473,7 @@
         errorLine1="fun IvyBasicTextField("
         errorLine2="                     ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyBasicTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyBasicTextField.kt"
             line="33"
             column="22"/>
     </issue>
@@ -9869,7 +9484,7 @@
         errorLine1="fun IvyBorderButton("
         errorLine2="                   ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyBorderButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyBorderButton.kt"
             line="32"
             column="20"/>
     </issue>
@@ -9880,7 +9495,7 @@
         errorLine1="fun IvyButton("
         errorLine2="             ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyButton.kt"
             line="39"
             column="14"/>
     </issue>
@@ -9891,7 +9506,7 @@
         errorLine1="fun IvyCheckbox("
         errorLine2="               ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyCheckbox.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyCheckbox.kt"
             line="30"
             column="16"/>
     </issue>
@@ -9902,7 +9517,7 @@
         errorLine1="fun IvyCheckboxWithText("
         errorLine2="                       ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyCheckbox.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyCheckbox.kt"
             line="54"
             column="24"/>
     </issue>
@@ -9913,7 +9528,7 @@
         errorLine1="fun IvyChecklistTextField("
         errorLine2="                         ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyChecklistTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyChecklistTextField.kt"
             line="39"
             column="26"/>
     </issue>
@@ -9924,7 +9539,7 @@
         errorLine1="fun IvyCircleButton("
         errorLine2="                   ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyCircleButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyCircleButton.kt"
             line="27"
             column="20"/>
     </issue>
@@ -9935,7 +9550,7 @@
         errorLine1="fun IvyDescriptionTextField("
         errorLine2="                           ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyDescriptionTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyDescriptionTextField.kt"
             line="35"
             column="28"/>
     </issue>
@@ -9946,42 +9561,9 @@
         errorLine1="fun IvyIcon("
         errorLine2="           ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyIcon.kt"
             line="13"
             column="12"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, @DrawableRes icon: Int, tint: Color = UI.colors.pureInverse, contentDescription: String = &quot;icon&quot;]` but should be `[@DrawableRes icon: Int, modifier: Modifier = Modifier, tint: Color = UI.colors.pureInverse, contentDescription: String = &quot;icon&quot;]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun IvyIcon("
-        errorLine2="           ^">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/IvyIcon.kt"
-            line="22"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: `[modifier: Modifier = Modifier, @DrawableRes icon: Int, tint: Color = UI.colors.pureInverse, iconScale: IconScale, padding: Dp = when (iconScale) {&#xA;    IconScale.S -> 4.dp&#xA;    IconScale.M -> 4.dp&#xA;    IconScale.L -> 4.dp&#xA;}, contentDescription: String = &quot;icon&quot;]` but should be `[@DrawableRes icon: Int, iconScale: IconScale, modifier: Modifier = Modifier, tint: Color = UI.colors.pureInverse, padding: Dp = when (iconScale) {&#xA;    IconScale.S -> 4.dp&#xA;    IconScale.M -> 4.dp&#xA;    IconScale.L -> 4.dp&#xA;}, contentDescription: String = &quot;icon&quot;]`.&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun IvyIconScaled("
-        errorLine2="                 ^">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/IvyIcon.kt"
-            line="38"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, height: Dp = 300.dp, functions: List&lt;Function>, title: String, xLabel: (x: Double) -> String, yLabel: (y: Double) -> String, onTap: (TapEvent) -> Unit = {}]` but should be `[functions: List&lt;Function>, title: String, xLabel: (x: Double) -> String, yLabel: (y: Double) -> String, modifier: Modifier = Modifier, height: Dp = 300.dp, onTap: (TapEvent) -> Unit = {}]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun IvyLineChart("
-        errorLine2="                ^">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/charts/linechart/IvyLineChart.kt"
-            line="289"
-            column="17"/>
     </issue>
 
     <issue
@@ -9990,7 +9572,7 @@
         errorLine1="fun BoxScope.IvyModal("
         errorLine2="                     ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModal.kt"
             line="72"
             column="22"/>
     </issue>
@@ -10001,7 +9583,7 @@
         errorLine1="fun ModalDynamicPrimaryAction("
         errorLine2="                             ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="25"
             column="30"/>
     </issue>
@@ -10012,7 +9594,7 @@
         errorLine1="fun ModalCheck("
         errorLine2="              ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="83"
             column="15"/>
     </issue>
@@ -10023,7 +9605,7 @@
         errorLine1="fun ModalPositiveButton("
         errorLine2="                       ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModalComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModalComponents.kt"
             line="169"
             column="24"/>
     </issue>
@@ -10034,7 +9616,7 @@
         errorLine1="fun IvyNameTextField("
         errorLine2="                    ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyNameTextFieldValue.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyNameTextFieldValue.kt"
             line="41"
             column="21"/>
     </issue>
@@ -10045,7 +9627,7 @@
         errorLine1="fun IvyNumberTextField("
         errorLine2="                      ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyNumberTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyNumberTextField.kt"
             line="32"
             column="23"/>
     </issue>
@@ -10056,7 +9638,7 @@
         errorLine1="fun IvyOutlinedButton("
         errorLine2="                     ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyOutlinedButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyOutlinedButton.kt"
             line="33"
             column="22"/>
     </issue>
@@ -10067,7 +9649,7 @@
         errorLine1="fun IvyOutlinedButtonFillMaxWidth("
         errorLine2="                                 ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyOutlinedButton.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyOutlinedButton.kt"
             line="88"
             column="34"/>
     </issue>
@@ -10078,31 +9660,9 @@
         errorLine1="fun IvyOutlinedTextField("
         errorLine2="                        ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyOutlinedTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyOutlinedTextField.kt"
             line="36"
             column="25"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, enabled: Boolean, onEnabledChange: (checked: Boolean) -> Unit]` but should be `[enabled: Boolean, modifier: Modifier = Modifier, onEnabledChange: (checked: Boolean) -> Unit]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun IvySwitch("
-        errorLine2="             ^">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvySwitch.kt"
-            line="24"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, text: String, typo: TextStyle, padding: IvyPadding? = null]` but should be `[text: String, typo: TextStyle, modifier: Modifier = Modifier, padding: IvyPadding? = null]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun IvyText("
-        errorLine2="           ^">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/IvyText.kt"
-            line="13"
-            column="12"/>
     </issue>
 
     <issue
@@ -10111,7 +9671,7 @@
         errorLine1="fun ColumnScope.IvyTitleTextField("
         errorLine2="                                 ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/IvyTitleTextField.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/IvyTitleTextField.kt"
             line="41"
             column="34"/>
     </issue>
@@ -10122,7 +9682,7 @@
         errorLine1="private fun AccountsRow("
         errorLine2="                       ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/LoanModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/LoanModal.kt"
             line="387"
             column="24"/>
     </issue>
@@ -10133,7 +9693,7 @@
         errorLine1="fun OnboardingButton("
         errorLine2="                    ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/OnboardingComponents.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/OnboardingComponents.kt"
             line="33"
             column="21"/>
     </issue>
@@ -10177,7 +9737,7 @@
         errorLine1="fun ProgressBar("
         errorLine2="               ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ProgressBar.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ProgressBar.kt"
             line="21"
             column="16"/>
     </issue>
@@ -10188,7 +9748,7 @@
         errorLine1="fun BoxWithConstraintsScope.ProgressModal("
         errorLine2="                                         ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/ProgressModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/ProgressModal.kt"
             line="23"
             column="42"/>
     </issue>
@@ -10199,7 +9759,7 @@
         errorLine1="fun &lt;T : Reorderable> BoxScope.ReorderModalSingleType("
         errorLine2="                                                     ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ReorderModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ReorderModal.kt"
             line="39"
             column="54"/>
     </issue>
@@ -10210,53 +9770,9 @@
         errorLine1="fun &lt;T : Reorderable> BoxScope.ReorderModal("
         errorLine2="                                           ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ReorderModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ReorderModal.kt"
             line="81"
             column="44"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, text: String, textStyle: TextStyle]` but should be `[text: String, textStyle: TextStyle, modifier: Modifier = Modifier]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun ScreenTitle("
-        errorLine2="               ^">
-        <location
-            file="src/main/java/com/ivy/design/l3_ivyComponents/ScreenTitle.kt"
-            line="48"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, size: Dp, shape: Shape, color: Color]` but should be `[size: Dp, shape: Shape, color: Color, modifier: Modifier = Modifier]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun Shape("
-        errorLine2="         ^">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Shapes.kt"
-            line="19"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, size: Dp, shape: Shape, borderColor: Color, borderWidth: Dp = 1.dp]` but should be `[size: Dp, shape: Shape, borderColor: Color, modifier: Modifier = Modifier, borderWidth: Dp = 1.dp]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun ShapeOutlined("
-        errorLine2="                 ^">
-        <location
-            file="src/main/java/com/ivy/design/l1_buildingBlocks/Shapes.kt"
-            line="37"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: `[modifier: Modifier = Modifier, enabled: Boolean, enabledColor: Color = UI.colors.green, disabledColor: Color = UI.colors.gray, animationColor: AnimationSpec&lt;Color> = springBounce(), animationMove: AnimationSpec&lt;Float> = springBounce(), onEnabledChange: (checked: Boolean) -> Unit]` but should be `[enabled: Boolean, modifier: Modifier = Modifier, enabledColor: Color = UI.colors.green, disabledColor: Color = UI.colors.gray, animationColor: AnimationSpec&lt;Color> = springBounce(), animationMove: AnimationSpec&lt;Float> = springBounce(), onEnabledChange: (checked: Boolean) -> Unit]`.&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun Switch("
-        errorLine2="          ^">
-        <location
-            file="src/main/java/com/ivy/design/l2_components/Switch.kt"
-            line="26"
-            column="11"/>
     </issue>
 
     <issue
@@ -10265,7 +9781,7 @@
         errorLine1="fun &lt;T> WrapContentRow("
         errorLine2="                      ^">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/WrapContentRow.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/WrapContentRow.kt"
             line="27"
             column="23"/>
     </issue>
@@ -10276,30 +9792,8 @@
         errorLine1="@Composable"
         errorLine2="~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/edit/AmountModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/edit/AmountModal.kt"
             line="476"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="        @Composable"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l0_system/Colors.kt"
-            line="212"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/utils/ComposeExt.kt"
-            line="25"
             column="1"/>
     </issue>
 
@@ -10331,53 +9825,9 @@
         errorLine1="@Composable"
         errorLine2="~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/components/ItemIcon.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/components/ItemIcon.kt"
             line="186"
             column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/IvyColors.kt"
-            line="135"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/IvyColors.kt"
-            line="139"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/IvyColors.kt"
-            line="143"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="        @Composable"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/IvyColors.kt"
-            line="166"
-            column="9"/>
     </issue>
 
     <issue
@@ -10399,17 +9849,6 @@
         <location
             file="src/main/java/com/ivy/legacy/IvyComposeApp.kt"
             line="34"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/api/IvyUI.kt"
-            line="87"
             column="1"/>
     </issue>
 
@@ -10443,28 +9882,6 @@
         <location
             file="src/main/java/com/ivy/legacy/ui/component/transaction/TransactionCard.kt"
             line="395"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/design/l0_system/TypographyExt.kt"
-            line="13"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeReadOnlyComposable"
-        message="All composable functions and properties used by this declaration are marked @ReadOnlyComposable, so this declaration can be marked @ReadOnlyComposable too.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#remove-unnecessary-composable-annotations for more information."
-        errorLine1="@Composable"
-        errorLine2="~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/ivy/legacy/utils/UIExt.kt"
-            line="88"
             column="1"/>
     </issue>
 
@@ -11167,7 +10584,7 @@
         errorLine1="@Composable"
         errorLine2="~~~~~~~~~~~">
         <location
-            file="src/main/java/com/ivy/legacy/legacy/ui/theme/modal/IvyModal.kt"
+            file="src/main/java/com/ivy/wallet/ui/theme/modal/IvyModal.kt"
             line="352"
             column="1"/>
     </issue>

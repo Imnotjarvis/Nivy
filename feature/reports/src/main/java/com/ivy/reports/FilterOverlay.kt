@@ -588,13 +588,12 @@ private fun TypeFilter(
     )
 }
 
-@SuppressLint("ComposeParameterOrder")
 @Composable
 private fun TypeFilterCheckbox(
     trnType: TransactionType,
     filter: ReportFilter?,
-    modifier: Modifier = Modifier,
     nonFilter: (ReportFilter?) -> ReportFilter,
+    modifier: Modifier = Modifier,
     onSetFilter: (ReportFilter) -> Unit
 ) {
     IvyCheckboxWithText(

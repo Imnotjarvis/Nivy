@@ -1,10 +1,12 @@
 package com.ivy.budgets
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.res.stringResource
 import com.ivy.ui.R
 
 @Composable
+@ReadOnlyComposable
 fun determineBudgetType(categoriesCount: Int): String {
     return when (categoriesCount) {
         0 -> stringResource(R.string.total_budget)

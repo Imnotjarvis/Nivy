@@ -1065,6 +1065,8 @@ formatting:
 Compose:
   CompositionLocalAllowlist:
     active: true
+    # App-wide state the screens read; keep in sync with lint.xml.
+    allowedCompositionLocals: LocalNavigation,LocalPeriodState,LocalMainScreenState,LocalTimeConverter,LocalTimeProvider,LocalTimeFormatter,LocalScreenSize
   ContentEmitterReturningValues:
     active: true
   DefaultsVisibility:

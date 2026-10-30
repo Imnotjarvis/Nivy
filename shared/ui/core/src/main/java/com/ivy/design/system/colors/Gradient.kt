@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,6 +27,7 @@ data class Gradient(
         fun solid(color: Color) = Gradient(color, color)
 
         @Composable
+        @ReadOnlyComposable
         fun black() = Gradient(
             MaterialTheme.colorScheme.onSurfaceVariant,
             MaterialTheme.colorScheme.onSurface
@@ -44,6 +46,7 @@ val GradientOrangeRevert = Gradient(Color(0xFFF2CD9E), Orange)
 val GradientIvy = Gradient(Ivy, Color(0xFFAA99FF))
 
 @Composable
+@ReadOnlyComposable
 fun gradientExpenses() = Gradient(
     MaterialTheme.colorScheme.onSurface,
     MaterialTheme.colorScheme.onSurfaceVariant
@@ -51,9 +54,11 @@ fun gradientExpenses() = Gradient(
 
 // The screen background, slightly see-through, for bars that float over scrolling content.
 @Composable
+@ReadOnlyComposable
 fun pureBlur() = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
 
 @Composable
+@ReadOnlyComposable
 fun mediumBlur() = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f)
 
 // Fades content into the background at the top or bottom edge.

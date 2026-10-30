@@ -22,10 +22,10 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun ProgressBar(
+    percent: Double,
     modifier: Modifier = Modifier,
     notFilledColor: Color = MaterialTheme.colorScheme.surface,
-    positiveProgress: Boolean = true,
-    percent: Double
+    positiveProgress: Boolean = true
 ) {
     Spacer(
         modifier = modifier

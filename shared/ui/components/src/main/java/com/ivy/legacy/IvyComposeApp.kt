@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -36,13 +37,12 @@ import com.ivy.ui.time.TimeFormatter
 import com.ivy.ui.time.impl.AndroidDevicePreferences
 import com.ivy.ui.time.impl.IvyTimeFormatter
 
-@Suppress("CompositionLocalAllowlist")
 val LocalPeriodState = staticCompositionLocalOf<PeriodState> { error("No PeriodState") }
 
-@Suppress("CompositionLocalAllowlist")
 val LocalMainScreenState = staticCompositionLocalOf<MainScreenState> { error("No MainScreenState") }
 
 @Composable
+@ReadOnlyComposable
 fun rootScreen(): RootScreen = LocalContext.current as RootScreen
 
 /** Whether [theme] is dark; AUTO follows the system setting. */
@@ -56,7 +56,6 @@ fun isDarkTheme(theme: Theme, systemDark: Boolean): Boolean = when (theme) {
  * The app's screens in the Ivy Material3 theme the user picked, with the status bar icons to
  * match. Also gives the screens the app's shared state, its time services and the screen size.
  */
-@Suppress("ModifierMissing") // a theme around whole screens, not a layout
 @Composable
 fun IvyWalletTheme(
     theme: Theme,
@@ -65,6 +64,7 @@ fun IvyWalletTheme(
     timeConverter: TimeConverter,
     timeProvider: TimeProvider,
     timeFormatter: TimeFormatter,
+    modifier: Modifier = Modifier,
     includeSurface: Boolean = true,
     content: @Composable BoxWithConstraintsScope.() -> Unit
 ) {
@@ -82,7 +82,7 @@ fun IvyWalletTheme(
         ) {
             StatusBarDarkText(darkText = !dark)
             WrapWithSurface(includeSurface = includeSurface) {
-                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                BoxWithConstraints(modifier = modifier.fillMaxSize()) {
                     val screenSize = IntSize(constraints.maxWidth, constraints.maxHeight)
                     CompositionLocalProvider(LocalScreenSize provides screenSize) {
                         content()
@@ -109,6 +109,7 @@ private fun WrapWithSurface(
 
 @Composable
 fun IvyWalletComponentPreview(
+    modifier: Modifier = Modifier,
     theme: Theme = Theme.LIGHT,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -116,7 +117,7 @@ fun IvyWalletComponentPreview(
         theme = theme
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center

@@ -30,8 +30,8 @@ import androidx.compose.runtime.LaunchedEffect
 fun BoxWithConstraintsScope.AddKeywordModal(
     keyword: String,
     visible: Boolean,
-    id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit,
+    id: UUID = UUID.randomUUID(),
     onKeywordChanged: (String) -> Unit
 ) {
     var modalKeyword by remember { mutableStateOf(selectEndTextFieldValue(keyword)) }

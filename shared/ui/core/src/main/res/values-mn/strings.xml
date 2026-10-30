@@ -284,11 +284,6 @@
     <string name="multiple_times">Олон удаа</string>
     <string name="starts_on">Эхлэх огноо</string>
     <string name="repeats_every_text">Давтамж</string>
-    <string name="today_date">Өнөөдөр, %1$s</string>
-    <string name="yesterday_date">Өчигдөр, %1$s</string>
-    <string name="tomorrow_date">Маргааш, %1$s</string>
-    <string name="authentication_succeeded">Амжилттай нэвтэрлээ!</string>
-    <string name="authentication_failed">Нэвтрэлт амжилтгүй.</string>
     <string name="notification_1">Та өнөөдөр гүйлгээ хийсэн үү? 🏁</string>
     <string name="notification_2">Өнөөдрийн зардлуудаа бүртгэсэн үү? 💸</string>
     <string name="notification_3">Та өнөөдрийн гүйлгээнүүдээ бүртгэсэн үү? 🏁</string>

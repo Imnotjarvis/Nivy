@@ -25,10 +25,10 @@ fun ModalDynamicPrimaryAction(
     initialChanged: Boolean,
 
     onDelete: () -> Unit,
-    testTagSave: String = "tag_save",
-
-    testTagDelete: String = "tag_delete",
     dismiss: () -> Unit,
+
+    testTagSave: String = "tag_save",
+    testTagDelete: String = "tag_delete",
     onSave: () -> Unit
 ) {
     when {

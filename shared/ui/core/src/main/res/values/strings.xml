@@ -289,11 +289,6 @@
     <string name="multiple_times">Multiple times</string>
     <string name="starts_on">Starts on</string>
     <string name="repeats_every_text">Repeats every</string>
-    <string name="today_date">Today, %1$s</string>
-    <string name="yesterday_date">Yesterday, %1$s</string>
-    <string name="tomorrow_date">Tomorrow, %1$s</string>
-    <string name="authentication_succeeded">Authentication successful!</string>
-    <string name="authentication_failed">Authentication failed.</string>
     <string name="notification_1">Did you make any transactions today? 🏁</string>
     <string name="notification_2">Did you record your transactions today? 💸</string>
     <string name="notification_3">Review your spending for today! 💳</string>

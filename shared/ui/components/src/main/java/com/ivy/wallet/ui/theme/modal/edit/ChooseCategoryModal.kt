@@ -63,8 +63,8 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
     categories: List<Category>,
     showCategoryModal: (Category?) -> Unit,
 
-    id: UUID = UUID.randomUUID(),
     onCategoryChanged: (Category?) -> Unit,
+    id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit
 ) {
     var selectedCategory by remember(initialCategory) {

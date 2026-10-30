@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,9 +44,9 @@ fun ItemIconL(
 @Composable
 fun ItemIconMDefaultIcon(
     iconName: String?,
+    @DrawableRes defaultIcon: Int,
     modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
-    @DrawableRes defaultIcon: Int
+    tint: Color = MaterialTheme.colorScheme.onSurface
 ) {
     ItemIconM(
         modifier = modifier,
@@ -84,9 +85,9 @@ fun ItemIconM(
 @Composable
 fun ItemIconSDefaultIcon(
     iconName: String?,
+    @DrawableRes defaultIcon: Int,
     modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
-    @DrawableRes defaultIcon: Int
+    tint: Color = MaterialTheme.colorScheme.onSurface
 ) {
     ItemIconS(
         modifier = modifier,
@@ -178,6 +179,7 @@ private fun ItemIcon(
 
 @DrawableRes
 @Composable
+@ReadOnlyComposable
 fun getCustomIconIdS(
     iconName: String?,
     @DrawableRes defaultIcon: Int

@@ -52,9 +52,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
-// A full-screen modal: it places itself, so it takes no modifier.
 @ExperimentalFoundationApi
-@Suppress("ParameterNaming", "ModifierMissing")
+@Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ShowTagModal(
     onDismiss: () -> Unit,
@@ -65,6 +64,7 @@ fun BoxWithConstraintsScope.ShowTagModal(
     onTagDelete: (Tag) -> Unit,
     onTagSelected: (Tag) -> Unit,
     onTagDeSelected: (Tag) -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     visible: Boolean = false,
     selectOnlyMode: Boolean = false,
@@ -91,6 +91,7 @@ fun BoxWithConstraintsScope.ShowTagModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = onDismiss,

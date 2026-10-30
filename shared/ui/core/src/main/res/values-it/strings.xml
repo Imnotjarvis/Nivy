@@ -287,11 +287,6 @@
     <string name="multiple_times">Più volte</string>
     <string name="starts_on">Inizia</string>
     <string name="repeats_every_text">Ripeti ogni</string>
-    <string name="today_date">Oggi, %1$s</string>
-    <string name="yesterday_date">Ieri, %1$s</string>
-    <string name="tomorrow_date">Domani, %1$s</string>
-    <string name="authentication_succeeded">Autenticazione riuscita!</string>
-    <string name="authentication_failed">Autenticazione non riuscita.</string>
     <string name="notification_1">Hai effettuato delle transazioni oggi? 🏁</string>
     <string name="notification_2">Hai tenuto traccia delle tue spese oggi? 💸</string>
     <string name="notification_3">Hai registrato le tue transazioni oggi? 🏁</string>

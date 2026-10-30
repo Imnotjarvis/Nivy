@@ -286,11 +286,6 @@
     <string name="multiple_times">Nhiều lần</string>
     <string name="starts_on">Bắt đầu vào</string>
     <string name="repeats_every_text">Lặp lại mỗi</string>
-    <string name="today_date">Hôm nay, %1$s</string>
-    <string name="yesterday_date">Hôm qua, %1$s</string>
-    <string name="tomorrow_date">Ngày mai, %1$s</string>
-    <string name="authentication_succeeded">Xác thực thành công!</string>
-    <string name="authentication_failed">Xác thực đã thất bại.</string>
     <string name="notification_1">Hôm nay bạn đã thực hiện giao dịch nào chưa? 🏁</string>
     <string name="notification_2">Bạn đã theo dõi khoản chi của mình ngày hôm nay chưa? 💸</string>
     <string name="notification_3">Bạn đã ghi lại các giao dịch của mình ngày hôm nay chưa? 🏁</string>

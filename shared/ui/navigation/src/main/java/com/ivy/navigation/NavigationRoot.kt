@@ -1,8 +1,8 @@
 package com.ivy.navigation
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 
-@SuppressLint("ComposeCompositionLocalUsage")
 private val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
 
 @Composable
@@ -36,6 +35,7 @@ fun NavigationRoot(
 }
 
 @Composable
+@ReadOnlyComposable
 fun navigation(): Navigation {
     return LocalNavigation.current
 }

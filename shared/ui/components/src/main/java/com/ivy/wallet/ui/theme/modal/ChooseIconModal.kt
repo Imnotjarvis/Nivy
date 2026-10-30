@@ -53,9 +53,9 @@ fun BoxWithConstraintsScope.ChooseIconModal(
     initialIcon: String?,
     color: Color,
 
-    id: UUID = UUID.randomUUID(),
-
     dismiss: () -> Unit,
+
+    id: UUID = UUID.randomUUID(),
     onIconChosen: (String?) -> Unit
 ) {
     var selectedIcon by remember(id) {

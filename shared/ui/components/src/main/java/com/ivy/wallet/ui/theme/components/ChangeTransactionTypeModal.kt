@@ -44,9 +44,9 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
     visible: Boolean,
     includeTransferType: Boolean,
     initialType: TransactionType,
+    dismiss: () -> Unit,
     title: String = stringResource(R.string.set_transaction_type),
     id: UUID = UUID.randomUUID(),
-    dismiss: () -> Unit,
     onTransactionTypeChanged: (TransactionType) -> Unit
 ) {
     var transactionType by remember(id) {
