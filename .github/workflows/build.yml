@@ -205,6 +205,7 @@ jobs:
             git ls-files --others --exclude-standard -- ':(glob)**/schemas/**' | while read -r f; do
               echo "::group::$f"
               cat "$f"
+              echo
               echo "::endgroup::"
             done
             echo "::error::Room wrote schema files that aren't committed. Commit the room-schemas artifact."
