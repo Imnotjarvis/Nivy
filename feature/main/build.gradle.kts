@@ -14,5 +14,5 @@ dependencies {
     implementation(projects.shared.domain)
     implementation(projects.shared.ui.core)
     implementation(projects.shared.ui.navigation)
-    implementation(projects.temp.legacyCode)
+    implementation(projects.shared.ui.components)
 }

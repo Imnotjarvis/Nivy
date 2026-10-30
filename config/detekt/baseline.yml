@@ -25,56 +25,18 @@
     <ID>ComplexCondition:Transactions.kt$(upcoming == null || upcoming.trns.isEmpty()) &amp;&amp; (overdue == null || overdue.trns.isEmpty()) &amp;&amp; history.isEmpty()</ID>
     <ID>ComposableNaming:Keyboard.kt$hideKeyboard</ID>
     <ID>ComposableParamOrder:AddKeywordModal.kt$AddKeywordModal</ID>
-    <ID>ComposableParamOrder:BackBottomBar.kt$BackBottomBar</ID>
-    <ID>ComposableParamOrder:BudgetBattery.kt$BudgetBattery</ID>
-    <ID>ComposableParamOrder:BufferBattery.kt$BufferBattery</ID>
     <ID>ComposableParamOrder:ChangeTransactionTypeModal.kt$ChangeTransactionTypeModal</ID>
     <ID>ComposableParamOrder:ChooseCategoryModal.kt$ChooseCategoryModal</ID>
     <ID>ComposableParamOrder:ChooseIconModal.kt$ChooseIconModal</ID>
-    <ID>ComposableParamOrder:ChooseStartDateOfMonthModal.kt$ChooseStartDateOfMonthModal</ID>
-    <ID>ComposableParamOrder:CircleButtons.kt$CircleButton</ID>
-    <ID>ComposableParamOrder:CircleButtons.kt$CircleButtonFilled</ID>
-    <ID>ComposableParamOrder:CircleButtons.kt$CircleButtonFilledGradient</ID>
-    <ID>ComposableParamOrder:CurrencyPicker.kt$CurrencyPicker</ID>
-    <ID>ComposableParamOrder:DescriptionModal.kt$DescriptionModal</ID>
     <ID>ComposableParamOrder:FilterOverlay.kt$TypeFilterCheckbox</ID>
-    <ID>ComposableParamOrder:ImportInstructions.kt$InstructionButton</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIcon</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconL</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconM</ID>
     <ID>ComposableParamOrder:ItemIcon.kt$ItemIconMDefaultIcon</ID>
-    <ID>ComposableParamOrder:ItemIcon.kt$ItemIconS</ID>
     <ID>ComposableParamOrder:ItemIcon.kt$ItemIconSDefaultIcon</ID>
-    <ID>ComposableParamOrder:IvyBasicTextField.kt$IvyBasicTextField</ID>
-    <ID>ComposableParamOrder:IvyBorderButton.kt$IvyBorderButton</ID>
-    <ID>ComposableParamOrder:IvyButton.kt$IvyButton</ID>
-    <ID>ComposableParamOrder:IvyCheckbox.kt$IvyCheckbox</ID>
-    <ID>ComposableParamOrder:IvyCheckbox.kt$IvyCheckboxWithText</ID>
-    <ID>ComposableParamOrder:IvyChecklistTextField.kt$IvyChecklistTextField</ID>
-    <ID>ComposableParamOrder:IvyCircleButton.kt$IvyCircleButton</ID>
-    <ID>ComposableParamOrder:IvyDescriptionTextField.kt$IvyDescriptionTextField</ID>
-    <ID>ComposableParamOrder:IvyIcon.kt$IvyIcon</ID>
-    <ID>ComposableParamOrder:IvyModal.kt$IvyModal</ID>
-    <ID>ComposableParamOrder:IvyModalComponents.kt$ModalCheck</ID>
     <ID>ComposableParamOrder:IvyModalComponents.kt$ModalDynamicPrimaryAction</ID>
-    <ID>ComposableParamOrder:IvyModalComponents.kt$ModalPositiveButton</ID>
-    <ID>ComposableParamOrder:IvyNameTextFieldValue.kt$IvyNameTextField</ID>
-    <ID>ComposableParamOrder:IvyNumberTextField.kt$IvyNumberTextField</ID>
-    <ID>ComposableParamOrder:IvyOutlinedButton.kt$IvyOutlinedButton</ID>
-    <ID>ComposableParamOrder:IvyOutlinedButton.kt$IvyOutlinedButtonFillMaxWidth</ID>
-    <ID>ComposableParamOrder:IvyOutlinedTextField.kt$IvyOutlinedTextField</ID>
-    <ID>ComposableParamOrder:IvySwitch.kt$IvySwitch</ID>
-    <ID>ComposableParamOrder:IvyTitleTextField.kt$IvyTitleTextField</ID>
     <ID>ComposableParamOrder:LoanModal.kt$AccountsRow</ID>
-    <ID>ComposableParamOrder:OnboardingComponents.kt$OnboardingButton</ID>
     <ID>ComposableParamOrder:OnboardingProgressSlider.kt$OnboardingProgressSlider</ID>
     <ID>ComposableParamOrder:PlannedPaymentsBottomBar.kt$PlannedPaymentsBottomBar</ID>
     <ID>ComposableParamOrder:PrimaryAttributeColumn.kt$PrimaryAttributeColumn</ID>
     <ID>ComposableParamOrder:ProgressBar.kt$ProgressBar</ID>
-    <ID>ComposableParamOrder:ProgressModal.kt$ProgressModal</ID>
-    <ID>ComposableParamOrder:ReorderModal.kt$ReorderModal</ID>
-    <ID>ComposableParamOrder:ReorderModal.kt$ReorderModalSingleType</ID>
-    <ID>ComposableParamOrder:WrapContentRow.kt$WrapContentRow</ID>
     <ID>CompositionLocalAllowlist:NavigationRoot.kt$LocalNavigation</ID>
     <ID>ConstructorParameterNaming:ReorderModal.kt$Adapter$private val ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
     <ID>CyclomaticComplexMethod:CSVViewModel.kt$CSVViewModel$private suspend fun handleEvent(event: CSVEvent)</ID>
@@ -107,63 +69,7 @@
     <ID>FunctionParameterNaming:ReorderModal.kt$ItemContent: @Composable RowScope.(Int, Any) -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ReorderModal.kt$TitleContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = Modifier.padding(start = 32.dp), text = stringResource(R.string.reorder), style = MaterialTheme.typography.titleLarge.copy( color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold ) ) }</ID>
     <ID>FunctionParameterNaming:WrapContentRow.kt$ItemContent: @Composable (item: T) -&gt; Unit</ID>
-    <ID>InvalidPackageDeclaration:AccountModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:AddKeywordModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:AddPrimaryAttributeButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:AmountCurrency.kt$package com.ivy.wallet.ui.theme.wallet</ID>
-    <ID>InvalidPackageDeclaration:AmountModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:BackBottomBar.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:BalanceRow.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:BufferBattery.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:CalculatorModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:Category.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:CategoryCreator.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
-    <ID>InvalidPackageDeclaration:CategoryModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:ChangeTransactionTypeModal.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:ChooseCategoryModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:ChooseIconModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:ChoosePeriodModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:ChooseStartDateOfMonthModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:CircleButtons.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:CreateAccountData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateCategoryData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CreateLoanData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
-    <ID>InvalidPackageDeclaration:CurrencyModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:CurrencyPicker.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:DeleteButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:DeleteModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:DescriptionModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
-    <ID>InvalidPackageDeclaration:EditBottomSheet.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:GradientCut.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IntervalPickerRow.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IntervalType.kt$package com.ivy.data.model</ID>
-    <ID>InvalidPackageDeclaration:ItemIcon.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyBasicTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyBorderButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyCheckbox.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyChecklistTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyCircleButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyColorPicker.kt$package com.ivy.domain.legacy.ui</ID>
-    <ID>InvalidPackageDeclaration:IvyComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyDescriptionTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyDivider.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyDividerDot.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyIcon.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:IvyModalComponents.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:IvyModalDomainComponents.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:IvyNameTextFieldValue.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyNotification.kt$package com.ivy.wallet.android.notification</ID>
-    <ID>InvalidPackageDeclaration:IvyNotificationChannel.kt$package com.ivy.wallet.android.notification</ID>
-    <ID>InvalidPackageDeclaration:IvyNumberTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyOutlinedButton.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyOutlinedTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyTitleTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:IvyToolbar.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:ListItem.kt$package com.ivy.domain.legacy.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:LoanModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:LoanRecordModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
     <ID>InvalidPackageDeclaration:LoanType.kt$package com.ivy.data.model</ID>
     <ID>InvalidPackageDeclaration:Migration105to106_TrnRecurringRules.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration106to107_Wishlist.kt$package com.ivy.domain.db.migration</ID>
@@ -182,21 +88,8 @@
     <ID>InvalidPackageDeclaration:Migration119to120_LoanTransactions.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration120to121_DropWishlistItem.kt$package com.ivy.domain.db.migration</ID>
     <ID>InvalidPackageDeclaration:Migration122to123_ExchangeRates.kt$package com.ivy.domain.db.migration</ID>
-    <ID>InvalidPackageDeclaration:MonthPickerModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:NameModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:NotificationService.kt$package com.ivy.wallet.android.notification</ID>
-    <ID>InvalidPackageDeclaration:OnboardingComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:PeriodSelector.kt$package com.ivy.wallet.ui.theme.wallet</ID>
-    <ID>InvalidPackageDeclaration:ProgressBar.kt$package com.ivy.wallet.ui.theme.components</ID>
-    <ID>InvalidPackageDeclaration:ProgressModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
-    <ID>InvalidPackageDeclaration:ReorderModal.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:RoomTypeConverters.kt$package com.ivy.domain.db</ID>
-    <ID>InvalidPackageDeclaration:StartDayOfMonthAct.kt$package com.ivy.wallet.domain.action.global</ID>
-    <ID>InvalidPackageDeclaration:Title.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:Toolbar.kt$package com.ivy.wallet.ui.edit.core</ID>
-    <ID>InvalidPackageDeclaration:TransactionReminderWorker.kt$package com.ivy.wallet.domain.deprecated.logic.notification</ID>
     <ID>InvalidPackageDeclaration:WidgetBase.kt$package com.ivy.widgets</ID>
-    <ID>InvalidPackageDeclaration:WrapContentRow.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>LargeClass:TransactionsViewModel.kt$TransactionsViewModel : ComposeViewModel</ID>
     <ID>LongMethod:AccountModal.kt$@Composable fun BoxWithConstraintsScope.AccountModal( modal: AccountModalData?, onCreateAccount: (CreateAccountData) -&gt; Unit, onEditAccount: (Account, balance: Double) -&gt; Unit, dismiss: () -&gt; Unit, )</ID>
     <ID>LongMethod:ChooseIconModal.kt$fun ivyIcons(): List&lt;Any&gt;</ID>

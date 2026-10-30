@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.ivy.legacy"
+    namespace = "com.ivy.ui.components"
 }
 
 dependencies {
@@ -15,9 +15,7 @@ dependencies {
     implementation(projects.shared.ui.navigation)
 
     implementation(libs.bundles.activity)
-    implementation(libs.bundles.opencsv)
     implementation(libs.androidx.work)
-    implementation(libs.datastore)
     implementation(libs.keval)
     implementation(libs.androidx.recyclerview)
 }
