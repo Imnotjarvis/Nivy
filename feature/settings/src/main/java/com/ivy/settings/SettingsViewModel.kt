@@ -12,13 +12,13 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.base.legacy.refreshWidget
 import com.ivy.data.backup.BackupDataUseCase
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteSettingsDao
 import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
@@ -48,7 +48,7 @@ class SettingsViewModel @Inject constructor(
     private val settingsDao: SettingsDao,
     private val ivyContext: IvyWalletCtx,
     private val logoutLogic: LogoutLogic,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val backupDataUseCase: BackupDataUseCase,
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val updateStartDayOfMonthAct: UpdateStartDayOfMonthAct,
@@ -124,29 +124,24 @@ class SettingsViewModel @Inject constructor(
         currentTheme.value = settingsAct(Unit).theme
     }
 
-    private fun initializeLockApp() {
-        lockApp.value = sharedPrefs.getBoolean(SharedPrefs.APP_LOCK_ENABLED, false)
+    private suspend fun initializeLockApp() {
+        lockApp.value = appPreferences.isAppLockEnabled()
     }
 
-    private fun initializeShowNotifications() {
-        showNotifications.value = sharedPrefs.getBoolean(
-            SharedPrefs.SHOW_NOTIFICATIONS, true
-        )
+    private suspend fun initializeShowNotifications() {
+        showNotifications.value = appPreferences.showNotifications()
     }
 
-    private fun initializeHideCurrentBalance() {
-        hideCurrentBalance.value =
-            sharedPrefs.getBoolean(SharedPrefs.HIDE_CURRENT_BALANCE, false)
+    private suspend fun initializeHideCurrentBalance() {
+        hideCurrentBalance.value = appPreferences.hideCurrentBalance()
     }
 
-    private fun initializeHideIncome() {
-        hideIncome.value =
-            sharedPrefs.getBoolean(SharedPrefs.HIDE_INCOME, false)
+    private suspend fun initializeHideIncome() {
+        hideIncome.value = appPreferences.hideIncome()
     }
 
-    private fun initializeTransfersAsIncomeExpense() {
-        treatTransfersAsIncomeExpense.value =
-            sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false)
+    private suspend fun initializeTransfersAsIncomeExpense() {
+        treatTransfersAsIncomeExpense.value = appPreferences.transfersAsIncomeExpense()
     }
 
     private suspend fun initializeStartDateOfMonth() {
@@ -295,7 +290,7 @@ class SettingsViewModel @Inject constructor(
                 backupDataUseCase.exportToFile(zipFileUri = fileUri)
                 progressState.value = false
 
-                sharedPrefs.putBoolean(SharedPrefs.DATA_BACKUP_COMPLETED, true)
+                appPreferences.setDataBackupCompleted(true)
                 ivyContext.dataBackupCompleted = true
 
                 uiThread {
@@ -321,7 +316,7 @@ class SettingsViewModel @Inject constructor(
         lockApp.value = lock
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.APP_LOCK_ENABLED, lock)
+            appPreferences.setAppLockEnabled(lock)
             refreshWidget(WalletBalanceWidgetReceiver::class.java)
         }
     }
@@ -330,7 +325,7 @@ class SettingsViewModel @Inject constructor(
         showNotifications.value = notificationsShow
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.SHOW_NOTIFICATIONS, notificationsShow)
+            appPreferences.setShowNotifications(notificationsShow)
         }
     }
 
@@ -338,7 +333,7 @@ class SettingsViewModel @Inject constructor(
         hideCurrentBalance.value = hideBalance
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.HIDE_CURRENT_BALANCE, hideBalance)
+            appPreferences.setHideCurrentBalance(hideBalance)
         }
     }
 
@@ -346,7 +341,7 @@ class SettingsViewModel @Inject constructor(
         hideIncome.value = isHideIncome
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(SharedPrefs.HIDE_INCOME, isHideIncome)
+            appPreferences.setHideIncome(isHideIncome)
         }
     }
 
@@ -354,10 +349,7 @@ class SettingsViewModel @Inject constructor(
         treatTransfersAsIncomeExpense.value = setTransfersAsIncomeExpense
 
         viewModelScope.launch {
-            sharedPrefs.putBoolean(
-                SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE,
-                treatTransfersAsIncomeExpense.value
-            )
+            appPreferences.setTransfersAsIncomeExpense(setTransfersAsIncomeExpense)
         }
     }
 

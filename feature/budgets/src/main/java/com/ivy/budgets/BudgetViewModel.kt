@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.budgets.model.DisplayBudget
@@ -17,6 +16,7 @@ import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.temp.migration.getAccountId
 import com.ivy.data.temp.migration.getValue
@@ -49,7 +49,7 @@ import kotlin.math.abs
 @Stable
 @HiltViewModel
 class BudgetViewModel @Inject constructor(
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val budgetWriter: WriteBudgetDao,
     private val budgetCreator: BudgetCreator,
     private val ivyContext: com.ivy.legacy.IvyWalletCtx,
@@ -186,7 +186,7 @@ class BudgetViewModel @Inject constructor(
             categories.value = categoryRepository.findAll().toImmutableList()
             val accounts = accountsAct(Unit)
             val baseCurrency = baseCurrencyAct(Unit)
-            val startDateOfMonth = ivyContext.initStartDayOfMonthInMemory(sharedPrefs = sharedPrefs)
+            val startDateOfMonth = ivyContext.initStartDayOfMonthInMemory(appPreferences)
             val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = startDateOfMonth
             ).toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)

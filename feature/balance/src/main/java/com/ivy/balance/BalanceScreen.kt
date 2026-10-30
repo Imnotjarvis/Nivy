@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.Month
 import com.ivy.legacy.data.model.TimePeriod

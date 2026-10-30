@@ -3,7 +3,6 @@ package com.ivy.data.backup
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.legacy.unzip
 import com.ivy.base.legacy.zip
 import com.ivy.base.threading.DispatchersProvider
@@ -29,6 +28,7 @@ import com.ivy.data.db.dao.write.WriteTagAssociationDao
 import com.ivy.data.db.dao.write.WriteTagDao
 import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.file.FileSystem
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.mapper.AccountMapper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -54,7 +54,7 @@ class BackupDataUseCase @Inject constructor(
     private val settingsDao: SettingsDao,
     private val transactionDao: TransactionDao,
     private val transactionWriter: WriteTransactionDao,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val accountRepository: AccountRepository,
     private val accountMapper: AccountMapper,
     private val categoryWriter: WriteCategoryDao,
@@ -127,22 +127,14 @@ class BackupDataUseCase @Inject constructor(
         }
     }
 
-    private fun getSharedPrefsData(): HashMap<String, String> {
-        val hashmap = HashMap<String, String>()
-        hashmap[SharedPrefs.SHOW_NOTIFICATIONS] =
-            sharedPrefs.getBoolean(SharedPrefs.SHOW_NOTIFICATIONS, true).toString()
-
-        hashmap[SharedPrefs.APP_LOCK_ENABLED] =
-            sharedPrefs.getBoolean(SharedPrefs.APP_LOCK_ENABLED, false).toString()
-
-        hashmap[SharedPrefs.HIDE_CURRENT_BALANCE] =
-            sharedPrefs.getBoolean(SharedPrefs.HIDE_CURRENT_BALANCE, false).toString()
-
-        hashmap[SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE] =
-            sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false).toString()
-
-        return hashmap
-    }
+    // Backups carry a few settings, as strings, under their old SharedPreferences names.
+    private suspend fun getSharedPrefsData(): HashMap<String, String> = hashMapOf(
+        AppPreferences.BackupShowNotifications to appPreferences.showNotifications().toString(),
+        AppPreferences.BackupAppLockEnabled to appPreferences.isAppLockEnabled().toString(),
+        AppPreferences.BackupHideCurrentBalance to appPreferences.hideCurrentBalance().toString(),
+        AppPreferences.BackupTransfersAsIncomeExpense to
+            appPreferences.transfersAsIncomeExpense().toString(),
+    )
 
     suspend fun importBackupFile(
         backupFileUri: Uri,
@@ -285,27 +277,18 @@ class BackupDataUseCase @Inject constructor(
                 settingsWriter.saveMany(completeData.settings)
             }
 
-            sharedPrefs.putBoolean(
-                SharedPrefs.SHOW_NOTIFICATIONS,
-                (completeData.sharedPrefs[SharedPrefs.SHOW_NOTIFICATIONS] ?: "true").toBoolean()
+            val backupPrefs = completeData.sharedPrefs
+            appPreferences.setShowNotifications(
+                (backupPrefs[AppPreferences.BackupShowNotifications] ?: "true").toBoolean()
             )
-
-            sharedPrefs.putBoolean(
-                SharedPrefs.APP_LOCK_ENABLED,
-                (completeData.sharedPrefs[SharedPrefs.APP_LOCK_ENABLED] ?: "false").toBoolean()
+            appPreferences.setAppLockEnabled(
+                (backupPrefs[AppPreferences.BackupAppLockEnabled] ?: "false").toBoolean()
             )
-
-            sharedPrefs.putBoolean(
-                SharedPrefs.HIDE_CURRENT_BALANCE,
-                (completeData.sharedPrefs[SharedPrefs.HIDE_CURRENT_BALANCE] ?: "false").toBoolean()
+            appPreferences.setHideCurrentBalance(
+                (backupPrefs[AppPreferences.BackupHideCurrentBalance] ?: "false").toBoolean()
             )
-
-            sharedPrefs.putBoolean(
-                SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE,
-                (
-                        completeData.sharedPrefs[SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE]
-                            ?: "false"
-                        ).toBoolean()
+            appPreferences.setTransfersAsIncomeExpense(
+                (backupPrefs[AppPreferences.BackupTransfersAsIncomeExpense] ?: "false").toBoolean()
             )
 
             plannedPayments.await()

@@ -69,7 +69,7 @@ class BackupDataUseCaseTest {
             plannedPaymentRuleWriter = plannedPaymentDao,
 
             context = mockk(relaxed = true),
-            sharedPrefs = mockk(relaxed = true),
+            appPreferences = mockk(relaxed = true),
             json = KotlinxSerializationModule.provideJson(),
             dispatchersProvider = TestDispatchersProvider,
             fileSystem = mockk(relaxed = true),

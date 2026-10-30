@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.toOption
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.legacy.stringRes
@@ -22,6 +21,7 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TagRepository
@@ -81,7 +81,7 @@ class TransactionsViewModel @Inject constructor(
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
     private val plannedPaymentsLogic: PlannedPaymentsLogic,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val accountsAct: AccountsAct,
     private val accTrnsAct: AccTrnsAct,
     private val trnsWithDateDivsAct: LegacyTrnsWithDateDivsAct,
@@ -366,8 +366,7 @@ class TransactionsViewModel @Inject constructor(
             ).getOrNull()?.toDouble()
         }
 
-        val includeTransfersInCalc =
-            sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false)
+        val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
         val incomeExpensePair = calcAccIncomeExpenseAct(
             CalcAccIncomeExpenseAct.Input(
@@ -848,8 +847,7 @@ class TransactionsViewModel @Inject constructor(
             categories.value = categoryRepository.findAll().toImmutableList()
             accounts.value = accountsAct(Unit)
             initWithTransactions.value = false
-            treatTransfersAsIncomeExpense.value =
-                sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false)
+            treatTransfersAsIncomeExpense.value = appPreferences.transfersAsIncomeExpense()
 
             when {
                 screen.accountId != null -> {

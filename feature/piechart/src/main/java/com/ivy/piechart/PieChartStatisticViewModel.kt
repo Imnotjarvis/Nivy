@@ -7,13 +7,13 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.model.Category
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.utils.ioThread
@@ -36,7 +36,7 @@ class PieChartStatisticViewModel @Inject constructor(
     private val settingsDao: SettingsDao,
     private val ivyContext: IvyWalletCtx,
     private val pieChartAct: PieChartAct,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<PieChartStatisticState, PieChartStatisticEvent>() {
@@ -195,11 +195,8 @@ class PieChartStatisticViewModel @Inject constructor(
         val baseCurrency = baseCurrency
         val range = periodValue.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
 
-        val treatTransferAsIncExp =
-            sharedPrefs.getBoolean(
-                SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE,
-                false
-            ) && accountIdFilterList.isNotEmpty() && treatTransfersAsIncomeExpense
+        val treatTransferAsIncExp = appPreferences.transfersAsIncomeExpense() &&
+            accountIdFilterList.isNotEmpty() && treatTransfersAsIncomeExpense
 
         val pieChartActOutput = ioThread {
             pieChartAct(

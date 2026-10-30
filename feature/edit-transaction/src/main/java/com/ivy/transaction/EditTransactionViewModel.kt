@@ -10,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.Toaster
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.legacy.refreshWidget
 import com.ivy.base.model.TransactionType
@@ -25,6 +24,7 @@ import com.ivy.data.model.TagId
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.primitive.AssociationId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
@@ -88,7 +88,7 @@ class EditTransactionViewModel @Inject constructor(
     private val loanDao: LoanDao,
     private val settingsDao: SettingsDao,
     private val nav: Navigation,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val exchangeRatesLogic: ExchangeRatesLogic,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
@@ -359,10 +359,7 @@ class EditTransactionViewModel @Inject constructor(
             return screen.accountId!!
         }
 
-        val lastSelectedId = sharedPrefs.getString(
-            SharedPrefs.LAST_SELECTED_ACCOUNT_ID,
-            null
-        )?.let { UUID.fromString(it) }
+        val lastSelectedId = appPreferences.lastSelectedAccountId()?.let { UUID.fromString(it) }
         if (lastSelectedId != null && ioThread {
                 accounts.find {
                     it.id == lastSelectedId
@@ -505,7 +502,7 @@ class EditTransactionViewModel @Inject constructor(
             accountsChanged = true
 
             // update last selected account
-            sharedPrefs.putString(SharedPrefs.LAST_SELECTED_ACCOUNT_ID, newAccount.id.toString())
+            appPreferences.setLastSelectedAccountId(newAccount.id.toString())
 
             saveIfEditMode()
 

@@ -1,10 +1,10 @@
 package com.ivy.home.customerjourney
 
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GreenLight
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class CustomerJourneyCardsProvider @Inject constructor(
   private val transactionRepository: TransactionRepository,
   private val plannedPaymentRuleDao: PlannedPaymentRuleDao,
-  private val sharedPrefs: SharedPrefs,
+  private val appPreferences: AppPreferences,
   private val ivyContext: IvyWalletCtx,
   private val timeProvider: TimeProvider,
 ) {
@@ -46,16 +46,12 @@ class CustomerJourneyCardsProvider @Inject constructor(
       }
   }
 
-  private fun isCardDismissed(cardData: CustomerJourneyCardModel): Boolean {
-    return sharedPrefs.getBoolean(sharedPrefsKey(cardData), false)
+  private suspend fun isCardDismissed(cardData: CustomerJourneyCardModel): Boolean {
+    return appPreferences.isCardDismissed(cardData.id)
   }
 
-  fun dismissCard(cardData: CustomerJourneyCardModel) {
-    sharedPrefs.putBoolean(sharedPrefsKey(cardData), true)
-  }
-
-  private fun sharedPrefsKey(cardData: CustomerJourneyCardModel): String {
-    return "${cardData.id}${SharedPrefs._CARD_DISMISSED}"
+  suspend fun dismissCard(cardData: CustomerJourneyCardModel) {
+    appPreferences.setCardDismissed(cardData.id)
   }
 
   companion object {

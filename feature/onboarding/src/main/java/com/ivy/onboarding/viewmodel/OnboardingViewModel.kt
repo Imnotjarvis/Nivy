@@ -5,11 +5,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteSettingsDao
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.ui.ComposeViewModel
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.legacy.LogoutLogic
@@ -56,7 +56,7 @@ class OnboardingViewModel @Inject constructor(
     private val settingsWriter: WriteSettingsDao,
 
     // Only OnboardingRouter stuff
-    sharedPrefs: SharedPrefs,
+    appPreferences: AppPreferences,
     transactionReminderLogic: TransactionReminderLogic,
     preloadDataLogic: PreloadDataLogic,
     logoutLogic: LogoutLogic,
@@ -94,7 +94,7 @@ class OnboardingViewModel @Inject constructor(
 
         nav = nav,
         accountDao = accountDao,
-        sharedPrefs = sharedPrefs,
+        appPreferences = appPreferences,
         categoryRepository = categoryRepository,
         preloadDataLogic = preloadDataLogic,
         transactionReminderLogic = transactionReminderLogic,

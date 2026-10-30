@@ -3,7 +3,6 @@ package com.ivy.legacy
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
 import com.ivy.data.db.dao.read.UserDao
@@ -24,7 +23,6 @@ import javax.inject.Inject
 
 @Deprecated("Migrate to an UseCase in the domain layer.")
 class LogoutLogic @Inject constructor(
-    private val sharedPrefs: SharedPrefs,
     private val navigation: Navigation,
     private val dataObserver: DataObserver,
     private val dataStore: DataStore<Preferences>,
@@ -43,10 +41,10 @@ class LogoutLogic @Inject constructor(
     suspend fun logout() {
         ioThread {
             deleteAllData()
+            // also forgets the settings in AppPreferences
             dataStore.edit {
                 it.clear()
             }
-            sharedPrefs.removeAll()
         }
 
         dataObserver.post(DataWriteEvent.AllDataChange)

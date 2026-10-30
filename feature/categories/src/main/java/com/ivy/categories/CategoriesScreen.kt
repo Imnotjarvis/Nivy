@@ -44,7 +44,7 @@ import com.ivy.legacy.IvyWalletPreview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt

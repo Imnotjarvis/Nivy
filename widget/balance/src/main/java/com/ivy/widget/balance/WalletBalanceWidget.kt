@@ -18,10 +18,10 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.AppStarter
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.utils.shortenAmount
@@ -126,7 +126,7 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var ivyContext: com.ivy.legacy.IvyWalletCtx
 
     @Inject
-    lateinit var sharedPrefs: SharedPrefs
+    lateinit var appPreferences: AppPreferences
 
     @Inject
     lateinit var timeProvider: TimeProvider
@@ -146,12 +146,7 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     private fun updateData(context: Context) {
         coroutineScope.launch {
             val settings = settingsAct(Unit)
-            val appLocked = com.ivy.legacy.utils.ioThread {
-                sharedPrefs.getBoolean(
-                    SharedPrefs.APP_LOCK_ENABLED,
-                    false
-                )
-            }
+            val appLocked = appPreferences.isAppLockEnabled()
             val currency = settings.baseCurrency
             val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
             val accounts = accountsAct(Unit)

@@ -2,9 +2,9 @@ package com.ivy.onboarding.viewmodel
 
 import androidx.compose.runtime.MutableState
 import com.ivy.data.db.dao.read.AccountDao
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.legacy.LogoutLogic
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.data.model.Category
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.CategoryRepository
@@ -36,7 +36,7 @@ class OnboardingRouter(
 
     private val nav: Navigation,
     private val accountDao: AccountDao,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val transactionReminderLogic: TransactionReminderLogic,
     private val preloadDataLogic: PreloadDataLogic,
     private val categoryRepository: CategoryRepository,
@@ -199,7 +199,7 @@ class OnboardingRouter(
     private suspend fun completeOnboarding(
         baseCurrency: IvyCurrency?
     ) {
-        sharedPrefs.putBoolean(SharedPrefs.ONBOARDING_COMPLETED, true)
+        appPreferences.setOnboardingCompleted(true)
 
         navigateOutOfOnboarding()
 

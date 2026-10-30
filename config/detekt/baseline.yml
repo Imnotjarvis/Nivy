@@ -670,7 +670,6 @@
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.recyclerview.widget.ItemTouchHelper.*</ID>
-    <ID>ObjectPropertyNaming:SharedPrefs.kt$SharedPrefs.Companion$// -------------------------------- Customer Journey ---------------------------------------- const val _CARD_DISMISSED = "_cj_dismissed"</ID>
     <ID>PrintStackTrace:Budget.kt$Budget$e</ID>
     <ID>PrintStackTrace:BudgetCreator.kt$BudgetCreator$e</ID>
     <ID>PrintStackTrace:BudgetExt.kt$e</ID>
@@ -759,7 +758,6 @@
     <ID>UnusedParameter:SearchScreen.kt$screen: SearchScreen</ID>
     <ID>UnusedParameter:Title.kt$initialTransactionId: UUID?</ID>
     <ID>UnusedPrivateMember:Migration109to110_PlannedPayments.kt$Migration109to110_PlannedPayments$private fun SupportSQLiteDatabase.addSyncColumns(tableName: String)</ID>
-    <ID>UseCheckOrError:SharedPrefs.kt$SharedPrefs$throw IllegalStateException("SharePrefs key '$key' cannot be null")</ID>
     <ID>UseCheckOrError:ZipUtils.kt$throw IllegalStateException("Location file must be directory or not exist")</ID>
     <ID>UtilityClassWithPublicConstructor:WidgetBase.kt$WidgetBase</ID>
     <ID>WildcardImport:BufferModal.kt$import androidx.compose.runtime.*</ID>

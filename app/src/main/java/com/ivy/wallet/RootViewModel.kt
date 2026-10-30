@@ -5,11 +5,11 @@ import androidx.core.content.IntentCompat
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.data.db.dao.read.SettingsDao
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.utils.ioThread
 import com.ivy.legacy.utils.readOnly
@@ -37,7 +37,7 @@ class RootViewModel @Inject constructor(
     private val ivyContext: IvyWalletCtx,
     private val nav: Navigation,
     private val settingsDao: SettingsDao,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val transactionReminderLogic: TransactionReminderLogic,
     private val migrationsManager: MigrationsManager,
 ) : ViewModel() {
@@ -60,13 +60,13 @@ class RootViewModel @Inject constructor(
                     ?: if (systemDarkMode) Theme.DARK else Theme.LIGHT
                 ivyContext.switchTheme(theme)
 
-                ivyContext.initStartDayOfMonthInMemory(sharedPrefs = sharedPrefs)
+                ivyContext.initStartDayOfMonthInMemory(appPreferences)
             }
         }
 
         viewModelScope.launch {
             ioThread {
-                appLockEnabled = sharedPrefs.getBoolean(SharedPrefs.APP_LOCK_ENABLED, false)
+                appLockEnabled = appPreferences.isAppLockEnabled()
                 // initial app locked state
                 _appLocked.value = appLockEnabled
 
@@ -83,7 +83,7 @@ class RootViewModel @Inject constructor(
         }
     }
 
-    private fun navigateOnboardedUser(intent: Intent) {
+    private suspend fun navigateOnboardedUser(intent: Intent) {
         if (!handleSpecialStart(intent)) {
             nav.navigateTo(MainScreen)
             transactionReminderLogic.scheduleReminder()
@@ -137,8 +137,8 @@ class RootViewModel @Inject constructor(
         }
     }
 
-    private fun isOnboardingCompleted(): Boolean {
-        return sharedPrefs.getBoolean(SharedPrefs.ONBOARDING_COMPLETED, false)
+    private suspend fun isOnboardingCompleted(): Boolean {
+        return appPreferences.isOnboardingCompleted()
     }
 
     // App Lock & UserInactivity --------------------------------------------------------------------

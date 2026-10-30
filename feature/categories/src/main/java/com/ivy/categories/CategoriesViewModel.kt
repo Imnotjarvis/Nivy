@@ -6,10 +6,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.legacy.Transaction
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
 import com.ivy.frp.action.thenMap
@@ -43,7 +43,7 @@ class CategoriesViewModel @Inject constructor(
     private val categoryCreator: CategoryCreator,
     private val categoryRepository: CategoryRepository,
     private val ivyContext: com.ivy.legacy.IvyWalletCtx,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val accountsAct: AccountsAct,
     private val trnsWithRangeAndAccFiltersAct: TrnsWithRangeAndAccFiltersAct,
@@ -157,10 +157,7 @@ class CategoriesViewModel @Inject constructor(
             )
 
             val sortOrder = SortOrder.from(
-                sharedPrefs.getInt(
-                    SharedPrefs.CATEGORY_SORT_ORDER,
-                    SortOrder.DEFAULT.orderNum
-                )
+                appPreferences.categorySortOrder(default = SortOrder.DEFAULT.orderNum)
             )
 
             this.sortOrder.value = sortOrder
@@ -210,9 +207,7 @@ class CategoriesViewModel @Inject constructor(
             }
         }
 
-        ioThread {
-            sharedPrefs.putInt(SharedPrefs.CATEGORY_SORT_ORDER, sortOrder.orderNum)
-        }
+        appPreferences.setCategorySortOrder(sortOrder.orderNum)
 
         this.categories.value = sortedList
         this.sortOrder.value = sortOrder

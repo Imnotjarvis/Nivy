@@ -5,9 +5,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.ivy.base.legacy.SharedPrefs
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.data.model.Category
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.legacy.datamodel.Account
 import java.time.LocalDate
 import java.time.LocalTime
@@ -59,8 +59,8 @@ class IvyWalletCtx @Inject constructor() {
     var dataBackupCompleted = false
 
     @Deprecated("Legacy code. Don't use it, please.")
-    fun initStartDayOfMonthInMemory(sharedPrefs: SharedPrefs): Int {
-        startDayOfMonth = sharedPrefs.getInt(SharedPrefs.START_DATE_OF_MONTH, 1)
+    suspend fun initStartDayOfMonthInMemory(appPreferences: AppPreferences): Int {
+        startDayOfMonth = appPreferences.startDayOfMonth()
         return startDayOfMonth
     }
 

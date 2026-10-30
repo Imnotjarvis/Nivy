@@ -9,11 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.domain.features.Features
 import com.ivy.legacy.IvyWalletCtx
@@ -42,7 +42,7 @@ class AccountsViewModel @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val ivyContext: IvyWalletCtx,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val calcWalletBalanceAct: CalcWalletBalanceAct,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val accountDataAct: AccountDataAct,
@@ -174,8 +174,7 @@ class AccountsViewModel @Inject constructor(
         val baseCurrencyCode = baseCurrencyAct(Unit)
         val accounts = accountRepository.findAll().toImmutableList()
 
-        val includeTransfersInCalc =
-            sharedPrefs.getBoolean(SharedPrefs.TRANSFERS_AS_INCOME_EXPENSE, false)
+        val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
         val accountsDataList = accountDataAct(
             AccountDataAct.Input(

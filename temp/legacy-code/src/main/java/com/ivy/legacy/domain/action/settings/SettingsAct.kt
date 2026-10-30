@@ -1,6 +1,6 @@
 package com.ivy.wallet.domain.action.settings
 
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.frp.action.FPAction
 import com.ivy.frp.then

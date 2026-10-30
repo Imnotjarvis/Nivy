@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.base.legacy.Theme
+import com.ivy.base.model.Theme
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.ivyWalletCtx
 import com.ivy.design.utils.clickableNoIndication

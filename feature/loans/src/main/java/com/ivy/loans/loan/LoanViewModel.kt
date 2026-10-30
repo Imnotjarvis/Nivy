@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.legacy.SharedPrefs
 import com.ivy.base.model.processByType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
@@ -15,6 +14,7 @@ import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.read.SettingsDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.model.LoanType
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
@@ -48,7 +48,7 @@ class LoanViewModel @Inject constructor(
     private val loanRecordDao: LoanRecordDao,
     private val settingsDao: SettingsDao,
     private val loanCreator: LoanCreator,
-    private val sharedPrefs: SharedPrefs,
+    private val appPreferences: AppPreferences,
     private val accountCreator: AccountCreator,
     private val loanTransactionsLogic: LoanTransactionsLogic,
     private val loansAct: LoansAct,
@@ -351,13 +351,12 @@ class LoanViewModel @Inject constructor(
         }
     }
 
-    private fun defaultAccountId(
+    private suspend fun defaultAccountId(
         accounts: List<Account>,
     ): Account? {
-        val lastSelectedId =
-            sharedPrefs.getString(SharedPrefs.LAST_SELECTED_ACCOUNT_ID, null)?.let {
-                UUID.fromString(it)
-            }
+        val lastSelectedId = appPreferences.lastSelectedAccountId()?.let {
+            UUID.fromString(it)
+        }
 
         lastSelectedId?.let { uuid ->
             return accounts.find { it.id == uuid }
