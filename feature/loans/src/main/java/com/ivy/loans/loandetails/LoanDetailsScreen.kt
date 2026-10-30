@@ -108,7 +108,7 @@ private fun BoxWithConstraintsScope.UI(
     state: LoanDetailsScreenState,
     onEventHandler: (LoanDetailsScreenEvent) -> Unit = {}
 ) {
-    val itemColor = state.loan?.color?.toComposeColor() ?: Gray
+    val itemColor = state.loan?.color?.value?.toComposeColor() ?: Gray
 
     Column(
         modifier = Modifier
