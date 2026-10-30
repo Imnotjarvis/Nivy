@@ -12,6 +12,11 @@ val Gray = Color(0xFF939199)
 val MediumBlack = Color(0xFF2B2C2D)
 val Black = Color(0xFF111114)
 val TrueBlack = Color(0xFF000000)
+
+// The screen backgrounds behind everything, a shade apart from White and Black so cards and
+// modals drawn in those stand out.
+val BackgroundLight = Color(0xFFFAFAFC)
+val BackgroundDark = Color(0xFF09090A)
 val Transparent = Color(0x00000000)
 
 // Hues (Ivy is the brand color; Purple is the same value)

@@ -6,6 +6,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import com.ivy.design.system.colors.BackgroundDark
+import com.ivy.design.system.colors.BackgroundLight
 import com.ivy.design.system.colors.Black
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
@@ -28,7 +30,8 @@ import com.ivy.design.system.shapes.IvyShapes
 import com.ivy.design.system.typography.IvyTypography
 
 // How the Ivy design maps onto Material3 color roles:
-//   surface, background   the screen background ("pure")
+//   background            the screen background, behind everything
+//   surface               modal, sheet and component backgrounds ("pure")
 //   onSurface             text and icons on it ("pureInverse")
 //   surfaceVariant        cards, chips and input backgrounds ("medium")
 //   onSurfaceVariant      secondary text and icons (gray)
@@ -72,7 +75,7 @@ private fun ivyLightColorScheme(): ColorScheme = lightColorScheme(
     errorContainer = RedLight,
     onErrorContainer = RedDark,
 
-    background = White,
+    background = BackgroundLight,
     onBackground = Black,
     surface = White,
     onSurface = Black,
@@ -115,7 +118,7 @@ private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorSch
     errorContainer = RedDark,
     onErrorContainer = RedLight,
 
-    background = darkSurface(isTrueBlack),
+    background = if (isTrueBlack) TrueBlack else BackgroundDark,
     onBackground = White,
     surface = darkSurface(isTrueBlack),
     onSurface = White,

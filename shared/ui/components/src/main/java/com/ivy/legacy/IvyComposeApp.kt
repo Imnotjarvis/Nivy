@@ -99,7 +99,7 @@ private fun WrapWithSurface(
     content: @Composable () -> Unit,
 ) {
     if (includeSurface) {
-        Surface {
+        Surface(color = MaterialTheme.colorScheme.background) {
             content()
         }
     } else {
