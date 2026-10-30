@@ -414,7 +414,7 @@ class EditTransactionViewModel @Inject constructor(
         }
 
         val loan =
-            ioThread { loanDao.findById(trans.loanId!!) } ?: return EditTransactionDisplayLoan()
+            ioThread { loanDao.findById(trans.loanId) } ?: return EditTransactionDisplayLoan()
         val isLoanRecord = trans.loanRecordId != null
 
         val loanWarningDescription = if (isLoanRecord) {

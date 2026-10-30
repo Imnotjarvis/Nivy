@@ -396,11 +396,7 @@ class ReportViewModel @Inject constructor(
 
         return transactions
             .filter { !excludeableByTagTransactionsIds.contains(it.id) }
-            .filter {
-                with(transactionMapper) {
-                    filter.trnTypes.contains(it.getTransactionType())
-                }
-            }
+            .filter { filter.trnTypes.contains(it.getTransactionType()) }
             .filter {
                 // Filter by Time Period
 
@@ -428,9 +424,7 @@ class ReportViewModel @Inject constructor(
             .filter { trn ->
                 // Filter by Categories
 
-                filterCategoryIds.contains(trn.category) || with(transactionMapper) {
-                    (trn.getTransactionType() == TransactionType.TRANSFER)
-                }
+                filterCategoryIds.contains(trn.category) || trn is Transfer
             }
             .filter {
                 // Filter by Amount
