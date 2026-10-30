@@ -73,5 +73,6 @@ val IvyTypography = Typography(
 val Typography.numberHeadlineLarge: TextStyle get() = headlineLarge.asNumber(FontWeight.Bold)
 val Typography.numberHeadlineMedium: TextStyle get() = headlineMedium.asNumber(FontWeight.Bold)
 val Typography.numberTitleLarge: TextStyle get() = titleLarge.asNumber(FontWeight.Bold)
+val Typography.numberTitleSmall: TextStyle get() = titleSmall.asNumber(FontWeight.Bold)
 val Typography.numberBodyLarge: TextStyle get() = bodyLarge.asNumber(FontWeight.Normal)
 val Typography.numberLabelMedium: TextStyle get() = labelMedium.asNumber(FontWeight.Bold)

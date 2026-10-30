@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.model.Theme
 import com.ivy.data.model.LoanType
+import com.ivy.design.system.typography.numberTitleSmall
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.humanReadableType
 import com.ivy.legacy.ui.previewLoan
@@ -231,17 +232,15 @@ private fun Toolbar(
             if (totalOweAmount.isNotEmpty()) {
                 Text(
                     text = stringResource(R.string.you_owe, totalOweAmount),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.numberTitleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             if (totalOwedAmount.isNotEmpty()) {
                 Text(
                     text = stringResource(R.string.you_are_owed, totalOwedAmount),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.numberTitleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
