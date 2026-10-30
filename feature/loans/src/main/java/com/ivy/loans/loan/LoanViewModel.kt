@@ -204,7 +204,7 @@ class LoanViewModel @Inject constructor(
             totalOwedAmount = 0.0
 
             allLoans = ioThread {
-                loansAct(Unit)
+                loansAct()
                     .map { loan ->
                         val (amountPaid, loanTotalAmount) = calculateAmountPaidAndTotalAmount(loan)
                         val percentPaid = if (loanTotalAmount != 0.0) {
@@ -259,7 +259,7 @@ class LoanViewModel @Inject constructor(
     }
 
     private suspend fun initialiseAccounts() {
-        val accountsList = accountsAct(Unit)
+        val accountsList = accountsAct()
         accounts = accountsList
         selectedAccount = defaultAccountId(accountsList)
         selectedAccount?.let {
@@ -346,7 +346,7 @@ class LoanViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct(Unit)
+                accounts = accountsAct()
             }
         }
     }

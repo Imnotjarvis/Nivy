@@ -20,7 +20,6 @@ import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.temp.migration.getAccountId
 import com.ivy.data.temp.migration.getValue
-import com.ivy.frp.sumOfSuspend
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.toCloseTimeRange
 import com.ivy.legacy.datamodel.Account
@@ -184,13 +183,13 @@ class BudgetViewModel @Inject constructor(
     private fun start() {
         viewModelScope.launch {
             categories.value = categoryRepository.findAll().toImmutableList()
-            val accounts = accountsAct(Unit)
-            val baseCurrency = baseCurrencyAct(Unit)
+            val accounts = accountsAct()
+            val baseCurrency = baseCurrencyAct()
             val startDateOfMonth = ivyContext.initStartDayOfMonthInMemory(appPreferences)
             val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = startDateOfMonth
             ).toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)
-            val budgets = budgetsAct(Unit)
+            val budgets = budgetsAct()
 
             appBudgetMax.doubleValue = budgets
                 .filter { it.categoryIdsSerialized.isNullOrBlank() }
@@ -229,14 +228,13 @@ class BudgetViewModel @Inject constructor(
         baseCurrencyCode: String,
         accounts: List<Account>
     ): Double {
-        // TODO: Re-work this by creating an FPAction for it
         val accountsFilter = budget.parseAccountIds()
         val categoryFilter = budget.parseCategoryIds()
 
         return transactions
             .filter { accountsFilter.isEmpty() || accountsFilter.contains(it.getAccountId()) }
             .filter { categoryFilter.isEmpty() || categoryFilter.contains(it.category?.value) }
-            .sumOfSuspend {
+            .sumOf {
                 when (it) {
                     is Income -> {
                         0.0 // ignore income

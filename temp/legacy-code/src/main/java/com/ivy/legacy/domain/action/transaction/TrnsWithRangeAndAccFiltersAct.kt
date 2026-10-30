@@ -2,21 +2,22 @@ package com.ivy.wallet.domain.action.transaction
 
 import com.ivy.base.legacy.Transaction
 import com.ivy.data.db.dao.read.TransactionDao
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.action.thenFilter
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TrnsWithRangeAndAccFiltersAct @Inject constructor(
     private val transactionDao: TransactionDao
-) : FPAction<TrnsWithRangeAndAccFiltersAct.Input, List<Transaction>>() {
-
-    override suspend fun Input.compose(): suspend () -> List<Transaction> = suspend {
-        transactionDao.findAllBetween(range.from(), range.to())
+) {
+    suspend operator fun invoke(input: Input): List<Transaction> = withContext(Dispatchers.IO) {
+        transactionDao.findAllBetween(input.range.from(), input.range.to())
             .map { it.toLegacyDomain() }
-    } thenFilter {
-        accountIdFilterSet.contains(it.accountId) || accountIdFilterSet.contains(it.toAccountId)
+            .filter {
+                input.accountIdFilterSet.contains(it.accountId) ||
+                    input.accountIdFilterSet.contains(it.toAccountId)
+            }
     }
 
     data class Input(

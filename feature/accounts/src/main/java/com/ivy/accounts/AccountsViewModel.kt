@@ -171,7 +171,7 @@ class AccountsViewModel @Inject constructor(
         ) // this must be monthly
         val range = period.toRange(ivyContext.startDayOfMonth, timeConverter, timeProvider)
 
-        val baseCurrencyCode = baseCurrencyAct(Unit)
+        val baseCurrencyCode = baseCurrencyAct()
         val accounts = accountRepository.findAll().toImmutableList()
 
         val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()

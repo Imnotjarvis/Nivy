@@ -257,7 +257,7 @@ class LoanDetailsViewModel @Inject constructor(
                 baseCurrency.value = it
             }
 
-            accounts.value = accountsAct(Unit)
+            accounts.value = accountsAct()
 
             loan.value = loanByIdAct(loanId)
 
@@ -538,7 +538,7 @@ class LoanDetailsViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts.value = accountsAct(Unit)
+                accounts.value = accountsAct()
             }
         }
     }

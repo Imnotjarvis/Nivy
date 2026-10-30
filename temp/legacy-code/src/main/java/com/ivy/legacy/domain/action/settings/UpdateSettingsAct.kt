@@ -1,15 +1,16 @@
 package com.ivy.legacy.domain.action.settings
 
 import com.ivy.data.db.dao.write.WriteSettingsDao
-import com.ivy.frp.action.FPAction
 import com.ivy.legacy.datamodel.Settings
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class UpdateSettingsAct @Inject constructor(
     private val writeSettingsDao: WriteSettingsDao
-) : FPAction<Settings, Settings>() {
-    override suspend fun Settings.compose(): suspend () -> Settings = suspend {
-        writeSettingsDao.save(this.toEntity())
-        this
+) {
+    suspend operator fun invoke(settings: Settings): Settings = withContext(Dispatchers.IO) {
+        writeSettingsDao.save(settings.toEntity())
+        settings
     }
 }

@@ -2,9 +2,6 @@ package com.ivy.wallet.domain.action.wallet
 
 import arrow.core.nonEmptyListOf
 import arrow.core.toOption
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.action.thenMap
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.action.account.AccTrnsAct
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
@@ -15,31 +12,25 @@ import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.legacy.domain.pure.transaction.AccountValueFunctions
 import com.ivy.wallet.domain.pure.transaction.foldTransactions
 import com.ivy.wallet.domain.pure.util.orZero
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
 class CalcIncomeExpenseAct @Inject constructor(
     private val accTrnsAct: AccTrnsAct,
     private val exchangeAct: ExchangeAct
-) : FPAction<CalcIncomeExpenseAct.Input, IncomeExpensePair>() {
-
-    override suspend fun Input.compose(): suspend () -> IncomeExpensePair = suspend {
-        filterExcluded(accounts)
-    } thenMap { acc ->
-        Pair(
-            acc,
-            accTrnsAct(
+) {
+    suspend operator fun invoke(input: Input): IncomeExpensePair = withContext(Dispatchers.IO) {
+        val statsList = filterExcluded(input.accounts).map { acc ->
+            val trns = accTrnsAct(
                 AccTrnsAct.Input(
                     accountId = acc.id,
-                    range = range
+                    range = input.range
                 )
             )
-        )
-    } thenMap { (acc, trns) ->
-        Timber.i("acc: $acc, trns = ${trns.size}")
-        Pair(
-            acc,
-            foldTransactions(
+            Timber.i("acc: $acc, trns = ${trns.size}")
+            val stats = foldTransactions(
                 transactions = trns,
                 valueFunctions = nonEmptyListOf(
                     AccountValueFunctions::income,
@@ -47,21 +38,19 @@ class CalcIncomeExpenseAct @Inject constructor(
                 ),
                 arg = acc.id
             )
-        )
-    } thenMap { (acc, stats) ->
-        Timber.i("acc_stats: $acc - $stats")
-        stats.map {
-            exchangeAct(
-                ExchangeAct.Input(
-                    data = ExchangeData(
-                        baseCurrency = baseCurrency,
-                        fromCurrency = (acc.currency ?: baseCurrency).toOption()
+            Timber.i("acc_stats: $acc - $stats")
+            stats.map {
+                exchangeAct(
+                    ExchangeAct.Input(
+                        data = ExchangeData(
+                            baseCurrency = input.baseCurrency,
+                            fromCurrency = (acc.currency ?: input.baseCurrency).toOption()
+                        ),
+                        amount = it
                     ),
-                    amount = it
-                ),
-            ).orZero()
+                ).orZero()
+            }
         }
-    } then { statsList ->
         IncomeExpensePair(
             income = statsList.sumOf { it[0] },
             expense = statsList.sumOf { it[1] }

@@ -1,8 +1,6 @@
 package com.ivy.wallet.domain.action.viewmodel.home
 
 import com.ivy.data.model.Transaction
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.then
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.wallet.domain.pure.transaction.isUpcoming
@@ -10,18 +8,18 @@ import javax.inject.Inject
 
 class UpcomingAct @Inject constructor(
     private val dueTrnsInfoAct: DueTrnsInfoAct
-) : FPAction<UpcomingAct.Input, UpcomingAct.Output>() {
-
-    override suspend fun Input.compose(): suspend () -> Output = suspend {
-        DueTrnsInfoAct.Input(
-            range = range,
-            baseCurrency = baseCurrency,
-            dueFilter = ::isUpcoming
+) {
+    suspend operator fun invoke(input: Input): Output {
+        val info = dueTrnsInfoAct(
+            DueTrnsInfoAct.Input(
+                range = input.range,
+                baseCurrency = input.baseCurrency,
+                dueFilter = ::isUpcoming
+            )
         )
-    } then dueTrnsInfoAct then {
-        Output(
-            upcoming = it.dueIncomeExpense,
-            upcomingTrns = it.dueTrns
+        return Output(
+            upcoming = info.dueIncomeExpense,
+            upcomingTrns = info.dueTrns
         )
     }
 

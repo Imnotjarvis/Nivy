@@ -145,11 +145,11 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
 
     private fun updateData(context: Context) {
         coroutineScope.launch {
-            val settings = settingsAct(Unit)
+            val settings = settingsAct()
             val appLocked = appPreferences.isAppLockEnabled()
             val currency = settings.baseCurrency
             val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
-            val accounts = accountsAct(Unit)
+            val accounts = accountsAct()
             val period = ivyContext.selectedPeriod
             val incomeExpense = calcIncomeExpenseAct(
                 CalcIncomeExpenseAct.Input(

@@ -268,7 +268,7 @@ class EditPlannedViewModel @Inject constructor(
             transactionType = screen.type
             editMode = screen.plannedPaymentRuleId != null
 
-            val accounts = accountsAct(Unit)
+            val accounts = accountsAct()
             if (accounts.isEmpty()) {
                 nav.back()
                 return@launch
@@ -502,7 +502,7 @@ class EditPlannedViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct(Unit)
+                accounts = accountsAct()
             }
         }
     }

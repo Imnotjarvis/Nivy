@@ -1,13 +1,14 @@
 package com.ivy.wallet.domain.action.settings
 
 import com.ivy.data.db.dao.read.SettingsDao
-import com.ivy.frp.action.FPAction
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class BaseCurrencyAct @Inject constructor(
     private val settingsDao: SettingsDao
-) : FPAction<Unit, String>() {
-    override suspend fun Unit.compose(): suspend () -> String = suspend {
-        io { settingsDao.findFirst().currency }
+) {
+    suspend operator fun invoke(): String = withContext(Dispatchers.IO) {
+        settingsDao.findFirst().currency
     }
 }

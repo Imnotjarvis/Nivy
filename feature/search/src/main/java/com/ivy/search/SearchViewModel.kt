@@ -76,22 +76,22 @@ class SearchViewModel @Inject constructor(
 
         viewModelScope.launch {
             val queryResult = ioThread {
-                val filteredTransactions = allTrnsAct(Unit)
+                val filteredTransactions = allTrnsAct()
                     .filter { transaction ->
                         transaction.title.matchesQuery(normalizedQuery) ||
                                 transaction.description.matchesQuery(normalizedQuery)
                     }
                 trnsWithDateDivsAct(
                     TrnsWithDateDivsAct.Input(
-                        baseCurrency = baseCurrencyAct(Unit),
+                        baseCurrency = baseCurrencyAct(),
                         transactions = filteredTransactions
                     )
                 ).toImmutableList()
             }
 
             transactions.value = queryResult
-            baseCurrency.value = baseCurrencyAct(Unit)
-            accounts.value = accountsAct(Unit)
+            baseCurrency.value = baseCurrencyAct()
+            accounts.value = accountsAct()
             categories.value = categoryRepository.findAll().toImmutableList()
         }
     }

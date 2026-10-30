@@ -6,30 +6,28 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.TagRepository
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
 import com.ivy.legacy.domain.pure.transaction.LegacyTrnDateDividers
 import com.ivy.legacy.domain.pure.transaction.transactionsWithDateDividers
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.wallet.domain.action.exchange.actInput
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TrnsWithDateDivsAct @Inject constructor(
     private val accountDao: AccountDao,
     private val exchangeAct: ExchangeAct,
     private val tagRepository: TagRepository,
     private val accountRepository: AccountRepository,
-) : FPAction<TrnsWithDateDivsAct.Input, List<TransactionHistoryItem>>() {
-
-    override suspend fun Input.compose(): suspend () -> List<TransactionHistoryItem> = suspend {
+) {
+    suspend operator fun invoke(input: Input): List<TransactionHistoryItem> = withContext(Dispatchers.IO) {
         transactionsWithDateDividers(
-            transactions = transactions,
-            baseCurrencyCode = baseCurrency,
+            transactions = input.transactions,
+            baseCurrencyCode = input.baseCurrency,
             getTags = { tagIds -> tagRepository.findByIds(tagIds) },
-            getAccount = accountDao::findById then { it?.toLegacyDomain() },
+            getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
             accountRepository = accountRepository,
-            exchange = ::actInput then exchangeAct
+            exchange = exchangeAct::convert
         )
     }
 
@@ -44,15 +42,13 @@ class LegacyTrnsWithDateDivsAct @Inject constructor(
     private val accountDao: AccountDao,
     private val exchangeAct: ExchangeAct,
     private val timeConverter: TimeConverter,
-) : FPAction<LegacyTrnsWithDateDivsAct.Input, List<TransactionHistoryItem>>() {
-
-    override suspend fun Input.compose(): suspend () -> List<TransactionHistoryItem> = suspend {
+) {
+    suspend operator fun invoke(input: Input): List<TransactionHistoryItem> = withContext(Dispatchers.IO) {
         LegacyTrnDateDividers.transactionsWithDateDividers(
-            transactions = transactions,
-            baseCurrencyCode = baseCurrency,
-
-            getAccount = accountDao::findById then { it?.toLegacyDomain() },
-            exchange = ::actInput then exchangeAct,
+            transactions = input.transactions,
+            baseCurrencyCode = input.baseCurrency,
+            getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
+            exchange = exchangeAct::convert,
             timeConverter = timeConverter,
         )
     }

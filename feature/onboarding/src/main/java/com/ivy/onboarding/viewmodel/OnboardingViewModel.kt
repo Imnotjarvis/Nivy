@@ -213,7 +213,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun accountsWithBalance(): ImmutableList<AccountBalance> = ioThread {
-        accountsAct(Unit)
+        accountsAct()
             .map {
                 AccountBalance(
                     account = it,

@@ -15,7 +15,6 @@ import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toImmutableLegacyTags
 import com.ivy.legacy.datamodel.temp.toLegacyDomain
@@ -44,7 +43,7 @@ suspend fun List<Transaction>.withDateDividers(
     return transactionsWithDateDividers(
         transactions = this,
         baseCurrencyCode = settingsDao.findFirst().currency,
-        getAccount = accountDao::findById then { it?.toLegacyDomain() },
+        getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
         getTags = { tagsIds -> tagRepository.findByIds(tagsIds) },
         accountRepository = accountRepository,
         exchange = { data, amount ->
@@ -123,7 +122,7 @@ object LegacyTrnDateDividers {
         return transactionsWithDateDividers(
             transactions = this,
             baseCurrencyCode = settingsDao.findFirst().currency,
-            getAccount = accountDao::findById then { it?.toLegacyDomain() },
+            getAccount = { accountId -> accountDao.findById(accountId)?.toLegacyDomain() },
             exchange = { data, amount ->
                 exchangeRatesLogic.convertAmount(
                     baseCurrency = data.baseCurrency,

@@ -66,7 +66,7 @@ class BalanceViewModel @Inject constructor(
         timePeriod: TimePeriod = ivyContext.selectedPeriod
     ) {
         viewModelScope.launch {
-            baseCurrencyCode = baseCurrencyAct(Unit)
+            baseCurrencyCode = baseCurrencyAct()
             period = timePeriod
 
             currentBalance = calcWalletBalanceAct(

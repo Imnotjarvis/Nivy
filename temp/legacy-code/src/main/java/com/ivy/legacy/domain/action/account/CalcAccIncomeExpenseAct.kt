@@ -2,29 +2,29 @@ package com.ivy.wallet.domain.action.account
 
 import arrow.core.nonEmptyListOf
 import com.ivy.base.time.TimeProvider
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.then
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.legacy.domain.pure.transaction.AccountValueFunctions
 import com.ivy.wallet.domain.pure.transaction.foldTransactions
 import java.math.BigDecimal
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class CalcAccIncomeExpenseAct @Inject constructor(
     private val accTrnsAct: AccTrnsAct,
     private val timeProvider: TimeProvider
-) : FPAction<CalcAccIncomeExpenseAct.Input, CalcAccIncomeExpenseAct.Output>() {
-
-    override suspend fun Input.compose(): suspend () -> Output = suspend {
-        AccTrnsAct.Input(
-            accountId = account.id.value,
-            range = range ?: ClosedTimeRange.allTimeIvy(timeProvider)
+) {
+    suspend operator fun invoke(input: Input): Output = withContext(Dispatchers.IO) {
+        val accTrns = accTrnsAct(
+            AccTrnsAct.Input(
+                accountId = input.account.id.value,
+                range = input.range ?: ClosedTimeRange.allTimeIvy(timeProvider)
+            )
         )
-    } then accTrnsAct then { accTrns ->
-        foldTransactions(
+        val values = foldTransactions(
             transactions = accTrns,
-            arg = account.id.value,
+            arg = input.account.id.value,
             valueFunctions = nonEmptyListOf(
                 AccountValueFunctions::income,
                 AccountValueFunctions::expense,
@@ -32,12 +32,12 @@ class CalcAccIncomeExpenseAct @Inject constructor(
                 AccountValueFunctions::transferExpense
             )
         )
-    } then { values ->
+        val transfers = input.includeTransfersInCalc
         Output(
-            account = account,
+            account = input.account,
             incomeExpensePair = IncomeExpensePair(
-                income = values[0] + if (includeTransfersInCalc) values[2] else BigDecimal.ZERO,
-                expense = values[1] + if (includeTransfersInCalc) values[3] else BigDecimal.ZERO
+                income = values[0] + if (transfers) values[2] else BigDecimal.ZERO,
+                expense = values[1] + if (transfers) values[3] else BigDecimal.ZERO
             )
         )
     }

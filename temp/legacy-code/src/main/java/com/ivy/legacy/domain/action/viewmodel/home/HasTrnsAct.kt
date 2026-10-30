@@ -1,15 +1,14 @@
 package com.ivy.wallet.domain.action.viewmodel.home
 
 import com.ivy.data.db.dao.read.TransactionDao
-import com.ivy.frp.action.FPAction
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class HasTrnsAct @Inject constructor(
     private val transactionDao: TransactionDao
-) : FPAction<Unit, Boolean>() {
-    override suspend fun Unit.compose(): suspend () -> Boolean = suspend {
-        io {
-            transactionDao.hasTransactions()
-        }
+) {
+    suspend operator fun invoke(): Boolean = withContext(Dispatchers.IO) {
+        transactionDao.hasTransactions()
     }
 }

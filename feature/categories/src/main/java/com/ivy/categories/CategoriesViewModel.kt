@@ -12,8 +12,6 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
-import com.ivy.frp.action.thenMap
-import com.ivy.frp.thenInvokeAfter
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.utils.ioThread
@@ -145,14 +143,13 @@ class CategoriesViewModel @Inject constructor(
                 timeProvider
             ) // this must be monthly
 
-            allAccounts = accountsAct(Unit)
-            baseCurrency.value = baseCurrencyAct(Unit)
+            allAccounts = accountsAct()
+            baseCurrency.value = baseCurrencyAct()
 
             transactions = trnsWithRangeAndAccFiltersAct(
                 TrnsWithRangeAndAccFiltersAct.Input(
                     range = range,
-                    accountIdFilterSet = suspend { allAccounts } thenMap { it.id }
-                            thenInvokeAfter { it.toHashSet() }
+                    accountIdFilterSet = allAccounts.map { it.id }.toHashSet()
                 )
             )
 

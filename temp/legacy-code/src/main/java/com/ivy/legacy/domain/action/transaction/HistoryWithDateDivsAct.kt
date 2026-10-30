@@ -1,27 +1,26 @@
 package com.ivy.wallet.domain.action.transaction
 
 import com.ivy.base.legacy.TransactionHistoryItem
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.then
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class HistoryWithDateDivsAct @Inject constructor(
     private val historyTrnsAct: HistoryTrnsAct,
     private val trnsWithDateDivsAct: TrnsWithDateDivsAct
-) : FPAction<HistoryWithDateDivsAct.Input, ImmutableList<TransactionHistoryItem>>() {
-
-    override suspend fun Input.compose(): suspend () -> ImmutableList<TransactionHistoryItem> =
-        suspend {
-            range
-        } then historyTrnsAct then { trns ->
-            TrnsWithDateDivsAct.Input(
-                baseCurrency = baseCurrency,
-                transactions = trns
-            )
-        } then trnsWithDateDivsAct then { it.toImmutableList() }
+) {
+    suspend operator fun invoke(input: Input): ImmutableList<TransactionHistoryItem> =
+        withContext(Dispatchers.IO) {
+            trnsWithDateDivsAct(
+                TrnsWithDateDivsAct.Input(
+                    baseCurrency = input.baseCurrency,
+                    transactions = historyTrnsAct(input.range)
+                )
+            ).toImmutableList()
+        }
 
     data class Input(
         val range: ClosedTimeRange,

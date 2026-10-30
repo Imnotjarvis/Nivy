@@ -11,12 +11,6 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.design.system.colors.RedLight
-import com.ivy.frp.Pure
-import com.ivy.frp.SideEffect
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.action.thenFilter
-import com.ivy.frp.action.thenMap
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.Account
 import com.ivy.piechart.CategoryAmount
 import com.ivy.ui.R
@@ -31,6 +25,8 @@ import kotlinx.collections.immutable.toImmutableList
 import java.math.BigDecimal
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class PieChartAct @Inject constructor(
     private val accountsAct: AccountsAct,
@@ -39,7 +35,7 @@ class PieChartAct @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val categoryIncomeWithAccountFiltersAct: LegacyCategoryIncomeWithAccountFiltersAct,
     private val resourceProvider: ResourceProvider,
-) : FPAction<PieChartAct.Input, PieChartAct.Output>() {
+) {
 
     private val accountTransfersCategory =
         Category(
@@ -50,238 +46,148 @@ class PieChartAct @Inject constructor(
             orderNum = 0.0,
         )
 
-    override suspend fun Input.compose(): suspend () -> Output = suspend {
-        getUsableAccounts(
-            accountIdFilterList = accountIdFilterList,
-            allAccounts = suspend { accountsAct(Unit) }
-        )
-    } then {
-        val accountsUsed = it.first
-        val accountIdFilterSet = it.second
-
-        val transactions = existingTransactions.ifEmpty {
+    suspend operator fun invoke(input: Input): Output = withContext(Dispatchers.IO) {
+        val accountsUsed = usableAccounts(input.accountIdFilterList)
+        val transactions = input.existingTransactions.ifEmpty {
             trnsWithRangeAndAccFiltersAct(
                 TrnsWithRangeAndAccFiltersAct.Input(
-                    range = range,
-                    accountIdFilterSet = accountIdFilterSet
+                    range = input.range,
+                    accountIdFilterSet = accountsUsed.map { it.id }.toHashSet()
                 )
             )
         }
-
-        Pair(accountsUsed, transactions)
-    } then {
-        val accountsUsed = it.first
-        val transactions = it.second
 
         val incomeExpenseTransfer = calcTrnsIncomeExpenseAct(
             LegacyCalcTrnsIncomeExpenseAct.Input(
                 transactions = transactions,
                 accounts = accountsUsed,
-                baseCurrency = baseCurrency
+                baseCurrency = input.baseCurrency
             )
         )
 
-        val categoryAmounts = suspend {
-            calculateCategoryAmounts(
-                type = type,
-                baseCurrency = baseCurrency,
-                allCategories = suspend {
-                    // add null element for unspecified category
-                    categoryRepository.findAll().plus(null)
-                },
-                transactions = suspend { transactions },
-                accountsUsed = suspend { accountsUsed },
-                addAssociatedTransToCategoryAmt = existingTransactions.isNotEmpty()
-            )
-        } then {
-            addAccountTransfersCategory(
-                showAccountTransfersCategory = showAccountTransfersCategory,
-                type = type,
-                accountTransfersCategory = accountTransfersCategory,
-                accountIdFilterSet = accountIdFilterList.toHashSet(),
-                incomeExpenseTransfer = suspend { incomeExpenseTransfer },
-                categoryAmounts = suspend { it },
-                transactions = suspend { transactions }
-            )
-        }
-
-        Pair(incomeExpenseTransfer, categoryAmounts())
-    } then {
-        val totalAmount = calculateTotalAmount(
-            type = type,
-            treatTransferAsIncExp = treatTransferAsIncExp,
-            incomeExpenseTransfer = suspend { it.first }
+        val categoryAmounts = addAccountTransfersCategory(
+            input = input,
+            incomeExpenseTransfer = incomeExpenseTransfer,
+            categoryAmounts = categoryAmounts(input, transactions, accountsUsed),
+            transactions = transactions,
         )
 
-        val catAmountList = it.second
+        val totalAmount = totalAmount(
+            type = input.type,
+            treatTransferAsIncExp = input.treatTransferAsIncExp,
+            incomeExpenseTransfer = incomeExpenseTransfer
+        )
 
-        Pair(totalAmount, catAmountList)
-    } then {
-        Output(it.first.toDouble(), it.second.toImmutableList())
+        Output(totalAmount.toDouble(), categoryAmounts.toImmutableList())
     }
 
-    @Pure
-    private suspend fun getUsableAccounts(
-        accountIdFilterList: List<UUID>,
-
-        @SideEffect
-        allAccounts: suspend () -> List<Account>,
-    ): Pair<List<Account>, Set<UUID>> {
-        val accountsUsed = if (accountIdFilterList.isEmpty()) {
-            allAccounts then ::filterExcluded
+    // The accounts the chart covers: the filtered ones, or all accounts included in the balance.
+    private suspend fun usableAccounts(accountIdFilterList: List<UUID>): List<Account> {
+        val allAccounts = accountsAct()
+        return if (accountIdFilterList.isEmpty()) {
+            filterExcluded(allAccounts)
         } else {
-            allAccounts thenFilter {
-                accountIdFilterList.contains(it.id)
-            }
+            allAccounts.filter { accountIdFilterList.contains(it.id) }
         }
-
-        val accountsUsedIDSet = accountsUsed thenMap { it.id } then { it.toHashSet() }
-
-        return Pair(accountsUsed(), accountsUsedIDSet())
     }
 
-    @Pure
-    private suspend fun calculateCategoryAmounts(
-        type: TransactionType,
-        baseCurrency: String,
-        addAssociatedTransToCategoryAmt: Boolean = false,
-
-        @SideEffect
-        allCategories: suspend () -> List<Category?>,
-
-        @SideEffect
-        transactions: suspend () -> List<Transaction>,
-
-        @SideEffect
-        accountsUsed: suspend () -> List<Account>,
+    // Each category's total of the chart's type, largest first; categories with nothing are left out.
+    private suspend fun categoryAmounts(
+        input: Input,
+        transactions: List<Transaction>,
+        accountsUsed: List<Account>,
     ): List<CategoryAmount> {
-        val trans = transactions()
-        val accUsed = accountsUsed()
+        // null stands for transactions without a category
+        val allCategories = categoryRepository.findAll().plus(null)
+        val addAssociatedTransactions = input.existingTransactions.isNotEmpty()
 
-        val catAmtList = allCategories thenMap { category ->
-            val categoryTransactions = asyncIo {
-                if (addAssociatedTransToCategoryAmt) {
-                    trans.filter {
-                        it.type == type && it.categoryId == category?.id?.value
-                    }
-                } else {
-                    emptyList()
+        return allCategories.map { category ->
+            val categoryTransactions = if (addAssociatedTransactions) {
+                transactions.filter {
+                    it.type == input.type && it.categoryId == category?.id?.value
                 }
+            } else {
+                emptyList()
             }
 
             val catIncomeExpense = categoryIncomeWithAccountFiltersAct(
                 LegacyCategoryIncomeWithAccountFiltersAct.Input(
-                    transactions = trans,
-                    accountFilterList = accUsed,
+                    transactions = transactions,
+                    accountFilterList = accountsUsed,
                     category = category,
-                    baseCurrency = baseCurrency
+                    baseCurrency = input.baseCurrency
                 )
             )
 
             CategoryAmount(
                 category = category,
-                amount = when (type) {
+                amount = when (input.type) {
                     TransactionType.INCOME -> catIncomeExpense.income.toDouble()
                     TransactionType.EXPENSE -> catIncomeExpense.expense.toDouble()
-                    else -> error("not supported transactionType - $type")
+                    else -> error("not supported transactionType - ${input.type}")
                 },
-                associatedTransactions = categoryTransactions.await(),
+                associatedTransactions = categoryTransactions,
                 isCategoryUnspecified = category == null
             )
-        } thenFilter { catAmt ->
-            catAmt.amount != 0.0
-        } then {
-            it.sortedByDescending { ca -> ca.amount }
-        }
-
-        return catAmtList()
+        }.filter { it.amount != 0.0 }
+            .sortedByDescending { it.amount }
     }
 
-    @Pure
-    private suspend fun calculateTotalAmount(
+    private fun totalAmount(
         type: TransactionType,
         treatTransferAsIncExp: Boolean,
-
-        @SideEffect
-        incomeExpenseTransfer: suspend () -> IncomeExpenseTransferPair,
+        incomeExpenseTransfer: IncomeExpenseTransferPair,
     ): BigDecimal {
-        val incExpQuad = incomeExpenseTransfer()
+        val totals = incomeExpenseTransfer
+        val transfers = treatTransferAsIncExp
         return when (type) {
-            TransactionType.INCOME -> {
-                incExpQuad.income +
-                        if (treatTransferAsIncExp) {
-                            incExpQuad.transferIncome
-                        } else {
-                            BigDecimal.ZERO
-                        }
-            }
+            TransactionType.INCOME ->
+                totals.income + if (transfers) totals.transferIncome else BigDecimal.ZERO
 
-            TransactionType.EXPENSE -> {
-                incExpQuad.expense +
-                        if (treatTransferAsIncExp) {
-                            incExpQuad.transferExpense
-                        } else {
-                            BigDecimal.ZERO
-                        }
-            }
+            TransactionType.EXPENSE ->
+                totals.expense + if (transfers) totals.transferExpense else BigDecimal.ZERO
 
             else -> BigDecimal.ZERO
         }
     }
 
-    @Pure
-    private suspend fun addAccountTransfersCategory(
-        showAccountTransfersCategory: Boolean,
-        type: TransactionType,
-        accountTransfersCategory: Category,
-        accountIdFilterSet: Set<UUID>,
-
-        @SideEffect
-        transactions: suspend () -> List<Transaction>,
-
-        @SideEffect
-        incomeExpenseTransfer: suspend () -> IncomeExpenseTransferPair,
-
-        @SideEffect
-        categoryAmounts: suspend () -> List<CategoryAmount>,
+    // Adds a slice for transfers between accounts, when the chart shows them and there are any.
+    private fun addAccountTransfersCategory(
+        input: Input,
+        incomeExpenseTransfer: IncomeExpenseTransferPair,
+        categoryAmounts: List<CategoryAmount>,
+        transactions: List<Transaction>,
     ): List<CategoryAmount> {
-        val incExpQuad = incomeExpenseTransfer()
+        val noTransfers = incomeExpenseTransfer.transferIncome == BigDecimal.ZERO &&
+            incomeExpenseTransfer.transferExpense == BigDecimal.ZERO
+        if (!input.showAccountTransfersCategory || noTransfers) {
+            return categoryAmounts.sortedByDescending { it.amount }
+        }
 
-        val catAmtList =
-            if (!showAccountTransfersCategory || incExpQuad.transferIncome == BigDecimal.ZERO && incExpQuad.transferExpense == BigDecimal.ZERO) {
-                categoryAmounts then { it.sortedByDescending { ca -> ca.amount } }
+        val amount = if (input.type == TransactionType.INCOME) {
+            incomeExpenseTransfer.transferIncome.toDouble()
+        } else {
+            incomeExpenseTransfer.transferExpense.toDouble()
+        }
+        val accountIdFilterSet = input.accountIdFilterList.toHashSet()
+        val transferTransactions = transactions.filter {
+            it.type == TransactionType.TRANSFER
+        }.filter {
+            if (input.type == TransactionType.EXPENSE) {
+                accountIdFilterSet.contains(it.accountId)
             } else {
-                val amt = if (type == TransactionType.INCOME) {
-                    incExpQuad.transferIncome.toDouble()
-                } else {
-                    incExpQuad.transferExpense.toDouble()
-                }
-
-                val categoryTrans = transactions().filter {
-                    it.type == TransactionType.TRANSFER
-                }.filter {
-                    if (type == TransactionType.EXPENSE) {
-                        accountIdFilterSet.contains(it.accountId)
-                    } else {
-                        accountIdFilterSet.contains(it.toAccountId)
-                    }
-                }
-
-                categoryAmounts then {
-                    it.plus(
-                        CategoryAmount(
-                            category = accountTransfersCategory,
-                            amount = amt,
-                            associatedTransactions = categoryTrans,
-                            isCategoryUnspecified = true
-                        )
-                    )
-                } then {
-                    it.sortedByDescending { ca -> ca.amount }
-                }
+                accountIdFilterSet.contains(it.toAccountId)
             }
+        }
 
-        return catAmtList()
+        return categoryAmounts.plus(
+            CategoryAmount(
+                category = accountTransfersCategory,
+                amount = amount,
+                associatedTransactions = transferTransactions,
+                isCategoryUnspecified = true
+            )
+        ).sortedByDescending { it.amount }
     }
 
     data class Input(

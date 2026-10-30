@@ -2,24 +2,23 @@ package com.ivy.wallet.domain.action.transaction
 
 import arrow.core.nonEmptyListOf
 import com.ivy.data.model.Transaction
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.wallet.domain.action.exchange.actInput
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import com.ivy.wallet.domain.pure.transaction.LegacyFoldTransactions
 import com.ivy.wallet.domain.pure.transaction.WalletValueFunctions
 import com.ivy.wallet.domain.pure.transaction.WalletValueFunctionsLegacy
 import com.ivy.wallet.domain.pure.transaction.foldTransactionsSuspend
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class CalcTrnsIncomeExpenseAct @Inject constructor(
     private val exchangeAct: ExchangeAct
-) : FPAction<CalcTrnsIncomeExpenseAct.Input, IncomeExpenseTransferPair>() {
-    override suspend fun Input.compose(): suspend () -> IncomeExpenseTransferPair = suspend {
-        foldTransactionsSuspend(
-            transactions = transactions,
+) {
+    suspend operator fun invoke(input: Input): IncomeExpenseTransferPair = withContext(Dispatchers.IO) {
+        val values = foldTransactionsSuspend(
+            transactions = input.transactions,
             valueFunctions = nonEmptyListOf(
                 WalletValueFunctions::income,
                 WalletValueFunctions::expense,
@@ -27,12 +26,11 @@ class CalcTrnsIncomeExpenseAct @Inject constructor(
                 WalletValueFunctions::transferExpenses
             ),
             arg = WalletValueFunctions.Argument(
-                accounts = accounts,
-                baseCurrency = baseCurrency,
-                exchange = ::actInput then exchangeAct
+                accounts = input.accounts,
+                baseCurrency = input.baseCurrency,
+                exchange = exchangeAct::convert
             )
         )
-    } then { values ->
         IncomeExpenseTransferPair(
             income = values[0],
             expense = values[1],
@@ -51,10 +49,10 @@ class CalcTrnsIncomeExpenseAct @Inject constructor(
 @Deprecated("Uses legacy Transaction")
 class LegacyCalcTrnsIncomeExpenseAct @Inject constructor(
     private val exchangeAct: ExchangeAct
-) : FPAction<LegacyCalcTrnsIncomeExpenseAct.Input, IncomeExpenseTransferPair>() {
-    override suspend fun Input.compose(): suspend () -> IncomeExpenseTransferPair = suspend {
-        LegacyFoldTransactions.foldTransactionsSuspend(
-            transactions = transactions,
+) {
+    suspend operator fun invoke(input: Input): IncomeExpenseTransferPair = withContext(Dispatchers.IO) {
+        val values = LegacyFoldTransactions.foldTransactionsSuspend(
+            transactions = input.transactions,
             valueFunctions = nonEmptyListOf(
                 WalletValueFunctionsLegacy::income,
                 WalletValueFunctionsLegacy::expense,
@@ -62,12 +60,11 @@ class LegacyCalcTrnsIncomeExpenseAct @Inject constructor(
                 WalletValueFunctionsLegacy::transferExpenses
             ),
             arg = WalletValueFunctionsLegacy.Argument(
-                accounts = accounts,
-                baseCurrency = baseCurrency,
-                exchange = ::actInput then exchangeAct
+                accounts = input.accounts,
+                baseCurrency = input.baseCurrency,
+                exchange = exchangeAct::convert
             )
         )
-    } then { values ->
         IncomeExpenseTransferPair(
             income = values[0],
             expense = values[1],

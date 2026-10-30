@@ -17,9 +17,6 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.frp.fixUnit
-import com.ivy.frp.then
-import com.ivy.frp.thenInvokeAfter
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
 import com.ivy.legacy.IvyWalletCtx
@@ -244,7 +241,7 @@ class HomeViewModel @Inject constructor(
                 is HomeEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
                 is HomeEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
                 is HomeEvent.SetBuffer -> setBuffer(event.buffer)
-                is HomeEvent.SetCurrency -> setCurrency(event.currency).fixUnit()
+                is HomeEvent.SetCurrency -> setCurrency(event.currency)
                 HomeEvent.SwitchTheme -> switchTheme()
                 is HomeEvent.DismissCustomerJourneyCard -> dismissCustomerJourneyCard(event.card)
                 is HomeEvent.SetExpanded -> setExpanded(event.expanded)
@@ -253,21 +250,17 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun start() {
-        suspend {
-            val startDay = startDayOfMonthAct(Unit)
-            ivyContext.initSelectedPeriodInMemory(
-                startDayOfMonth = startDay
-            )
-        } thenInvokeAfter ::reload
+        val startDay = startDayOfMonthAct()
+        reload(ivyContext.initSelectedPeriodInMemory(startDayOfMonth = startDay))
     }
 
     // -----------------------------------------------------------------------------------
     private suspend fun reload(
         timePeriod: TimePeriod = ivyContext.selectedPeriod
-    ) = suspend {
-        val settings = settingsAct(Unit)
-        val hideBalance = shouldHideBalanceAct(Unit)
-        val hideIncome = shouldHideIncomeAct(Unit)
+    ) {
+        val settings = settingsAct()
+        val hideBalance = shouldHideBalanceAct()
+        val hideIncome = shouldHideIncomeAct()
 
         currentTheme = settings.theme
         name = settings.name
@@ -278,34 +271,35 @@ class HomeViewModel @Inject constructor(
         // This method is used to restore the theme when user imports locally backed up data
         ivyContext.switchTheme(theme = settings.theme)
 
-        Pair(
-            settings,
-            period.toRange(
-                startDateOfMonth = ivyContext.startDayOfMonth,
-                timeConverter = timeConverter,
-                timeProvider = timeProvider
-            ).toUTCCloseTimeRange()
-        )
-    } then ::loadAppBaseData then ::loadIncomeExpenseBalance then
-            ::loadBuffer then ::loadTrnHistory then
-            ::loadDueTrns thenInvokeAfter ::loadCustomerJourney
+        val timeRange = period.toRange(
+            startDateOfMonth = ivyContext.startDayOfMonth,
+            timeConverter = timeConverter,
+            timeProvider = timeProvider
+        ).toUTCCloseTimeRange()
+
+        val withAccounts = loadAppBaseData(settings to timeRange)
+        val withBalance = loadIncomeExpenseBalance(withAccounts)
+        val currencyAndRange = loadBuffer(withBalance)
+        loadTrnHistory(currencyAndRange)
+        loadDueTrns(currencyAndRange)
+        loadCustomerJourney()
+    }
 
     private suspend fun loadAppBaseData(
         input: Pair<Settings, ClosedTimeRange>
-    ): Triple<Settings, ClosedTimeRange, List<Account>> =
-        suspend {} then accountsAct then { accounts ->
-            accounts to categoryRepository.findAll()
-        } thenInvokeAfter { (accounts, categories) ->
-            val (settings, timeRange) = input
+    ): Triple<Settings, ClosedTimeRange, List<Account>> {
+        val (settings, timeRange) = input
+        val accounts = accountsAct()
+        val categories = categoryRepository.findAll()
 
-            baseData = AppBaseData(
-                baseCurrency = settings.baseCurrency,
-                categories = categories.toImmutableList(),
-                accounts = accounts.toImmutableList()
-            )
+        baseData = AppBaseData(
+            baseCurrency = settings.baseCurrency,
+            categories = categories.toImmutableList(),
+            accounts = accounts.toImmutableList()
+        )
 
-            Triple(settings, timeRange, accounts)
-        }
+        return Triple(settings, timeRange, accounts)
+    }
 
     private suspend fun loadIncomeExpenseBalance(
         input: Triple<Settings, ClosedTimeRange, List<Account>>
@@ -363,35 +357,32 @@ class HomeViewModel @Inject constructor(
         return baseCurrency to timeRange
     }
 
-    private suspend fun loadDueTrns(
-        input: Pair<String, ClosedTimeRange>
-    ): Unit = suspend {
-        UpcomingAct.Input(baseCurrency = input.first, range = input.second)
-    } then upcomingAct then { result ->
+    private suspend fun loadDueTrns(input: Pair<String, ClosedTimeRange>) {
+        val (baseCurrency, timeRange) = input
+        val upcomingResult = upcomingAct(UpcomingAct.Input(baseCurrency = baseCurrency, range = timeRange))
         upcoming = LegacyDueSection(
             trns = with(transactionMapper) {
-                result.upcomingTrns.map {
+                upcomingResult.upcomingTrns.map {
                     it.toEntity().toLegacyDomain()
                 }.toImmutableList()
             },
-            stats = result.upcoming,
+            stats = upcomingResult.upcoming,
             expanded = upcoming.expanded
         )
-    } then {
-        OverdueAct.Input(baseCurrency = input.first, toRange = input.second.to)
-    } then overdueAct thenInvokeAfter { result ->
+
+        val overdueResult = overdueAct(OverdueAct.Input(baseCurrency = baseCurrency, toRange = timeRange.to))
         overdue = LegacyDueSection(
             trns = with(transactionMapper) {
-                result.overdueTrns.map {
+                overdueResult.overdueTrns.map {
                     it.toEntity().toLegacyDomain()
                 }.toImmutableList()
             },
-            stats = result.overdue,
+            stats = overdueResult.overdue,
             expanded = overdue.expanded
         )
     }
 
-    private suspend fun loadCustomerJourney(unit: Unit) {
+    private suspend fun loadCustomerJourney() {
         customerJourneyCards = ioThread {
             customerJourneyLogic.loadCards().toImmutableList()
         }
@@ -407,7 +398,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onBalanceClick() {
-        val hasTransactions = hasTrnsAct(Unit)
+        val hasTransactions = hasTrnsAct()
         if (hasTransactions) {
             // has transactions show him "Balance" screen
             nav.navigateTo(BalanceScreen)
@@ -455,16 +446,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun setCurrency(newCurrency: String) = settingsAct then {
-        it.copy(
-            baseCurrency = newCurrency
-        )
-    } then updateSettingsAct then {
+    private suspend fun setCurrency(newCurrency: String) {
+        updateSettingsAct(settingsAct().copy(baseCurrency = newCurrency))
         // update exchange rates from POV of the new base currency
         AssetCode.from(newCurrency).onRight {
             syncExchangeRatesUseCase.sync(it)
         }
-    } then {
         reload()
     }
 
@@ -495,9 +482,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun dismissCustomerJourneyCard(card: CustomerJourneyCardModel) = suspend {
+    private suspend fun dismissCustomerJourneyCard(card: CustomerJourneyCardModel) {
         customerJourneyLogic.dismissCard(card)
-    } thenInvokeAfter {
         reload()
     }
 

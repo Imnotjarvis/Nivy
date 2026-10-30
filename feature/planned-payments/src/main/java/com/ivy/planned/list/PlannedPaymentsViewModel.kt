@@ -140,7 +140,7 @@ class PlannedPaymentsViewModel @Inject constructor(
             currency = settings.currency
 
             categories = categoriesRepository.findAll().toImmutableList()
-            accounts = accountsAct(Unit)
+            accounts = accountsAct()
 
             oneTimePlannedPayment =
                 ioThread { plannedPaymentsLogic.oneTime() }.toImmutableList()

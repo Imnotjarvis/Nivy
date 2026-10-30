@@ -35,7 +35,6 @@ import com.ivy.data.temp.migration.getValue
 import com.ivy.domain.RootScreen
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
-import com.ivy.frp.filterSuspend
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toLegacy
@@ -214,8 +213,8 @@ class ReportViewModel @Inject constructor(
 
     private fun start() {
         viewModelScope.launch(Dispatchers.IO) {
-            baseCurrency = baseCurrencyAct(Unit)
-            accounts = accountsAct(Unit)
+            baseCurrency = baseCurrencyAct()
+            accounts = accountsAct()
             categories =
                 (listOf(unSpecifiedCategory) + categoryRepository.findAll()).toImmutableList()
             allTags = tagRepository.findAll().toImmutableList()
@@ -233,7 +232,7 @@ class ReportViewModel @Inject constructor(
                     history = persistentListOf(),
                     upcomingTransactions = persistentListOf(),
                     overdueTransactions = persistentListOf(),
-                    accounts = accountsAct(Unit),
+                    accounts = accountsAct(),
                     reportFilter = filter,
                     accountIdFilters = persistentListOf(),
                     transactions = persistentListOf(),
@@ -452,7 +451,7 @@ class ReportViewModel @Inject constructor(
                     (trn.getTransactionType() == TransactionType.TRANSFER)
                 }
             }
-            .filterSuspend {
+            .filter {
                 // Filter by Amount
                 // !NOTE: Amount must be converted to baseCurrency amount
 

@@ -29,7 +29,6 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
-import com.ivy.frp.then
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.data.model.toCloseTimeRange
@@ -379,25 +378,21 @@ class TransactionsViewModel @Inject constructor(
         income.doubleValue = incomeExpensePair.income.toDouble()
         expenses.doubleValue = incomeExpensePair.expense.toDouble()
 
-        history.value = (
-                accTrnsAct then {
-                    trnsWithDateDivsAct(
-                        LegacyTrnsWithDateDivsAct.Input(
-                            baseCurrency = baseCurrency.value,
-                            transactions = with(transactionMapper) {
-                                it.map {
-                                    val tags =
-                                        tagRepository.findByIds(it.tags).toImmutableLegacyTags()
-                                    it.toEntity().toLegacyDomain(tags = tags)
-                                }
-                            }
-                        )
-                    )
-                }
-                )(
+        val accountTransactions = accTrnsAct(
             AccTrnsAct.Input(
                 accountId = initialAccount.id,
                 range = range.toCloseTimeRange()
+            )
+        )
+        history.value = trnsWithDateDivsAct(
+            LegacyTrnsWithDateDivsAct.Input(
+                baseCurrency = baseCurrency.value,
+                transactions = with(transactionMapper) {
+                    accountTransactions.map {
+                        val tags = tagRepository.findByIds(it.tags).toImmutableLegacyTags()
+                        it.toEntity().toLegacyDomain(tags = tags)
+                    }
+                }
             )
         ).toImmutableList()
 
@@ -841,12 +836,12 @@ class TransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             period.value = timePeriod ?: ivyContext.selectedPeriod
 
-            val baseCurrencyValue = baseCurrencyAct(Unit)
+            val baseCurrencyValue = baseCurrencyAct()
             baseCurrency.value = baseCurrencyValue
             currency.value = baseCurrency.value
 
             categories.value = categoryRepository.findAll().toImmutableList()
-            accounts.value = accountsAct(Unit)
+            accounts.value = accountsAct()
             initWithTransactions.value = false
             treatTransfersAsIncomeExpense.value = appPreferences.transfersAsIncomeExpense()
 

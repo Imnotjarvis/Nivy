@@ -1,9 +1,6 @@
 package com.ivy.wallet.domain.action.viewmodel.account
 
 import arrow.core.toOption
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.action.thenMap
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.Account
 import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.action.account.CalcAccIncomeExpenseAct
@@ -13,27 +10,34 @@ import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class AccountDataAct @Inject constructor(
     private val exchangeAct: ExchangeAct,
     private val calcAccBalanceAct: CalcAccBalanceAct,
     private val calcAccIncomeExpenseAct: CalcAccIncomeExpenseAct
-) : FPAction<AccountDataAct.Input, ImmutableList<com.ivy.legacy.data.model.AccountData>>() {
+) {
+    suspend operator fun invoke(input: Input): ImmutableList<com.ivy.legacy.data.model.AccountData> =
+        withContext(Dispatchers.IO) {
+            input.accounts.map { acc -> accountData(acc, input) }.toImmutableList()
+        }
 
-    override suspend fun Input.compose(): suspend () -> ImmutableList<com.ivy.legacy.data.model.AccountData> = suspend {
-        accounts
-    } thenMap { acc ->
+    private suspend fun accountData(
+        acc: com.ivy.data.model.Account,
+        input: Input,
+    ): com.ivy.legacy.data.model.AccountData {
         val balance = calcAccBalanceAct(
             CalcAccBalanceAct.Input(
                 account = acc
             )
         ).balance
 
-        val balanceBaseCurrency = if (acc.asset.code != baseCurrency) {
+        val balanceBaseCurrency = if (acc.asset.code != input.baseCurrency) {
             exchangeAct(
                 ExchangeAct.Input(
                     data = ExchangeData(
-                        baseCurrency = baseCurrency,
+                        baseCurrency = input.baseCurrency,
                         fromCurrency = acc.asset.code.toOption()
                     ),
                     amount = balance
@@ -46,20 +50,18 @@ class AccountDataAct @Inject constructor(
         val incomeExpensePair = calcAccIncomeExpenseAct(
             CalcAccIncomeExpenseAct.Input(
                 account = acc,
-                range = range,
-                includeTransfersInCalc = includeTransfersInCalc
+                range = input.range,
+                includeTransfersInCalc = input.includeTransfersInCalc
             )
         ).incomeExpensePair
 
-        com.ivy.legacy.data.model.AccountData(
+        return com.ivy.legacy.data.model.AccountData(
             account = acc,
             balance = balance.toDouble(),
             balanceBaseCurrency = balanceBaseCurrency?.toDouble(),
             monthlyIncome = incomeExpensePair.income.toDouble(),
             monthlyExpenses = incomeExpensePair.expense.toDouble(),
         )
-    } then {
-        it.toImmutableList()
     }
 
     data class Input(

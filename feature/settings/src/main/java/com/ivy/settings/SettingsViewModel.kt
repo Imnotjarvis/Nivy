@@ -22,7 +22,6 @@ import com.ivy.data.preferences.AppPreferences
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.frp.monad.Res
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.LogoutLogic
 import com.ivy.legacy.domain.action.settings.UpdateSettingsAct
@@ -121,7 +120,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun initializeCurrentTheme() {
-        currentTheme.value = settingsAct(Unit).theme
+        currentTheme.value = settingsAct().theme
     }
 
     private suspend fun initializeLockApp() {
@@ -145,7 +144,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun initializeStartDateOfMonth() {
-        startDateOfMonth.intValue = startDayOfMonthAct(Unit)
+        startDateOfMonth.intValue = startDayOfMonthAct()
     }
 
     @Composable
@@ -352,11 +351,8 @@ class SettingsViewModel @Inject constructor(
 
     private fun setStartDateOfMonth(startDate: Int) {
         viewModelScope.launch {
-            when (val res = updateStartDayOfMonthAct(startDate)) {
-                is Res.Err -> {}
-                is Res.Ok -> {
-                    startDateOfMonth.intValue = res.data
-                }
+            updateStartDayOfMonthAct(startDate).onRight {
+                startDateOfMonth.intValue = it
             }
         }
     }

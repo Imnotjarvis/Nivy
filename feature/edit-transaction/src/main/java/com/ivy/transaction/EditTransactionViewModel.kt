@@ -154,7 +154,7 @@ class EditTransactionViewModel @Inject constructor(
 
             val tagList = async { getAllTags() }
 
-            val getAccounts = accountsAct(Unit)
+            val getAccounts = accountsAct()
             if (getAccounts.isEmpty()) {
                 closeScreen()
                 return@launch
@@ -685,7 +685,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct(Unit)
+                accounts = accountsAct()
             }
         }
     }

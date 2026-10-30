@@ -4,21 +4,17 @@ import com.ivy.base.legacy.Transaction
 import com.ivy.data.model.TransactionId
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
-import com.ivy.frp.action.FPAction
-import com.ivy.frp.then
 import com.ivy.legacy.datamodel.temp.toLegacy
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TrnByIdAct @Inject constructor(
     private val transactionRepo: TransactionRepository,
     private val mapper: TransactionMapper
-) : FPAction<UUID, Transaction?>() {
-    override suspend fun UUID.compose(): suspend () -> Transaction? = suspend {
-        this // transactionId
-    } then {
-        transactionRepo.findById(TransactionId(it))
-    } then {
-        it?.toLegacy(mapper)
+) {
+    suspend operator fun invoke(transactionId: UUID): Transaction? = withContext(Dispatchers.IO) {
+        transactionRepo.findById(TransactionId(transactionId))?.toLegacy(mapper)
     }
 }
