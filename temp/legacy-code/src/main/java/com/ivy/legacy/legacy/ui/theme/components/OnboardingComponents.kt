@@ -30,10 +30,10 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun OnboardingButton(
-    modifier: Modifier = Modifier,
     text: String,
     textColor: Color,
     backgroundGradient: Gradient,
+    modifier: Modifier = Modifier,
     @DrawableRes iconStart: Int? = null,
     hasNext: Boolean = false,
     enabled: Boolean = true,

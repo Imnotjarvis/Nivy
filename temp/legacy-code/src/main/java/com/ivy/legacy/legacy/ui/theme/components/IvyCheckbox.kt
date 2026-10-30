@@ -23,8 +23,8 @@ import com.ivy.legacy.IvyWalletComponentPreview
 // A Material3 checkbox in Ivy's colors: a green box with a white check, a gray outline when off.
 @Composable
 fun IvyCheckbox(
-    modifier: Modifier = Modifier,
     checked: Boolean,
+    modifier: Modifier = Modifier,
     onCheckedChange: (checked: Boolean) -> Unit
 ) {
     Checkbox(
@@ -41,9 +41,9 @@ fun IvyCheckbox(
 
 @Composable
 fun IvyCheckboxWithText(
-    modifier: Modifier = Modifier,
     text: String,
     checked: Boolean,
+    modifier: Modifier = Modifier,
     onCheckedChange: (checked: Boolean) -> Unit
 ) {
     Row(

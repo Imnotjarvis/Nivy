@@ -33,9 +33,9 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("ParameterNaming")
 @Composable
 fun IvyOutlinedTextField(
-    modifier: Modifier = Modifier,
     value: TextFieldValue,
     hint: String?,
+    modifier: Modifier = Modifier,
     hintColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     emptyBorderColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,

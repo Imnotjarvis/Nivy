@@ -39,10 +39,10 @@ import com.ivy.design.system.typography.numberLabelMedium
 
 @Composable
 fun BudgetBattery(
-    modifier: Modifier = Modifier,
     currency: String,
     expenses: Double,
     budget: Double,
+    modifier: Modifier = Modifier,
     backgroundNotFilled: Color = MaterialTheme.colorScheme.surface,
     onClick: (() -> Unit)? = null,
 ) {

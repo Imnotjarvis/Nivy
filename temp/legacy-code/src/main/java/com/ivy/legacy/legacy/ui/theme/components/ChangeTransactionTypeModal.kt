@@ -41,10 +41,10 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
-    title: String = stringResource(R.string.set_transaction_type),
     visible: Boolean,
     includeTransferType: Boolean,
     initialType: TransactionType,
+    title: String = stringResource(R.string.set_transaction_type),
     id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit,
     onTransactionTypeChanged: (TransactionType) -> Unit

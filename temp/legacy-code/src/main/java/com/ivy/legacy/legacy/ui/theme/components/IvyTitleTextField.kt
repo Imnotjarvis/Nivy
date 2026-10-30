@@ -39,11 +39,11 @@ import androidx.compose.ui.draw.clip
 @Suppress("ParameterNaming")
 @Composable
 fun ColumnScope.IvyTitleTextField(
+    value: TextFieldValue,
+    hint: String?,
     modifier: Modifier = Modifier,
     dividerModifier: Modifier = Modifier,
-    value: TextFieldValue,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    hint: String?,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         autoCorrectEnabled = true,

@@ -29,8 +29,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun IvyBorderButton(
-    modifier: Modifier = Modifier,
     text: String,
+    modifier: Modifier = Modifier,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
         color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.Bold

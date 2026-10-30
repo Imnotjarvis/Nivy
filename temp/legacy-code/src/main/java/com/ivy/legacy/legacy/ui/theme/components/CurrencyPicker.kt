@@ -65,11 +65,11 @@ import androidx.compose.runtime.rememberUpdatedState
 @Suppress("ParameterNaming")
 @Composable
 fun CurrencyPicker(
-    modifier: Modifier = Modifier,
     initialSelectedCurrency: IvyCurrency?,
-    preselectedCurrency: IvyCurrency = IvyCurrency.getDefault(),
-
     includeKeyboardShownInsetSpacer: Boolean,
+    modifier: Modifier = Modifier,
+
+    preselectedCurrency: IvyCurrency = IvyCurrency.getDefault(),
     lastItemSpacer: Dp = 0.dp,
 
     onKeyboardShown: (keyboardVisible: Boolean) -> Unit = {},

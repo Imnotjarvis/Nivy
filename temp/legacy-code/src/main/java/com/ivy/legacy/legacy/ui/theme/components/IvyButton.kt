@@ -36,8 +36,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun IvyButton(
-    modifier: Modifier = Modifier,
     text: String,
+    modifier: Modifier = Modifier,
     backgroundGradient: Gradient = GradientIvy,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
         color = White,

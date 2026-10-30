@@ -43,6 +43,7 @@ for i in blocking:
     line = loc.get("line", "1") if loc is not None else "1"
     msg = (i.get("message") or "").replace("%", "%25").replace("\n", " ")
     print(f"::error file={file},line={line}::[{i.get('id')}] {msg}")
+    print(f"error {file}:{line} [{i.get('id')}] {msg}")
 
 for i in issues:
     if i in blocking:
@@ -52,6 +53,7 @@ for i in issues:
     line = loc.get("line", "1") if loc is not None else "1"
     msg = (i.get("message") or "").replace("%", "%25").replace("\n", " ")
     print(f"::warning file={file},line={line}::[{i.get('id')}] {msg}")
+    print(f"warning {file}:{line} [{i.get('id')}] {msg}")
 
 others = len(issues) - len(blocking)
 if blocking:

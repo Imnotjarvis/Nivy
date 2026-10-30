@@ -35,8 +35,8 @@ fun CloseButton(
 
 @Composable
 fun CircleButton(
-    modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
+    modifier: Modifier = Modifier,
     contentDescription: String = "icon",
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
@@ -58,8 +58,8 @@ fun CircleButton(
 
 @Composable
 fun CircleButtonFilled(
-    modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
+    modifier: Modifier = Modifier,
     contentDescription: String = "icon",
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     tint: Color? = MaterialTheme.colorScheme.onSurface,
@@ -80,8 +80,8 @@ fun CircleButtonFilled(
 
 @Composable
 fun CircleButtonFilledGradient(
-    modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
+    modifier: Modifier = Modifier,
     contentDescription: String = "icon",
     iconPadding: Dp = 8.dp,
     backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),

@@ -22,8 +22,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun <T> WrapContentRow(
-    modifier: Modifier = Modifier,
     items: List<T>,
+    modifier: Modifier = Modifier,
     verticalMarginBetweenRows: Dp = 8.dp,
     horizontalMarginBetweenItems: Dp = 8.dp,
     ItemContent: @Composable (item: T) -> Unit

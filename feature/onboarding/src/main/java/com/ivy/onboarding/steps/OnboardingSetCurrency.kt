@@ -98,7 +98,7 @@ fun BoxWithConstraintsScope.OnboardingSetCurrency(
     )
 
     OnboardingButton(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
             .align(Alignment.BottomCenter)

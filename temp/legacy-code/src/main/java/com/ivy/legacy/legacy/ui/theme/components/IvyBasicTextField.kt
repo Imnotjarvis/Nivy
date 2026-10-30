@@ -29,10 +29,10 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("ParameterNaming")
 @Composable
 fun IvyBasicTextField(
-    modifier: Modifier = Modifier,
     value: TextFieldValue,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
     hint: String?,
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         autoCorrectEnabled = true,

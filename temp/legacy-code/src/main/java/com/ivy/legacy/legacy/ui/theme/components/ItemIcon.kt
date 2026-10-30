@@ -23,8 +23,8 @@ import androidx.compose.material3.Icon
 
 @Composable
 fun ItemIconL(
-    modifier: Modifier = Modifier,
     iconName: String?,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
@@ -42,8 +42,8 @@ fun ItemIconL(
 
 @Composable
 fun ItemIconMDefaultIcon(
-    modifier: Modifier = Modifier,
     iconName: String?,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     @DrawableRes defaultIcon: Int
 ) {
@@ -64,8 +64,8 @@ fun ItemIconMDefaultIcon(
 
 @Composable
 fun ItemIconM(
-    modifier: Modifier = Modifier,
     iconName: String?,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
@@ -83,8 +83,8 @@ fun ItemIconM(
 
 @Composable
 fun ItemIconSDefaultIcon(
-    modifier: Modifier = Modifier,
     iconName: String?,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     @DrawableRes defaultIcon: Int
 ) {
@@ -105,8 +105,8 @@ fun ItemIconSDefaultIcon(
 
 @Composable
 fun ItemIconS(
-    modifier: Modifier = Modifier,
     iconName: String?,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null
@@ -124,9 +124,9 @@ fun ItemIconS(
 
 @Composable
 private fun ItemIcon(
-    modifier: Modifier = Modifier,
     iconName: String?,
     size: String,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
     Default: (@Composable () -> Unit)? = null

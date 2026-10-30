@@ -109,7 +109,7 @@ fun OnboardingSetName(
         }
 
         IvyOutlinedTextField(
-            Modifier
+            modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
                 .focusRequester(nameFocus),
@@ -135,7 +135,7 @@ fun OnboardingSetName(
         Spacer(Modifier.height(32.dp))
 
         OnboardingButton(
-            Modifier
+            modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth(),
             text = stringResource(R.string.enter),

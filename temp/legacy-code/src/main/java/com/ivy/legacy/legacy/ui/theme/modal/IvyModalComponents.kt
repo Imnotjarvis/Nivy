@@ -24,10 +24,10 @@ fun ModalDynamicPrimaryAction(
     initialEmpty: Boolean,
     initialChanged: Boolean,
 
-    testTagSave: String = "tag_save",
-    testTagDelete: String = "tag_delete",
-
     onDelete: () -> Unit,
+    testTagSave: String = "tag_save",
+
+    testTagDelete: String = "tag_delete",
     dismiss: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -77,8 +77,8 @@ fun ModalSet(
 
 @Composable
 fun ModalCheck(
-    modifier: Modifier = Modifier,
     label: String,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -158,9 +158,9 @@ fun ModalNegativeButton(
 
 @Composable
 fun ModalPositiveButton(
-    modifier: Modifier = Modifier,
     text: String,
     @DrawableRes iconStart: Int,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {

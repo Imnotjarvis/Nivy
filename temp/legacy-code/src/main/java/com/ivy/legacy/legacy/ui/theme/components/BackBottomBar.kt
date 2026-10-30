@@ -19,8 +19,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.BackBottomBar(
-    bottomInset: Dp = navigationBarInset().toDensityDp(),
     onBack: () -> Unit,
+    bottomInset: Dp = navigationBarInset().toDensityDp(),
     PrimaryAction: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current

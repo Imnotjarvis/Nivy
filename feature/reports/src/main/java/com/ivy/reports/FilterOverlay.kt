@@ -591,9 +591,9 @@ private fun TypeFilter(
 @SuppressLint("ComposeParameterOrder")
 @Composable
 private fun TypeFilterCheckbox(
-    modifier: Modifier = Modifier,
     trnType: TransactionType,
     filter: ReportFilter?,
+    modifier: Modifier = Modifier,
     nonFilter: (ReportFilter?) -> ReportFilter,
     onSetFilter: (ReportFilter) -> Unit
 ) {

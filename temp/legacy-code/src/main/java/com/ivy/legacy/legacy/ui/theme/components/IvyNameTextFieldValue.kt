@@ -37,11 +37,11 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("ParameterNaming")
 @Composable
 fun IvyNameTextField(
+    value: TextFieldValue,
+    hint: String?,
     modifier: Modifier = Modifier,
     underlineModifier: Modifier = Modifier,
-    value: TextFieldValue,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    hint: String?,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         autoCorrectEnabled = true,

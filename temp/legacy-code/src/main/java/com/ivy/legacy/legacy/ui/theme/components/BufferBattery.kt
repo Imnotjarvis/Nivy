@@ -36,10 +36,10 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BufferBattery(
-    modifier: Modifier = Modifier,
     buffer: Double,
     balance: Double,
     currency: String,
+    modifier: Modifier = Modifier,
     backgroundNotFilled: Color = MaterialTheme.colorScheme.surface,
     onClick: (() -> Unit)? = null,
 ) {

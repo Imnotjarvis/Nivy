@@ -25,11 +25,11 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun IvyCircleButton(
+    @DrawableRes icon: Int,
     modifier: Modifier = Modifier,
     backgroundPadding: Dp = 0.dp,
     backgroundGradient: Gradient = GradientIvy,
     horizontalGradient: Boolean = true,
-    @DrawableRes icon: Int,
     tint: Color = White,
     enabled: Boolean = true,
     hasShadow: Boolean = true,

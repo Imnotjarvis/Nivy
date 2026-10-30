@@ -35,10 +35,10 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("ParameterNaming")
 @Composable
 fun IvyChecklistTextField(
-    modifier: Modifier = Modifier,
-    textModifier: Modifier = Modifier,
     value: TextFieldValue,
     hint: String?,
+    modifier: Modifier = Modifier,
+    textModifier: Modifier = Modifier,
     readOnly: Boolean = false,
     fontWeight: FontWeight = FontWeight.Medium,
     hintFontWeight: FontWeight = FontWeight.Medium,

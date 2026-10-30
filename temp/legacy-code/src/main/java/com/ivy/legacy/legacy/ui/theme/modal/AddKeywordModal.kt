@@ -28,9 +28,9 @@ import androidx.compose.runtime.LaunchedEffect
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.AddKeywordModal(
-    id: UUID = UUID.randomUUID(),
     keyword: String,
     visible: Boolean,
+    id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit,
     onKeywordChanged: (String) -> Unit
 ) {

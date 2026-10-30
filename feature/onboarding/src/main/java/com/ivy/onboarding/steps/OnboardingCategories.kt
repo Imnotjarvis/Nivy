@@ -178,7 +178,7 @@ fun BoxWithConstraintsScope.OnboardingCategories(
 
     if (categories.isNotEmpty()) {
         OnboardingButton(
-            Modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .align(Alignment.BottomCenter)

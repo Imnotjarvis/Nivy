@@ -381,9 +381,9 @@ fun BoxWithConstraintsScope.LoanModal(
 @Composable
 @Suppress("ParameterNaming")
 private fun AccountsRow(
-    modifier: Modifier = Modifier,
     accounts: List<Account>,
     selectedAccount: Account?,
+    modifier: Modifier = Modifier,
     childrenTestTag: String? = null,
     onSelectedAccountChanged: (Account) -> Unit,
     onAddNewAccount: () -> Unit

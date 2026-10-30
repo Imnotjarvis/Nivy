@@ -16,9 +16,9 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun OnboardingProgressSlider(
-    modifier: Modifier = Modifier,
     selectedStep: Int,
     stepsCount: Int,
+    modifier: Modifier = Modifier,
     selectedColor: Color
 ) {
     Row(

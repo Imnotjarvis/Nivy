@@ -201,10 +201,10 @@ fun ArticleButton(
 
 @Composable
 fun InstructionButton(
-    modifier: Modifier = Modifier,
     @DrawableRes icon: Int?,
     caption: String,
     text: String,
+    modifier: Modifier = Modifier,
 
     onClick: () -> Unit
 ) {

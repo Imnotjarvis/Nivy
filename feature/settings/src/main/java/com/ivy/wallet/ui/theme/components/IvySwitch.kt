@@ -18,8 +18,8 @@ import com.ivy.legacy.IvyWalletComponentPreview
 // A Material3 switch in Ivy's colors: green when on, a gray outline when off.
 @Composable
 fun IvySwitch(
-    modifier: Modifier = Modifier,
     enabled: Boolean,
+    modifier: Modifier = Modifier,
     onEnabledChange: (checked: Boolean) -> Unit
 ) {
     Switch(

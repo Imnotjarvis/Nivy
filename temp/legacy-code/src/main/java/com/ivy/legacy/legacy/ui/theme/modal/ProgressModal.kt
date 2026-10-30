@@ -20,10 +20,10 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.ProgressModal(
-    id: UUID = UUID.randomUUID(),
     title: String,
     description: String,
     visible: Boolean,
+    id: UUID = UUID.randomUUID(),
     color: Color = MaterialTheme.colorScheme.tertiary,
     dismiss: () -> Unit = {},
 ) {

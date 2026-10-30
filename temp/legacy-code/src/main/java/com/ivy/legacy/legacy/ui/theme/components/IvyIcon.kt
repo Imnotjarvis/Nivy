@@ -10,8 +10,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun IvyIcon(
-    modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
+    modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     contentDescription: String = "icon"
 ) {

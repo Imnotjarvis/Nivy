@@ -58,12 +58,12 @@ import androidx.compose.runtime.LaunchedEffect
 @ExperimentalFoundationApi
 @Composable
 fun BoxWithConstraintsScope.ChooseCategoryModal(
-    id: UUID = UUID.randomUUID(),
     visible: Boolean,
     initialCategory: Category?,
     categories: List<Category>,
-
     showCategoryModal: (Category?) -> Unit,
+
+    id: UUID = UUID.randomUUID(),
     onCategoryChanged: (Category?) -> Unit,
     dismiss: () -> Unit
 ) {

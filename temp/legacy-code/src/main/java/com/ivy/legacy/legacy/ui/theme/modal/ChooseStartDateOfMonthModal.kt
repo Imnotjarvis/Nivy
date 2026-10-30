@@ -34,11 +34,11 @@ import com.ivy.design.system.typography.numberBodyLarge
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal(
-    id: UUID = UUID.randomUUID(),
     visible: Boolean,
     selectedStartDateOfMonth: Int,
-
     dismiss: () -> Unit,
+
+    id: UUID = UUID.randomUUID(),
     onStartDateOfMonthSelected: (Int) -> Unit,
 ) {
     IvyModal(

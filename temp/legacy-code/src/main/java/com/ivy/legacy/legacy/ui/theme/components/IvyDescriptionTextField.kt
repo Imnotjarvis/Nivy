@@ -32,11 +32,11 @@ import com.ivy.design.system.typography.numberBodyLarge
 @Suppress("ParameterNaming")
 @Composable
 fun IvyDescriptionTextField(
+    value: TextFieldValue,
+    hint: String?,
     modifier: Modifier = Modifier,
     textModifier: Modifier = Modifier,
     testTag: String = "desc_input",
-    value: TextFieldValue,
-    hint: String?,
     fontWeight: FontWeight = FontWeight.Medium,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     hintColor: Color = MaterialTheme.colorScheme.inverseSurface,

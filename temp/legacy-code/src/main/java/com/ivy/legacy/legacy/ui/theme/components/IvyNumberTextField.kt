@@ -29,10 +29,10 @@ import com.ivy.design.system.typography.numberBodyLarge
 @Suppress("ParameterNaming")
 @Composable
 fun IvyNumberTextField(
-    modifier: Modifier = Modifier,
-    textModifier: Modifier = Modifier,
     value: TextFieldValue,
     hint: String?,
+    modifier: Modifier = Modifier,
+    textModifier: Modifier = Modifier,
     fontWeight: FontWeight = FontWeight.ExtraBold,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     hintColor: Color = Color.Gray,

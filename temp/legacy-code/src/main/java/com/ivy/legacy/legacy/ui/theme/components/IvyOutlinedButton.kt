@@ -30,9 +30,9 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun IvyOutlinedButton(
-    modifier: Modifier = Modifier,
     text: String,
     @DrawableRes iconStart: Int?,
+    modifier: Modifier = Modifier,
     solidBackground: Boolean = false,
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
@@ -85,9 +85,9 @@ fun IvyOutlinedButton(
 
 @Composable
 fun IvyOutlinedButtonFillMaxWidth(
-    modifier: Modifier = Modifier,
     text: String,
     @DrawableRes iconStart: Int?,
+    modifier: Modifier = Modifier,
     solidBackground: Boolean = false,
     iconTint: Color = MaterialTheme.colorScheme.onSurface,
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,

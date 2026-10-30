@@ -135,7 +135,7 @@ fun ImportResultUI(
         Spacer8()
 
         OnboardingButton(
-            Modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             text = stringResource(R.string.finish),
