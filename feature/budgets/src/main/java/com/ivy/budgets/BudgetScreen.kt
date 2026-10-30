@@ -90,7 +90,6 @@ private fun BoxWithConstraintsScope.UI(
                             budget = item.budget,
                             baseCurrency = state.baseCurrency,
                             categories = state.categories,
-                            accounts = state.accounts,
                             autoFocusKeyboard = false
                         )
                     )
@@ -121,7 +120,6 @@ private fun BoxWithConstraintsScope.UI(
                         budget = null,
                         baseCurrency = state.baseCurrency,
                         categories = state.categories,
-                        accounts = state.accounts
                     )
                 )
             )
@@ -144,7 +142,7 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxWidth()
                 .padding(end = 24.dp)
                 .padding(vertical = 8.dp),
-            text = item.budget.name,
+            text = item.budget.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
@@ -154,7 +152,9 @@ private fun BoxWithConstraintsScope.UI(
 
     BudgetModal(
         modal = state.budgetModalData,
-        onCreate = { onEvent(BudgetScreenEvent.OnCreateBudget(it)) },
+        onCreate = { name, amount, categories ->
+            onEvent(BudgetScreenEvent.OnCreateBudget(name, amount, categories))
+        },
         onEdit = { onEvent(BudgetScreenEvent.OnEditBudget(it)) },
         onDelete = { onEvent(BudgetScreenEvent.OnDeleteBudget(it)) },
         dismiss = {
@@ -284,7 +284,7 @@ private fun BudgetItem(
                 .padding(horizontal = 24.dp)
         ) {
             Text(
-                text = displayBudget.budget.name,
+                text = displayBudget.budget.name.value,
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
@@ -294,7 +294,7 @@ private fun BudgetItem(
             Spacer(Modifier.height(2.dp))
 
             Text(
-                text = determineBudgetType(displayBudget.budget.parseCategoryIds().size),
+                text = determineBudgetType(displayBudget.budget.categories.size),
                 style = MaterialTheme.typography.labelMedium.copy(
                     color = Gray,
                     fontWeight = FontWeight.Bold
@@ -303,7 +303,7 @@ private fun BudgetItem(
         }
 
         AmountCurrencyB1(
-            amount = displayBudget.budget.amount,
+            amount = displayBudget.budget.amount.value,
             currency = baseCurrency,
             amountFontWeight = FontWeight.ExtraBold
         )
@@ -317,7 +317,7 @@ private fun BudgetItem(
         modifier = Modifier.padding(horizontal = 16.dp),
         currency = baseCurrency,
         expenses = displayBudget.spentAmount,
-        budget = displayBudget.budget.amount,
+        budget = displayBudget.budget.amount.value,
         backgroundNotFilled = MaterialTheme.colorScheme.surfaceVariant
     ) {
         onClick()

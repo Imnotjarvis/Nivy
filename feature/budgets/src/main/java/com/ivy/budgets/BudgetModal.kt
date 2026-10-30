@@ -23,20 +23,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.data.model.Budget
+import com.ivy.data.model.BudgetId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.domain.legacy.ui.theme.components.ListItem
 import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.datamodel.Account
-import com.ivy.legacy.datamodel.Budget
 import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
-import com.ivy.legacy.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
-import com.ivy.wallet.domain.deprecated.logic.model.CreateBudgetData
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Purple1Dark
 import com.ivy.design.system.colors.Red3Light
@@ -50,13 +49,14 @@ import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import com.ivy.design.system.colors.toComposeColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 data class BudgetModalData(
     val budget: Budget?,
 
     val baseCurrency: String,
     val categories: List<Category>,
-    val accounts: List<Account>,
 
     val id: UUID = UUID.randomUUID(),
     val autoFocusKeyboard: Boolean = true,
@@ -66,23 +66,20 @@ data class BudgetModalData(
 fun BoxWithConstraintsScope.BudgetModal(
     modal: BudgetModalData?,
 
-    onCreate: (CreateBudgetData) -> Unit,
+    onCreate: (name: NotBlankTrimmedString, amount: PositiveDouble, categories: List<CategoryId>) -> Unit,
     onEdit: (Budget) -> Unit,
     onDelete: (Budget) -> Unit,
     dismiss: () -> Unit
 ) {
     val initialBudget = modal?.budget
     var nameTextFieldValue by remember(modal) {
-        mutableStateOf(selectEndTextFieldValue(initialBudget?.name))
+        mutableStateOf(selectEndTextFieldValue(initialBudget?.name?.value))
     }
     var amount by remember(modal) {
-        mutableDoubleStateOf(initialBudget?.amount ?: 0.0)
+        mutableDoubleStateOf(initialBudget?.amount?.value ?: 0.0)
     }
     var categoryIds by remember(modal) {
-        mutableStateOf(modal?.budget?.parseCategoryIds() ?: emptyList())
-    }
-    var accountIds by remember(modal) {
-        mutableStateOf(modal?.budget?.parseAccountIds() ?: emptyList())
+        mutableStateOf(modal?.budget?.categories ?: emptyList())
     }
 
     var amountModalVisible by remember(modal) { mutableStateOf(false) }
@@ -93,28 +90,23 @@ fun BoxWithConstraintsScope.BudgetModal(
         visible = modal != null,
         dismiss = dismiss,
         PrimaryAction = {
+            val name = NotBlankTrimmedString.from(nameTextFieldValue.text).getOrNull()
+            val positiveAmount = PositiveDouble.from(amount).getOrNull()
             ModalAddSave(
                 item = modal?.budget,
-                enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0.0
+                enabled = name != null && positiveAmount != null
             ) {
+                if (name == null || positiveAmount == null) return@ModalAddSave
                 if (initialBudget != null) {
                     onEdit(
                         initialBudget.copy(
-                            name = nameTextFieldValue.text.trim(),
-                            amount = amount,
-                            categoryIdsSerialized = Budget.serialize(categoryIds),
-                            accountIdsSerialized = Budget.serialize(accountIds)
+                            name = name,
+                            amount = positiveAmount,
+                            categories = categoryIds,
                         )
                     )
                 } else {
-                    onCreate(
-                        CreateBudgetData(
-                            name = nameTextFieldValue.text.trim(),
-                            amount = amount,
-                            categoryIdsSerialized = Budget.serialize(categoryIds),
-                            accountIdsSerialized = Budget.serialize(accountIds)
-                        )
-                    )
+                    onCreate(name, positiveAmount, categoryIds)
                 }
 
                 dismiss()
@@ -162,7 +154,7 @@ fun BoxWithConstraintsScope.BudgetModal(
 
         CategoriesRow(
             categories = modal?.categories ?: emptyList(),
-            budgetCategoryIds = categoryIds,
+            budgetCategoryIds = categoryIds.toImmutableList(),
             onSetBudgetCategoryIds = {
                 categoryIds = it
             }
@@ -214,9 +206,9 @@ fun BoxWithConstraintsScope.BudgetModal(
 @Composable
 private fun CategoriesRow(
     categories: List<Category>,
-    budgetCategoryIds: List<UUID>,
+    budgetCategoryIds: ImmutableList<CategoryId>,
 
-    onSetBudgetCategoryIds: (List<UUID>) -> Unit,
+    onSetBudgetCategoryIds: (List<CategoryId>) -> Unit,
 ) {
     Text(
         modifier = Modifier.padding(start = 32.dp),
@@ -242,15 +234,15 @@ private fun CategoriesRow(
                 defaultIcon = R.drawable.ic_custom_category_s,
                 text = category.name.value,
                 selectedColor = category.color.value.toComposeColor().takeIf {
-                    budgetCategoryIds.contains(category.id.value)
+                    budgetCategoryIds.contains(category.id)
                 }
             ) { selected ->
                 if (selected) {
                     // remove category
-                    onSetBudgetCategoryIds(budgetCategoryIds.filter { it != category.id.value })
+                    onSetBudgetCategoryIds(budgetCategoryIds.filter { it != category.id })
                 } else {
                     // add category
-                    onSetBudgetCategoryIds(budgetCategoryIds.plus(category.id.value))
+                    onSetBudgetCategoryIds(budgetCategoryIds.plus(category.id))
                 }
             }
         }
@@ -294,7 +286,6 @@ private fun Preview_create() {
                         orderNum = 0.0,
                     ),
                 ),
-                accounts = emptyList()
             ),
             onCreate = {},
             onEdit = {},
@@ -319,11 +310,12 @@ private fun Preview_edit() {
         BudgetModal(
             modal = BudgetModalData(
                 budget = Budget(
-                    name = "Shopping",
-                    amount = 1250.0,
-                    accountIdsSerialized = null,
-                    categoryIdsSerialized = null,
-                    orderId = 0.0
+                    id = BudgetId(UUID.randomUUID()),
+                    name = NotBlankTrimmedString.unsafe("Shopping"),
+                    amount = PositiveDouble.unsafe(value = 1250.0),
+                    categories = emptyList(),
+                    accounts = emptyList(),
+                    orderNum = 0.0,
                 ),
                 baseCurrency = "BGN",
                 categories = listOf(
@@ -343,7 +335,6 @@ private fun Preview_edit() {
                         orderNum = 0.0,
                     ),
                 ),
-                accounts = emptyList()
             ),
             onCreate = {},
             onEdit = {},
