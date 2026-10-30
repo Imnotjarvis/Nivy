@@ -17,8 +17,8 @@ subprojects {
 // Module dependency rules, checked in CI by ./gradlew :assertModuleGraph.
 // The rules are regexes over "consumer -X> dependency" (api and implementation only).
 moduleGraphAssert {
-    // app -> feature -> widget -> legacy -> navigation -> ui -> domain -> data -> base
-    maxHeight = 8
+    // app -> feature -> widget -> legacy -> navigation -> ui -> domain -> data -> data:model -> base
+    maxHeight = 9
     restricted = arrayOf(
         // Lower layers never depend on higher ones.
         ":shared:.* -X> :(app|feature|widget|temp):.*",
