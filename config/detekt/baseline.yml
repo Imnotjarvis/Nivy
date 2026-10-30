@@ -117,7 +117,6 @@
     <ID>InvalidPackageDeclaration:AccountFunctions.kt$package com.ivy.wallet.domain.pure.account</ID>
     <ID>InvalidPackageDeclaration:AccountModal.kt$package com.ivy.wallet.ui.theme.modal.edit</ID>
     <ID>InvalidPackageDeclaration:AccountsAct.kt$package com.ivy.wallet.domain.action.account</ID>
-    <ID>InvalidPackageDeclaration:Action.kt$package com.ivy.frp.action</ID>
     <ID>InvalidPackageDeclaration:AddKeywordModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
     <ID>InvalidPackageDeclaration:AddPrimaryAttributeButton.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:AllTrnsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
@@ -151,12 +150,6 @@
     <ID>InvalidPackageDeclaration:ChooseStartDateOfMonthModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
     <ID>InvalidPackageDeclaration:CircleButtons.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:ClosedTimeRange.kt$package com.ivy.wallet.domain.pure.data</ID>
-    <ID>InvalidPackageDeclaration:Composition.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:Composition2.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:CompositionFilter.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:CompositionMap.kt$package com.ivy.frp.action</ID>
-    <ID>InvalidPackageDeclaration:CompositionN.kt$package com.ivy.frp</ID>
-    <ID>InvalidPackageDeclaration:CompositionSum.kt$package com.ivy.frp.action</ID>
     <ID>InvalidPackageDeclaration:CreateAccountData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
     <ID>InvalidPackageDeclaration:CreateBudgetData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
     <ID>InvalidPackageDeclaration:CreateCategoryData.kt$package com.ivy.wallet.domain.deprecated.logic.model</ID>
@@ -178,7 +171,6 @@
     <ID>InvalidPackageDeclaration:ExchangeAct.kt$package com.ivy.wallet.domain.action.exchange</ID>
     <ID>InvalidPackageDeclaration:ExchangeRatesLogic.kt$package com.ivy.wallet.domain.deprecated.logic.currency</ID>
     <ID>InvalidPackageDeclaration:ExchangeTrns.kt$package com.ivy.wallet.domain.pure.exchange</ID>
-    <ID>InvalidPackageDeclaration:FPAction.kt$package com.ivy.frp.action</ID>
     <ID>InvalidPackageDeclaration:FoldTransactions.kt$package com.ivy.wallet.domain.pure.transaction</ID>
     <ID>InvalidPackageDeclaration:GradientCut.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:HasTrnsAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
@@ -198,7 +190,6 @@
     <ID>InvalidPackageDeclaration:IvyColorPicker.kt$package com.ivy.domain.legacy.ui</ID>
     <ID>InvalidPackageDeclaration:IvyComponents.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IvyCurrency.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:IvyDataStore.kt$package com.ivy.wallet.io.persistence.datastore</ID>
     <ID>InvalidPackageDeclaration:IvyDescriptionTextField.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IvyDivider.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:IvyDividerDot.kt$package com.ivy.wallet.ui.theme.components</ID>
@@ -259,11 +250,8 @@
     <ID>InvalidPackageDeclaration:RecurringRuleModal.kt$package com.ivy.wallet.ui.theme.modal</ID>
     <ID>InvalidPackageDeclaration:ReorderModal.kt$package com.ivy.wallet.ui.theme.components</ID>
     <ID>InvalidPackageDeclaration:Reorderable.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:Res.kt$package com.ivy.frp.monad</ID>
-    <ID>InvalidPackageDeclaration:ResComposition.kt$package com.ivy.frp.monad</ID>
     <ID>InvalidPackageDeclaration:RoomTypeConverters.kt$package com.ivy.domain.db</ID>
     <ID>InvalidPackageDeclaration:RowMapping.kt$package com.ivy.wallet.domain.deprecated.logic.csv.model</ID>
-    <ID>InvalidPackageDeclaration:SettingsAct.kt$package com.ivy.wallet.domain.action.settings</ID>
     <ID>InvalidPackageDeclaration:ShouldHideBalanceAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
     <ID>InvalidPackageDeclaration:SmartTitleSuggestionsLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
     <ID>InvalidPackageDeclaration:SortOrder.kt$package com.ivy.wallet.domain.data</ID>
@@ -271,19 +259,14 @@
     <ID>InvalidPackageDeclaration:Title.kt$package com.ivy.wallet.ui.edit.core</ID>
     <ID>InvalidPackageDeclaration:Toolbar.kt$package com.ivy.wallet.ui.edit.core</ID>
     <ID>InvalidPackageDeclaration:TransactionHistoryDateDivider.kt$package com.ivy.wallet.domain.data</ID>
-    <ID>InvalidPackageDeclaration:TransactionReminderLogic.kt$package com.ivy.wallet.domain.deprecated.logic.notification</ID>
     <ID>InvalidPackageDeclaration:TransactionReminderWorker.kt$package com.ivy.wallet.domain.deprecated.logic.notification</ID>
     <ID>InvalidPackageDeclaration:TrnByIdAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
     <ID>InvalidPackageDeclaration:TrnFunctions.kt$package com.ivy.wallet.domain.pure.transaction</ID>
     <ID>InvalidPackageDeclaration:TrnsWithDateDivsAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
     <ID>InvalidPackageDeclaration:TrnsWithRangeAndAccFiltersAct.kt$package com.ivy.wallet.domain.action.transaction</ID>
     <ID>InvalidPackageDeclaration:UpcomingAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:UpdateAccCacheAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
-    <ID>InvalidPackageDeclaration:UpdateCategoriesCacheAct.kt$package com.ivy.wallet.domain.action.viewmodel.home</ID>
     <ID>InvalidPackageDeclaration:UpdateStartDayOfMonthAct.kt$package com.ivy.wallet.domain.action.global</ID>
-    <ID>InvalidPackageDeclaration:Utils.kt$package com.ivy.frp</ID>
     <ID>InvalidPackageDeclaration:Utils.kt$package com.ivy.wallet.domain.pure.util</ID>
-    <ID>InvalidPackageDeclaration:ViewmodelUtils.kt$package com.ivy.frp.viewmodel</ID>
     <ID>InvalidPackageDeclaration:WalletAccountLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
     <ID>InvalidPackageDeclaration:WalletCategoryLogic.kt$package com.ivy.wallet.domain.deprecated.logic</ID>
     <ID>InvalidPackageDeclaration:WalletValueFunctions.kt$package com.ivy.wallet.domain.pure.transaction</ID>
@@ -357,7 +340,6 @@
     <ID>MagicNumber:IvyModal.kt$1000f</ID>
     <ID>MagicNumber:IvyModal.kt$1100f</ID>
     <ID>MagicNumber:LoanDetailsScreen.kt$100</ID>
-    <ID>MagicNumber:LoanTransactionsCore.kt$LoanTransactionsCore$12</ID>
     <ID>MagicNumber:LoanViewModel.kt$LoanViewModel$100</ID>
     <ID>MagicNumber:MainBottomBar.kt$0.01f</ID>
     <ID>MagicNumber:MainBottomBar.kt$100f</ID>
@@ -452,12 +434,9 @@
     <ID>MagicNumber:ReportScreen.kt$1000f</ID>
     <ID>MagicNumber:SortOrder.kt$SortOrder.ALPHABETICAL$3</ID>
     <ID>MagicNumber:TransactionCard.kt$5</ID>
-    <ID>MagicNumber:TransactionReminderLogic.kt$TransactionReminderLogic$20</ID>
-    <ID>MagicNumber:TransactionReminderLogic.kt$TransactionReminderLogic$24</ID>
     <ID>MagicNumber:Transactions.kt$5</ID>
     <ID>MagicNumber:TransactionsScreen.kt$0.7f</ID>
     <ID>MagicNumber:TransactionsScreen.kt$10L</ID>
-    <ID>MagicNumber:UpdateStartDayOfMonthAct.kt$UpdateStartDayOfMonthAct$31</ID>
     <ID>MagicNumber:WalletAccountLogic.kt$WalletAccountLogic$0.009</ID>
     <ID>MaxLineLength:FortuneCitySteps.kt$articleUrl = "https://fourdesire.helpshift.com/hc/en/5-fortune-city/faq/242-can-i-export-my-fortune-city-records/"</ID>
     <ID>MaxLineLength:IvyChecklistTextField.kt$"Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."</ID>
@@ -474,24 +453,9 @@
     <ID>MaxLineLength:Migration118to119_Loans.kt$Migration118to119_Loans$"CREATE TABLE IF NOT EXISTS `$LOANS_TABLE` (`name` TEXT NOT NULL, `amount` REAL NOT NULL, `type` TEXT NOT NULL, `color` INTEGER NOT NULL, `icon` TEXT, `orderNum` REAL NOT NULL, `isSynced` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
     <ID>MaxLineLength:Migration118to119_Loans.kt$Migration118to119_Loans$"CREATE TABLE IF NOT EXISTS `$LOAN_RECORDS_TABLE` (`loanId` TEXT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `dateTime` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
     <ID>MaxLineLength:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime$"CREATE TABLE `${LOANS_TEMP_TABLE}` (`name` TEXT NOT NULL, `amount` REAL NOT NULL, `type` TEXT NOT NULL, `color` INTEGER NOT NULL, `icon` TEXT, `orderNum` REAL NOT NULL, `accountId` TEXT, `isSynced` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `dateTime` INTEGER, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
-    <ID>MaxLineLength:PieChartAct.kt$PieChartAct$if</ID>
-    <ID>MaxLineLength:PlannedPaymentRuleDao.kt$PlannedPaymentRuleDao$"SELECT * FROM planned_payment_rules WHERE isDeleted = 0 AND oneTime = :oneTime ORDER BY amount DESC, startDate ASC"</ID>
     <ID>MaxLineLength:PrimaryAttributeColumn.kt$"Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.\n"</ID>
     <ID>MaxLineLength:PrimaryAttributeColumn.kt$"See https://docs.gradle.org/7.0-rc-1/userguide/command_line_interface.html#sec:command_line_warnings"</ID>
     <ID>MaxLineLength:ReportViewModel.kt$ReportViewModel$return incomeExpenseTransferPair.income + incomeExpenseTransferPair.transferIncome - incomeExpenseTransferPair.expense - incomeExpenseTransferPair.transferExpense</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId = :categoryId) AND type = :type AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId IS NULL) AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND (categoryId IS NULL) AND type = :type AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND accountId = :accountId AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate AND (categoryId = :categoryId) ORDER BY dateTime DESC, dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate AND (categoryId IS NULL) ORDER BY dateTime DESC, dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate AND accountId = :accountId ORDER BY dateTime DESC, dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND dueDate &gt;= :startDate AND dueDate &lt;= :endDate ORDER BY dueDate ASC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND toAccountId = :toAccountId AND dateTime &gt;= :startDate AND dateTime &lt;= :endDate ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and accountId = :accountId ORDER BY dateTime DESC"</ID>
-    <ID>MaxLineLength:TransactionDao.kt$TransactionDao$"SELECT * FROM transactions WHERE isDeleted = 0 AND type = :type and toAccountId = :toAccountId ORDER BY dateTime DESC"</ID>
     <ID>MaxLineLength:TransactionReminderWorker.kt$TransactionReminderWorker$// Double check is needed because the user can switch off notifications in settings after it has been scheduled to show notifications for the next day</ID>
     <ID>MaxLineLength:WalletByBudgetBakersSteps.kt$articleUrl = "https://support.budgetbakers.com/hc/en-us/articles/209753325-How-to-EXPORT-transactions-from-Wallet"</ID>
     <ID>MaximumLineLength:FortuneCitySteps.kt$ </ID>
@@ -507,11 +471,8 @@
     <ID>MaximumLineLength:Migration117to118_Budgets.kt$Migration117to118_Budgets$ </ID>
     <ID>MaximumLineLength:Migration118to119_Loans.kt$Migration118to119_Loans$ </ID>
     <ID>MaximumLineLength:Migration124to125_LoanEditDateTime.kt$Migration124to125_LoanEditDateTime$ </ID>
-    <ID>MaximumLineLength:PieChartAct.kt$PieChartAct$ </ID>
-    <ID>MaximumLineLength:PlannedPaymentRuleDao.kt$PlannedPaymentRuleDao$ </ID>
     <ID>MaximumLineLength:PrimaryAttributeColumn.kt$ </ID>
     <ID>MaximumLineLength:ReportViewModel.kt$ReportViewModel$ </ID>
-    <ID>MaximumLineLength:TransactionDao.kt$TransactionDao$ </ID>
     <ID>MaximumLineLength:WalletByBudgetBakersSteps.kt$ </ID>
     <ID>ModifierClickableOrder:ChooseCategoryModal.kt$combinedClickable( onClick = onClick, onLongClick = onLongClick )</ID>
     <ID>ModifierClickableOrder:IvyOutlinedButton.kt$clickable( onClick = onClick, )</ID>
@@ -734,16 +695,12 @@
     <ID>UnstableCollections:Title.kt$Set&lt;String&gt;</ID>
     <ID>UnstableCollections:TransactionCard.kt$List&lt;Account&gt;</ID>
     <ID>UnstableCollections:TransactionCard.kt$List&lt;Category&gt;</ID>
-    <ID>UnstableCollections:Utils.kt$List&lt;Account&gt;</ID>
-    <ID>UnstableCollections:Utils.kt$List&lt;Category&gt;</ID>
     <ID>UnstableCollections:WrapContentRow.kt$List&lt;T&gt;</ID>
     <ID>UnusedParameter:BalanceScreen.kt$screen: BalanceScreen</ID>
     <ID>UnusedParameter:BudgetScreen.kt$screen: BudgetScreen</ID>
     <ID>UnusedParameter:CategoriesScreen.kt$onLongClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:CategoriesScreen.kt$screen: CategoriesScreen</ID>
-    <ID>UnusedParameter:Composition2.kt$crossinline f: () -&gt; Unit</ID>
     <ID>UnusedParameter:HomeMoreMenu.kt$onCurrencyClick: () -&gt; Unit</ID>
-    <ID>UnusedParameter:HomeViewModel.kt$HomeViewModel$unit: Unit</ID>
     <ID>UnusedParameter:IvyBasicTextField.kt$textColor: Color = MaterialTheme.colorScheme.onSurface</ID>
     <ID>UnusedParameter:IvyLineChart.kt$cellSize: Float</ID>
     <ID>UnusedParameter:IvyLineChart.kt$chartWidth: Float</ID>

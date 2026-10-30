@@ -10,8 +10,8 @@ import java.util.UUID
 class FakeCategoryDao : CategoryDao, WriteCategoryDao {
     private val items = mutableListOf<CategoryEntity>()
 
-    override suspend fun findAll(deleted: Boolean): List<CategoryEntity> {
-        return items.filter { it.isDeleted == deleted }
+    override suspend fun findAll(): List<CategoryEntity> {
+        return items.toList()
     }
 
     override suspend fun findById(id: UUID): CategoryEntity? {

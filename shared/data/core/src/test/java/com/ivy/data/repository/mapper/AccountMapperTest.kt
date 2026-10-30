@@ -70,32 +70,26 @@ class AccountMapperTest {
     @Test
     fun `maps entity to domain - valid entity`(
         @TestParameter includeInBalance: Boolean,
-        @TestParameter removed: Boolean,
     ) = runTest {
         // given
         val entity = ValidEntity.copy(
             orderNum = 42.0,
             includeInBalance = includeInBalance,
-            isDeleted = removed,
         )
 
         // when
         val result = with(mapper) { entity.toDomain() }
 
         // then
-        if (removed) {
-            result.shouldBeLeft()
-        } else {
-            result.shouldBeRight() shouldBe Account(
-                id = AccountId(entity.id),
-                name = NotBlankTrimmedString.unsafe("Test"),
-                asset = AssetCode.unsafe("USD"),
-                color = ColorInt(value = 42),
-                icon = IconAsset.unsafe("icon"),
-                includeInBalance = includeInBalance,
-                orderNum = 42.0,
-            )
-        }
+        result.shouldBeRight() shouldBe Account(
+            id = AccountId(entity.id),
+            name = NotBlankTrimmedString.unsafe("Test"),
+            asset = AssetCode.unsafe("USD"),
+            color = ColorInt(value = 42),
+            icon = IconAsset.unsafe("icon"),
+            includeInBalance = includeInBalance,
+            orderNum = 42.0,
+        )
     }
 
     @Test

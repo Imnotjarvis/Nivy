@@ -7,17 +7,17 @@ import java.util.*
 
 @Dao
 interface PlannedPaymentRuleDao {
-    @Query("SELECT * FROM planned_payment_rules WHERE isDeleted = 0 ORDER BY amount DESC, startDate ASC")
+    @Query("SELECT * FROM planned_payment_rules ORDER BY amount DESC, startDate ASC")
     suspend fun findAll(): List<PlannedPaymentRuleEntity>
 
     @Query(
-        "SELECT * FROM planned_payment_rules WHERE isDeleted = 0 AND oneTime = :oneTime ORDER BY amount DESC, startDate ASC"
+        "SELECT * FROM planned_payment_rules WHERE oneTime = :oneTime ORDER BY amount DESC, startDate ASC"
     )
     suspend fun findAllByOneTime(oneTime: Boolean): List<PlannedPaymentRuleEntity>
 
-    @Query("SELECT * FROM planned_payment_rules WHERE id = :id AND isDeleted = 0")
+    @Query("SELECT * FROM planned_payment_rules WHERE id = :id")
     suspend fun findById(id: UUID): PlannedPaymentRuleEntity?
 
-    @Query("SELECT COUNT(*) FROM planned_payment_rules WHERE isDeleted = 0 ")
+    @Query("SELECT COUNT(*) FROM planned_payment_rules")
     suspend fun countPlannedPayments(): Long
 }

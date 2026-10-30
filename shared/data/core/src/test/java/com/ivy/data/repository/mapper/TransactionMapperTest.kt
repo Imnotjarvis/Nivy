@@ -217,13 +217,11 @@ class TransactionMapperTest {
     @Test
     fun `maps income entity to domain - valid income`(
         @TestParameter settled: Boolean,
-        @TestParameter removed: Boolean,
     ) = runTest {
         // given
         val entity = ValidIncome.copy(
             dateTime = InstantNow.takeIf { settled },
             dueDate = InstantNow.takeIf { !settled },
-            isDeleted = removed,
         )
         mockkAccounts(account = EUR)
 
@@ -231,30 +229,26 @@ class TransactionMapperTest {
         val income = with(mapper) { entity.toDomain() }
 
         // then
-        if (removed) {
-            income.shouldBeLeft()
-        } else {
-            income.shouldBeRight() shouldBe Income(
-                id = TransactionId,
-                title = NotBlankTrimmedString.unsafe("Income"),
-                description = NotBlankTrimmedString.unsafe("Income desc"),
-                category = CategoryId,
-                time = InstantNow,
-                settled = settled,
-                metadata = TransactionMetadata(
-                    recurringRuleId = RecurringRuleId,
-                    loanId = LoanId,
-                    paidForDateTime = PaidForDateTime,
-                    loanRecordId = LoanRecordId
-                ),
-                value = PositiveValue(
-                    amount = PositiveDouble.unsafe(100.0),
-                    asset = EUR
-                ),
-                account = AccountId,
-                tags = persistentListOf()
-            )
-        }
+        income.shouldBeRight() shouldBe Income(
+            id = TransactionId,
+            title = NotBlankTrimmedString.unsafe("Income"),
+            description = NotBlankTrimmedString.unsafe("Income desc"),
+            category = CategoryId,
+            time = InstantNow,
+            settled = settled,
+            metadata = TransactionMetadata(
+                recurringRuleId = RecurringRuleId,
+                loanId = LoanId,
+                paidForDateTime = PaidForDateTime,
+                loanRecordId = LoanRecordId
+            ),
+            value = PositiveValue(
+                amount = PositiveDouble.unsafe(100.0),
+                asset = EUR
+            ),
+            account = AccountId,
+            tags = persistentListOf()
+        )
     }
 
     @Test
@@ -346,13 +340,11 @@ class TransactionMapperTest {
     @Test
     fun `expense entity to domain - valid expense`(
         @TestParameter settled: Boolean,
-        @TestParameter removed: Boolean,
     ) = runTest {
         // given
         val entity = ValidExpense.copy(
             dateTime = InstantNow.takeIf { settled },
             dueDate = InstantNow.takeIf { !settled },
-            isDeleted = removed
         )
         mockkAccounts(account = EUR)
 
@@ -360,30 +352,26 @@ class TransactionMapperTest {
         val expense = with(mapper) { entity.toDomain() }
 
         // then
-        if (removed) {
-            expense.shouldBeLeft()
-        } else {
-            expense.shouldBeRight() shouldBe Expense(
-                id = TransactionId,
-                title = NotBlankTrimmedString.unsafe("Expense"),
-                description = NotBlankTrimmedString.unsafe("Expense desc"),
-                category = CategoryId,
-                time = InstantNow,
-                settled = settled,
-                metadata = TransactionMetadata(
-                    recurringRuleId = RecurringRuleId,
-                    loanId = LoanId,
-                    paidForDateTime = PaidForDateTime,
-                    loanRecordId = LoanRecordId
-                ),
-                value = PositiveValue(
-                    amount = PositiveDouble.unsafe(100.0),
-                    asset = EUR
-                ),
-                account = AccountId,
-                tags = persistentListOf()
-            )
-        }
+        expense.shouldBeRight() shouldBe Expense(
+            id = TransactionId,
+            title = NotBlankTrimmedString.unsafe("Expense"),
+            description = NotBlankTrimmedString.unsafe("Expense desc"),
+            category = CategoryId,
+            time = InstantNow,
+            settled = settled,
+            metadata = TransactionMetadata(
+                recurringRuleId = RecurringRuleId,
+                loanId = LoanId,
+                paidForDateTime = PaidForDateTime,
+                loanRecordId = LoanRecordId
+            ),
+            value = PositiveValue(
+                amount = PositiveDouble.unsafe(100.0),
+                asset = EUR
+            ),
+            account = AccountId,
+            tags = persistentListOf()
+        )
     }
 
     @Test
@@ -475,13 +463,11 @@ class TransactionMapperTest {
     @Test
     fun `transfer entity to domain - valid transfer`(
         @TestParameter settled: Boolean,
-        @TestParameter removed: Boolean,
     ) = runTest {
         // given
         val entity = ValidTransfer.copy(
             dateTime = InstantNow.takeIf { settled },
             dueDate = InstantNow.takeIf { !settled },
-            isDeleted = removed,
             amount = 50.0,
             toAmount = 55.0,
         )
@@ -494,35 +480,31 @@ class TransactionMapperTest {
         val transfer = with(mapper) { entity.toDomain() }
 
         // then
-        if (removed) {
-            transfer.shouldBeLeft()
-        } else {
-            transfer.shouldBeRight() shouldBe Transfer(
-                id = TransactionId,
-                title = NotBlankTrimmedString.unsafe("Transfer"),
-                description = NotBlankTrimmedString.unsafe("Transfer desc"),
-                category = CategoryId,
-                time = InstantNow,
-                settled = settled,
-                metadata = TransactionMetadata(
-                    recurringRuleId = RecurringRuleId,
-                    loanId = LoanId,
-                    paidForDateTime = PaidForDateTime,
-                    loanRecordId = LoanRecordId
-                ),
-                fromValue = PositiveValue(
-                    amount = PositiveDouble.unsafe(50.0),
-                    asset = EUR
-                ),
-                fromAccount = AccountId,
-                toValue = PositiveValue(
-                    amount = PositiveDouble.unsafe(55.0),
-                    asset = USD
-                ),
-                toAccount = ToAccountId,
-                tags = persistentListOf()
-            )
-        }
+        transfer.shouldBeRight() shouldBe Transfer(
+            id = TransactionId,
+            title = NotBlankTrimmedString.unsafe("Transfer"),
+            description = NotBlankTrimmedString.unsafe("Transfer desc"),
+            category = CategoryId,
+            time = InstantNow,
+            settled = settled,
+            metadata = TransactionMetadata(
+                recurringRuleId = RecurringRuleId,
+                loanId = LoanId,
+                paidForDateTime = PaidForDateTime,
+                loanRecordId = LoanRecordId
+            ),
+            fromValue = PositiveValue(
+                amount = PositiveDouble.unsafe(50.0),
+                asset = EUR
+            ),
+            fromAccount = AccountId,
+            toValue = PositiveValue(
+                amount = PositiveDouble.unsafe(55.0),
+                asset = USD
+            ),
+            toAccount = ToAccountId,
+            tags = persistentListOf()
+        )
     }
 
     @Test

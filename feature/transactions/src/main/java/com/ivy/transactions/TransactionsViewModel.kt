@@ -731,7 +731,7 @@ class TransactionsViewModel @Inject constructor(
     private suspend fun deleteAccount(accountId: UUID) {
         ioThread {
             transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            plannedPaymentRuleWriter.deletedByAccountId(accountId = accountId)
+            plannedPaymentRuleWriter.deleteAllByAccountId(accountId = accountId)
             accountRepository.deleteById(AccountId(accountId))
 
             nav.back()

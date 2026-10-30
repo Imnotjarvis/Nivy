@@ -39,9 +39,9 @@ class CategoryRepositoryTest {
     }
 
     @Test
-    fun `find all not deleted - empty list`() = runTest {
+    fun `find all - empty list`() = runTest {
         // given
-        coEvery { categoryDao.findAll(false) } returns emptyList()
+        coEvery { categoryDao.findAll() } returns emptyList()
 
         // when
         val res = repository.findAll()
@@ -51,11 +51,11 @@ class CategoryRepositoryTest {
     }
 
     @Test
-    fun `find all not deleted - valid and invalid categories`() = runTest {
+    fun `find all - valid and invalid categories`() = runTest {
         // given
         val id1 = UUID.randomUUID()
         val id3 = UUID.randomUUID()
-        coEvery { categoryDao.findAll(false) } returns listOf(
+        coEvery { categoryDao.findAll() } returns listOf(
             CategoryEntity(
                 name = "Home",
                 color = 42,

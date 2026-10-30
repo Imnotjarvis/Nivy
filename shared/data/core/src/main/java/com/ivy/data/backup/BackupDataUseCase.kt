@@ -8,6 +8,8 @@ import com.ivy.base.legacy.zip
 import com.ivy.base.threading.DispatchersProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
+import com.ivy.data.db.IvyRoomDatabase
+import com.ivy.data.db.SoftDeletedRows
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.BudgetDao
 import com.ivy.data.db.dao.read.CategoryDao
@@ -69,7 +71,8 @@ class BackupDataUseCase @Inject constructor(
     private val tagsReader: TagDao,
     private val tagAssociationReader: TagAssociationDao,
     private val tagsWriter: WriteTagDao,
-    private val tagAssociationWriter: WriteTagAssociationDao
+    private val tagAssociationWriter: WriteTagAssociationDao,
+    private val db: IvyRoomDatabase,
 ) {
     suspend fun exportToFile(
         zipFileUri: Uri
@@ -311,6 +314,7 @@ class BackupDataUseCase @Inject constructor(
             settings.await()
             tags.await()
             tagAssociations.await()
+            SoftDeletedRows.delete(db.openHelper.writableDatabase)
 
             onProgress(0.9)
         }

@@ -10,8 +10,8 @@ import java.util.UUID
 class FakeAccountDao : AccountDao, WriteAccountDao {
     private val accounts = mutableMapOf<UUID, AccountEntity>()
 
-    override suspend fun findAll(deleted: Boolean): List<AccountEntity> {
-        return accounts.filterValues { it.isDeleted == deleted }.values.toList()
+    override suspend fun findAll(): List<AccountEntity> {
+        return accounts.values.toList()
     }
 
     override suspend fun findById(id: UUID): AccountEntity? {

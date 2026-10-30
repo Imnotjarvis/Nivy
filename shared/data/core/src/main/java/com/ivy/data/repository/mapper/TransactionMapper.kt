@@ -31,8 +31,6 @@ class TransactionMapper @Inject constructor(
     suspend fun TransactionEntity.toDomain(
         tags: List<TagId> = emptyList()
     ): Either<String, Transaction> = either {
-        ensure(!isDeleted) { "Transaction is deleted" }
-
         val metadata = TransactionMetadata(
             recurringRuleId = recurringRuleId,
             paidForDateTime = paidForDateTime,
