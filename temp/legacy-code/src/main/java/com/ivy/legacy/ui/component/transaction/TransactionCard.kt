@@ -42,9 +42,9 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.api.LocalTimeProvider
+import com.ivy.legacy.LocalTimeConverter
+import com.ivy.legacy.LocalTimeFormatter
+import com.ivy.legacy.LocalTimeProvider
 import com.ivy.design.system.colors.BlueLight
 import com.ivy.design.l1_buildingBlocks.IvyText
 import com.ivy.design.l1_buildingBlocks.SpacerHor

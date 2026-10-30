@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ivy.design.api.LocalTimeFormatter
+import com.ivy.legacy.LocalTimeFormatter
 import com.ivy.legacy.utils.formatNicely
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton

@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.design.api.LocalTimeProvider
+import com.ivy.legacy.LocalTimeProvider
 import com.ivy.legacy.IvyWalletCtx
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.ivyWalletCtx

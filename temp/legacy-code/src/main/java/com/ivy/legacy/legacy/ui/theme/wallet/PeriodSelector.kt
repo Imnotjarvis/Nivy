@@ -21,9 +21,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.api.LocalTimeProvider
+import com.ivy.legacy.LocalTimeConverter
+import com.ivy.legacy.LocalTimeFormatter
+import com.ivy.legacy.LocalTimeProvider
 import com.ivy.legacy.IvyWalletComponentPreview
 import com.ivy.legacy.data.model.TimePeriod
 import com.ivy.legacy.ivyWalletCtx

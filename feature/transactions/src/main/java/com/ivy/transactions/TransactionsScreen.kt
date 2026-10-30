@@ -40,9 +40,9 @@ import com.ivy.base.legacy.TransactionHistoryItem
 import com.ivy.base.legacy.stringRes
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeFormatter
-import com.ivy.design.api.LocalTimeProvider
+import com.ivy.legacy.LocalTimeConverter
+import com.ivy.legacy.LocalTimeFormatter
+import com.ivy.legacy.LocalTimeProvider
 import com.ivy.design.utils.thenIf
 import com.ivy.legacy.Constants
 import com.ivy.legacy.IvyWalletPreview

@@ -38,7 +38,7 @@ import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
 import com.ivy.base.model.processByType
 import com.ivy.data.model.LoanType
-import com.ivy.design.api.LocalTimeFormatter
+import com.ivy.legacy.LocalTimeFormatter
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.Loan

@@ -33,8 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.design.api.LocalTimeConverter
-import com.ivy.design.api.LocalTimeProvider
+import com.ivy.legacy.LocalTimeConverter
+import com.ivy.legacy.LocalTimeProvider
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.data.model.FromToTimeRange
 import com.ivy.legacy.data.model.LastNTimeRange

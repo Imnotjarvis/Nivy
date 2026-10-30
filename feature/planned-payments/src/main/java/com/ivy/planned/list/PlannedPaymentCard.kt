@@ -31,7 +31,7 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.api.LocalTimeConverter
+import com.ivy.legacy.LocalTimeConverter
 import com.ivy.legacy.IvyWalletPreview
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.PlannedPaymentRule

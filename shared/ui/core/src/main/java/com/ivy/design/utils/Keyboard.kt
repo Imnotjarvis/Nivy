@@ -21,6 +21,8 @@ fun hideKeyboard() {
     LocalView.current.hideKeyboard()
 }
 
+// Same JVM signature as View.hideKeyboard(), hence the JvmName.
+@JvmName("hideKeyboardSafely")
 @Suppress("SwallowedException")
 fun hideKeyboard(view: View) {
     try {

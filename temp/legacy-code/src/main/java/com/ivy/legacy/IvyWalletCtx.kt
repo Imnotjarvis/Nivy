@@ -5,8 +5,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.ivy.design.IvyContext
 import com.ivy.base.legacy.SharedPrefs
+import com.ivy.base.legacy.Theme
 import com.ivy.data.model.Category
 import com.ivy.legacy.datamodel.Account
 import java.time.LocalDate
@@ -17,8 +17,27 @@ import javax.inject.Singleton
 
 @Deprecated("Legacy code. Don't use it, please.")
 @Singleton
-class IvyWalletCtx @Inject constructor() : IvyContext() {
+class IvyWalletCtx @Inject constructor() {
     // ------------------------------------------ State ---------------------------------------------
+    // The theme the user picked; IvyWalletTheme resolves AUTO against the system setting.
+    var theme: Theme by mutableStateOf(Theme.LIGHT)
+        private set
+
+    fun switchTheme(theme: Theme) {
+        this.theme = theme
+    }
+
+    // Set by IvyWalletTheme from the content's size; read by screens that animate across it.
+    var screenWidth: Int = -1
+        get() {
+            return if (field > 0) field else error("screenWidth not initialized")
+        }
+
+    var screenHeight: Int = -1
+        get() {
+            return if (field > 0) field else error("screenHeight not initialized")
+        }
+
     @Deprecated("Legacy code. Don't use it, please.")
     var startDayOfMonth = 1
         private set

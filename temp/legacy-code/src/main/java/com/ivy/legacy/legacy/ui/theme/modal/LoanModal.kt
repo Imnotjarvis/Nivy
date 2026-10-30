@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.LoanType
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.api.LocalTimeConverter
+import com.ivy.legacy.LocalTimeConverter
 import com.ivy.domain.legacy.ui.IvyColorPicker
 import com.ivy.frp.test.TestingContext
 import com.ivy.legacy.IvyWalletPreview

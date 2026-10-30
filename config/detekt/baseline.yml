@@ -89,10 +89,6 @@
     <ID>ComposableParamOrder:Shapes.kt$ShapeOutlined</ID>
     <ID>ComposableParamOrder:Switch.kt$Switch</ID>
     <ID>ComposableParamOrder:WrapContentRow.kt$WrapContentRow</ID>
-    <ID>CompositionLocalAllowlist:IvyTheme.kt$LocalIvyColors</ID>
-    <ID>CompositionLocalAllowlist:IvyTheme.kt$LocalIvyShapes</ID>
-    <ID>CompositionLocalAllowlist:IvyTheme.kt$LocalIvyTypography</ID>
-    <ID>CompositionLocalAllowlist:IvyUI.kt$LocalIvyContext</ID>
     <ID>CompositionLocalAllowlist:NavigationRoot.kt$LocalNavigation</ID>
     <ID>ConstructorParameterNaming:LoanTransactionsLogic.kt$LoanTransactionsLogic$val Loan: LTLoanMapper</ID>
     <ID>ConstructorParameterNaming:LoanTransactionsLogic.kt$LoanTransactionsLogic$val LoanRecord: LTLoanRecordMapper</ID>
@@ -117,7 +113,6 @@
     <ID>FunctionParameterNaming:EditBottomSheet.kt$ActionButton: @Composable () -&gt; Unit</ID>
     <ID>FunctionParameterNaming:ItemIcon.kt$Default: (@Composable () -&gt; Unit)? = null</ID>
     <ID>FunctionParameterNaming:IvyComponents.kt$Content: @Composable RowScope.() -&gt; Unit</ID>
-    <ID>FunctionParameterNaming:IvyComposeApp.kt$Content: @Composable BoxScope.() -&gt; Unit</ID>
     <ID>FunctionParameterNaming:IvyModal.kt$Content: @Composable ColumnScope.() -&gt; Unit</ID>
     <ID>FunctionParameterNaming:IvyModal.kt$PrimaryAction: @Composable () -&gt; Unit</ID>
     <ID>FunctionParameterNaming:IvyModal.kt$SecondaryActions: (@Composable () -&gt; Unit)? = null</ID>
@@ -344,13 +339,6 @@
     <ID>MagicNumber:ChooseIconModal.kt$5</ID>
     <ID>MagicNumber:ChoosePeriodModal.kt$200</ID>
     <ID>MagicNumber:ChoosePeriodModal.kt$3</ID>
-    <ID>MagicNumber:Colors.kt$0.1f</ID>
-    <ID>MagicNumber:Colors.kt$0.4f</ID>
-    <ID>MagicNumber:Colors.kt$0.5</ID>
-    <ID>MagicNumber:Colors.kt$0.5f</ID>
-    <ID>MagicNumber:Colors.kt$0.6f</ID>
-    <ID>MagicNumber:Colors.kt$0.8f</ID>
-    <ID>MagicNumber:Colors.kt$3</ID>
     <ID>MagicNumber:CurrencyPicker.kt$20</ID>
     <ID>MagicNumber:DateExt.kt$23</ID>
     <ID>MagicNumber:DateExt.kt$59</ID>
@@ -609,7 +597,6 @@
     <ID>ModifierMissing:IvyModalComponents.kt$ModalDynamicPrimaryAction</ID>
     <ID>ModifierMissing:IvyModalComponents.kt$ModalTitle</ID>
     <ID>ModifierMissing:IvyToolbar.kt$IvyToolbar</ID>
-    <ID>ModifierMissing:IvyUI.kt$IvyUI</ID>
     <ID>ModifierMissing:IvyWalletSteps.kt$IvyWalletSteps</ID>
     <ID>ModifierMissing:ListItem.kt$ListItem</ID>
     <ID>ModifierMissing:LoanModal.kt$LoanModal</ID>
@@ -710,7 +697,6 @@
     <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:IvySwitch.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>NoWildcardImports:IvyWalletDesign.kt$import com.ivy.design.l0_system.*</ID>
     <ID>NoWildcardImports:Keyboard.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:ReorderModal.kt$import androidx.compose.runtime.*</ID>
@@ -723,44 +709,32 @@
     <ID>PackageName:Button.kt$package com.ivy.design.l2_components</ID>
     <ID>PackageName:ButtonWithIcon.kt$package com.ivy.design.l2_components</ID>
     <ID>PackageName:Checkbox.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:Colors.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageName:ColumnRoot.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageName:Dividers.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageName:IconButton.kt$package com.ivy.design.l2_components</ID>
     <ID>PackageName:InputField.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:IvyColors.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageName:IvyIcon.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageName:IvyPadding.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageName:IvyShapes.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageName:IvyText.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageName:IvyTheme.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageName:IvyTypography.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageName:ScreenTitle.kt$package com.ivy.design.l3_ivyComponents</ID>
     <ID>PackageName:Shapes.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageName:Spacers.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageName:Switch.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageName:TypographyExt.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageNaming:Background.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
     <ID>PackageNaming:Button.kt$package com.ivy.design.l2_components</ID>
     <ID>PackageNaming:ButtonWithIcon.kt$package com.ivy.design.l2_components</ID>
     <ID>PackageNaming:Checkbox.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:Colors.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageNaming:ColumnRoot.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageNaming:Dividers.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageNaming:IconButton.kt$package com.ivy.design.l2_components</ID>
     <ID>PackageNaming:InputField.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:IvyColors.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageNaming:IvyIcon.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageNaming:IvyPadding.kt$package com.ivy.design.l1_buildingBlocks.data</ID>
-    <ID>PackageNaming:IvyShapes.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageNaming:IvyText.kt$package com.ivy.design.l1_buildingBlocks</ID>
-    <ID>PackageNaming:IvyTheme.kt$package com.ivy.design.l0_system</ID>
-    <ID>PackageNaming:IvyTypography.kt$package com.ivy.design.l0_system</ID>
     <ID>PackageNaming:ScreenTitle.kt$package com.ivy.design.l3_ivyComponents</ID>
     <ID>PackageNaming:Shapes.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageNaming:Spacers.kt$package com.ivy.design.l1_buildingBlocks</ID>
     <ID>PackageNaming:Switch.kt$package com.ivy.design.l2_components</ID>
-    <ID>PackageNaming:TypographyExt.kt$package com.ivy.design.l0_system</ID>
     <ID>PrintStackTrace:Budget.kt$Budget$e</ID>
     <ID>PrintStackTrace:BudgetCreator.kt$BudgetCreator$e</ID>
     <ID>PrintStackTrace:BudgetExt.kt$e</ID>
@@ -850,8 +824,6 @@
     <ID>UnusedParameter:Shapes.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:Title.kt$initialTransactionId: UUID?</ID>
     <ID>UnusedPrivateMember:Migration109to110_PlannedPayments.kt$Migration109to110_PlannedPayments$private fun SupportSQLiteDatabase.addSyncColumns(tableName: String)</ID>
-    <ID>UseCheckOrError:IvyContext.kt$IvyContext$throw IllegalStateException("screenHeight not initialized")</ID>
-    <ID>UseCheckOrError:IvyContext.kt$IvyContext$throw IllegalStateException("screenWidth not initialized")</ID>
     <ID>UseCheckOrError:SharedPrefs.kt$SharedPrefs$throw IllegalStateException("SharePrefs key '$key' cannot be null")</ID>
     <ID>UseCheckOrError:ZipUtils.kt$throw IllegalStateException("Location file must be directory or not exist")</ID>
     <ID>UtilityClassWithPublicConstructor:WidgetBase.kt$WidgetBase</ID>
@@ -863,7 +835,6 @@
     <ID>WildcardImport:IvySwitch.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:IvySwitch.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:IvyToolbar.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:IvyWalletDesign.kt$import com.ivy.design.l0_system.*</ID>
     <ID>WildcardImport:Keyboard.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ReorderModal.kt$import androidx.compose.runtime.*</ID>
