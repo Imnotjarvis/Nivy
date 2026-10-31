@@ -12,7 +12,6 @@
     <string name="unlock">إلغاء القفل</string>
     <string name="current_balance">الرصيد الحالي</string>
     <string name="balance_after_payments">الرصيد بعد الدفعات المحددة</string>
-    <string name="connect">اتصل</string>
     <string name="add_budget">أضف ميزانية</string>
     <string name="no_budgets">لا يوجد ميزانيات</string>
     <string name="no_budgets_text">لا يوجد لديك اي ميزانيات محددة. اضغط على "أضف ميزانية" لإضافة واحدة.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">الإنفاق</string>
     <string name="income">الدخل</string>
-    <string name="balance">الرصيد %1$s</string>
-    <string name="charts">المخططات</string>
-    <string name="period">المدة:</string>
     <string name="categories">الفئات</string>
     <string name="export_csv_file">csv تصدير ملف</string>
     <string name="export_csv_file_standard">تصدير ملف csv بالخيارات القياسية</string>
@@ -129,12 +125,9 @@
     <string name="account_transfer">تحويل لحساب</string>
     <string name="skip">تخطي</string>
     <string name="add_new">إضافة جديد</string>
-    <string name="range">المجال</string>
-    <string name="enter_your_name">أدخل اسمك\n لتخصيص محفظتك</string>
     <string name="what_is_your_name">ما اسمك؟</string>
     <string name="enter">إدخال</string>
     <string name="add_accounts">إضافة حسابات</string>
-    <string name="suggestion">مقترح</string>
     <string name="next">التالي</string>
     <string name="add_categories">إضافة فئات</string>
     <string name="suggestions">مقترحات</string>
@@ -211,7 +204,6 @@
     <string name="show_notifications">إظهار التنبيهات</string>
     <string name="hide_balance">إخفاء الرصيد</string>
     <string name="hide_balance_description">إضغط على الرصيد المخفي لإظهاره لمدة 5ث</string>
-    <string name="other">أخرى</string>
     <string name="danger_zone">المنطقة الخطرة</string>
     <string name="delete_all_user_data">احذف كل بيانات المستخدم</string>
     <string name="delete_all_user_data_question">هل تريد حذف كل البيانات؟</string>
@@ -224,7 +216,6 @@
     <string name="exporting_data_description">الرجاء الانتظار, يتم تصدير البيانات</string>
     <string name="start_date_of_month">تاريخ بداية الشهر</string>
     <string name="account_uppercase">الحساب</string>
-    <string name="logout">تسجيل الخروج</string>
     <string name="anonymous">مجهول</string>
     <string name="export_to_csv">CSV التصدير لملف</string>
     <string name="left_to_spend">المتبقي للإنفاق</string>
@@ -259,7 +250,6 @@
     <string name="delete">حذف</string>
     <string name="save">حفظ</string>
     <string name="add">أضافة</string>
-    <string name="create">إنشاء</string>
     <string name="edit_loan">تعديل القرض</string>
     <string name="new_loan">قرض جديد</string>
     <string name="loan_name">اسم القرض</string>
@@ -322,7 +312,6 @@
     <string name="widget_description">Nivy \nلديها تطبيقات مصغرة (ويدجت) رائعة تتيح لك إضافة دخل/إنفاق/تحويل بضغطة واحدة فقط من الشاشة الرئيسية \n\n ملاحظ: اذا لم يعمل زر \"إضافة تطبيق مصغر\" يرجى اضافته يدويا عن طريق قائمة التطبيقات المصغرة في شاشتك الرئيسية</string>
     <string name="add_widget">إضافة تطبيق مصغر</string>
     <string name="expenses_piechart">إحصائيات الإنفاق</string>
-    <string name="adjust_balance">أضبط الرصيد</string>
     <string name="authentication_required">تأكيد الهوية مطلوب</string>
     <string name="authentication_required_description">أثبت أن لديك حق الوصول إلى هذا الجهاز لإلغاء قفل التطبيق.</string>
     <string name="total_budget">الميزانية الإجمالية</string>
@@ -358,7 +347,6 @@
     <string name="skip_all">تخطي الكل</string>
     <string name="confirm_skip_all">تأكيد تخطي الكل</string>
     <string name="confirm_skip_all_description">هل أنت متأكد من أنك تريد تخطي جميع المعاملات المخطط لها المتأخرة؟</string>
-    <string name="experimental">تجريبي</string>
     <string name="wallet_balance">رصيد المحفظة</string>
     <string name="total_exclusive">%1$s %2$s: المجموع (حصريا)</string>
     <string name="total_balance">المجموع المحفظة</string>

@@ -108,18 +108,12 @@ class LoanViewModel @Inject constructor(
     fun setTab(tab: LoanTab) {
         selectedTab = tab
     }
-
-    @Composable
     private fun getSelectedTab(): LoanTab {
         return selectedTab
     }
-
-    @Composable
     private fun getCompletedLoans(): ImmutableList<DisplayLoan> {
         return completedLoans
     }
-
-    @Composable
     private fun getPendingLoans(): ImmutableList<DisplayLoan> {
         return pendingLoans
     }
@@ -129,8 +123,6 @@ class LoanViewModel @Inject constructor(
 
     @Composable
     private fun getLoanModalData() = loanModalData
-
-    @Composable
     private fun getBaseCurrencyCode(): String {
         return baseCurrencyCode
     }
@@ -140,8 +132,6 @@ class LoanViewModel @Inject constructor(
 
     @Composable
     private fun getAccounts() = accounts
-
-    @Composable
     private fun getPaidOffLoanVisibility(): Boolean = paidOffLoanVisibility
 
     override fun onEvent(event: LoanScreenEvent) {

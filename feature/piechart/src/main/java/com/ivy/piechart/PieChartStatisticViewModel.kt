@@ -70,58 +70,36 @@ class PieChartStatisticViewModel @Inject constructor(
             choosePeriodModal = getChoosePeriodModal()
         )
     }
-
-    @Composable
     private fun getTransactionType(): TransactionType {
         return transactionType
     }
-
-    @Composable
     private fun getPeriod(): TimePeriod {
         return period
     }
-
-    @Composable
     private fun getBaseCurrency(): String {
         return baseCurrency
     }
-
-    @Composable
     private fun getTotalAmount(): Double {
         return totalAmount
     }
-
-    @Composable
     private fun getCategoryAmounts(): ImmutableList<CategoryAmount> {
         return categoryAmounts
     }
-
-    @Composable
     private fun getSelectedCategory(): SelectedCategory? {
         return selectedCategory
     }
-
-    @Composable
     private fun getAccountIdFilterList(): ImmutableList<UUID> {
         return accountIdFilterList
     }
-
-    @Composable
     private fun getShowCloseButtonOnly(): Boolean {
         return showCloseButtonOnly
     }
-
-    @Composable
     private fun getFilterExcluded(): Boolean {
         return filterExcluded
     }
-
-    @Composable
     private fun getTransactions(): ImmutableList<Transaction> {
         return transactions
     }
-
-    @Composable
     private fun getChoosePeriodModal(): ChoosePeriodModalData? {
         return choosePeriodModal
     }

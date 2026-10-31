@@ -12,7 +12,6 @@
     <string name="unlock">खोले</string>
     <string name="current_balance">वर्तमान राशि</string>
     <string name="balance_after_payments">नियोजित भुगतान के बाद शेष राशि</string>
-    <string name="connect">जोड़े</string>
     <string name="add_budget">बजट जोड़ें</string>
     <string name="no_budgets">कोई बजट नहीं</string>
     <string name="no_budgets_text">आपके पास कोई बजट सेट नहीं है। जोड़ने के लिए + बटन पर टैप करें।</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">खर्च</string>
     <string name="income">आय</string>
-    <string name="balance">बैलेंस %1$s</string>
-    <string name="charts">चार्ट</string>
-    <string name="period">अवधि:</string>
     <string name="categories">श्रेणियाँ</string>
     <string name="export_csv_file">CSV फ़ाइल एक्सपोर्ट करें</string>
     <string name="export_csv_file_standard">मानक विकल्पों के साथ CSV फ़ाइल एक्सपोर्ट करें</string>
@@ -128,11 +124,9 @@
     <string name="account_transfer">खाता स्थानांतरण</string>
     <string name="skip">स्किप</string>
     <string name="add_new">नया जोड़ें</string>
-    <string name="range">सीमा</string>
     <string name="what_is_your_name">आपका क्या नाम है?</string>
     <string name="enter">दाखिल करना</string>
     <string name="add_accounts">खाते जोड़ें</string>
-    <string name="suggestion">सुझाव</string>
     <string name="next">अगला</string>
     <string name="add_categories">श्रेणियां जोड़ें</string>
     <string name="suggestions">सुझाव</string>
@@ -180,7 +174,6 @@
     <string name="total_budget">कुल बजट</string>
     <string name="authentication_required_description">ऐप को अनलॉक करने के लिए अपनी पुष्टि करें</string>
     <string name="authentication_required">प्रमाणीकरण आवश्यक</string>
-    <string name="adjust_balance">बैलेंस एडजस्ट करें</string>
     <string name="expenses_piechart">व्यय पाई चार्ट</string>
     <string name="add_widget">विजेट जोड़ें</string>
     <string name="did_you_know">क्या आपको पता था?</string>
@@ -240,7 +233,6 @@
     <string name="loan_name">लोन का नाम</string>
     <string name="new_loan">नया लोन</string>
     <string name="edit_loan">लोन एडिट करें</string>
-    <string name="create">क्रिएट करें</string>
     <string name="add">जोड़ें</string>
     <string name="save">सेव करें</string>
     <string name="delete">मिटाये</string>
@@ -275,7 +267,6 @@
     <string name="left_to_spend">खर्च करने के लिए छोड़ दिया गया</string>
     <string name="export_to_csv">CSV को एक्सपोर्ट करें</string>
     <string name="anonymous">अनाम</string>
-    <string name="logout">लॉग आउट</string>
     <string name="account_uppercase">खाता</string>
     <string name="start_date_of_month">महीने की शुरुआत की तारीख</string>
     <string name="exporting_data_description">कृपया प्रतीक्षा करें, डेटा एक्सपोर्ट किया जा रहा है</string>
@@ -288,7 +279,6 @@
     <string name="delete_all_user_data_question">सारा यूजर डेटा डिलीट करें?</string>
     <string name="delete_all_user_data">सारा यूजर डेटा डिलीट करें</string>
     <string name="danger_zone">खतरा क्षेत्र</string>
-    <string name="other">अन्य</string>
     <string name="hide_balance_description">५ सेकंड के लिए शेष राशि दिखाने के लिए हिडन बैलेंस पर क्लिक करें</string>
     <string name="hide_balance">बैलेंस छुपाएं</string>
     <string name="show_notifications">सूचनाएं दिखाएं</string>
@@ -301,7 +291,6 @@
     <string name="export">एक्सपोर्ट करें</string>
     <string name="set_filter">फ़िल्टर सेट करें</string>
     <string name="export_to_file_description">कैरेक्टर सेट: UTF-८ दशमलव विभाजक: दशमलव बिंदु \'.\' सीमांकक वर्ण: अल्पविराम \',\'</string>
-    <string name="enter_your_name">वॉलेट पर्सनॅलिजे करने के लिए अपना नाम दर्ज करें</string>
     <string name="importing_another_time_warning">दूसरे से बैकअप फ़ाइल इम्पोर्ट करने में 5 मिनट तक का समय लग सकता है। आप चाहें तो बाद में कभी भी अपना डेटा इम्पोर्ट कर सकते हैं।</string>
     <string name="planned_payment_confirm_deletion_description">इस नियोजित भुगतान को हटाने से इससे जुड़े सभी गैर-भुगतान आगामी या अतिदेय लेनदेन हट जाएंगे।</string>
     <string name="planned_start_at">नियोजित शुरुआत</string>
@@ -358,7 +347,6 @@
     <string name="adjust_initial_balance_description"><![CDATA[आइए आरंभ करें। \"खाते\" पर जाएं -> किसी खाते पर टैप करें -> उसके शेष पर टैप करें -> वर्तमान शेष राशि दर्ज करें। बस इतना ही!]]></string>
     <string name="widget_description">Nivy वॉलेट में एक विजेट है जो आपको अपने होम स्क्रीन से 1-क्लिक के साथ आय/व्यय/हस्तांतरण लेनदेन जोड़ने देता है\n\n नोट: यदि विजेट जोड़ने वाला बटन काम नहीं करता है, तो कृपया इसे अपने लॉन्चर के विजेट मेनू से मैन्युअल रूप से जोड़ें।</string>
     <string name="transfers_as_income_expense_description">खाता स्थानान्तरण को खाता स्क्रीन में आय या व्यय के रूप में मानता है</string>
-    <string name="experimental">Experimental</string>
     <string name="wallet_balance">वॉलेट बैलेंस</string>
     <string name="total_exclusive">कुल (अनन्य): %1$s %2$s</string>
     <string name="total_balance">कुल बैलेंस</string>

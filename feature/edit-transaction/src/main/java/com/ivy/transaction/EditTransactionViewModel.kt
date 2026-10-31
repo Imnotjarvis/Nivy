@@ -207,13 +207,9 @@ class EditTransactionViewModel @Inject constructor(
             transactionAssociatedTags = getTransactionAssociatedTags()
         )
     }
-
-    @Composable
     private fun getTransactionType(): TransactionType {
         return transactionType
     }
-
-    @Composable
     private fun getInitialTitle(): String? {
         return initialTitle
     }
@@ -226,83 +222,51 @@ class EditTransactionViewModel @Inject constructor(
             persistentSetOf()
         }
     }
-
-    @Composable
     private fun getCurrency(): String {
         return currency
     }
-
-    @Composable
     private fun getDescription(): String? {
         return description
     }
-
-    @Composable
     private fun getDateTime(): Instant? {
         return dateTime
     }
-
-    @Composable
     private fun getDueDate(): Instant? {
         return dueDate
     }
-
-    @Composable
     private fun getAccounts(): ImmutableList<Account> {
         return accounts
     }
-
-    @Composable
     private fun getCategories(): ImmutableList<Category> {
         return categories
     }
-
-    @Composable
     private fun getAccount(): Account? {
         return account
     }
-
-    @Composable
     private fun getToAccount(): Account? {
         return toAccount
     }
-
-    @Composable
     private fun getCategory(): Category? {
         return category
     }
-
-    @Composable
     private fun getAmount(): Double {
         return amount
     }
-
-    @Composable
     private fun getHasChanges(): Boolean {
         return hasChanges
     }
-
-    @Composable
     private fun getDisplayLoanHelper(): EditTransactionDisplayLoan {
         return displayLoanHelper
     }
-
-    @Composable
     private fun getBackgroundProcessingStarted(): Boolean {
         return backgroundProcessingStarted
     }
-
-    @Composable
     private fun getCustomExchangeRateState(): CustomExchangeRateState {
         return customExchangeRateState
     }
-
-    @Composable
     private fun getTags(): ImmutableList<Tag> {
         return tags
     }
-
-    @Composable
     private fun getTransactionAssociatedTags(): ImmutableList<TagId> {
         return transactionAssociatedTags
     }

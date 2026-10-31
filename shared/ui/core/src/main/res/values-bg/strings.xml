@@ -12,7 +12,6 @@
     <string name="unlock">Отключи</string>
     <string name="current_balance">СЕГАШЕН БАЛАНС</string>
     <string name="balance_after_payments">БАЛАНС СЛЕД ПЛАНИРАНИ</string>
-    <string name="connect">Свързване</string>
     <string name="add_budget">Добави бюджет</string>
     <string name="no_budgets">Няма бюджети</string>
     <string name="no_budgets_text">Нямате бюджети.\nНатиснете "+ Добави бюджет", за да създатете.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Разходи</string>
     <string name="income">Приход</string>
-    <string name="balance">БАЛАНС %1$s</string>
-    <string name="charts">Графики</string>
-    <string name="period">Период:</string>
     <string name="categories">Категории</string>
     <string name="export_csv_file">Експортирай CSV</string>
     <string name="export_csv_file_standard">Експортирай стандартен CSV</string>
@@ -129,12 +125,9 @@
     <string name="account_transfer">Трансфер</string>
     <string name="skip">Пропусни</string>
     <string name="add_new">Добави</string>
-    <string name="range">Период</string>
-    <string name="enter_your_name">Enter your name\nto personalize your\nwallet</string>
     <string name="what_is_your_name">What\'s your name?</string>
     <string name="enter">Задай</string>
     <string name="add_accounts">Добави сметка</string>
-    <string name="suggestion">Предложения</string>
     <string name="next">Следващ</string>
     <string name="add_categories">Категории</string>
     <string name="suggestions">Предложения</string>
@@ -211,7 +204,6 @@
     <string name="show_notifications">Известия</string>
     <string name="hide_balance">Скрий баланс</string>
     <string name="hide_balance_description">Натиснете на скрития баланс, за да го видите.</string>
-    <string name="other">Други</string>
     <string name="danger_zone">Опасна зона</string>
     <string name="delete_all_user_data">Изтрий всички данни</string>
     <string name="delete_all_user_data_question">Изтриване?</string>
@@ -224,7 +216,6 @@
     <string name="exporting_data_description">Моля изчакайте</string>
     <string name="start_date_of_month">Начална дата на месец</string>
     <string name="account_uppercase">АКАУНТ</string>
-    <string name="logout">Изход</string>
     <string name="anonymous">Анонимен</string>
     <string name="export_to_csv">Ескпортиране в CSV</string>
     <string name="left_to_spend">Оставащи</string>
@@ -259,7 +250,6 @@
     <string name="delete">Изтрий</string>
     <string name="save">Запази</string>
     <string name="add">Добави</string>
-    <string name="create">Създай</string>
     <string name="edit_loan">Редакция</string>
     <string name="new_loan">Нов заем</string>
     <string name="loan_name">Име на заем</string>
@@ -322,7 +312,6 @@
     <string name="widget_description">Nivy has a cool widget that lets you add INCOME/EXPENSES/TRANSFER transactions with 1-click from your home\n\nNote: If the "Add widget" button doesn\'t work, please add it manually from your launcher\'s widgets menu.</string>
     <string name="add_widget">Add widget</string>
     <string name="expenses_piechart">Expenses PieChart</string>
-    <string name="adjust_balance">Задай баланс</string>
     <string name="authentication_required">Authentication required</string>
     <string name="authentication_required_description">Prove that you have access to this device to unlock the app.</string>
     <string name="total_budget">Глобален бюджет</string>
@@ -358,7 +347,6 @@
     <string name="skip_all">прескочете всички</string>
     <string name="confirm_skip_all">Потвърдете пропускането на всички</string>
     <string name="confirm_skip_all_description">Сигурни ли сте, че искате да пропуснете всички просрочени планирани операции?</string>
-    <string name="experimental">Experimental</string>
     <string name="wallet_balance">Wallet balance</string>
     <string name="total_exclusive">Общо (без): %1$s %2$s</string>
     <string name="total_balance">Общо БАЛАНС</string>

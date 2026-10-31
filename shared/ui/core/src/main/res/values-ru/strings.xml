@@ -12,7 +12,6 @@
     <string name="unlock">Разблокировать</string>
     <string name="current_balance">ТЕКУЩИЙ БАЛАНС</string>
     <string name="balance_after_payments">БАЛАНС ПОСЛЕ ЗАПЛАНИРОВАННЫХ ПЛАТЕЖЕЙ</string>
-    <string name="connect">Подключить</string>
     <string name="add_budget">Добавить бюджет</string>
     <string name="no_budgets">Бюджетов нет</string>
     <string name="no_budgets_text">У вас не настроены бюджеты.\nЧтобы добавить, нажмите \"+ Добавить бюджет\"</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Расходы</string>
     <string name="income">Доходы</string>
-    <string name="balance">БАЛАНС %1$s</string>
-    <string name="charts">Графики</string>
-    <string name="period">Период:</string>
     <string name="categories">Категории</string>
     <string name="export_csv_file">Экспорт CSV файла</string>
     <string name="export_csv_file_standard">Экспорт CSV файла со стандартными параметрами</string>
@@ -129,12 +125,9 @@
     <string name="account_transfer">ПЕРЕВОД</string>
     <string name="skip">Пропустить</string>
     <string name="add_new">Добавить новое</string>
-    <string name="range">Диапазон</string>
-    <string name="enter_your_name">Для персонализации вашего кошелька введите своё имя</string>
     <string name="what_is_your_name">Как вас зовут?</string>
     <string name="enter">Ввести</string>
     <string name="add_accounts">Добавить счета</string>
-    <string name="suggestion">Предложения</string>
     <string name="next">Далее</string>
     <string name="add_categories">Добавить категории</string>
     <string name="suggestions">Предложения</string>
@@ -211,7 +204,6 @@
     <string name="show_notifications">Показывать уведомления</string>
     <string name="hide_balance">Скрыть баланс</string>
     <string name="hide_balance_description">Нажмите на скрытый баланс, чтобы показать его на 5 секунд</string>
-    <string name="other">Другое</string>
     <string name="danger_zone">Опасная зона</string>
     <string name="delete_all_user_data">Удалить все данные пользователя</string>
     <string name="delete_all_user_data_question">Удалить все данные пользователя?</string>
@@ -224,7 +216,6 @@
     <string name="exporting_data_description">Пожалуйста, подождите. Идёт экспорт данных.</string>
     <string name="start_date_of_month">Начало месяца</string>
     <string name="account_uppercase">УЧЁТНАЯ ЗАПИСЬ</string>
-    <string name="logout">Выйти</string>
     <string name="anonymous">Аноним</string>
     <string name="export_to_csv">Экспорт в CSV</string>
     <string name="left_to_spend">Осталось потратить</string>
@@ -259,7 +250,6 @@
     <string name="delete">Удалить</string>
     <string name="save">Сохранить</string>
     <string name="add">Добавить</string>
-    <string name="create">Создать</string>
     <string name="edit_loan">Редактировать кредит</string>
     <string name="new_loan">Новый кредит</string>
     <string name="loan_name">Название кредита</string>
@@ -322,7 +312,6 @@
     <string name="widget_description">У Nivy есть крутые виджеты, с помощью которых можно добавить транзакции ДОХОДЫ/РАСХОДЫ/ПЕРЕВОД за один клик со стартового экрана вашего смартфона.\n\nПримечание: Примечание: Если кнопка \"Добавить виджет\" не работает, пожалуйста, добавьте его вручную из меню виджетов.</string>
     <string name="add_widget">Добавить виджет</string>
     <string name="expenses_piechart">Круговая диаграмма Расходов</string>
-    <string name="adjust_balance">Скорректировать баланс</string>
     <string name="authentication_required">Аутентификация не удалась</string>
     <string name="authentication_required_description">Подтвердите, что у вас есть доступ к этому устройсту, чтобы разблокировать приложение.</string>
     <string name="total_budget">Общий бюджет</string>
@@ -358,7 +347,6 @@
     <string name="skip_all">Пропустить все</string>
     <string name="confirm_skip_all">Подтвердить пропуск всех</string>
     <string name="confirm_skip_all_description">Вы уверены, что хотите пропустить все просроченные запланированные операции?</string>
-    <string name="experimental">Experimental</string>
     <string name="wallet_balance">Wallet balance</string>
     <string name="total_exclusive">Итого (эксклюзивно): %1$s %2$s</string>
     <string name="total_balance">Итого БАЛАНС</string>

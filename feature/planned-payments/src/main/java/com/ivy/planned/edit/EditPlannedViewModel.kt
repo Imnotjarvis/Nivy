@@ -114,108 +114,66 @@ class EditPlannedViewModel @Inject constructor(
             recurringRuleModalData = getRecurringRuleModalData()
         )
     }
-
-    @Composable
     private fun getCurrency(): String {
         return currency
     }
-
-    @Composable
     private fun getCategories(): ImmutableList<Category> {
         return categories
     }
-
-    @Composable
     private fun getAccounts(): ImmutableList<Account> {
         return accounts
     }
-
-    @Composable
     private fun getTransactionType(): TransactionType {
         return transactionType
     }
-
-    @Composable
     private fun getStartDate(): LocalDateTime? {
         return startDate
     }
-
-    @Composable
     private fun getIntervalN(): Int? {
         return intervalN
     }
-
-    @Composable
     private fun getIntervalType(): IntervalType? {
         return intervalType
     }
-
-    @Composable
     private fun getOneTime(): Boolean {
         return oneTime
     }
-
-    @Composable
     private fun getInitialTitle(): String? {
         return initialTitle
     }
-
-    @Composable
     private fun getDescription(): String? {
         return description
     }
-
-    @Composable
     private fun getAccount(): Account? {
         return account
     }
-
-    @Composable
     private fun getCategory(): Category? {
         return category
     }
-
-    @Composable
     private fun getAmount(): Double {
         return amount
     }
-
-    @Composable
     private fun getCategoryModalVisibility(): Boolean {
         return categoryModalVisible
     }
-
-    @Composable
     private fun getDescriptionModalVisibility(): Boolean {
         return descriptionModalVisible
     }
-
-    @Composable
     private fun getDeleteTransactionModalVisibility(): Boolean {
         return deleteTransactionModalVisible
     }
-
-    @Composable
     private fun getTransactionTypeModalVisibility(): Boolean {
         return transactionTypeModalVisible
     }
-
-    @Composable
     private fun getAmountModalVisibility(): Boolean {
         return amountModalVisible
     }
-
-    @Composable
     private fun getCategoryModalData(): CategoryModalData? {
         return categoryModalData
     }
-
-    @Composable
     private fun getAccountModalData(): AccountModalData? {
         return accountModalData
     }
-
-    @Composable
     private fun getRecurringRuleModalData(): RecurringRuleModalData? {
         return recurringRuleModalData
     }

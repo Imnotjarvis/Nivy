@@ -83,38 +83,24 @@ class BudgetViewModel @Inject constructor(
             budgetModalData = getBudgetModalData()
         )
     }
-
-    @Composable
     private fun getBaseCurrency(): String {
         return baseCurrency.value
     }
-
-    @Composable
     private fun getTimeRange(): FromToTimeRange? {
         return timeRange.value
     }
-
-    @Composable
     private fun getCategories(): ImmutableList<Category> {
         return categories.value
     }
-
-    @Composable
     private fun getBudgets(): ImmutableList<DisplayBudget> {
         return budgets.value
     }
-
-    @Composable
     private fun getReorderModalVisible(): Boolean {
         return reorderModalVisible.value
     }
-
-    @Composable
     private fun getCategoryBudgetsTotal(): Double {
         return categoryBudgetsTotal.doubleValue
     }
-
-    @Composable
     private fun getAppBudgetMax(): Double {
         return appBudgetMax.doubleValue
     }
@@ -132,8 +118,6 @@ class BudgetViewModel @Inject constructor(
             else -> null
         }
     }
-
-    @Composable
     private fun getBudgetModalData(): BudgetModalData? {
         return budgetModalData.value
     }

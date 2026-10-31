@@ -157,73 +157,45 @@ class HomeViewModel @Inject constructor(
     fun getShouldShowAccountSpecificColorInTransactions(): Boolean {
         return features.showAccountColorsInTransactions.asEnabledState()
     }
-
-    @Composable
     private fun getTheme(): Theme {
         return currentTheme
     }
-
-    @Composable
     private fun getName(): String {
         return name
     }
-
-    @Composable
     private fun getPeriod(): TimePeriod {
         return period
     }
-
-    @Composable
     private fun getBaseData(): AppBaseData {
         return baseData
     }
-
-    @Composable
     private fun getHistory(): ImmutableList<TransactionHistoryItem> {
         return history
     }
-
-    @Composable
     private fun getStats(): IncomeExpensePair {
         return stats
     }
-
-    @Composable
     private fun getBalance(): BigDecimal {
         return balance
     }
-
-    @Composable
     private fun getBuffer(): BufferInfo {
         return buffer
     }
-
-    @Composable
     private fun getUpcoming(): DueSection {
         return upcoming
     }
-
-    @Composable
     private fun getOverdue(): DueSection {
         return overdue
     }
-
-    @Composable
     private fun getCustomerJourneyCards(): ImmutableList<CustomerJourneyCardModel> {
         return customerJourneyCards
     }
-
-    @Composable
     private fun getHideBalance(): Boolean {
         return hideBalance
     }
-
-    @Composable
     private fun getExpanded(): Boolean {
         return expanded
     }
-
-    @Composable
     private fun getHideIncome(): Boolean {
         return hideIncome
     }

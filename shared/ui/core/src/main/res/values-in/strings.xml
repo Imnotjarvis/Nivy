@@ -12,7 +12,6 @@
     <string name="unlock">Buka kunci</string>
     <string name="current_balance">SALDO SAAT INI</string>
     <string name="balance_after_payments">SALDO SETELAH PEMBAYARAN TERENCANA</string>
-    <string name="connect">Hubungkan</string>
     <string name="add_budget">Tambahkan anggaran</string>
     <string name="no_budgets">Tidak ada anggaran</string>
     <string name="no_budgets_text">Anda tidak memiliki anggaran yang diatur.\nKetuk "+ Tambahkan anggaran" untuk menambahkan satu.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Pengeluaran</string>
     <string name="income">Pendapatan</string>
-    <string name="balance">SALDO %1$s</string>
-    <string name="charts">Grafik</string>
-    <string name="period">Periode:</string>
     <string name="categories">Kategori</string>
     <string name="export_csv_file">Ekspor file CSV</string>
     <string name="export_csv_file_standard">Ekspor file CSV dengan opsi standar</string>
@@ -130,12 +126,9 @@
     <string name="account_transfer">TRANSFER AKUN</string>
     <string name="skip">Lewati</string>
     <string name="add_new">Tambahkan baru</string>
-    <string name="range">Rentang</string>
-    <string name="enter_your_name">Masukkan nama anda\nuntuk personalisasi\ndompet Anda</string>
     <string name="what_is_your_name">Apa nama Anda?</string>
     <string name="enter">Masukkan</string>
     <string name="add_accounts">Tambahkan akun</string>
-    <string name="suggestion">Saran</string>
     <string name="next">Berikutnya</string>
     <string name="add_categories">Tambahkan kategori</string>
     <string name="suggestions">Saran</string>
@@ -214,7 +207,6 @@
     <string name="hide_balance_description">Klik pada saldo yang tersembunyi untuk menampilkan saldo selama 5 detik</string>
     <string name="hide_income">Sembunyikan pendapatan</string>
     <string name="hide_income_description">Klik pada pendapatan yang tersembunyi untuk menampilkan saldo selama 5 detik</string>
-    <string name="other">Lainnya</string>
     <string name="danger_zone">Zona Bahaya</string>
     <string name="delete_all_user_data">Hapus semua data pengguna</string>
     <string name="delete_all_user_data_question">Hapus semua data pengguna?</string>
@@ -227,7 +219,6 @@
     <string name="exporting_data_description">Harap tunggu, mengekspor data</string>
     <string name="start_date_of_month">Tanggal Mulai Bulan</string>
     <string name="account_uppercase">AKUN</string>
-    <string name="logout">Keluar</string>
     <string name="anonymous">Anonim</string>
     <string name="export_to_csv">Ekspor ke CSV</string>
     <string name="left_to_spend">Sisa yang dapat dihabiskan</string>
@@ -262,7 +253,6 @@
     <string name="delete">Hapus</string>
     <string name="save">Simpan</string>
     <string name="add">Tambahkan</string>
-    <string name="create">Buat</string>
     <string name="edit_loan">Edit pinjaman</string>
     <string name="new_loan">Pinjaman baru</string>
     <string name="loan_name">Nama pinjaman</string>
@@ -325,7 +315,6 @@
     <string name="widget_description">Nivy memiliki widget keren yang memungkinkan Anda menambahkan transaksi PENDAPATAN/PENGELUARAN/PENYALURAN dengan 1 klik dari beranda Anda\n\nCatatan: Jika tombol "Tambah widget" tidak berfungsi, tambahkan secara manual dari menu widget peluncur Anda.</string>
     <string name="add_widget">Tambahkan widget</string>
     <string name="expenses_piechart">Diagram Lingkaran Pengeluaran</string>
-    <string name="adjust_balance">Atur saldo</string>
     <string name="authentication_required">Autentikasi diperlukan</string>
     <string name="authentication_required_description">Buktikan bahwa Anda memiliki akses ke perangkat ini untuk membuka kunci aplikasi.</string>
     <string name="total_budget">Total Anggaran</string>
@@ -361,7 +350,6 @@
     <string name="skip_all">Lewati semua</string>
     <string name="confirm_skip_all">Konfirmasi lewati semua</string>
     <string name="confirm_skip_all_description">Apakah Anda yakin ingin melewati semua pembayaran yang tertunda?</string>
-    <string name="experimental">Eksperimental</string>
     <string name="wallet_balance">Saldo dompet</string>
     <string name="total_exclusive">Total (eksklusif): %1$s %2$s</string>
     <string name="total_balance">Total dompet</string>

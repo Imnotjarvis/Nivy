@@ -99,38 +99,24 @@ class AccountsViewModel @Inject constructor(
     private fun getHideTotalBalance(): Boolean {
         return features.hideTotalBalance.asEnabledState()
     }
-
-    @Composable
     private fun getBaseCurrency(): String {
         return baseCurrency
     }
-
-    @Composable
     private fun getAccountsData(): ImmutableList<AccountData> {
         return accountsData.toImmutableList()
     }
-
-    @Composable
     private fun getTotalBalanceWithExcluded(): String {
         return totalBalanceWithExcluded
     }
-
-    @Composable
     private fun getTotalBalanceWithExcludedText(): String {
         return totalBalanceWithExcludedText
     }
-
-    @Composable
     private fun getTotalBalanceWithoutExcluded(): String {
         return totalBalanceWithoutExcluded
     }
-
-    @Composable
     private fun getTotalBalanceWithoutExcludedText(): String {
         return totalBalanceWithoutExcludedText
     }
-
-    @Composable
     private fun getReorderVisible(): Boolean {
         return reorderVisible
     }

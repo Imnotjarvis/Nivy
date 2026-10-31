@@ -12,7 +12,6 @@
     <string name="unlock">解锁</string>
     <string name="current_balance">当前余额</string>
     <string name="balance_after_payments">计划支付后余额</string>
-    <string name="connect">连接</string>
     <string name="add_budget">添加预算</string>
     <string name="no_budgets">无预算</string>
     <string name="no_budgets_text">您尚未设置任何预算。\n点击“+ 添加预算”添加一个。</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">支出</string>
     <string name="income">收入</string>
-    <string name="balance">余额 %1$s</string>
-    <string name="charts">图表</string>
-    <string name="period">周期：</string>
     <string name="categories">类别</string>
     <string name="export_csv_file">导出CSV文件</string>
     <string name="export_csv_file_standard">导出带有标准选项的CSV文件</string>
@@ -130,8 +126,6 @@
     <string name="account_transfer">账户转账</string>
     <string name="skip">跳过</string>
     <string name="add_new">添加</string>
-    <string name="range">范围</string>
-    <string name="enter_your_name">输入您的姓名\n以个性化您的\n钱包</string>
     <string name="what_is_your_name">您叫什么名字？</string>
     <string name="enter">输入</string>
     <string name="add_accounts">添加账户</string>
@@ -213,7 +207,6 @@
     <string name="hide_balance_description">点击隐藏的余额以显示5秒钟</string>
     <string name="hide_income">隐藏收入</string>
     <string name="hide_income_description">点击隐藏的收入以显示5秒钟</string>
-    <string name="other">其他</string>
     <string name="danger_zone">危险设定</string>
     <string name="delete_all_user_data">删除所有用户数据</string>
     <string name="delete_all_user_data_question">确认删除所有用户数据？</string>
@@ -226,7 +219,6 @@
     <string name="exporting_data_description">请稍候，正在导出数据</string>
     <string name="start_date_of_month">每月开始日期</string>
     <string name="account_uppercase">账户</string>
-    <string name="logout">注销</string>
     <string name="anonymous">匿名</string>
     <string name="export_to_csv">导出为 CSV</string>
     <string name="left_to_spend">剩余可用</string>
@@ -261,7 +253,6 @@
     <string name="delete">删除</string>
     <string name="save">保存</string>
     <string name="add">添加</string>
-    <string name="create">创建</string>
     <string name="edit_loan">编辑贷款</string>
     <string name="new_loan">新建贷款</string>
     <string name="loan_name">贷款名称</string>
@@ -324,7 +315,6 @@
     <string name="widget_description">Nivy 有一个很酷的小部件，可以让您从主屏幕上轻松添加交易。\n\n注意：如果“添加小部件”按钮无法使用，请从启动器的小部件菜单手动添加。</string>
     <string name="add_widget">添加小部件</string>
     <string name="expenses_piechart">支出饼图</string>
-    <string name="adjust_balance">调整余额</string>
     <string name="authentication_required">需要身份验证</string>
     <string name="authentication_required_description">请进行身份验证以访问应用程序</string>
     <string name="total_budget">总预算</string>
@@ -360,7 +350,6 @@
     <string name="skip_all">全部跳过</string>
     <string name="confirm_skip_all">确认全部跳过</string>
     <string name="confirm_skip_all_description">您确定要跳过所有逾期的计划支付吗？</string>
-    <string name="experimental">实验性功能</string>
     <string name="wallet_balance">钱包余额</string>
     <string name="total_exclusive">总计（不包括）：%1$s %2$s</string>
     <string name="total_balance">总余额</string>
@@ -380,12 +369,9 @@
     <string name="this_transaction_is_associated_with_loan_record">* 此交易与贷款记录关联：%1$s</string>
     <string name="note_transaction_associated_with_loan_record_of_loan">注意：此交易与贷款记录关联：%1$s\n您正在尝试将贷款记录关联的账户更改为不同货币的账户\n贷款记录将根据当天的汇率重新计算</string>
     <string name="note_you_are_trying_to_change_the_account_associated_with_the_loan">注意：您正在尝试将贷款 %s 关联的账户更改为不同货币的账户\n所有贷款记录将根据当天的汇率重新计算</string>
-    <string name="icons">图标</string>
     <string name="tap_to_switch_theme">点击切换主题</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F 请勿用于备份目的</string>
     <string name="done">完成</string>
-    <string name="error">错误</string>
-    <string name="loading">加载中……</string>
     <string name="try_again">重试</string>
     <string name="you_can_see_a_piechart">通过点击上方适当的卡片，您可以查看收入和支出的饼图！</string>
     <string name="please_type_category_name">请键入“%1$s”以删除您的类别。</string>

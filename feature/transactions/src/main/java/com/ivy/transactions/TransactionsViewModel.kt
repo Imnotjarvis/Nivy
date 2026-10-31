@@ -164,133 +164,81 @@ class TransactionsViewModel @Inject constructor(
     fun getShouldShowAccountSpecificColorInTransactions(): Boolean {
         return features.showAccountColorsInTransactions.asEnabledState()
     }
-
-    @Composable
     private fun getPeriod(): TimePeriod {
         return period.value
     }
-
-    @Composable
     private fun getBaseCurrency(): String {
         return baseCurrency.value
     }
-
-    @Composable
     private fun getAccount(): Account? {
         return account.value
     }
-
-    @Composable
     private fun getCurrency(): String {
         return currency.value
     }
-
-    @Composable
     private fun getCategories(): ImmutableList<Category> {
         return categories.value
     }
-
-    @Composable
     private fun getAccounts(): ImmutableList<Account> {
         return accounts.value
     }
-
-    @Composable
     private fun getCategory(): Category? {
         return category.value
     }
-
-    @Composable
     private fun getBalance(): Double {
         return balance.doubleValue
     }
-
-    @Composable
     private fun getBalanceBaseCurrency(): Double? {
         return balanceBaseCurrency.value
     }
-
-    @Composable
     private fun getIncome(): Double {
         return income.doubleValue
     }
-
-    @Composable
     private fun getExpenses(): Double {
         return expenses.doubleValue
     }
-
-    @Composable
     private fun getInitWithTransactions(): Boolean {
         return initWithTransactions.value
     }
-
-    @Composable
     private fun getTreatTransfersAsIncomeExpense(): Boolean {
         return treatTransfersAsIncomeExpense.value
     }
-
-    @Composable
     private fun getUpcomingExpenses(): Double {
         return upcomingExpenses.doubleValue
     }
-
-    @Composable
     private fun getUpcoming(): ImmutableList<Transaction> {
         return upcoming.value
     }
-
-    @Composable
     private fun getUpcomingExpanded(): Boolean {
         return upcomingExpanded.value
     }
-
-    @Composable
     private fun getUpcomingIncome(): Double {
         return upcomingIncome.doubleValue
     }
-
-    @Composable
     private fun getHistory(): ImmutableList<TransactionHistoryItem> {
         return history.value
     }
-
-    @Composable
     private fun getOverdue(): ImmutableList<Transaction> {
         return overdue.value
     }
-
-    @Composable
     private fun getOverdueExpanded(): Boolean {
         return overdueExpanded.value
     }
-
-    @Composable
     private fun getOverdueIncome(): Double {
         return overdueIncome.doubleValue
     }
-
-    @Composable
     private fun getOverdueExpenses(): Double {
         return overdueExpenses.doubleValue
     }
-
-    @Composable
     private fun getEnableDeletionButton(): Boolean {
         return enableDeletionButton.value
     }
-
-    @Composable
     private fun getSkipAllModalVisible(): Boolean {
         return skipAllModalVisible.value
     }
-
-    @Composable
     private fun getDeleteModal1Visible(): Boolean {
         return deleteModal1Visible.value
     }
-
-    @Composable
     private fun getChoosePeriodModal(): ChoosePeriodModalData? {
         return choosePeriodModal.value
     }

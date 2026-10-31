@@ -12,7 +12,6 @@
     <string name="unlock">Mở khóa</string>
     <string name="current_balance">SỐ DƯ HIỆN TẠI</string>
     <string name="balance_after_payments">SỐ DƯ SAU THANH TOÁN</string>
-    <string name="connect">Kết nối</string>
     <string name="add_budget">Thêm ngân sách</string>
     <string name="no_budgets">Không có ngân sách nào</string>
     <string name="no_budgets_text">Bạn chưa thêm bất kỳ ngân sách nào.\nNhấn vào "+ Thêm ngân sách" để tạo một ngân sách mới.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Khoản chi</string>
     <string name="income">Khoản thu</string>
-    <string name="balance">SỐ DƯ %1$s</string>
-    <string name="charts">Biểu đồ</string>
-    <string name="period">Khoảng thời gian:</string>
     <string name="categories">Danh mục</string>
     <string name="export_csv_file">Xuất file CSV</string>
     <string name="export_csv_file_standard">Xuất file CSV với các cài đặt tiêu chuẩn</string>
@@ -130,8 +126,6 @@
     <string name="account_transfer">CHUYỂN TÀI KHOẢN</string>
     <string name="skip">Bỏ qua</string>
     <string name="add_new">Thêm mới</string>
-    <string name="range">Phạm vi</string>
-    <string name="enter_your_name">Nhập tên \để cá nhân hóa\ví của bạn</string>
     <string name="what_is_your_name">Bạn tên là gì?</string>
     <string name="enter">Nhập</string>
     <string name="add_accounts">Thêm tài khoản</string>
@@ -213,7 +207,6 @@
     <string name="hide_balance_description">Chạm vào số dư bị ẩn để hiển thị trong 5 giây</string>
     <string name="hide_income">Ẩn khoản thu</string>
     <string name="hide_income_description">Nhấn vào khoản thu bị ẩn để hiển thị trong 5 giây</string>
-    <string name="other">Khác</string>
     <string name="danger_zone">Nguy hiểm</string>
     <string name="delete_all_user_data">Xóa tất cả các dữ liệu người dùng</string>
     <string name="delete_all_user_data_question">Xóa tất cả các dữ liệu người dùng?</string>
@@ -226,7 +219,6 @@
     <string name="exporting_data_description">Vui lòng đợi, đang xuất dữ liệu</string>
     <string name="start_date_of_month">Ngày bắt đầu của tháng</string>
     <string name="account_uppercase">TÀI KHOẢN</string>
-    <string name="logout">Đăng xuất</string>
     <string name="anonymous">Vô danh</string>
     <string name="export_to_csv">Xuất ra CSV</string>
     <string name="left_to_spend">Số dư còn lại</string>
@@ -261,7 +253,6 @@
     <string name="delete">Xóa</string>
     <string name="save">Lưu</string>
     <string name="add">Thêm</string>
-    <string name="create">Tạo</string>
     <string name="edit_loan">Chỉnh sửa khoản vay</string>
     <string name="new_loan">Khoản vay mới</string>
     <string name="loan_name">Tên khoản vay</string>
@@ -324,7 +315,6 @@
     <string name="widget_description">Nivy có một tiện ích thú vị cho phép bạn thêm giao dịch chỉ bằng một cú chạm từ màn hình chính.\n\nLưu ý: Nếu nút "Thêm tiện ích" không hoạt động, vui lòng thêm nút này theo cách thủ công từ menu tiện ích của trình khởi chạy(launcher) của bạn.</string>
     <string name="add_widget">Thêm tiện ích</string>
     <string name="expenses_piechart">Biểu đồ chi phí</string>
-    <string name="adjust_balance">Điều chỉnh số dư</string>
     <string name="authentication_required">Yêu cầu xác thực</string>
     <string name="authentication_required_description">Xác thực để truy cập ứng dụng</string>
     <string name="total_budget">Tổng ngân sách</string>
@@ -360,7 +350,6 @@
     <string name="skip_all">Bỏ qua tất cả</string>
     <string name="confirm_skip_all">Xác nhận bỏ qua tất cả</string>
     <string name="confirm_skip_all_description">Bạn có chắc chắn muốn bỏ qua tất cả các khoản thanh toán đã quá hạn theo kế hoạch không?</string>
-    <string name="experimental">Thử nghiệm</string>
     <string name="wallet_balance">Số dư trên ví</string>
     <string name="total_exclusive">Tổng (độc quyền): %1$s %2$s</string>
     <string name="total_balance">Tổng số dư</string>
@@ -380,12 +369,9 @@
     <string name="this_transaction_is_associated_with_loan_record">* Giao dịch này được liên kết với Bản ghi của Khoản vay : %1$s</string>
     <string name="note_transaction_associated_with_loan_record_of_loan">Lưu ý: Giao dịch này được liên kết với Bản ghi của Khoản vay : %1$s\nBạn đang cố gắng thay đổi tài khoản được liên kết với bản ghi khoản vay sang tài khoản có loại tiền tệ khác\n Bản ghi khoản vay sẽ được tính lại dựa trên tỷ giá hối đoái của ngày hôm nay</string>
     <string name="note_you_are_trying_to_change_the_account_associated_with_the_loan">Lưu ý: Bạn đang cố gắng thay đổi tài khoản được liên kết với khoản vay: %1$s bằng tài khoản có loại tiền tệ khác, \nTất cả hồ sơ khoản vay sẽ được tính lại dựa trên tỷ giá hối đoái của ngày hôm nay</string>
-    <string name="icons">Biểu tượng</string>
     <string name="tap_to_switch_theme">Nhấn để chuyển chủ đề</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F Không sử dụng cho mục đích sao lưu</string>
     <string name="done">Xong</string>
-    <string name="error">Lỗi</string>
-    <string name="loading">Đang tải…</string>
     <string name="try_again">Thử lại</string>
     <string name="you_can_see_a_piechart">Bạn có thể xem Biểu đồ tròn cho các chi phí của mình! Nhấp vào thẻ Chi phí ở đầu trang của bảng điều khiển.</string>
     <string name="please_type_category_name">Vui lòng nhập \"%1$s\" để xóa danh mục của bạn.</string>

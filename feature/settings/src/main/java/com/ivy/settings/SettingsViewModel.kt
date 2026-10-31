@@ -137,53 +137,33 @@ class SettingsViewModel @Inject constructor(
     private suspend fun initializeStartDateOfMonth() {
         startDateOfMonth.intValue = startDayOfMonthAct()
     }
-
-    @Composable
     private fun getCurrencyCode(): String {
         return currencyCode.value
     }
-
-    @Composable
     private fun getName(): String {
         return name.value
     }
-
-    @Composable
     private fun getCurrentTheme(): Theme {
         return currentTheme.value
     }
-
-    @Composable
     private fun getLockApp(): Boolean {
         return lockApp.value
     }
-
-    @Composable
     private fun getShowNotifications(): Boolean {
         return showNotifications.value
     }
-
-    @Composable
     private fun getHideCurrentBalance(): Boolean {
         return hideCurrentBalance.value
     }
-
-    @Composable
     private fun getHideIncome(): Boolean {
         return hideIncome.value
     }
-
-    @Composable
     private fun getTreatTransfersAsIncomeExpense(): Boolean {
         return treatTransfersAsIncomeExpense.value
     }
-
-    @Composable
     private fun getStartDateOfMonth(): String {
         return startDateOfMonth.intValue.toString()
     }
-
-    @Composable
     private fun getProgressState(): Boolean {
         return progressState.value
     }
