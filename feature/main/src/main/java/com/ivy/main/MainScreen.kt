@@ -19,7 +19,6 @@ import com.ivy.wallet.LocalMainScreenState
 import com.ivy.wallet.data.model.MainTab
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
-import com.ivy.navigation.MainScreen
 import com.ivy.navigation.navigation
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
@@ -134,7 +133,6 @@ private fun BoxWithConstraintsScope.UI(
 private fun PreviewMainScreen() {
     IvyWalletPreview {
         UI(
-            screen = MainScreen,
             tab = MainTab.HOME,
             baseCurrency = "BGN",
             selectTab = {},
