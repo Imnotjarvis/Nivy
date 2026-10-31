@@ -1,0 +1,37 @@
+# Merges Dependabot's minor and patch updates once their checks pass. Major updates wait for a
+# person. Three repository settings make it work (Settings > ...):
+# - General > Pull Requests > "Allow auto-merge".
+# - Rules > Rulesets: a ruleset on main that requires the status checks "checks", "build" and
+#   "test" (Build), "Analyze (java-kotlin)" (CodeQL) and "review" (Dependencies). Auto-merge waits
+#   for required checks; without them GitHub merges as soon as the pull request is mergeable.
+#   Jobs a run skips count as passed.
+# - Secrets and variables > Dependabot > AUTO_MERGE_TOKEN: a fine-grained personal access token
+#   for this repository with Contents and Pull requests set to read and write. GitHub starts no
+#   workflow from a merge made with a workflow's own GITHUB_TOKEN, so with that token main would
+#   only be built by the nightly run; with a person's token the merge runs Build and CodeQL on
+#   main as a push does. Without the secret the job falls back to GITHUB_TOKEN.
+name: Dependabot auto-merge
+
+on: pull_request
+
+# Dependabot's workflows get a read-only token unless the permissions are raised here.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: dependabot/fetch-metadata@v2
+        id: update
+
+      # A grouped update reports the largest change in the group.
+      - name: Enable auto-merge
+        if: steps.update.outputs.update-type != 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN || github.token }}
+          PR: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR"
