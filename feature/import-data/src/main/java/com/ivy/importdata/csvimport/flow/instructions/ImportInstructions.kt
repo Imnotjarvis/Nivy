@@ -334,16 +334,8 @@ fun StepTitle(
 private fun App(
     importType: ImportType
 ) {
-    val rootScreen = com.ivy.legacy.rootScreen()
-
     Row(
-        modifier = Modifier
-            .padding(horizontal = 32.dp)
-            .clickable {
-                rootScreen.openGooglePlayAppPage(
-                    appId = importType.appId()
-                )
-            },
+        modifier = Modifier.padding(horizontal = 32.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IvyIcon(

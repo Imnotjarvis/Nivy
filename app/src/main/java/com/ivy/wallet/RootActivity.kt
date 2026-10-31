@@ -1,7 +1,6 @@
 package com.ivy.wallet
 
 import android.appwidget.AppWidgetManager
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
@@ -361,20 +360,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 "No browser app found. Visit manually: $url",
                 Toast.LENGTH_LONG
             ).show()
-        }
-    }
-
-    @Suppress("SwallowedException")
-    override fun openGooglePlayAppPage(appId: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appId")))
-        } catch (e: ActivityNotFoundException) {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=$appId")
-                )
-            )
         }
     }
 

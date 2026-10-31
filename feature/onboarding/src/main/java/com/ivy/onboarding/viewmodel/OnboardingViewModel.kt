@@ -18,7 +18,6 @@ import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.legacy.data.model.AccountBalance
 import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.OpResult
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
@@ -65,7 +64,6 @@ class OnboardingViewModel @Inject constructor(
     val state: State<OnboardingState> = _state
 
     private val _currency = mutableStateOf(IvyCurrency.getDefault())
-    private val _opGoogleSignIn = mutableStateOf<OpResult<Unit>?>(null)
     private val _accounts = mutableStateOf(listOf<AccountBalance>().toImmutableList())
     private val _accountSuggestions = mutableStateOf(listOf<CreateAccountData>().toImmutableList())
     private val _categories = mutableStateOf(listOf<Category>().toImmutableList())
@@ -85,7 +83,6 @@ class OnboardingViewModel @Inject constructor(
 
     private val router = OnboardingRouter(
         state = _state,
-        opGoogleSignIn = _opGoogleSignIn,
         accounts = _accounts,
         accountSuggestions = _accountSuggestions,
         categories = _categories,

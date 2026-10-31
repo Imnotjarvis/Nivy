@@ -360,8 +360,8 @@ jobs:
         id: system-image
         uses: actions/cache@v6
         with:
-          path: /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64
-          key: system-image-34-google_apis-x86_64-v1
+          path: /usr/local/lib/android/sdk/system-images/android-34/default/x86_64
+          key: system-image-34-default-x86_64-v1
 
       # Google's server sometimes cuts the download short (run 16: "Error reading Zip content"),
       # and the emulator step doesn't retry, so fetch the image here first.
@@ -371,19 +371,20 @@ jobs:
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$sdkmanager" --licenses > /dev/null
           for attempt in 1 2 3; do
-            "$sdkmanager" --install 'system-images;android-34;google_apis;x86_64' > /dev/null && exit 0
+            "$sdkmanager" --install 'system-images;android-34;default;x86_64' > /dev/null && exit 0
             echo "Download failed (attempt $attempt of 3)."
             sleep $((attempt * 20))
           done
           exit 1
 
-      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install.
+      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install. The
+      # image is plain Android (AOSP) without Google APIs, like a phone with no Google services.
       - name: Smoke test and instrumented tests on an emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
-          target: google_apis
+          target: default
           disk-size: 3072M
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
