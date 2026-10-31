@@ -843,7 +843,7 @@ formatting:
   Filename:
     active: true
   FinalNewline:
-    active: false
+    active: true
     autoCorrect: true
     insertFinalNewLine: true
   FunKeywordSpacing:
