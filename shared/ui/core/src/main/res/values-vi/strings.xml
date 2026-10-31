@@ -49,7 +49,7 @@
     <string name="online_csv_converter_free">Trình chuyển đổi file CSV trực tuyến MIỄN PHÍ</string>
     <string name="check_email_spam">"Kiểm tra thư mục "Khuyến mãi" và "Thư rác" trong email của bạn".</string>
     <string name="download_email_file">Tải xuống file "transactions_export…" được đính kèm trong email.</string>
-    <string name="download_email_file_description">Nếu bạn có nhiều hơn một loại tiền tệ, bạn sẽ cần tải xuống mỗi tập tin \"transactions_export…\" và nhập chúng vào Ivy.</string>
+    <string name="download_email_file_description">Nếu bạn có nhiều hơn một loại tiền tệ, bạn sẽ cần tải xuống mỗi tập tin \"transactions_export…\" và nhập chúng vào Nivy.</string>
     <string name="import_from">Tải lên từ</string>
     <string name="please_wait">Vui lòng chờ</string>
     <string name="importing_the_csv_file">Đang tải lên tệp CSV</string>
@@ -142,7 +142,7 @@
     <string name="your_personal_money_manager">Quản lý tài chính cá nhân của bạn</string>
     <string name="continue_offline">Tiếp tục ngoại tuyến</string>
     <string name="import_csv_file">Tải lên tệp CSV</string>
-    <string name="from_ivy_or_another_app">từ Ivy hoặc ứng dụng khác</string>
+    <string name="from_ivy_or_another_app">từ Nivy hoặc ứng dụng khác</string>
     <string name="importing_another_time_warning">Việc tải tệp sao lưu từ ứng dụng khác có thể mất tối đa 5 phút. Bạn luôn có thể tải lên dữ liệu của mình sau này nếu muốn.</string>
     <string name="import_backup_file">Tải lên tệp sao lưu</string>
     <string name="start_fresh">Bắt đầu</string>
@@ -321,7 +321,7 @@
     <string name="create_first_planned_payment">Tạo khoản thanh toán theo kế hoạch đầu tiên của bạn</string>
     <string name="create_first_planned_payment_description">Theo dõi các giao dịch thường xuyên của bạn, như các khoản đăng ký, tiền thuê nhà và tiền lương. Hãy luôn giữ kiểm soát về tài chính của bạn bằng cách biết trước số tiền bạn phải trả hoặc dự kiến nhận được.</string>
     <string name="did_you_know">Bạn biết không?</string>
-    <string name="widget_description">Ivy Wallet có một tiện ích thú vị cho phép bạn thêm giao dịch chỉ bằng một cú chạm từ màn hình chính.\n\nLưu ý: Nếu nút "Thêm tiện ích" không hoạt động, vui lòng thêm nút này theo cách thủ công từ menu tiện ích của trình khởi chạy(launcher) của bạn.</string>
+    <string name="widget_description">Nivy có một tiện ích thú vị cho phép bạn thêm giao dịch chỉ bằng một cú chạm từ màn hình chính.\n\nLưu ý: Nếu nút "Thêm tiện ích" không hoạt động, vui lòng thêm nút này theo cách thủ công từ menu tiện ích của trình khởi chạy(launcher) của bạn.</string>
     <string name="add_widget">Thêm tiện ích</string>
     <string name="expenses_piechart">Biểu đồ chi phí</string>
     <string name="adjust_balance">Điều chỉnh số dư</string>
@@ -397,7 +397,7 @@
     <string name="csv_import_failed">Nếu điều này không hoạt động, hãy thử tải CSV bằng cách thủ công.</string>
     <string name="import_a_csv_file_to_continue">Tải lên một tệp CSV để tiếp tục.</string>
     <string name="import_csv_continue">Tiếp tục</string>
-    <string name="warning_import_csv_file">"\n!!!⚠️CẢNH BÁO: Việc tải tệp lên có thể gây ra trùng lặp các giao dịch!!!\nGiao dịch trùng lặp KHÔNG thể dễ dàng xóa và bạn sẽ cần phải xóa từng giao dịch một cách thủ công!\nLý do: Chúng tôi không thể phân tích các ID giao dịch vì Ivy Wallet chỉ hoạt động với UUID và các ứng dụng khác không.\nNếu bạn chọn Bắt đầu, không cần lo lắng - vui lòng bỏ qua thông báo này.\n                    "</string>
+    <string name="warning_import_csv_file">"\n!!!⚠️CẢNH BÁO: Việc tải tệp lên có thể gây ra trùng lặp các giao dịch!!!\nGiao dịch trùng lặp KHÔNG thể dễ dàng xóa và bạn sẽ cần phải xóa từng giao dịch một cách thủ công!\nLý do: Chúng tôi không thể phân tích các ID giao dịch vì Nivy chỉ hoạt động với UUID và các ứng dụng khác không.\nNếu bạn chọn Bắt đầu, không cần lo lắng - vui lòng bỏ qua thông báo này.\n                    "</string>
     <string name="select_tags">Chọn thẻ</string>
     <string name="language">Ngôn ngữ</string>
     <string name="budget_exceeded_info">Ngân sách vượt quá %1$s %2$s</string>

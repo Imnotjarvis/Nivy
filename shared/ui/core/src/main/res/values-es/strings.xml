@@ -49,7 +49,7 @@
     <string name="online_csv_converter_free">Convertidor CSV en línea GRATIS</string>
     <string name="check_email_spam">Revisa las carpetas de "Promociones" y "Spam" de tus correos electrónicos</string>
     <string name="download_email_file">Descargue el archivo \"transactions_export…\" adjunto al correo electrónico.</string>
-    <string name="download_email_file_description">Si tiene más de una moneda, deberá descargar cada archivo \"transactions_export…\" e importarlo en Ivy.</string>
+    <string name="download_email_file_description">Si tiene más de una moneda, deberá descargar cada archivo \"transactions_export…\" e importarlo en Nivy.</string>
     <string name="import_from">Importar de</string>
     <string name="please_wait">Espere por favor</string>
     <string name="importing_the_csv_file">Importando el archivo CSV</string>
@@ -142,7 +142,7 @@
     <string name="your_personal_money_manager">Tu gestor personal de dinero</string>
     <string name="continue_offline">Continuar sin conexión</string>
     <string name="import_csv_file">Importar archivo CSV</string>
-    <string name="from_ivy_or_another_app">de Ivy u otra aplicación</string>
+    <string name="from_ivy_or_another_app">de Nivy u otra aplicación</string>
     <string name="importing_another_time_warning">La importación de un archivo de copia de seguridad desde otro puede tardar hasta 5 minutos. Siempre puede importar sus datos más tarde si lo desea.</string>
     <string name="import_backup_file">Importar archivo de copia de seguridad</string>
     <string name="start_fresh">Empezar de nuevo</string>
@@ -324,7 +324,7 @@
     <string name="create_first_planned_payment">Crea tu primer pago planificado</string>
     <string name="create_first_planned_payment_description">Automatice el seguimiento de transacciones recurrentes como sus suscripciones, alquiler, salario, etc. Manténgase al tanto de sus finanzas al saber cuánto tiene que pagar/obtener por adelantado.</string>
     <string name="did_you_know">¿Sabías?</string>
-    <string name="widget_description">Ivy Wallet tiene un widget genial que le permite agregar transacciones de INGRESOS/GASTOS/TRANSFERENCIAS con 1 clic desde su hogar\n\nNota: si el botón "Agregar widget" no funciona, agréguelo manualmente desde su lanzador\' menú de widgets.</string>
+    <string name="widget_description">Nivy tiene un widget genial que le permite agregar transacciones de INGRESOS/GASTOS/TRANSFERENCIAS con 1 clic desde su hogar\n\nNota: si el botón "Agregar widget" no funciona, agréguelo manualmente desde su lanzador\' menú de widgets.</string>
     <string name="add_widget">Añadir widget</string>
     <string name="expenses_piechart">Gráfico circular de gastos</string>
     <string name="adjust_balance">Ajustar el saldo</string>

@@ -142,7 +142,7 @@
     <string name="your_personal_money_manager">مدير أموالك الشخصي</string>
     <string name="continue_offline">المتابعة دون اتصال بالإنترنت</string>
     <string name="import_csv_file">CSV إستيراد ملف</string>
-    <string name="from_ivy_or_another_app">Ivy من تطبيق اخر او من </string>
+    <string name="from_ivy_or_another_app">Nivy من تطبيق اخر او من </string>
     <string name="importing_another_time_warning">استيراد ملف نسخ احتياطي من تطبيق اخر يمكن ان يستغرق حتى 5 دقائق. يمكنك دائمًا استيراد البيانات لاحقًا اذا اردت.</string>
     <string name="import_backup_file">استيراد ملف نسخ احتياطي</string>
     <string name="start_fresh">ابدأ من الصفر</string>
@@ -319,7 +319,7 @@
     <string name="create_first_planned_payment">قم بإنشاء أول دفعة مخططة</string>
     <string name="create_first_planned_payment_description">قم بأتمتة المعاملات المتكررة مثل الاشتراكات, الايجار, الراتب, الخ.. كن في معرفة بأموالك من خلال معرفة المبلغ الذي يتعين عليك دفعه/الحصول عليه مقدمًا</string>
     <string name="did_you_know">هل كنت تعلم؟</string>
-    <string name="widget_description">Ivy Wallet \nلديها تطبيقات مصغرة (ويدجت) رائعة تتيح لك إضافة دخل/إنفاق/تحويل بضغطة واحدة فقط من الشاشة الرئيسية \n\n ملاحظ: اذا لم يعمل زر \"إضافة تطبيق مصغر\" يرجى اضافته يدويا عن طريق قائمة التطبيقات المصغرة في شاشتك الرئيسية</string>
+    <string name="widget_description">Nivy \nلديها تطبيقات مصغرة (ويدجت) رائعة تتيح لك إضافة دخل/إنفاق/تحويل بضغطة واحدة فقط من الشاشة الرئيسية \n\n ملاحظ: اذا لم يعمل زر \"إضافة تطبيق مصغر\" يرجى اضافته يدويا عن طريق قائمة التطبيقات المصغرة في شاشتك الرئيسية</string>
     <string name="add_widget">إضافة تطبيق مصغر</string>
     <string name="expenses_piechart">إحصائيات الإنفاق</string>
     <string name="adjust_balance">أضبط الرصيد</string>

@@ -49,7 +49,7 @@
     <string name="online_csv_converter_free">Konwerter plików CSV Online</string>
     <string name="check_email_spam">Sprawdź foldery "Oferty" i "Spam" w skrzynce pocztowej</string>
     <string name="download_email_file">Pobierz \"transactions_export…\" plik załączony w mailu.</string>
-    <string name="download_email_file_description">Jeśli masz więcej niż jedną walutę musisz pobrać każdy \"transactions_export…\" plik i zaimportować go do Ivy.</string>
+    <string name="download_email_file_description">Jeśli masz więcej niż jedną walutę musisz pobrać każdy \"transactions_export…\" plik i zaimportować go do Nivy.</string>
     <string name="import_from">Zaimpotruj z</string>
     <string name="please_wait">Proszę czekać</string>
     <string name="importing_the_csv_file">Importowanie pliku CSV</string>
@@ -143,7 +143,7 @@
     <string name="your_personal_money_manager">Twoja personalna aplikacja do zarządzania finansami</string>
     <string name="continue_offline">Kontynuuj offline</string>
     <string name="import_csv_file">Importuj plik CSV</string>
-    <string name="from_ivy_or_another_app">z Ivy lub innej aplikacji</string>
+    <string name="from_ivy_or_another_app">z Nivy lub innej aplikacji</string>
     <string name="importing_another_time_warning">Importowanie pliku kopii zapasowej z innego może zająć do 5 minut. Zawsze możesz zaimportować swoje dane później, jeśli chcesz.</string>
     <string name="import_backup_file">Zaimportuj plik kopii zapasowej</string>
     <string name="start_fresh">Zacznij na świeżo</string>
@@ -322,7 +322,7 @@
     <string name="create_first_planned_payment">Utwórz swoją pierwszą zaplanowaną płatność</string>
     <string name="create_first_planned_payment_description">Zautomatyzuj śledzenie powtarzających się transakcji, takich jak abonamenty, czynsz, wynagrodzenie itp. Bądź o krok przed swoimi finansami, wiedząc, ile musisz zapłacić/otrzymać z góry.</string>
     <string name="did_you_know">Czy wiedziałeś?</string>
-    <string name="widget_description">Ivy Wallet ma fajny widżet, który pozwala dodawać transakcje DOCHODU/WYDATKU/PRZELEWU jednym kliknięciem z pulpitu\n\nUwaga: jeśli przycisk „Dodaj widżet” nie działa, dodaj go ręcznie z widżetów w aplikacji pulpitu.</string>
+    <string name="widget_description">Nivy ma fajny widżet, który pozwala dodawać transakcje DOCHODU/WYDATKU/PRZELEWU jednym kliknięciem z pulpitu\n\nUwaga: jeśli przycisk „Dodaj widżet” nie działa, dodaj go ręcznie z widżetów w aplikacji pulpitu.</string>
     <string name="add_widget">Dodaj widżet</string>
     <string name="expenses_piechart">Wykres kołowy wydatków</string>
     <string name="adjust_balance">Dostosuj saldo</string>

@@ -48,7 +48,7 @@
     <string name="online_csv_converter_free">ऑनलाइन CSV  कनवर्टर फ्री</string>
     <string name="check_email_spam">अपने ईमेल के प्रमोशन और स्पैम फ़ोल्डर देखें</string>
     <string name="download_email_file">ईमेल के साथ संलग्न \"transactions_export…\" फ़ाइल डाउनलोड करें।</string>
-    <string name="download_email_file_description">यदि आपके पास एक से अधिक करेंसी हैं, तो आपको प्रत्येक \"transactions_export…\" फ़ाइल को डाउनलोड करना होगा और इसे Ivy में इम्पोर्ट करना होगा।</string>
+    <string name="download_email_file_description">यदि आपके पास एक से अधिक करेंसी हैं, तो आपको प्रत्येक \"transactions_export…\" फ़ाइल को डाउनलोड करना होगा और इसे Nivy में इम्पोर्ट करना होगा।</string>
     <string name="import_from">इम्पोर्ट किया गया</string>
     <string name="please_wait">कृपया प्रतीक्षा करें</string>
     <string name="importing_the_csv_file">CSV फ़ाइल इम्पोर्ट किया जा रहा हैं</string>
@@ -140,7 +140,7 @@
     <string name="your_personal_money_manager">आपका व्यक्तिगत मनी मैनेजर</string>
     <string name="continue_offline">ऑफलाइन जारी रखें</string>
     <string name="import_csv_file">CSV फाइल इम्पोर्ट करे</string>
-    <string name="from_ivy_or_another_app">Ivy या किसी अन्य ऐप से</string>
+    <string name="from_ivy_or_another_app">Nivy या किसी अन्य ऐप से</string>
     <string name="import_backup_file">बैकअप फ़ाइल इम्पोर्ट करें</string>
     <string name="start_fresh">नए से शुरू करें</string>
     <string name="set_payment_type">भुगतान प्रकार सेट करें</string>
@@ -356,7 +356,7 @@
     <string name="invalid_filter_warning">रिपोर्ट जनरेट करने के लिए आपको पहले एक मान्य फ़िल्टर सेट करना होगा।</string>
     <string name="revoult">Revolut</string>
     <string name="adjust_initial_balance_description"><![CDATA[आइए आरंभ करें। \"खाते\" पर जाएं -> किसी खाते पर टैप करें -> उसके शेष पर टैप करें -> वर्तमान शेष राशि दर्ज करें। बस इतना ही!]]></string>
-    <string name="widget_description">Ivy वॉलेट में एक विजेट है जो आपको अपने होम स्क्रीन से 1-क्लिक के साथ आय/व्यय/हस्तांतरण लेनदेन जोड़ने देता है\n\n नोट: यदि विजेट जोड़ने वाला बटन काम नहीं करता है, तो कृपया इसे अपने लॉन्चर के विजेट मेनू से मैन्युअल रूप से जोड़ें।</string>
+    <string name="widget_description">Nivy वॉलेट में एक विजेट है जो आपको अपने होम स्क्रीन से 1-क्लिक के साथ आय/व्यय/हस्तांतरण लेनदेन जोड़ने देता है\n\n नोट: यदि विजेट जोड़ने वाला बटन काम नहीं करता है, तो कृपया इसे अपने लॉन्चर के विजेट मेनू से मैन्युअल रूप से जोड़ें।</string>
     <string name="transfers_as_income_expense_description">खाता स्थानान्तरण को खाता स्क्रीन में आय या व्यय के रूप में मानता है</string>
     <string name="experimental">Experimental</string>
     <string name="wallet_balance">वॉलेट बैलेंस</string>

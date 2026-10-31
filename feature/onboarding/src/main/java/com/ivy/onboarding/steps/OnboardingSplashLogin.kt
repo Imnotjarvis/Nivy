@@ -165,7 +165,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
                 },
             painter = painterResource(id = R.drawable.ivy_wallet_logo),
             contentScale = ContentScale.FillBounds,
-            contentDescription = "Ivy Wallet logo"
+            contentDescription = "Nivy logo"
         )
 
         Spacer(Modifier.height(marginTextTop))
@@ -175,7 +175,7 @@ fun BoxWithConstraintsScope.OnboardingSplashLogin(
                 screenWidth = screenSize.width,
                 percentTransition = percentTransition
             ),
-            text = "Ivy Wallet",
+            text = "Nivy",
             style = MaterialTheme.typography.headlineMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold

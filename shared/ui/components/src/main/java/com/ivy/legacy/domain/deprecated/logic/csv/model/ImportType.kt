@@ -55,7 +55,8 @@ enum class ImportType {
     }
 
     fun listName(): String = when (this) {
-        IVY -> "Ivy Wallet"
+        // Nivy backups use Ivy Wallet's format, so both import here.
+        IVY -> "Nivy / Ivy Wallet"
         MONEY_MANAGER -> "Money Manager"
         WALLET_BY_BUDGET_BAKERS -> "Wallet by BudgetBakers"
         SPENDEE -> "Spendee"
@@ -68,7 +69,8 @@ enum class ImportType {
     }
 
     fun appName(): String = when (this) {
-        IVY -> "Ivy Wallet"
+        // Nivy backups use Ivy Wallet's format, so both import here.
+        IVY -> "Nivy / Ivy Wallet"
         else -> listName()
     }
 }

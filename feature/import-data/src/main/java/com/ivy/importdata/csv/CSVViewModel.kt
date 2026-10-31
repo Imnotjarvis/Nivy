@@ -109,7 +109,7 @@ class CSVViewModel @Inject constructor(
             ivyColumn = "Account Currency",
             helpInfo = """
                 The currency of the account that made the transaction.
-                In Ivy Wallet, transactions don't have a currency but inherit
+                In Nivy, transactions don't have a currency but inherit
                 the ones from their account.
             """.trimIndent(),
             name = "",

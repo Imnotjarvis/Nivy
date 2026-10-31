@@ -49,7 +49,7 @@
     <string name="online_csv_converter_free">Безплатен онлайн CSV конвертор</string>
     <string name="check_email_spam">Проверете "Promotions" и "Spam" папките в имейла си.</string>
     <string name="download_email_file">Download the \"transactions_export…\" file attached to the email.</string>
-    <string name="download_email_file_description">If you have more than one currency you\'ll have to download each \"transactions_export…\" file and import it in Ivy.</string>
+    <string name="download_email_file_description">If you have more than one currency you\'ll have to download each \"transactions_export…\" file and import it in Nivy.</string>
     <string name="import_from">Импортиране от</string>
     <string name="please_wait">Моля изчакайте</string>
     <string name="importing_the_csv_file">Импортиране на CSV файл</string>
@@ -142,7 +142,7 @@
     <string name="your_personal_money_manager">Твоят финансов помощник</string>
     <string name="continue_offline">Продължи офлайн</string>
     <string name="import_csv_file">Импортирай CSV файл</string>
-    <string name="from_ivy_or_another_app">от Ivy Wallet или друго приложение</string>
+    <string name="from_ivy_or_another_app">от Nivy или друго приложение</string>
     <string name="importing_another_time_warning">Импортирай файл за възстановяване.</string>
     <string name="import_backup_file">Импортирай</string>
     <string name="start_fresh">Стартирай на чисто</string>
@@ -319,7 +319,7 @@
     <string name="create_first_planned_payment">Create your first planned payment</string>
     <string name="create_first_planned_payment_description">Automate the tracking of recurring transactions like your subscriptions, rent, salary, etc. Stay ahead of your finances by knowing how much you have to pay/get in advance.</string>
     <string name="did_you_know">Знаехте ли че?</string>
-    <string name="widget_description">Ivy Wallet has a cool widget that lets you add INCOME/EXPENSES/TRANSFER transactions with 1-click from your home\n\nNote: If the "Add widget" button doesn\'t work, please add it manually from your launcher\'s widgets menu.</string>
+    <string name="widget_description">Nivy has a cool widget that lets you add INCOME/EXPENSES/TRANSFER transactions with 1-click from your home\n\nNote: If the "Add widget" button doesn\'t work, please add it manually from your launcher\'s widgets menu.</string>
     <string name="add_widget">Add widget</string>
     <string name="expenses_piechart">Expenses PieChart</string>
     <string name="adjust_balance">Задай баланс</string>
