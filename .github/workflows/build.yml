@@ -66,6 +66,10 @@ on:
         default: build
         options: [build, release, record-screenshots, update-lint-baseline]
 
+# Read-only by default; update-baselines and release ask for contents: write themselves.
+permissions:
+  contents: read
+
 concurrency:
   # Manual maintenance runs and pushes to the same branch don't cancel each other.
   group: build-${{ github.ref }}-${{ inputs.action || github.event_name }}

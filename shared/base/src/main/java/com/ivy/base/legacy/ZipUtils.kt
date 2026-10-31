@@ -67,31 +67,27 @@ fun unzip(fileInputStream: FileInputStream, location: File) {
 
         if (!location.isDirectory) location.mkdirs()
 
-        val locationPath = location.absolutePath.let {
-            if (!it.endsWith(File.separator)) {
-                "$it${File.separator}"
+        val destination = location.canonicalFile.toPath()
+        generateSequence { zipInputStream.nextEntry }.forEach { entry ->
+            // An entry named like "../databases/x" or "/data/x" would be written outside the
+            // destination folder ("Zip Slip"), so the archive is rejected instead.
+            val target = destination.resolve(entry.name).normalize()
+            if (target.startsWith(destination)) {
+                extractEntry(zipInputStream, entry, target.toFile())
             } else {
-                it
+                error("Zip entry outside the destination folder: ${entry.name}")
             }
         }
+    }
+}
 
-        var zipEntry: ZipEntry?
-        var unzipFile: File
-        var unzipParentDir: File?
-
-        while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
-            unzipFile = File(locationPath + zipEntry!!.name)
-            if (zipEntry.isDirectory) {
-                if (!unzipFile.isDirectory) unzipFile.mkdirs()
-            } else {
-                unzipParentDir = unzipFile.parentFile
-                if (unzipParentDir != null && !unzipParentDir.isDirectory) {
-                    unzipParentDir.mkdirs()
-                }
-                BufferedOutputStream(FileOutputStream(unzipFile)).use { outStream ->
-                    zipInputStream.copyTo(outStream)
-                }
-            }
+private fun extractEntry(zipInputStream: ZipInputStream, entry: ZipEntry, file: File) {
+    if (entry.isDirectory) {
+        if (!file.isDirectory) file.mkdirs()
+    } else {
+        file.parentFile?.takeIf { !it.isDirectory }?.mkdirs()
+        BufferedOutputStream(FileOutputStream(file)).use { outStream ->
+            zipInputStream.copyTo(outStream)
         }
     }
 }
