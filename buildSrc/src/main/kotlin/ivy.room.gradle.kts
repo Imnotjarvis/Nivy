@@ -10,13 +10,8 @@ dependencies {
     androidTestImplementation(libs.room.testing)
 }
 
-android {
-    sourceSets {
-        // Adds exported schema location as test app assets.
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
-    }
-}
-
+// Since Room 2.7 the plugin also adds the exported schemas to the instrumented tests' assets,
+// where MigrationTestHelper reads them.
 room {
     schemaDirectory("$projectDir/schemas")
 }

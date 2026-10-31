@@ -1,0 +1,101 @@
+# CodeQL code scanning for the app's Kotlin, this repository's workflows and its Python scripts.
+#
+# GitHub's default CodeQL setup can't analyse this project: its automatic build runs
+# `gradlew testClasses`, a task Android modules don't have, so it dropped Java/Kotlin and only
+# scanned the rest. This workflow builds the app itself so CodeQL sees the Kotlin compiler run.
+# It replaces default setup, which has to be off for this workflow's results to be accepted
+# (Settings > Code security > Code scanning > CodeQL analysis).
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+  # Weekly, so new CodeQL queries also run on code that hasn't changed.
+  schedule:
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: actions
+            build-mode: none
+          - language: python
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v7
+
+      - if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - if: matrix.build-mode == 'manual'
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      # CodeQL reads the Kotlin compiler as it runs, so every module has to compile here: no
+      # build cache, and the compiler stays inside this step's processes.
+      - name: Build the app
+        if: matrix.build-mode == 'manual'
+        run: >-
+          ./gradlew :app:assembleDebug
+          --no-daemon --no-build-cache --no-configuration-cache
+          -Pkotlin.compiler.execution.strategy=in-process
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
+          output: sarif-results
+
+      # CodeQL skips Kotlin it can't read (a Kotlin version newer than it supports) instead of
+      # failing, and the Java that Room and Hilt generate would still give it something to
+      # analyse. So check the line counts it reports and fail if it saw no Kotlin.
+      - name: CodeQL read the Kotlin code
+        if: matrix.language == 'java-kotlin'
+        run: |
+          python3 -I - sarif-results/java.sarif <<'PY'
+          import json, sys
+          sarif = json.load(open(sys.argv[1]))
+          metrics = {
+              m.get("ruleId") or m.get("rule", {}).get("id"): m.get("value")
+              for run in sarif.get("runs", [])
+              for m in run.get("properties", {}).get("metricResults", [])
+          }
+          for rule, value in sorted(metrics.items()):
+              print(f"{rule}: {value}")
+          if not metrics.get("java/summary/lines-of-code-kotlin"):
+              print("::error::CodeQL read no Kotlin code. Does it support this Kotlin version yet?")
+              sys.exit(1)
+          PY

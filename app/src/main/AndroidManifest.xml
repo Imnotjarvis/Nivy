@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.ivy.wallet">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- INTERNET is declared only by shared:data:core, the module that fetches exchange rates.
          Files are read and written through the system file picker, so no storage permission. -->
