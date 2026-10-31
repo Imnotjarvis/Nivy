@@ -30,6 +30,10 @@ jvm-target = "17"
 # Linters
 detekt = "1.23.8" # https://detekt.dev/docs/gettingstarted/gradle/
 
+# Build tooling only: the Android Gradle plugin's tools ask for an older Bouncy Castle with known
+# vulnerabilities, and the build uses this version instead (root build.gradle.kts and buildSrc).
+bouncycastle = "1.86"
+
 [libraries]
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version = "9.4.0" }
 
@@ -132,6 +136,11 @@ ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.
 
 # Modules Graph
 module-graph-plugin = { module = "com.jraska.module.graph.assertion:plugin", version = "2.9.1" }
+
+# Not depended on directly: they tell Dependabot which artifacts the bouncycastle version is for.
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcutil = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
 
 
 [bundles]

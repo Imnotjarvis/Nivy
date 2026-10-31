@@ -16,6 +16,21 @@ subprojects {
     }
 }
 
+// The Android Gradle plugin's tools (lint, the SDK libraries, test runners) ask for an older
+// Bouncy Castle with known vulnerabilities; every project resolves the catalog's version instead.
+// buildSrc does the same for the plugins. Build tooling only, nothing of it ships in the app.
+val bouncyCastleVersion = libs.versions.bouncycastle.get()
+allprojects {
+    configurations.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.bouncycastle") {
+                useVersion(bouncyCastleVersion)
+                because("older Bouncy Castle versions have known vulnerabilities")
+            }
+        }
+    }
+}
+
 // Module dependency rules, checked in CI by ./gradlew :assertModuleGraph.
 // The rules are regexes over "consumer -X> dependency" (api and implementation only).
 moduleGraphAssert {

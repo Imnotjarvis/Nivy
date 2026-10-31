@@ -125,8 +125,6 @@ android {
         checkReleaseBuilds = false
         baseline = file("lint-baseline.xml")
         lintConfig = rootProject.file("lint.xml")
-        // Uploaded to GitHub code scanning by the build workflow's lint job.
-        sarifReport = true
     }
 }
 

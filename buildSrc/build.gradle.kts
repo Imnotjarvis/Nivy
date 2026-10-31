@@ -13,6 +13,18 @@ kotlin {
     }
 }
 
+// The Android Gradle plugin depends on an older Bouncy Castle with known vulnerabilities; the
+// plugins run with the catalog's version instead. Build tooling only, nothing ships in the app.
+val bouncyCastleVersion = libs.versions.bouncycastle.get()
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.bouncycastle") {
+            useVersion(bouncyCastleVersion)
+            because("older Bouncy Castle versions have known vulnerabilities")
+        }
+    }
+}
+
 repositories {
     google()
     mavenCentral()
