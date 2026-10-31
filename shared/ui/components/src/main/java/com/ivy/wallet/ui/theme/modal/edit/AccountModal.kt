@@ -103,7 +103,7 @@ fun BoxWithConstraintsScope.AccountModal(
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = false,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = modal?.account,
                 enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0)
@@ -169,7 +169,7 @@ fun BoxWithConstraintsScope.AccountModal(
         Spacer(modifier = Modifier.height(40.dp))
 
         ModalAmountSection(
-            Header = {
+            header = {
                 Spacer(Modifier.height(16.dp))
 
                 AccountCurrency(

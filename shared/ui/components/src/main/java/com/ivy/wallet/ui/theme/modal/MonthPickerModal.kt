@@ -56,7 +56,7 @@ fun BoxWithConstraintsScope.MonthPickerModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave {
                 onMonthSelected(selectedMonth)
                 dismiss()

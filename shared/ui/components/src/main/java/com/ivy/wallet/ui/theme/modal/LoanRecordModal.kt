@@ -126,7 +126,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = true,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = initialRecord,
                 enabled = amount > 0 && selectedAcc != null

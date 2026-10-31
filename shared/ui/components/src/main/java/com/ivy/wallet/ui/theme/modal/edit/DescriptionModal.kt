@@ -57,7 +57,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalDynamicPrimaryAction(
                 initialEmpty = description.isNullOrBlank(),
                 initialChanged = description != descTextFieldValue.text,

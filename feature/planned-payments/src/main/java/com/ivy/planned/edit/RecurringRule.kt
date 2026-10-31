@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.forDisplay
 import com.ivy.wallet.utils.formatLocal

@@ -309,6 +309,9 @@ naming:
     allowedPattern: '^(is|has|are)'
   ClassNaming:
     active: true
+    # Room migrations are named after the versions they connect and the change, separated by
+    # an underscore: Migration129to130_LoanIncludeNote.
+    excludes: ['**/db/migration/**']
     classPattern: '[A-Z][a-zA-Z0-9]*'
   ConstructorParameterNaming:
     active: true
@@ -364,7 +367,8 @@ naming:
     packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9]*)*'
   TopLevelPropertyNaming:
     active: true
-    constantPattern: '[A-Z][A-Za-z0-9]*'
+    # PascalCase for Compose values, SCREAMING_SNAKE_CASE (Kotlin's convention) for the rest.
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
     propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
     privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
   VariableMaxLength:

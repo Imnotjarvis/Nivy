@@ -15,7 +15,7 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PlannedPaymentRuleId

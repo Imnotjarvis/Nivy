@@ -44,7 +44,7 @@ fun BoxWithConstraintsScope.CurrencyModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave(
                 modifier = Modifier.testTag("set_currency_save")
             ) {

@@ -446,7 +446,7 @@ private fun BoxWithConstraintsScope.UI(
         convertedAmount = customExchangeRateState.convertedAmount,
         convertedAmountCurrencyCode = customExchangeRateState.toCurrencyCode,
 
-        ActionButton = {
+        actionButton = {
             if (screen.initialTransactionId != null) {
                 // Edit mode
                 if (dueDate != null) {

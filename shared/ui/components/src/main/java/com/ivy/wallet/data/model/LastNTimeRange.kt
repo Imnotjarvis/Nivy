@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.model.IntervalType
-import com.ivy.data.model.incrementDate
+import com.ivy.base.model.IntervalType
+import com.ivy.base.model.incrementDate
 import com.ivy.wallet.forDisplay
 import java.time.Instant
 

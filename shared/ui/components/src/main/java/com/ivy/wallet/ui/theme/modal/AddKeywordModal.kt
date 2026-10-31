@@ -40,7 +40,7 @@ fun BoxWithConstraintsScope.AddKeywordModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalAdd {
                 onKeywordChanged(modalKeyword.text)
                 dismiss()

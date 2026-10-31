@@ -46,7 +46,7 @@ fun BoxWithConstraintsScope.AddRateModal(
         id = null,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalAdd {
                 val to = toCurrency
                 val finalRate = rate

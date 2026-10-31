@@ -16,7 +16,7 @@ import androidx.compose.material3.MaterialTheme
 fun ActionsRow(
     modifier: Modifier = Modifier,
     lineColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    Content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
     Row(
         modifier = modifier
@@ -40,6 +40,6 @@ fun ActionsRow(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Content()
+        content()
     }
 }

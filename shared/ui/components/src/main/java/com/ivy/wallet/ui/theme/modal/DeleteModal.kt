@@ -45,7 +45,7 @@ fun BoxWithConstraintsScope.DeleteModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalNegativeButton(
                 text = buttonText,
                 iconStart = iconStart
@@ -102,7 +102,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalNegativeButton(
                 text = buttonText,
                 iconStart = iconStart,

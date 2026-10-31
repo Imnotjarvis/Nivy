@@ -57,7 +57,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet {
                 save(
                     transactionType = transactionType,

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import com.ivy.base.kotlinxserilzation.KSerializerInstant
 import com.ivy.base.kotlinxserilzation.KSerializerUUID
 import com.ivy.base.model.TransactionType
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.Instant

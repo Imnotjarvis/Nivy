@@ -15,7 +15,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString

@@ -8,7 +8,7 @@ import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
 import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.LoanRecordId
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString

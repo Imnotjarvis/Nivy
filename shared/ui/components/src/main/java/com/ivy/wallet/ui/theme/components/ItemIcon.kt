@@ -28,7 +28,7 @@ fun ItemIconL(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     ItemIcon(
         modifier = modifier
@@ -37,10 +37,13 @@ fun ItemIconL(
         iconName = iconName,
         tint = tint,
         iconContentScale = iconContentScale,
-        Default = Default
+        default = default
     )
 }
 
+// ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
+// only one of them.
+@Suppress("ModifierReused")
 @Composable
 fun ItemIconMDefaultIcon(
     iconName: String?,
@@ -52,7 +55,7 @@ fun ItemIconMDefaultIcon(
         modifier = modifier,
         iconName = iconName,
         tint = tint,
-        Default = {
+        default = {
             Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
@@ -69,7 +72,7 @@ fun ItemIconM(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     ItemIcon(
         modifier = modifier
@@ -78,10 +81,13 @@ fun ItemIconM(
         iconName = iconName,
         tint = tint,
         iconContentScale = iconContentScale,
-        Default = Default
+        default = default
     )
 }
 
+// ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
+// only one of them.
+@Suppress("ModifierReused")
 @Composable
 fun ItemIconSDefaultIcon(
     iconName: String?,
@@ -93,7 +99,7 @@ fun ItemIconSDefaultIcon(
         modifier = modifier,
         iconName = iconName,
         tint = tint,
-        Default = {
+        default = {
             Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
@@ -110,7 +116,7 @@ fun ItemIconS(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     ItemIcon(
         modifier = modifier
@@ -119,7 +125,7 @@ fun ItemIconS(
         iconName = iconName,
         tint = tint,
         iconContentScale = iconContentScale,
-        Default = Default
+        default = default
     )
 }
 
@@ -130,7 +136,7 @@ private fun ItemIcon(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     val context = LocalContext.current
     val iconInfo = getCustomIconId(
@@ -173,7 +179,7 @@ private fun ItemIcon(
             contentDescription = iconName ?: "item icon"
         )
     } else {
-        Default?.invoke()
+        default?.invoke()
     }
 }
 

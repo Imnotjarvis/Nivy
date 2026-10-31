@@ -31,7 +31,7 @@ fun BoxWithConstraintsScope.ProgressModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {}
+        primaryAction = {}
     ) {
         Spacer(Modifier.height(32.dp))
 

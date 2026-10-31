@@ -54,7 +54,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet(
                 modifier = Modifier.testTag("calc_set")
             ) {
@@ -89,7 +89,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
 
         AmountKeyboard(
             forCalculator = true,
-            ZeroRow = {
+            zeroRow = {
                 KeypadCircleButton(
                     text = "C",
                     textColor = Red,
@@ -119,7 +119,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "÷")
                 }
             },
-            FirstRowExtra = {
+            firstRowExtra = {
                 KeypadCircleButton(
                     text = "×",
                     testTag = "key_*"
@@ -127,7 +127,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "×")
                 }
             },
-            SecondRowExtra = {
+            secondRowExtra = {
                 KeypadCircleButton(
                     text = "−",
                     testTag = "key_-"
@@ -135,7 +135,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "−")
                 }
             },
-            ThirdRowExtra = {
+            thirdRowExtra = {
                 KeypadCircleButton(
                     text = "+",
                     testTag = "key_+"
@@ -143,7 +143,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "+")
                 }
             },
-            FourthRowExtra = {
+            fourthRowExtra = {
                 KeypadCircleButton(
                     text = "=",
                     testTag = "key_="

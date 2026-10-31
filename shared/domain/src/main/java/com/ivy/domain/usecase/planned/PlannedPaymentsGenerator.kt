@@ -7,7 +7,7 @@ import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.TransactionMetadata
-import com.ivy.data.model.incrementDate
+import com.ivy.base.model.incrementDate
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.TransactionRepository

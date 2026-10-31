@@ -68,7 +68,7 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
         id = id.value,
         visible = visible,
         dismiss = onDismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalPositiveButton(
                 onClick = {
                     if (initialTag != null) {

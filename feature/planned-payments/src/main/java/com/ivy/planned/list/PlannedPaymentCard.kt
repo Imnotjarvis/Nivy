@@ -29,7 +29,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString

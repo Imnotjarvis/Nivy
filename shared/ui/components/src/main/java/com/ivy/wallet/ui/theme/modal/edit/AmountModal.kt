@@ -71,7 +71,7 @@ fun BoxWithConstraintsScope.AmountModal(
     dismiss: () -> Unit,
     showPlusMinus: Boolean = false,
     decimalCountMax: Int = 2,
-    Header: (@Composable () -> Unit)? = null,
+    header: (@Composable () -> Unit)? = null,
     amountSpacerTop: Dp = 64.dp,
     onAmountChanged: (Double) -> Unit,
 ) {
@@ -95,7 +95,7 @@ fun BoxWithConstraintsScope.AmountModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             IvyIcon(
                 modifier = circleButtonModifier(
                     size = 52.dp,
@@ -123,7 +123,7 @@ fun BoxWithConstraintsScope.AmountModal(
                 }
             }
         },
-        SecondaryActions = {
+        secondaryActions = {
             if (showPlusMinus) {
                 Row {
                     Spacer(modifier = Modifier.width(24.dp))
@@ -148,7 +148,7 @@ fun BoxWithConstraintsScope.AmountModal(
             }
         }
     ) {
-        Header?.invoke()
+        header?.invoke()
 
         Spacer(Modifier.height(amountSpacerTop))
 
@@ -311,11 +311,11 @@ fun AmountKeyboard(
     onNumberPressed: (String) -> Unit,
     onDecimalPoint: () -> Unit,
     horizontalPadding: Dp = 0.dp,
-    ZeroRow: (@Composable RowScope.() -> Unit)? = null,
-    FirstRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    SecondRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    ThirdRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    FourthRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    zeroRow: (@Composable RowScope.() -> Unit)? = null,
+    firstRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    secondRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    thirdRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    fourthRowExtra: (@Composable RowScope.() -> Unit)? = null,
     onBackspace: () -> Unit,
 ) {
     /**
@@ -350,7 +350,7 @@ fun AmountKeyboard(
         )
     }
 
-    if (ZeroRow != null) {
+    if (zeroRow != null) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -358,7 +358,7 @@ fun AmountKeyboard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ZeroRow.invoke(this)
+            zeroRow.invoke(this)
         }
 
         Spacer(Modifier.height(8.dp))
@@ -382,9 +382,9 @@ fun AmountKeyboard(
             }
 
             when (rowIndex) {
-                0 -> FirstRowExtra?.invoke(this)
-                1 -> SecondRowExtra?.invoke(this)
-                2 -> ThirdRowExtra?.invoke(this)
+                0 -> firstRowExtra?.invoke(this)
+                1 -> secondRowExtra?.invoke(this)
+                2 -> thirdRowExtra?.invoke(this)
             }
         }
 
@@ -423,7 +423,7 @@ fun AmountKeyboard(
             tint = Red
         )
 
-        FourthRowExtra?.invoke(this)
+        fourthRowExtra?.invoke(this)
     }
 }
 

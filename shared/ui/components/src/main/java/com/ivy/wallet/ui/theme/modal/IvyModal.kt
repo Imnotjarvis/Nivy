@@ -69,13 +69,13 @@ fun BoxScope.IvyModal(
     id: UUID?,
     visible: Boolean,
     dismiss: () -> Unit,
-    PrimaryAction: @Composable () -> Unit,
+    primaryAction: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    SecondaryActions: (@Composable () -> Unit)? = null,
+    secondaryActions: (@Composable () -> Unit)? = null,
     scrollState: ScrollState? = rememberScrollState(),
     shiftIfKeyboardShown: Boolean = true,
     includeActionsRowPadding: Boolean = true,
-    Content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     val rootView = LocalView.current
     var keyboardShown by remember { mutableStateOf(false) }
@@ -162,7 +162,7 @@ fun BoxScope.IvyModal(
                 dismiss = dismiss
             )
 
-            Content()
+            content()
 
             // Bottom padding
             if (includeActionsRowPadding) {
@@ -186,8 +186,8 @@ fun BoxScope.IvyModal(
                 hideKeyboard(rootView)
                 dismiss()
             },
-            SecondaryActions = SecondaryActions,
-            PrimaryAction = PrimaryAction
+            secondaryActions = secondaryActions,
+            primaryAction = primaryAction
         )
     }
 }
@@ -232,8 +232,8 @@ fun ModalActionsRow(
     onHeightChanged: (Int) -> Unit,
 
     onClose: () -> Unit,
-    SecondaryActions: (@Composable () -> Unit)? = null,
-    PrimaryAction: @Composable () -> Unit
+    secondaryActions: (@Composable () -> Unit)? = null,
+    primaryAction: @Composable () -> Unit
 ) {
     if (visible || modalPercentVisible > 0.01f) {
         val screenSize = LocalScreenSize.current
@@ -272,11 +272,11 @@ fun ModalActionsRow(
                 onClick = onClose
             )
 
-            SecondaryActions?.invoke()
+            secondaryActions?.invoke()
 
             Spacer(Modifier.weight(1f))
 
-            PrimaryAction()
+            primaryAction()
 
             Spacer(Modifier.width(24.dp))
         }
@@ -290,7 +290,7 @@ private fun PreviewIvyModal_minimal() {
         IvyModal(
             id = UUID.randomUUID(),
             visible = true,
-            PrimaryAction = {
+            primaryAction = {
                 ModalSave {
                 }
             },

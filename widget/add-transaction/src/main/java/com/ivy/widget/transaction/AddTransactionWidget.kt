@@ -5,7 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
 import com.ivy.base.model.TransactionType
-import com.ivy.widgets.WidgetBase
+import com.ivy.widget.WidgetBase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

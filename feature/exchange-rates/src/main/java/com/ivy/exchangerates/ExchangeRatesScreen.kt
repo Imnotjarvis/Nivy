@@ -135,7 +135,7 @@ private fun BoxWithConstraintsScope.UI(
             amountModalVisible = false
         },
         decimalCountMax = 12,
-        Header = {
+        header = {
             rateToUpdate?.let {
                 Spacer(Modifier.height(24.dp))
                 Text(

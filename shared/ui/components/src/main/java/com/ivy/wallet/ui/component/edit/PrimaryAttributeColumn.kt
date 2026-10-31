@@ -32,8 +32,8 @@ fun PrimaryAttributeColumn(
     @DrawableRes icon: Int,
     title: String,
     onClick: () -> Unit,
-    TitleRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    Content: @Composable ColumnScope.() -> Unit
+    titleRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -61,10 +61,10 @@ fun PrimaryAttributeColumn(
                 )
             )
 
-            TitleRowExtra?.invoke(this)
+            titleRowExtra?.invoke(this)
         }
 
-        Content()
+        content()
     }
 }
 

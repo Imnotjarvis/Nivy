@@ -39,7 +39,7 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("LongParameterList")
 @Composable
 fun PlannedPaymentsLazyColumn(
-    Header: @Composable () -> Unit,
+    header: @Composable () -> Unit,
     currency: String,
     categories: ImmutableList<Category>,
     accounts: ImmutableList<Account>,
@@ -65,7 +65,7 @@ fun PlannedPaymentsLazyColumn(
         state = listState
     ) {
         item {
-            Header()
+            header()
         }
 
         plannedPaymentItems(

@@ -106,7 +106,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     currency: String,
     amountModalShown: Boolean,
     setAmountModalShown: (Boolean) -> Unit,
-    ActionButton: @Composable () -> Unit,
+    actionButton: @Composable () -> Unit,
     onAmountChanged: (Double) -> Unit,
     onSelectedAccountChanged: (Account) -> Unit,
     onToAccountChanged: (Account) -> Unit,
@@ -263,7 +263,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
         keyboardShownInsetDp = keyboardShownInsetDp,
         navBarPadding = navBarPadding,
 
-        ActionButton = ActionButton
+        actionButton = actionButton
     )
 
     val amountModalId = remember(initialTransactionId, amount) {
@@ -274,7 +274,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
         visible = amountModalShown,
         currency = currency,
         initialAmount = amount.takeIf { it > 0 },
-        Header = {
+        header = {
             Spacer(Modifier.height(24.dp))
 
             Text(
@@ -314,7 +314,7 @@ private fun BottomBar(
     internalExpanded: Boolean,
     setInternalExpanded: (Boolean) -> Unit,
     navBarPadding: Dp,
-    ActionButton: @Composable () -> Unit
+    actionButton: @Composable () -> Unit
 ) {
     val screenSize = LocalScreenSize.current
 
@@ -360,7 +360,7 @@ private fun BottomBar(
 
         Spacer(Modifier.weight(1f))
 
-        ActionButton()
+        actionButton()
 
         Spacer(Modifier.width(24.dp))
     }
@@ -797,7 +797,7 @@ private fun Preview() {
                 setAmountModalShown = {},
                 initialTransactionId = null,
                 type = TransactionType.INCOME,
-                ActionButton = {
+                actionButton = {
                     ModalSet {
                     }
                 },
@@ -835,7 +835,7 @@ private fun Preview_Transfer() {
                 amountModalShown = false,
                 setAmountModalShown = {},
                 initialTransactionId = UUID.randomUUID(),
-                ActionButton = {
+                actionButton = {
                     ModalSave {
                     }
                 },

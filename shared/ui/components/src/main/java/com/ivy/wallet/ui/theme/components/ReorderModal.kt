@@ -39,7 +39,7 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     initialItems: List<T>,
     dismiss: () -> Unit,
     id: UUID = UUID.randomUUID(),
-    TitleContent: @Composable ColumnScope.() -> Unit = {
+    titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.reorder),
@@ -51,13 +51,13 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     },
     onUpdateItemOrderNum: (item: T, newOrderNum: Double) -> Unit = { _, _ -> },
     onReordered: ((List<T>) -> Unit)? = null,
-    ItemContent: @Composable (Int, T) -> Unit
+    itemContent: @Composable (Int, T) -> Unit
 ) {
     ReorderModal<T>(
         visible = visible,
         id = id,
         initialItems = initialItems,
-        TitleContent = TitleContent,
+        titleContent = titleContent,
         dismiss = dismiss,
         onUpdateItemOrderNum = { _, item, newOrderNum ->
             onUpdateItemOrderNum(item, newOrderNum)
@@ -67,8 +67,8 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
                 listAny as? List<T> ?: error("List<T> cast exception.")
             )
         },
-        ItemContent = { index, itemAny ->
-            ItemContent(index, itemAny as T)
+        itemContent = { index, itemAny ->
+            itemContent(index, itemAny as T)
         }
     )
 }
@@ -80,7 +80,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
     initialItems: List<Any>,
     dismiss: () -> Unit,
     id: UUID = UUID.randomUUID(),
-    TitleContent: @Composable ColumnScope.() -> Unit = {
+    titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.reorder),
@@ -96,7 +96,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
         newOrderNum: Double
     ) -> Unit = { _, _, _ -> },
     onReordered: ((List<Any>) -> Unit)? = null,
-    ItemContent: @Composable RowScope.(Int, Any) -> Unit
+    itemContent: @Composable RowScope.(Int, Any) -> Unit
 ) {
     var items by remember(id, initialItems) { mutableStateOf(initialItems) }
     var reOrderedList: List<Any>? by remember {
@@ -113,7 +113,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
         visible = visible,
         scrollState = null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             IvyCircleButton(
                 modifier = Modifier
                     .size(48.dp)
@@ -133,7 +133,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
     ) {
         Spacer(Modifier.height(32.dp))
 
-        TitleContent()
+        titleContent()
 
         Spacer(Modifier.height(24.dp))
 
@@ -149,7 +149,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
                     )
                     adapter = Adapter<T>(
                         itemTouchHelper = itemTouchHelper,
-                        ItemContent = ItemContent,
+                        itemContent = itemContent,
                         addItemOrderNumUpdate = { item, newOrderNum ->
                             orderNumUpdates = orderNumUpdates
                                 .toMutableMap()
@@ -177,7 +177,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
 @Suppress("UNCHECKED_CAST")
 private class Adapter<T : Reorderable>(
     private val itemTouchHelper: ItemTouchHelper,
-    private val ItemContent: @Composable RowScope.(Int, Any) -> Unit,
+    private val itemContent: @Composable RowScope.(Int, Any) -> Unit,
     private val addItemOrderNumUpdate: (item: T, orderNum: Double) -> Unit,
     private val onReorderInternalList: (List<Any>) -> Unit
 ) : RecyclerView.Adapter<Adapter<T>.ItemViewHolder>() {
@@ -217,7 +217,7 @@ private class Adapter<T : Reorderable>(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.display(
             item = data[position],
-            ItemContent = ItemContent,
+            itemContent = itemContent,
             position = position
         )
     }
@@ -230,7 +230,7 @@ private class Adapter<T : Reorderable>(
 
         fun display(
             item: Any,
-            ItemContent: @Composable RowScope.(Int, Any) -> Unit,
+            itemContent: @Composable RowScope.(Int, Any) -> Unit,
             position: Int
         ) {
             (itemView as ComposeView).setContent {
@@ -259,7 +259,7 @@ private class Adapter<T : Reorderable>(
                         Spacer(Modifier.width(4.dp))
                     }
 
-                    ItemContent(bindingAdapterPosition, item)
+                    itemContent(bindingAdapterPosition, item)
                 }
             }
         }

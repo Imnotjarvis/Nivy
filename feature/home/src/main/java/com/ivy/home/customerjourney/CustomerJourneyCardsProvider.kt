@@ -53,8 +53,8 @@ class CustomerJourneyCardsProvider @Inject constructor(
     val ACTIVE_CARDS = listOf(
       adjustBalanceCard(),
       addPlannedPaymentCard(),
-      didYouKnow_pinAddTransactionWidgetCard(),
-      didYouKnow_expensesPieChart(),
+      didYouKnowPinAddTransactionWidgetCard(),
+      didYouKnowExpensesPieChart(),
     )
 
     fun adjustBalanceCard() = CustomerJourneyCardModel(
@@ -94,7 +94,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
       }
     )
 
-    fun didYouKnow_pinAddTransactionWidgetCard() = CustomerJourneyCardModel(
+    fun didYouKnowPinAddTransactionWidgetCard() = CustomerJourneyCardModel(
       id = "add_transaction_widget",
       condition = { trnCount, _, _ ->
         trnCount >= 3
@@ -110,7 +110,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
       }
     )
 
-    fun didYouKnow_expensesPieChart() = CustomerJourneyCardModel(
+    fun didYouKnowExpensesPieChart() = CustomerJourneyCardModel(
       id = "expenses_pie_chart",
       condition = { trnCount, _, _ ->
         trnCount >= 7

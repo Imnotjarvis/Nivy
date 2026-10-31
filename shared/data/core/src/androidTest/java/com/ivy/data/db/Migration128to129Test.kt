@@ -7,7 +7,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ivy.base.model.TransactionType
 import com.ivy.data.db.migration.Migration128to129_DeleteIsDeleted
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test

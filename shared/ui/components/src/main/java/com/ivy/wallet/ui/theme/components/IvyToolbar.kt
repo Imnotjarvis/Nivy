@@ -20,7 +20,7 @@ fun IvyToolbar(
     backButtonType: BackButtonType = BackButtonType.BACK,
     paddingTop: Dp = 16.dp,
     paddingBottom: Dp = 16.dp,
-    Content: @Composable RowScope.() -> Unit = { }
+    content: @Composable RowScope.() -> Unit = { }
 ) {
     Row(
         modifier = Modifier
@@ -49,6 +49,6 @@ fun IvyToolbar(
             }
         }
 
-        Content()
+        content()
     }
 }

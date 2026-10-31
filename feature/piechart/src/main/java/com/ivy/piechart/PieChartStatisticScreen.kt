@@ -403,7 +403,7 @@ private fun CategoryAmountCard(
             iconName = category?.icon?.id,
             tint = findContrastTextColor(categoryColor),
             iconContentScale = ContentScale.None,
-            Default = {
+            default = {
                 ItemIconMDefaultIcon(
                     modifier = Modifier.background(categoryColor, CircleShape),
                     iconName = category?.icon?.id,

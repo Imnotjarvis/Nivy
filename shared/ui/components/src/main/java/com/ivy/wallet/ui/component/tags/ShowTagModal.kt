@@ -95,7 +95,7 @@ fun BoxWithConstraintsScope.ShowTagModal(
         id = id,
         visible = visible,
         dismiss = onDismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalPositiveButton(
                 onClick = onDismiss,
                 text = stringResource(R.string.done),

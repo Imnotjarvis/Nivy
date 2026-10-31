@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
@@ -147,7 +147,7 @@ fun BoxWithConstraintsScope.LoanModal(
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = false,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = modal?.loan,
                 // enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && ((createLoanTrans && selectedAcc != null) || !createLoanTrans)

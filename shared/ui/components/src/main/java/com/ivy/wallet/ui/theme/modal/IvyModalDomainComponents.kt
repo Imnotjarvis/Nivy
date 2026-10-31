@@ -26,7 +26,7 @@ fun ModalAmountSection(
     currency: String,
     amount: Double,
     modifier: Modifier = Modifier,
-    Header: (@Composable () -> Unit)? = null,
+    header: (@Composable () -> Unit)? = null,
     amountPaddingTop: Dp = 48.dp,
     amountPaddingBottom: Dp = 48.dp,
     showAmountModal: () -> Unit
@@ -38,7 +38,7 @@ fun ModalAmountSection(
     ) {
         IvyDividerLine()
 
-        Header?.invoke()
+        header?.invoke()
 
         Spacer(Modifier.height(amountPaddingTop))
 

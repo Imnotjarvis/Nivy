@@ -1,5 +1,6 @@
 package com.ivy.data.model
 
+import com.ivy.base.model.IntervalType
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble

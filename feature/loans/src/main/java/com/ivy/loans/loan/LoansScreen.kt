@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.model.Theme
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.design.system.typography.numberTitleSmall
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.humanReadableType

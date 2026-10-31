@@ -68,7 +68,7 @@ fun BoxWithConstraintsScope.ChooseIconModal(
         dismiss = dismiss,
         scrollState = null,
         includeActionsRowPadding = false,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave(
                 modifier = Modifier.testTag("choose_icon_save")
             ) {

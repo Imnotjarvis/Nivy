@@ -31,7 +31,7 @@ import com.ivy.wallet.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
-import com.ivy.widgets.WidgetBase
+import com.ivy.widget.WidgetBase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch

@@ -89,7 +89,7 @@ fun BoxWithConstraintsScope.BudgetModal(
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             val name = NotBlankTrimmedString.from(nameTextFieldValue.text).getOrNull()
             val positiveAmount = PositiveDouble.from(amount).getOrNull()
             ModalAddSave(

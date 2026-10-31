@@ -75,7 +75,7 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSkip {
                 save(
                     category = selectedCategory,

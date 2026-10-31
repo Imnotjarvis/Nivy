@@ -580,7 +580,7 @@ fun BoxWithConstraintsScope.SortModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet {
                 applyChange()
             }

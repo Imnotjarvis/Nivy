@@ -21,7 +21,7 @@ import androidx.compose.material3.MaterialTheme
 fun BoxWithConstraintsScope.BackBottomBar(
     onBack: () -> Unit,
     bottomInset: Dp = navigationBarInset().toDensityDp(),
-    PrimaryAction: @Composable () -> Unit,
+    primaryAction: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
     ActionsRow(
@@ -42,7 +42,7 @@ fun BoxWithConstraintsScope.BackBottomBar(
 
         Spacer(Modifier.weight(1f))
 
-        PrimaryAction()
+        primaryAction()
 
         Spacer(Modifier.width(20.dp))
     }

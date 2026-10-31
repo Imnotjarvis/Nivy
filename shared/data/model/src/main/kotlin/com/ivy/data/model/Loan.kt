@@ -1,6 +1,7 @@
 package com.ivy.data.model
 
 import com.ivy.base.model.LoanRecordType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString

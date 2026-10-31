@@ -39,7 +39,7 @@ import com.ivy.base.model.processByType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanRecord
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.humanReadableType
 import com.ivy.wallet.ui.component.ItemStatisticToolbar

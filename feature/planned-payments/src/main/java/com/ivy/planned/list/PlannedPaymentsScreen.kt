@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.system.colors.Purple
@@ -53,7 +53,7 @@ private fun BoxWithConstraintsScope.UI(
     onEvent: (PlannedPaymentsScreenEvent) -> Unit = {}
 ) {
     PlannedPaymentsLazyColumn(
-        Header = {
+        header = {
             Spacer(Modifier.height(32.dp))
 
             Text(

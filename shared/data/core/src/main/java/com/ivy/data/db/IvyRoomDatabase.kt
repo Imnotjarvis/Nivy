@@ -41,25 +41,24 @@ import com.ivy.data.db.migration.Migration128to129_DeleteIsDeleted
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
 import com.ivy.data.db.migration.Migration130to131_DropUsers
 import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
-import com.ivy.domain.db.RoomTypeConverters
-import com.ivy.domain.db.migration.Migration105to106_TrnRecurringRules
-import com.ivy.domain.db.migration.Migration106to107_Wishlist
-import com.ivy.domain.db.migration.Migration107to108_Sync
-import com.ivy.domain.db.migration.Migration108to109_Users
-import com.ivy.domain.db.migration.Migration109to110_PlannedPayments
-import com.ivy.domain.db.migration.Migration110to111_PlannedPaymentRule
-import com.ivy.domain.db.migration.Migration111to112_User_testUser
-import com.ivy.domain.db.migration.Migration112to113_ExchangeRates
-import com.ivy.domain.db.migration.Migration113to114_Multi_Currency
-import com.ivy.domain.db.migration.Migration114to115_Category_Account_Icons
-import com.ivy.domain.db.migration.Migration115to116_Account_Include_In_Balance
-import com.ivy.domain.db.migration.Migration116to117_SalteEdgeIntgration
-import com.ivy.domain.db.migration.Migration117to118_Budgets
-import com.ivy.domain.db.migration.Migration118to119_Loans
-import com.ivy.domain.db.migration.Migration119to120_LoanTransactions
-import com.ivy.domain.db.migration.Migration120to121_DropWishlistItem
-import com.ivy.domain.db.migration.Migration122to123_ExchangeRates
-import com.ivy.domain.db.migration.Migration125to126_Tags
+import com.ivy.data.db.migration.Migration105to106_TrnRecurringRules
+import com.ivy.data.db.migration.Migration106to107_Wishlist
+import com.ivy.data.db.migration.Migration107to108_Sync
+import com.ivy.data.db.migration.Migration108to109_Users
+import com.ivy.data.db.migration.Migration109to110_PlannedPayments
+import com.ivy.data.db.migration.Migration110to111_PlannedPaymentRule
+import com.ivy.data.db.migration.Migration111to112_User_testUser
+import com.ivy.data.db.migration.Migration112to113_ExchangeRates
+import com.ivy.data.db.migration.Migration113to114_Multi_Currency
+import com.ivy.data.db.migration.Migration114to115_Category_Account_Icons
+import com.ivy.data.db.migration.Migration115to116_Account_Include_In_Balance
+import com.ivy.data.db.migration.Migration116to117_SalteEdgeIntgration
+import com.ivy.data.db.migration.Migration117to118_Budgets
+import com.ivy.data.db.migration.Migration118to119_Loans
+import com.ivy.data.db.migration.Migration119to120_LoanTransactions
+import com.ivy.data.db.migration.Migration120to121_DropWishlistItem
+import com.ivy.data.db.migration.Migration122to123_ExchangeRates
+import com.ivy.data.db.migration.Migration125to126_Tags
 
 @Database(
     entities = [

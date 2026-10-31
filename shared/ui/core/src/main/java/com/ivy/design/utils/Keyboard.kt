@@ -1,6 +1,5 @@
 package com.ivy.design.utils
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -8,12 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
-
-@SuppressLint("ComposableNaming")
-@Composable
-fun hideKeyboard() {
-    LocalView.current.hideKeyboard()
-}
 
 // Same JVM signature as View.hideKeyboard(), hence the JvmName.
 @JvmName("hideKeyboardSafely")

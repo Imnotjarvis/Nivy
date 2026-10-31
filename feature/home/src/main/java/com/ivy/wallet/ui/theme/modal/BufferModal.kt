@@ -38,7 +38,7 @@ fun BoxWithConstraintsScope.BufferModal(
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave {
                 onBufferChanged(newBufferAmount)
                 dismiss()

@@ -37,7 +37,7 @@ fun BoxWithConstraintsScope.NameModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave {
                 onNameChanged(modalName.text)
                 dismiss()

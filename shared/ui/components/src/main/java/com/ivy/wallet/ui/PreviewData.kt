@@ -9,12 +9,12 @@ import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
 import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.LoanRecordId
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PlannedPaymentRuleId

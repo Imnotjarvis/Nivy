@@ -1,6 +1,6 @@
 package com.ivy.domain.usecase.planned
 
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.primitive.AssetCode

@@ -2,7 +2,7 @@ package com.ivy.wallet.domain.logic.model
 
 import androidx.compose.ui.graphics.Color
 import com.ivy.data.model.Account
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import java.time.LocalDateTime
 
 data class CreateLoanData(

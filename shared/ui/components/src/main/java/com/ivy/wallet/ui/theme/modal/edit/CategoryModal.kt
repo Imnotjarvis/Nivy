@@ -88,7 +88,7 @@ fun BoxWithConstraintsScope.CategoryModal(
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = modal?.category,
                 enabled = nameTextFieldValue.text.isNotNullOrBlank()

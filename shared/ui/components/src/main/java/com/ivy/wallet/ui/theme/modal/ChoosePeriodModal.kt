@@ -34,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.domain.RootScreen
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.LocalPeriodState
@@ -92,7 +92,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
         visible = modal != null,
         dismiss = dismiss,
         scrollState = modalScrollState,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet(
                 enabled = period != null && period!!.isValid()
             ) {

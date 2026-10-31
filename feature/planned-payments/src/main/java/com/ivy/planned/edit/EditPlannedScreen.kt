@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
@@ -226,7 +226,7 @@ private fun BoxWithConstraintsScope.UI(
         amount = state.amount,
         currency = state.currency,
 
-        ActionButton = {
+        actionButton = {
             ModalSet(
                 modifier = Modifier.testTag("editPlannedScreen_set")
             ) {
