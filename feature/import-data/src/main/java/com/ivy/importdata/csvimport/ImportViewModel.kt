@@ -25,6 +25,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+private const val Percent = 100
+
 @HiltViewModel
 class ImportViewModel @Inject constructor(
     private val nav: Navigation,
@@ -71,7 +73,7 @@ class ImportViewModel @Inject constructor(
                     ) { progressPercent ->
                         com.ivy.wallet.utils.uiThread {
                             _importProgressPercent.value =
-                                (progressPercent * 100).roundToInt()
+                                (progressPercent * Percent).roundToInt()
                         }
                     }
                 }
@@ -118,7 +120,7 @@ class ImportViewModel @Inject constructor(
                     onProgress = { progressPercent ->
                         com.ivy.wallet.utils.uiThread {
                             _importProgressPercent.value =
-                                (progressPercent * 100).roundToInt()
+                                (progressPercent * Percent).roundToInt()
                         }
                     }
                 )

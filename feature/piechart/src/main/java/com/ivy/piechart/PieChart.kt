@@ -50,6 +50,10 @@ import kotlin.math.sqrt
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.colors.isLight
 
+// Angles in degrees; slices start at the top, a quarter turn before 0 (3 o'clock).
+private const val FullTurn = 360.0
+private const val QuarterTurn = 90.0
+
 const val PIE_CHART_RADIUS_DP = 128
 const val RADIUS_DP = 112f
 
@@ -169,18 +173,17 @@ private class PieChartView(context: Context) : View(context) {
     private val zones = mutableListOf<Zone>()
 
     override fun onDraw(canvas: Canvas) {
-        var startAngle = -90.0
+        var startAngle = -QuarterTurn
 
         zones.clear()
 
         for (categoryAmount in categoryAmounts) {
-            val paint = paints[categoryAmount.category] ?: continue
+            val paint = paints[categoryAmount.category]
             val amount = categoryAmount.amount
-
-            if (amount == 0.0) continue
+            if (paint == null || amount == 0.0) continue
 
             val percent = amount / totalAmount
-            val sweepAngle = 360 * percent
+            val sweepAngle = FullTurn * percent
 
             zones.add(
                 Zone(
@@ -258,9 +261,9 @@ private class PieChartView(context: Context) : View(context) {
         angle = if (touchX >= centerX) {
             Math.toDegrees(acos((-centerY * y2) / (d1 * d2)))
         } else {
-            360 - Math.toDegrees(acos((-centerY * y2) / (d1 * d2)))
+            FullTurn - Math.toDegrees(acos((-centerY * y2) / (d1 * d2)))
         }
-        return angle - 90.0
+        return angle - QuarterTurn
     }
 
     companion object {

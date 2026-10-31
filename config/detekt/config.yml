@@ -108,7 +108,8 @@ complexity:
     active: true
     threshold: 20
     ignoreSingleWhenExpression: false
-    ignoreSimpleWhenEntries: false
+    # A `when` that maps each event to one call (the view models' onEvent) isn't complex.
+    ignoreSimpleWhenEntries: true
     ignoreNestingFunctions: false
     nestingFunctions:
       - 'also'
@@ -612,7 +613,10 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/*.kts']
+    # Room migrations are about version numbers.
+    excludes: ['**/test/**', '**/androidTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/*.kts', '**/db/migration/**']
+    # Sizes, weights, alphas and durations in composables are layout values, read where they're used.
+    ignoreAnnotated: ['Composable']
     ignoreNumbers:
       - '-1'
       - '0'
@@ -625,7 +629,8 @@ style:
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: false
     ignoreNamedArgument: true
-    ignoreEnums: false
+    # Enum entries name their values.
+    ignoreEnums: true
     ignoreRanges: false
     ignoreExtensionFunctions: true
   MandatoryBracesLoops:
@@ -683,7 +688,8 @@ style:
       - 'equals'
     excludeLabeled: false
     excludeReturnFromLambda: true
-    excludeGuardClauses: false
+    # Early returns for invalid input (guard clauses) read better than nesting.
+    excludeGuardClauses: true
   SafeCast:
     active: true
   SerialVersionUIDInSerializableClass:

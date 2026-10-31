@@ -38,6 +38,9 @@ import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
 
+// With this many transactions or fewer, the list gets a taller spacer at the end so it can scroll.
+private const val FewTransactions = 5
+
 fun LazyListScope.transactions(
     baseData: AppBaseData,
 
@@ -86,11 +89,7 @@ fun LazyListScope.transactions(
         onPayOrGet = onPayOrGet
     )
 
-    if (
-        (upcoming == null || upcoming.trns.isEmpty()) &&
-        (overdue == null || overdue.trns.isEmpty()) &&
-        history.isEmpty()
-    ) {
+    if (upcoming?.trns.isNullOrEmpty() && overdue?.trns.isNullOrEmpty() && history.isEmpty()) {
         item {
             NoTransactionsEmptyState(
                 emptyStateTitle = emptyStateTitle,
@@ -362,7 +361,7 @@ private fun LazyListScope.scrollHackSpacer(
             ).plus(
                 if (overdue != null && overdue.expanded) overdue.trns.size else 0
             )
-            if (trnCount <= 5) {
+            if (trnCount <= FewTransactions) {
                 Spacer(Modifier.height(300.dp))
             } else {
                 Spacer(Modifier.height(150.dp))

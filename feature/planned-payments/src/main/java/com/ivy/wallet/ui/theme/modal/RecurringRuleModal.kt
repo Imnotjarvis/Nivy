@@ -57,6 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -390,7 +391,7 @@ private fun RootScreen.pickDateAtNoon(
     onDatePicked: (LocalDateTime) -> Unit
 ) {
     pickDate(initialDate = initialDate) {
-        onDatePicked(it.atTime(12, 0))
+        onDatePicked(it.atTime(LocalTime.NOON))
     }
 }
 

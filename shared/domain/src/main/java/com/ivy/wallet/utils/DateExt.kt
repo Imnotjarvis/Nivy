@@ -10,6 +10,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 // A timestamp for file names, like 20261030-0915.
@@ -46,7 +47,7 @@ fun endOfMonth(date: LocalDate, timeConverter: TimeConverter): Instant {
 }
 
 fun LocalDate.atEndOfDay(): LocalDateTime =
-    this.atTime(23, 59, 59)
+    this.atTime(LocalTime.MAX.truncatedTo(ChronoUnit.SECONDS))
 
 fun ivyMinTime(): Instant = INSTANT_MIN_SAFE
 

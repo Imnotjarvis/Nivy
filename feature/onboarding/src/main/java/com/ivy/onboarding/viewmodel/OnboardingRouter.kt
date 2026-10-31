@@ -25,6 +25,9 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
+
+private val SplashDuration = 1.seconds
 
 class OnboardingRouter(
     private val state: MutableState<OnboardingState>,
@@ -90,7 +93,7 @@ class OnboardingRouter(
     // ------------------------------------- Step 0 - Splash ----------------------------------------
     suspend fun splashNext() {
         if (state.value == OnboardingState.SPLASH) {
-            delay(1000)
+            delay(SplashDuration)
 
             state.value = OnboardingState.LOGIN
         }

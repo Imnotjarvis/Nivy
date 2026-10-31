@@ -110,7 +110,7 @@ private fun LazyListScope.icons(
 
     onIconSelected: (String) -> Unit
 ) {
-    val icons = ivyIcons()
+    val icons = IvyIcons
 
     iconsR(
         icons = icons,
@@ -347,7 +347,7 @@ private fun ChooseIconModal() {
 
 data class IconPickerSection(val title: String)
 
-fun ivyIcons(): List<Any> = listOf(
+private val IvyIcons: List<Any> = listOf(
     IconPickerSection("Ivy"),
     "account",
     "category",

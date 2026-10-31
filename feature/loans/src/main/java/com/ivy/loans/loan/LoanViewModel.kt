@@ -47,6 +47,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
+private const val Percent = 100
+
 @Stable
 @HiltViewModel
 class LoanViewModel @Inject constructor(
@@ -233,7 +235,7 @@ class LoanViewModel @Inject constructor(
                                 )
                             } $currCode (${
                                 percentPaid.times(
-                                    100
+                                    Percent
                                 ).format(2)
                             }%)",
                             percentPaid = percentPaid

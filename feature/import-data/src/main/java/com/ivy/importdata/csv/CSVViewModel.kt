@@ -40,6 +40,11 @@ import java.nio.charset.Charset
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+// A CSV that splits into fewer columns than this was read with the wrong separator.
+private const val MinColumns = 3
+
+private const val Percent = 100
+
 @HiltViewModel
 class CSVViewModel @Inject constructor(
     private val fileReader: FileSystem,
@@ -443,7 +448,7 @@ class CSVViewModel @Inject constructor(
     private suspend fun handleFilePicked(event: CSVEvent.FilePicked): Unit =
         withContext(Dispatchers.IO) {
             importCSV(uri = event.uri, normalizeCSV = false)
-            if (columns?.values?.size?.let { it < 3 } == true) {
+            if (columns?.values?.size?.let { it < MinColumns } == true) {
                 importCSV(uri = event.uri, normalizeCSV = true)
             }
             csv = csv?.map { row ->
@@ -464,13 +469,12 @@ class CSVViewModel @Inject constructor(
         charset: Charset = Charsets.UTF_8
     ): List<CSVRow>? {
         return try {
-            val fileContent = fileReader.read(uri, charset).getOrNull() ?: return null
-            parseCSV(fileContent, normalizeCSV).takeIf { it.isNotEmpty() }
+            fileReader.read(uri, charset).getOrNull()
+                ?.let { parseCSV(it, normalizeCSV) }
+                ?.takeIf { it.isNotEmpty() }
         } catch (e: Exception) {
-            if (charset != Charsets.UTF_16) {
-                return processFile(uri, normalizeCSV, charset = Charsets.UTF_16)
-            }
-            null
+            // A file that doesn't parse as UTF-8 gets a second try as UTF-16.
+            if (charset != Charsets.UTF_16) processFile(uri, normalizeCSV, charset = Charsets.UTF_16) else null
         }
     }
 
@@ -545,7 +549,7 @@ class CSVViewModel @Inject constructor(
                 onProgress = { progressPercent ->
                     com.ivy.wallet.utils.uiThread {
                         uiState = UIState.Processing(
-                            (progressPercent * 100).roundToInt()
+                            (progressPercent * Percent).roundToInt()
                         )
                     }
                 }

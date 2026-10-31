@@ -37,10 +37,14 @@ import timber.log.Timber
 import java.io.StringReader
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.absoluteValue
+
+// Reading the rows takes the first half of the import's progress, saving them the rest.
+private const val SavingStartsAt = 0.5
 
 class CSVImporter @Inject constructor(
     private val accountDao: AccountDao,
@@ -140,7 +144,7 @@ class CSVImporter @Inject constructor(
             } else {
                 0.0
             }
-            onProgress(0.5 + progressPercent / 2)
+            onProgress(SavingStartsAt + progressPercent * (1 - SavingStartsAt))
             with(transactionMapper) {
                 transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)
@@ -421,7 +425,7 @@ class CSVImporter @Inject constructor(
         return LocalDate.parse(
             this,
             DateTimeFormatter.ofPattern(dateFormat)
-        ).atTime(12, 0)
+        ).atTime(LocalTime.NOON)
     }
 
     private fun String.parseDateTime(

@@ -9,6 +9,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
 
+// How the notification light blinks.
+private const val LightOnMs = 1000
+private const val LightOffMs = 200
+
 class NotificationService @Inject constructor(
     @ApplicationContext
     private val context: Context
@@ -25,7 +29,7 @@ class NotificationService @Inject constructor(
             .setColor(color)
             .setPriority(priority)
             .setColorized(true)
-            .setLights(color, 1000, 200)
+            .setLights(color, LightOnMs, LightOffMs)
             .setAutoCancel(autoCancel)
         return ivyNotification
     }

@@ -36,6 +36,9 @@ import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.ivy.importdata.csv.CSVRow as CSVRowNew
 
+// Reading the rows takes the first half of the import's progress, saving them the rest.
+private const val SavingStartsAt = 0.5
+
 class CSVImporterV2 @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val transactionMapper: TransactionMapper,
@@ -108,7 +111,7 @@ class CSVImporterV2 @Inject constructor(
             } else {
                 0.0
             }
-            onProgress(0.5 + progressPercent / 2)
+            onProgress(SavingStartsAt + progressPercent * (1 - SavingStartsAt))
             with(transactionMapper) {
                 transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)

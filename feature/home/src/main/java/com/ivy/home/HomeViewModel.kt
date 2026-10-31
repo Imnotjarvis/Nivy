@@ -57,6 +57,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
+
+// How long a tap shows a hidden balance or income.
+private val RevealHiddenFor = 5.seconds
 
 @Stable
 @HiltViewModel
@@ -407,8 +411,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun onHiddenBalanceClick() {
         hideBalance = false
 
-        // Showing Balance fow 5s
-        delay(5000)
+        delay(RevealHiddenFor)
 
         hideBalance = true
     }
@@ -416,8 +419,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun onHiddenIncomeClick() {
         hideIncome = false
 
-        // Showing Balance fow 5s
-        delay(5000)
+        delay(RevealHiddenFor)
 
         hideIncome = true
     }

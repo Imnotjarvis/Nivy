@@ -14,20 +14,11 @@ data class Month(
     @StringRes val nameRes: Int,
 ) {
     companion object {
-        fun monthsList(): MutableList<Month> = mutableListOf(
-            Month(1, R.string.january),
-            Month(2, R.string.february),
-            Month(3, R.string.march),
-            Month(4, R.string.april),
-            Month(5, R.string.may),
-            Month(6, R.string.june),
-            Month(7, R.string.july),
-            Month(8, R.string.august),
-            Month(9, R.string.september),
-            Month(10, R.string.october),
-            Month(11, R.string.november),
-            Month(12, R.string.december),
-        )
+        fun monthsList(): MutableList<Month> = listOf(
+            R.string.january, R.string.february, R.string.march, R.string.april,
+            R.string.may, R.string.june, R.string.july, R.string.august,
+            R.string.september, R.string.october, R.string.november, R.string.december,
+        ).mapIndexed { index, nameRes -> Month(index + 1, nameRes) }.toMutableList()
 
         fun fromMonthValue(code: Int): Month =
             monthsList().first { it.monthValue == code }

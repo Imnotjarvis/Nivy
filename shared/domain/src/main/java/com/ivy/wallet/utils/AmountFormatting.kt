@@ -7,6 +7,12 @@ import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.truncate
 
+// Crypto amounts show up to this many decimals.
+private const val CryptoDecimals = 9
+
+// A decimal part this small or smaller rounds away at two decimals.
+private const val SignificantDecimalPart = 0.009
+
 const val MILLION = 1000000
 const val N_100K = 100000
 const val THOUSAND = 1000
@@ -73,7 +79,7 @@ fun Double.format(currency: IvyCurrency?): String {
 }
 
 fun Double.formatCrypto(): String {
-    val pattern = "###,###,##0.${"0".repeat(9)}"
+    val pattern = "###,###,##0.${"0".repeat(CryptoDecimals)}"
     val format = DecimalFormat(pattern)
     val numberStringWithZeros = format.format(this)
 
@@ -123,7 +129,7 @@ private fun formatShortenedNumber(
 fun hasSignificantDecimalPart(number: Double): Boolean {
     // TODO: Review, might cause trouble when integrating crypto
     val intPart = number.toInt()
-    return abs(number - intPart) >= 0.009
+    return abs(number - intPart) >= SignificantDecimalPart
 }
 
 fun shouldShortAmount(amount: Double): Boolean {
