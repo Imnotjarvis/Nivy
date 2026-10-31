@@ -31,9 +31,9 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
-import com.ivy.domain.legacy.ui.theme.components.ListItem
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
+import com.ivy.wallet.ui.theme.components.ListItem
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.theme.modal.ModalNameInput
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Green

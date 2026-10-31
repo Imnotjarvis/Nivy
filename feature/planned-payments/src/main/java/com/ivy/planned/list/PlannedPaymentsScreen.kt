@@ -19,9 +19,9 @@ import com.ivy.data.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.system.colors.Purple
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ui.previewAccount
-import com.ivy.legacy.ui.previewPlannedPaymentRule
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.previewAccount
+import com.ivy.wallet.ui.previewPlannedPaymentRule
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation

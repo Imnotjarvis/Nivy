@@ -280,7 +280,7 @@ private class PieChartView(context: Context) : View(context) {
 @Preview
 @Composable
 private fun Preview() {
-    com.ivy.legacy.IvyWalletComponentPreview {
+    com.ivy.wallet.IvyWalletComponentPreview {
         Column(
             Modifier.fillMaxSize()
         ) {

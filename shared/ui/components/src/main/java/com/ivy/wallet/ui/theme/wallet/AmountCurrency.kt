@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.shortenAmount
-import com.ivy.legacy.utils.shouldShortAmount
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.shortenAmount
+import com.ivy.wallet.utils.shouldShortAmount
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge

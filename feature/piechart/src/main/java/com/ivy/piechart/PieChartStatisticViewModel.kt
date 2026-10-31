@@ -14,9 +14,9 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.piechart.action.PieChartAct
 import com.ivy.ui.ComposeViewModel

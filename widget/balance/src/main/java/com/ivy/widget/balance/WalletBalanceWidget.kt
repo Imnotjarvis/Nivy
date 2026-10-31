@@ -25,9 +25,9 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.AppStarter
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.shortenAmount
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct

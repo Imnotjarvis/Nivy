@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.backup.ImportResult
 import com.ivy.importdata.csv.Spacer8
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.utils.format
 import com.ivy.navigation.CSVScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
@@ -271,7 +271,7 @@ private fun FailedSectionUI(
 @Preview(device = "id:pixel_3", showBackground = true, showSystemUi = true)
 @Composable
 private fun Preview() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         ImportResultUI(
             result = ImportResult(
                 rowsFound = 356,

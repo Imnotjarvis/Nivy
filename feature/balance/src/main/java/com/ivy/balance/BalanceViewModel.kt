@@ -12,10 +12,10 @@ import androidx.lifecycle.viewModelScope
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
-import com.ivy.legacy.PeriodState
+import com.ivy.wallet.PeriodState
 import com.ivy.ui.ComposeViewModel
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import dagger.hilt.android.lifecycle.HiltViewModel

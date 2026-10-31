@@ -16,11 +16,11 @@ import com.ivy.data.DataWriteEvent
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.domain.features.Features
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.AccountData
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.AccountData
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
@@ -166,7 +166,7 @@ class AccountsViewModel @Inject constructor(
     }
 
     private suspend fun startInternally() {
-        val period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+        val period = com.ivy.wallet.data.model.TimePeriod.currentMonth(
             startDayOfMonth = periodState.startDayOfMonth,
             timeProvider = timeProvider,
         ) // this must be monthly

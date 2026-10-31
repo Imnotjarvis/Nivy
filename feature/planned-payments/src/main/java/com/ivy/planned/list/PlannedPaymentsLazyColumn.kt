@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.PlannedPaymentRule
-import com.ivy.legacy.ui.component.transaction.SectionDivider
+import com.ivy.wallet.ui.component.transaction.SectionDivider
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.navigation

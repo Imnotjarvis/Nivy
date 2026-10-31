@@ -12,7 +12,7 @@ import com.ivy.importdata.csvimport.flow.ImportFrom
 import com.ivy.importdata.csvimport.flow.ImportProcessing
 import com.ivy.importdata.csvimport.flow.ImportResultUI
 import com.ivy.importdata.csvimport.flow.instructions.ImportInstructions
-import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
+import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.navigation.ImportScreen
 import com.ivy.onboarding.viewmodel.OnboardingViewModel
 import com.ivy.data.backup.ImportResult
@@ -116,7 +116,7 @@ private fun BoxWithConstraintsScope.UI(
 @Preview
 @Composable
 private fun Preview() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         UI(
             screen = ImportScreen(launchedFromOnboarding = true),
             importStep = ImportStep.IMPORT_FROM,

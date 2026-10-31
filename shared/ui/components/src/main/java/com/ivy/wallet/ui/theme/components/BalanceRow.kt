@@ -16,10 +16,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.shortenAmount
-import com.ivy.legacy.utils.shouldShortAmount
+import com.ivy.wallet.IvyWalletComponentPreview
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.shortenAmount
+import com.ivy.wallet.utils.shouldShortAmount
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberHeadlineLarge
 

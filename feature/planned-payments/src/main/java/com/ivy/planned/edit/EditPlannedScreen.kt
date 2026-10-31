@@ -26,13 +26,13 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.IntervalType
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ui.previewAccount
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.ui.edit.core.Category
-import com.ivy.legacy.ui.component.edit.core.Description
+import com.ivy.wallet.ui.component.edit.core.Description
 import com.ivy.wallet.ui.edit.core.EditBottomSheet
 import com.ivy.wallet.ui.edit.core.Title
 import com.ivy.wallet.ui.edit.core.Toolbar

@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.importdata.csvimport.flow.ImportSteps
-import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
+import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
@@ -141,7 +141,7 @@ fun VideoArticleRow(
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val rootScreen = com.ivy.legacy.rootScreen()
+        val rootScreen = com.ivy.wallet.rootScreen()
 
         Spacer(Modifier.width(16.dp))
 
@@ -362,7 +362,7 @@ private fun App(
 @Preview
 @Composable
 private fun Preview() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         ImportInstructions(
             hasSkip = true,
             importType = ImportType.MONEY_MANAGER,

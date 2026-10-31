@@ -3,7 +3,7 @@ package com.ivy.transactions
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Transaction
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 

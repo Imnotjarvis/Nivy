@@ -34,13 +34,8 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.design.system.IvyMaterial3Theme
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.MainScreenState
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.ThemeState
-import com.ivy.legacy.IvyWalletTheme
-import com.ivy.legacy.isDarkTheme
-import com.ivy.legacy.utils.activityForResultLauncher
-import com.ivy.legacy.utils.simpleActivityForResultLauncher
+import com.ivy.wallet.utils.activityForResultLauncher
+import com.ivy.wallet.utils.simpleActivityForResultLauncher
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.NavigationRoot
 import com.ivy.ui.R

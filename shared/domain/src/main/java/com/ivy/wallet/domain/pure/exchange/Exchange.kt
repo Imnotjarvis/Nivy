@@ -7,7 +7,7 @@ import arrow.core.raise.option
 import arrow.core.toOption
 import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.utils.isNotNullOrBlank
 import java.math.BigDecimal
 
 data class ExchangeData(

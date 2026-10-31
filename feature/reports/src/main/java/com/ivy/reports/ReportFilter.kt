@@ -4,7 +4,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.TagId
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.data.model.TimePeriod
 import java.util.UUID
 
 data class ReportFilter(

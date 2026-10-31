@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.base.model.Theme
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.rootScreen
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.rootScreen
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.ExchangeRatesScreen
 import com.ivy.navigation.FeaturesScreen

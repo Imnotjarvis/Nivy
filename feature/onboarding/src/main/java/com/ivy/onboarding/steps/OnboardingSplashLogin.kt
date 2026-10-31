@@ -38,11 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.LocalScreenSize
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.lerp
-import com.ivy.legacy.utils.springBounceSlow
+import com.ivy.wallet.utils.springBounceSlow
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.toDensityDp

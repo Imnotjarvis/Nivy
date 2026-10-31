@@ -22,9 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.time.impl.DeviceTimeProvider
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.LocalPeriodState
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.IvyWalletComponentPreview
+import com.ivy.wallet.LocalPeriodState
+import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter

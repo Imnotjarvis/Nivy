@@ -19,10 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.IntervalType
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.forDisplay
-import com.ivy.legacy.utils.formatLocal
-import com.ivy.legacy.utils.uppercaseLocal
+import com.ivy.wallet.IvyWalletComponentPreview
+import com.ivy.wallet.forDisplay
+import com.ivy.wallet.utils.formatLocal
+import com.ivy.wallet.utils.uppercaseLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton

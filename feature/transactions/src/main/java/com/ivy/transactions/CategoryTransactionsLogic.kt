@@ -10,11 +10,11 @@ import com.ivy.data.model.getFromAccount
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.transaction.TransactionAmountsUseCase
-import com.ivy.legacy.data.model.FromToTimeRange
-import com.ivy.legacy.data.model.filterOverdue
-import com.ivy.legacy.data.model.filterUpcoming
+import com.ivy.wallet.data.model.FromToTimeRange
+import com.ivy.wallet.data.model.filterOverdue
+import com.ivy.wallet.data.model.filterUpcoming
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
-import com.ivy.legacy.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import java.util.UUID
 import javax.inject.Inject
 

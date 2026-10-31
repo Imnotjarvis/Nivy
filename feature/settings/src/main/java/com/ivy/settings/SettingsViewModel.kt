@@ -24,10 +24,10 @@ import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.ThemeState
-import com.ivy.legacy.utils.getISOFormattedDateTime
-import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.uiThread
+import com.ivy.wallet.ThemeState
+import com.ivy.wallet.utils.getISOFormattedDateTime
+import com.ivy.wallet.utils.ioThread
+import com.ivy.wallet.utils.uiThread
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.ui.ComposeViewModel

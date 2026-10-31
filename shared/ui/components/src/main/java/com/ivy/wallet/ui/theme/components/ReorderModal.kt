@@ -22,8 +22,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ivy.legacy.utils.numberBetween
-import com.ivy.legacy.utils.swap
+import com.ivy.wallet.utils.numberBetween
+import com.ivy.wallet.utils.swap
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.Reorderable
 import com.ivy.design.system.colors.GradientGreen

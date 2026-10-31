@@ -1,0 +1,10 @@
+package com.ivy.wallet.data.model
+
+import androidx.compose.runtime.Immutable
+import com.ivy.data.model.Account
+
+@Immutable
+data class AccountBalance(
+    val account: Account,
+    val balance: Double
+)

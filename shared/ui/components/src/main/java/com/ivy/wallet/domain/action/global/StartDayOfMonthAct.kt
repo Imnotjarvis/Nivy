@@ -1,7 +1,7 @@
 package com.ivy.wallet.domain.action.global
 
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.legacy.PeriodState
+import com.ivy.wallet.PeriodState
 import javax.inject.Inject
 
 class StartDayOfMonthAct @Inject constructor(

@@ -41,13 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.data.model.MainTab
+import com.ivy.wallet.data.model.MainTab
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.utils.springBounceFast
+import com.ivy.wallet.utils.springBounceFast
 import com.ivy.design.utils.toDensityDp
 import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R

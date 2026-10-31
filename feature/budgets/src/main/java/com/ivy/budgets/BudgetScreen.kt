@@ -23,9 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ivy.budgets.model.DisplayBudget
-import com.ivy.legacy.legacy.ui.theme.components.BudgetBattery
+import com.ivy.wallet.ui.theme.components.BudgetBattery
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.utils.format
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.navigation
@@ -165,7 +165,7 @@ private fun BoxWithConstraintsScope.UI(
 
 @Composable
 private fun Toolbar(
-    timeRange: com.ivy.legacy.data.model.FromToTimeRange?,
+    timeRange: com.ivy.wallet.data.model.FromToTimeRange?,
     totalRemainingBudgetText: String?,
     baseCurrency: String,
     appBudgetMax: Double,

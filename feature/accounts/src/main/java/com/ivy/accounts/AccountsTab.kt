@@ -37,13 +37,13 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.LocalMainScreenState
-import com.ivy.legacy.data.model.AccountData
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.LocalMainScreenState
+import com.ivy.wallet.data.model.AccountData
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.legacy.utils.horizontalSwipeListener
+import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.utils.rememberSwipeListenerState
+import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
@@ -95,10 +95,10 @@ private fun BoxWithConstraintsScope.UI(
                 sensitivity = 200,
                 state = rememberSwipeListenerState(),
                 onSwipeLeft = {
-                    mainScreenState.selectTab(com.ivy.legacy.data.model.MainTab.HOME)
+                    mainScreenState.selectTab(com.ivy.wallet.data.model.MainTab.HOME)
                 },
                 onSwipeRight = {
-                    mainScreenState.selectTab(com.ivy.legacy.data.model.MainTab.HOME)
+                    mainScreenState.selectTab(com.ivy.wallet.data.model.MainTab.HOME)
                 }
             ),
         state = listState

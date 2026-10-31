@@ -21,10 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.Theme
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.ui.SearchInput
-import com.ivy.legacy.ui.component.transaction.transactions
+import com.ivy.wallet.IvyWalletComponentPreview
+import com.ivy.wallet.data.AppBaseData
+import com.ivy.wallet.ui.SearchInput
+import com.ivy.wallet.ui.component.transaction.transactions
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.design.utils.keyboardVisibleState

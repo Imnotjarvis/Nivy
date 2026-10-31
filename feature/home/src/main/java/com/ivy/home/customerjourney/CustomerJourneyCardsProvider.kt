@@ -10,7 +10,7 @@ import com.ivy.design.system.colors.GreenLight
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
-import com.ivy.legacy.data.model.MainTab
+import com.ivy.wallet.data.model.MainTab
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.ui.R

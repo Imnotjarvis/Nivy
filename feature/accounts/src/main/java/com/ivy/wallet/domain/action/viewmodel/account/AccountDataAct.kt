@@ -17,7 +17,7 @@ class AccountDataAct @Inject constructor(
     private val calcAccBalanceAct: CalcAccBalanceAct,
     private val calcAccIncomeExpenseAct: CalcAccIncomeExpenseAct
 ) {
-    suspend operator fun invoke(input: Input): ImmutableList<com.ivy.legacy.data.model.AccountData> =
+    suspend operator fun invoke(input: Input): ImmutableList<com.ivy.wallet.data.model.AccountData> =
         withContext(Dispatchers.IO) {
             input.accounts.map { acc -> accountData(acc, input) }.toImmutableList()
         }
@@ -25,7 +25,7 @@ class AccountDataAct @Inject constructor(
     private suspend fun accountData(
         acc: com.ivy.data.model.Account,
         input: Input,
-    ): com.ivy.legacy.data.model.AccountData {
+    ): com.ivy.wallet.data.model.AccountData {
         val balance = calcAccBalanceAct(
             CalcAccBalanceAct.Input(
                 account = acc
@@ -54,7 +54,7 @@ class AccountDataAct @Inject constructor(
             )
         ).incomeExpensePair
 
-        return com.ivy.legacy.data.model.AccountData(
+        return com.ivy.wallet.data.model.AccountData(
             account = acc,
             balance = balance.toDouble(),
             balanceBaseCurrency = balanceBaseCurrency?.toDouble(),

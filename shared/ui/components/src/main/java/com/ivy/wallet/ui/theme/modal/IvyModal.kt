@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope

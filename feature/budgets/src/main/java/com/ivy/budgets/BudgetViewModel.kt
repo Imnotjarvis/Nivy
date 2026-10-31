@@ -25,10 +25,10 @@ import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.FromToTimeRange
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.FromToTimeRange
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.format
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.transaction.HistoryTrnsAct
@@ -171,7 +171,7 @@ class BudgetViewModel @Inject constructor(
             categories.value = categoryRepository.findAll().toImmutableList()
             val baseCurrency = currencyRepository.getBaseCurrency()
             val startDateOfMonth = appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
-            val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+            val timeRange = com.ivy.wallet.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = startDateOfMonth,
                 timeProvider = timeProvider,
             ).toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)

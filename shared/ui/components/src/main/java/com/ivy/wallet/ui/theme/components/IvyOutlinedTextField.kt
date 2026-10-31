@@ -24,8 +24,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.IvyWalletComponentPreview
+import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.thenIf
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme

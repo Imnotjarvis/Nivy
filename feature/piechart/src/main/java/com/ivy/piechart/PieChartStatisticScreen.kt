@@ -46,10 +46,10 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.drawColoredShadow
-import com.ivy.legacy.LocalPeriodState
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.horizontalSwipeListener
-import com.ivy.legacy.utils.rememberSwipeListenerState
+import com.ivy.wallet.LocalPeriodState
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.horizontalSwipeListener
+import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.TransactionsScreen
@@ -118,7 +118,7 @@ private fun BoxWithConstraintsScope.UI(
     val expanded = lazyState.firstVisibleItemIndex < 1
     val percentExpanded by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
-        animationSpec = com.ivy.legacy.utils.springBounce(),
+        animationSpec = com.ivy.wallet.utils.springBounce(),
         label = "percent expanded"
     )
 
@@ -248,7 +248,7 @@ private fun BoxWithConstraintsScope.UI(
 @Composable
 private fun Header(
     transactionType: TransactionType,
-    period: com.ivy.legacy.data.model.TimePeriod,
+    period: com.ivy.wallet.data.model.TimePeriod,
     percentExpanded: Float,
 
     currency: String,
@@ -480,10 +480,10 @@ private fun PercentText(
 @Preview
 @Composable
 private fun Preview_Expense() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         val state = PieChartStatisticState(
             transactionType = TransactionType.EXPENSE,
-            period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+            period = com.ivy.wallet.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = 1,
                 timeProvider = DeviceTimeProvider(),
             ), // preview
@@ -572,10 +572,10 @@ private fun Preview_Expense() {
 @Preview
 @Composable
 private fun Preview_Income() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         val state = PieChartStatisticState(
             transactionType = TransactionType.INCOME,
-            period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+            period = com.ivy.wallet.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = 1,
                 timeProvider = DeviceTimeProvider(),
             ), // preview

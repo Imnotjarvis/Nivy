@@ -6,9 +6,9 @@ import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.temp.migration.getValue
-import com.ivy.legacy.data.model.FromToTimeRange
-import com.ivy.legacy.data.model.filterOverdue
-import com.ivy.legacy.data.model.filterUpcoming
+import com.ivy.wallet.data.model.FromToTimeRange
+import com.ivy.wallet.data.model.filterOverdue
+import com.ivy.wallet.data.model.filterUpcoming
 import javax.inject.Inject
 
 /** Due transactions of one account, in its currency. */

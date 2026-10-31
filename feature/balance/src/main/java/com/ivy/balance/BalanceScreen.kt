@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.model.Theme
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.data.model.Month
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.data.model.Month
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.utils.format
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
