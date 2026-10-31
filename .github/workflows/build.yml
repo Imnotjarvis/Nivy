@@ -4,8 +4,11 @@
 #   plan    decides what this run needs (scripts/ciPlan.sh, explained in the run summary)
 #   checks  offline guard, detekt and module dependency rules (no compiling); detekt's findings
 #           also go to the Security tab (code scanning)
-#   build   debug APK; when the device job runs, also the R8-minified "demo" APK (signed with
-#           the committed debug key) and the instrumented tests. APKs are in the "apks" artifact
+#   build   debug APK ("apk-debug" artifact); when the device job runs, also the instrumented
+#           tests
+#   demo    the R8-minified "demo" APK, signed with the committed debug key ("apk-demo"
+#           artifact); only when the device job runs. Its own job, in parallel with build: R8
+#           and the release-variant compile take longer than the debug build
 #   test    unit tests, and screenshot tests compared with their reference images; in parallel
 #           with build
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
@@ -181,14 +184,14 @@ jobs:
             gradle-build-cache-build-
             gradle-build-cache-
 
-      # The minified demo APK (R8 takes about 4 minutes) and the instrumented tests are only
-      # built for the device job, which takes the compiled tests from this job's build cache.
-      # When the test job doesn't run, the unit tests are still compiled here.
+      # The instrumented tests are only built for the device job, which takes the compiled tests
+      # from this job's build cache. When the test job doesn't run, the unit tests are still
+      # compiled here.
       - name: Build APKs
         env:
           DEVICE_TASKS: >-
-            ${{ needs.plan.outputs.device == 'true' && ':app:assembleDemo
-            :shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
+            ${{ needs.plan.outputs.device == 'true' &&
+            ':shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
           TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
         run: |
           set -o pipefail
@@ -238,11 +241,9 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: apks
+          name: apk-debug
           retention-days: 3
-          path: |
-            app/build/outputs/apk/debug/*.apk
-            app/build/outputs/apk/demo/*.apk
+          path: app/build/outputs/apk/debug/*.apk
 
       # Last, so the end of a long log still shows them, followed by counts per module. Modules
       # taken from the build cache print no warnings.
@@ -255,6 +256,65 @@ jobs:
           sed -E 's#^([ew]): (.*)/src/.*#\1 \2#' diagnostics.txt | sort | uniq -c | sort -rn
 
       # A compile that fails on warnings only logs "warnings found and -Werror specified".
+      - name: Compiler problems
+        if: failure()
+        run: python3 -I scripts/printCompilerProblems.py
+
+  # The R8-minified demo APK the device job launches to catch what minification breaks (keep
+  # rules, Hilt, Room). R8 alone takes about 4 minutes, after a release-variant compile of every
+  # module, so it runs beside the debug build rather than after it: the emulator waits for the
+  # slower of the two instead of their sum.
+  demo:
+    needs: plan
+    if: needs.plan.outputs.device == 'true'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      # Release-variant outputs, so its own cache family; falls back to any other job's.
+      - name: Restore build cache
+        id: restore-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-demo-${{ github.sha }}
+          restore-keys: |
+            gradle-build-cache-demo-
+            gradle-build-cache-
+
+      - name: Build the demo APK
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleDemo 2>&1 | tee gradle-output.log
+
+      - name: Drop build cache entries older than a week
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+
+      - name: Save build cache
+        if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
+          key: gradle-build-cache-demo-${{ github.sha }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: apk-demo
+          retention-days: 3
+          path: app/build/outputs/apk/demo/*.apk
+
       - name: Compiler problems
         if: failure()
         run: python3 -I scripts/printCompilerProblems.py
@@ -333,7 +393,7 @@ jobs:
   # (scripts/smokeTestApks.sh), and runs the instrumented database-migration, backup and
   # exchange-rate tests.
   device:
-    needs: [plan, build]
+    needs: [plan, build, demo]
     if: needs.plan.outputs.device == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
@@ -363,8 +423,9 @@ jobs:
 
       - uses: actions/download-artifact@v8
         with:
-          name: apks
+          pattern: apk-*
           path: apks
+          merge-multiple: true
 
       # The emulator's userdata partition needs several GB; the runner image ships toolchains
       # this job never uses, so drop them first (run 5 failed with "Not enough space").
@@ -435,7 +496,7 @@ jobs:
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            scripts/smokeTestApks.sh apks/debug/app-debug.apk apks/demo/app-demo.apk
+            scripts/smokeTestApks.sh apks/app-debug.apk apks/app-demo.apk
             ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
 
       - uses: actions/upload-artifact@v7
