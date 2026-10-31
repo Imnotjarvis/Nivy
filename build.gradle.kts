@@ -16,24 +16,8 @@ subprojects {
     }
 }
 
-// The build tools (lint, the SDK libraries, test runners) ask for older Bouncy Castle and Guava
-// versions with known vulnerabilities; every project resolves the catalog's versions instead (Guava
-// in the flavour asked for, -jre or -android). buildSrc does the same for the plugins.
-val bouncyCastleVersion = libs.versions.bouncycastle.get()
-val guavaVersion = libs.versions.guava.get().substringBeforeLast('-')
-allprojects {
-    configurations.configureEach {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "org.bouncycastle") {
-                useVersion(bouncyCastleVersion)
-                because("older Bouncy Castle versions have known vulnerabilities")
-            } else if (requested.group == "com.google.guava" && requested.name == "guava") {
-                useVersion("$guavaVersion-${requested.version.orEmpty().substringAfterLast('-', "jre")}")
-                because("older Guava versions have known vulnerabilities")
-            }
-        }
-    }
-}
+// Vulnerable libraries the build tools pull in are raised to patched versions.
+apply(from = "gradle/minimum-versions.gradle.kts")
 
 // Module dependency rules, checked in CI by ./gradlew :assertModuleGraph.
 // The rules are regexes over "consumer -X> dependency" (api and implementation only).

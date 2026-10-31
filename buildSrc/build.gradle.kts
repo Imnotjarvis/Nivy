@@ -13,21 +13,8 @@ kotlin {
     }
 }
 
-// The Gradle plugins depend on older Bouncy Castle and Guava versions with known vulnerabilities;
-// they run with the catalog's versions instead (Guava in the flavour asked for, -jre or -android).
-val bouncyCastleVersion = libs.versions.bouncycastle.get()
-val guavaVersion = libs.versions.guava.get().substringBeforeLast('-')
-configurations.configureEach {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.bouncycastle") {
-            useVersion(bouncyCastleVersion)
-            because("older Bouncy Castle versions have known vulnerabilities")
-        } else if (requested.group == "com.google.guava" && requested.name == "guava") {
-            useVersion("$guavaVersion-${requested.version.orEmpty().substringAfterLast('-', "jre")}")
-            because("older Guava versions have known vulnerabilities")
-        }
-    }
-}
+// Vulnerable libraries the Gradle plugins pull in are raised to patched versions.
+apply(from = "../gradle/minimum-versions.gradle.kts")
 
 repositories {
     google()

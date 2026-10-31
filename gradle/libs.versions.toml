@@ -30,11 +30,8 @@ jvm-target = "17"
 # Linters
 detekt = "1.23.8" # https://detekt.dev/docs/gettingstarted/gradle/
 
-# Build tooling: the Android Gradle plugin and the other build tools ask for older Bouncy Castle
-# and Guava versions with known vulnerabilities; the build uses these instead (root
-# build.gradle.kts and buildSrc). Guava keeps the flavour each tool asks for (-jre or -android).
+# Minimum Bouncy Castle for the build tools (see the build-tooling-minimums bundle).
 bouncycastle = "1.86"
-guava = "33.7.2-jre"
 
 [libraries]
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version = "9.4.0" }
@@ -139,15 +136,33 @@ ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.
 # Modules Graph
 module-graph-plugin = { module = "com.jraska.module.graph.assertion:plugin", version = "2.9.1" }
 
-# Not depended on directly: they tell Dependabot which artifacts the bouncycastle and guava
-# versions are for.
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
-bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
-bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
-bouncycastle-bcutil = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
+# Minimum versions for libraries the build tools pull in (the Gradle plugins, lint, the SDK
+# libraries, test runners); older ones have known vulnerabilities. Nothing depends on these
+# directly: gradle/minimum-versions.gradle.kts raises anything older to them, and listing them
+# here lets Dependabot keep them current.
+minimum-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+minimum-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+minimum-bcutil = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
+minimum-guava = { module = "com.google.guava:guava", version = "33.7.2-jre" }
+minimum-jose4j = { module = "org.bitbucket.b_c:jose4j", version = "0.9.7" }
+minimum-jdom2 = { module = "org.jdom:jdom2", version = "2.0.6.1" }
+minimum-httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.5.14" }
 
 
 [bundles]
+# Minimum versions for the build tools' libraries, applied by gradle/minimum-versions.gradle.kts.
+# commons-lang3 and the Kotlin Gradle plugin use the versions the project itself depends on.
+build-tooling-minimums = [
+    "minimum-bcprov",
+    "minimum-bcpkix",
+    "minimum-bcutil",
+    "minimum-guava",
+    "minimum-jose4j",
+    "minimum-jdom2",
+    "minimum-httpclient",
+    "opencsv-apache-commons",
+    "kotlin-gradle-plugin",
+]
 kotlin = [
     "kotlin-stdlib",
     "kotlin-coroutines-core",
