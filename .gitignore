@@ -13,6 +13,6 @@ build/
 *.iml
 .DS_Store
 
-# Release signing (Task 7)
+# Release signing
 /keystore.properties
 /release.jks

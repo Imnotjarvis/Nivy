@@ -8,9 +8,6 @@ import timber.log.Timber
 import timber.log.Timber.DebugTree
 import javax.inject.Inject
 
-/**
- * Created by iliyan on 24.02.18.
- */
 @HiltAndroidApp
 class IvyAndroidApp : Application(), Configuration.Provider {
     @Inject
