@@ -129,7 +129,7 @@ class ImportViewModel @Inject constructor(
 
                 result
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e)
                 ImportResult(
                     rowsFound = 0,
                     transactionsImported = 0,

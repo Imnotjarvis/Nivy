@@ -302,7 +302,6 @@ private fun BoxWithConstraintsScope.UI(
         Title(
             type = transactionType,
             titleFocus = titleFocus,
-            initialTransactionId = screen.initialTransactionId,
 
             titleTextFieldValue = titleTextFieldValue,
             setTitleTextFieldValue = {

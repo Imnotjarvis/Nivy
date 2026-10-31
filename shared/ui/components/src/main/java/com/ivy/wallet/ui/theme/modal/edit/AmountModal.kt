@@ -54,6 +54,7 @@ import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
 import com.ivy.wallet.ui.theme.modal.modalPreviewActionRowHeight
 import dagger.hilt.android.EntryPointAccessors
+import timber.log.Timber
 import java.util.UUID
 import kotlin.math.truncate
 import androidx.compose.material3.MaterialTheme
@@ -119,7 +120,7 @@ fun BoxWithConstraintsScope.AmountModal(
                     onAmountChanged(amount.amountToDouble())
                     dismiss()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.e(e)
                 }
             }
         },

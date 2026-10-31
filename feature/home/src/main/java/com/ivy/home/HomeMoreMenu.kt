@@ -92,7 +92,6 @@ fun BoxWithConstraintsScope.MoreMenu(
     setExpanded: (Boolean) -> Unit,
     onSwitchTheme: () -> Unit,
     onBufferClick: () -> Unit,
-    onCurrencyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val screenSize = LocalScreenSize.current
@@ -187,7 +186,6 @@ fun BoxWithConstraintsScope.MoreMenu(
                 buffer = buffer,
                 currency = currency,
                 onBufferClick = onBufferClick,
-                onCurrencyClick = onCurrencyClick
             )
         }
     }
@@ -229,7 +227,6 @@ private fun ColumnScope.Content(
 
     onSwitchTheme: () -> Unit,
     onBufferClick: () -> Unit,
-    onCurrencyClick: () -> Unit,
 ) {
     Spacer(Modifier.height(24.dp))
 
@@ -524,7 +521,6 @@ private fun BoxWithConstraintsScope.Preview_Expanded() {
             },
             onSwitchTheme = {},
             onBufferClick = {},
-            onCurrencyClick = {}
         )
     }
 }
@@ -546,7 +542,6 @@ private fun BoxWithConstraintsScope.Preview() {
             },
             onSwitchTheme = {},
             onBufferClick = {},
-            onCurrencyClick = {}
         )
     }
 }

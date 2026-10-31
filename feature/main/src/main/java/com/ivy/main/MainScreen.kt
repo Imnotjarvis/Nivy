@@ -30,7 +30,7 @@ import androidx.activity.compose.BackHandler
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
+fun BoxWithConstraintsScope.MainScreen() {
     val viewModel: MainViewModel = viewModel()
 
     val currency by viewModel.currency.observeAsState("")
@@ -45,7 +45,6 @@ fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
         mainScreenState.selectTab(MainTab.HOME)
     }
     UI(
-        screen = screen,
         tab = mainScreenState.tab,
         baseCurrency = currency,
         selectTab = viewModel::selectTab,
@@ -57,7 +56,6 @@ fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
 @ExperimentalFoundationApi
 @Composable
 private fun BoxWithConstraintsScope.UI(
-    screen: MainScreen,
     tab: MainTab,
 
     baseCurrency: String,

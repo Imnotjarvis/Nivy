@@ -50,14 +50,12 @@ import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
-import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.wallet.ui.theme.modal.BufferModal
 import com.ivy.wallet.ui.theme.modal.BufferModalData
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
-import com.ivy.wallet.ui.theme.modal.CurrencyModal
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -85,7 +83,6 @@ fun BoxWithConstraintsScope.HomeUi(
     val mainScreenState = LocalMainScreenState.current
 
     var bufferModalData: BufferModalData? by remember { mutableStateOf(null) }
-    var currencyModalVisible by remember { mutableStateOf(false) }
     var choosePeriodModal: ChoosePeriodModalData? by remember {
         mutableStateOf(null)
     }
@@ -210,9 +207,6 @@ fun BoxWithConstraintsScope.HomeUi(
                 currency = baseCurrency,
                 buffer = uiState.buffer.amount.toDouble()
             )
-        },
-        onCurrencyClick = {
-            currencyModalVisible = true
         }
     )
 
@@ -222,16 +216,6 @@ fun BoxWithConstraintsScope.HomeUi(
             bufferModalData = null
         },
         onBufferChanged = { onEvent(HomeEvent.SetBuffer(it)) }
-    )
-
-    CurrencyModal(
-        title = stringResource(R.string.set_currency),
-        initialCurrency = IvyCurrency.fromCode(baseCurrency),
-        visible = currencyModalVisible,
-        dismiss = {
-            currencyModalVisible = false
-        },
-        onSetCurrency = { onEvent(HomeEvent.SetCurrency(it)) }
     )
 
     ChoosePeriodModal(

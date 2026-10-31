@@ -298,7 +298,7 @@ class CSVImporter @Inject constructor(
             try {
                 return dateString.parseDateOnly(rowMapping.dateOnlyFormat)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e)
             }
         }
 
@@ -306,7 +306,7 @@ class CSVImporter @Inject constructor(
             try {
                 return dateString.parseDateTime(rowMapping.dateTimeFormat)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e)
             }
         }
 
@@ -369,7 +369,8 @@ class CSVImporter @Inject constructor(
         for (pattern in supportedPatterns) {
             try {
                 return dateString.parseDateTime(dateTimeFormat = pattern)
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
+                // Not this format; the next one may fit.
             }
         }
 
@@ -383,7 +384,8 @@ class CSVImporter @Inject constructor(
         for (pattern in supportedDateOnlyPatterns) {
             try {
                 return dateString.parseDateOnly(dateFormat = pattern)
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
+                // Not this format; the next one may fit.
             }
         }
 
@@ -402,7 +404,8 @@ class CSVImporter @Inject constructor(
                 if (parsedDate != null) {
                     return parsedDate
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
+                // Not this format; the next one may fit.
             }
         }
 

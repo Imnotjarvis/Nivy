@@ -55,7 +55,6 @@ import com.ivy.wallet.utils.balancePrefix
 import com.ivy.wallet.utils.compactBalancePrefix
 import com.ivy.wallet.utils.format
 import com.ivy.design.utils.selectEndTextFieldValue
-import com.ivy.navigation.CategoriesScreen
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
@@ -94,7 +93,7 @@ import com.ivy.design.system.typography.numberTitleLarge
 import androidx.compose.material3.VerticalDivider
 
 @Composable
-fun BoxWithConstraintsScope.CategoriesScreen(screen: CategoriesScreen) {
+fun BoxWithConstraintsScope.CategoriesScreen() {
     val viewModel: CategoriesViewModel = screenScopedViewModel()
     val state = viewModel.uiState()
 
@@ -172,9 +171,6 @@ private fun BoxWithConstraintsScope.UI(
                 currency = state.baseCurrency,
                 categoryData = categoryData,
                 compactModeEnabled = state.compactCategoriesModeEnabled,
-                onLongClick = {
-                    onEvent(CategoriesScreenEvent.OnReorderModalVisible(true))
-                }
             ) {
                 nav.navigateTo(
                     TransactionsScreen(
@@ -254,7 +250,6 @@ private fun CategoryCard(
     currency: String,
     categoryData: CategoryData,
     compactModeEnabled: Boolean,
-    onLongClick: () -> Unit,
     onClick: () -> Unit
 ) {
     val contrastColor = findContrastTextColor(categoryData.category.color.value.toComposeColor())

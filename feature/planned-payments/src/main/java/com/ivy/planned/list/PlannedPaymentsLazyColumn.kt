@@ -73,7 +73,6 @@ fun PlannedPaymentsLazyColumn(
             currency = currency,
             categories = categories,
             accounts = accounts,
-            listState = listState,
 
             oneTime = oneTime,
             oneTimeIncome = oneTimeIncome,
@@ -96,7 +95,6 @@ private fun LazyListScope.plannedPaymentItems(
     currency: String,
     categories: ImmutableList<Category>,
     accounts: ImmutableList<Account>,
-    listState: LazyListState,
 
     oneTime: ImmutableList<PlannedPaymentRule>,
     oneTimeIncome: Double,
@@ -133,7 +131,6 @@ private fun LazyListScope.plannedPaymentItems(
                 ) { plannedPaymentRule ->
                     onPlannedPaymentClick(
                         nav = nav,
-                        listState = listState,
                         rule = plannedPaymentRule
                     )
                 }
@@ -164,7 +161,6 @@ private fun LazyListScope.plannedPaymentItems(
                 ) { plannedPaymentRule ->
                     onPlannedPaymentClick(
                         nav = nav,
-                        listState = listState,
                         rule = plannedPaymentRule
                     )
                 }
@@ -186,7 +182,6 @@ private fun LazyListScope.plannedPaymentItems(
 
 private fun onPlannedPaymentClick(
     nav: Navigation,
-    listState: LazyListState,
     rule: PlannedPaymentRule,
 ) {
     nav.navigateTo(

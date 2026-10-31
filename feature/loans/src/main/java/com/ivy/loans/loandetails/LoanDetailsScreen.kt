@@ -654,10 +654,10 @@ private fun LoanRecordItem(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             }
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_record_item")
     ) {
         if (account != null || loanRecord.interest) {

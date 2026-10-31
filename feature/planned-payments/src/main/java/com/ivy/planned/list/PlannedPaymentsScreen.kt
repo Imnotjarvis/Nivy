@@ -23,7 +23,6 @@ import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.ui.previewPlannedPaymentRule
 import com.ivy.navigation.EditPlannedScreen
-import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -37,7 +36,7 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun BoxWithConstraintsScope.PlannedPaymentsScreen(screen: PlannedPaymentsScreen) {
+fun BoxWithConstraintsScope.PlannedPaymentsScreen() {
     val viewModel: PlannedPaymentsViewModel = screenScopedViewModel()
     val uiState = viewModel.uiState()
 

@@ -249,10 +249,6 @@ private fun ExistingTag(
                 drawColoredShadow(tagColor)
             }
             .clip(CircleShape)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
             .border(
                 width = 2.dp,
                 color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
@@ -261,6 +257,10 @@ private fun ExistingTag(
             .thenIf(selected) {
                 background(tagColor, rFull)
             }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .testTag("choose_category_button"),
         verticalAlignment = Alignment.CenterVertically
     ) {

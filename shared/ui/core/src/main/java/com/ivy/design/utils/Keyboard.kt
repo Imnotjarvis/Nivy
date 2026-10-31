@@ -3,10 +3,15 @@ package com.ivy.design.utils
 import android.app.Activity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
+import timber.log.Timber
 
 // Same JVM signature as View.hideKeyboard(), hence the JvmName.
 @JvmName("hideKeyboardSafely")
@@ -67,7 +72,7 @@ fun isKeyboardOpen(rootView: View): Boolean {
         WindowInsetsCompat.toWindowInsetsCompat(rootView.rootWindowInsets, rootView)
             .isVisible(WindowInsetsCompat.Type.ime())
     } catch (e: Exception) {
-        e.printStackTrace()
+        Timber.e(e)
         false
     }
 }

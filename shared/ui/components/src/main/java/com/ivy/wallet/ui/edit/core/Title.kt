@@ -31,7 +31,6 @@ import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.SUGGESTIONS_LIMIT
 import com.ivy.wallet.ui.theme.components.IvyTitleTextField
 import kotlinx.coroutines.launch
-import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
 @Suppress("ParameterNaming")
@@ -39,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 fun ColumnScope.Title(
     type: TransactionType,
     titleFocus: FocusRequester,
-    initialTransactionId: UUID?,
     titleTextFieldValue: TextFieldValue,
     setTitleTextFieldValue: (TextFieldValue) -> Unit,
     suggestions: Set<String>,

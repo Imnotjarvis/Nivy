@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.StringReader
 import java.nio.charset.Charset
 import javax.inject.Inject
@@ -454,7 +455,7 @@ class CSVViewModel @Inject constructor(
         csv = processFile(uri, normalizeCSV = normalizeCSV)?.toImmutableList()
         columns = csv?.firstOrNull()
     } catch (e: Exception) {
-        e.printStackTrace()
+        Timber.e(e)
     }
 
     private fun processFile(

@@ -61,8 +61,8 @@ fun unzip(context: Context, zipFile: Uri, location: File) {
 
 fun unzip(fileInputStream: FileInputStream, location: File) {
     ZipInputStream(BufferedInputStream(fileInputStream)).use { zipInputStream ->
-        if (location.exists() && !location.isDirectory) {
-            throw IllegalStateException("Location file must be directory or not exist")
+        check(!location.exists() || location.isDirectory) {
+            "Location file must be directory or not exist"
         }
 
         if (!location.isDirectory) location.mkdirs()

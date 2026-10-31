@@ -116,7 +116,6 @@ private fun BoxWithConstraintsScope.UI(
         Title(
             type = state.transactionType,
             titleFocus = titleFocus,
-            initialTransactionId = screen.plannedPaymentRuleId,
 
             titleTextFieldValue = titleTextFieldValue,
             setTitleTextFieldValue = {

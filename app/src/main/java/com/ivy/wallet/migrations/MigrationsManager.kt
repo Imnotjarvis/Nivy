@@ -25,7 +25,7 @@ class MigrationsManager @Inject constructor(
         )
     }
 
-    @Suppress("TooGenericExceptionCaught", "PrintStackTrace", "MagicNumber")
+    @Suppress("TooGenericExceptionCaught", "MagicNumber")
     suspend fun executeMigrations() {
         delay(2_000L) // to not the make the app start slower
 
@@ -41,7 +41,7 @@ class MigrationsManager @Inject constructor(
                         migration.migrate()
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.e(e)
                 }
 
                 // Mark the migration as executed

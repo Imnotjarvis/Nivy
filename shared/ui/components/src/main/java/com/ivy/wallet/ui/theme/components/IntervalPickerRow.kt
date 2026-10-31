@@ -75,10 +75,7 @@ fun IntervalPickerRow(
         ) {
             val filteredText = it.text.take(RepeatIntervalCharLimit)
             if (it.text != interNTextFieldValue.text) {
-                try {
-                    onSetIntervalN(filteredText.toInt())
-                } catch (e: Exception) {
-                }
+                filteredText.toIntOrNull()?.let(onSetIntervalN)
             }
             interNTextFieldValue = it.copy(text = filteredText)
         }

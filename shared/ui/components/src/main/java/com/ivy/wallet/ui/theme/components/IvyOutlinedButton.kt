@@ -47,14 +47,14 @@ fun IvyOutlinedButton(
     Row(
         modifier = modifier
             .clip(CircleShape)
-            .clickable(
-                onClick = onClick,
-            )
             .defaultMinSize(minWidth, minHeight)
             .border(2.dp, borderColor, CircleShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
-            },
+            }
+            .clickable(
+                onClick = onClick,
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -101,13 +101,13 @@ fun IvyOutlinedButtonFillMaxWidth(
         modifier = modifier
             .fillMaxWidth()
             .clip(CircleShape)
-            .clickable(
-                onClick = onClick,
-            )
             .border(2.dp, borderColor, CircleShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
-            },
+            }
+            .clickable(
+                onClick = onClick,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (iconStart != null) {

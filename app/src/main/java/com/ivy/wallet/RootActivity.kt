@@ -43,6 +43,7 @@ import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.ivy.widget.transaction.AddTransactionWidget
 import com.ivy.widget.transaction.AddTransactionWidgetCompact
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -288,14 +289,14 @@ class RootActivity : AppCompatActivity(), RootScreen {
         }
     }
 
-    @Suppress("TooGenericExceptionCaught", "PrintStackTrace")
+    @Suppress("TooGenericExceptionCaught")
     override fun openUrlInBrowser(url: String) {
         try {
             val browserIntent = Intent(Intent.ACTION_VIEW)
             browserIntent.data = Uri.parse(url)
             startActivity(browserIntent)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
             Toast.makeText(
                 this,
                 "No browser app found. Visit manually: $url",

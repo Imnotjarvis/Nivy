@@ -43,7 +43,7 @@ fun ItemIconL(
 
 // ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
 // only one of them.
-@Suppress("ModifierReused")
+@Suppress("ModifierReused", "ModifierNotUsedAtRoot")
 @Composable
 fun ItemIconMDefaultIcon(
     iconName: String?,
@@ -87,7 +87,7 @@ fun ItemIconM(
 
 // ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
 // only one of them.
-@Suppress("ModifierReused")
+@Suppress("ModifierReused", "ModifierNotUsedAtRoot")
 @Composable
 fun ItemIconSDefaultIcon(
     iconName: String?,

@@ -34,7 +34,6 @@ import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.data.model.Month
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.utils.format
-import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
@@ -53,7 +52,7 @@ import com.ivy.design.system.typography.numberLabelMedium
 val FAB_BUTTON_SIZE = 56.dp
 
 @Composable
-fun BoxWithConstraintsScope.BalanceScreen(screen: BalanceScreen) {
+fun BoxWithConstraintsScope.BalanceScreen() {
     val viewModel: BalanceViewModel = viewModel()
     val uiState = viewModel.uiState()
 

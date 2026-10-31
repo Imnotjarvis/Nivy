@@ -186,36 +186,50 @@ private fun possibleDateFormats(metadata: DateMetadata): List<String> {
 }
 // endregion
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseAccount(
     value: String,
     metadata: Unit,
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseAccountCurrency(
     value: String,
     metadata: Unit,
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseToAccount(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseToAccountCurrency(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseCategory(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseTitle(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseDescription(
     value: String,
     metadata: Unit

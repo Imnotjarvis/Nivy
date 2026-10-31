@@ -198,10 +198,6 @@ private fun CategoryButton(
                 drawColoredShadow(categoryColor)
             }
             .clip(CircleShape)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
             .border(
                 width = 2.dp,
                 color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
@@ -210,6 +206,10 @@ private fun CategoryButton(
             .thenIf(selected) {
                 background(categoryColor, rFull)
             }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .testTag("choose_category_button"),
         verticalAlignment = Alignment.CenterVertically
     ) {

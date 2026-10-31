@@ -43,7 +43,6 @@ import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.ui.previewAccount
 import com.ivy.navigation.PieChartStatisticScreen
-import com.ivy.navigation.ReportScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
@@ -71,9 +70,7 @@ import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.ReportScreen(
-    screen: ReportScreen
-) {
+fun BoxWithConstraintsScope.ReportScreen() {
     val viewModel: ReportViewModel = viewModel()
     val state = viewModel.uiState()
 

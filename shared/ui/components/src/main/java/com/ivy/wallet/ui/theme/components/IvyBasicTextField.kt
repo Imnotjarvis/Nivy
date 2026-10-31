@@ -68,7 +68,7 @@ fun IvyBasicTextField(
             value = value,
             onValueChange = onValueChanged,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
+                color = textColor,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Start
             ),

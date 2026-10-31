@@ -27,7 +27,6 @@ import com.ivy.wallet.ui.theme.components.BudgetBattery
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.wallet.utils.format
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -41,7 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberLabelMedium
 
 @Composable
-fun BoxWithConstraintsScope.BudgetScreen(screen: BudgetScreen) {
+fun BoxWithConstraintsScope.BudgetScreen() {
     val viewModel: BudgetViewModel = screenScopedViewModel()
     val uiState = viewModel.uiState()
 

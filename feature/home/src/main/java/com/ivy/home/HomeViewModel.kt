@@ -13,13 +13,11 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Transaction
-import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
-import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
@@ -83,7 +81,6 @@ class HomeViewModel @Inject constructor(
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val shouldHideBalanceAct: ShouldHideBalanceAct,
     private val shouldHideIncomeAct: ShouldHideIncomeAct,
-    private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features
@@ -242,7 +239,6 @@ class HomeViewModel @Inject constructor(
                 is HomeEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
                 is HomeEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
                 is HomeEvent.SetBuffer -> setBuffer(event.buffer)
-                is HomeEvent.SetCurrency -> setCurrency(event.currency)
                 HomeEvent.SwitchTheme -> switchTheme()
                 is HomeEvent.DismissCustomerJourneyCard -> dismissCustomerJourneyCard(event.card)
                 is HomeEvent.SetExpanded -> setExpanded(event.expanded)
@@ -440,15 +436,6 @@ class HomeViewModel @Inject constructor(
             appPreferences.setBufferAmount(newBuffer)
             buffer = buffer.copy(amount = newBuffer.toBigDecimal())
         }
-    }
-
-    private suspend fun setCurrency(newCurrency: String) {
-        appPreferences.setBaseCurrency(newCurrency)
-        // update exchange rates from POV of the new base currency
-        AssetCode.from(newCurrency).onRight {
-            syncExchangeRatesUseCase.sync(it)
-        }
-        reload()
     }
 
     private suspend fun payOrGetPlanned(transaction: Transaction) {

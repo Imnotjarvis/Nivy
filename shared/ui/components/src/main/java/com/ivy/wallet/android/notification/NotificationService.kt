@@ -6,6 +6,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.ivy.ui.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class NotificationService @Inject constructor(
@@ -43,7 +44,7 @@ class NotificationService @Inject constructor(
             notificationManager.createNotificationChannel(channel)
             notificationManager.notify(notificationId, notification.build())
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 }

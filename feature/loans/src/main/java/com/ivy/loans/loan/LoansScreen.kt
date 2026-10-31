@@ -43,7 +43,6 @@ import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.loans.loan.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.loans.loan.data.DisplayLoan
 import com.ivy.navigation.LoanDetailsScreen
-import com.ivy.navigation.LoansScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
@@ -67,7 +66,7 @@ import com.ivy.design.system.shapes.ShapeTop16
 import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
-fun BoxWithConstraintsScope.LoansScreen(screen: LoansScreen) {
+fun BoxWithConstraintsScope.LoansScreen() {
     val viewModel: LoanViewModel = viewModel()
     val state = viewModel.uiState()
     UI(

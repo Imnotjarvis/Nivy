@@ -11,6 +11,7 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.wallet.domain.pure.util.nextOrderNum
+import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 
@@ -44,7 +45,7 @@ class CategoryCreator @Inject constructor(
 
             newCategory?.let { onRefreshUI(it) }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 
@@ -61,7 +62,7 @@ class CategoryCreator @Inject constructor(
 
             onRefreshUI(updatedCategory)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 }

@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -21,9 +22,9 @@ fun writeToFile(context: Context, uri: Uri, content: String) {
             }
         }
     } catch (e: FileNotFoundException) {
-        e.printStackTrace()
+        Timber.e(e)
     } catch (e: IOException) {
-        e.printStackTrace()
+        Timber.e(e)
     }
 }
 

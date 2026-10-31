@@ -34,7 +34,9 @@ import com.ivy.design.utils.hideKeyboard
 import com.ivy.wallet.utils.isNotNullOrBlank
 import androidx.compose.material3.MaterialTheme
 
-@Suppress("ParameterNaming")
+// modifier places the text and underlineModifier the line under it (callers pad them
+// differently); the Column only stacks the two.
+@Suppress("ParameterNaming", "ModifierNotUsedAtRoot")
 @Composable
 fun IvyNameTextField(
     value: TextFieldValue,

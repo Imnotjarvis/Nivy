@@ -71,6 +71,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -727,7 +728,7 @@ class EditTransactionViewModel @Inject constructor(
                 closeScreen()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 
