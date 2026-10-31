@@ -1,20 +1,33 @@
 # Dependency graph and dependency review.
 #
 # GitHub can't read a Gradle build's dependencies by itself, so `submit` resolves them and sends
-# the graph to GitHub on every push to main and every pull request. That graph is what
-# Dependabot's vulnerability alerts and the review below work from.
-# `review` checks what a pull request changes and fails it if it adds a dependency with a known
-# vulnerability.
+# the graph to GitHub. That graph is what Dependabot's vulnerability alerts and the review below
+# work from. `review` checks what a pull request changes and fails it if it adds a dependency
+# with a known vulnerability.
+# Both run on pushes to main and pull requests that can change the dependencies: the Gradle build
+# files, the version catalog, the wrapper, buildSrc or this workflow.
 # Pull requests from forks get no write token, so neither job runs for them.
 name: Dependencies
 
 on:
   push:
     branches: [main]
-    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+    paths:
+      - 'gradle/libs.versions.toml'
+      - 'gradle/wrapper/**'
+      - '**/*.gradle.kts'
+      - 'gradle.properties'
+      - 'buildSrc/**'
+      - '.github/workflows/dependencies.yml'
   pull_request:
     branches: [main]
-    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+    paths:
+      - 'gradle/libs.versions.toml'
+      - 'gradle/wrapper/**'
+      - '**/*.gradle.kts'
+      - 'gradle.properties'
+      - 'buildSrc/**'
+      - '.github/workflows/dependencies.yml'
 
 concurrency:
   group: dependencies-${{ github.ref }}
