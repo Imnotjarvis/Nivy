@@ -310,8 +310,7 @@ private fun PreviewIvyModal_minimal() {
 
 @Composable
 private fun ModalPreviewActionRowSpacer() {
-    Spacer(Modifier.height(modalPreviewActionRowHeight()))
+    Spacer(Modifier.height(ModalPreviewActionRowHeight))
 }
 
-@Composable
-fun modalPreviewActionRowHeight() = 80.dp
+internal val ModalPreviewActionRowHeight = 80.dp

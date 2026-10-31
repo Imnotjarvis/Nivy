@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.IvyNavGraph
 import com.ivy.base.model.Theme
@@ -292,9 +293,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
     @Suppress("TooGenericExceptionCaught")
     override fun openUrlInBrowser(url: String) {
         try {
-            val browserIntent = Intent(Intent.ACTION_VIEW)
-            browserIntent.data = Uri.parse(url)
-            startActivity(browserIntent)
+            startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
         } catch (e: Exception) {
             Timber.e(e)
             Toast.makeText(

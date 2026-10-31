@@ -123,7 +123,6 @@ android {
         checkDependencies = true
         abortOnError = false
         checkReleaseBuilds = false
-        baseline = file("lint-baseline.xml")
         lintConfig = rootProject.file("lint.xml")
     }
 }

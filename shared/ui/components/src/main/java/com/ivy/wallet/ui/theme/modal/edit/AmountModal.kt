@@ -53,7 +53,7 @@ import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
-import com.ivy.wallet.ui.theme.modal.modalPreviewActionRowHeight
+import com.ivy.wallet.ui.theme.modal.ModalPreviewActionRowHeight
 import dagger.hilt.android.EntryPointAccessors
 import timber.log.Timber
 import java.util.UUID
@@ -498,7 +498,7 @@ private fun circleButtonModifier(
 private fun Preview() {
     IvyWalletPreview {
         BoxWithConstraints(
-            modifier = Modifier.padding(bottom = modalPreviewActionRowHeight())
+            modifier = Modifier.padding(bottom = ModalPreviewActionRowHeight)
         ) {
             AmountModal(
                 id = UUID.randomUUID(),

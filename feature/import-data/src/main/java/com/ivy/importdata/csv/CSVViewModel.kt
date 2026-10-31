@@ -228,7 +228,6 @@ class CSVViewModel @Inject constructor(
         )
     }
 
-    @Composable
     private fun continueEnabled(important: ImportantFields?): Boolean {
         return important != null && important.accountStatus.success &&
             important.amountStatus.success &&
