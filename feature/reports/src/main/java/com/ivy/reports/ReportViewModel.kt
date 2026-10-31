@@ -353,6 +353,8 @@ class ReportViewModel @Inject constructor(
             reportFilter?.trnTypes?.contains(TransactionType.TRANSFER) ?: false
     }
 
+    // One pass that applies each of the report filter's criteria.
+    @Suppress("CyclomaticComplexMethod")
     private suspend fun filterTransactions(
         baseCurrency: String,
         accounts: List<Account>,
@@ -496,7 +498,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private fun calculateBalance(incomeExpenseTransferPair: IncomeExpenseTransferPair): BigDecimal {
-        return incomeExpenseTransferPair.income + incomeExpenseTransferPair.transferIncome - incomeExpenseTransferPair.expense - incomeExpenseTransferPair.transferExpense
+        return with(incomeExpenseTransferPair) { income + transferIncome - expense - transferExpense }
     }
 
     private suspend fun export(context: Context) {

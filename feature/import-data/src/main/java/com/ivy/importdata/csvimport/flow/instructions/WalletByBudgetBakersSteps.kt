@@ -7,7 +7,8 @@ fun WalletByBudgetBakersSteps(
     onUploadClick: () -> Unit
 ) {
     DefaultImportSteps(
-        articleUrl = "https://support.budgetbakers.com/hc/en-us/articles/209753325-How-to-EXPORT-transactions-from-Wallet",
+        articleUrl = "https://support.budgetbakers.com/hc/en-us/articles/" +
+            "209753325-How-to-EXPORT-transactions-from-Wallet",
         onUploadClick = onUploadClick
     )
 }

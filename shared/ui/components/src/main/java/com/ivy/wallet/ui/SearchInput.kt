@@ -28,12 +28,13 @@ import androidx.compose.runtime.LaunchedEffect
 fun SearchInput(
     searchQueryTextFieldValue: TextFieldValue,
     hint: String,
+    modifier: Modifier = Modifier,
     focus: Boolean = true,
     showClearIcon: Boolean = true,
     onSetSearchQueryTextField: (TextFieldValue) -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .clip(CircleShape)

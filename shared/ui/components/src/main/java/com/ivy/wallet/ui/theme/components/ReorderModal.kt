@@ -53,6 +53,7 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     visible: Boolean,
     initialItems: List<T>,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
@@ -69,6 +70,7 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     itemContent: @Composable (Int, T) -> Unit
 ) {
     ReorderModal<T>(
+        modifier = modifier,
         visible = visible,
         id = id,
         initialItems = initialItems,
@@ -90,10 +92,11 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
 
 @Suppress("ParameterNaming")
 @Composable
-fun <T : Reorderable> BoxScope.ReorderModal(
+private fun <T : Reorderable> BoxScope.ReorderModal(
     visible: Boolean,
     initialItems: List<Any>,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
@@ -124,6 +127,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         scrollState = null,

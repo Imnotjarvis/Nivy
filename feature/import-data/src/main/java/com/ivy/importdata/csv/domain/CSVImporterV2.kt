@@ -128,6 +128,8 @@ class CSVImporterV2 @Inject constructor(
         )
     }
 
+    // Each `?: return null` skips a row missing a required field.
+    @Suppress("ReturnCount")
     private suspend fun mapToTransaction(
         baseCurrency: String,
         row: CSVRowNew,
@@ -242,6 +244,8 @@ class CSVImporterV2 @Inject constructor(
         )
     }
 
+    // Each early return either finds the account or gives up on the row.
+    @Suppress("ReturnCount")
     private suspend fun mapAccount(
         baseCurrency: String,
         accountNameString: String?,

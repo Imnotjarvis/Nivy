@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
 
 @Composable
-fun IvyWalletSteps(
+internal fun IvyWalletSteps(
     onUploadClick: () -> Unit
 ) {
     Spacer(Modifier.height(12.dp))

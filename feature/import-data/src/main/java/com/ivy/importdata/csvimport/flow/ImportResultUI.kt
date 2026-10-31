@@ -39,7 +39,7 @@ import com.ivy.navigation.rememberOnBack
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun ImportResultUI(
+internal fun ImportResultUI(
     result: ImportResult,
     launchedFromOnboarding: Boolean,
     isManualCsvImport: Boolean = false,

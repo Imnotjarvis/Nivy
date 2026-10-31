@@ -31,12 +31,14 @@ fun BoxWithConstraintsScope.AddKeywordModal(
     keyword: String,
     visible: Boolean,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     onKeywordChanged: (String) -> Unit
 ) {
     var modalKeyword by remember { mutableStateOf(selectEndTextFieldValue(keyword)) }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

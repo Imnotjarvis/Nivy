@@ -40,6 +40,7 @@ fun SectionDivider(
     baseCurrency: String,
     income: Double,
     expenses: Double,
+    modifier: Modifier = Modifier,
 
     showIncomeExpenseRow: Boolean = true,
 
@@ -48,7 +49,7 @@ fun SectionDivider(
     Spacer(Modifier.height(24.dp))
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickableNoIndication(rememberInteractionSource()) {
                 setExpanded(!expanded)

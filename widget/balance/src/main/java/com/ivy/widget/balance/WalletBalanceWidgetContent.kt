@@ -31,7 +31,7 @@ import androidx.glance.unit.ColorProvider
 import com.ivy.ui.R
 
 @Composable
-fun WalletBalanceWidgetContent(
+internal fun WalletBalanceWidgetContent(
     appLocked: Boolean,
     balance: String,
     currency: String,
@@ -74,7 +74,7 @@ fun WalletBalanceWidgetContent(
 }
 
 @Composable
-fun RowScope.WidgetClickableItem(
+private fun RowScope.WidgetClickableItem(
     @DrawableRes image: Int,
     onClick: Action,
 ) {
@@ -93,7 +93,7 @@ fun RowScope.WidgetClickableItem(
 }
 
 @Composable
-fun BalanceSection(
+private fun BalanceSection(
     balance: String,
     currency: String,
 ) {
@@ -121,7 +121,7 @@ fun BalanceSection(
 }
 
 @Composable
-fun IncomeExpenseSection(
+private fun IncomeExpenseSection(
     income: String,
     expense: String,
     currency: String,
@@ -174,7 +174,7 @@ fun IncomeExpenseSection(
 }
 
 @Composable
-fun ButtonsSection(
+private fun ButtonsSection(
     onIncomeClick: Action,
     onExpenseClick: Action,
     onTransferClick: Action,

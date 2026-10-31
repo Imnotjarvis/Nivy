@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
 
 @Composable
-fun DefaultImportSteps(
+internal fun DefaultImportSteps(
     videoUrl: String? = null,
     articleUrl: String? = null,
 

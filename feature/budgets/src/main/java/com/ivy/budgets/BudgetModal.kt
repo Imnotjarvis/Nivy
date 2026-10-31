@@ -63,7 +63,7 @@ data class BudgetModalData(
 )
 
 @Composable
-fun BoxWithConstraintsScope.BudgetModal(
+internal fun BoxWithConstraintsScope.BudgetModal(
     modal: BudgetModalData?,
 
     onCreate: (name: NotBlankTrimmedString, amount: PositiveDouble, categories: List<CategoryId>) -> Unit,

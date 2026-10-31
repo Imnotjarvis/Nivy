@@ -72,8 +72,10 @@ import androidx.compose.material3.MaterialTheme
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
 
+// The bar's buttons and their expand animation share one state.
+@Suppress("LongMethod")
 @Composable
-fun BoxWithConstraintsScope.BottomBar(
+internal fun BoxWithConstraintsScope.BottomBar(
     tab: MainTab,
     selectTab: (MainTab) -> Unit,
 
@@ -299,7 +301,8 @@ private fun TransactionButtons(
                     layout(placealbe.width, placealbe.height) {
                         placealbe.place(
                             x = screenSize.width / 2 - placealbe.width / 2,
-                            y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height - FAB_BUTTON_SIZE.roundToPx()
+                            y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height -
+                                FAB_BUTTON_SIZE.roundToPx()
                         )
                     }
                 }

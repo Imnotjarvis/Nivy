@@ -30,7 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun Suggestions(
+internal fun Suggestions(
     suggestions: List<Any>,
 
     onAddSuggestion: (Any) -> Unit,

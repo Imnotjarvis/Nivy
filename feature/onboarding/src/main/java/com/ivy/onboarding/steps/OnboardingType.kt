@@ -36,7 +36,7 @@ import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.navigation.rememberOnBack
 
 @Composable
-fun OnboardingType(
+internal fun OnboardingType(
     onStartImport: () -> Unit,
     onStartFresh: () -> Unit,
 ) {

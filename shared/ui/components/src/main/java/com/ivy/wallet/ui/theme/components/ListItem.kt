@@ -27,6 +27,7 @@ fun ListItem(
     @DrawableRes defaultIcon: Int,
     text: String,
     selectedColor: Color?,
+    modifier: Modifier = Modifier,
     onClick: (selected: Boolean) -> Unit
 ) {
     val textColor =
@@ -36,7 +37,7 @@ fun ListItem(
     val rFull = CircleShape
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(CircleShape)
             .thenIf(selectedColor == null) {
                 border(2.dp, medium, rFull)

@@ -73,7 +73,7 @@ data class RecurringRuleModalData(
 
 @Suppress("ParameterNaming")
 @Composable
-fun BoxWithConstraintsScope.RecurringRuleModal(
+internal fun BoxWithConstraintsScope.RecurringRuleModal(
     modal: RecurringRuleModalData?,
 
     dismiss: () -> Unit,

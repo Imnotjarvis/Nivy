@@ -70,6 +70,7 @@ fun BoxWithConstraintsScope.AmountModal(
     currency: String,
     initialAmount: Double?,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     showPlusMinus: Boolean = false,
     decimalCountMax: Int = 2,
     header: (@Composable () -> Unit)? = null,
@@ -93,6 +94,7 @@ fun BoxWithConstraintsScope.AmountModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
@@ -191,7 +193,7 @@ fun BoxWithConstraintsScope.AmountModal(
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun AmountCurrency(
+private fun AmountCurrency(
     amount: String,
     currency: String,
 ) {
@@ -307,7 +309,7 @@ private fun formatNumber(number: String): String? {
 )
 @Suppress("ParameterNaming")
 @Composable
-fun AmountKeyboard(
+internal fun AmountKeyboard(
     forCalculator: Boolean,
     onNumberPressed: (String) -> Unit,
     onDecimalPoint: () -> Unit,
@@ -450,7 +452,7 @@ fun CircleNumberButton(
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun KeypadCircleButton(
+internal fun KeypadCircleButton(
     text: String,
     testTag: String,
     textColor: Color = MaterialTheme.colorScheme.onSurface,

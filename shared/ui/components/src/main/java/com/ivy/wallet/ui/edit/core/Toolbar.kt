@@ -38,9 +38,11 @@ fun Toolbar(
     onChangeTransactionTypeModal: () -> Unit,
 
     showDuplicateButton: Boolean,
+    modifier: Modifier = Modifier,
     onDuplicate: () -> Unit,
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(24.dp))

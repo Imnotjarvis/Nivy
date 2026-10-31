@@ -92,6 +92,7 @@ fun BoxWithConstraintsScope.LoanModal(
     onSetTime: () -> Unit,
     onCreateLoan: (CreateLoanData) -> Unit,
     onEditLoan: (Loan, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     accounts: List<Account> = emptyList(),
     onCreateAccount: (CreateAccountData) -> Unit = {},
     onPerformCalculations: () -> Unit = {},
@@ -143,6 +144,7 @@ fun BoxWithConstraintsScope.LoanModal(
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
@@ -150,7 +152,6 @@ fun BoxWithConstraintsScope.LoanModal(
         primaryAction = {
             ModalAddSave(
                 item = modal?.loan,
-                // enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && ((createLoanTrans && selectedAcc != null) || !createLoanTrans)
                 enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && selectedAcc != null
             ) {
                 accountChangeModal =

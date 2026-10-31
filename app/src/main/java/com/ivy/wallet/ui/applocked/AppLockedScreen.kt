@@ -41,7 +41,7 @@ import androidx.compose.material3.MaterialTheme
 @SuppressLint("ComposeModifierMissing")
 @Composable
 @Suppress("LongMethod", "FunctionNaming")
-fun BoxWithConstraintsScope.AppLockedScreen(
+internal fun BoxWithConstraintsScope.AppLockedScreen(
     onShowOSBiometricsModal: () -> Unit,
     onContinueWithoutAuthentication: () -> Unit
 ) {

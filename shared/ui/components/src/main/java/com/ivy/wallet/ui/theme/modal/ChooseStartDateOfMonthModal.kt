@@ -37,11 +37,13 @@ fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal(
     visible: Boolean,
     selectedStartDateOfMonth: Int,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 
     id: UUID = UUID.randomUUID(),
     onStartDateOfMonthSelected: (Int) -> Unit,
 ) {
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

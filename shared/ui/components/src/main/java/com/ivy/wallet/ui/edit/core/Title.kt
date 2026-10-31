@@ -42,11 +42,12 @@ fun ColumnScope.Title(
     setTitleTextFieldValue: (TextFieldValue) -> Unit,
     suggestions: Set<String>,
     onTitleChanged: (String?) -> Unit,
+    modifier: Modifier = Modifier,
     scrollState: ScrollState? = null,
     onNext: () -> Unit,
 ) {
     IvyTitleTextField(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 32.dp)
             .focusRequester(titleFocus),
         dividerModifier = Modifier

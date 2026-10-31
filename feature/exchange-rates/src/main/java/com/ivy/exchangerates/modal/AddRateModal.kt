@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 
 @Composable
-fun BoxWithConstraintsScope.AddRateModal(
+internal fun BoxWithConstraintsScope.AddRateModal(
     visible: Boolean,
     baseCurrency: String,
     dismiss: () -> Unit,

@@ -60,6 +60,8 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
+// The transactions screen serves accounts and categories with their own stats and actions.
+@Suppress("LargeClass")
 @Stable
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(

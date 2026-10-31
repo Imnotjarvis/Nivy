@@ -38,7 +38,7 @@ import com.ivy.design.system.typography.numberHeadlineMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun BoxWithConstraintsScope.CalculatorModal(
+internal fun BoxWithConstraintsScope.CalculatorModal(
       initialAmount: Double?,
       visible: Boolean,
       currency: String,

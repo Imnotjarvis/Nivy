@@ -63,11 +63,14 @@ data class AccountModalData(
     val id: UUID = UUID.randomUUID()
 )
 
+// The dialog's fields share its state; split up, each piece would take most of it as parameters.
+@Suppress("LongMethod")
 @Composable
 fun BoxWithConstraintsScope.AccountModal(
     modal: AccountModalData?,
     onCreateAccount: (CreateAccountData) -> Unit,
     onEditAccount: (Account, balance: Double) -> Unit,
+    modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
     val account = modal?.account
@@ -99,6 +102,7 @@ fun BoxWithConstraintsScope.AccountModal(
     val forceNonZeroBalance = modal?.forceNonZeroBalance ?: false
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,

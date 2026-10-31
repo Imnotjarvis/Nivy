@@ -64,7 +64,7 @@ import com.ivy.design.system.typography.numberLabelMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun LazyItemScope.PlannedPaymentCard(
+internal fun LazyItemScope.PlannedPaymentCard(
     baseCurrency: String,
     categories: ImmutableList<Category>,
     accounts: ImmutableList<Account>,

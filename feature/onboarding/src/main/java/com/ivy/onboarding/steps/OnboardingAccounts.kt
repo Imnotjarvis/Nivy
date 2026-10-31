@@ -62,7 +62,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.OnboardingAccounts(
+internal fun BoxWithConstraintsScope.OnboardingAccounts(
     baseCurrency: String,
 
     suggestions: List<CreateAccountData>,

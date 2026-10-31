@@ -28,7 +28,7 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun PrimaryAttributeColumn(
+internal fun PrimaryAttributeColumn(
     @DrawableRes icon: Int,
     title: String,
     onClick: () -> Unit,
@@ -86,9 +86,10 @@ private fun PreviewPrimaryAttributeColumn() {
                         "compiler or generated code. Use it at your own risk!\n" +
                         "\n" +
                         "\n" +
-                        "Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.\n" +
+                        "Deprecated Gradle features were used in this build, " +
+                        "making it incompatible with Gradle 8.0.\n" +
                         "Use '--warning-mode all' to show the individual deprecation warnings.\n" +
-                        "See https://docs.gradle.org/7.0-rc-1/userguide/command_line_interface.html#sec:command_line_warnings",
+                        "See the Gradle command line interface docs.",
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium

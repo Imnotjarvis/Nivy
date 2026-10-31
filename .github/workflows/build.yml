@@ -135,8 +135,7 @@ jobs:
       - name: Detekt and module dependency rules
         run: ./gradlew :detekt :assertModuleGraph --continue --no-configuration-cache
 
-      # Detekt's findings in the Security tab and on pull requests. Issues listed in
-      # config/detekt/baseline.yml aren't in the report.
+      # Detekt's findings in the Security tab and on pull requests.
       - name: Upload detekt results to code scanning
         if: ${{ !cancelled() && hashFiles('build/reports/detekt/detekt.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@v4

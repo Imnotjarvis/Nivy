@@ -48,13 +48,14 @@ fun IncomeExpensesCards(
 
     hasAddButtons: Boolean,
     itemColor: Color,
+    modifier: Modifier = Modifier,
 
     incomeHeaderCardClicked: () -> Unit = {},
     expenseHeaderCardClicked: () -> Unit = {},
     onAddTransaction: (TransactionType) -> Unit = {},
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(16.dp))

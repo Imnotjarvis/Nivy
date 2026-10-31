@@ -26,7 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun ImportProcessing(
+internal fun ImportProcessing(
     progressPercent: Int
 ) {
     Column(

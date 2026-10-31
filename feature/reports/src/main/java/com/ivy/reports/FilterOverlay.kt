@@ -93,7 +93,7 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("LongMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BoxWithConstraintsScope.FilterOverlay(
+internal fun BoxWithConstraintsScope.FilterOverlay(
     visible: Boolean,
 
     baseCurrency: String,

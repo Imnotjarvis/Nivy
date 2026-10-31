@@ -161,6 +161,8 @@ class CSVImporter @Inject constructor(
         )
     }
 
+    // Each `?: return null` skips a row missing a required field.
+    @Suppress("ReturnCount")
     private suspend fun mapToTransaction(
         baseCurrency: String,
         row: List<String>,
@@ -292,6 +294,8 @@ class CSVImporter @Inject constructor(
             .toDoubleOrNull()
     }
 
+    // Returns the first date format that fits the value.
+    @Suppress("ReturnCount")
     private fun mapDate(
         rowMapping: RowMapping,
         dateString: String?

@@ -223,7 +223,7 @@ fun AddModalBackHandling(
 
 @Suppress("ParameterNaming")
 @Composable
-fun ModalActionsRow(
+private fun ModalActionsRow(
     visible: Boolean,
     modalPercentVisible: Float,
     keyboardShownInsetDp: Dp,
@@ -309,7 +309,7 @@ private fun PreviewIvyModal_minimal() {
 }
 
 @Composable
-fun ModalPreviewActionRowSpacer() {
+private fun ModalPreviewActionRowSpacer() {
     Spacer(Modifier.height(modalPreviewActionRowHeight()))
 }
 

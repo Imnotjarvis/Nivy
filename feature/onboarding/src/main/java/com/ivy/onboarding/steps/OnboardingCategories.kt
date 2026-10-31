@@ -67,7 +67,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.OnboardingCategories(
+internal fun BoxWithConstraintsScope.OnboardingCategories(
     suggestions: List<CreateCategoryData>,
     categories: List<Category>,
 

@@ -43,9 +43,11 @@ fun IntervalPickerRow(
     intervalType: IntervalType,
 
     onSetIntervalN: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     onSetIntervalType: (IntervalType) -> Unit
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(24.dp))

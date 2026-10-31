@@ -36,7 +36,7 @@ import com.ivy.design.system.colors.isLight
 import com.ivy.navigation.rememberOnBack
 
 @Composable
-fun BoxWithConstraintsScope.OnboardingSetCurrency(
+internal fun BoxWithConstraintsScope.OnboardingSetCurrency(
     preselectedCurrency: IvyCurrency,
     onSetCurrency: (IvyCurrency) -> Unit
 ) {

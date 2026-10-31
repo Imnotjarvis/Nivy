@@ -32,6 +32,7 @@ fun BoxWithConstraintsScope.CurrencyModal(
     initialCurrency: IvyCurrency?,
     visible: Boolean,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
 
     onSetCurrency: (String) -> Unit
@@ -41,6 +42,7 @@ fun BoxWithConstraintsScope.CurrencyModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

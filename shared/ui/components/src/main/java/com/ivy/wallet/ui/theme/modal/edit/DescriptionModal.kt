@@ -44,6 +44,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
     visible: Boolean,
     description: String?,
     onDescriptionChanged: (String?) -> Unit,
+    modifier: Modifier = Modifier,
 
     id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit,
@@ -54,6 +55,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
     val view = LocalView.current
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

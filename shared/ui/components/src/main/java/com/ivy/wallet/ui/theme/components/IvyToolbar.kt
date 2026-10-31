@@ -22,13 +22,14 @@ enum class BackButtonType {
 @Composable
 fun IvyToolbar(
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     backButtonType: BackButtonType = BackButtonType.BACK,
     paddingTop: Dp = 16.dp,
     paddingBottom: Dp = 16.dp,
     content: @Composable RowScope.() -> Unit = { }
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .gradientCutBackgroundBottom(MaterialTheme.colorScheme.surface, paddingBottom = paddingBottom)
             .padding(top = paddingTop),

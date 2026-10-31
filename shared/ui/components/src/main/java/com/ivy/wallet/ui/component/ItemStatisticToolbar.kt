@@ -23,11 +23,13 @@ import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 fun ItemStatisticToolbar(
     contrastColor: Color,
     onEdit: () -> Unit,
+    modifier: Modifier = Modifier,
     showEditButton: Boolean = true,
     showDeleteButton: Boolean = true,
     onDelete: () -> Unit,
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(24.dp))

@@ -80,6 +80,8 @@ fun BoxWithConstraintsScope.ReportScreen() {
     )
 }
 
+// The report screen's list, filter overlay and dialogs share its state.
+@Suppress("LongMethod")
 @ExperimentalFoundationApi
 @Composable
 private fun BoxWithConstraintsScope.UI(

@@ -45,6 +45,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
     includeTransferType: Boolean,
     initialType: TransactionType,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     title: String = stringResource(R.string.set_transaction_type),
     id: UUID = UUID.randomUUID(),
     onTransactionTypeChanged: (TransactionType) -> Unit
@@ -54,6 +55,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

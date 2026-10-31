@@ -39,7 +39,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.ImportFrom(
+internal fun BoxWithConstraintsScope.ImportFrom(
     hasSkip: Boolean,
     launchedFromOnboarding: Boolean,
 

@@ -28,7 +28,7 @@ data class BufferModalData(
 
 @Suppress("ParameterNaming")
 @Composable
-fun BoxWithConstraintsScope.BufferModal(
+internal fun BoxWithConstraintsScope.BufferModal(
     modal: BufferModalData?,
     dismiss: () -> Unit,
     onBufferChanged: (Double) -> Unit

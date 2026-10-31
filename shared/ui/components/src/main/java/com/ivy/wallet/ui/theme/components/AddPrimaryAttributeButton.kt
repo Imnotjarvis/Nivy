@@ -24,10 +24,11 @@ import androidx.compose.material3.MaterialTheme
 fun AddPrimaryAttributeButton(
     @DrawableRes icon: Int,
     text: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .clip(MaterialTheme.shapes.medium)

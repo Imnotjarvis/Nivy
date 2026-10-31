@@ -42,7 +42,7 @@ private data class IvyColor(
 
 @Suppress("ParameterNaming")
 @Composable
-fun ColumnScope.IvyColorPicker(
+internal fun ColumnScope.IvyColorPicker(
     selectedColor: Color,
     onColorSelected: (Color) -> Unit
 ) {

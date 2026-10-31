@@ -38,7 +38,7 @@ import androidx.compose.material3.MaterialTheme
 
 @Suppress("LongParameterList")
 @Composable
-fun PlannedPaymentsLazyColumn(
+internal fun PlannedPaymentsLazyColumn(
     header: @Composable () -> Unit,
     currency: String,
     categories: ImmutableList<Category>,

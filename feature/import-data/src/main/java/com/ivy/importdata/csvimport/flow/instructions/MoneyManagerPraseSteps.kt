@@ -11,7 +11,7 @@ import com.ivy.wallet.rootScreen
 import com.ivy.ui.R
 
 @Composable
-fun MoneyManagerPraseSteps(
+internal fun MoneyManagerPraseSteps(
     onUploadClick: () -> Unit
 ) {
     Spacer(Modifier.height(12.dp))

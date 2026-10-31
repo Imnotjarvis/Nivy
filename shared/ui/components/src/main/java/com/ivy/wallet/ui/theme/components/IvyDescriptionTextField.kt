@@ -117,7 +117,8 @@ private fun PreviewIvyTextField_longText() {
                 .background(MaterialTheme.colorScheme.error)
                 .padding(horizontal = 24.dp),
             value = TextFieldValue(
-                "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."
+                "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, " +
+                "there is chaos, it contacts with light."
             ),
             hint = "Hint",
             onValueChanged = {}

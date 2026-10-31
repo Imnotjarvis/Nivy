@@ -23,7 +23,7 @@ import com.ivy.design.system.colors.gradientCutBackgroundTop
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun BoxWithConstraintsScope.PlannedPaymentsBottomBar(
+internal fun BoxWithConstraintsScope.PlannedPaymentsBottomBar(
     onClose: () -> Unit,
     bottomInset: Dp = navigationBarInset().toDensityDp(),
     onAdd: () -> Unit

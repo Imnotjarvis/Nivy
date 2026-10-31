@@ -19,12 +19,13 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BoxWithConstraintsScope.GradientCutBottom(
+    modifier: Modifier = Modifier,
     height: Dp = 96.dp,
     alpha: Float = 1f,
     zIndex: Float? = null
 ) {
     Spacer(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(height)
             .thenIf(zIndex != null) {

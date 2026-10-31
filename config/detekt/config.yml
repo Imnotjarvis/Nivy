@@ -1093,8 +1093,11 @@ Compose:
     active: true
   ModifierWithoutDefault:
     active: true
+  # The screens are built from composables that emit several items (a title, a spacer, the
+  # content) straight into the caller's Column or Row; wrapping each in its own layout would
+  # change spacing and weights.
   MultipleEmitters:
-    active: true
+    active: false
   MutableParams:
     active: true
   ComposableNaming:
@@ -1107,8 +1110,10 @@ Compose:
     active: true
   RememberMissing:
     active: true
+  # Strong skipping (on by default since Compose compiler 2.0) skips composables whose
+  # List/Set/Map arguments are the same instances, so they needn't be immutable collections.
   UnstableCollections:
-    active: true
+    active: false
   ViewModelForwarding:
     active: true
   ViewModelInjection:

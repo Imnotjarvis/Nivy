@@ -67,6 +67,7 @@ fun BoxWithConstraintsScope.CategoryModal(
     modal: CategoryModalData?,
     onCreateCategory: (CreateCategoryData) -> Unit,
     onEditCategory: (Category) -> Unit,
+    modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
     val initialCategory = modal?.category
@@ -85,6 +86,7 @@ fun BoxWithConstraintsScope.CategoryModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
@@ -169,7 +171,7 @@ fun BoxWithConstraintsScope.CategoryModal(
 }
 
 @Composable
-fun IconNameRow(
+internal fun IconNameRow(
     hint: String,
     @DrawableRes defaultIcon: Int,
     color: Color,

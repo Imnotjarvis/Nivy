@@ -48,7 +48,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.ImportInstructions(
+internal fun BoxWithConstraintsScope.ImportInstructions(
     hasSkip: Boolean,
     importType: ImportType,
 
@@ -134,7 +134,7 @@ fun BoxWithConstraintsScope.ImportInstructions(
 }
 
 @Composable
-fun VideoArticleRow(
+internal fun VideoArticleRow(
     videoUrl: String?,
     articleUrl: String?
 ) {
@@ -253,7 +253,7 @@ fun InstructionButton(
 }
 
 @Composable
-fun UploadFileStep(
+internal fun UploadFileStep(
     stepNumber: Int,
     text: String = stringResource(R.string.upload_csv_file),
     btnTitle: String = text,
@@ -282,7 +282,7 @@ fun UploadFileStep(
 
 @Suppress("MultipleEmitters")
 @Composable
-fun StepTitle(
+internal fun StepTitle(
     number: Int,
     title: String,
     description: String? = null,

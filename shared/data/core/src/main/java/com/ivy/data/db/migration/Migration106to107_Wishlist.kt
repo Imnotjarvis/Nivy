@@ -7,7 +7,10 @@ class Migration106to107_Wishlist : Migration(106, 107) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DROP TABLE wishlist_items")
         db.execSQL(
-            "CREATE TABLE IF NOT EXISTS `wishlist_items` (`name` TEXT NOT NULL, `price` REAL NOT NULL, `accountId` TEXT NOT NULL, `categoryId` TEXT, `description` TEXT, `plannedDateTime` INTEGER, `orderNum` REAL NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))"
+            "CREATE TABLE IF NOT EXISTS `wishlist_items` (`name` TEXT NOT NULL, `price` REAL NOT NULL, " +
+            "`accountId` TEXT NOT NULL, `categoryId` TEXT, `description` TEXT, " +
+            "`plannedDateTime` INTEGER, `orderNum` REAL NOT NULL, `id` TEXT NOT NULL, " +
+            "PRIMARY KEY(`id`))"
         )
     }
 }

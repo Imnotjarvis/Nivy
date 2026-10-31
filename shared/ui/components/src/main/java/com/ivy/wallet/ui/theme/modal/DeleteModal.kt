@@ -36,12 +36,14 @@ fun BoxWithConstraintsScope.DeleteModal(
     description: String,
     visible: Boolean,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     buttonText: String = stringResource(R.string.delete),
     iconStart: Int = R.drawable.ic_delete,
     onDelete: () -> Unit,
 ) {
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
@@ -89,6 +91,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
     enableDeletionButton: Boolean,
     onAccountNameChange: (String) -> Unit,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     hint: String = stringResource(id = R.string.account_name),
     buttonText: String = stringResource(R.string.delete),
@@ -99,6 +102,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
         mutableStateOf(TextFieldValue(""))
     }
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

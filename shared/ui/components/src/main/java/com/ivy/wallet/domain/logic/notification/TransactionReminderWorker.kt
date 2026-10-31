@@ -46,7 +46,8 @@ class TransactionReminderWorker @AssistedInject constructor(
 
         val showNotifications = fetchShowNotifications()
 
-        // Double check is needed because the user can switch off notifications in settings after it has been scheduled to show notifications for the next day
+        // Checked again here: the user may have turned notifications off in Settings after
+        // tomorrow's reminder was scheduled.
         if (transactionsToday.size < MINIMUM_TRANSACTIONS_PER_DAY && showNotifications) {
             // Have less than 1 two transactions today, remind them
 

@@ -27,7 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
-fun HistoryDateDivider(
+internal fun HistoryDateDivider(
     date: LocalDate,
     spacerTop: Dp,
     baseCurrency: String,

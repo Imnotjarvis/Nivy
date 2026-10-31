@@ -82,6 +82,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
     onEdit: (EditLoanRecordData) -> Unit,
     onDelete: (LoanRecord) -> Unit,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     accounts: List<Account> = emptyList(),
     onCreateAccount: (CreateAccountData) -> Unit = {},
 ) {
@@ -122,6 +123,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
     var accountChangeConformationModal by remember { mutableStateOf(false) }
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,

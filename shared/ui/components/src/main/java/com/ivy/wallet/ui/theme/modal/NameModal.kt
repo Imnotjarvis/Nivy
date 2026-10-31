@@ -28,12 +28,14 @@ fun BoxWithConstraintsScope.NameModal(
     visible: Boolean,
     name: String,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     onNameChanged: (String) -> Unit
 ) {
     var modalName by remember(id) { mutableStateOf(selectEndTextFieldValue(name)) }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

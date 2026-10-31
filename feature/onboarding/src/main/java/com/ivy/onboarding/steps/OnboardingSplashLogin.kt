@@ -56,7 +56,7 @@ import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun BoxWithConstraintsScope.OnboardingSplashLogin(
+internal fun BoxWithConstraintsScope.OnboardingSplashLogin(
     onboardingState: OnboardingState,
     onSkip: () -> Unit,
 ) {

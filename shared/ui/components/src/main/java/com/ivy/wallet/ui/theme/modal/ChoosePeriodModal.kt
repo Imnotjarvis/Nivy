@@ -78,6 +78,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
     modal: ChoosePeriodModalData?,
 
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     onPeriodSelected: (TimePeriod) -> Unit
 ) {
     var period by remember(modal) {
@@ -88,6 +89,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
     val modalScrollState = rememberScrollState()
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,

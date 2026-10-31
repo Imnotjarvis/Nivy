@@ -179,7 +179,7 @@ fun LazyListScope.spacer8() {
 }
 
 @Composable
-fun Spacer8(horizontal: Boolean = false) {
+internal fun Spacer8(horizontal: Boolean = false) {
     if (horizontal) {
         Spacer(modifier = Modifier.width(8.dp))
     } else {
@@ -484,7 +484,7 @@ private fun TypeMetadata(
 }
 
 @Composable
-fun LabelContainsField(
+private fun LabelContainsField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,

@@ -24,9 +24,10 @@ fun OnboardingToolbar(
     hasSkip: Boolean,
 
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     onSkip: () -> Unit
 ) {
-    IvyToolbar(onBack = onBack) {
+    IvyToolbar(modifier = modifier, onBack = onBack) {
         if (hasSkip) {
             Spacer(Modifier.weight(1f))
 

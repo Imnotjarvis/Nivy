@@ -41,7 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 @SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
 @Composable
-fun BoxWithConstraintsScope.MonthPickerModal(
+private fun BoxWithConstraintsScope.MonthPickerModal(
     initialDate: LocalDate,
     visible: Boolean,
     dismiss: () -> Unit,

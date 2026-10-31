@@ -12,7 +12,7 @@ import com.ivy.wallet.IvyWalletComponentPreview
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun IvyDividerDot() {
+internal fun IvyDividerDot() {
     Spacer(
         modifier = Modifier
             .size(4.dp)
