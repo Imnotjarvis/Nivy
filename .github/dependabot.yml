@@ -1,0 +1,23 @@
+# Weekly update PRs for the Gradle dependencies (gradle/libs.versions.toml and the Gradle
+# wrapper) and the GitHub Actions the workflows use. CI and CodeQL run on each PR.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Minor and patch updates come as one PR; each major update gets its own.
+      gradle-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns: ['*']

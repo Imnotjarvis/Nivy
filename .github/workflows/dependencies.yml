@@ -1,0 +1,57 @@
+# Dependency graph and dependency review.
+#
+# GitHub can't read a Gradle build's dependencies by itself, so `submit` resolves them and sends
+# the graph to GitHub on every push to main and every pull request. That graph is what
+# Dependabot's vulnerability alerts and the review below work from.
+# `review` checks what a pull request changes and fails it if it adds a dependency with a known
+# vulnerability.
+# Pull requests from forks get no write token, so neither job runs for them.
+name: Dependencies
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+
+concurrency:
+  group: dependencies-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    if: github.event_name == 'push' || !github.event.pull_request.head.repo.fork
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Submit the dependency graph
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+  review:
+    if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+    needs: submit
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      # GitHub processes the submitted graph in the background, so wait for it.
+      - uses: actions/dependency-review-action@v5
+        with:
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 600
