@@ -111,6 +111,13 @@ android {
         resValues = true
     }
 
+    packaging {
+        // Every native library comes prebuilt from a dependency; this project has no native code.
+        // Stripping them needs the NDK, which nothing else here uses, so the build packaged them
+        // unchanged and warned about it. Packaging them as they are is intended.
+        jniLibs.keepDebugSymbols += "**/*.so"
+    }
+
     lint {
         disable += "ComposeViewModelInjection"
         checkDependencies = true
