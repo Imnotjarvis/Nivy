@@ -87,7 +87,7 @@ private fun BoxWithConstraintsScope.UI(
             )
         )
     }
-    val titleFocus = FocusRequester()
+    val titleFocus = remember { FocusRequester() }
 
     Column(
         modifier = Modifier

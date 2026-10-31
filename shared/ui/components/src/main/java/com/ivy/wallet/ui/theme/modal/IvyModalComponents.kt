@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -61,6 +62,7 @@ internal fun ModalDynamicPrimaryAction(
 }
 
 @Composable
+@NonRestartableComposable
 fun ModalSet(
     modifier: Modifier = Modifier,
     label: String = stringResource(R.string.set),

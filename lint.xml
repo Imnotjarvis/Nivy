@@ -4,4 +4,27 @@
     <issue id="ComposeCompositionLocalUsage">
         <option name="allowed-composition-locals" value="LocalNavigation,LocalPeriodState,LocalMainScreenState,LocalTimeConverter,LocalTimeProvider,LocalTimeFormatter,LocalScreenSize" />
     </issue>
+
+    <!-- Off for the same reason as detekt's MultipleEmitters (config/detekt/config.yml): the
+         screens are built from composables that emit a title, a spacer and the content straight
+         into the caller's Column or Row. -->
+    <issue id="ComposeMultipleContentEmitters" severity="ignore" />
+
+    <!-- Dependabot keeps the dependencies current; lint's version checks also depend on what's
+         published the day they run. -->
+    <issue id="NewerVersionAvailable" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+
+    <!-- The app targets SDK 36 on purpose (gradle/libs.versions.toml); moving to the newest SDK
+         means taking that Android version's behaviour changes, so it's done as its own change. -->
+    <issue id="OldTargetApi" severity="ignore" />
+
+    <!-- The import summary's counts ("12 transactions") would need every translation rewritten
+         with each language's plural forms. -->
+    <issue id="PluralsCandidate" severity="ignore" />
+
+    <!-- Logos and illustrations sized by the layouts that show them, and imported icon paths. -->
+    <issue id="IconLocation" severity="ignore" />
+    <issue id="VectorPath" severity="ignore" />
 </lint>

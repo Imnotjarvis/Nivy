@@ -110,7 +110,7 @@
     <string name="add_income">आय जोड़ें</string>
     <string name="add_expense">खर्च जोड़ें</string>
     <string name="unspecified">वर्णन उपलब्ध नहीं</string>
-    <string name="percent">%1$s\\%%</string>
+    <string name="percent">%1$s\%%</string>
     <string name="account_transfers">खाता ट्रांसफर</string>
     <string name="no_transactions_for_period">आपने %1$s के लिए कोई लेन-देन नहीं किया है। आप नीचे स्क्रॉल करके और शीर्ष पर आय जोड़ें या व्यय जोड़ें बटन पर टैप करके जोड़ सकते हैं।</string>
     <string name="account_confirm_deletion_description">नोट: इस खाते को हटाने से यह स्थायी रूप से हट जाएगा और इससे जुड़े सभी लेन-देन हट जाएंगे।</string>

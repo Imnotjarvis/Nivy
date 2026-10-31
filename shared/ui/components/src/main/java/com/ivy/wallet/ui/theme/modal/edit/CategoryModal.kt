@@ -187,7 +187,7 @@ internal fun IconNameRow(
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val nameFocus = FocusRequester()
+        val nameFocus = remember { FocusRequester() }
 
         LaunchedEffect(Unit) {
             if (autoFocusKeyboard) {

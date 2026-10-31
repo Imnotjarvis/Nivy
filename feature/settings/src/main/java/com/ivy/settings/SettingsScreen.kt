@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +60,6 @@ import com.ivy.wallet.ui.theme.modal.CurrencyModal
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.NameModal
 import com.ivy.wallet.ui.theme.modal.ProgressModal
-import java.util.Locale
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
@@ -286,7 +286,7 @@ private fun BoxWithConstraintsScope.UI(
                     icon = R.drawable.ic_vue_location_global,
                     iconPadding = 6.dp,
                     text = stringResource(R.string.language),
-                    description = Locale.getDefault().displayName
+                    description = LocalConfiguration.current.locales[0].displayName
                 ) {
                     onSwitchLanguage()
                 }

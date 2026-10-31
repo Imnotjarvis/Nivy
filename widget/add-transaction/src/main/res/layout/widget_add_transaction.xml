@@ -7,27 +7,33 @@
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="horizontal"
-    tools:background="@color/white">
+    tools:background="@color/white"
+    tools:ignore="UselessParent">
+    <!-- The root only centers the bar vertically in the widget's cell. -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_widget_background"
+        android:baselineAligned="false"
         android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingTop="12dp"
         android:paddingRight="16dp"
         android:paddingBottom="14dp">
 
+        <!-- Icon and label stay separate views: each gets its own click PendingIntent. -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:id="@+id/ivIncome"
+                android:contentDescription="@string/add_income"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_widget_income" />
@@ -53,10 +59,12 @@
             android:layout_marginRight="16dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:id="@+id/ivExpense"
+                android:contentDescription="@string/add_expense"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_widget_expense" />
@@ -80,10 +88,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:id="@+id/ivTransfer"
+                android:contentDescription="@string/transfer"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_widget_transfer" />

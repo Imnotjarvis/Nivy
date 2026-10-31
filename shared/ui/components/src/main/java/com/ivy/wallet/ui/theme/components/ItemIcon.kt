@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.theme.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -43,7 +44,7 @@ fun ItemIconL(
 
 // ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
 // only one of them.
-@Suppress("ModifierReused", "ModifierNotUsedAtRoot")
+@Suppress("ModifierReused", "ModifierNotUsedAtRoot", "ComposeModifierReused")
 @Composable
 fun ItemIconMDefaultIcon(
     iconName: String?,
@@ -87,7 +88,7 @@ fun ItemIconM(
 
 // ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
 // only one of them.
-@Suppress("ModifierReused", "ModifierNotUsedAtRoot")
+@Suppress("ModifierReused", "ModifierNotUsedAtRoot", "ComposeModifierReused")
 @Composable
 fun ItemIconSDefaultIcon(
     iconName: String?,
@@ -198,6 +199,8 @@ fun getCustomIconIdS(
     )?.iconId ?: defaultIcon
 }
 
+// Icons are looked up by name: the names come from data (and keep.xml keeps the files).
+@SuppressLint("DiscouragedApi")
 fun getCustomIconId(
     context: Context,
     iconName: String?,
@@ -255,6 +258,8 @@ enum class IconStyle {
     L, M, S, UNKNOWN
 }
 
+// Icons are looked up by name: the names come from data (and keep.xml keeps the files).
+@SuppressLint("DiscouragedApi")
 fun fallbackToNewIconFormat(
     iconStyle: IconStyle,
     context: Context,

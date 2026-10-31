@@ -56,7 +56,6 @@ import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
-import java.util.Locale
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -122,7 +121,7 @@ fun CurrencyPicker(
         Spacer(Modifier.height(20.dp))
 
         CurrencyList(
-            searchQueryLowercase = searchTextFieldValue.text.lowercase(Locale.getDefault()),
+            searchQueryLowercase = searchTextFieldValue.text.toLowerCaseLocal(),
             selectedCurrency = selectedCurrency,
             lastItemSpacer = if (includeKeyboardShownInsetSpacer) {
                 keyboardShownInsetDp + lastItemSpacer
@@ -142,7 +141,7 @@ private fun SearchInput(
     searchTextFieldValue: TextFieldValue,
     onSetSearchTextFieldValue: (TextFieldValue) -> Unit
 ) {
-    val inputFocus = FocusRequester()
+    val inputFocus = remember { FocusRequester() }
 
     Row(
         modifier = Modifier

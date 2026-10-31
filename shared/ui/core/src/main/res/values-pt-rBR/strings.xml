@@ -44,8 +44,8 @@
     <string name="convert_xls_to_csv_description">!NOTA: Se o arquivo exportado não tiver a extensão ".xls", adicione-o renomeando o arquivo manualmente.</string>
     <string name="online_csv_converter_free">Converter CSV online GRATUITAMENTE</string>
     <string name="check_email_spam">Verifique as pastas "Promoções" e "Spam" do seu e-mail</string>
-    <string name="download_email_file">Transfira o ficheiro \"transactions_export...\" anexo ao e-mail.</string>
-    <string name="download_email_file_description">Se você tiver mais de uma moeda, você terá que baixar cada arquivo \"transactions_export...\" e importá-lo no Nivy.</string>
+    <string name="download_email_file">Transfira o ficheiro \"transactions_export…\" anexo ao e-mail.</string>
+    <string name="download_email_file_description">Se você tiver mais de uma moeda, você terá que baixar cada arquivo \"transactions_export…\" e importá-lo no Nivy.</string>
     <string name="import_from">Importar de</string>
     <string name="please_wait">"Por favor aguarde "</string>
     <string name="importing_the_csv_file">Importando o arquivo CSV</string>

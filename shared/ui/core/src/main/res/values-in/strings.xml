@@ -44,8 +44,8 @@
     <string name="convert_xls_to_csv_description">CATATAN: Jika file yang diekspor tidak memiliki ekstensi ".xls", tambahkan manual dengan mengganti nama file.</string>
     <string name="online_csv_converter_free">Konverter CSV Online GRATIS</string>
     <string name="check_email_spam">Periksa folder "Promosi" dan "Spam" email Anda</string>
-    <string name="download_email_file">Unduh file "transactions_export..." yang dilampirkan dalam email.</string>
-    <string name="download_email_file_description">Jika Anda memiliki lebih dari satu mata uang, Anda harus mengunduh setiap file "transactions_export..." dan mengimpornya ke Nivy.</string>
+    <string name="download_email_file">Unduh file "transactions_export…" yang dilampirkan dalam email.</string>
+    <string name="download_email_file_description">Jika Anda memiliki lebih dari satu mata uang, Anda harus mengunduh setiap file "transactions_export…" dan mengimpornya ke Nivy.</string>
     <string name="import_from">Impor dari</string>
     <string name="please_wait">Harap tunggu</string>
     <string name="importing_the_csv_file">Mengimpor file CSV</string>
@@ -111,7 +111,7 @@
     <string name="add_income">Tambahkan pendapatan</string>
     <string name="add_expense">Tambahkan pengeluaran</string>
     <string name="unspecified">Tidak ditentukan</string>
-    <string name="percent">%1$s%%</string>
+    <string name="percent">%1$s\%%</string>
     <string name="account_transfers">Transfer Akun</string>
     <string name="no_transactions_for_period">Anda tidak memiliki transaksi untuk %1$s.\nAnda dapat menambahkan satu dengan menggeser ke bawah dan mengetuk tombol "Tambahkan pendapatan" atau "Tambahkan pengeluaran" di bagian atas.</string>
     <string name="account_confirm_deletion_description">Catatan: Menghapus akun ini akan menghapusnya secara permanen dan menghapus semua transaksi yang terkait dengannya.</string>

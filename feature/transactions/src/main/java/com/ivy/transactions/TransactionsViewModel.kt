@@ -439,7 +439,7 @@ class TransactionsViewModel @Inject constructor(
                 it is Expense && it.category?.value == categoryId
             }
 
-            balance.value = ioThread {
+            balance.doubleValue = ioThread {
                 categoryLogic.calculateCategoryBalance(
                     initialCategory,
                     range,
@@ -448,7 +448,7 @@ class TransactionsViewModel @Inject constructor(
                 )
             }
 
-            income.value = ioThread {
+            income.doubleValue = ioThread {
                 categoryLogic.calculateCategoryIncome(
                     incomeTransaction = incomeTrans,
                     accountFilterSet = accountFilterSet
@@ -526,7 +526,7 @@ class TransactionsViewModel @Inject constructor(
             categoryLogic.calculateUpcomingIncomeUnspecified(range)
         }
 
-        upcomingExpenses.value = ioThread {
+        upcomingExpenses.doubleValue = ioThread {
             categoryLogic.calculateUpcomingExpensesUnspecified(range)
         }
 

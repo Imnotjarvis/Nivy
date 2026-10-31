@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -115,7 +117,8 @@ private fun BoxWithConstraintsScope.UI(
     val lazyState = rememberScrollPositionListState(
         key = "item_pie_chart_lazy_column"
     )
-    val expanded = lazyState.firstVisibleItemIndex < 1
+    // Recomposes when this flips, not on every scrolled item.
+    val expanded by remember { derivedStateOf { lazyState.firstVisibleItemIndex < 1 } }
     val percentExpanded by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
         animationSpec = com.ivy.wallet.utils.springBounce(),

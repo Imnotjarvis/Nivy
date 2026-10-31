@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +45,7 @@ fun SearchInput(
     ) {
         IvyIcon(icon = R.drawable.ic_search, modifier = Modifier.weight(1f))
 
-        val searchFocus = FocusRequester()
+        val searchFocus = remember { FocusRequester() }
         IvyBasicTextField(
             modifier = Modifier
                 .weight(5f)

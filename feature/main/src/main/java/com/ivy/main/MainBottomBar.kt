@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
@@ -152,7 +153,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
         Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = expandedBackgroundOffset)
+                // The lambda form reads the animated offset in the layout phase, not in composition.
+                .offset { IntOffset(x = 0, y = expandedBackgroundOffset.roundToPx()) }
                 .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing

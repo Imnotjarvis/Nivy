@@ -172,6 +172,8 @@ private class PieChartView(context: Context) : View(context) {
 
     private val zones = mutableListOf<Zone>()
 
+    // A Zone per slice, recorded while drawing so touches can find the slice under them.
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         var startAngle = -QuarterTurn
 

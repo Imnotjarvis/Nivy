@@ -133,7 +133,7 @@ private fun PreviewTitleWithSuggestions() {
         Column {
             Title(
                 type = TransactionType.EXPENSE,
-                titleFocus = FocusRequester(),
+                titleFocus = remember { FocusRequester() },
                 titleTextFieldValue = selectEndTextFieldValue(""),
                 setTitleTextFieldValue = {},
                 suggestions = setOf(

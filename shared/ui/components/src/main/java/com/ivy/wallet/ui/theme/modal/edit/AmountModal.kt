@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -476,6 +477,7 @@ internal fun KeypadCircleButton(
 
 @SuppressLint("ComposableModifierFactory", "ModifierFactoryExtensionFunction")
 @Composable
+@ReadOnlyComposable
 private fun circleButtonModifier(
     size: Dp = 80.dp,
     onClick: () -> Unit,
