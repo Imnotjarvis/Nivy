@@ -30,9 +30,11 @@ jvm-target = "17"
 # Linters
 detekt = "1.23.8" # https://detekt.dev/docs/gettingstarted/gradle/
 
-# Build tooling only: the Android Gradle plugin's tools ask for an older Bouncy Castle with known
-# vulnerabilities, and the build uses this version instead (root build.gradle.kts and buildSrc).
+# Build tooling: the Android Gradle plugin and the other build tools ask for older Bouncy Castle
+# and Guava versions with known vulnerabilities; the build uses these instead (root
+# build.gradle.kts and buildSrc). Guava keeps the flavour each tool asks for (-jre or -android).
 bouncycastle = "1.86"
+guava = "33.7.2-jre"
 
 [libraries]
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version = "9.4.0" }
@@ -137,7 +139,9 @@ ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.
 # Modules Graph
 module-graph-plugin = { module = "com.jraska.module.graph.assertion:plugin", version = "2.9.1" }
 
-# Not depended on directly: they tell Dependabot which artifacts the bouncycastle version is for.
+# Not depended on directly: they tell Dependabot which artifacts the bouncycastle and guava
+# versions are for.
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcutil = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
