@@ -68,3 +68,8 @@ jobs:
         with:
           retry-on-snapshot-warnings: true
           retry-on-snapshot-warnings-timeout: 600
+          # Gradle compiles buildSrc with the Kotlin it embeds, 2.4.10 in Gradle 9.8.2 (the newest
+          # release), which has GHSA-r937-wjx7-w2jp: unsafe deserialization of Kotlin build-cache
+          # entries, fixed in 2.4.20. The app itself compiles with Kotlin 2.4.21. Remove this once
+          # the Gradle wrapper is on a release that embeds Kotlin 2.4.20 or newer.
+          allow-ghsas: GHSA-r937-wjx7-w2jp

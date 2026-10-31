@@ -151,7 +151,7 @@ minimum-httpclient = { module = "org.apache.httpcomponents:httpclient", version 
 
 [bundles]
 # Minimum versions for the build tools' libraries, applied by gradle/minimum-versions.gradle.kts.
-# commons-lang3 and the Kotlin Gradle plugin use the versions the project itself depends on.
+# commons-lang3 uses the version the project itself depends on.
 build-tooling-minimums = [
     "minimum-bcprov",
     "minimum-bcpkix",
@@ -161,7 +161,6 @@ build-tooling-minimums = [
     "minimum-jdom2",
     "minimum-httpclient",
     "opencsv-apache-commons",
-    "kotlin-gradle-plugin",
 ]
 kotlin = [
     "kotlin-stdlib",
