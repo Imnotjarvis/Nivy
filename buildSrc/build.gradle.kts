@@ -6,6 +6,13 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
+// Like the app's modules (root build.gradle.kts): a compiler warning fails the build.
+kotlin {
+    compilerOptions {
+        allWarningsAsErrors.set(true)
+    }
+}
+
 repositories {
     google()
     mavenCentral()
