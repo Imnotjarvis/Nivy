@@ -110,9 +110,6 @@ appcompat-activity = { module = "androidx.appcompat:appcompat", version = "1.8.0
 androidx-work = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version = "1.4.0" }
 
-# Material
-material = { module = "com.google.android.material:material", version = "1.14.0" }
-
 # Logging
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 

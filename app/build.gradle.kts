@@ -164,7 +164,6 @@ dependencies {
     implementation(libs.androidx.biometrics)
 
     implementation(libs.bundles.hilt)
-    implementation(libs.material)
     ksp(libs.hilt.compiler)
 
     implementation(libs.bundles.room)
