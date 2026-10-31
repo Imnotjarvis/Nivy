@@ -134,7 +134,6 @@ private fun PreviewTitleWithSuggestions() {
             Title(
                 type = TransactionType.EXPENSE,
                 titleFocus = FocusRequester(),
-                initialTransactionId = null,
                 titleTextFieldValue = selectEndTextFieldValue(""),
                 setTitleTextFieldValue = {},
                 suggestions = setOf(
