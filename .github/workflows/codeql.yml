@@ -5,6 +5,13 @@
 # scanned the rest. This workflow builds the app itself so CodeQL sees the Kotlin compiler run.
 # It replaces default setup, which has to be off for this workflow's results to be accepted
 # (Settings > Code security > Code scanning > CodeQL analysis).
+#
+# The Kotlin analysis is the slow part (10 minutes or more): CodeQL reads the compiler as it
+# runs, so every module compiles from scratch, and build mode "none" is Java-only and would
+# drop the Kotlin. It therefore only runs when a commit touches what it reads: Kotlin, Java,
+# build scripts, manifests, XML resources, or this file. A dependency bump or a docs change
+# doesn't start it (the Dependencies workflow covers dependencies). The weekly and manual runs
+# analyse everything, so new CodeQL queries also meet unchanged code.
 name: CodeQL
 
 on:
@@ -14,7 +21,6 @@ on:
   pull_request:
     branches: [main]
     paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
-  # Weekly, so new CodeQL queries also run on code that hasn't changed.
   schedule:
     - cron: '23 4 * * 1'
   workflow_dispatch:
@@ -27,98 +33,92 @@ permissions:
   contents: read
 
 jobs:
-  analyze:
-    name: Analyze (${{ matrix.language }})
+  changes:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Did code CodeQL reads change?
+        id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          case "$EVENT" in
+            pull_request) changed=$(gh pr diff "$PR" --name-only) ;;
+            push)
+              # A new branch or a force-push has no usable "before": analyse.
+              if [ "$BEFORE" = 0000000000000000000000000000000000000000 ] \
+                  || ! git fetch -q --depth=1 origin "$BEFORE" 2>/dev/null; then
+                changed=everything
+              else
+                changed=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
+              fi ;;
+            *) changed=everything ;;
+          esac
+          if [ "$changed" = everything ] \
+              || grep -qE '\.(kt|kts|java)$|AndroidManifest\.xml$|/res/xml/|^\.github/workflows/codeql\.yml$' <<< "$changed"; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "No Kotlin, Java, build script, manifest or XML resource changed: the Kotlin analysis is skipped."
+          fi
+
+  kotlin:
+    name: Analyze (java-kotlin)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     permissions:
       contents: read
       actions: read
       security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - language: java-kotlin
-            build-mode: manual
-          - language: actions
-            build-mode: none
-          - language: python
-            build-mode: none
     steps:
       - uses: actions/checkout@v7
 
-      - if: matrix.build-mode == 'manual'
-        uses: actions/setup-java@v6
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
 
-      - if: matrix.build-mode == 'manual'
-        uses: gradle/actions/setup-gradle@v6
+      - uses: gradle/actions/setup-gradle@v6
         with:
           cache-provider: basic
           cache-read-only: true
 
       - uses: github/codeql-action/init@v4
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
+          languages: java-kotlin
+          build-mode: manual
 
-      # CodeQL reads the Kotlin compiler as it runs, so every module has to compile here: no
-      # build cache, and the compiler stays inside this step's processes.
-      - name: Build the app
-        if: matrix.build-mode == 'manual'
+      # CodeQL reads the Kotlin and Java compilers as they run, so every module has to compile
+      # here: no build cache, and the compiler stays inside this step's processes. Compiling is
+      # all it needs; dexing, resource merging and packaging would add minutes and nothing to
+      # read. Hilt's generated components are compiled too, as in a real build.
+      - name: Compile the app
         run: >-
-          ./gradlew :app:assembleDebug
+          ./gradlew compileDebugJavaWithJavac :app:hiltJavaCompileDebug
           --no-daemon --no-build-cache --no-configuration-cache
           -Pkotlin.compiler.execution.strategy=in-process
 
       - uses: github/codeql-action/analyze@v4
         with:
-          category: /language:${{ matrix.language }}
+          category: /language:java-kotlin
           output: sarif-results
 
-      # The findings, as the Security tab ranks them, so they can be read in the job log too.
       - name: List the findings
-        run: |
-          python3 -I - sarif-results/*.sarif <<'PY'
-          import json, sys
-
-          def severity(rule):
-              props = rule.get("properties", {})
-              score = props.get("security-severity")
-              if score is not None:
-                  s = float(score)
-                  return "critical" if s >= 9 else "high" if s >= 7 else "medium" if s >= 4 else "low"
-              return props.get("problem.severity") or rule.get("defaultConfiguration", {}).get("level", "?")
-
-          order = ["critical", "high", "medium", "low", "error", "warning", "recommendation", "note"]
-          for path in sys.argv[1:]:
-              for run in json.load(open(path)).get("runs", []):
-                  tool = run["tool"]
-                  rules = {r["id"]: r for c in [tool["driver"], *tool.get("extensions", [])]
-                           for r in c.get("rules", [])}
-                  found = []
-                  for res in run.get("results", []):
-                      rule_id = res.get("ruleId") or res.get("rule", {}).get("id")
-                      loc = (res.get("locations") or [{}])[0].get("physicalLocation", {})
-                      found.append((
-                          severity(rules.get(rule_id, {})), rule_id,
-                          f'{loc.get("artifactLocation", {}).get("uri", "?")}:{loc.get("region", {}).get("startLine", "?")}',
-                          res.get("message", {}).get("text", "").replace("\n", " "),
-                      ))
-                  found.sort(key=lambda f: order.index(f[0]) if f[0] in order else len(order))
-                  print(f"{path}: {len(found)} finding(s)")
-                  for sev, rule_id, where, message in found:
-                      print(f"  [{sev}] {rule_id} {where}: {message}")
-          PY
+        run: python3 -I scripts/listSarifFindings.py sarif-results/*.sarif
 
       # CodeQL skips Kotlin it can't read (a Kotlin version newer than it supports) instead of
       # failing, and the Java that Room and Hilt generate would still give it something to
       # analyse. So check the line counts it reports and fail if it saw no Kotlin.
       - name: CodeQL read the Kotlin code
-        if: matrix.language == 'java-kotlin'
         run: |
           python3 -I - sarif-results/java.sarif <<'PY'
           import json, sys
@@ -134,3 +134,32 @@ jobs:
               print("::error::CodeQL read no Kotlin code. Does it support this Kotlin version yet?")
               sys.exit(1)
           PY
+
+  # The workflows and the Python scripts: no build, a minute or two.
+  scripts:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, python]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
+          output: sarif-results
+
+      - name: List the findings
+        run: python3 -I scripts/listSarifFindings.py sarif-results/*.sarif
