@@ -1,4 +1,4 @@
-# Builds Ivy Wallet (offline), tests it, and publishes signed APKs for v* tags.
+# Builds Nivy (offline), tests it, and publishes signed APKs for v* tags.
 #
 # Jobs:
 #   plan    decides what this run needs (scripts/ciPlan.sh, explained in the run summary)
@@ -10,8 +10,8 @@
 #           with build
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
-#   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list. Its findings
-#           also go to the Security tab (code scanning)
+#   lint    Android Lint; fails on errors, prints warnings. Its findings also go to the Security
+#           tab (code scanning)
 # Any Kotlin compiler warning fails the compile (allWarningsAsErrors in build.gradle.kts).
 #
 # What runs when:
@@ -30,7 +30,6 @@
 #   build                 everything
 #   release               everything, plus a signed release APK
 #   record-screenshots    re-records the screenshot tests' reference images and commits them
-#   update-lint-baseline  regenerates app/lint-baseline.xml and commits it
 #
 # Artifacts are kept for 3 days and the signed release APK for 30; an older APK can be rebuilt
 # from its commit.
@@ -66,9 +65,9 @@ on:
         description: What to run
         type: choice
         default: build
-        options: [build, release, record-screenshots, update-lint-baseline]
+        options: [build, release, record-screenshots]
 
-# Read-only by default; update-baselines and release ask for contents: write themselves.
+# Read-only by default; record-screenshots and release ask for contents: write themselves.
 permissions:
   contents: read
 
@@ -135,8 +134,7 @@ jobs:
       - name: Detekt and module dependency rules
         run: ./gradlew :detekt :assertModuleGraph --continue --no-configuration-cache
 
-      # Detekt's findings in the Security tab and on pull requests. Issues listed in
-      # config/detekt/baseline.yml aren't in the report.
+      # Detekt's findings in the Security tab and on pull requests.
       - name: Upload detekt results to code scanning
         if: ${{ !cancelled() && hashFiles('build/reports/detekt/detekt.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@v4
@@ -331,13 +329,17 @@ jobs:
           if-no-files-found: ignore
 
   # Runs the app on an emulator: launches both APKs on a fresh install (catches startup
-  # crashes from R8, Hilt, Room) and runs the instrumented database-migration, backup and
+  # crashes from R8, Hilt, Room), opens them the way shortcuts do and presses back
+  # (scripts/smokeTestApks.sh), and runs the instrumented database-migration, backup and
   # exchange-rate tests.
   device:
     needs: [plan, build]
     if: needs.plan.outputs.device == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
+    env:
+      # The app's target SDK (target-sdk in gradle/libs.versions.toml).
+      EMULATOR_API: 36
     steps:
       - uses: actions/checkout@v7
 
@@ -377,6 +379,24 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # The emulator runs the Android version the app targets, so the behaviour that comes with
+      # the target (edge-to-edge, back handling) is what gets tested. Plain Android (AOSP), like
+      # a phone without Google services, when Google publishes that image; Google APIs otherwise.
+      - name: Pick the emulator system image
+        id: image
+        run: |
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          available=$("$sdkmanager" --list 2>/dev/null)
+          for tag in default google_apis; do
+            if grep -q "system-images;android-$EMULATOR_API;$tag;x86_64" <<< "$available"; then
+              echo "tag=$tag" >> "$GITHUB_OUTPUT"
+              echo "Using system-images;android-$EMULATOR_API;$tag;x86_64"
+              exit 0
+            fi
+          done
+          echo "::error::No x86_64 system image for API $EMULATOR_API"
+          exit 1
+
       # The system image takes 1 to 4 minutes to download from Google; bump the key's -v to
       # refresh it. The path is ANDROID_HOME's on GitHub's Ubuntu runners. The AVD isn't cached:
       # it takes 2 seconds to create, and a boot snapshot would save half a minute of booting
@@ -385,31 +405,32 @@ jobs:
         id: system-image
         uses: actions/cache@v6
         with:
-          path: /usr/local/lib/android/sdk/system-images/android-34/default/x86_64
-          key: system-image-34-default-x86_64-v1
+          path: /usr/local/lib/android/sdk/system-images/android-${{ env.EMULATOR_API }}/${{ steps.image.outputs.tag }}/x86_64
+          key: system-image-${{ env.EMULATOR_API }}-${{ steps.image.outputs.tag }}-x86_64-v1
 
       # Google's server sometimes cuts the download short (run 16: "Error reading Zip content"),
       # and the emulator step doesn't retry, so fetch the image here first.
       - name: Download the emulator system image
         if: steps.system-image.outputs.cache-hit != 'true'
+        env:
+          IMAGE: system-images;android-${{ env.EMULATOR_API }};${{ steps.image.outputs.tag }};x86_64
         run: |
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$sdkmanager" --licenses > /dev/null
           for attempt in 1 2 3; do
-            "$sdkmanager" --install 'system-images;android-34;default;x86_64' > /dev/null && exit 0
+            "$sdkmanager" --install "$IMAGE" > /dev/null && exit 0
             echo "Download failed (attempt $attempt of 3)."
             sleep $((attempt * 20))
           done
           exit 1
 
-      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install. The
-      # image is plain Android (AOSP) without Google APIs, like a phone with no Google services.
+      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install.
       - name: Smoke test and instrumented tests on an emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: ${{ env.EMULATOR_API }}
           arch: x86_64
-          target: default
+          target: ${{ steps.image.outputs.tag }}
           disk-size: 3072M
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
@@ -475,8 +496,7 @@ jobs:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-lint-${{ github.sha }}
 
-      # Lint's findings in the Security tab. Issues listed in app/lint-baseline.xml aren't in the
-      # report.
+      # Lint's findings in the Security tab.
       - name: Upload lint results to code scanning
         if: ${{ !cancelled() && hashFiles('app/build/reports/lint-results-debug.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@v4
@@ -497,13 +517,11 @@ jobs:
             build/reports/lint/
           if-no-files-found: ignore
 
-  # Manual maintenance: regenerates a baseline on CI's Linux runner (screenshots must be
-  # recorded where they are verified) and commits the result to the branch it ran on.
-  # Commits made with the workflow's token don't start another run.
-  update-baselines:
-    if: >-
-      github.event_name == 'workflow_dispatch' &&
-      (inputs.action == 'record-screenshots' || inputs.action == 'update-lint-baseline')
+  # Manual maintenance: re-records the screenshot tests' reference images on CI's Linux runner
+  # (screenshots must be recorded where they are verified) and commits them to the branch it ran
+  # on. Commits made with the workflow's token don't start another run.
+  record-screenshots:
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'record-screenshots'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     permissions:
@@ -528,29 +546,13 @@ jobs:
           restore-keys: gradle-build-cache-
 
       - name: Record screenshot reference images
-        if: inputs.action == 'record-screenshots'
         run: ./gradlew cleanRecordPaparazziDebug --continue
-
-      # updateLintBaseline rewrites app/lint-baseline.xml with every issue lint finds today. If
-      # this AGP version lacks the task, lint writes a fresh baseline when the file is missing.
-      - name: Regenerate the lint baseline
-        if: inputs.action == 'update-lint-baseline'
-        run: |
-          if ! ./gradlew :app:updateLintBaseline --continue; then
-            rm -f app/lint-baseline.xml
-            ./gradlew :app:lintDebug -Dlint.baselines.continue=true --continue || true
-          fi
-          test -s app/lint-baseline.xml
 
       - name: Commit the result
         env:
           ACTION: ${{ inputs.action }}
         run: |
-          if [ "$ACTION" = record-screenshots ]; then
-            git add -A -- ':(glob)**/src/test/snapshots/**'
-          else
-            git add -A -- app/lint-baseline.xml
-          fi
+          git add -A -- ':(glob)**/src/test/snapshots/**'
           if git diff --cached --quiet; then
             echo "Nothing changed."
             exit 0

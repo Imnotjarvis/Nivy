@@ -25,10 +25,10 @@ import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.FromToTimeRange
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.FromToTimeRange
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.format
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.transaction.HistoryTrnsAct
@@ -72,51 +72,16 @@ class BudgetViewModel @Inject constructor(
         }
 
         return BudgetScreenState(
-            baseCurrency = getBaseCurrency(),
-            categories = getCategories(),
-            budgets = getBudgets(),
-            categoryBudgetsTotal = getCategoryBudgetsTotal(),
-            appBudgetMax = getAppBudgetMax(),
+            baseCurrency = baseCurrency.value,
+            categories = categories.value,
+            budgets = budgets.value,
+            categoryBudgetsTotal = categoryBudgetsTotal.doubleValue,
+            appBudgetMax = appBudgetMax.doubleValue,
             totalRemainingBudgetText = getTotalRemainingBudgetText(),
-            timeRange = getTimeRange(),
-            reorderModalVisible = getReorderModalVisible(),
-            budgetModalData = getBudgetModalData()
+            timeRange = timeRange.value,
+            reorderModalVisible = reorderModalVisible.value,
+            budgetModalData = budgetModalData.value
         )
-    }
-
-    @Composable
-    private fun getBaseCurrency(): String {
-        return baseCurrency.value
-    }
-
-    @Composable
-    private fun getTimeRange(): FromToTimeRange? {
-        return timeRange.value
-    }
-
-    @Composable
-    private fun getCategories(): ImmutableList<Category> {
-        return categories.value
-    }
-
-    @Composable
-    private fun getBudgets(): ImmutableList<DisplayBudget> {
-        return budgets.value
-    }
-
-    @Composable
-    private fun getReorderModalVisible(): Boolean {
-        return reorderModalVisible.value
-    }
-
-    @Composable
-    private fun getCategoryBudgetsTotal(): Double {
-        return categoryBudgetsTotal.doubleValue
-    }
-
-    @Composable
-    private fun getAppBudgetMax(): Double {
-        return appBudgetMax.doubleValue
     }
 
     @Composable
@@ -131,11 +96,6 @@ class BudgetViewModel @Inject constructor(
 
             else -> null
         }
-    }
-
-    @Composable
-    private fun getBudgetModalData(): BudgetModalData? {
-        return budgetModalData.value
     }
 
     override fun onEvent(event: BudgetScreenEvent) {
@@ -171,7 +131,7 @@ class BudgetViewModel @Inject constructor(
             categories.value = categoryRepository.findAll().toImmutableList()
             val baseCurrency = currencyRepository.getBaseCurrency()
             val startDateOfMonth = appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
-            val timeRange = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+            val timeRange = com.ivy.wallet.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = startDateOfMonth,
                 timeProvider = timeProvider,
             ).toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)

@@ -6,7 +6,7 @@ import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeProvider
 import com.ivy.design.system.colors.Gradient
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.MainScreenState
+import com.ivy.wallet.MainScreenState
 import com.ivy.navigation.Navigation
 
 @Immutable

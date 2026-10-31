@@ -8,6 +8,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +29,7 @@ import com.ivy.base.time.TimeProvider
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,8 +54,19 @@ class AndroidDateTimePicker @Inject constructor(
         viewState: DatePickerViewState,
         modifier: Modifier = Modifier
     ) {
+        val selectableDates = remember(viewState) {
+            object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+                    viewState.allows(utcTimeMillis.toUtcDate())
+
+                override fun isSelectableYear(year: Int): Boolean =
+                    (viewState.minDate == null || year >= viewState.minDate.year) &&
+                        (viewState.maxDate == null || year <= viewState.maxDate.year)
+            }
+        }
         val pickerState = rememberDatePickerState(
-            initialSelectedDateMillis = viewState.initialDate?.toEpochMilli(),
+            initialSelectedDateMillis = viewState.initialDate?.toUtcMillis(),
+            selectableDates = selectableDates,
         )
         DatePickerDialog(
             modifier = modifier,
@@ -60,10 +74,7 @@ class AndroidDateTimePicker @Inject constructor(
             confirmButton = {
                 ConfirmButton(onClick = {
                     datePickerViewState = null
-                    pickerState.selectedDateMillis?.let(Instant::ofEpochMilli)
-                        ?.let {
-                            with(timeConverter) { it.toLocalDate() }
-                    }?.let(viewState.onDatePicked)
+                    pickerState.selectedDateMillis?.toUtcDate()?.let(viewState.onDatePicked)
                 })
             },
             colors = DatePickerDefaults.colors(
@@ -138,8 +149,22 @@ class AndroidDateTimePicker @Inject constructor(
     }
 
     override fun pickDate(initialDate: Instant?, onDatePick: (LocalDate) -> Unit) {
+        pickDate(
+            initialDate = initialDate?.let { with(timeConverter) { it.toLocalDate() } },
+            onDatePick = onDatePick,
+        )
+    }
+
+    override fun pickDate(
+        initialDate: LocalDate?,
+        minDate: LocalDate?,
+        maxDate: LocalDate?,
+        onDatePick: (LocalDate) -> Unit
+    ) {
         datePickerViewState = DatePickerViewState(
             initialDate = initialDate,
+            minDate = minDate,
+            maxDate = maxDate,
             onDatePicked = onDatePick
         )
     }
@@ -153,9 +178,14 @@ class AndroidDateTimePicker @Inject constructor(
 
     @Immutable
     data class DatePickerViewState(
-        val initialDate: Instant?,
+        val initialDate: LocalDate?,
+        val minDate: LocalDate?,
+        val maxDate: LocalDate?,
         val onDatePicked: (LocalDate) -> Unit
-    )
+    ) {
+        fun allows(date: LocalDate): Boolean =
+            (minDate == null || date >= minDate) && (maxDate == null || date <= maxDate)
+    }
 
     @Immutable
     data class TimePickerViewState(
@@ -163,3 +193,9 @@ class AndroidDateTimePicker @Inject constructor(
         val onTimePicked: (LocalTime) -> Unit
     )
 }
+
+// The Material 3 date picker counts a day as the UTC midnight that starts it, whatever the
+// device's time zone, so dates convert to and from it in UTC.
+private fun LocalDate.toUtcMillis(): Long = atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+private fun Long.toUtcDate(): LocalDate = Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()

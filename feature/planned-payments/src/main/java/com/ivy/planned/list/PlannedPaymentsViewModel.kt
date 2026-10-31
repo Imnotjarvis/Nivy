@@ -56,73 +56,18 @@ class PlannedPaymentsViewModel @Inject constructor(
         }
 
         return PlannedPaymentsScreenState(
-            currency = getCurrency(),
-            categories = getCategories(),
-            accounts = getAccounts(),
-            oneTimeIncome = getOneTimeIncome(),
-            oneTimeExpenses = getOneTimeExpenses(),
-            recurringExpenses = getRecurringExpenses(),
-            recurringIncome = getRecurringIncome(),
-            recurringPlannedPayment = getRecurringPlannedPayment(),
-            oneTimePlannedPayment = getOneTimePlannedPayment(),
-            isOneTimePaymentsExpanded = getOneTimePaymentsExpanded(),
-            isRecurringPaymentsExpanded = getRecurringPaymentsExpanded()
+            currency = currency,
+            categories = categories,
+            accounts = accounts,
+            oneTimeIncome = oneTimeIncome,
+            oneTimeExpenses = oneTimeExpenses,
+            recurringExpenses = recurringExpenses,
+            recurringIncome = recurringIncome,
+            recurringPlannedPayment = recurringPlannedPayment,
+            oneTimePlannedPayment = oneTimePlannedPayment,
+            isOneTimePaymentsExpanded = isOneTimePaymentsExpanded,
+            isRecurringPaymentsExpanded = isRecurringPaymentsExpanded
         )
-    }
-
-    @Composable
-    private fun getCurrency(): String {
-        return currency
-    }
-
-    @Composable
-    private fun getCategories(): ImmutableList<Category> {
-        return categories
-    }
-
-    @Composable
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts
-    }
-
-    @Composable
-    private fun getOneTimePlannedPayment(): ImmutableList<PlannedPaymentRule> {
-        return oneTimePlannedPayment
-    }
-
-    @Composable
-    private fun getRecurringPlannedPayment(): ImmutableList<PlannedPaymentRule> {
-        return recurringPlannedPayment
-    }
-
-    @Composable
-    private fun getOneTimeExpenses(): Double {
-        return oneTimeExpenses
-    }
-
-    @Composable
-    private fun getOneTimeIncome(): Double {
-        return oneTimeIncome
-    }
-
-    @Composable
-    private fun getRecurringExpenses(): Double {
-        return recurringExpenses
-    }
-
-    @Composable
-    private fun getRecurringIncome(): Double {
-        return recurringIncome
-    }
-
-    @Composable
-    private fun getRecurringPaymentsExpanded(): Boolean {
-        return isRecurringPaymentsExpanded
-    }
-
-    @Composable
-    private fun getOneTimePaymentsExpanded(): Boolean {
-        return isOneTimePaymentsExpanded
     }
 
     override fun onEvent(event: PlannedPaymentsScreenEvent) {

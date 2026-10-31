@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 
 // A Material3 switch in Ivy's colors: green when on, a gray outline when off.
 @Composable

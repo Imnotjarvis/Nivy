@@ -32,18 +32,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.model.Theme
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.design.system.typography.numberTitleSmall
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.humanReadableType
-import com.ivy.legacy.ui.previewLoan
-import com.ivy.legacy.utils.getDefaultFIATCurrency
-import com.ivy.legacy.utils.horizontalSwipeListener
-import com.ivy.legacy.utils.rememberSwipeListenerState
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.humanReadableType
+import com.ivy.wallet.ui.previewLoan
+import com.ivy.wallet.utils.getDefaultFIATCurrency
+import com.ivy.wallet.utils.horizontalSwipeListener
+import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.loans.loan.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.loans.loan.data.DisplayLoan
 import com.ivy.navigation.LoanDetailsScreen
-import com.ivy.navigation.LoansScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
@@ -67,7 +66,7 @@ import com.ivy.design.system.shapes.ShapeTop16
 import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
-fun BoxWithConstraintsScope.LoansScreen(screen: LoansScreen) {
+fun BoxWithConstraintsScope.LoansScreen() {
     val viewModel: LoanViewModel = viewModel()
     val state = viewModel.uiState()
     UI(

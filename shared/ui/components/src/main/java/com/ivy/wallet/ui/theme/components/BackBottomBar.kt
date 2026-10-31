@@ -20,12 +20,13 @@ import androidx.compose.material3.MaterialTheme
 @Composable
 fun BoxWithConstraintsScope.BackBottomBar(
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     bottomInset: Dp = navigationBarInset().toDensityDp(),
-    PrimaryAction: @Composable () -> Unit,
+    primaryAction: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
     ActionsRow(
-        modifier = Modifier
+        modifier = modifier
             .align(Alignment.BottomCenter)
             .gradientCutBackgroundTop(MaterialTheme.colorScheme.surface, density)
             .padding(bottom = bottomInset)
@@ -42,7 +43,7 @@ fun BoxWithConstraintsScope.BackBottomBar(
 
         Spacer(Modifier.weight(1f))
 
-        PrimaryAction()
+        primaryAction()
 
         Spacer(Modifier.width(20.dp))
     }

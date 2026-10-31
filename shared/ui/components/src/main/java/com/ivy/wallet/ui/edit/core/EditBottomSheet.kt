@@ -45,23 +45,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.data.model.Account
 import com.ivy.design.utils.LocalScreenSize
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope
-import com.ivy.legacy.ui.previewAccount
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.ui.previewAccount
+import com.ivy.wallet.utils.format
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInsets
-import com.ivy.legacy.utils.springBounce
+import com.ivy.wallet.utils.springBounce
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.utils.verticalSwipeListener
+import com.ivy.wallet.utils.verticalSwipeListener
 import com.ivy.base.model.TransactionType
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.utils.rememberSwipeListenerState
+import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.design.system.colors.Gradient
@@ -106,7 +106,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     currency: String,
     amountModalShown: Boolean,
     setAmountModalShown: (Boolean) -> Unit,
-    ActionButton: @Composable () -> Unit,
+    actionButton: @Composable () -> Unit,
     onAmountChanged: (Double) -> Unit,
     onSelectedAccountChanged: (Account) -> Unit,
     onToAccountChanged: (Account) -> Unit,
@@ -263,7 +263,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
         keyboardShownInsetDp = keyboardShownInsetDp,
         navBarPadding = navBarPadding,
 
-        ActionButton = ActionButton
+        actionButton = actionButton
     )
 
     val amountModalId = remember(initialTransactionId, amount) {
@@ -274,7 +274,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
         visible = amountModalShown,
         currency = currency,
         initialAmount = amount.takeIf { it > 0 },
-        Header = {
+        header = {
             Spacer(Modifier.height(24.dp))
 
             Text(
@@ -314,7 +314,7 @@ private fun BottomBar(
     internalExpanded: Boolean,
     setInternalExpanded: (Boolean) -> Unit,
     navBarPadding: Dp,
-    ActionButton: @Composable () -> Unit
+    actionButton: @Composable () -> Unit
 ) {
     val screenSize = LocalScreenSize.current
 
@@ -360,7 +360,7 @@ private fun BottomBar(
 
         Spacer(Modifier.weight(1f))
 
-        ActionButton()
+        actionButton()
 
         Spacer(Modifier.width(24.dp))
     }
@@ -797,7 +797,7 @@ private fun Preview() {
                 setAmountModalShown = {},
                 initialTransactionId = null,
                 type = TransactionType.INCOME,
-                ActionButton = {
+                actionButton = {
                     ModalSet {
                     }
                 },
@@ -835,7 +835,7 @@ private fun Preview_Transfer() {
                 amountModalShown = false,
                 setAmountModalShown = {},
                 initialTransactionId = UUID.randomUUID(),
-                ActionButton = {
+                actionButton = {
                     ModalSave {
                     }
                 },

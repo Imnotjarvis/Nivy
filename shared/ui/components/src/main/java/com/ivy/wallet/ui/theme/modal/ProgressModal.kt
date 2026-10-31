@@ -23,15 +23,17 @@ fun BoxWithConstraintsScope.ProgressModal(
     title: String,
     description: String,
     visible: Boolean,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     color: Color = MaterialTheme.colorScheme.tertiary,
     dismiss: () -> Unit = {},
 ) {
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {}
+        primaryAction = {}
     ) {
         Spacer(Modifier.height(32.dp))
 

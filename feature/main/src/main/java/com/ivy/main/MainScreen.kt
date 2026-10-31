@@ -14,14 +14,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.accounts.AccountsTab
 import com.ivy.base.model.TransactionType
 import com.ivy.home.HomeTab
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.LocalMainScreenState
-import com.ivy.legacy.data.model.MainTab
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.LocalMainScreenState
+import com.ivy.wallet.data.model.MainTab
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
-import com.ivy.navigation.MainScreen
 import com.ivy.navigation.navigation
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +29,7 @@ import androidx.activity.compose.BackHandler
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
+fun BoxWithConstraintsScope.MainScreen() {
     val viewModel: MainViewModel = viewModel()
 
     val currency by viewModel.currency.observeAsState("")
@@ -45,7 +44,6 @@ fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
         mainScreenState.selectTab(MainTab.HOME)
     }
     UI(
-        screen = screen,
         tab = mainScreenState.tab,
         baseCurrency = currency,
         selectTab = viewModel::selectTab,
@@ -57,7 +55,6 @@ fun BoxWithConstraintsScope.MainScreen(screen: MainScreen) {
 @ExperimentalFoundationApi
 @Composable
 private fun BoxWithConstraintsScope.UI(
-    screen: MainScreen,
     tab: MainTab,
 
     baseCurrency: String,
@@ -136,7 +133,6 @@ private fun BoxWithConstraintsScope.UI(
 private fun PreviewMainScreen() {
     IvyWalletPreview {
         UI(
-            screen = MainScreen,
             tab = MainTab.HOME,
             baseCurrency = "BGN",
             selectTab = {},

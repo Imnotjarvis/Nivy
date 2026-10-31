@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Green
 import androidx.compose.foundation.shape.CircleShape
@@ -47,14 +47,14 @@ fun IvyOutlinedButton(
     Row(
         modifier = modifier
             .clip(CircleShape)
-            .clickable(
-                onClick = onClick,
-            )
             .defaultMinSize(minWidth, minHeight)
             .border(2.dp, borderColor, CircleShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
-            },
+            }
+            .clickable(
+                onClick = onClick,
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -101,13 +101,13 @@ fun IvyOutlinedButtonFillMaxWidth(
         modifier = modifier
             .fillMaxWidth()
             .clip(CircleShape)
-            .clickable(
-                onClick = onClick,
-            )
             .border(2.dp, borderColor, CircleShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
-            },
+            }
+            .clickable(
+                onClick = onClick,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (iconStart != null) {

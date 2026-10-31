@@ -35,15 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.addKeyboardListener
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.utils.formatLocal
+import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -57,6 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -72,7 +73,7 @@ data class RecurringRuleModalData(
 
 @Suppress("ParameterNaming")
 @Composable
-fun BoxWithConstraintsScope.RecurringRuleModal(
+internal fun BoxWithConstraintsScope.RecurringRuleModal(
     modal: RecurringRuleModalData?,
 
     dismiss: () -> Unit,
@@ -99,7 +100,7 @@ fun BoxWithConstraintsScope.RecurringRuleModal(
         visible = modal != null,
         dismiss = dismiss,
         scrollState = modalScrollState,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet(
                 modifier = Modifier.testTag("recurringModalSet"),
                 enabled = validate(oneTime, intervalN, intervalType)
@@ -390,7 +391,7 @@ private fun RootScreen.pickDateAtNoon(
     onDatePicked: (LocalDateTime) -> Unit
 ) {
     pickDate(initialDate = initialDate) {
-        onDatePicked(it.atTime(12, 0))
+        onDatePicked(it.atTime(LocalTime.NOON))
     }
 }
 

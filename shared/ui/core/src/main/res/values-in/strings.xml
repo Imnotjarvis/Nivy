@@ -12,7 +12,6 @@
     <string name="unlock">Buka kunci</string>
     <string name="current_balance">SALDO SAAT INI</string>
     <string name="balance_after_payments">SALDO SETELAH PEMBAYARAN TERENCANA</string>
-    <string name="connect">Hubungkan</string>
     <string name="add_budget">Tambahkan anggaran</string>
     <string name="no_budgets">Tidak ada anggaran</string>
     <string name="no_budgets_text">Anda tidak memiliki anggaran yang diatur.\nKetuk "+ Tambahkan anggaran" untuk menambahkan satu.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Pengeluaran</string>
     <string name="income">Pendapatan</string>
-    <string name="balance">SALDO %1$s</string>
-    <string name="charts">Grafik</string>
-    <string name="period">Periode:</string>
     <string name="categories">Kategori</string>
     <string name="export_csv_file">Ekspor file CSV</string>
     <string name="export_csv_file_standard">Ekspor file CSV dengan opsi standar</string>
@@ -48,8 +44,8 @@
     <string name="convert_xls_to_csv_description">CATATAN: Jika file yang diekspor tidak memiliki ekstensi ".xls", tambahkan manual dengan mengganti nama file.</string>
     <string name="online_csv_converter_free">Konverter CSV Online GRATIS</string>
     <string name="check_email_spam">Periksa folder "Promosi" dan "Spam" email Anda</string>
-    <string name="download_email_file">Unduh file "transactions_export..." yang dilampirkan dalam email.</string>
-    <string name="download_email_file_description">Jika Anda memiliki lebih dari satu mata uang, Anda harus mengunduh setiap file "transactions_export..." dan mengimpornya ke Ivy.</string>
+    <string name="download_email_file">Unduh file "transactions_export…" yang dilampirkan dalam email.</string>
+    <string name="download_email_file_description">Jika Anda memiliki lebih dari satu mata uang, Anda harus mengunduh setiap file "transactions_export…" dan mengimpornya ke Nivy.</string>
     <string name="import_from">Impor dari</string>
     <string name="please_wait">Harap tunggu</string>
     <string name="importing_the_csv_file">Mengimpor file CSV</string>
@@ -115,7 +111,7 @@
     <string name="add_income">Tambahkan pendapatan</string>
     <string name="add_expense">Tambahkan pengeluaran</string>
     <string name="unspecified">Tidak ditentukan</string>
-    <string name="percent">%1$s%%</string>
+    <string name="percent">%1$s\%%</string>
     <string name="account_transfers">Transfer Akun</string>
     <string name="no_transactions_for_period">Anda tidak memiliki transaksi untuk %1$s.\nAnda dapat menambahkan satu dengan menggeser ke bawah dan mengetuk tombol "Tambahkan pendapatan" atau "Tambahkan pengeluaran" di bagian atas.</string>
     <string name="account_confirm_deletion_description">Catatan: Menghapus akun ini akan menghapusnya secara permanen dan menghapus semua transaksi yang terkait dengannya.</string>
@@ -130,12 +126,9 @@
     <string name="account_transfer">TRANSFER AKUN</string>
     <string name="skip">Lewati</string>
     <string name="add_new">Tambahkan baru</string>
-    <string name="range">Rentang</string>
-    <string name="enter_your_name">Masukkan nama anda\nuntuk personalisasi\ndompet Anda</string>
     <string name="what_is_your_name">Apa nama Anda?</string>
     <string name="enter">Masukkan</string>
     <string name="add_accounts">Tambahkan akun</string>
-    <string name="suggestion">Saran</string>
     <string name="next">Berikutnya</string>
     <string name="add_categories">Tambahkan kategori</string>
     <string name="suggestions">Saran</string>
@@ -143,7 +136,7 @@
     <string name="your_personal_money_manager">Manajer uang pribadi Anda</string>
     <string name="continue_offline">Lanjutkan secara offline</string>
     <string name="import_csv_file">Impor File CSV</string>
-    <string name="from_ivy_or_another_app">dari Ivy atau aplikasi lainnya</string>
+    <string name="from_ivy_or_another_app">dari Nivy atau aplikasi lainnya</string>
     <string name="importing_another_time_warning">Mengimpor file cadangan dari aplikasi lain dapat memakan waktu hingga 5 menit. Anda selalu dapat mengimpor data Anda nanti jika Anda menginginkannya.</string>
     <string name="import_backup_file">Impor file cadangan</string>
     <string name="start_fresh">Mulai dari awal</string>
@@ -214,7 +207,6 @@
     <string name="hide_balance_description">Klik pada saldo yang tersembunyi untuk menampilkan saldo selama 5 detik</string>
     <string name="hide_income">Sembunyikan pendapatan</string>
     <string name="hide_income_description">Klik pada pendapatan yang tersembunyi untuk menampilkan saldo selama 5 detik</string>
-    <string name="other">Lainnya</string>
     <string name="danger_zone">Zona Bahaya</string>
     <string name="delete_all_user_data">Hapus semua data pengguna</string>
     <string name="delete_all_user_data_question">Hapus semua data pengguna?</string>
@@ -227,7 +219,6 @@
     <string name="exporting_data_description">Harap tunggu, mengekspor data</string>
     <string name="start_date_of_month">Tanggal Mulai Bulan</string>
     <string name="account_uppercase">AKUN</string>
-    <string name="logout">Keluar</string>
     <string name="anonymous">Anonim</string>
     <string name="export_to_csv">Ekspor ke CSV</string>
     <string name="left_to_spend">Sisa yang dapat dihabiskan</string>
@@ -262,7 +253,6 @@
     <string name="delete">Hapus</string>
     <string name="save">Simpan</string>
     <string name="add">Tambahkan</string>
-    <string name="create">Buat</string>
     <string name="edit_loan">Edit pinjaman</string>
     <string name="new_loan">Pinjaman baru</string>
     <string name="loan_name">Nama pinjaman</string>
@@ -322,10 +312,9 @@
     <string name="create_first_planned_payment">Buat pembayaran terencana pertama Anda</string>
     <string name="create_first_planned_payment_description">Automatisasi pelacakan transaksi berulang seperti langganan, sewa, gaji, dll. Tetap unggul dalam keuangan dengan mengetahui berapa banyak yang harus Anda bayar/dapatkan di muka.</string>
     <string name="did_you_know">Tahukah Anda?</string>
-    <string name="widget_description">Ivy Wallet memiliki widget keren yang memungkinkan Anda menambahkan transaksi PENDAPATAN/PENGELUARAN/PENYALURAN dengan 1 klik dari beranda Anda\n\nCatatan: Jika tombol "Tambah widget" tidak berfungsi, tambahkan secara manual dari menu widget peluncur Anda.</string>
+    <string name="widget_description">Nivy memiliki widget keren yang memungkinkan Anda menambahkan transaksi PENDAPATAN/PENGELUARAN/PENYALURAN dengan 1 klik dari beranda Anda\n\nCatatan: Jika tombol "Tambah widget" tidak berfungsi, tambahkan secara manual dari menu widget peluncur Anda.</string>
     <string name="add_widget">Tambahkan widget</string>
     <string name="expenses_piechart">Diagram Lingkaran Pengeluaran</string>
-    <string name="adjust_balance">Atur saldo</string>
     <string name="authentication_required">Autentikasi diperlukan</string>
     <string name="authentication_required_description">Buktikan bahwa Anda memiliki akses ke perangkat ini untuk membuka kunci aplikasi.</string>
     <string name="total_budget">Total Anggaran</string>
@@ -361,7 +350,6 @@
     <string name="skip_all">Lewati semua</string>
     <string name="confirm_skip_all">Konfirmasi lewati semua</string>
     <string name="confirm_skip_all_description">Apakah Anda yakin ingin melewati semua pembayaran yang tertunda?</string>
-    <string name="experimental">Eksperimental</string>
     <string name="wallet_balance">Saldo dompet</string>
     <string name="total_exclusive">Total (eksklusif): %1$s %2$s</string>
     <string name="total_balance">Total dompet</string>

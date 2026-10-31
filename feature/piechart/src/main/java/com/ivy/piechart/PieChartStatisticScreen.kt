@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -46,10 +48,10 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.drawColoredShadow
-import com.ivy.legacy.LocalPeriodState
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.horizontalSwipeListener
-import com.ivy.legacy.utils.rememberSwipeListenerState
+import com.ivy.wallet.LocalPeriodState
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.horizontalSwipeListener
+import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.TransactionsScreen
@@ -115,10 +117,11 @@ private fun BoxWithConstraintsScope.UI(
     val lazyState = rememberScrollPositionListState(
         key = "item_pie_chart_lazy_column"
     )
-    val expanded = lazyState.firstVisibleItemIndex < 1
+    // Recomposes when this flips, not on every scrolled item.
+    val expanded by remember { derivedStateOf { lazyState.firstVisibleItemIndex < 1 } }
     val percentExpanded by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
-        animationSpec = com.ivy.legacy.utils.springBounce(),
+        animationSpec = com.ivy.wallet.utils.springBounce(),
         label = "percent expanded"
     )
 
@@ -248,7 +251,7 @@ private fun BoxWithConstraintsScope.UI(
 @Composable
 private fun Header(
     transactionType: TransactionType,
-    period: com.ivy.legacy.data.model.TimePeriod,
+    period: com.ivy.wallet.data.model.TimePeriod,
     percentExpanded: Float,
 
     currency: String,
@@ -403,7 +406,7 @@ private fun CategoryAmountCard(
             iconName = category?.icon?.id,
             tint = findContrastTextColor(categoryColor),
             iconContentScale = ContentScale.None,
-            Default = {
+            default = {
                 ItemIconMDefaultIcon(
                     modifier = Modifier.background(categoryColor, CircleShape),
                     iconName = category?.icon?.id,
@@ -480,10 +483,10 @@ private fun PercentText(
 @Preview
 @Composable
 private fun Preview_Expense() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         val state = PieChartStatisticState(
             transactionType = TransactionType.EXPENSE,
-            period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+            period = com.ivy.wallet.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = 1,
                 timeProvider = DeviceTimeProvider(),
             ), // preview
@@ -572,10 +575,10 @@ private fun Preview_Expense() {
 @Preview
 @Composable
 private fun Preview_Income() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         val state = PieChartStatisticState(
             transactionType = TransactionType.INCOME,
-            period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+            period = com.ivy.wallet.data.model.TimePeriod.currentMonth(
                 startDayOfMonth = 1,
                 timeProvider = DeviceTimeProvider(),
             ), // preview

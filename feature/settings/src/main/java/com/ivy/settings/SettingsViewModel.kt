@@ -24,10 +24,10 @@ import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.ivy.legacy.ThemeState
-import com.ivy.legacy.utils.getISOFormattedDateTime
-import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.uiThread
+import com.ivy.wallet.ThemeState
+import com.ivy.wallet.utils.getISOFormattedDateTime
+import com.ivy.wallet.utils.ioThread
+import com.ivy.wallet.utils.uiThread
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.ui.ComposeViewModel
@@ -76,16 +76,16 @@ class SettingsViewModel @Inject constructor(
         }
 
         return SettingsState(
-            currencyCode = getCurrencyCode(),
-            name = getName(),
-            currentTheme = getCurrentTheme(),
-            lockApp = getLockApp(),
-            showNotifications = getShowNotifications(),
-            hideCurrentBalance = getHideCurrentBalance(),
-            treatTransfersAsIncomeExpense = getTreatTransfersAsIncomeExpense(),
-            startDateOfMonth = getStartDateOfMonth(),
-            progressState = getProgressState(),
-            hideIncome = getHideIncome(),
+            currencyCode = currencyCode.value,
+            name = name.value,
+            currentTheme = currentTheme.value,
+            lockApp = lockApp.value,
+            showNotifications = showNotifications.value,
+            hideCurrentBalance = hideCurrentBalance.value,
+            treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
+            startDateOfMonth = startDateOfMonth.intValue.toString(),
+            progressState = progressState.value,
+            hideIncome = hideIncome.value,
             languageOptionVisible = isLanguageOptionVisible()
         )
     }
@@ -136,56 +136,6 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun initializeStartDateOfMonth() {
         startDateOfMonth.intValue = startDayOfMonthAct()
-    }
-
-    @Composable
-    private fun getCurrencyCode(): String {
-        return currencyCode.value
-    }
-
-    @Composable
-    private fun getName(): String {
-        return name.value
-    }
-
-    @Composable
-    private fun getCurrentTheme(): Theme {
-        return currentTheme.value
-    }
-
-    @Composable
-    private fun getLockApp(): Boolean {
-        return lockApp.value
-    }
-
-    @Composable
-    private fun getShowNotifications(): Boolean {
-        return showNotifications.value
-    }
-
-    @Composable
-    private fun getHideCurrentBalance(): Boolean {
-        return hideCurrentBalance.value
-    }
-
-    @Composable
-    private fun getHideIncome(): Boolean {
-        return hideIncome.value
-    }
-
-    @Composable
-    private fun getTreatTransfersAsIncomeExpense(): Boolean {
-        return treatTransfersAsIncomeExpense.value
-    }
-
-    @Composable
-    private fun getStartDateOfMonth(): String {
-        return startDateOfMonth.intValue.toString()
-    }
-
-    @Composable
-    private fun getProgressState(): Boolean {
-        return progressState.value
     }
 
     private fun isLanguageOptionVisible(): Boolean {

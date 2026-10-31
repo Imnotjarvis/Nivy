@@ -8,8 +8,8 @@ import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.data.model.Category
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.data.model.AccountBalance
+import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.ImportScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
@@ -17,14 +17,17 @@ import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingState
 import com.ivy.onboarding.StarterData
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
+
+private val SplashDuration = 1.seconds
 
 class OnboardingRouter(
     private val state: MutableState<OnboardingState>,
@@ -90,7 +93,7 @@ class OnboardingRouter(
     // ------------------------------------- Step 0 - Splash ----------------------------------------
     suspend fun splashNext() {
         if (state.value == OnboardingState.SPLASH) {
-            delay(1000)
+            delay(SplashDuration)
 
             state.value = OnboardingState.LOGIN
         }

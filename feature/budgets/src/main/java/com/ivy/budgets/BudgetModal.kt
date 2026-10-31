@@ -31,9 +31,9 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
-import com.ivy.domain.legacy.ui.theme.components.ListItem
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
+import com.ivy.wallet.ui.theme.components.ListItem
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.theme.modal.ModalNameInput
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Green
@@ -63,7 +63,7 @@ data class BudgetModalData(
 )
 
 @Composable
-fun BoxWithConstraintsScope.BudgetModal(
+internal fun BoxWithConstraintsScope.BudgetModal(
     modal: BudgetModalData?,
 
     onCreate: (name: NotBlankTrimmedString, amount: PositiveDouble, categories: List<CategoryId>) -> Unit,
@@ -89,7 +89,7 @@ fun BoxWithConstraintsScope.BudgetModal(
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             val name = NotBlankTrimmedString.from(nameTextFieldValue.text).getOrNull()
             val positiveAmount = PositiveDouble.from(amount).getOrNull()
             ModalAddSave(

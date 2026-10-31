@@ -5,9 +5,9 @@ import com.ivy.data.model.AccountId
 import com.ivy.data.model.Transaction
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.TagRepository
-import com.ivy.legacy.domain.pure.transaction.transactionsWithDateDividers
+import com.ivy.wallet.domain.pure.transaction.transactionsWithDateDividers
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.legacy.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -2,7 +2,7 @@ package com.ivy.wallet.domain.action.global
 
 import arrow.core.Either
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.legacy.PeriodState
+import com.ivy.wallet.PeriodState
 import javax.inject.Inject
 
 class UpdateStartDayOfMonthAct @Inject constructor(

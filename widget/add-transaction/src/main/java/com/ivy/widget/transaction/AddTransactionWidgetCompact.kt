@@ -3,9 +3,9 @@ package com.ivy.widget.transaction
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.Intent
 import android.widget.RemoteViews
-import com.ivy.widgets.WidgetBase
+import com.ivy.base.model.TransactionType
+import com.ivy.widget.WidgetBase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -43,19 +43,10 @@ class AddTransactionWidgetCompact : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val rv = RemoteViews(context.packageName, R.layout.widget_add_transaction_compact)
-        val clickSetup = AddTransactionWidgetClick.Setup(context, rv, appWidgetId)
-
-        clickSetup.clickListener(R.id.ivIncome, AddTransactionWidgetClick.ACTION_ADD_INCOME)
-
-        clickSetup.clickListener(R.id.ivExpense, AddTransactionWidgetClick.ACTION_ADD_EXPENSE)
-
-        clickSetup.clickListener(R.id.ivTransfer, AddTransactionWidgetClick.ACTION_ADD_TRANSFER)
+        widgetClick.setClickListener(context, rv, R.id.ivIncome, TransactionType.INCOME)
+        widgetClick.setClickListener(context, rv, R.id.ivExpense, TransactionType.EXPENSE)
+        widgetClick.setClickListener(context, rv, R.id.ivTransfer, TransactionType.TRANSFER)
 
         appWidgetManager.updateAppWidget(appWidgetId, rv)
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        widgetClick.handleClick(intent)
     }
 }

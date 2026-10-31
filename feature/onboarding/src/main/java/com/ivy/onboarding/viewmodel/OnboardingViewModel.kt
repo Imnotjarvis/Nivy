@@ -16,9 +16,9 @@ import com.ivy.ui.ComposeViewModel
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.data.model.AccountBalance
+import com.ivy.wallet.domain.logic.AccountCreator
+import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingDetailState
@@ -27,10 +27,10 @@ import com.ivy.onboarding.OnboardingState
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
+import com.ivy.wallet.domain.logic.CategoryCreator
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList

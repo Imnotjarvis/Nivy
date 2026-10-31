@@ -2,7 +2,7 @@ package com.ivy.home
 
 import com.ivy.data.model.Transaction
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.data.model.TimePeriod
 
 sealed interface HomeEvent {
     data class SetUpcomingExpanded(val expanded: Boolean) : HomeEvent
@@ -16,8 +16,6 @@ sealed interface HomeEvent {
     data object SwitchTheme : HomeEvent
 
     data class SetBuffer(val buffer: Double) : HomeEvent
-
-    data class SetCurrency(val currency: String) : HomeEvent
 
     data class SetPeriod(val period: TimePeriod) : HomeEvent
 

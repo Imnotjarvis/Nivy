@@ -61,7 +61,7 @@ android {
 
             signingConfig = signingConfigs.getByName("release")
 
-            resValue("string", "app_name", "Ivy Wallet")
+            resValue("string", "app_name", "Nivy")
         }
 
         debug {
@@ -74,7 +74,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
 
             applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "Ivy Wallet Debug")
+            resValue("string", "app_name", "Nivy Debug")
         }
 
         create("demo") {
@@ -93,7 +93,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
 
             applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "Ivy Wallet")
+            resValue("string", "app_name", "Nivy")
         }
     }
 
@@ -123,7 +123,6 @@ android {
         checkDependencies = true
         abortOnError = false
         checkReleaseBuilds = false
-        baseline = file("lint-baseline.xml")
         lintConfig = rootProject.file("lint.xml")
     }
 }
@@ -164,7 +163,6 @@ dependencies {
     implementation(libs.androidx.biometrics)
 
     implementation(libs.bundles.hilt)
-    implementation(libs.material)
     ksp(libs.hilt.compiler)
 
     implementation(libs.bundles.room)

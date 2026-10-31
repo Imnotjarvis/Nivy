@@ -39,16 +39,16 @@ import com.ivy.base.model.processByType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanRecord
-import com.ivy.data.model.LoanType
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.humanReadableType
-import com.ivy.legacy.ui.component.ItemStatisticToolbar
-import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
+import com.ivy.base.model.LoanType
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.humanReadableType
+import com.ivy.wallet.ui.component.ItemStatisticToolbar
+import com.ivy.wallet.ui.component.transaction.TypeAmountCurrency
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.drawColoredShadow
-import com.ivy.legacy.ui.previewLoan
-import com.ivy.legacy.ui.previewLoanRecord
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.ui.previewLoan
+import com.ivy.wallet.ui.previewLoanRecord
+import com.ivy.wallet.utils.format
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.loans.loan.data.DisplayLoanRecord
@@ -654,10 +654,10 @@ private fun LoanRecordItem(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             }
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_record_item")
     ) {
         if (account != null || loanRecord.interest) {

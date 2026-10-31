@@ -23,8 +23,8 @@ import com.ivy.base.model.Theme
 import com.ivy.exchangerates.component.RateItem
 import com.ivy.exchangerates.data.RateUi
 import com.ivy.exchangerates.modal.AddRateModal
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ui.SearchInput
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.SearchInput
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.navigation
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
@@ -135,7 +135,7 @@ private fun BoxWithConstraintsScope.UI(
             amountModalVisible = false
         },
         decimalCountMax = 12,
-        Header = {
+        header = {
             rateToUpdate?.let {
                 Spacer(Modifier.height(24.dp))
                 Text(

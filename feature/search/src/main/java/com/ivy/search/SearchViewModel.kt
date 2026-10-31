@@ -11,13 +11,13 @@ import com.ivy.ui.ComposeViewModel
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
-import com.ivy.legacy.utils.getDefaultFIATCurrency
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.utils.getDefaultFIATCurrency
+import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.AllTrnsAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
-import com.ivy.legacy.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

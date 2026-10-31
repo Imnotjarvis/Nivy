@@ -37,23 +37,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
-import com.ivy.domain.legacy.ui.IvyColorPicker
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.ui.IvyColorPicker
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.theme.components.DateTimeRow
+import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateLoanData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateLoanData
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
@@ -93,6 +92,7 @@ fun BoxWithConstraintsScope.LoanModal(
     onSetTime: () -> Unit,
     onCreateLoan: (CreateLoanData) -> Unit,
     onEditLoan: (Loan, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     accounts: List<Account> = emptyList(),
     onCreateAccount: (CreateAccountData) -> Unit = {},
     onPerformCalculations: () -> Unit = {},
@@ -144,14 +144,14 @@ fun BoxWithConstraintsScope.LoanModal(
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = false,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = modal?.loan,
-                // enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && ((createLoanTrans && selectedAcc != null) || !createLoanTrans)
                 enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && selectedAcc != null
             ) {
                 accountChangeModal =

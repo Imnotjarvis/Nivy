@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.shortenAmount
-import com.ivy.legacy.utils.shouldShortAmount
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.shortenAmount
+import com.ivy.wallet.utils.shouldShortAmount
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
@@ -24,10 +24,12 @@ import com.ivy.design.system.typography.numberTitleLarge
 fun AmountCurrencyB2Row(
     amount: Double,
     currency: String,
+    modifier: Modifier = Modifier,
     amountFontWeight: FontWeight = FontWeight.ExtraBold,
     textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -53,10 +55,12 @@ fun AmountCurrencyB2Row(
 fun AmountCurrencyB1Row(
     amount: Double,
     currency: String,
+    modifier: Modifier = Modifier,
     amountFontWeight: FontWeight = FontWeight.Bold,
     textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         AmountCurrencyB1(
@@ -77,6 +81,7 @@ fun AmountCurrencyB1Row(
 fun AmountCurrencyB1(
     amount: Double,
     currency: String,
+    modifier: Modifier = Modifier,
     amountFontWeight: FontWeight = FontWeight.Bold,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     shortenBigNumbers: Boolean = false
@@ -84,7 +89,7 @@ fun AmountCurrencyB1(
     val shortAmount = shortenBigNumbers && shouldShortAmount(amount)
     val text = if (shortAmount) shortenAmount(amount) else amount.format(currency)
     Text(
-        modifier = Modifier.testTag("amount_currency_b1"),
+        modifier = modifier.testTag("amount_currency_b1"),
         text = text,
         style = MaterialTheme.typography.numberTitleLarge.copy(
             color = textColor,

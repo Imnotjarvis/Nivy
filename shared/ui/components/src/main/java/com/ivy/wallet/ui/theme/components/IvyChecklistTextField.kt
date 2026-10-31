@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -25,10 +26,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.rememberInteractionSource
 import androidx.compose.material3.MaterialTheme
 
@@ -65,7 +66,7 @@ fun IvyChecklistTextField(
             else -> Alignment.CenterEnd
         }
     ) {
-        val inputFieldFocus = FocusRequester()
+        val inputFieldFocus = remember { FocusRequester() }
 
         if (isEmpty && hint.isNotNullOrBlank()) {
             Text(
@@ -143,7 +144,8 @@ private fun PreviewIvyTextField_longText() {
                 .background(MaterialTheme.colorScheme.error)
                 .padding(horizontal = 24.dp),
             value = TextFieldValue(
-                "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."
+                "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, " +
+                "there is chaos, it contacts with light."
             ),
             hint = "Hint",
             onValueChanged = {}

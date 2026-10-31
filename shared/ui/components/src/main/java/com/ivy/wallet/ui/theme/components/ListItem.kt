@@ -1,0 +1,78 @@
+package com.ivy.wallet.ui.theme.components
+
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.ivy.design.utils.thenIf
+import com.ivy.design.system.colors.findContrastTextColor
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+
+@Composable
+fun ListItem(
+    icon: String?,
+    @DrawableRes defaultIcon: Int,
+    text: String,
+    selectedColor: Color?,
+    modifier: Modifier = Modifier,
+    onClick: (selected: Boolean) -> Unit
+) {
+    val textColor =
+        if (selectedColor != null) findContrastTextColor(selectedColor) else MaterialTheme.colorScheme.onSurface
+
+    val medium = MaterialTheme.colorScheme.surfaceVariant
+    val rFull = CircleShape
+
+    Row(
+        modifier = modifier
+            .clip(CircleShape)
+            .thenIf(selectedColor == null) {
+                border(2.dp, medium, rFull)
+            }
+            .thenIf(selectedColor != null) {
+                background(selectedColor!!, rFull)
+            }
+            .clickable(
+                onClick = {
+                    onClick(selectedColor != null)
+                }
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(12.dp))
+
+        ItemIconSDefaultIcon(
+            iconName = icon,
+            defaultIcon = defaultIcon,
+            tint = textColor
+        )
+
+        Spacer(Modifier.width(4.dp))
+
+        Text(
+            modifier = Modifier.padding(vertical = 10.dp),
+            text = text,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = textColor,
+                fontWeight = FontWeight.ExtraBold
+            )
+        )
+
+        Spacer(Modifier.width(24.dp))
+    }
+
+    Spacer(Modifier.width(12.dp))
+}

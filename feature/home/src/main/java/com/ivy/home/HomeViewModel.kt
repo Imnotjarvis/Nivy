@@ -13,27 +13,25 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Transaction
-import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
-import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
-import com.ivy.legacy.MainScreenState
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.ThemeState
-import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.BufferInfo
-import com.ivy.legacy.data.DueSection
-import com.ivy.legacy.data.model.MainTab
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.data.model.toUTCCloseTimeRange
-import com.ivy.legacy.domain.action.viewmodel.home.ShouldHideIncomeAct
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.MainScreenState
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.ThemeState
+import com.ivy.wallet.data.AppBaseData
+import com.ivy.wallet.data.BufferInfo
+import com.ivy.wallet.data.DueSection
+import com.ivy.wallet.data.model.MainTab
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.data.model.toUTCCloseTimeRange
+import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideIncomeAct
+import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
@@ -48,7 +46,7 @@ import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideBalanceAct
 import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
-import com.ivy.legacy.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,6 +57,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
+
+// How long a tap shows a hidden balance or income.
+private val RevealHiddenFor = 5.seconds
 
 @Stable
 @HiltViewModel
@@ -83,7 +85,6 @@ class HomeViewModel @Inject constructor(
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val shouldHideBalanceAct: ShouldHideBalanceAct,
     private val shouldHideIncomeAct: ShouldHideIncomeAct,
-    private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features
@@ -134,20 +135,20 @@ class HomeViewModel @Inject constructor(
         }
 
         return HomeState(
-            theme = getTheme(),
-            name = getName(),
-            period = getPeriod(),
-            baseData = getBaseData(),
-            history = getHistory(),
-            stats = getStats(),
-            balance = getBalance(),
-            buffer = getBuffer(),
-            upcoming = getUpcoming(),
-            overdue = getOverdue(),
-            customerJourneyCards = getCustomerJourneyCards(),
-            hideBalance = getHideBalance(),
-            expanded = getExpanded(),
-            hideIncome = getHideIncome(),
+            theme = currentTheme,
+            name = name,
+            period = period,
+            baseData = baseData,
+            history = history,
+            stats = stats,
+            balance = balance,
+            buffer = buffer,
+            upcoming = upcoming,
+            overdue = overdue,
+            customerJourneyCards = customerJourneyCards,
+            hideBalance = hideBalance,
+            expanded = expanded,
+            hideIncome = hideIncome,
             shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions()
         )
     }
@@ -155,76 +156,6 @@ class HomeViewModel @Inject constructor(
     @Composable
     fun getShouldShowAccountSpecificColorInTransactions(): Boolean {
         return features.showAccountColorsInTransactions.asEnabledState()
-    }
-
-    @Composable
-    private fun getTheme(): Theme {
-        return currentTheme
-    }
-
-    @Composable
-    private fun getName(): String {
-        return name
-    }
-
-    @Composable
-    private fun getPeriod(): TimePeriod {
-        return period
-    }
-
-    @Composable
-    private fun getBaseData(): AppBaseData {
-        return baseData
-    }
-
-    @Composable
-    private fun getHistory(): ImmutableList<TransactionHistoryItem> {
-        return history
-    }
-
-    @Composable
-    private fun getStats(): IncomeExpensePair {
-        return stats
-    }
-
-    @Composable
-    private fun getBalance(): BigDecimal {
-        return balance
-    }
-
-    @Composable
-    private fun getBuffer(): BufferInfo {
-        return buffer
-    }
-
-    @Composable
-    private fun getUpcoming(): DueSection {
-        return upcoming
-    }
-
-    @Composable
-    private fun getOverdue(): DueSection {
-        return overdue
-    }
-
-    @Composable
-    private fun getCustomerJourneyCards(): ImmutableList<CustomerJourneyCardModel> {
-        return customerJourneyCards
-    }
-
-    @Composable
-    private fun getHideBalance(): Boolean {
-        return hideBalance
-    }
-
-    @Composable
-    private fun getExpanded(): Boolean {
-        return expanded
-    }
-
-    @Composable
-    private fun getHideIncome(): Boolean {
-        return hideIncome
     }
 
     override fun onEvent(event: HomeEvent) {
@@ -242,7 +173,6 @@ class HomeViewModel @Inject constructor(
                 is HomeEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
                 is HomeEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
                 is HomeEvent.SetBuffer -> setBuffer(event.buffer)
-                is HomeEvent.SetCurrency -> setCurrency(event.currency)
                 HomeEvent.SwitchTheme -> switchTheme()
                 is HomeEvent.DismissCustomerJourneyCard -> dismissCustomerJourneyCard(event.card)
                 is HomeEvent.SetExpanded -> setExpanded(event.expanded)
@@ -411,8 +341,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun onHiddenBalanceClick() {
         hideBalance = false
 
-        // Showing Balance fow 5s
-        delay(5000)
+        delay(RevealHiddenFor)
 
         hideBalance = true
     }
@@ -420,8 +349,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun onHiddenIncomeClick() {
         hideIncome = false
 
-        // Showing Balance fow 5s
-        delay(5000)
+        delay(RevealHiddenFor)
 
         hideIncome = true
     }
@@ -440,15 +368,6 @@ class HomeViewModel @Inject constructor(
             appPreferences.setBufferAmount(newBuffer)
             buffer = buffer.copy(amount = newBuffer.toBigDecimal())
         }
-    }
-
-    private suspend fun setCurrency(newCurrency: String) {
-        appPreferences.setBaseCurrency(newCurrency)
-        // update exchange rates from POV of the new base currency
-        AssetCode.from(newCurrency).onRight {
-            syncExchangeRatesUseCase.sync(it)
-        }
-        reload()
     }
 
     private suspend fun payOrGetPlanned(transaction: Transaction) {

@@ -25,7 +25,7 @@ import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.importdata.csv.ImportantFields
 import com.ivy.importdata.csv.OptionalFields
 import com.ivy.importdata.csv.TransferFields
-import com.ivy.legacy.utils.toLowerCaseLocal
+import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.pure.util.nextOrderNum
 import com.ivy.design.system.colors.Green
@@ -35,6 +35,9 @@ import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.ivy.importdata.csv.CSVRow as CSVRowNew
+
+// Reading the rows takes the first half of the import's progress, saving them the rest.
+private const val SavingStartsAt = 0.5
 
 class CSVImporterV2 @Inject constructor(
     private val transactionRepository: TransactionRepository,
@@ -108,7 +111,7 @@ class CSVImporterV2 @Inject constructor(
             } else {
                 0.0
             }
-            onProgress(0.5 + progressPercent / 2)
+            onProgress(SavingStartsAt + progressPercent * (1 - SavingStartsAt))
             with(transactionMapper) {
                 transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)
@@ -125,6 +128,8 @@ class CSVImporterV2 @Inject constructor(
         )
     }
 
+    // Each `?: return null` skips a row missing a required field.
+    @Suppress("ReturnCount")
     private suspend fun mapToTransaction(
         baseCurrency: String,
         row: CSVRowNew,
@@ -239,6 +244,8 @@ class CSVImporterV2 @Inject constructor(
         )
     }
 
+    // Each early return either finds the account or gives up on the row.
+    @Suppress("ReturnCount")
     private suspend fun mapAccount(
         baseCurrency: String,
         accountNameString: String?,

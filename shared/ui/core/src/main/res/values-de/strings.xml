@@ -12,7 +12,6 @@
     <string name="unlock">Entsperren</string>
     <string name="current_balance">AKTUELLE BILANZ</string>
     <string name="balance_after_payments">BILANZ NACH GEPLANTEN ZAHLUNGEN</string>
-    <string name="connect">Verbinden</string>
     <string name="add_budget">Budget hinzufügen</string>
     <string name="no_budgets">Keine Budgets</string>
     <string name="no_budgets_text">Du hast keine Budgets festgelegt.\nTippe auf "+ Budget hinzufügen", um eines hinzuzufügen.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Ausgaben</string>
     <string name="income">Einnahmen</string>
-    <string name="balance">BILANZ %1$s</string>
-    <string name="charts">Diagramme</string>
-    <string name="period">Zeitraum:</string>
     <string name="categories">Kategorien</string>
     <string name="export_csv_file">CSV-Datei exportieren</string>
     <string name="export_csv_file_standard">CSV-Datei mit Standardoptionen exportieren</string>
@@ -49,7 +45,7 @@
     <string name="online_csv_converter_free">Online CSV-Konverter KOSTENLOS</string>
     <string name="check_email_spam">Überprüfe den "Werbung"- und "Spam"-Ordner in deiner E-Mail</string>
     <string name="download_email_file">Lade die Datei \"transactions_export…\" herunter, die der E-Mail angehängt ist.</string>
-    <string name="download_email_file_description">Wenn du mehr als eine Währung hast, musst du jede \"transactions_export…\"-Datei herunterladen und sie in Ivy importieren.</string>
+    <string name="download_email_file_description">Wenn du mehr als eine Währung hast, musst du jede \"transactions_export…\"-Datei herunterladen und sie in Nivy importieren.</string>
     <string name="import_from">Importieren von</string>
     <string name="please_wait">Bitte warten</string>
     <string name="importing_the_csv_file">Importieren der CSV-Datei</string>
@@ -130,8 +126,6 @@
     <string name="account_transfer">KONTO\nÜBERTRAG</string>
     <string name="skip">Überspringen</string>
     <string name="add_new">Neu hinzufügen</string>
-    <string name="range">Bereich</string>
-    <string name="enter_your_name">Gib deinen Namen ein, um dein Wallet zu personalisieren.</string>
     <string name="what_is_your_name">Wie heißt du?</string>
     <string name="enter">Eingeben</string>
     <string name="add_accounts">Konten hinzufügen</string>
@@ -142,7 +136,7 @@
     <string name="your_personal_money_manager">Dein persönlicher Geldverwalter</string>
     <string name="continue_offline">Offline fortfahren</string>
     <string name="import_csv_file">CSV-Datei importieren</string>
-    <string name="from_ivy_or_another_app">von Ivy oder einer anderen App</string>
+    <string name="from_ivy_or_another_app">von Nivy oder einer anderen App</string>
     <string name="importing_another_time_warning">Das Importieren einer Sicherungsdatei von einer anderen kann bis zu 5 Minuten dauern. Du kannst deine Daten jederzeit später importieren, wenn du das möchtest.</string>
     <string name="import_backup_file">Sicherungsdatei importieren</string>
     <string name="start_fresh">Frisch starten</string>
@@ -213,7 +207,6 @@
     <string name="hide_balance_description">Klicke auf die ausgeblendete Bilanz, um den Wert für 5s anzuzeigen</string>
     <string name="hide_income">Einnahmen ausblenden</string>
     <string name="hide_income_description">Klicke auf die ausgeblendete Einnahme, um den Wert für 5s anzuzeigen</string>
-    <string name="other">Ander</string>
     <string name="danger_zone">Danger-Zone</string>
     <string name="delete_all_user_data">Alle Benutzerdaten löschen</string>
     <string name="delete_all_user_data_question">Alle Benutzerdaten löschen?</string>
@@ -226,7 +219,6 @@
     <string name="exporting_data_description">Bitte warten, Daten wird exportiert</string>
     <string name="start_date_of_month">Startdatum des Monats</string>
     <string name="account_uppercase">KONTO</string>
-    <string name="logout">Abmelden</string>
     <string name="anonymous">Anonym</string>
     <string name="export_to_csv">In CSV exportieren</string>
     <string name="left_to_spend">Übrig zum Ausgeben</string>
@@ -260,7 +252,6 @@
     <string name="delete">Löschen</string>
     <string name="save">Speichern</string>
     <string name="add">Hinzufügen</string>
-    <string name="create">Erstellen</string>
     <string name="edit_loan">Darlehen bearbeiten</string>
     <string name="new_loan">Neues Darlehen</string>
     <string name="loan_name">Darlehensname</string>
@@ -320,10 +311,9 @@
     <string name="create_first_planned_payment">Erstelle deine erste geplante Zahlung</string>
     <string name="create_first_planned_payment_description">Automatisiere die Verfolgung von wiederkehrenden Transaktionen wie Abonnements, Miete, Gehalt usw. Behalte den Überblick über deine Finanzen, indem du weißt, wie viel du im Voraus bezahlen/bekommen musst.</string>
     <string name="did_you_know">Wusstest du schon?</string>
-    <string name="widget_description">Ivy Wallet verfügt über ein cooles Widget, mit dem du EINNAHMEN-/AUSGABEN-/ÜBERTRAGSTRANSAKTIONEN mit nur einem Klick von deiner Startseite aus hinzufügen kannst\n\nHinweis: Wenn die Schaltfläche "Widget hinzufügen" nicht funktioniert, füge es bitte manuell über das Menü "Widgets" deines Launchers hinzu.</string>
+    <string name="widget_description">Nivy verfügt über ein cooles Widget, mit dem du EINNAHMEN-/AUSGABEN-/ÜBERTRAGSTRANSAKTIONEN mit nur einem Klick von deiner Startseite aus hinzufügen kannst\n\nHinweis: Wenn die Schaltfläche "Widget hinzufügen" nicht funktioniert, füge es bitte manuell über das Menü "Widgets" deines Launchers hinzu.</string>
     <string name="add_widget">Widget hinzufügen</string>
     <string name="expenses_piechart">Ausgaben Kreisdiagramm</string>
-    <string name="adjust_balance">Bilanz anpassen</string>
     <string name="authentication_required">Authentifizierung erforderlich</string>
     <string name="authentication_required_description">Beweise, dass du Zugang zu diesem Gerät hast, um die App zu entsperren.</string>
     <string name="total_budget">Gesamtbudget</string>
@@ -359,7 +349,6 @@
     <string name="skip_all">Alle überspringen</string>
     <string name="confirm_skip_all">Alle überspringen bestätigen</string>
     <string name="confirm_skip_all_description">Bist du sicher, dass du alle überfälligen geplanten Zahlungen überspringen willst?</string>
-    <string name="experimental">Experimentell</string>
     <string name="wallet_balance">Bilanz der Wallet</string>
     <string name="total_exclusive">Gesamtsumme (exklusiv): %1$s %2$s</string>
     <string name="total_balance">Gesamtbilanz</string>
@@ -375,12 +364,9 @@
     <string name="search_tags">Tags durchsuchen</string>
     <string name="exchange_rates">Wechselkurse</string>
     <string name="add_tags">Tag hinzufügen</string>
-    <string name="icons">Icons</string>
     <string name="tap_to_switch_theme">Tippe um das Design zu wechseln</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F Nicht als Backup verwenden!</string>
     <string name="done">Fertig</string>
-    <string name="error">Fehler</string>
-    <string name="loading">Lade…</string>
     <string name="try_again">Erneut versuchen</string>
     <string name="enter_with_offline_account">MIT OFFLINE KONTO FORTFAHREN</string>
     <string name="your_data_will_be_saved_only_locally">Deine Daten werden nur lokal auf dem Gerät gespeichert. Die Daten können verloren gehen, wenn du die App löscht oder zu einem anderen Gerät wechselst. Um Datenverlust zu vermeiden, empfehlen wir eine regelmäßige Sicherung in den Einstellungen durchzuführen.</string>
@@ -397,7 +383,7 @@
     <string name="csv_import_failed">Das hat nicht geklappt. Versuche einen manuellen CSV Import.</string>
     <string name="import_a_csv_file_to_continue">Importiere eine CSV Datei um fortzufahren.</string>
     <string name="import_csv_continue">Fortsetzen</string>
-    <string name="warning_import_csv_file">" !!!⚠️ACHTUNG: Ein Import kann zu doppelten Einträgen führen!!! Ivy Wallet kann diese NICHT automatisch entfernt und alle Einträge müssen manuell geprüft werden! Wenn du noch keine Einträge erfasst hast, kannst du diese Meldung ignorieren."</string>
+    <string name="warning_import_csv_file">" !!!⚠️ACHTUNG: Ein Import kann zu doppelten Einträgen führen!!! Nivy kann diese NICHT automatisch entfernt und alle Einträge müssen manuell geprüft werden! Wenn du noch keine Einträge erfasst hast, kannst du diese Meldung ignorieren."</string>
     <string name="select_tags">Tags auswählen</string>
     <string name="language">Sprache</string>
     <string name="budget_exceeded_info">Budget überschritten um %1$s %2$s</string>

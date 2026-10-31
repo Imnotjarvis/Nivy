@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.hasLockScreen
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.utils.hasLockScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
@@ -41,7 +41,7 @@ import androidx.compose.material3.MaterialTheme
 @SuppressLint("ComposeModifierMissing")
 @Composable
 @Suppress("LongMethod", "FunctionNaming")
-fun BoxWithConstraintsScope.AppLockedScreen(
+internal fun BoxWithConstraintsScope.AppLockedScreen(
     onShowOSBiometricsModal: () -> Unit,
     onContinueWithoutAuthentication: () -> Unit
 ) {

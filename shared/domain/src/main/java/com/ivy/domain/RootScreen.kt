@@ -2,7 +2,6 @@ package com.ivy.domain
 
 import android.net.Uri
 import java.time.LocalDate
-import java.time.LocalTime
 
 interface RootScreen {
     /**
@@ -23,16 +22,16 @@ interface RootScreen {
 
     fun <T> pinWidget(widget: Class<T>)
 
-    /** Shows a date picker; [onPicked] gets the chosen date, or the initial one on cancel. */
+    /**
+     * Shows a date picker on [initialDate] that allows dates from [minDate] to [maxDate];
+     * [onPicked] gets the chosen date. Dismissing it picks nothing.
+     */
     fun pickDate(
         initialDate: LocalDate?,
         minDate: LocalDate? = null,
         maxDate: LocalDate? = null,
         onPicked: (LocalDate) -> Unit,
     )
-
-    /** Shows a time picker; [onPicked] gets the chosen time. */
-    fun pickTime(initialTime: LocalTime?, onPicked: (LocalTime) -> Unit)
 
     /** Asks the user where to save a new file called [fileName]. */
     fun createNewFile(fileName: String, onCreated: (Uri) -> Unit)

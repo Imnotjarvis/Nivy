@@ -4,7 +4,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.TagId
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.data.model.TimePeriod
 import java.util.UUID
 
 data class ReportFilter(
@@ -41,19 +41,8 @@ data class ReportFilter(
     }
 
     fun validate(): Boolean {
-        if (trnTypes.isEmpty()) return false
-
-        if (period == null) return false
-
-        if (accounts.isEmpty()) return false
-
-        if (categories.isEmpty()) return false
-
-        if (minAmount != null && maxAmount != null) {
-            if (minAmount > maxAmount) return false
-            if (maxAmount < minAmount) return false
-        }
-
-        return true
+        val everythingChosen = trnTypes.isNotEmpty() && accounts.isNotEmpty() && categories.isNotEmpty()
+        val amountsInOrder = minAmount == null || maxAmount == null || minAmount <= maxAmount
+        return everythingChosen && period != null && amountsInOrder
     }
 }

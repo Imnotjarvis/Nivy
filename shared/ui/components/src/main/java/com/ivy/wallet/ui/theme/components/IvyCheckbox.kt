@@ -18,7 +18,7 @@ import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 
 // A Material3 checkbox in Ivy's colors: a green box with a white check, a gray outline when off.
 @Composable

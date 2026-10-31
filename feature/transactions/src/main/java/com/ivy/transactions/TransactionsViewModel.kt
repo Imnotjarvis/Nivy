@@ -29,12 +29,12 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.computationThread
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.domain.logic.AccountCreator
+import com.ivy.wallet.utils.computationThread
+import com.ivy.wallet.utils.ioThread
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
@@ -48,8 +48,8 @@ import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
-import com.ivy.legacy.domain.data.TransactionHistoryItem
-import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
+import com.ivy.wallet.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +60,8 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
+// The transactions screen serves accounts and categories with their own stats and actions.
+@Suppress("LargeClass")
 @Stable
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
@@ -128,32 +130,32 @@ class TransactionsViewModel @Inject constructor(
     @Composable
     override fun uiState(): TransactionsState {
         return TransactionsState(
-            period = getPeriod(),
-            baseCurrency = getBaseCurrency(),
-            currency = getCurrency(),
-            categories = getCategories(),
-            accounts = getAccounts(),
-            account = getAccount(),
-            category = getCategory(),
-            balance = getBalance(),
-            balanceBaseCurrency = getBalanceBaseCurrency(),
-            income = getIncome(),
-            expenses = getExpenses(),
-            initWithTransactions = getInitWithTransactions(),
-            treatTransfersAsIncomeExpense = getTreatTransfersAsIncomeExpense(),
-            history = getHistory(),
-            upcoming = getUpcoming(),
-            upcomingExpanded = getUpcomingExpanded(),
-            upcomingIncome = getUpcomingIncome(),
-            upcomingExpenses = getUpcomingExpenses(),
-            overdue = getOverdue(),
-            overdueExpanded = getOverdueExpanded(),
-            overdueIncome = getOverdueIncome(),
-            overdueExpenses = getOverdueExpenses(),
-            enableDeletionButton = getEnableDeletionButton(),
-            skipAllModalVisible = getSkipAllModalVisible(),
-            deleteModal1Visible = getDeleteModal1Visible(),
-            choosePeriodModal = getChoosePeriodModal(),
+            period = period.value,
+            baseCurrency = baseCurrency.value,
+            currency = currency.value,
+            categories = categories.value,
+            accounts = accounts.value,
+            account = account.value,
+            category = category.value,
+            balance = balance.doubleValue,
+            balanceBaseCurrency = balanceBaseCurrency.value,
+            income = income.doubleValue,
+            expenses = expenses.doubleValue,
+            initWithTransactions = initWithTransactions.value,
+            treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
+            history = history.value,
+            upcoming = upcoming.value,
+            upcomingExpanded = upcomingExpanded.value,
+            upcomingIncome = upcomingIncome.doubleValue,
+            upcomingExpenses = upcomingExpenses.doubleValue,
+            overdue = overdue.value,
+            overdueExpanded = overdueExpanded.value,
+            overdueIncome = overdueIncome.doubleValue,
+            overdueExpenses = overdueExpenses.doubleValue,
+            enableDeletionButton = enableDeletionButton.value,
+            skipAllModalVisible = skipAllModalVisible.value,
+            deleteModal1Visible = deleteModal1Visible.value,
+            choosePeriodModal = choosePeriodModal.value,
             showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions()
         )
     }
@@ -161,136 +163,6 @@ class TransactionsViewModel @Inject constructor(
     @Composable
     fun getShouldShowAccountSpecificColorInTransactions(): Boolean {
         return features.showAccountColorsInTransactions.asEnabledState()
-    }
-
-    @Composable
-    private fun getPeriod(): TimePeriod {
-        return period.value
-    }
-
-    @Composable
-    private fun getBaseCurrency(): String {
-        return baseCurrency.value
-    }
-
-    @Composable
-    private fun getAccount(): Account? {
-        return account.value
-    }
-
-    @Composable
-    private fun getCurrency(): String {
-        return currency.value
-    }
-
-    @Composable
-    private fun getCategories(): ImmutableList<Category> {
-        return categories.value
-    }
-
-    @Composable
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts.value
-    }
-
-    @Composable
-    private fun getCategory(): Category? {
-        return category.value
-    }
-
-    @Composable
-    private fun getBalance(): Double {
-        return balance.doubleValue
-    }
-
-    @Composable
-    private fun getBalanceBaseCurrency(): Double? {
-        return balanceBaseCurrency.value
-    }
-
-    @Composable
-    private fun getIncome(): Double {
-        return income.doubleValue
-    }
-
-    @Composable
-    private fun getExpenses(): Double {
-        return expenses.doubleValue
-    }
-
-    @Composable
-    private fun getInitWithTransactions(): Boolean {
-        return initWithTransactions.value
-    }
-
-    @Composable
-    private fun getTreatTransfersAsIncomeExpense(): Boolean {
-        return treatTransfersAsIncomeExpense.value
-    }
-
-    @Composable
-    private fun getUpcomingExpenses(): Double {
-        return upcomingExpenses.doubleValue
-    }
-
-    @Composable
-    private fun getUpcoming(): ImmutableList<Transaction> {
-        return upcoming.value
-    }
-
-    @Composable
-    private fun getUpcomingExpanded(): Boolean {
-        return upcomingExpanded.value
-    }
-
-    @Composable
-    private fun getUpcomingIncome(): Double {
-        return upcomingIncome.doubleValue
-    }
-
-    @Composable
-    private fun getHistory(): ImmutableList<TransactionHistoryItem> {
-        return history.value
-    }
-
-    @Composable
-    private fun getOverdue(): ImmutableList<Transaction> {
-        return overdue.value
-    }
-
-    @Composable
-    private fun getOverdueExpanded(): Boolean {
-        return overdueExpanded.value
-    }
-
-    @Composable
-    private fun getOverdueIncome(): Double {
-        return overdueIncome.doubleValue
-    }
-
-    @Composable
-    private fun getOverdueExpenses(): Double {
-        return overdueExpenses.doubleValue
-    }
-
-    @Composable
-    private fun getEnableDeletionButton(): Boolean {
-        return enableDeletionButton.value
-    }
-
-    @Composable
-    private fun getSkipAllModalVisible(): Boolean {
-        return skipAllModalVisible.value
-    }
-
-    @Composable
-    private fun getDeleteModal1Visible(): Boolean {
-        return deleteModal1Visible.value
-    }
-
-    @Composable
-    private fun getChoosePeriodModal(): ChoosePeriodModalData? {
-        return choosePeriodModal.value
     }
 
     override fun onEvent(event: TransactionsEvent) {
@@ -489,7 +361,7 @@ class TransactionsViewModel @Inject constructor(
                 it is Expense && it.category?.value == categoryId
             }
 
-            balance.value = ioThread {
+            balance.doubleValue = ioThread {
                 categoryLogic.calculateCategoryBalance(
                     initialCategory,
                     range,
@@ -498,7 +370,7 @@ class TransactionsViewModel @Inject constructor(
                 )
             }
 
-            income.value = ioThread {
+            income.doubleValue = ioThread {
                 categoryLogic.calculateCategoryIncome(
                     incomeTransaction = incomeTrans,
                     accountFilterSet = accountFilterSet
@@ -576,7 +448,7 @@ class TransactionsViewModel @Inject constructor(
             categoryLogic.calculateUpcomingIncomeUnspecified(range)
         }
 
-        upcomingExpenses.value = ioThread {
+        upcomingExpenses.doubleValue = ioThread {
             categoryLogic.calculateUpcomingExpensesUnspecified(range)
         }
 

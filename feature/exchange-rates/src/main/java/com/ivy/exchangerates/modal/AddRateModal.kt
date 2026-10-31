@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Orange
 import com.ivy.exchangerates.RatesEvent
 import com.ivy.exchangerates.data.RateUi
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import com.ivy.wallet.ui.theme.modal.IvyModal
@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 
 @Composable
-fun BoxWithConstraintsScope.AddRateModal(
+internal fun BoxWithConstraintsScope.AddRateModal(
     visible: Boolean,
     baseCurrency: String,
     dismiss: () -> Unit,
@@ -46,7 +46,7 @@ fun BoxWithConstraintsScope.AddRateModal(
         id = null,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalAdd {
                 val to = toCurrency
                 val finalRate = rate

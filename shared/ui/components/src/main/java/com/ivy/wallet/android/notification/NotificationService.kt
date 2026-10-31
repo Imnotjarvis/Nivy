@@ -6,7 +6,12 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.ivy.ui.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import javax.inject.Inject
+
+// How the notification light blinks.
+private const val LightOnMs = 1000
+private const val LightOffMs = 200
 
 class NotificationService @Inject constructor(
     @ApplicationContext
@@ -24,7 +29,7 @@ class NotificationService @Inject constructor(
             .setColor(color)
             .setPriority(priority)
             .setColorized(true)
-            .setLights(color, 1000, 200)
+            .setLights(color, LightOnMs, LightOffMs)
             .setAutoCancel(autoCancel)
         return ivyNotification
     }
@@ -43,7 +48,7 @@ class NotificationService @Inject constructor(
             notificationManager.createNotificationChannel(channel)
             notificationManager.notify(notificationId, notification.build())
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 }

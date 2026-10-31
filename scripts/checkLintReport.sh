@@ -1,7 +1,6 @@
 #!/bin/bash
-# Fails when Android Lint found an issue of severity Error or Fatal that app/lint-baseline.xml
-# doesn't cover (lint leaves baseline issues out of its report). New warnings are printed too,
-# as annotations, but aren't fatal.
+# Fails when Android Lint found an issue of severity Error or Fatal. Warnings are printed too, as
+# annotations, but aren't fatal.
 # The build itself never fails on lint (abortOnError = false), so CI checks the report here.
 # Usage: scripts/checkLintReport.sh [report.xml]   (default: the :app:lintDebug XML report)
 set -euo pipefail
@@ -29,13 +28,13 @@ counts = collections.Counter((i.get("severity"), i.get("id")) for i in issues)
 blocking = [i for i in issues if i.get("severity") in ("Error", "Fatal")]
 
 with open(summary, "a") as out:
-    out.write("### Android Lint (issues not in app/lint-baseline.xml)\n\n")
+    out.write("### Android Lint\n\n")
     if counts:
         out.write("| Severity | Check | Count |\n|---|---|---|\n")
         for (severity, check), n in sorted(counts.items()):
             out.write(f"| {severity} | {check} | {n} |\n")
     else:
-        out.write("No new issues.\n")
+        out.write("No issues.\n")
 
 for i in blocking:
     loc = i.find("location")
@@ -57,8 +56,7 @@ for i in issues:
 
 others = len(issues) - len(blocking)
 if blocking:
-    print(f"FAIL {len(blocking)} new lint error(s); {others} other new issue(s). "
-          "Fix them, or refresh the baseline (Actions > Build > Run workflow > update-lint-baseline).")
+    print(f"FAIL {len(blocking)} lint error(s); {others} other issue(s).")
     sys.exit(1)
-print(f"ok   no new lint errors ({others} new warning/info issue(s), see the run summary)")
+print(f"ok   no lint errors ({others} warning/info issue(s), see the run summary)")
 EOF

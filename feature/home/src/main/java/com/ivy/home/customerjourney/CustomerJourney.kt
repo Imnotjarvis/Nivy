@@ -22,8 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.LocalMainScreenState
-import com.ivy.legacy.rootScreen
+import com.ivy.wallet.LocalMainScreenState
+import com.ivy.wallet.rootScreen
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation

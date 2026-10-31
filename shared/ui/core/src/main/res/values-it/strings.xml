@@ -12,7 +12,6 @@
     <string name="unlock">Sblocca</string>
     <string name="current_balance">SALDO ATTUALE</string>
     <string name="balance_after_payments">SALDO DOPO I PAGAMENTI PIANIFICATI</string>
-    <string name="connect">Connetti</string>
     <string name="add_budget">Aggiungi budget</string>
     <string name="no_budgets">Nessun budget</string>
     <string name="no_budgets_text">Non hai nessun budget impostato.\nTocca \"+ Aggiungi budget\" per aggiungerne uno.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Uscite</string>
     <string name="income">Entrate</string>
-    <string name="balance">SALDO %1$s</string>
-    <string name="charts">Grafici</string>
-    <string name="period">Periodo:</string>
     <string name="categories">Categorie</string>
     <string name="export_csv_file">Esporta file CSV</string>
     <string name="export_csv_file_standard">Esporta il file CSV con le opzioni standard</string>
@@ -49,7 +45,7 @@
     <string name="online_csv_converter_free">Convertitore online di CSV GRATIS</string>
     <string name="check_email_spam">Controlla le cartelle \"Promozioni\" e \"Spam\" della tua email</string>
     <string name="download_email_file">Scarica il file \"transactions_export…\" allegato all\'email.</string>
-    <string name="download_email_file_description">Se hai più di una valuta dovrai scaricare ogni file \"transactions_export…\" e importarlo in Ivy.</string>
+    <string name="download_email_file_description">Se hai più di una valuta dovrai scaricare ogni file \"transactions_export…\" e importarlo in Nivy.</string>
     <string name="import_from">Importa da</string>
     <string name="please_wait">Attendere prego</string>
     <string name="importing_the_csv_file">Importazione del file CSV</string>
@@ -130,12 +126,9 @@
     <string name="account_transfer">TRASFERIM. CONTO</string>
     <string name="skip">Salta</string>
     <string name="add_new">Aggiungi nuovo</string>
-    <string name="range">Range</string>
-    <string name="enter_your_name">Inserisci il tuo nome\nper personalizzare il tuo\nportafoglio</string>
     <string name="what_is_your_name">Come ti chiami?</string>
     <string name="enter">Invia</string>
     <string name="add_accounts">Aggiungi i conti</string>
-    <string name="suggestion">Suggerimenti</string>
     <string name="next">Prossimo</string>
     <string name="add_categories">Aggiungi le categorie</string>
     <string name="suggestions">Suggerimenti</string>
@@ -143,7 +136,7 @@
     <string name="your_personal_money_manager">Il tuo gestore di denaro personale</string>
     <string name="continue_offline">Continua offline</string>
     <string name="import_csv_file">Importa un file CSV</string>
-    <string name="from_ivy_or_another_app">da Ivy o da un\'altra app</string>
+    <string name="from_ivy_or_another_app">da Nivy o da un\'altra app</string>
     <string name="importing_another_time_warning">Importare un file di backup da un\'altra app può richiedere fino a 5 minuti. È sempre possibile importare i dati in un secondo momento, se lo desideri.</string>
     <string name="import_backup_file">Importa un file di backup</string>
     <string name="start_fresh">Inizia da zero</string>
@@ -214,7 +207,6 @@
     <string name="hide_balance_description">Fai clic sul saldo nascosto per visualizzarlo per 5s</string>
     <string name="hide_income">Nascondi entrate</string>
     <string name="hide_income_description">Fai clic sulle entrate nascoste per visualizzarle per 5s</string>
-    <string name="other">Altro</string>
     <string name="danger_zone">Zona pericolosa</string>
     <string name="delete_all_user_data">Elimina tutti i dati utente</string>
     <string name="delete_all_user_data_question">Eliminare tutti i dati utente?</string>
@@ -227,7 +219,6 @@
     <string name="exporting_data_description">Attendi, esportazione dei dati in corso</string>
     <string name="start_date_of_month">Data di inizio del mese</string>
     <string name="account_uppercase">ACCOUNT</string>
-    <string name="logout">Esci</string>
     <string name="anonymous">Anonimo</string>
     <string name="export_to_csv">Esporta in CSV</string>
     <string name="left_to_spend">Rimangono da spendere</string>
@@ -262,7 +253,6 @@
     <string name="delete">Elimina</string>
     <string name="save">Salva</string>
     <string name="add">Aggiungi</string>
-    <string name="create">Crea</string>
     <string name="edit_loan">Modifica prestito</string>
     <string name="new_loan">Nuovo prestito</string>
     <string name="loan_name">Nome del prestito</string>
@@ -322,10 +312,9 @@
     <string name="create_first_planned_payment">Crea il tuo primo pagamento pianificato</string>
     <string name="create_first_planned_payment_description">Automatizza il monitoraggio delle transazioni ricorrenti come i tuoi abbonamenti, l\'affitto, lo stipendio, ecc. Stai al passo con le tue finanze sapendo già quanto devi pagare/ricevere in anticipo.</string>
     <string name="did_you_know">Lo sapevi?</string>
-    <string name="widget_description">Ivy Wallet ha un fantastico widget che consente di aggiungere ENTRATE/USCITE/TRASFERIMENTI con un clic dalla tua home\n\nNota: se il pulsante \"Aggiungi widget\" non funziona, aggiungilo manualmente dal menu dei widget del tuo launcher.</string>
+    <string name="widget_description">Nivy ha un fantastico widget che consente di aggiungere ENTRATE/USCITE/TRASFERIMENTI con un clic dalla tua home\n\nNota: se il pulsante \"Aggiungi widget\" non funziona, aggiungilo manualmente dal menu dei widget del tuo launcher.</string>
     <string name="add_widget">Aggiungi widget</string>
     <string name="expenses_piechart">Grafico a torta delle uscite</string>
-    <string name="adjust_balance">Sistema il saldo</string>
     <string name="authentication_required">Autenticazione richiesta</string>
     <string name="authentication_required_description">Dimostra di avere accesso a questo dispositivo per sbloccare l\'app.</string>
     <string name="total_budget">Budget generale</string>
@@ -361,7 +350,6 @@
     <string name="confirm_skip_all_description">Sei sicuro di voler ignorare tutti i pagamenti pianificati scaduti?</string>
     <string name="confirm_skip_all">Conferma e ignora tutto</string>
     <string name="skip_all">Ignora tutto</string>
-    <string name="experimental">Sperimantale</string>
     <string name="wallet_balance">Wallet balance</string>
     <string name="total_exclusive">Totale (esclusivo): %1$s %2$s</string>
     <string name="total_balance">Totale Saldo</string>
@@ -380,12 +368,9 @@
     <string name="this_transaction_is_associated_with_loan">* Questa transazione è associata al Prestito : %1$s</string>
     <string name="this_transaction_is_associated_with_loan_record">* Questa transazione è associata a un Registrazione del Prestito: %1$s.</string>
     <string name="note_transaction_associated_with_loan_record_of_loan">Nota: Questa transazione è associata a un Registrazione del Prestito : %1$s\nStai cercando di cambiare il conto associato alla registrazione del prestito con un conto di valuta diversa\n La registrazione del prestito verrà ricalcolata in base ai tassi di cambio della valuta odierna.</string>
-    <string name="icons">Icone</string>
     <string name="tap_to_switch_theme">Tocca per cambiare tema</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F Non utilizzare per il backup</string>
     <string name="done">Fatto</string>
-    <string name="error">Errore</string>
-    <string name="loading">Caricamento…</string>
     <string name="try_again">Riprova</string>
     <string name="you_can_see_a_piechart">Puoi visualizzare un grafico a torta delle tue spese! Fai clic sulla scheda Uscite nella parte superiore della dashboard.</string>
     <string name="please_type_category_name">Digita \"%1$s\" per eliminare la categoria</string>

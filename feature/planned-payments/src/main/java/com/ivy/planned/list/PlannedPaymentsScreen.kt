@@ -15,15 +15,14 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.system.colors.Purple
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.ui.previewAccount
-import com.ivy.legacy.ui.previewPlannedPaymentRule
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.previewAccount
+import com.ivy.wallet.ui.previewPlannedPaymentRule
 import com.ivy.navigation.EditPlannedScreen
-import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -37,7 +36,7 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun BoxWithConstraintsScope.PlannedPaymentsScreen(screen: PlannedPaymentsScreen) {
+fun BoxWithConstraintsScope.PlannedPaymentsScreen() {
     val viewModel: PlannedPaymentsViewModel = screenScopedViewModel()
     val uiState = viewModel.uiState()
 
@@ -53,7 +52,7 @@ private fun BoxWithConstraintsScope.UI(
     onEvent: (PlannedPaymentsScreenEvent) -> Unit = {}
 ) {
     PlannedPaymentsLazyColumn(
-        Header = {
+        header = {
             Spacer(Modifier.height(32.dp))
 
             Text(

@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.importdata.csvimport.flow.ImportSteps
-import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
+import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
@@ -48,7 +48,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.ImportInstructions(
+internal fun BoxWithConstraintsScope.ImportInstructions(
     hasSkip: Boolean,
     importType: ImportType,
 
@@ -134,14 +134,14 @@ fun BoxWithConstraintsScope.ImportInstructions(
 }
 
 @Composable
-fun VideoArticleRow(
+internal fun VideoArticleRow(
     videoUrl: String?,
     articleUrl: String?
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val rootScreen = com.ivy.legacy.rootScreen()
+        val rootScreen = com.ivy.wallet.rootScreen()
 
         Spacer(Modifier.width(16.dp))
 
@@ -253,7 +253,7 @@ fun InstructionButton(
 }
 
 @Composable
-fun UploadFileStep(
+internal fun UploadFileStep(
     stepNumber: Int,
     text: String = stringResource(R.string.upload_csv_file),
     btnTitle: String = text,
@@ -282,7 +282,7 @@ fun UploadFileStep(
 
 @Suppress("MultipleEmitters")
 @Composable
-fun StepTitle(
+internal fun StepTitle(
     number: Int,
     title: String,
     description: String? = null,
@@ -362,7 +362,7 @@ private fun App(
 @Preview
 @Composable
 private fun Preview() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         ImportInstructions(
             hasSkip = true,
             importType = ImportType.MONEY_MANAGER,

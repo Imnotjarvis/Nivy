@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.edit.core
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,20 +20,23 @@ import androidx.compose.material3.MaterialTheme
 @Composable
 fun Category(
     category: Category?,
+    modifier: Modifier = Modifier,
     onChooseCategory: () -> Unit
 ) {
-    if (category != null) {
-        CategoryButton(category = category) {
-            onChooseCategory()
-        }
-    } else {
-        IvyBorderButton(
-            modifier = Modifier.padding(start = 24.dp),
-            iconStart = R.drawable.ic_plus,
-            iconTint = MaterialTheme.colorScheme.onSurface,
-            text = stringResource(R.string.add_category)
-        ) {
-            onChooseCategory()
+    Box(modifier = modifier) {
+        if (category != null) {
+            CategoryButton(category = category) {
+                onChooseCategory()
+            }
+        } else {
+            IvyBorderButton(
+                modifier = Modifier.padding(start = 24.dp),
+                iconStart = R.drawable.ic_plus,
+                iconTint = MaterialTheme.colorScheme.onSurface,
+                text = stringResource(R.string.add_category)
+            ) {
+                onChooseCategory()
+            }
         }
     }
 }

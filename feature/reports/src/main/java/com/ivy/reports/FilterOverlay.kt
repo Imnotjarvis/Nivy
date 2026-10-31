@@ -47,14 +47,14 @@ import com.ivy.data.model.TagId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.domain.legacy.ui.theme.components.ListItem
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.LocalPeriodState
-import com.ivy.legacy.ui.component.tags.AddTagButton
-import com.ivy.legacy.ui.component.tags.ShowTagModal
-import com.ivy.legacy.ui.previewAccount
-import com.ivy.legacy.utils.capitalizeLocal
-import com.ivy.legacy.utils.springBounce
+import com.ivy.wallet.ui.theme.components.ListItem
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.LocalPeriodState
+import com.ivy.wallet.ui.component.tags.AddTagButton
+import com.ivy.wallet.ui.component.tags.ShowTagModal
+import com.ivy.wallet.ui.previewAccount
+import com.ivy.wallet.utils.capitalizeLocal
+import com.ivy.wallet.utils.springBounce
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Green
@@ -93,7 +93,7 @@ import androidx.compose.material3.MaterialTheme
 @Suppress("LongMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BoxWithConstraintsScope.FilterOverlay(
+internal fun BoxWithConstraintsScope.FilterOverlay(
     visible: Boolean,
 
     baseCurrency: String,

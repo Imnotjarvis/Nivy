@@ -33,17 +33,16 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.data.AppBaseData
-import com.ivy.legacy.data.DueSection
-import com.ivy.legacy.ui.component.IncomeExpensesCards
-import com.ivy.legacy.ui.component.transaction.TransactionsDividerLine
-import com.ivy.legacy.ui.component.transaction.transactions
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.data.AppBaseData
+import com.ivy.wallet.data.DueSection
+import com.ivy.wallet.ui.component.IncomeExpensesCards
+import com.ivy.wallet.ui.component.transaction.TransactionsDividerLine
+import com.ivy.wallet.ui.component.transaction.transactions
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.ui.previewAccount
+import com.ivy.wallet.ui.previewAccount
 import com.ivy.navigation.PieChartStatisticScreen
-import com.ivy.navigation.ReportScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
@@ -71,9 +70,7 @@ import androidx.compose.material3.MaterialTheme
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.ReportScreen(
-    screen: ReportScreen
-) {
+fun BoxWithConstraintsScope.ReportScreen() {
     val viewModel: ReportViewModel = viewModel()
     val state = viewModel.uiState()
 
@@ -83,6 +80,8 @@ fun BoxWithConstraintsScope.ReportScreen(
     )
 }
 
+// The report screen's list, filter overlay and dialogs share its state.
+@Suppress("LongMethod")
 @ExperimentalFoundationApi
 @Composable
 private fun BoxWithConstraintsScope.UI(

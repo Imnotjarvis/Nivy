@@ -21,9 +21,9 @@ import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.LoanRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
-import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.computationThread
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.domain.logic.AccountCreator
+import com.ivy.wallet.utils.computationThread
+import com.ivy.wallet.utils.ioThread
 import com.ivy.loans.loan.data.DisplayLoanRecord
 import com.ivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.ivy.loans.loandetails.events.LoanDetailsScreenEvent
@@ -35,9 +35,9 @@ import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.loan.LoanByIdAct
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateLoanRecordData
-import com.ivy.wallet.domain.deprecated.logic.model.EditLoanRecordData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateLoanRecordData
+import com.ivy.wallet.domain.logic.model.EditLoanRecordData
 import com.ivy.wallet.ui.theme.modal.LoanModalData
 import com.ivy.wallet.ui.theme.modal.LoanRecordModalData
 import dagger.hilt.android.lifecycle.HiltViewModel

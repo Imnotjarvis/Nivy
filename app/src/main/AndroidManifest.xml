@@ -11,6 +11,8 @@
     <application
         android:name=".IvyAndroidApp"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -19,11 +21,13 @@
         android:theme="@style/AppTheme"
         tools:ignore="LockedOrientationActivity">
 
+        <!-- The phone layouts are portrait-only; Android 16 ignores the lock on tablets. -->
         <activity
             android:name=".RootActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
+            tools:ignore="DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

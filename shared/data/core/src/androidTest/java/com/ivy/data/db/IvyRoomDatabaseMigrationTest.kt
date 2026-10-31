@@ -11,7 +11,7 @@ import com.ivy.data.db.migration.Migration126to127_LoanRecordType
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
 import com.ivy.data.db.migration.Migration130to131_DropUsers
 import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test

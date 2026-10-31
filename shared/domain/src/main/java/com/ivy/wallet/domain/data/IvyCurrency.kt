@@ -2,7 +2,8 @@ package com.ivy.wallet.domain.data
 
 import android.icu.util.Currency
 import androidx.compose.runtime.Immutable
-import com.ivy.legacy.utils.getDefaultFIATCurrency
+import com.ivy.wallet.utils.getDefaultFIATCurrency
+import timber.log.Timber
 
 @Immutable
 data class IvyCurrency(
@@ -208,7 +209,7 @@ data class IvyCurrency(
                     fiatCurrency = fiat
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e)
                 null
             }
         }

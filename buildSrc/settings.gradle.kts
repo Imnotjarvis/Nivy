@@ -1,6 +1,9 @@
+// The Gradle Plugin Portal no longer serves Maven Central's artifacts, so the kotlin-dsl
+// plugin's Kotlin libraries come from Maven Central itself.
 pluginManagement {
     repositories {
         google()
+        mavenCentral()
         gradlePluginPortal()
     }
 }
@@ -8,6 +11,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         google()
+        mavenCentral()
         gradlePluginPortal()
     }
 

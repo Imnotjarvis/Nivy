@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.design.system.colors.Gray
@@ -32,6 +32,7 @@ fun BoxWithConstraintsScope.CurrencyModal(
     initialCurrency: IvyCurrency?,
     visible: Boolean,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
 
     onSetCurrency: (String) -> Unit
@@ -41,10 +42,11 @@ fun BoxWithConstraintsScope.CurrencyModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave(
                 modifier = Modifier.testTag("set_currency_save")
             ) {

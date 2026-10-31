@@ -1,6 +1,6 @@
 package com.ivy.wallet.domain.action.viewmodel.home
 
-import com.ivy.legacy.utils.ivyMinTime
+import com.ivy.wallet.utils.ivyMinTime
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.wallet.domain.pure.transaction.isOverdue

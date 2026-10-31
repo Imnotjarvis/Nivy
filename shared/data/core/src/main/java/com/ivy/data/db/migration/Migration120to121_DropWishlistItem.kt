@@ -1,4 +1,4 @@
-package com.ivy.domain.db.migration
+package com.ivy.data.db.migration
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase

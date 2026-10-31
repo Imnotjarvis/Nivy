@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.selectEndTextFieldValue
@@ -44,6 +44,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
     visible: Boolean,
     description: String?,
     onDescriptionChanged: (String?) -> Unit,
+    modifier: Modifier = Modifier,
 
     id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit,
@@ -54,10 +55,11 @@ fun BoxWithConstraintsScope.DescriptionModal(
     val view = LocalView.current
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalDynamicPrimaryAction(
                 initialEmpty = description.isNullOrBlank(),
                 initialChanged = description != descTextFieldValue.text,
@@ -91,7 +93,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
 
         Spacer(Modifier.height(24.dp))
 
-        val focus = FocusRequester()
+        val focus = remember { FocusRequester() }
         LaunchedEffect(Unit) {
             focus.requestFocus()
         }

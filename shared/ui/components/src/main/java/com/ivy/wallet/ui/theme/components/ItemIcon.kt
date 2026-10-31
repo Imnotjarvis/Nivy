@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.theme.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -17,8 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.thenWhen
-import com.ivy.legacy.IvyWalletComponentPreview
-import com.ivy.legacy.utils.toLowerCaseLocal
+import com.ivy.wallet.IvyWalletComponentPreview
+import com.ivy.wallet.utils.toLowerCaseLocal
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 
@@ -28,7 +29,7 @@ fun ItemIconL(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     ItemIcon(
         modifier = modifier
@@ -37,10 +38,13 @@ fun ItemIconL(
         iconName = iconName,
         tint = tint,
         iconContentScale = iconContentScale,
-        Default = Default
+        default = default
     )
 }
 
+// ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
+// only one of them.
+@Suppress("ModifierReused", "ModifierNotUsedAtRoot", "ComposeModifierReused")
 @Composable
 fun ItemIconMDefaultIcon(
     iconName: String?,
@@ -52,7 +56,7 @@ fun ItemIconMDefaultIcon(
         modifier = modifier,
         iconName = iconName,
         tint = tint,
-        Default = {
+        default = {
             Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
@@ -69,7 +73,7 @@ fun ItemIconM(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     ItemIcon(
         modifier = modifier
@@ -78,10 +82,13 @@ fun ItemIconM(
         iconName = iconName,
         tint = tint,
         iconContentScale = iconContentScale,
-        Default = Default
+        default = default
     )
 }
 
+// ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
+// only one of them.
+@Suppress("ModifierReused", "ModifierNotUsedAtRoot", "ComposeModifierReused")
 @Composable
 fun ItemIconSDefaultIcon(
     iconName: String?,
@@ -93,7 +100,7 @@ fun ItemIconSDefaultIcon(
         modifier = modifier,
         iconName = iconName,
         tint = tint,
-        Default = {
+        default = {
             Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
@@ -110,7 +117,7 @@ fun ItemIconS(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     ItemIcon(
         modifier = modifier
@@ -119,7 +126,7 @@ fun ItemIconS(
         iconName = iconName,
         tint = tint,
         iconContentScale = iconContentScale,
-        Default = Default
+        default = default
     )
 }
 
@@ -130,7 +137,7 @@ private fun ItemIcon(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     iconContentScale: ContentScale? = null,
-    Default: (@Composable () -> Unit)? = null
+    default: (@Composable () -> Unit)? = null
 ) {
     val context = LocalContext.current
     val iconInfo = getCustomIconId(
@@ -173,7 +180,7 @@ private fun ItemIcon(
             contentDescription = iconName ?: "item icon"
         )
     } else {
-        Default?.invoke()
+        default?.invoke()
     }
 }
 
@@ -192,6 +199,8 @@ fun getCustomIconIdS(
     )?.iconId ?: defaultIcon
 }
 
+// Icons are looked up by name: the names come from data (and keep.xml keeps the files).
+@SuppressLint("DiscouragedApi")
 fun getCustomIconId(
     context: Context,
     iconName: String?,
@@ -249,6 +258,8 @@ enum class IconStyle {
     L, M, S, UNKNOWN
 }
 
+// Icons are looked up by name: the names come from data (and keep.xml keeps the files).
+@SuppressLint("DiscouragedApi")
 fun fallbackToNewIconFormat(
     iconStyle: IconStyle,
     context: Context,

@@ -36,12 +36,12 @@ import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
-import com.ivy.legacy.data.EditTransactionDisplayLoan
-import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.computationThread
-import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.toLowerCaseLocal
-import com.ivy.legacy.utils.uiThread
+import com.ivy.wallet.data.EditTransactionDisplayLoan
+import com.ivy.wallet.domain.logic.AccountCreator
+import com.ivy.wallet.utils.computationThread
+import com.ivy.wallet.utils.ioThread
+import com.ivy.wallet.utils.toLowerCaseLocal
+import com.ivy.wallet.utils.uiThread
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
@@ -52,10 +52,10 @@ import com.ivy.wallet.domain.action.account.AccountByIdAct
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.transaction.TrnByIdAct
 import com.ivy.wallet.domain.data.CustomExchangeRateState
-import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.SmartTitleSuggestionsLogic
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.CategoryCreator
+import com.ivy.wallet.domain.logic.SmartTitleSuggestionsLogic
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -71,6 +71,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -185,36 +186,26 @@ class EditTransactionViewModel @Inject constructor(
     @Composable
     override fun uiState(): EditTransactionViewState {
         return EditTransactionViewState(
-            transactionType = getTransactionType(),
-            initialTitle = getInitialTitle(),
+            transactionType = transactionType,
+            initialTitle = initialTitle,
             titleSuggestions = getTitleSuggestions(),
-            currency = getCurrency(),
-            description = getDescription(),
-            dateTime = getDateTime(),
-            dueDate = getDueDate(),
-            accounts = getAccounts(),
-            categories = getCategories(),
-            account = getAccount(),
-            toAccount = getToAccount(),
-            category = getCategory(),
-            amount = getAmount(),
-            hasChanges = getHasChanges(),
-            displayLoanHelper = getDisplayLoanHelper(),
-            backgroundProcessingStarted = getBackgroundProcessingStarted(),
-            customExchangeRateState = getCustomExchangeRateState(),
-            tags = getTags(),
-            transactionAssociatedTags = getTransactionAssociatedTags()
+            currency = currency,
+            description = description,
+            dateTime = dateTime,
+            dueDate = dueDate,
+            accounts = accounts,
+            categories = categories,
+            account = account,
+            toAccount = toAccount,
+            category = category,
+            amount = amount,
+            hasChanges = hasChanges,
+            displayLoanHelper = displayLoanHelper,
+            backgroundProcessingStarted = backgroundProcessingStarted,
+            customExchangeRateState = customExchangeRateState,
+            tags = tags,
+            transactionAssociatedTags = transactionAssociatedTags
         )
-    }
-
-    @Composable
-    private fun getTransactionType(): TransactionType {
-        return transactionType
-    }
-
-    @Composable
-    private fun getInitialTitle(): String? {
-        return initialTitle
     }
 
     @Composable
@@ -224,86 +215,6 @@ class EditTransactionViewModel @Inject constructor(
         } else {
             persistentSetOf()
         }
-    }
-
-    @Composable
-    private fun getCurrency(): String {
-        return currency
-    }
-
-    @Composable
-    private fun getDescription(): String? {
-        return description
-    }
-
-    @Composable
-    private fun getDateTime(): Instant? {
-        return dateTime
-    }
-
-    @Composable
-    private fun getDueDate(): Instant? {
-        return dueDate
-    }
-
-    @Composable
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts
-    }
-
-    @Composable
-    private fun getCategories(): ImmutableList<Category> {
-        return categories
-    }
-
-    @Composable
-    private fun getAccount(): Account? {
-        return account
-    }
-
-    @Composable
-    private fun getToAccount(): Account? {
-        return toAccount
-    }
-
-    @Composable
-    private fun getCategory(): Category? {
-        return category
-    }
-
-    @Composable
-    private fun getAmount(): Double {
-        return amount
-    }
-
-    @Composable
-    private fun getHasChanges(): Boolean {
-        return hasChanges
-    }
-
-    @Composable
-    private fun getDisplayLoanHelper(): EditTransactionDisplayLoan {
-        return displayLoanHelper
-    }
-
-    @Composable
-    private fun getBackgroundProcessingStarted(): Boolean {
-        return backgroundProcessingStarted
-    }
-
-    @Composable
-    private fun getCustomExchangeRateState(): CustomExchangeRateState {
-        return customExchangeRateState
-    }
-
-    @Composable
-    private fun getTags(): ImmutableList<Tag> {
-        return tags
-    }
-
-    @Composable
-    private fun getTransactionAssociatedTags(): ImmutableList<TagId> {
-        return transactionAssociatedTags
     }
 
     @Suppress("CyclomaticComplexMethod")
@@ -727,7 +638,7 @@ class EditTransactionViewModel @Inject constructor(
                 closeScreen()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 

@@ -20,9 +20,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import androidx.compose.material3.MaterialTheme
 
@@ -68,7 +68,7 @@ fun IvyBasicTextField(
             value = value,
             onValueChange = onValueChanged,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
+                color = textColor,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Start
             ),

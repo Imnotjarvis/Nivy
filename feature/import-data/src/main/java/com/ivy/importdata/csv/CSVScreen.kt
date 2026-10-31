@@ -50,6 +50,9 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
 
+// Rows of the file the preview shows.
+private const val PreviewRows = 10
+
 @Composable
 fun CSVScreen(
     screen: CSVScreen,
@@ -176,7 +179,7 @@ fun LazyListScope.spacer8() {
 }
 
 @Composable
-fun Spacer8(horizontal: Boolean = false) {
+internal fun Spacer8(horizontal: Boolean = false) {
     if (horizontal) {
         Spacer(modifier = Modifier.width(8.dp))
     } else {
@@ -193,7 +196,7 @@ private fun LazyListScope.csvTable(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            val visibleRows = remember(csv) { csv.take(10) }
+            val visibleRows = remember(csv) { csv.take(PreviewRows) }
             visibleRows.forEachIndexed { index, row ->
                 CSVRow(row = row, header = index == 0, even = index % 2 == 0)
             }
@@ -481,7 +484,7 @@ private fun TypeMetadata(
 }
 
 @Composable
-fun LabelContainsField(
+private fun LabelContainsField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,

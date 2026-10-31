@@ -8,15 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.ThemeState
-import com.ivy.legacy.utils.ioThread
-import com.ivy.legacy.utils.readOnly
+import com.ivy.wallet.utils.ioThread
+import com.ivy.wallet.utils.readOnly
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
-import com.ivy.wallet.domain.deprecated.logic.notification.TransactionReminderScheduler
+import com.ivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import com.ivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +46,13 @@ class RootViewModel @Inject constructor(
 
     private var appLockEnabled = false
 
+    // The activity is recreated on configuration changes (dark mode, language, and from
+    // Android 16 rotation on tablets, where the portrait lock no longer applies) and calls
+    // start() again. This ViewModel outlives that, so the first navigation, which would
+    // otherwise send the user back to the home or add-transaction screen, and the migrations
+    // run once.
+    private var started = false
+
     private val _appLocked = MutableStateFlow<Boolean?>(null)
     val appLocked = _appLocked.readOnly()
 
@@ -61,6 +66,9 @@ class RootViewModel @Inject constructor(
                 appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
             }
         }
+
+        if (started) return
+        started = true
 
         viewModelScope.launch {
             ioThread {

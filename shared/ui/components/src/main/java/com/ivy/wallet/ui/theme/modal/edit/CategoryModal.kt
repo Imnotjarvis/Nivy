@@ -38,13 +38,13 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.domain.legacy.ui.IvyColorPicker
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.ui.IvyColorPicker
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
@@ -67,6 +67,7 @@ fun BoxWithConstraintsScope.CategoryModal(
     modal: CategoryModalData?,
     onCreateCategory: (CreateCategoryData) -> Unit,
     onEditCategory: (Category) -> Unit,
+    modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
     val initialCategory = modal?.category
@@ -85,10 +86,11 @@ fun BoxWithConstraintsScope.CategoryModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = modal?.category,
                 enabled = nameTextFieldValue.text.isNotNullOrBlank()
@@ -169,7 +171,7 @@ fun BoxWithConstraintsScope.CategoryModal(
 }
 
 @Composable
-fun IconNameRow(
+internal fun IconNameRow(
     hint: String,
     @DrawableRes defaultIcon: Int,
     color: Color,
@@ -185,7 +187,7 @@ fun IconNameRow(
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val nameFocus = FocusRequester()
+        val nameFocus = remember { FocusRequester() }
 
         LaunchedEffect(Unit) {
             if (autoFocusKeyboard) {

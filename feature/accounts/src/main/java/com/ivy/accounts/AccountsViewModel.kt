@@ -16,11 +16,11 @@ import com.ivy.data.DataWriteEvent
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.domain.features.Features
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.AccountData
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.AccountData
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
@@ -28,7 +28,6 @@ import com.ivy.wallet.domain.action.viewmodel.account.AccountDataAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -83,13 +82,13 @@ class AccountsViewModel @Inject constructor(
         }
 
         return AccountsState(
-            baseCurrency = getBaseCurrency(),
-            accountsData = getAccountsData(),
-            totalBalanceWithExcluded = getTotalBalanceWithExcluded(),
-            totalBalanceWithExcludedText = getTotalBalanceWithExcludedText(),
-            totalBalanceWithoutExcluded = getTotalBalanceWithoutExcluded(),
-            totalBalanceWithoutExcludedText = getTotalBalanceWithoutExcludedText(),
-            reorderVisible = getReorderVisible(),
+            baseCurrency = baseCurrency,
+            accountsData = accountsData.toImmutableList(),
+            totalBalanceWithExcluded = totalBalanceWithExcluded,
+            totalBalanceWithExcludedText = totalBalanceWithExcludedText,
+            totalBalanceWithoutExcluded = totalBalanceWithoutExcluded,
+            totalBalanceWithoutExcludedText = totalBalanceWithoutExcludedText,
+            reorderVisible = reorderVisible,
             compactAccountsModeEnabled = getCompactAccountsMode(),
             hideTotalBalance = getHideTotalBalance()
         )
@@ -98,41 +97,6 @@ class AccountsViewModel @Inject constructor(
     @Composable
     private fun getHideTotalBalance(): Boolean {
         return features.hideTotalBalance.asEnabledState()
-    }
-
-    @Composable
-    private fun getBaseCurrency(): String {
-        return baseCurrency
-    }
-
-    @Composable
-    private fun getAccountsData(): ImmutableList<AccountData> {
-        return accountsData.toImmutableList()
-    }
-
-    @Composable
-    private fun getTotalBalanceWithExcluded(): String {
-        return totalBalanceWithExcluded
-    }
-
-    @Composable
-    private fun getTotalBalanceWithExcludedText(): String {
-        return totalBalanceWithExcludedText
-    }
-
-    @Composable
-    private fun getTotalBalanceWithoutExcluded(): String {
-        return totalBalanceWithoutExcluded
-    }
-
-    @Composable
-    private fun getTotalBalanceWithoutExcludedText(): String {
-        return totalBalanceWithoutExcludedText
-    }
-
-    @Composable
-    private fun getReorderVisible(): Boolean {
-        return reorderVisible
     }
 
     @Composable
@@ -166,7 +130,7 @@ class AccountsViewModel @Inject constructor(
     }
 
     private suspend fun startInternally() {
-        val period = com.ivy.legacy.data.model.TimePeriod.currentMonth(
+        val period = com.ivy.wallet.data.model.TimePeriod.currentMonth(
             startDayOfMonth = periodState.startDayOfMonth,
             timeProvider = timeProvider,
         ) // this must be monthly

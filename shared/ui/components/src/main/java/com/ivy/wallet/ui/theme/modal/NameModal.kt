@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyTitleTextField
@@ -28,16 +28,18 @@ fun BoxWithConstraintsScope.NameModal(
     visible: Boolean,
     name: String,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     onNameChanged: (String) -> Unit
 ) {
     var modalName by remember(id) { mutableStateOf(selectEndTextFieldValue(name)) }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave {
                 onNameChanged(modalName.text)
                 dismiss()

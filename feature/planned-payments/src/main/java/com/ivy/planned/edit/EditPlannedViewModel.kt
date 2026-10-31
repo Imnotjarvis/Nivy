@@ -15,7 +15,7 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PlannedPaymentRuleId
@@ -27,14 +27,14 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.planned.PlannedPaymentsGenerator
-import com.ivy.legacy.domain.deprecated.logic.AccountCreator
+import com.ivy.wallet.domain.logic.AccountCreator
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.CategoryCreator
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.wallet.ui.theme.modal.RecurringRuleModalData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
@@ -91,133 +91,28 @@ class EditPlannedViewModel @Inject constructor(
     @Composable
     override fun uiState(): EditPlannedScreenState {
         return EditPlannedScreenState(
-            currency = getCurrency(),
-            categories = getCategories(),
-            accounts = getAccounts(),
-            transactionType = getTransactionType(),
-            startDate = getStartDate(),
-            intervalN = getIntervalN(),
-            oneTime = getOneTime(),
-            account = getAccount(),
-            category = getCategory(),
-            amount = getAmount(),
-            initialTitle = getInitialTitle(),
-            description = getDescription(),
-            intervalType = getIntervalType(),
-            categoryModalVisible = getCategoryModalVisibility(),
-            categoryModalData = getCategoryModalData(),
-            accountModalData = getAccountModalData(),
-            deleteTransactionModalVisible = getDeleteTransactionModalVisibility(),
-            descriptionModalVisible = getDescriptionModalVisibility(),
-            amountModalVisible = getAmountModalVisibility(),
-            transactionTypeModalVisible = getTransactionTypeModalVisibility(),
-            recurringRuleModalData = getRecurringRuleModalData()
+            currency = currency,
+            categories = categories,
+            accounts = accounts,
+            transactionType = transactionType,
+            startDate = startDate,
+            intervalN = intervalN,
+            oneTime = oneTime,
+            account = account,
+            category = category,
+            amount = amount,
+            initialTitle = initialTitle,
+            description = description,
+            intervalType = intervalType,
+            categoryModalVisible = categoryModalVisible,
+            categoryModalData = categoryModalData,
+            accountModalData = accountModalData,
+            deleteTransactionModalVisible = deleteTransactionModalVisible,
+            descriptionModalVisible = descriptionModalVisible,
+            amountModalVisible = amountModalVisible,
+            transactionTypeModalVisible = transactionTypeModalVisible,
+            recurringRuleModalData = recurringRuleModalData
         )
-    }
-
-    @Composable
-    private fun getCurrency(): String {
-        return currency
-    }
-
-    @Composable
-    private fun getCategories(): ImmutableList<Category> {
-        return categories
-    }
-
-    @Composable
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts
-    }
-
-    @Composable
-    private fun getTransactionType(): TransactionType {
-        return transactionType
-    }
-
-    @Composable
-    private fun getStartDate(): LocalDateTime? {
-        return startDate
-    }
-
-    @Composable
-    private fun getIntervalN(): Int? {
-        return intervalN
-    }
-
-    @Composable
-    private fun getIntervalType(): IntervalType? {
-        return intervalType
-    }
-
-    @Composable
-    private fun getOneTime(): Boolean {
-        return oneTime
-    }
-
-    @Composable
-    private fun getInitialTitle(): String? {
-        return initialTitle
-    }
-
-    @Composable
-    private fun getDescription(): String? {
-        return description
-    }
-
-    @Composable
-    private fun getAccount(): Account? {
-        return account
-    }
-
-    @Composable
-    private fun getCategory(): Category? {
-        return category
-    }
-
-    @Composable
-    private fun getAmount(): Double {
-        return amount
-    }
-
-    @Composable
-    private fun getCategoryModalVisibility(): Boolean {
-        return categoryModalVisible
-    }
-
-    @Composable
-    private fun getDescriptionModalVisibility(): Boolean {
-        return descriptionModalVisible
-    }
-
-    @Composable
-    private fun getDeleteTransactionModalVisibility(): Boolean {
-        return deleteTransactionModalVisible
-    }
-
-    @Composable
-    private fun getTransactionTypeModalVisibility(): Boolean {
-        return transactionTypeModalVisible
-    }
-
-    @Composable
-    private fun getAmountModalVisibility(): Boolean {
-        return amountModalVisible
-    }
-
-    @Composable
-    private fun getCategoryModalData(): CategoryModalData? {
-        return categoryModalData
-    }
-
-    @Composable
-    private fun getAccountModalData(): AccountModalData? {
-        return accountModalData
-    }
-
-    @Composable
-    private fun getRecurringRuleModalData(): RecurringRuleModalData? {
-        return recurringRuleModalData
     }
 
     override fun onEvent(event: EditPlannedScreenEvent) {

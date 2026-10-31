@@ -37,17 +37,18 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.data.model.MainTab
+import com.ivy.wallet.data.model.MainTab
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.utils.springBounceFast
+import com.ivy.wallet.utils.springBounceFast
 import com.ivy.design.utils.toDensityDp
 import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
@@ -72,8 +73,10 @@ import androidx.compose.material3.MaterialTheme
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
 
+// The bar's buttons and their expand animation share one state.
+@Suppress("LongMethod")
 @Composable
-fun BoxWithConstraintsScope.BottomBar(
+internal fun BoxWithConstraintsScope.BottomBar(
     tab: MainTab,
     selectTab: (MainTab) -> Unit,
 
@@ -150,7 +153,8 @@ fun BoxWithConstraintsScope.BottomBar(
         Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = expandedBackgroundOffset)
+                // The lambda form reads the animated offset in the layout phase, not in composition.
+                .offset { IntOffset(x = 0, y = expandedBackgroundOffset.roundToPx()) }
                 .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing
@@ -299,7 +303,8 @@ private fun TransactionButtons(
                     layout(placealbe.width, placealbe.height) {
                         placealbe.place(
                             x = screenSize.width / 2 - placealbe.width / 2,
-                            y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height - FAB_BUTTON_SIZE.roundToPx()
+                            y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height -
+                                FAB_BUTTON_SIZE.roundToPx()
                         )
                     }
                 }

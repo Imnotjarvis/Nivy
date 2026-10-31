@@ -3,7 +3,7 @@ package com.ivy.wallet.domain.action.account
 import arrow.core.nonEmptyListOf
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
-import com.ivy.legacy.domain.pure.transaction.AccountValueFunctions
+import com.ivy.wallet.domain.pure.transaction.AccountValueFunctions
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.transaction.foldTransactions
 import java.math.BigDecimal

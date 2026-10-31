@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyTitleTextField
@@ -31,16 +31,18 @@ fun BoxWithConstraintsScope.AddKeywordModal(
     keyword: String,
     visible: Boolean,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     onKeywordChanged: (String) -> Unit
 ) {
     var modalKeyword by remember { mutableStateOf(selectEndTextFieldValue(keyword)) }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalAdd {
                 onKeywordChanged(modalKeyword.text)
                 dismiss()
@@ -60,7 +62,7 @@ fun BoxWithConstraintsScope.AddKeywordModal(
 
         Spacer(Modifier.height(32.dp))
 
-        val inputFocus = FocusRequester()
+        val inputFocus = remember { FocusRequester() }
 
         LaunchedEffect(Unit) {
             inputFocus.requestFocus()

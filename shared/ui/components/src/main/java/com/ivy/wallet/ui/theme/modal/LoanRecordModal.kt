@@ -38,15 +38,14 @@ import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.legacy.ui.theme.components.DateTimeRow
-import com.ivy.legacy.legacy.ui.theme.modal.ModalNameInput
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.ui.theme.components.DateTimeRow
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateLoanRecordData
-import com.ivy.wallet.domain.deprecated.logic.model.EditLoanRecordData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateLoanRecordData
+import com.ivy.wallet.domain.logic.model.EditLoanRecordData
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.components.IvyIcon
@@ -83,6 +82,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
     onEdit: (EditLoanRecordData) -> Unit,
     onDelete: (LoanRecord) -> Unit,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     accounts: List<Account> = emptyList(),
     onCreateAccount: (CreateAccountData) -> Unit = {},
 ) {
@@ -123,11 +123,12 @@ fun BoxWithConstraintsScope.LoanRecordModal(
     var accountChangeConformationModal by remember { mutableStateOf(false) }
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = true,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = initialRecord,
                 enabled = amount > 0 && selectedAcc != null

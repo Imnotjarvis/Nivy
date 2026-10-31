@@ -38,13 +38,13 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.toLowerCaseLocal
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
 import com.ivy.ui.R
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
@@ -67,7 +67,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.OnboardingCategories(
+internal fun BoxWithConstraintsScope.OnboardingCategories(
     suggestions: List<CreateCategoryData>,
     categories: List<Category>,
 

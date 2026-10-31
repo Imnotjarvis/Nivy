@@ -29,17 +29,17 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.forDisplay
-import com.ivy.legacy.ui.component.transaction.TypeAmountCurrency
-import com.ivy.legacy.ui.previewAccount
-import com.ivy.legacy.ui.previewPlannedPaymentRule
-import com.ivy.legacy.utils.formatLocal
-import com.ivy.legacy.utils.uppercaseLocal
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.forDisplay
+import com.ivy.wallet.ui.component.transaction.TypeAmountCurrency
+import com.ivy.wallet.ui.previewAccount
+import com.ivy.wallet.ui.previewPlannedPaymentRule
+import com.ivy.wallet.utils.formatLocal
+import com.ivy.wallet.utils.uppercaseLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
@@ -64,7 +64,7 @@ import com.ivy.design.system.typography.numberLabelMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun LazyItemScope.PlannedPaymentCard(
+internal fun LazyItemScope.PlannedPaymentCard(
     baseCurrency: String,
     categories: ImmutableList<Category>,
     accounts: ImmutableList<Account>,

@@ -6,10 +6,10 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
-import com.ivy.legacy.data.EditTransactionDisplayLoan
+import com.ivy.wallet.data.EditTransactionDisplayLoan
 import com.ivy.wallet.domain.data.CustomExchangeRateState
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import java.time.Instant

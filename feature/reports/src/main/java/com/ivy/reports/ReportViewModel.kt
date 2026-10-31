@@ -34,11 +34,11 @@ import com.ivy.domain.RootScreen
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.utils.getISOFormattedDateTime
-import com.ivy.legacy.utils.scopedIOThread
-import com.ivy.legacy.utils.toLowerCaseLocal
-import com.ivy.legacy.utils.uiThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.utils.getISOFormattedDateTime
+import com.ivy.wallet.utils.scopedIOThread
+import com.ivy.wallet.utils.toLowerCaseLocal
+import com.ivy.wallet.utils.uiThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -46,7 +46,7 @@ import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
-import com.ivy.legacy.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
 import com.ivy.wallet.domain.pure.transaction.trnCurrency
@@ -353,6 +353,8 @@ class ReportViewModel @Inject constructor(
             reportFilter?.trnTypes?.contains(TransactionType.TRANSFER) ?: false
     }
 
+    // One pass that applies each of the report filter's criteria.
+    @Suppress("CyclomaticComplexMethod")
     private suspend fun filterTransactions(
         baseCurrency: String,
         accounts: List<Account>,
@@ -496,7 +498,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private fun calculateBalance(incomeExpenseTransferPair: IncomeExpenseTransferPair): BigDecimal {
-        return incomeExpenseTransferPair.income + incomeExpenseTransferPair.transferIncome - incomeExpenseTransferPair.expense - incomeExpenseTransferPair.transferExpense
+        return with(incomeExpenseTransferPair) { income + transferIncome - expense - transferExpense }
     }
 
     private suspend fun export(context: Context) {

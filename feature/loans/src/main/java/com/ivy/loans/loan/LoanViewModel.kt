@@ -15,7 +15,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
@@ -24,17 +24,17 @@ import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.LoanRepository
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
-import com.ivy.legacy.domain.deprecated.logic.AccountCreator
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.getDefaultFIATCurrency
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.domain.logic.AccountCreator
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.getDefaultFIATCurrency
+import com.ivy.wallet.utils.ioThread
 import com.ivy.loans.loan.data.DisplayLoan
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.loan.LoansAct
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateLoanData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateLoanData
 import com.ivy.wallet.ui.theme.modal.LoanModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -46,6 +46,8 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
+
+private const val Percent = 100
 
 @Stable
 @HiltViewModel
@@ -88,59 +90,24 @@ class LoanViewModel @Inject constructor(
         }
 
         return LoanScreenState(
-            baseCurrency = getBaseCurrencyCode(),
-            accounts = getAccounts(),
-            selectedAccount = getSelectedAccount(),
-            loanModalData = getLoanModalData(),
-            reorderModalVisible = getReorderModalVisible(),
+            baseCurrency = baseCurrencyCode,
+            accounts = accounts,
+            selectedAccount = selectedAccount,
+            loanModalData = loanModalData,
+            reorderModalVisible = reorderModalVisible,
             totalOweAmount = getTotalOweAmount(totalOweAmount, defaultCurrencyCode),
             totalOwedAmount = getTotalOwedAmount(totalOwedAmount, defaultCurrencyCode),
-            paidOffLoanVisibility = getPaidOffLoanVisibility(),
+            paidOffLoanVisibility = paidOffLoanVisibility,
             dateTime = dateTime,
-            selectedTab = getSelectedTab(),
-            completedLoans = getCompletedLoans(),
-            pendingLoans = getPendingLoans()
+            selectedTab = selectedTab,
+            completedLoans = completedLoans,
+            pendingLoans = pendingLoans
         )
     }
 
     fun setTab(tab: LoanTab) {
         selectedTab = tab
     }
-
-    @Composable
-    private fun getSelectedTab(): LoanTab {
-        return selectedTab
-    }
-
-    @Composable
-    private fun getCompletedLoans(): ImmutableList<DisplayLoan> {
-        return completedLoans
-    }
-
-    @Composable
-    private fun getPendingLoans(): ImmutableList<DisplayLoan> {
-        return pendingLoans
-    }
-
-    @Composable
-    private fun getReorderModalVisible() = reorderModalVisible
-
-    @Composable
-    private fun getLoanModalData() = loanModalData
-
-    @Composable
-    private fun getBaseCurrencyCode(): String {
-        return baseCurrencyCode
-    }
-
-    @Composable
-    private fun getSelectedAccount() = selectedAccount
-
-    @Composable
-    private fun getAccounts() = accounts
-
-    @Composable
-    private fun getPaidOffLoanVisibility(): Boolean = paidOffLoanVisibility
 
     override fun onEvent(event: LoanScreenEvent) {
         when (event) {
@@ -233,7 +200,7 @@ class LoanViewModel @Inject constructor(
                                 )
                             } $currCode (${
                                 percentPaid.times(
-                                    100
+                                    Percent
                                 ).format(2)
                             }%)",
                             percentPaid = percentPaid

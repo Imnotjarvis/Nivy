@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyToolbar
@@ -24,9 +24,10 @@ fun OnboardingToolbar(
     hasSkip: Boolean,
 
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     onSkip: () -> Unit
 ) {
-    IvyToolbar(onBack = onBack) {
+    IvyToolbar(modifier = modifier, onBack = onBack) {
         if (hasSkip) {
             Spacer(Modifier.weight(1f))
 

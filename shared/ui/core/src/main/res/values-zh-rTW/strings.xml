@@ -12,7 +12,6 @@
     <string name="unlock">解鎖</string>
     <string name="current_balance">當前餘額</string>
     <string name="balance_after_payments">經常交易後的餘額</string>
-    <string name="connect">連接</string>
     <string name="add_budget">新增預算</string>
     <string name="no_budgets">沒有預算</string>
     <string name="no_budgets_text">您尚未設定任何預算。\n點擊 "+ 新增預算" 即可新增預算。</string>
@@ -27,9 +26,6 @@
     <string name="add_manual_exchange_rate">新增匯率</string>
     <string name="expenses">支出</string>
     <string name="income">收入</string>
-    <string name="balance">餘額%1$s</string>
-    <string name="charts">圖表</string>
-    <string name="period">期間: </string>
     <string name="categories">類別</string>
     <string name="export_csv_file">匯出 CSV 檔案</string>
     <string name="export_csv_file_standard">使用標準選項匯出 CSV 檔案</string>
@@ -50,7 +46,7 @@
     <string name="online_csv_converter_free">線上 CSV 轉換器 免費</string>
     <string name="check_email_spam">檢查電子郵件的「促銷」和「垃圾郵件」資料夾</string>
     <string name="download_email_file">下載電子郵件附件中的 \"transactions_export…\" 檔案。</string>
-    <string name="download_email_file_description">如果您有多種貨幣，則必須下載每個 \"transactions_export…\" 檔案並將其匯入至 Ivy 中。</string>
+    <string name="download_email_file_description">如果您有多種貨幣，則必須下載每個 \"transactions_export…\" 檔案並將其匯入至 Nivy 中。</string>
     <string name="import_from">導入自</string>
     <string name="please_wait">請稍候</string>
     <string name="importing_the_csv_file">導入 CSV 檔案</string>
@@ -132,12 +128,9 @@
     <string name="account_transfer">帳戶轉移</string>
     <string name="skip">跳過</string>
     <string name="add_new">新增新的</string>
-    <string name="range">範圍</string>
-    <string name="enter_your_name">輸入您的姓名\n以個性化您的\n錢包</string>
     <string name="what_is_your_name">你叫什麼名字?</string>
     <string name="enter">輸入</string>
     <string name="add_accounts">新增帳戶</string>
-    <string name="suggestion">建議</string>
     <string name="next">下一個</string>
     <string name="add_categories">新增類別</string>
     <string name="suggestions">建議</string>
@@ -145,7 +138,7 @@
     <string name="your_personal_money_manager">您的個人資金經理</string>
     <string name="continue_offline">離線繼續</string>
     <string name="import_csv_file">導入 CSV 檔案</string>
-    <string name="from_ivy_or_another_app">來自 Ivy 或其他應用程式</string>
+    <string name="from_ivy_or_another_app">來自 Nivy 或其他應用程式</string>
     <string name="importing_another_time_warning">從其他應用程式匯入備份檔案可能需要 5 分鐘。如果您願意，您可以隨時匯入資料。</string>
     <string name="import_backup_file">導入備份檔</string>
     <string name="start_fresh">重新開始</string>
@@ -216,7 +209,6 @@
     <string name="hide_balance_description">點選隱藏餘額 5 秒即可顯示</string>
     <string name="hide_income">隱藏收入</string>
     <string name="hide_income_description">點選隱藏收入 5 秒即可顯示</string>
-    <string name="other">其他</string>
     <string name="danger_zone">危險區域</string>
     <string name="delete_all_user_data">刪除所有用戶資料</string>
     <string name="delete_all_user_data_question">刪除所有用戶資料?</string>
@@ -229,7 +221,6 @@
     <string name="exporting_data_description">請稍候，正在匯出資料</string>
     <string name="start_date_of_month">月份的開始日期</string>
     <string name="account_uppercase">帳戶</string>
-    <string name="logout">登出</string>
     <string name="anonymous">匿名</string>
     <string name="export_to_csv">匯出為 CSV</string>
     <string name="left_to_spend">剩餘費用</string>
@@ -264,7 +255,6 @@
     <string name="delete">刪除</string>
     <string name="save">保存</string>
     <string name="add">新增</string>
-    <string name="create">建立</string>
     <string name="edit_loan">編輯借貸</string>
     <string name="new_loan">新借貸</string>
     <string name="loan_name">借貸名稱</string>
@@ -324,10 +314,9 @@
     <string name="create_first_planned_payment">建立您的第一個經常交易</string>
     <string name="create_first_planned_payment_description">追蹤您的常規交易，例如訂閱、租金和薪水。透過事先了解您所欠或預計收到的金額來掌握您的財務狀況。</string>
     <string name="did_you_know">你知道嗎?</string>
-    <string name="widget_description">Ivy Wallet 有一個很酷的小部件，讓您只需從主畫面點擊一下即可新增交易。\n\n注意: 如果 "新增小工具" 按鈕不起作用，請從啟動器的小工具選單中手動新增。</string>
+    <string name="widget_description">Nivy 有一個很酷的小部件，讓您只需從主畫面點擊一下即可新增交易。\n\n注意: 如果 "新增小工具" 按鈕不起作用，請從啟動器的小工具選單中手動新增。</string>
     <string name="add_widget">新增小工具</string>
     <string name="expenses_piechart">支出圓餅圖</string>
-    <string name="adjust_balance">調整平衡</string>
     <string name="authentication_required">需要身份驗證</string>
     <string name="authentication_required_description">驗證存取應用程式</string>
     <string name="total_budget">總預算</string>
@@ -363,7 +352,6 @@
     <string name="skip_all">全部跳過</string>
     <string name="confirm_skip_all">確認跳過全部</string>
     <string name="confirm_skip_all_description">您確定要跳過所有逾期的經常交易嗎?</string>
-    <string name="experimental">實驗</string>
     <string name="wallet_balance">錢包餘額</string>
     <string name="total_exclusive">總計 (不含): %1$s %2$s</string>
     <string name="total_balance">總餘額</string>
@@ -383,12 +371,9 @@
     <string name="this_transaction_is_associated_with_loan_record">* 此交易與借貸的借貸記錄相關聯: %1$s</string>
     <string name="note_transaction_associated_with_loan_record_of_loan">注意: 此交易與借貸的借貸記錄關聯: %1$s\n您正在嘗試將與借貸記錄關聯的帳戶更改為不同貨幣的帳戶\n借貸記錄將根據今天重新計算\的貨幣匯率</string>
     <string name="note_you_are_trying_to_change_the_account_associated_with_the_loan">注意: 您正在嘗試將與借貸關聯的帳戶: %1$s 更改為不同貨幣的帳戶，\n所有借貸記錄將根據今天的貨幣匯率重新計算</string>
-    <string name="icons">圖示</string>
     <string name="tap_to_switch_theme">點擊切換主題</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F 不要用於備份目的</string>
     <string name="done">完成</string>
-    <string name="error">錯誤</string>
-    <string name="loading">正在加載…</string>
     <string name="try_again">再試一次</string>
     <string name="you_can_see_a_piechart">點擊上面對應的卡片即可查看您的收入和支出的圓餅圖!</string>
     <string name="please_type_category_name">請輸入 \"%1$s\" 以刪除您的類別。</string>
@@ -400,7 +385,7 @@
     <string name="csv_import_failed">如果這不起作用，請嘗試手動 CSV 匯入。</string>
     <string name="import_a_csv_file_to_continue">匯入 CSV 檔案以繼續。</string>
     <string name="import_csv_continue">繼續</string>
-    <string name="warning_import_csv_file">"\n!!!⚠️警告: 導入可能會重複交易!!!\n重複的交易無法輕易刪除，您需要手動刪除其中的每一項!\n原因: 我們無法解析交易 ID，因為 Ivy wallet 僅適用於 UUID，而其他應用程式則不能。\n如果您剛開始，不用擔心 -請忽略此訊息。"</string>
+    <string name="warning_import_csv_file">"\n!!!⚠️警告: 導入可能會重複交易!!!\n重複的交易無法輕易刪除，您需要手動刪除其中的每一項!\n原因: 我們無法解析交易 ID，因為 Nivy wallet 僅適用於 UUID，而其他應用程式則不能。\n如果您剛開始，不用擔心 -請忽略此訊息。"</string>
     <string name="select_tags">選擇標籤</string>
     <string name="bill_paid">您的 %1$s %2$s 帳單已支付</string>
     <string name="language">語言</string>

@@ -1,7 +1,7 @@
 package com.ivy.wallet.domain.pure.data
 
 import com.ivy.base.time.TimeProvider
-import com.ivy.legacy.utils.ivyMinTime
+import com.ivy.wallet.utils.ivyMinTime
 import java.time.Instant
 
 data class ClosedTimeRange(

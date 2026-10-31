@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,21 +40,22 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.domain.di.FeaturesEntryPoint
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.amountToDouble
-import com.ivy.legacy.utils.amountToDoubleOrNull
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.formatInputAmount
-import com.ivy.legacy.utils.formatInt
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.utils.amountToDouble
+import com.ivy.wallet.utils.amountToDoubleOrNull
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.formatInputAmount
+import com.ivy.wallet.utils.formatInt
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.localDecimalSeparator
+import com.ivy.wallet.utils.localDecimalSeparator
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
-import com.ivy.wallet.ui.theme.modal.modalPreviewActionRowHeight
+import com.ivy.wallet.ui.theme.modal.ModalPreviewActionRowHeight
 import dagger.hilt.android.EntryPointAccessors
+import timber.log.Timber
 import java.util.UUID
 import kotlin.math.truncate
 import androidx.compose.material3.MaterialTheme
@@ -69,9 +71,10 @@ fun BoxWithConstraintsScope.AmountModal(
     currency: String,
     initialAmount: Double?,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     showPlusMinus: Boolean = false,
     decimalCountMax: Int = 2,
-    Header: (@Composable () -> Unit)? = null,
+    header: (@Composable () -> Unit)? = null,
     amountSpacerTop: Dp = 64.dp,
     onAmountChanged: (Double) -> Unit,
 ) {
@@ -92,10 +95,11 @@ fun BoxWithConstraintsScope.AmountModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             IvyIcon(
                 modifier = circleButtonModifier(
                     size = 52.dp,
@@ -119,11 +123,11 @@ fun BoxWithConstraintsScope.AmountModal(
                     onAmountChanged(amount.amountToDouble())
                     dismiss()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.e(e)
                 }
             }
         },
-        SecondaryActions = {
+        secondaryActions = {
             if (showPlusMinus) {
                 Row {
                     Spacer(modifier = Modifier.width(24.dp))
@@ -148,7 +152,7 @@ fun BoxWithConstraintsScope.AmountModal(
             }
         }
     ) {
-        Header?.invoke()
+        header?.invoke()
 
         Spacer(Modifier.height(amountSpacerTop))
 
@@ -190,7 +194,7 @@ fun BoxWithConstraintsScope.AmountModal(
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun AmountCurrency(
+private fun AmountCurrency(
     amount: String,
     currency: String,
 ) {
@@ -306,16 +310,16 @@ private fun formatNumber(number: String): String? {
 )
 @Suppress("ParameterNaming")
 @Composable
-fun AmountKeyboard(
+internal fun AmountKeyboard(
     forCalculator: Boolean,
     onNumberPressed: (String) -> Unit,
     onDecimalPoint: () -> Unit,
     horizontalPadding: Dp = 0.dp,
-    ZeroRow: (@Composable RowScope.() -> Unit)? = null,
-    FirstRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    SecondRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    ThirdRowExtra: (@Composable RowScope.() -> Unit)? = null,
-    FourthRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    zeroRow: (@Composable RowScope.() -> Unit)? = null,
+    firstRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    secondRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    thirdRowExtra: (@Composable RowScope.() -> Unit)? = null,
+    fourthRowExtra: (@Composable RowScope.() -> Unit)? = null,
     onBackspace: () -> Unit,
 ) {
     /**
@@ -350,7 +354,7 @@ fun AmountKeyboard(
         )
     }
 
-    if (ZeroRow != null) {
+    if (zeroRow != null) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -358,7 +362,7 @@ fun AmountKeyboard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ZeroRow.invoke(this)
+            zeroRow.invoke(this)
         }
 
         Spacer(Modifier.height(8.dp))
@@ -382,9 +386,9 @@ fun AmountKeyboard(
             }
 
             when (rowIndex) {
-                0 -> FirstRowExtra?.invoke(this)
-                1 -> SecondRowExtra?.invoke(this)
-                2 -> ThirdRowExtra?.invoke(this)
+                0 -> firstRowExtra?.invoke(this)
+                1 -> secondRowExtra?.invoke(this)
+                2 -> thirdRowExtra?.invoke(this)
             }
         }
 
@@ -423,7 +427,7 @@ fun AmountKeyboard(
             tint = Red
         )
 
-        FourthRowExtra?.invoke(this)
+        fourthRowExtra?.invoke(this)
     }
 }
 
@@ -449,7 +453,7 @@ fun CircleNumberButton(
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun KeypadCircleButton(
+internal fun KeypadCircleButton(
     text: String,
     testTag: String,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -473,6 +477,7 @@ fun KeypadCircleButton(
 
 @SuppressLint("ComposableModifierFactory", "ModifierFactoryExtensionFunction")
 @Composable
+@ReadOnlyComposable
 private fun circleButtonModifier(
     size: Dp = 80.dp,
     onClick: () -> Unit,
@@ -493,7 +498,7 @@ private fun circleButtonModifier(
 private fun Preview() {
     IvyWalletPreview {
         BoxWithConstraints(
-            modifier = Modifier.padding(bottom = modalPreviewActionRowHeight())
+            modifier = Modifier.padding(bottom = ModalPreviewActionRowHeight)
         ) {
             AmountModal(
                 id = UUID.randomUUID(),

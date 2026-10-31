@@ -14,7 +14,7 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.design.system.colors.RedLight
-import com.ivy.legacy.data.model.toCloseTimeRange
+import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.piechart.CategoryAmount
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -193,7 +193,7 @@ class PieChartAct @Inject constructor(
 
     data class Input(
         val baseCurrency: String,
-        val range: com.ivy.legacy.data.model.FromToTimeRange,
+        val range: com.ivy.wallet.data.model.FromToTimeRange,
         val type: TransactionType,
         val accountIdFilterList: List<UUID>,
         val treatTransferAsIncExp: Boolean = false,

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.data.model.Category
-import com.ivy.legacy.data.model.AccountBalance
+import com.ivy.wallet.data.model.AccountBalance
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.steps.OnboardingAccounts
 import com.ivy.onboarding.steps.OnboardingCategories
@@ -16,8 +16,8 @@ import com.ivy.onboarding.steps.OnboardingSplashLogin
 import com.ivy.onboarding.steps.OnboardingType
 import com.ivy.onboarding.viewmodel.OnboardingViewModel
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.runtime.LaunchedEffect
 import androidx.activity.compose.BackHandler

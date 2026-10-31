@@ -34,17 +34,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.data.model.IntervalType
+import com.ivy.base.model.IntervalType
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.LocalPeriodState
-import com.ivy.legacy.data.model.FromToTimeRange
-import com.ivy.legacy.data.model.LastNTimeRange
-import com.ivy.legacy.data.model.Month.Companion.fromMonthValue
-import com.ivy.legacy.data.model.Month.Companion.monthsList
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.LocalPeriodState
+import com.ivy.wallet.data.model.FromToTimeRange
+import com.ivy.wallet.data.model.LastNTimeRange
+import com.ivy.wallet.data.model.Month.Companion.fromMonthValue
+import com.ivy.wallet.data.model.Month.Companion.monthsList
+import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.design.utils.addKeyboardListener
-import com.ivy.legacy.utils.formatLocal
+import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -78,6 +78,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
     modal: ChoosePeriodModalData?,
 
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     onPeriodSelected: (TimePeriod) -> Unit
 ) {
     var period by remember(modal) {
@@ -88,11 +89,12 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
     val modalScrollState = rememberScrollState()
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
         scrollState = modalScrollState,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet(
                 enabled = period != null && period!!.isValid()
             ) {
@@ -240,7 +242,7 @@ private fun ColumnScope.ChooseMonth(
 }
 
 data class MonthYear(
-    val month: com.ivy.legacy.data.model.Month,
+    val month: com.ivy.wallet.data.model.Month,
     val year: Int
 ) {
     @Composable
@@ -484,7 +486,7 @@ private fun ColumnScope.LastNPeriod(
             onSelected(
                 lastNTimeRange?.copy(
                     periodN = it
-                ) ?: com.ivy.legacy.data.model.LastNTimeRange(
+                ) ?: com.ivy.wallet.data.model.LastNTimeRange(
                     periodN = it,
                     periodType = IntervalType.WEEK
                 )
@@ -494,7 +496,7 @@ private fun ColumnScope.LastNPeriod(
             onSelected(
                 lastNTimeRange?.copy(
                     periodType = it
-                ) ?: com.ivy.legacy.data.model.LastNTimeRange(
+                ) ?: com.ivy.wallet.data.model.LastNTimeRange(
                     periodN = 1,
                     periodType = it
                 )

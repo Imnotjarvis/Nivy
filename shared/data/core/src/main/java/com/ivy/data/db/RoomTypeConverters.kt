@@ -1,10 +1,10 @@
-package com.ivy.domain.db
+package com.ivy.data.db
 
 import androidx.room.TypeConverter
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
-import com.ivy.data.model.IntervalType
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.IntervalType
+import com.ivy.base.model.LoanType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset

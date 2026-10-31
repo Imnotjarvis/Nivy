@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,12 +50,11 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.legacy.ui.SearchInput
-import com.ivy.legacy.utils.balancePrefix
-import com.ivy.legacy.utils.compactBalancePrefix
-import com.ivy.legacy.utils.format
+import com.ivy.wallet.ui.SearchInput
+import com.ivy.wallet.utils.balancePrefix
+import com.ivy.wallet.utils.compactBalancePrefix
+import com.ivy.wallet.utils.format
 import com.ivy.design.utils.selectEndTextFieldValue
-import com.ivy.navigation.CategoriesScreen
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
@@ -94,7 +93,7 @@ import com.ivy.design.system.typography.numberTitleLarge
 import androidx.compose.material3.VerticalDivider
 
 @Composable
-fun BoxWithConstraintsScope.CategoriesScreen(screen: CategoriesScreen) {
+fun BoxWithConstraintsScope.CategoriesScreen() {
     val viewModel: CategoriesViewModel = screenScopedViewModel()
     val state = viewModel.uiState()
 
@@ -172,9 +171,6 @@ private fun BoxWithConstraintsScope.UI(
                 currency = state.baseCurrency,
                 categoryData = categoryData,
                 compactModeEnabled = state.compactCategoriesModeEnabled,
-                onLongClick = {
-                    onEvent(CategoriesScreenEvent.OnReorderModalVisible(true))
-                }
             ) {
                 nav.navigateTo(
                     TransactionsScreen(
@@ -254,7 +250,6 @@ private fun CategoryCard(
     currency: String,
     categoryData: CategoryData,
     compactModeEnabled: Boolean,
-    onLongClick: () -> Unit,
     onClick: () -> Unit
 ) {
     val contrastColor = findContrastTextColor(categoryData.category.color.value.toComposeColor())
@@ -580,7 +575,7 @@ fun BoxWithConstraintsScope.SortModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet {
                 applyChange()
             }

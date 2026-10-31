@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.domain.deprecated.logic.csv.model.ImportType
+import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.navigation.CSVScreen
 import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingToolbar
@@ -39,7 +39,7 @@ import com.ivy.navigation.rememberOnBack
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.ImportFrom(
+internal fun BoxWithConstraintsScope.ImportFrom(
     hasSkip: Boolean,
     launchedFromOnboarding: Boolean,
 
@@ -162,7 +162,7 @@ private fun ImportOption(
 @Preview
 @Composable
 private fun Preview() {
-    com.ivy.legacy.IvyWalletPreview {
+    com.ivy.wallet.IvyWalletPreview {
         ImportFrom(
             hasSkip = true,
             launchedFromOnboarding = false,

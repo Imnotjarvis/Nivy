@@ -14,6 +14,7 @@ import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
@@ -24,13 +25,13 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.AppStarter
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.shortenAmount
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
-import com.ivy.widgets.WidgetBase
+import com.ivy.widget.WidgetBase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -77,18 +78,18 @@ class WalletBalanceWidget(
                 currency = currency,
                 income = shortenAmount(income),
                 expense = shortenAmount(expense),
-                onIncomeClick = {
-                    getAppStarter().addTransactionStart(TransactionType.INCOME)
-                },
-                onExpenseClick = {
-                    getAppStarter().addTransactionStart(TransactionType.EXPENSE)
-                },
-                onTransferClick = {
-                    getAppStarter().addTransactionStart(TransactionType.TRANSFER)
-                },
-                onWidgetClick = {
-                    getAppStarter().defaultStart()
-                },
+                // Activity actions, so a tap opens the app directly instead of going through a
+                // broadcast receiver.
+                onIncomeClick = actionStartActivity(
+                    getAppStarter().addTransactionIntent(TransactionType.INCOME)
+                ),
+                onExpenseClick = actionStartActivity(
+                    getAppStarter().addTransactionIntent(TransactionType.EXPENSE)
+                ),
+                onTransferClick = actionStartActivity(
+                    getAppStarter().addTransactionIntent(TransactionType.TRANSFER)
+                ),
+                onWidgetClick = actionStartActivity(getAppStarter().homeIntent()),
             )
         }
     }

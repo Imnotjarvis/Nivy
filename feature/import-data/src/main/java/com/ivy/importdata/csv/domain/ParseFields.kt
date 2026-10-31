@@ -15,19 +15,16 @@ import java.util.Locale
 import kotlin.math.abs
 
 // region Parse amount
+private val AmountMultipliers = setOf(10, 100, 1_000, 10_000)
+
 fun parseAmount(
     value: String,
     metadata: Int // a broken multiplier
 ): Double? = tryParse {
-    val multiplier = when (metadata) {
-        -10_000 -> 0.0001
-        -1_000 -> 0.001
-        -100 -> 0.01
-        -10 -> 0.1
-        10 -> 10.0
-        100 -> 100.0
-        1_000 -> 1_000.0
-        1_0000 -> 10_000.0
+    // A positive multiplier multiplies the amount; a negative one divides it.
+    val multiplier = when {
+        metadata in AmountMultipliers -> metadata.toDouble()
+        -metadata in AmountMultipliers -> 1.0 / -metadata
         else -> 1.0
     }
     val double = parsePositiveDouble(value) ?: return@tryParse null
@@ -186,36 +183,50 @@ private fun possibleDateFormats(metadata: DateMetadata): List<String> {
 }
 // endregion
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseAccount(
     value: String,
     metadata: Unit,
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseAccountCurrency(
     value: String,
     metadata: Unit,
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseToAccount(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseToAccountCurrency(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseCategory(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseTitle(
     value: String,
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+@Suppress("UnusedParameter")
 fun parseDescription(
     value: String,
     metadata: Unit

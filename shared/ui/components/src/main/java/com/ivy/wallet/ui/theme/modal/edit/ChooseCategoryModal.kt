@@ -33,7 +33,7 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
@@ -64,6 +64,7 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
     showCategoryModal: (Category?) -> Unit,
 
     onCategoryChanged: (Category?) -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     dismiss: () -> Unit
 ) {
@@ -72,10 +73,11 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSkip {
                 save(
                     category = selectedCategory,
@@ -198,10 +200,6 @@ private fun CategoryButton(
                 drawColoredShadow(categoryColor)
             }
             .clip(CircleShape)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
             .border(
                 width = 2.dp,
                 color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
@@ -210,6 +208,10 @@ private fun CategoryButton(
             .thenIf(selected) {
                 background(categoryColor, rFull)
             }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .testTag("choose_category_button"),
         verticalAlignment = Alignment.CenterVertically
     ) {

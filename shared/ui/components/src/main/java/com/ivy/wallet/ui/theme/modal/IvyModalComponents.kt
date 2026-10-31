@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -20,7 +21,7 @@ import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun ModalDynamicPrimaryAction(
+internal fun ModalDynamicPrimaryAction(
     initialEmpty: Boolean,
     initialChanged: Boolean,
 
@@ -61,6 +62,7 @@ fun ModalDynamicPrimaryAction(
 }
 
 @Composable
+@NonRestartableComposable
 fun ModalSet(
     modifier: Modifier = Modifier,
     label: String = stringResource(R.string.set),
@@ -127,12 +129,13 @@ fun ModalSave(
 
 @Composable
 fun ModalAdd(
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     testTag: String = "modal_add",
     onClick: () -> Unit
 ) {
     ModalPositiveButton(
-        modifier = Modifier.testTag(testTag),
+        modifier = modifier.testTag(testTag),
         text = stringResource(R.string.add),
         iconStart = R.drawable.ic_plus,
         enabled = enabled,
@@ -176,12 +179,13 @@ fun ModalPositiveButton(
 
 @Composable
 fun ModalDelete(
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     testTag: String = "modal_delete",
     onClick: () -> Unit
 ) {
     IvyCircleButton(
-        modifier = Modifier
+        modifier = modifier
             .size(40.dp)
             .testTag(testTag),
         icon = R.drawable.ic_delete,
@@ -194,10 +198,11 @@ fun ModalDelete(
 
 @Composable
 fun ModalTitle(
-    text: String
+    text: String,
+    modifier: Modifier = Modifier,
 ) {
     Text(
-        modifier = Modifier.padding(horizontal = 32.dp),
+        modifier = modifier.padding(horizontal = 32.dp),
         text = text,
         style = MaterialTheme.typography.titleLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

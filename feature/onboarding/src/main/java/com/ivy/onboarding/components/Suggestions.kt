@@ -17,11 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Purple
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.ui.R
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
@@ -30,7 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun Suggestions(
+internal fun Suggestions(
     suggestions: List<Any>,
 
     onAddSuggestion: (Any) -> Unit,

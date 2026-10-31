@@ -38,12 +38,12 @@ import com.ivy.data.model.TagId
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.data.EditTransactionDisplayLoan
-import com.ivy.legacy.ui.component.edit.TransactionDateTime
-import com.ivy.legacy.ui.component.edit.core.Description
-import com.ivy.legacy.ui.component.tags.AddTagButton
-import com.ivy.legacy.ui.component.tags.ShowTagModal
-import com.ivy.legacy.ui.previewAccount
+import com.ivy.wallet.data.EditTransactionDisplayLoan
+import com.ivy.wallet.ui.component.edit.TransactionDateTime
+import com.ivy.wallet.ui.component.edit.core.Description
+import com.ivy.wallet.ui.component.tags.AddTagButton
+import com.ivy.wallet.ui.component.tags.ShowTagModal
+import com.ivy.wallet.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.IvyPreview
@@ -53,8 +53,8 @@ import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.wallet.ui.edit.core.Category
 import com.ivy.wallet.ui.edit.core.DueDate
 import com.ivy.wallet.ui.edit.core.EditBottomSheet
@@ -262,7 +262,7 @@ private fun BoxWithConstraintsScope.UI(
             )
         )
     }
-    val titleFocus = FocusRequester()
+    val titleFocus = remember { FocusRequester() }
     val scrollState = rememberScrollState()
 
     // This is to scroll the column to the customExchangeCard composable when it is shown
@@ -302,7 +302,6 @@ private fun BoxWithConstraintsScope.UI(
         Title(
             type = transactionType,
             titleFocus = titleFocus,
-            initialTransactionId = screen.initialTransactionId,
 
             titleTextFieldValue = titleTextFieldValue,
             setTitleTextFieldValue = {
@@ -446,7 +445,7 @@ private fun BoxWithConstraintsScope.UI(
         convertedAmount = customExchangeRateState.convertedAmount,
         convertedAmountCurrencyCode = customExchangeRateState.toCurrencyCode,
 
-        ActionButton = {
+        actionButton = {
             if (screen.initialTransactionId != null) {
                 // Edit mode
                 if (dueDate != null) {

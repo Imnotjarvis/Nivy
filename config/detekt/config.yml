@@ -108,7 +108,8 @@ complexity:
     active: true
     threshold: 20
     ignoreSingleWhenExpression: false
-    ignoreSimpleWhenEntries: false
+    # A `when` that maps each event to one call (the view models' onEvent) isn't complex.
+    ignoreSimpleWhenEntries: true
     ignoreNestingFunctions: false
     nestingFunctions:
       - 'also'
@@ -309,6 +310,9 @@ naming:
     allowedPattern: '^(is|has|are)'
   ClassNaming:
     active: true
+    # Room migrations are named after the versions they connect and the change, separated by
+    # an underscore: Migration129to130_LoanIncludeNote.
+    excludes: ['**/db/migration/**']
     classPattern: '[A-Z][a-zA-Z0-9]*'
   ConstructorParameterNaming:
     active: true
@@ -364,7 +368,8 @@ naming:
     packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9]*)*'
   TopLevelPropertyNaming:
     active: true
-    constantPattern: '[A-Z][A-Za-z0-9]*'
+    # PascalCase for Compose values, SCREAMING_SNAKE_CASE (Kotlin's convention) for the rest.
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
     propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
     privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
   VariableMaxLength:
@@ -608,7 +613,10 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/*.kts']
+    # Room migrations are about version numbers.
+    excludes: ['**/test/**', '**/androidTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/*.kts', '**/db/migration/**']
+    # Sizes, weights, alphas and durations in composables are layout values, read where they're used.
+    ignoreAnnotated: ['Composable']
     ignoreNumbers:
       - '-1'
       - '0'
@@ -621,7 +629,8 @@ style:
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: false
     ignoreNamedArgument: true
-    ignoreEnums: false
+    # Enum entries name their values.
+    ignoreEnums: true
     ignoreRanges: false
     ignoreExtensionFunctions: true
   MandatoryBracesLoops:
@@ -679,7 +688,8 @@ style:
       - 'equals'
     excludeLabeled: false
     excludeReturnFromLambda: true
-    excludeGuardClauses: false
+    # Early returns for invalid input (guard clauses) read better than nesting.
+    excludeGuardClauses: true
   SafeCast:
     active: true
   SerialVersionUIDInSerializableClass:
@@ -1083,8 +1093,11 @@ Compose:
     active: true
   ModifierWithoutDefault:
     active: true
+  # The screens are built from composables that emit several items (a title, a spacer, the
+  # content) straight into the caller's Column or Row; wrapping each in its own layout would
+  # change spacing and weights.
   MultipleEmitters:
-    active: true
+    active: false
   MutableParams:
     active: true
   ComposableNaming:
@@ -1097,8 +1110,10 @@ Compose:
     active: true
   RememberMissing:
     active: true
+  # Strong skipping (on by default since Compose compiler 2.0) skips composables whose
+  # List/Set/Map arguments are the same instances, so they needn't be immutable collections.
   UnstableCollections:
-    active: true
+    active: false
   ViewModelForwarding:
     active: true
   ViewModelInjection:

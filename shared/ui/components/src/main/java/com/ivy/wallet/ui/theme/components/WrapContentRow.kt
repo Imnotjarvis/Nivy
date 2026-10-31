@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -26,7 +26,7 @@ fun <T> WrapContentRow(
     modifier: Modifier = Modifier,
     verticalMarginBetweenRows: Dp = 8.dp,
     horizontalMarginBetweenItems: Dp = 8.dp,
-    ItemContent: @Composable (item: T) -> Unit
+    itemContent: @Composable (item: T) -> Unit
 ) {
     if (items.isEmpty()) return
 
@@ -34,7 +34,7 @@ fun <T> WrapContentRow(
         modifier = modifier,
         content = {
             for (item in items) {
-                ItemContent(item)
+                itemContent(item)
             }
         }
     ) { measurables, constraints ->

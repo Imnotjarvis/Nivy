@@ -22,9 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.thenIf
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.data.model.Month
-import com.ivy.legacy.data.model.Month.Companion.monthsList
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.data.model.Month
+import com.ivy.wallet.data.model.Month.Companion.monthsList
 import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
@@ -41,7 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 @SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
 @Composable
-fun BoxWithConstraintsScope.MonthPickerModal(
+private fun BoxWithConstraintsScope.MonthPickerModal(
     initialDate: LocalDate,
     visible: Boolean,
     dismiss: () -> Unit,
@@ -56,7 +56,7 @@ fun BoxWithConstraintsScope.MonthPickerModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSave {
                 onMonthSelected(selectedMonth)
                 dismiss()

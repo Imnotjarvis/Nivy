@@ -12,7 +12,6 @@
     <string name="unlock">ತೆಗೆ</string>
     <string name="current_balance">ಪ್ರಸ್ತುತ ಮೊತ್ತ</string>
     <string name="balance_after_payments">ಯೋಜಿತ ಪಾವತಿಗಳ ನಂತರದ ಮೊತ್ತ</string>
-    <string name="connect">ಸೇರಿಸು</string>
     <string name="add_budget">ಬಜೆಟ್ ಸೇರಿಸಿ</string>
     <string name="no_budgets">ಯಾವುದೇ ಬಜೆಟ್ ಇಲ್ಲ</string>
     <string name="no_budgets_text">ನಿಮ್ಮ ಬಳಿ ಯಾವುದೇ ಬಜೆಟ್ ಇಲ್ಲ.\nಬಜೆಟ್ ಸೇರಿಸಲು "+ಬಜೆಟ್ ಸೇರಿಸಿ" ಬಟನನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">ಖರ್ಚು</string>
     <string name="income">ಆದಾಯ</string>
-    <string name="balance">ಮೊತ್ತ %1$s</string>
-    <string name="charts">ನಕಾಶಗಳು</string>
-    <string name="period">ಅವಧಿ:</string>
     <string name="categories">ವರ್ಗಗಳು</string>
     <string name="export_csv_file">CSV ಫೈಲ್ ಅನ್ನು ರಫ್ತು ಮಾಡಿ</string>
     <string name="export_csv_file_standard">ಪ್ರಮಾಣಿತ ಆಯ್ಕೆಗಳೊಂದಿಗೆ CSV ಫೈಲ್ ಅನ್ನು ರಫ್ತು ಮಾಡಿ</string>
@@ -49,7 +45,7 @@
     <string name="online_csv_converter_free">ಆನ್‌ಲೈನ್ CSV ಪರಿವರ್ತಕ ಫ್ರೀಯೇ</string>
     <string name="check_email_spam">ನಿಮ್ಮ ಇಮೇಲ್‌ನ "ಪ್ರಚಾರಗಳು" ಮತ್ತು "ಸ್ಪ್ಯಾಮ್" ಫೋಲ್ಡರ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ</string>
     <string name="download_email_file">ಇಮೇಲ್‌ಗೆ ಲಗತ್ತಿಸಲಾದ \"transactions_export…\" ಫೈಲ್ ಅನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.</string>
-    <string name="download_email_file_description">ನೀವು ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚು ಕರೆನ್ಸಿಯನ್ನು ಹೊಂದಿದ್ದರೆ ನೀವು ಪ್ರತಿಯೊಂದು \"transactions_export…\" ಫೈಲ್ ಅನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಬೇಕಾಗುತ್ತದೆ ಮತ್ತು ಅದನ್ನು Ivy ವ್ಯಾಲೆಟ್ ನಲ್ಲಿ ಆಮದು ಮಾಡಿಕೊಳ್ಳಬೇಕು.</string>
+    <string name="download_email_file_description">ನೀವು ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚು ಕರೆನ್ಸಿಯನ್ನು ಹೊಂದಿದ್ದರೆ ನೀವು ಪ್ರತಿಯೊಂದು \"transactions_export…\" ಫೈಲ್ ಅನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಬೇಕಾಗುತ್ತದೆ ಮತ್ತು ಅದನ್ನು Nivy ವ್ಯಾಲೆಟ್ ನಲ್ಲಿ ಆಮದು ಮಾಡಿಕೊಳ್ಳಬೇಕು.</string>
     <string name="import_from">ಎಲ್ಲಿಂದ ಆಮದು ಮಾಡಿಕೊಳ್ಳಬೇಕು</string>
     <string name="please_wait">ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ನಿರೀಕ್ಷಿಸಿ</string>
     <string name="importing_the_csv_file">CSV ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಲಾಗುತ್ತಿದೆ</string>
@@ -129,12 +125,9 @@
     <string name="account_transfer">ಖಾತೆ ವರ್ಗಾವಣೆ</string>
     <string name="skip">ಬಿಟ್ಟುಬಿಡಿ</string>
     <string name="add_new">ಹೊಸದನ್ನು ಸೇರಿಸಿ</string>
-    <string name="range">ವ್ಯಾಪ್ತಿ</string>
-    <string name="enter_your_name">ನಿಮ್ಮ ವ್ಯಾಲೆಟ್ ಅನ್ನು ವೈಯಕ್ತೀಕರಿಸಲು\nನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ</string>
     <string name="what_is_your_name">ನಿಮ್ಮ ಹೆಸರೇನು?</string>
     <string name="enter">ನಮೂದಿಸಿ</string>
     <string name="add_accounts">ಖಾತೆಗಳನ್ನು ಸೇರಿಸಿ</string>
-    <string name="suggestion">ಸಲಹೆ</string>
     <string name="next">ಮುಂದೆ</string>
     <string name="add_categories">ವರ್ಗಗಳನ್ನು ಸೇರಿಸಿ</string>
     <string name="suggestions">ಸಲಹೆಗಳು</string>
@@ -142,7 +135,7 @@
     <string name="your_personal_money_manager">ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಹಣ ನಿರ್ವಾಹಕ</string>
     <string name="continue_offline">ಆಫ್ಲೈನ್ ಆಗಿ ಮುಂದುವರಿಯಿರಿ</string>
     <string name="import_csv_file">CSV ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿ</string>
-    <string name="from_ivy_or_another_app">Ivy ಅಥವಾ ಇನ್ನೊಂದು ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ</string>
+    <string name="from_ivy_or_another_app">Nivy ಅಥವಾ ಇನ್ನೊಂದು ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ</string>
     <string name="importing_another_time_warning">ಇನ್ನೊಂದರಿಂದ ಬ್ಯಾಕಪ್ ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಲು 5 ನಿಮಿಷಗಳವರೆಗೆ ತೆಗೆದುಕೊಳ್ಳಬಹುದು. ನೀವು ಬಯಸಿದಲ್ಲಿ ಯಾವಾಗಲೂ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಬಹುದು.</string>
     <string name="import_backup_file">ಬ್ಯಾಕಪ್ ಫೈಲ್ ಅನ್ನು ಆಮದು ಮಾಡಿ</string>
     <string name="start_fresh">ಹೊಸದಾಗಿ ಪ್ರಾರಂಭಿಸಿ</string>
@@ -211,7 +204,6 @@
     <string name="show_notifications">ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸಿ</string>
     <string name="hide_balance">ಮೊತ್ತವನ್ನು ಮರೆಮಾಡಿ</string>
     <string name="hide_balance_description">5 ಸೆಕೆಂಡುಗಳವರೆಗೆ ಮೊತ್ತವನ್ನು ತೋರಿಸಲು ಗುಪ್ತ ಮೊತ್ತವನ್ನು ಮರೆಮಾಡಿ ಕ್ಲಿಕ್ ಮಾಡಿ</string>
-    <string name="other">ಇತರೆ</string>
     <string name="danger_zone">ಅಪಾಯದ ವಲಯ</string>
     <string name="delete_all_user_data">ಎಲ್ಲಾ ಬಳಕೆದಾರರ ಡೇಟಾವನ್ನು ಅಳಿಸಿ</string>
     <string name="delete_all_user_data_question">ಎಲ್ಲಾ ಬಳಕೆದಾರರ ಡೇಟಾವನ್ನು ಅಳಿಸುವುದೇ?</string>
@@ -224,7 +216,6 @@
     <string name="exporting_data_description">ದಯವಿಟ್ಟು ನಿರೀಕ್ಷಿಸಿ, ಡೇಟಾವನ್ನು ರಫ್ತು ಮಾಡಲಾಗುತ್ತಿದೆ</string>
     <string name="start_date_of_month">ತಿಂಗಳ ಪ್ರಾರಂಭ ದಿನಾಂಕ</string>
     <string name="account_uppercase">ಖಾತೆ</string>
-    <string name="logout">ಲಾಗ್ಔಟ್</string>
     <string name="anonymous">ಅನಾಮಧೇಯ</string>
     <string name="export_to_csv">CSV ಗೆ ರಫ್ತು ಮಾಡಿ</string>
     <string name="left_to_spend">ಖರ್ಚು ಮಾಡಲು ಉಳಿದಿರುವ ಮೊತ್ತ</string>
@@ -259,7 +250,6 @@
     <string name="delete">ಅಳಿಸಿ</string>
     <string name="save">ಉಳಿಸಿ</string>
     <string name="add">ಸೇರಿಸಿ</string>
-    <string name="create">ರಚಿಸಿ</string>
     <string name="edit_loan">ಸಾಲವನ್ನು ಎಡಿಟ್ ಮಾಡಿ</string>
     <string name="new_loan">ಹೊಸ ಸಾಲ</string>
     <string name="loan_name">ಸಾಲದ ಹೆಸರು</string>
@@ -319,10 +309,9 @@
     <string name="create_first_planned_payment">ನಿಮ್ಮ ಮೊದಲ ಯೋಜಿತ ಪಾವತಿಯನ್ನು ರಚಿಸಿ</string>
     <string name="create_first_planned_payment_description">ನಿಮ್ಮ ಚಂದಾದಾರಿಕೆಗಳು, ಬಾಡಿಗೆ, ಸಂಬಳ, ಇತ್ಯಾದಿಗಳಂತಹ ಮರುಕಳಿಸುವ ವಹಿವಾಟುಗಳ ಟ್ರ್ಯಾಕಿಂಗ್ ಅನ್ನು ಸ್ವಯಂಚಾಲಿತಗೊಳಿಸಿ. ನೀವು ಎಷ್ಟು ಹಣವನ್ನು ಪಾವತಿಸಬೇಕು/ಮುಂಗಡವಾಗಿ ಪಡೆಯಬೇಕು ಎಂಬುದನ್ನು ತಿಳಿದುಕೊಳ್ಳುವ ಮೂಲಕ ನಿಮ್ಮ ಹಣಕಾಸಿನ ವಿಷಯದಲ್ಲಿ ಮುಂದೆ ಇರಿ.</string>
     <string name="did_you_know">ನಿಮಗೆ ಗೊತ್ತೇ?</string>
-    <string name="widget_description">Ivy ವಾಲೆಟ್ ವಿಜೆಟ್ ಅನ್ನು ಹೊಂದಿದ್ದು ಅದು ನಿಮ್ಮ ಮುಖಪುಟ ಪರದೆಯಿಂದ 1-ಕ್ಲಿಕ್‌ನೊಂದಿಗೆ ಆದಾಯ/ವೆಚ್ಚಗಳು/ವರ್ಗಾವಣೆ ವಹಿವಾಟುಗಳನ್ನು ಸೇರಿಸಲು ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ.\n\nಗಮನಿಸಿ: "ವಿಜೆಟ್ ಸೇರಿಸಿ" ಬಟನ್ ಕಾರ್ಯನಿರ್ವಹಿಸದಿದ್ದರೆ, ದಯವಿಟ್ಟು ಅದನ್ನು ನಿಮ್ಮ ಲಾಂಚರ್‌ನ ವಿಜೆಟ್‌ಗಳ ಮೆನುವಿನಿಂದ ಹಸ್ತಚಾಲಿತವಾಗಿ ಸೇರಿಸಿ.</string>
+    <string name="widget_description">Nivy ವಾಲೆಟ್ ವಿಜೆಟ್ ಅನ್ನು ಹೊಂದಿದ್ದು ಅದು ನಿಮ್ಮ ಮುಖಪುಟ ಪರದೆಯಿಂದ 1-ಕ್ಲಿಕ್‌ನೊಂದಿಗೆ ಆದಾಯ/ವೆಚ್ಚಗಳು/ವರ್ಗಾವಣೆ ವಹಿವಾಟುಗಳನ್ನು ಸೇರಿಸಲು ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ.\n\nಗಮನಿಸಿ: "ವಿಜೆಟ್ ಸೇರಿಸಿ" ಬಟನ್ ಕಾರ್ಯನಿರ್ವಹಿಸದಿದ್ದರೆ, ದಯವಿಟ್ಟು ಅದನ್ನು ನಿಮ್ಮ ಲಾಂಚರ್‌ನ ವಿಜೆಟ್‌ಗಳ ಮೆನುವಿನಿಂದ ಹಸ್ತಚಾಲಿತವಾಗಿ ಸೇರಿಸಿ.</string>
     <string name="add_widget">ವಿಜೆಟ್ ಸೇರಿಸಿ</string>
     <string name="expenses_piechart">ಖರ್ಚುಗಳ ಪೈಚಾರ್ಟ್</string>
-    <string name="adjust_balance">ಮೊತ್ತವನ್ನು ಹೊಂದಿಸಿ</string>
     <string name="authentication_required">ದೃಢೀಕರಣದ ಅಗತ್ಯವಿದೆ</string>
     <string name="authentication_required_description">ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಅನ್‌ಲಾಕ್ ಮಾಡಲು ನೀವು ಈ ಸಾಧನಕ್ಕೆ ಪ್ರವೇಶವನ್ನು ಹೊಂದಿರುವಿರಿ ಎಂಬುದನ್ನು ಸಾಬೀತುಪಡಿಸಿ.</string>
     <string name="total_budget">ಒಟ್ಟು ಬಜೆಟ್</string>
@@ -358,7 +347,6 @@
     <string name="skip_all">ಎಲ್ಲವನ್ನೂ ಬಿಟ್ಟುಬಿಡಿ</string>
     <string name="confirm_skip_all">ಎಲ್ಲವನ್ನೂ ಬಿಟ್ಟುಬಿಡಿ ಎಂಬುದನ್ನು ದೃಢೀಕರಿಸಿ</string>
     <string name="confirm_skip_all_description">ಎಲ್ಲಾ ಮಿತಿಮೀರಿದ ಯೋಜಿತ ಪಾವತಿಗಳನ್ನು ಬಿಟ್ಟುಬಿಡಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?</string>
-    <string name="experimental">ಪ್ರಯೋಗಾತ್ಮಕ</string>
     <string name="wallet_balance">Wallet balance</string>
     <string name="total_exclusive">ಒಟ್ಟು (ವಿಶೇಷ): %1$s %2$s</string>
     <string name="total_balance">ಒಟ್ಟು ಮೊತ್ತ</string>

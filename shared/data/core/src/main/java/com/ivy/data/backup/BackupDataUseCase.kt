@@ -3,8 +3,8 @@ package com.ivy.data.backup
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.ivy.base.legacy.unzip
-import com.ivy.base.legacy.zip
+import com.ivy.base.file.unzip
+import com.ivy.base.file.zip
 import com.ivy.base.threading.DispatchersProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
@@ -43,6 +43,17 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
+
+// How far the backup import is (0 to 1) after each of its stages.
+private object ImportProgress {
+    const val UNZIPPED = 0.05
+    const val FILES_FOUND = 0.1
+    const val PARSED = 0.4
+    const val TRANSACTIONS_SAVED = 0.6
+    const val BUDGETS_AND_CATEGORIES_SAVED = 0.7
+    const val LOANS_SAVED = 0.8
+    const val EVERYTHING_SAVED = 0.9
+}
 
 // TODO: Legacy code, needs improvements
 class BackupDataUseCase @Inject constructor(
@@ -184,7 +195,7 @@ class BackupDataUseCase @Inject constructor(
 
         val filesArray = cacheFolderPath.listFiles()
 
-        onProgress(0.05)
+        onProgress(ImportProgress.UNZIPPED)
 
         if (filesArray == null || filesArray.isEmpty()) {
             error("Couldn't unzip")
@@ -194,7 +205,7 @@ class BackupDataUseCase @Inject constructor(
             hasJsonExtension(it)
         }
 
-        onProgress(0.1)
+        onProgress(ImportProgress.FILES_FOUND)
 
         if (filesList.size != 1) {
             error("Didn't unzip exactly one file.")
@@ -213,7 +224,7 @@ class BackupDataUseCase @Inject constructor(
             json.decodeFromString<IvyWalletCompleteData>(it)
         } ?: error("Failed to parse backup JSON.")
 
-        onProgress(0.4)
+        onProgress(ImportProgress.PARSED)
         insertDataToDb(completeData = ivyWalletCompleteData, onProgress = onProgress)
         onProgress(1.0)
 
@@ -250,7 +261,7 @@ class BackupDataUseCase @Inject constructor(
     ) {
         withContext(dispatchersProvider.io) {
             transactionWriter.saveMany(completeData.transactions)
-            onProgress(0.6)
+            onProgress(ImportProgress.TRANSACTIONS_SAVED)
 
             val accounts = async {
                 val domainAccounts = with(accountMapper) {
@@ -267,7 +278,7 @@ class BackupDataUseCase @Inject constructor(
             budgets.await()
             categories.await()
 
-            onProgress(0.7)
+            onProgress(ImportProgress.BUDGETS_AND_CATEGORIES_SAVED)
 
             val loans = async { loanWriter.saveMany(completeData.loans) }
             val loanRecords =
@@ -276,7 +287,7 @@ class BackupDataUseCase @Inject constructor(
             loans.await()
             loanRecords.await()
 
-            onProgress(0.8)
+            onProgress(ImportProgress.LOANS_SAVED)
 
             val tags = async { tagsWriter.save(completeData.tags) }
             val tagAssociations = async { tagAssociationWriter.save(completeData.tagAssociations) }
@@ -316,7 +327,7 @@ class BackupDataUseCase @Inject constructor(
             tagAssociations.await()
             SoftDeletedRows.delete(db.openHelper.writableDatabase)
 
-            onProgress(0.9)
+            onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }
 

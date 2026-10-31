@@ -4,7 +4,7 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.Tag
 import com.ivy.data.model.Transaction
-import com.ivy.legacy.domain.data.TransactionHistoryItem
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.*

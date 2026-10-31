@@ -14,9 +14,9 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.piechart.action.PieChartAct
 import com.ivy.ui.ComposeViewModel
@@ -57,73 +57,18 @@ class PieChartStatisticViewModel @Inject constructor(
     @Composable
     override fun uiState(): PieChartStatisticState {
         return PieChartStatisticState(
-            transactionType = getTransactionType(),
-            period = getPeriod(),
-            baseCurrency = getBaseCurrency(),
-            totalAmount = getTotalAmount(),
-            categoryAmounts = getCategoryAmounts(),
-            selectedCategory = getSelectedCategory(),
-            accountIdFilterList = getAccountIdFilterList(),
-            showCloseButtonOnly = getShowCloseButtonOnly(),
-            filterExcluded = getFilterExcluded(),
-            transactions = getTransactions(),
-            choosePeriodModal = getChoosePeriodModal()
+            transactionType = transactionType,
+            period = period,
+            baseCurrency = baseCurrency,
+            totalAmount = totalAmount,
+            categoryAmounts = categoryAmounts,
+            selectedCategory = selectedCategory,
+            accountIdFilterList = accountIdFilterList,
+            showCloseButtonOnly = showCloseButtonOnly,
+            filterExcluded = filterExcluded,
+            transactions = transactions,
+            choosePeriodModal = choosePeriodModal
         )
-    }
-
-    @Composable
-    private fun getTransactionType(): TransactionType {
-        return transactionType
-    }
-
-    @Composable
-    private fun getPeriod(): TimePeriod {
-        return period
-    }
-
-    @Composable
-    private fun getBaseCurrency(): String {
-        return baseCurrency
-    }
-
-    @Composable
-    private fun getTotalAmount(): Double {
-        return totalAmount
-    }
-
-    @Composable
-    private fun getCategoryAmounts(): ImmutableList<CategoryAmount> {
-        return categoryAmounts
-    }
-
-    @Composable
-    private fun getSelectedCategory(): SelectedCategory? {
-        return selectedCategory
-    }
-
-    @Composable
-    private fun getAccountIdFilterList(): ImmutableList<UUID> {
-        return accountIdFilterList
-    }
-
-    @Composable
-    private fun getShowCloseButtonOnly(): Boolean {
-        return showCloseButtonOnly
-    }
-
-    @Composable
-    private fun getFilterExcluded(): Boolean {
-        return filterExcluded
-    }
-
-    @Composable
-    private fun getTransactions(): ImmutableList<Transaction> {
-        return transactions
-    }
-
-    @Composable
-    private fun getChoosePeriodModal(): ChoosePeriodModalData? {
-        return choosePeriodModal
     }
 
     override fun onEvent(event: PieChartStatisticEvent) {

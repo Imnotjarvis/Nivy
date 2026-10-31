@@ -8,7 +8,6 @@ plugins {
 configure<DetektExtension> {
     source.setFrom(projectDir)
     config.setFrom("$rootDir/config/detekt/config.yml")
-    baseline = file("$rootDir/config/detekt/baseline.yml")
     // Report paths relative to the repository, as GitHub code scanning expects.
     basePath = rootDir.absolutePath
 }

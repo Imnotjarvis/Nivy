@@ -13,7 +13,7 @@ import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
 import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.LoanRecordId
-import com.ivy.data.model.LoanType
+import com.ivy.base.model.LoanType
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.primitive.AssetCode

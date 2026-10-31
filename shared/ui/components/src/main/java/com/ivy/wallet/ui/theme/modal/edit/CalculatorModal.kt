@@ -19,12 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.amountToDoubleOrNull
-import com.ivy.legacy.utils.format
-import com.ivy.legacy.utils.formatInputAmount
-import com.ivy.legacy.utils.localDecimalSeparator
-import com.ivy.legacy.utils.normalizeExpression
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.utils.amountToDoubleOrNull
+import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.formatInputAmount
+import com.ivy.wallet.utils.localDecimalSeparator
+import com.ivy.wallet.utils.normalizeExpression
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Red
@@ -38,7 +38,7 @@ import com.ivy.design.system.typography.numberHeadlineMedium
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun BoxWithConstraintsScope.CalculatorModal(
+internal fun BoxWithConstraintsScope.CalculatorModal(
       initialAmount: Double?,
       visible: Boolean,
       currency: String,
@@ -54,7 +54,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
         id = id,
         visible = visible,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             ModalSet(
                 modifier = Modifier.testTag("calc_set")
             ) {
@@ -89,7 +89,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
 
         AmountKeyboard(
             forCalculator = true,
-            ZeroRow = {
+            zeroRow = {
                 KeypadCircleButton(
                     text = "C",
                     textColor = Red,
@@ -119,7 +119,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "÷")
                 }
             },
-            FirstRowExtra = {
+            firstRowExtra = {
                 KeypadCircleButton(
                     text = "×",
                     testTag = "key_*"
@@ -127,7 +127,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "×")
                 }
             },
-            SecondRowExtra = {
+            secondRowExtra = {
                 KeypadCircleButton(
                     text = "−",
                     testTag = "key_-"
@@ -135,7 +135,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "−")
                 }
             },
-            ThirdRowExtra = {
+            thirdRowExtra = {
                 KeypadCircleButton(
                     text = "+",
                     testTag = "key_+"
@@ -143,7 +143,7 @@ fun BoxWithConstraintsScope.CalculatorModal(
                     expression = handleOperator(expression, "+")
                 }
             },
-            FourthRowExtra = {
+            fourthRowExtra = {
                 KeypadCircleButton(
                     text = "=",
                     testTag = "key_="

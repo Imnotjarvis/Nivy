@@ -13,18 +13,18 @@ import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.data.model.TimePeriod
-import com.ivy.legacy.data.model.toCloseTimeRange
-import com.ivy.legacy.utils.ioThread
+import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.data.model.toCloseTimeRange
+import com.ivy.wallet.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.category.CategoryIncomeWithAccountFiltersAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithRangeAndAccFiltersAct
 import com.ivy.wallet.domain.data.SortOrder
-import com.ivy.wallet.domain.deprecated.logic.CategoryCreator
-import com.ivy.wallet.domain.deprecated.logic.model.CreateCategoryData
+import com.ivy.wallet.domain.logic.CategoryCreator
+import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -69,12 +69,12 @@ class CategoriesViewModel @Inject constructor(
         }
 
         return CategoriesScreenState(
-            baseCurrency = getBaseCurrency(),
+            baseCurrency = baseCurrency.value,
             categories = getCategories(),
-            reorderModalVisible = getReorderModalVisible(),
-            categoryModalData = getCategoryModalData(),
-            sortOrder = getSortOrder(),
-            sortModalVisible = getSortModalVisible(),
+            reorderModalVisible = reorderModalVisible.value,
+            categoryModalData = categoryModalData.value,
+            sortOrder = sortOrder.value,
+            sortModalVisible = sortModalVisible.value,
             compactCategoriesModeEnabled = getCompactCategoriesMode(),
             showCategorySearchBar = getShowCategorySearchBar()
         )
@@ -91,11 +91,6 @@ class CategoriesViewModel @Inject constructor(
     }
 
     @Composable
-    private fun getBaseCurrency(): String {
-        return baseCurrency.value
-    }
-
-    @Composable
     private fun getCategories(): ImmutableList<CategoryData> {
         val allCats = categories.value
         return remember(allCats, searchQuery.value) {
@@ -103,26 +98,6 @@ class CategoriesViewModel @Inject constructor(
                 searchQuery.value.lowercase().trim() in it.category.name.toString().lowercase()
             }.toImmutableList()
         }
-    }
-
-    @Composable
-    private fun getReorderModalVisible(): Boolean {
-        return reorderModalVisible.value
-    }
-
-    @Composable
-    private fun getCategoryModalData(): CategoryModalData? {
-        return categoryModalData.value
-    }
-
-    @Composable
-    private fun getSortOrder(): SortOrder {
-        return sortOrder.value
-    }
-
-    @Composable
-    private fun getSortModalVisible(): Boolean {
-        return sortModalVisible.value
     }
 
     private var allAccounts = emptyList<Account>()
@@ -165,7 +140,7 @@ class CategoriesViewModel @Inject constructor(
     }
 
     private suspend fun loadCategories() {
-        com.ivy.legacy.utils.scopedIOThread { scope ->
+        com.ivy.wallet.utils.scopedIOThread { scope ->
             val categories = categoryRepository.findAll().mapAsync(scope) {
                 val catIncomeExpense = categoryIncomeWithAccountFiltersAct(
                     CategoryIncomeWithAccountFiltersAct.Input(

@@ -24,24 +24,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import com.ivy.IvyNavGraph
 import com.ivy.base.model.Theme
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.design.system.IvyMaterial3Theme
 import com.ivy.domain.RootScreen
-import com.ivy.legacy.MainScreenState
-import com.ivy.legacy.PeriodState
-import com.ivy.legacy.ThemeState
-import com.ivy.legacy.IvyWalletTheme
-import com.ivy.legacy.isDarkTheme
-import com.ivy.legacy.utils.activityForResultLauncher
-import com.ivy.legacy.utils.simpleActivityForResultLauncher
+import com.ivy.wallet.utils.activityForResultLauncher
+import com.ivy.wallet.utils.simpleActivityForResultLauncher
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.NavigationRoot
 import com.ivy.ui.R
@@ -52,8 +44,8 @@ import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.ivy.widget.transaction.AddTransactionWidget
 import com.ivy.widget.transaction.AddTransactionWidgetCompact
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.time.LocalDate
-import java.time.LocalTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -159,73 +151,24 @@ class RootActivity : AppCompatActivity(), RootScreen {
 
     private fun setupApp() {
         setupActivityForResultLaunchers()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         AddTransactionWidget.updateBroadcast(this)
         AddTransactionWidgetCompact.updateBroadcast(this)
         WalletBalanceWidgetReceiver.updateBroadcast(this)
     }
 
-    private companion object {
-        private const val MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000
-    }
-
+    // Dismissing the dialog picks nothing.
     override fun pickDate(
         initialDate: LocalDate?,
         minDate: LocalDate?,
         maxDate: LocalDate?,
         onPicked: (LocalDate) -> Unit,
     ) {
-        val datePicker =
-            MaterialDatePicker.Builder.datePicker()
-                .setSelection(
-                    if (initialDate != null) {
-                        initialDate.toEpochDay() * MILLISECONDS_IN_DAY
-                    } else {
-                        MaterialDatePicker.todayInUtcMilliseconds()
-                    }
-                )
-                .build()
-        datePicker.show(supportFragmentManager, "datePicker")
-        datePicker.addOnPositiveButtonClickListener {
-            onPicked(LocalDate.ofEpochDay(it / MILLISECONDS_IN_DAY))
-        }
-
-        if (minDate != null) {
-            datePicker.addOnCancelListener {
-                onPicked(minDate)
-            }
-        }
-
-        if (maxDate != null) {
-            datePicker.addOnCancelListener {
-                onPicked(maxDate)
-            }
-        }
-
-        if (initialDate != null) {
-            datePicker.addOnCancelListener {
-                onPicked(initialDate)
-            }
-        }
-    }
-
-    override fun pickTime(initialTime: LocalTime?, onPicked: (LocalTime) -> Unit) {
-        val nowLocal = initialTime ?: timeProvider.localTimeNow()
-        val is24Hour = android.text.format.DateFormat.is24HourFormat(this)
-        val timeFormat = if (is24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
-
-        val picker =
-            MaterialTimePicker.Builder()
-                .setTimeFormat(timeFormat)
-                .setHour(nowLocal.hour)
-                .setMinute(nowLocal.minute)
-                .build()
-        picker.show(supportFragmentManager, "timePicker")
-        picker.addOnPositiveButtonClickListener {
-            onPicked(
-                LocalTime.of(picker.hour, picker.minute).withSecond(0)
-            )
-        }
+        dateTimePicker.pickDate(
+            initialDate = initialDate,
+            minDate = minDate,
+            maxDate = maxDate,
+            onDatePick = onPicked,
+        )
     }
 
     private fun setupActivityForResultLaunchers() {
@@ -347,14 +290,12 @@ class RootActivity : AppCompatActivity(), RootScreen {
         }
     }
 
-    @Suppress("TooGenericExceptionCaught", "PrintStackTrace")
+    @Suppress("TooGenericExceptionCaught")
     override fun openUrlInBrowser(url: String) {
         try {
-            val browserIntent = Intent(Intent.ACTION_VIEW)
-            browserIntent.data = Uri.parse(url)
-            startActivity(browserIntent)
+            startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
             Toast.makeText(
                 this,
                 "No browser app found. Visit manually: $url",

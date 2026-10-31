@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
 import com.ivy.data.model.PlannedPaymentRule
-import com.ivy.legacy.ui.component.transaction.SectionDivider
+import com.ivy.wallet.ui.component.transaction.SectionDivider
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.navigation
@@ -38,8 +38,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Suppress("LongParameterList")
 @Composable
-fun PlannedPaymentsLazyColumn(
-    Header: @Composable () -> Unit,
+internal fun PlannedPaymentsLazyColumn(
+    header: @Composable () -> Unit,
     currency: String,
     categories: ImmutableList<Category>,
     accounts: ImmutableList<Account>,
@@ -65,7 +65,7 @@ fun PlannedPaymentsLazyColumn(
         state = listState
     ) {
         item {
-            Header()
+            header()
         }
 
         plannedPaymentItems(
@@ -73,7 +73,6 @@ fun PlannedPaymentsLazyColumn(
             currency = currency,
             categories = categories,
             accounts = accounts,
-            listState = listState,
 
             oneTime = oneTime,
             oneTimeIncome = oneTimeIncome,
@@ -96,7 +95,6 @@ private fun LazyListScope.plannedPaymentItems(
     currency: String,
     categories: ImmutableList<Category>,
     accounts: ImmutableList<Account>,
-    listState: LazyListState,
 
     oneTime: ImmutableList<PlannedPaymentRule>,
     oneTimeIncome: Double,
@@ -133,7 +131,6 @@ private fun LazyListScope.plannedPaymentItems(
                 ) { plannedPaymentRule ->
                     onPlannedPaymentClick(
                         nav = nav,
-                        listState = listState,
                         rule = plannedPaymentRule
                     )
                 }
@@ -164,7 +161,6 @@ private fun LazyListScope.plannedPaymentItems(
                 ) { plannedPaymentRule ->
                     onPlannedPaymentClick(
                         nav = nav,
-                        listState = listState,
                         rule = plannedPaymentRule
                     )
                 }
@@ -186,7 +182,6 @@ private fun LazyListScope.plannedPaymentItems(
 
 private fun onPlannedPaymentClick(
     nav: Navigation,
-    listState: LazyListState,
     rule: PlannedPaymentRule,
 ) {
     nav.navigateTo(

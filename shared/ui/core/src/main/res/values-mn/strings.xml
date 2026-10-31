@@ -12,7 +12,6 @@
     <string name="unlock">Онгойлгох</string>
     <string name="current_balance">ОДООГИЙН ҮЛДЭГДЭЛ</string>
     <string name="balance_after_payments">ТӨЛӨВЛӨГӨӨТ ГҮЙЛГЭЭНИЙ ДАРААХ ҮЛДЭГДЭЛ</string>
-    <string name="connect">Холбох</string>
     <string name="add_budget">Төсөв нэмэх</string>
     <string name="no_budgets">Төсөв алга</string>
     <string name="no_budgets_text">Танд төсөв алга байна.\n"+ Төсөв нэмэх" товч дээр .</string>
@@ -26,9 +25,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Зарлага</string>
     <string name="income">Орлого</string>
-    <string name="balance">ҮЛДЭГДЭЛ %1$s</string>
-    <string name="charts">Графикууд</string>
-    <string name="period">Хугацаа:</string>
     <string name="categories">Ангиллууд</string>
     <string name="export_csv_file">CSV-р экспортлох</string>
     <string name="export_csv_file_standard">Стандарт тохиргоот CSV-р экспортлох</string>
@@ -49,7 +45,7 @@
     <string name="online_csv_converter_free">Цахим, үнэгэй CSV хөрвүүлэгч</string>
     <string name="check_email_spam">Цахим шуудангийнхаа "Сурталчилгаа" болон "Спам" хавтсыг шалгана уу</string>
     <string name="download_email_file">Цахим шуудангаар илгээсэн \"transactions_export…\" файлыг татаж авна уу.</string>
-    <string name="download_email_file_description">Хэрэв та нэгээс олон мөнгөн тэмдэгт ашигладаг бол тус бүрд нь \"transactions_export…\" файлыг авч Ivy руу оруулна.</string>
+    <string name="download_email_file_description">Хэрэв та нэгээс олон мөнгөн тэмдэгт ашигладаг бол тус бүрд нь \"transactions_export…\" файлыг авч Nivy руу оруулна.</string>
     <string name="import_from">Нөөц сэргээх байршил</string>
     <string name="please_wait">Түр хүлээнэ үү</string>
     <string name="importing_the_csv_file">CSV файлаас сэргээж байна</string>
@@ -129,12 +125,9 @@
     <string name="account_transfer">ДАНС ХООРОНД</string>
     <string name="skip">Алгасах</string>
     <string name="add_new">Нэмэх</string>
-    <string name="range">Хугацаа</string>
-    <string name="enter_your_name">Нэрээ оруулж\nсанхүүчтэйгээ\nтанилцаарай</string>
     <string name="what_is_your_name">Таны нэр?</string>
     <string name="enter">Оруулах</string>
     <string name="add_accounts">Данс нэмэх</string>
-    <string name="suggestion">Санал болгох</string>
     <string name="next">Дараагийн</string>
     <string name="add_categories">Add categories</string>
     <string name="suggestions">Санал болгох</string>
@@ -142,7 +135,7 @@
     <string name="your_personal_money_manager">Таны хувийн санхүүч</string>
     <string name="continue_offline">Оффлайнаар үргэлжлүүлэх</string>
     <string name="import_csv_file">CSV файлаас сэргээх</string>
-    <string name="from_ivy_or_another_app">Ivy эсвэл өөр аппаас</string>
+    <string name="from_ivy_or_another_app">Nivy эсвэл өөр аппаас</string>
     <string name="importing_another_time_warning">Өгөгдөл нөөцөөс сэргээхэд 5 хүртэлх минут болдог шүү. Мөн та дараа хүссэн үедээ сэргээх боломжтой.</string>
     <string name="import_backup_file">Нөөцөөс мэдээлэл сэргээх</string>
     <string name="start_fresh">Цоо шинээр эхлэх</string>
@@ -211,7 +204,6 @@
     <string name="show_notifications">Мэдэгдэл харуулах</string>
     <string name="hide_balance">Дүн нуух</string>
     <string name="hide_balance_description">Нуугдсан дүн дээр дарвал 5 секунд харагдана</string>
-    <string name="other">Бусад</string>
     <string name="danger_zone">Аюултай бүс</string>
     <string name="delete_all_user_data">Бүх мэдээллийг устгах</string>
     <string name="delete_all_user_data_question">Бүх мэдээллийг устгах уу?</string>
@@ -224,7 +216,6 @@
     <string name="exporting_data_description">Түр хүлээнэ үү, мэдээлэл экспортолж байна</string>
     <string name="start_date_of_month">Сар эхлэх өдөр</string>
     <string name="account_uppercase">ДАНС</string>
-    <string name="logout">Гарах</string>
     <string name="anonymous">Нэргүй</string>
     <string name="export_to_csv">CSV хэлбэрээр хадгалах</string>
     <string name="left_to_spend">Зарцуулах боломжтой дүн</string>
@@ -259,7 +250,6 @@
     <string name="delete">Устгах</string>
     <string name="save">Хадгалах</string>
     <string name="add">Нэмэх</string>
-    <string name="create">Үүсгэх</string>
     <string name="edit_loan">Зээл өөрчлөх</string>
     <string name="new_loan">Шинэ зээл</string>
     <string name="loan_name">Зээлийн гарчиг</string>
@@ -319,10 +309,9 @@
     <string name="create_first_planned_payment">Анхны төлөвлөгөөт гүйлгээгээ үүсгэх</string>
     <string name="create_first_planned_payment_description">Давтамжтай хийгддэг гүйлгээнүүдээ (цалин, түрээс, төлбөрүүд гэх мэт) автоматаар бүртгээрэй. Ингэснээр та ирээдүйд авах орлого болон тооцоонуудаа урьдчилж мэдэх юм.</string>
     <string name="did_you_know">Үүнийг мэдэх үү?</string>
-    <string name="widget_description">Ivy Хэтэвч дэлгэцэн дээрээсээ ганцхан товшилтоор ОРЛОГО/ЗАРЛАГА/ШИЛЖҮҮЛЭГ гүйлгээ хийх боломжтой жижиг виджеттэй. \n\nЖич: Хэрэв "Виджет нэмэх" товч ажиллахгүй бол дэлгэц дээрээсээ нэмээрэй.</string>
+    <string name="widget_description">Nivy Хэтэвч дэлгэцэн дээрээсээ ганцхан товшилтоор ОРЛОГО/ЗАРЛАГА/ШИЛЖҮҮЛЭГ гүйлгээ хийх боломжтой жижиг виджеттэй. \n\nЖич: Хэрэв "Виджет нэмэх" товч ажиллахгүй бол дэлгэц дээрээсээ нэмээрэй.</string>
     <string name="add_widget">Виджет нэмэх</string>
     <string name="expenses_piechart">Зарлагын PieChart</string>
-    <string name="adjust_balance">Үлдэгдэл өөрчлөх</string>
     <string name="authentication_required">Нэвтрэх шаардлагатай</string>
     <string name="authentication_required_description">Төхөөрөмжийн .</string>
     <string name="total_budget">Нийт төсөв</string>
@@ -358,7 +347,6 @@
     <string name="skip_all">Бүгдийг алгасах</string>
     <string name="confirm_skip_all">Тийм, бүгдийг алгасъя</string>
     <string name="confirm_skip_all_description">Бүх хугацаа хэтэрсэн төлөвлөгөөт гүйлгээг алгасах уу?</string>
-    <string name="experimental">Туршилт</string>
     <string name="wallet_balance">Хэтэвчний үлдэгдэл</string>
     <string name="total_exclusive">Нийт (онцгой): %1$s %2$s</string>
     <string name="total_balance">Нийт ҮЛДЭГДЭЛ</string>

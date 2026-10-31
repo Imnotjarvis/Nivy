@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletPreview
+import com.ivy.wallet.IvyWalletPreview
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientIvy
@@ -36,7 +36,7 @@ import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.navigation.rememberOnBack
 
 @Composable
-fun OnboardingType(
+internal fun OnboardingType(
     onStartImport: () -> Unit,
     onStartFresh: () -> Unit,
 ) {

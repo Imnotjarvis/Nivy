@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -24,14 +25,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.keyboardVisibleState
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
-import com.ivy.wallet.domain.deprecated.logic.SUGGESTIONS_LIMIT
+import com.ivy.wallet.domain.logic.SUGGESTIONS_LIMIT
 import com.ivy.wallet.ui.theme.components.IvyTitleTextField
 import kotlinx.coroutines.launch
-import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
 @Suppress("ParameterNaming")
@@ -39,16 +39,16 @@ import androidx.compose.material3.MaterialTheme
 fun ColumnScope.Title(
     type: TransactionType,
     titleFocus: FocusRequester,
-    initialTransactionId: UUID?,
     titleTextFieldValue: TextFieldValue,
     setTitleTextFieldValue: (TextFieldValue) -> Unit,
     suggestions: Set<String>,
     onTitleChanged: (String?) -> Unit,
+    modifier: Modifier = Modifier,
     scrollState: ScrollState? = null,
     onNext: () -> Unit,
 ) {
     IvyTitleTextField(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 32.dp)
             .focusRequester(titleFocus),
         dividerModifier = Modifier
@@ -134,8 +134,7 @@ private fun PreviewTitleWithSuggestions() {
         Column {
             Title(
                 type = TransactionType.EXPENSE,
-                titleFocus = FocusRequester(),
-                initialTransactionId = null,
+                titleFocus = remember { FocusRequester() },
                 titleTextFieldValue = selectEndTextFieldValue(""),
                 setTitleTextFieldValue = {},
                 suggestions = setOf(

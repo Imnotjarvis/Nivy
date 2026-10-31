@@ -31,15 +31,15 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.domain.legacy.ui.IvyColorPicker
-import com.ivy.legacy.IvyWalletPreview
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.ui.IvyColorPicker
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
-import com.ivy.legacy.utils.toLowerCaseLocal
-import com.ivy.legacy.utils.toUpperCaseLocal
+import com.ivy.wallet.utils.toLowerCaseLocal
+import com.ivy.wallet.utils.toUpperCaseLocal
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
@@ -63,11 +63,14 @@ data class AccountModalData(
     val id: UUID = UUID.randomUUID()
 )
 
+// The dialog's fields share its state; split up, each piece would take most of it as parameters.
+@Suppress("LongMethod")
 @Composable
 fun BoxWithConstraintsScope.AccountModal(
     modal: AccountModalData?,
     onCreateAccount: (CreateAccountData) -> Unit,
     onEditAccount: (Account, balance: Double) -> Unit,
+    modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
     val account = modal?.account
@@ -99,11 +102,12 @@ fun BoxWithConstraintsScope.AccountModal(
     val forceNonZeroBalance = modal?.forceNonZeroBalance ?: false
 
     IvyModal(
+        modifier = modifier,
         id = modal?.id,
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = false,
-        PrimaryAction = {
+        primaryAction = {
             ModalAddSave(
                 item = modal?.account,
                 enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0)
@@ -169,7 +173,7 @@ fun BoxWithConstraintsScope.AccountModal(
         Spacer(modifier = Modifier.height(40.dp))
 
         ModalAmountSection(
-            Header = {
+            header = {
                 Spacer(Modifier.height(16.dp))
 
                 AccountCurrency(

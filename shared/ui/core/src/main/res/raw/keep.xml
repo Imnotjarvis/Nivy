@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The custom item icons are looked up by name at runtime (see getCustomIconId), so neither the
-     resource shrinker nor lint can see that they're used. -->
+<!-- The item icons are looked up by name at runtime (getCustomIconId: ic_custom_<name>_<size>,
+     and the ic_vue_ names in the icon picker), so neither the resource shrinker nor lint can see
+     that they're used. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/ic_custom_*" />
+    tools:keep="@drawable/ic_custom_*,@drawable/ic_vue_*" />

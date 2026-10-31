@@ -4,9 +4,23 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,18 +33,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.*
+import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG
+import androidx.recyclerview.widget.ItemTouchHelper.DOWN
+import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ivy.legacy.utils.numberBetween
-import com.ivy.legacy.utils.swap
-import com.ivy.ui.R
-import com.ivy.wallet.domain.data.Reorderable
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.White
+import com.ivy.ui.R
+import com.ivy.wallet.domain.data.Reorderable
 import com.ivy.wallet.ui.theme.modal.IvyModal
-import java.util.*
-import androidx.compose.material3.MaterialTheme
+import com.ivy.wallet.utils.numberBetween
+import com.ivy.wallet.utils.swap
+import java.util.UUID
 
 @Suppress("UNCHECKED_CAST", "ParameterNaming")
 @Composable
@@ -38,8 +53,9 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     visible: Boolean,
     initialItems: List<T>,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
-    TitleContent: @Composable ColumnScope.() -> Unit = {
+    titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.reorder),
@@ -51,13 +67,14 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     },
     onUpdateItemOrderNum: (item: T, newOrderNum: Double) -> Unit = { _, _ -> },
     onReordered: ((List<T>) -> Unit)? = null,
-    ItemContent: @Composable (Int, T) -> Unit
+    itemContent: @Composable (Int, T) -> Unit
 ) {
     ReorderModal<T>(
+        modifier = modifier,
         visible = visible,
         id = id,
         initialItems = initialItems,
-        TitleContent = TitleContent,
+        titleContent = titleContent,
         dismiss = dismiss,
         onUpdateItemOrderNum = { _, item, newOrderNum ->
             onUpdateItemOrderNum(item, newOrderNum)
@@ -67,20 +84,21 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
                 listAny as? List<T> ?: error("List<T> cast exception.")
             )
         },
-        ItemContent = { index, itemAny ->
-            ItemContent(index, itemAny as T)
+        itemContent = { index, itemAny ->
+            itemContent(index, itemAny as T)
         }
     )
 }
 
 @Suppress("ParameterNaming")
 @Composable
-fun <T : Reorderable> BoxScope.ReorderModal(
+private fun <T : Reorderable> BoxScope.ReorderModal(
     visible: Boolean,
     initialItems: List<Any>,
     dismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
-    TitleContent: @Composable ColumnScope.() -> Unit = {
+    titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
             modifier = Modifier.padding(start = 32.dp),
             text = stringResource(R.string.reorder),
@@ -96,7 +114,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
         newOrderNum: Double
     ) -> Unit = { _, _, _ -> },
     onReordered: ((List<Any>) -> Unit)? = null,
-    ItemContent: @Composable RowScope.(Int, Any) -> Unit
+    itemContent: @Composable RowScope.(Int, Any) -> Unit
 ) {
     var items by remember(id, initialItems) { mutableStateOf(initialItems) }
     var reOrderedList: List<Any>? by remember {
@@ -109,11 +127,12 @@ fun <T : Reorderable> BoxScope.ReorderModal(
     }
 
     IvyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         scrollState = null,
         dismiss = dismiss,
-        PrimaryAction = {
+        primaryAction = {
             IvyCircleButton(
                 modifier = Modifier
                     .size(48.dp)
@@ -133,7 +152,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
     ) {
         Spacer(Modifier.height(32.dp))
 
-        TitleContent()
+        titleContent()
 
         Spacer(Modifier.height(24.dp))
 
@@ -149,7 +168,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
                     )
                     adapter = Adapter<T>(
                         itemTouchHelper = itemTouchHelper,
-                        ItemContent = ItemContent,
+                        itemContent = itemContent,
                         addItemOrderNumUpdate = { item, newOrderNum ->
                             orderNumUpdates = orderNumUpdates
                                 .toMutableMap()
@@ -177,7 +196,7 @@ fun <T : Reorderable> BoxScope.ReorderModal(
 @Suppress("UNCHECKED_CAST")
 private class Adapter<T : Reorderable>(
     private val itemTouchHelper: ItemTouchHelper,
-    private val ItemContent: @Composable RowScope.(Int, Any) -> Unit,
+    private val itemContent: @Composable RowScope.(Int, Any) -> Unit,
     private val addItemOrderNumUpdate: (item: T, orderNum: Double) -> Unit,
     private val onReorderInternalList: (List<Any>) -> Unit
 ) : RecyclerView.Adapter<Adapter<T>.ItemViewHolder>() {
@@ -217,7 +236,7 @@ private class Adapter<T : Reorderable>(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.display(
             item = data[position],
-            ItemContent = ItemContent,
+            itemContent = itemContent,
             position = position
         )
     }
@@ -230,7 +249,7 @@ private class Adapter<T : Reorderable>(
 
         fun display(
             item: Any,
-            ItemContent: @Composable RowScope.(Int, Any) -> Unit,
+            itemContent: @Composable RowScope.(Int, Any) -> Unit,
             position: Int
         ) {
             (itemView as ComposeView).setContent {
@@ -259,7 +278,7 @@ private class Adapter<T : Reorderable>(
                         Spacer(Modifier.width(4.dp))
                     }
 
-                    ItemContent(bindingAdapterPosition, item)
+                    itemContent(bindingAdapterPosition, item)
                 }
             }
         }

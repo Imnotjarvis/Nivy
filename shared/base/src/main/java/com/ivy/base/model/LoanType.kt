@@ -1,4 +1,4 @@
-package com.ivy.data.model
+package com.ivy.base.model
 
 import androidx.annotation.Keep
 

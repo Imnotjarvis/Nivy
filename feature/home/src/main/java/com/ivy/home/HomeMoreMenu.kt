@@ -52,11 +52,11 @@ import com.ivy.design.utils.colorLerp
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.legacy.utils.rememberSwipeListenerState
-import com.ivy.legacy.utils.springBounce
+import com.ivy.wallet.utils.rememberSwipeListenerState
+import com.ivy.wallet.utils.springBounce
 import com.ivy.design.utils.statusBarInset
 import com.ivy.design.utils.toDensityPx
-import com.ivy.legacy.utils.verticalSwipeListener
+import com.ivy.wallet.utils.verticalSwipeListener
 import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.CategoriesScreen
 import com.ivy.navigation.IvyPreview
@@ -92,7 +92,6 @@ fun BoxWithConstraintsScope.MoreMenu(
     setExpanded: (Boolean) -> Unit,
     onSwitchTheme: () -> Unit,
     onBufferClick: () -> Unit,
-    onCurrencyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val screenSize = LocalScreenSize.current
@@ -187,7 +186,6 @@ fun BoxWithConstraintsScope.MoreMenu(
                 buffer = buffer,
                 currency = currency,
                 onBufferClick = onBufferClick,
-                onCurrencyClick = onCurrencyClick
             )
         }
     }
@@ -229,7 +227,6 @@ private fun ColumnScope.Content(
 
     onSwitchTheme: () -> Unit,
     onBufferClick: () -> Unit,
-    onCurrencyClick: () -> Unit,
 ) {
     Spacer(Modifier.height(24.dp))
 
@@ -524,7 +521,6 @@ private fun BoxWithConstraintsScope.Preview_Expanded() {
             },
             onSwitchTheme = {},
             onBufferClick = {},
-            onCurrencyClick = {}
         )
     }
 }
@@ -546,7 +542,6 @@ private fun BoxWithConstraintsScope.Preview() {
             },
             onSwitchTheme = {},
             onBufferClick = {},
-            onCurrencyClick = {}
         )
     }
 }

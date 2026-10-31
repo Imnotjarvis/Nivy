@@ -23,9 +23,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.legacy.IvyWalletComponentPreview
+import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.legacy.utils.isNotNullOrBlank
+import com.ivy.wallet.utils.isNotNullOrBlank
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 
@@ -117,7 +117,8 @@ private fun PreviewIvyTextField_longText() {
                 .background(MaterialTheme.colorScheme.error)
                 .padding(horizontal = 24.dp),
             value = TextFieldValue(
-                "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, there is chaos, it contacts with light."
+                "Cur habitio favere? Sunt navises promissio grandis, primus accolaes. Yes, " +
+                "there is chaos, it contacts with light."
             ),
             hint = "Hint",
             onValueChanged = {}

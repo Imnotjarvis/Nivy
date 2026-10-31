@@ -1,6 +1,6 @@
 package com.ivy.loans.loandetails.events
 
-import com.ivy.wallet.domain.deprecated.logic.model.CreateAccountData
+import com.ivy.wallet.domain.logic.model.CreateAccountData
 
 sealed interface LoanDetailsScreenEvent {
     data object OnEditLoanClick : LoanDetailsScreenEvent

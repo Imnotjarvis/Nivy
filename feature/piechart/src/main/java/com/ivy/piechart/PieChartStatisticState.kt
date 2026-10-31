@@ -3,7 +3,7 @@ package com.ivy.piechart
 import androidx.compose.runtime.Immutable
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Transaction
-import com.ivy.legacy.data.model.TimePeriod
+import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID

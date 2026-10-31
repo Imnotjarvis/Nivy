@@ -7,13 +7,16 @@
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="horizontal"
-    tools:background="@color/white">
+    tools:background="@color/white"
+    tools:ignore="UselessParent">
+    <!-- The root only centers the bar vertically in the widget's cell. -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:background="@drawable/shape_widget_background"
+        android:baselineAligned="false"
         android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingTop="12dp"
@@ -25,6 +28,7 @@
 
         <ImageView
             android:id="@+id/ivIncome"
+            android:contentDescription="@string/add_income"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="48dp"
@@ -33,6 +37,7 @@
 
         <ImageView
             android:id="@+id/ivExpense"
+            android:contentDescription="@string/add_expense"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="48dp"
@@ -41,6 +46,7 @@
 
         <ImageView
             android:id="@+id/ivTransfer"
+            android:contentDescription="@string/transfer"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="48dp"

@@ -12,7 +12,6 @@
     <string name="unlock">Unlock</string>
     <string name="current_balance">CURRENT BALANCE</string>
     <string name="balance_after_payments">BALANCE AFTER PLANNED PAYMENTS</string>
-    <string name="connect">Connect</string>
     <string name="add_budget">Add budget</string>
     <string name="no_budgets">No budgets</string>
     <string name="no_budgets_text">You don\'t have any budgets set.\nTap the "+ Add budget" to add one.</string>
@@ -27,9 +26,6 @@
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Expenses</string>
     <string name="income">Income</string>
-    <string name="balance">BALANCE %1$s</string>
-    <string name="charts">Charts</string>
-    <string name="period">Period:</string>
     <string name="categories">Categories</string>
     <string name="export_csv_file">Export to CSV File</string>
     <string name="export_csv_file_standard">Export to CSV File with standard options</string>
@@ -50,7 +46,7 @@
     <string name="online_csv_converter_free">Online CSV converter FREE</string>
     <string name="check_email_spam">Please check your email\'s "Junk" and "Spam" folders</string>
     <string name="download_email_file">Download the \"transactions_export…\" file attached to the email.</string>
-    <string name="download_email_file_description">If you have more than one currency, you\'ll need to download each \'transactions_export...\' file and import them into Ivy.</string>
+    <string name="download_email_file_description">If you have more than one currency, you\'ll need to download each \'transactions_export…\' file and import them into Nivy.</string>
     <string name="import_from">Import from</string>
     <string name="please_wait">Please wait</string>
     <string name="importing_the_csv_file">Importing the CSV file</string>
@@ -88,7 +84,7 @@
     <string name="hi">Hi</string>
     <string name="hi_name">Hi %1$s</string>
     <string name="cashflow">Cashflow: %1$s%2$s %3$s</string>
-    <string name="search_transactions">Search transactions...</string>
+    <string name="search_transactions">Search transactions…</string>
     <string name="savings_goal">Savings goal</string>
     <string name="quick_access">Quick access</string>
     <string name="settings">Settings</string>
@@ -132,12 +128,9 @@
     <string name="account_transfer">ACCOUNT TRANSFER</string>
     <string name="skip">Skip</string>
     <string name="add_new">Add new</string>
-    <string name="range">Range</string>
-    <string name="enter_your_name">Enter your name\nto personalize your\nwallet</string>
     <string name="what_is_your_name">What\'s your name?</string>
     <string name="enter">Enter</string>
     <string name="add_accounts">Add accounts</string>
-    <string name="suggestion">Suggestion</string>
     <string name="next">Next</string>
     <string name="add_categories">Add categories</string>
     <string name="suggestions">Suggestions</string>
@@ -145,7 +138,7 @@
     <string name="your_personal_money_manager">Your personal money manager</string>
     <string name="continue_offline">Continue offline</string>
     <string name="import_csv_file">Import CSV file</string>
-    <string name="from_ivy_or_another_app">from Ivy or another app</string>
+    <string name="from_ivy_or_another_app">from Nivy or another app</string>
     <string name="importing_another_time_warning">Importing a backup file from another app may take up to 5 minutes. You can always import your data later if you wish.</string>
     <string name="import_backup_file">Import backup file</string>
     <string name="start_fresh">Start fresh</string>
@@ -216,7 +209,6 @@
     <string name="hide_balance_description">Tap on the hidden balance to reveal it for 5s</string>
     <string name="hide_income">Hide income</string>
     <string name="hide_income_description">Tap on the hidden income to reveal it for 5s</string>
-    <string name="other">Other</string>
     <string name="danger_zone">Danger zone</string>
     <string name="delete_all_user_data">Delete all user data</string>
     <string name="delete_all_user_data_question">Delete all user data?</string>
@@ -229,7 +221,6 @@
     <string name="exporting_data_description">Please wait, exporting data</string>
     <string name="start_date_of_month">Choose the start date of the month</string>
     <string name="account_uppercase">ACCOUNT</string>
-    <string name="logout">Logout</string>
     <string name="anonymous">Anonymous</string>
     <string name="export_to_csv">Export to CSV</string>
     <string name="left_to_spend">Left to spend</string>
@@ -264,7 +255,6 @@
     <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="add">Add</string>
-    <string name="create">Create</string>
     <string name="edit_loan">Edit loan</string>
     <string name="new_loan">New loan</string>
     <string name="loan_name">Loan name</string>
@@ -324,10 +314,9 @@
     <string name="create_first_planned_payment">Create your first planned payment</string>
     <string name="create_first_planned_payment_description">Track your recurring transactions, like subscriptions, rent, and paychecks. Stay on top of your finances by being aware of how much you owe or expect to receive.</string>
     <string name="did_you_know">Did you know?</string>
-    <string name="widget_description">Ivy Wallet offers a convenient widget that allows you to add transactions with just one tap from your home screen.\n\nNote: If the "Add widget" button isn\’t working, please add it manually from your launcher\’s widgets menu.</string>
+    <string name="widget_description">Nivy offers a convenient widget that allows you to add transactions with just one tap from your home screen.\n\nNote: If the "Add widget" button isn\’t working, please add it manually from your launcher\’s widgets menu.</string>
     <string name="add_widget">Add widget</string>
     <string name="expenses_piechart">Expenses Pie Chart</string>
-    <string name="adjust_balance">Adjust balance</string>
     <string name="authentication_required">Authentication required</string>
     <string name="authentication_required_description">Authenticate to access the application</string>
     <string name="total_budget">Total Budget</string>
@@ -363,7 +352,6 @@
     <string name="skip_all">Skip all</string>
     <string name="confirm_skip_all">Confirm skipping all</string>
     <string name="confirm_skip_all_description">Are you sure you want to skip all overdue planned payments?</string>
-    <string name="experimental">Experimental</string>
     <string name="wallet_balance">Wallet balance</string>
     <string name="total_exclusive">Total (exclusive): %1$s %2$s</string>
     <string name="total_balance">Total Balance</string>
@@ -383,12 +371,9 @@
     <string name="this_transaction_is_associated_with_loan_record">* This transaction is associated with a Loan Record of Loan : %1$s</string>
     <string name="note_transaction_associated_with_loan_record_of_loan">Note: This transaction is associated with a Loan Record of Loan : %1$s\nYou are trying to change the account associated with the loan record to an account of different currency\n The Loan Record will be re-calculated based on today\'s currency exchanges rates</string>
     <string name="note_you_are_trying_to_change_the_account_associated_with_the_loan">Note: You are trying to change the account associated with the loan: %1$s with an account of different currency, \nAll the loan records will be re-calculated based on today\'s currency exchanges rates</string>
-    <string name="icons">Icons</string>
     <string name="tap_to_switch_theme">Tap to toggle theme</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F Not intended for backup use</string>
     <string name="done">Done</string>
-    <string name="error">Error</string>
-    <string name="loading">Loading…</string>
     <string name="try_again">Try again</string>
     <string name="you_can_see_a_piechart">Tap the appropriate card above to view a pie chart of your income and expenses!</string>
     <string name="please_type_category_name">Please type \"%1$s\" in order to delete your category.</string>
@@ -400,7 +385,7 @@
     <string name="csv_import_failed">If this doesn\'t work, consider using manual CSV import.</string>
     <string name="import_a_csv_file_to_continue">Import a CSV file to continue.</string>
     <string name="import_csv_continue">Continue</string>
-    <string name="warning_import_csv_file">"\n!!!⚠️ WARNING: Importing may create duplicate transactions!!!\nPlease note that duplicate transactions cannot be easily removed and will need to be deleted individually.\nReason: We cannot parse transaction IDs because Ivy Wallet uses UUIDs exclusively, while other apps do not.\nIf you\'re starting fresh, you can safely ignore this message."</string>
+    <string name="warning_import_csv_file">"\n!!!⚠️ WARNING: Importing may create duplicate transactions!!!\nPlease note that duplicate transactions cannot be easily removed and will need to be deleted individually.\nReason: We cannot parse transaction IDs because Nivy uses UUIDs exclusively, while other apps do not.\nIf you\'re starting fresh, you can safely ignore this message."</string>
     <string name="select_tags">Select Tags</string>
     <string name="bill_paid">Your bill for %1$s %2$s has been paid</string>
     <string name="language">Language</string>
