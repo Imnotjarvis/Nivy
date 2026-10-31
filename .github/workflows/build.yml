@@ -30,6 +30,9 @@
 #   record-screenshots    re-records the screenshot tests' reference images and commits them
 #   update-lint-baseline  regenerates app/lint-baseline.xml and commits it
 #
+# Artifacts are kept for 3 days and the signed release APK for 30; an older APK can be rebuilt
+# from its commit.
+#
 # Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
 # gradle/libs.versions.toml first, or Android refuses to install it as an update), or run the
 # workflow by hand with "release". That needs four repository secrets
@@ -127,6 +130,7 @@ jobs:
         if: failure()
         with:
           name: detekt-report
+          retention-days: 3
           path: build/reports/detekt/
           if-no-files-found: ignore
 
@@ -213,11 +217,13 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: room-schemas
+          retention-days: 3
           path: '**/schemas/**/*.json'
 
       - uses: actions/upload-artifact@v7
         with:
           name: apks
+          retention-days: 3
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/demo/*.apk
@@ -300,6 +306,7 @@ jobs:
         if: failure()
         with:
           name: test-reports
+          retention-days: 3
           path: |
             **/build/reports/tests/
             **/build/paparazzi/failures/
@@ -396,6 +403,7 @@ jobs:
         if: always()
         with:
           name: device-results
+          retention-days: 3
           path: |
             build/smoke/
             **/build/reports/androidTests/
@@ -453,6 +461,7 @@ jobs:
         if: always()
         with:
           name: lint-report
+          retention-days: 3
           path: |
             app/build/reports/lint-results-debug.*
             build/reports/lint/
@@ -574,6 +583,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: release-apk
+          retention-days: 30
           path: app/build/outputs/apk/release/*.apk
 
       - name: Publish GitHub release
