@@ -113,7 +113,7 @@ androidx-work = { module = "androidx.work:work-runtime-ktx", version.ref = "andr
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version = "1.4.0" }
 
 # Material
-material = { module = "com.google.android.material:material", version = "1.13.0" }
+material = { module = "com.google.android.material:material", version = "1.14.0" }
 
 # Logging
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
@@ -125,9 +125,9 @@ opencsv-apache-commons = { module = "org.apache.commons:commons-lang3", version 
 
 # Linters
 detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
-detekt-ruleset-compiler = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version = "0.0.4" }
+detekt-ruleset-compiler = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version = "0.1.1" }
 detekt-ruleset-ktlint = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
-detekt-ruleset-compose = { module = "io.nlopez.compose.rules:detekt", version = "0.4.10" }
+detekt-ruleset-compose = { module = "io.nlopez.compose.rules:detekt", version = "0.6.8" }
 slack-lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version = "1.6.1" }
 
 # KSP
