@@ -61,12 +61,12 @@ Run these in order: `./gradlew :app:assembleDebug`, then `./gradlew testDebugUni
 | `ci-actions/*`, `fastlane/`, `Gemfile*`, compose-stability scripts, the wrapper-upgrade bot plugin | **Remove** (Task 5) | GitHub/Play automation. `ci-actions` also needs a JDK 17 toolchain and Kotlin context receivers |
 | JitPack and the `detekt-explicit` ruleset | **Remove** (Task 5) | A third-party build host, used only by `./gradlew detekt` |
 
-Kept on purpose: `INTERNET` and `ACCESS_NETWORK_STATE`, Ktor and its four fallback URLs, `openUrlInBrowser`, and `openGooglePlayAppPage`. The CSV-import instructions use that last one to open *other* apps' store pages, and it falls back to the browser without any Play library. Tap-to-open links in onboarding, the disclaimer and the import instructions stay too. They make no automatic network calls.
+Kept on purpose: `INTERNET` and `ACCESS_NETWORK_STATE`, Ktor and its four fallback URLs, and `openUrlInBrowser`. `openGooglePlayAppPage`, which the CSV-import instructions used to open *other* apps' Play Store pages, was kept at first and removed later with the other Google leftovers. Tap-to-open links in onboarding, the disclaimer and the import instructions stay too. They make no automatic network calls.
 
 ## Global Constraints
 
 - **JDK:** use JDK 21. After the upgrade, Gradle 9.8 needs 17+ and Paparazzi 2 needs 21 to run the screenshot tests. Before any `./gradlew` command, run `export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64` once per shell. In Android Studio, pick JDK 21 under Settings → Build Tools → Gradle → Gradle JDK. (Before the upgrade, Gradle 8.8 could not start on JDK 23+, and the original dev machine's default is JDK 25.)
-- **Android SDK:** `sdk.dir=/home/matt/Android/Sdk` with `android-34` installed. After Task 1 this lives only in your local, untracked `local.properties`.
+- **Android SDK:** `sdk.dir` pointing at a local Android SDK with `android-34` installed. After Task 1 this lives only in your local, untracked `local.properties`.
 - **Do NOT change:** the Room schema or migrations, DataStore keys, SharedPrefs keys, the backup zip/JSON format, or the `namespace` (`com.ivy.wallet`). Existing data and backups must stay readable.
 - **Do NOT bump** versions inside these tasks. The toolchain and library upgrade was done separately afterwards (see the end). `targetSdk` stays 34 even after it.
 - Leftover *unused* imports are warnings, not errors, because no module sets `allWarningsAsErrors`. Each task still lists them so detekt stays clean. Imports of *deleted* symbols are errors and must go.

@@ -76,7 +76,7 @@ class CSVMapper @Inject constructor() {
         toAccountIcon = 23
     )
 
-    // Praseto - https://play.google.com/store/apps/details?id=com.realbyteapps.moneymanagerfree&hl=en&gl=US
+    // Praseto
     private fun moneyManager() = RowMapping(
         type = 6,
         amount = 8,
@@ -96,7 +96,7 @@ class CSVMapper @Inject constructor() {
         id = null
     )
 
-    // Wallet By BudgetBakers - https://play.google.com/store/apps/details?id=com.droid4you.application.wallet&hl=en&gl=US
+    // Wallet By BudgetBakers
     private fun walletByBudgetBakers() = RowMapping(
         type = 5,
         amount = 3,

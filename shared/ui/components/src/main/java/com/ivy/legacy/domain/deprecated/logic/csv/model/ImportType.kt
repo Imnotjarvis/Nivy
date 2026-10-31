@@ -40,19 +40,6 @@ enum class ImportType {
         FINANCISTO -> White
     }
 
-    fun appId(): String = when (this) {
-        IVY -> "com.ivy.wallet"
-        MONEY_MANAGER -> "com.realbyteapps.moneymanagerfree"
-        WALLET_BY_BUDGET_BAKERS -> "com.droid4you.application.wallet"
-        SPENDEE -> "com.cleevio.spendee"
-        MONEFY -> "com.monefy.app.lite"
-        ONE_MONEY -> "org.pixelrush.moneyiq"
-        BLUE_COINS -> "com.rammigsoftware.bluecoins"
-        KTW_MONEY_MANAGER -> "com.ktwapps.walletmanager"
-        FORTUNE_CITY -> "com.fourdesire.fortunecity"
-        FINANCISTO -> "ru.orangesoftware.financisto"
-    }
-
     @DrawableRes
     fun logo(): Int = when (this) {
         IVY -> R.drawable.ivywallet_logo

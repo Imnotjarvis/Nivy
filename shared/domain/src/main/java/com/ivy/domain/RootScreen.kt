@@ -21,8 +21,6 @@ interface RootScreen {
 
     fun shareZipFile(fileUri: Uri)
 
-    fun openGooglePlayAppPage(appId: String)
-
     fun <T> pinWidget(widget: Class<T>)
 
     /** Shows a date picker; [onPicked] gets the chosen date, or the initial one on cancel. */

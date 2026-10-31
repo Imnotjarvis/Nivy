@@ -101,7 +101,7 @@ private fun PreviewOnboardingTextField() {
     IvyWalletComponentPreview {
         IvyOutlinedTextField(
             modifier = Modifier.padding(horizontal = 24.dp),
-            value = TextFieldValue("iliyan.germanov971@gmail.com"),
+            value = TextFieldValue("name@example.com"),
             hint = "Enter email",
             onValueChanged = {}
         )

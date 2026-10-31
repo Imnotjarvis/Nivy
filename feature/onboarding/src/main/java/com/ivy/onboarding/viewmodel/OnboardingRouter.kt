@@ -9,7 +9,6 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.legacy.data.model.AccountBalance
-import com.ivy.legacy.utils.OpResult
 import com.ivy.legacy.utils.ioThread
 import com.ivy.navigation.ImportScreen
 import com.ivy.navigation.MainScreen
@@ -28,7 +27,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class OnboardingRouter(
-    private val opGoogleSignIn: MutableState<OpResult<Unit>?>,
     private val state: MutableState<OnboardingState>,
     private val accounts: MutableState<ImmutableList<AccountBalance>>,
     private val accountSuggestions: MutableState<ImmutableList<CreateAccountData>>,
@@ -221,7 +219,6 @@ class OnboardingRouter(
 
     private fun resetState() {
         state.value = OnboardingState.SPLASH
-        opGoogleSignIn.value = null
     }
 
     private fun navigateOutOfOnboarding() {
