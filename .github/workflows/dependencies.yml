@@ -1,0 +1,75 @@
+# Dependency graph and dependency review.
+#
+# GitHub can't read a Gradle build's dependencies by itself, so `submit` resolves them and sends
+# the graph to GitHub. That graph is what Dependabot's vulnerability alerts and the review below
+# work from. `review` checks what a pull request changes and fails it if it adds a dependency
+# with a known vulnerability.
+# Both run on pushes to main and pull requests that can change the dependencies: the Gradle build
+# files, the version catalog, the wrapper, buildSrc or this workflow.
+# Pull requests from forks get no write token, so neither job runs for them.
+name: Dependencies
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gradle/libs.versions.toml'
+      - 'gradle/wrapper/**'
+      - '**/*.gradle.kts'
+      - 'gradle.properties'
+      - 'buildSrc/**'
+      - '.github/workflows/dependencies.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gradle/libs.versions.toml'
+      - 'gradle/wrapper/**'
+      - '**/*.gradle.kts'
+      - 'gradle.properties'
+      - 'buildSrc/**'
+      - '.github/workflows/dependencies.yml'
+
+concurrency:
+  group: dependencies-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    if: github.event_name == 'push' || !github.event.pull_request.head.repo.fork
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Submit the dependency graph
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+  review:
+    if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+    needs: submit
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      # GitHub processes the submitted graph in the background, so wait for it.
+      - uses: actions/dependency-review-action@v5
+        with:
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 600
+          # Gradle compiles buildSrc with the Kotlin it embeds, 2.4.10 in Gradle 9.8.2 (the newest
+          # release), which has GHSA-r937-wjx7-w2jp: unsafe deserialization of Kotlin build-cache
+          # entries, fixed in 2.4.20. The app itself compiles with Kotlin 2.4.21. Remove this once
+          # the Gradle wrapper is on a release that embeds Kotlin 2.4.20 or newer.
+          allow-ghsas: GHSA-r937-wjx7-w2jp

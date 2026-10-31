@@ -16,6 +16,9 @@ subprojects {
     }
 }
 
+// Vulnerable libraries the build tools pull in are raised to patched versions.
+apply(from = "gradle/minimum-versions.gradle.kts")
+
 // Module dependency rules, checked in CI by ./gradlew :assertModuleGraph.
 // The rules are regexes over "consumer -X> dependency" (api and implementation only).
 moduleGraphAssert {

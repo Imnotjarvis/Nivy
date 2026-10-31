@@ -9,6 +9,8 @@ configure<DetektExtension> {
     source.setFrom(projectDir)
     config.setFrom("$rootDir/config/detekt/config.yml")
     baseline = file("$rootDir/config/detekt/baseline.yml")
+    // Report paths relative to the repository, as GitHub code scanning expects.
+    basePath = rootDir.absolutePath
 }
 
 tasks.register<Detekt>("detektFormat") {
@@ -26,7 +28,8 @@ tasks.withType<Detekt> {
 
     reports {
         html.required.set(true)
-        sarif.required.set(false)
+        // Uploaded to GitHub code scanning by the build workflow's checks job.
+        sarif.required.set(true)
         md.required.set(false)
         xml.required.set(false)
         txt.required.set(false)
