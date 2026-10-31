@@ -2,14 +2,16 @@
 #
 # Jobs:
 #   plan    decides what this run needs (scripts/ciPlan.sh, explained in the run summary)
-#   checks  offline guard, detekt and module dependency rules (no compiling)
+#   checks  offline guard, detekt and module dependency rules (no compiling); detekt's findings
+#           also go to the Security tab (code scanning)
 #   build   debug APK; when the device job runs, also the R8-minified "demo" APK (signed with
 #           the committed debug key) and the instrumented tests. APKs are in the "apks" artifact
 #   test    unit tests, and screenshot tests compared with their reference images; in parallel
 #           with build
 #   device  launches both APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
-#   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list
+#   lint    Android Lint; fails on errors that app/lint-baseline.xml doesn't list. Its findings
+#           also go to the Security tab (code scanning)
 # Any Kotlin compiler warning fails the compile (allWarningsAsErrors in build.gradle.kts).
 #
 # What runs when:
@@ -110,6 +112,9 @@ jobs:
     if: needs.plan.outputs.run == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v7
 
@@ -129,6 +134,15 @@ jobs:
       # The configuration cache isn't kept between CI runs, so skipping it here costs nothing.
       - name: Detekt and module dependency rules
         run: ./gradlew :detekt :assertModuleGraph --continue --no-configuration-cache
+
+      # Detekt's findings in the Security tab and on pull requests. Issues listed in
+      # config/detekt/baseline.yml aren't in the report.
+      - name: Upload detekt results to code scanning
+        if: ${{ !cancelled() && hashFiles('build/reports/detekt/detekt.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: build/reports/detekt/detekt.sarif
+          category: detekt
 
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -418,6 +432,9 @@ jobs:
     if: needs.plan.outputs.lint == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v7
 
@@ -457,6 +474,15 @@ jobs:
         with:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-lint-${{ github.sha }}
+
+      # Lint's findings in the Security tab. Issues listed in app/lint-baseline.xml aren't in the
+      # report.
+      - name: Upload lint results to code scanning
+        if: ${{ !cancelled() && hashFiles('app/build/reports/lint-results-debug.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: app/build/reports/lint-results-debug.sarif
+          category: android-lint
 
       - name: No new lint errors
         run: scripts/checkLintReport.sh
