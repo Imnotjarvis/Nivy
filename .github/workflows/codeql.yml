@@ -77,3 +77,25 @@ jobs:
       - uses: github/codeql-action/analyze@v4
         with:
           category: /language:${{ matrix.language }}
+          output: sarif-results
+
+      # CodeQL skips Kotlin it can't read (a Kotlin version newer than it supports) instead of
+      # failing, and the Java that Room and Hilt generate would still give it something to
+      # analyse. So check the line counts it reports and fail if it saw no Kotlin.
+      - name: CodeQL read the Kotlin code
+        if: matrix.language == 'java-kotlin'
+        run: |
+          python3 -I - sarif-results/java.sarif <<'PY'
+          import json, sys
+          sarif = json.load(open(sys.argv[1]))
+          metrics = {
+              m.get("ruleId") or m.get("rule", {}).get("id"): m.get("value")
+              for run in sarif.get("runs", [])
+              for m in run.get("properties", {}).get("metricResults", [])
+          }
+          for rule, value in sorted(metrics.items()):
+              print(f"{rule}: {value}")
+          if not metrics.get("java/summary/lines-of-code-kotlin"):
+              print("::error::CodeQL read no Kotlin code. Does it support this Kotlin version yet?")
+              sys.exit(1)
+          PY
