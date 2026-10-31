@@ -76,7 +76,7 @@ private fun Preview() {
     IvyWalletPreview {
         NameModal(
             visible = true,
-            name = "Iliyan",
+            name = "Alex",
             dismiss = {}
         ) {
         }
