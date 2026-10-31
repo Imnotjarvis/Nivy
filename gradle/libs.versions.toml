@@ -19,9 +19,7 @@ paparazzi = "2.0.0-alpha05.1"
 # Android
 min-sdk = "28"
 compile-sdk = "37"
-# Kept below compile-sdk on purpose: raising it changes app behaviour on device
-# (35 enforces edge-to-edge, 36 stops calling Activity.onBackPressed()).
-target-sdk = "34"
+target-sdk = "36"
 version-name = "2025.07.17"
 version-code = "206"
 jvm-target = "17"

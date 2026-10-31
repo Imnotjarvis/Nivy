@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -159,7 +158,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
 
     private fun setupApp() {
         setupActivityForResultLaunchers()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         AddTransactionWidget.updateBroadcast(this)
         AddTransactionWidgetCompact.updateBroadcast(this)
         WalletBalanceWidgetReceiver.updateBroadcast(this)

@@ -48,6 +48,13 @@ class RootViewModel @Inject constructor(
 
     private var appLockEnabled = false
 
+    // The activity is recreated on configuration changes (dark mode, language, and from
+    // Android 16 rotation on tablets, where the portrait lock no longer applies) and calls
+    // start() again. This ViewModel outlives that, so the first navigation, which would
+    // otherwise send the user back to the home or add-transaction screen, and the migrations
+    // run once.
+    private var started = false
+
     private val _appLocked = MutableStateFlow<Boolean?>(null)
     val appLocked = _appLocked.readOnly()
 
@@ -61,6 +68,9 @@ class RootViewModel @Inject constructor(
                 appPreferences.startDayOfMonth().also(periodState::setStartDayOfMonth)
             }
         }
+
+        if (started) return
+        started = true
 
         viewModelScope.launch {
             ioThread {

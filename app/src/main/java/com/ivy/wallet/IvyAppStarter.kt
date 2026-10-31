@@ -16,24 +16,20 @@ class IvyAppStarter @Inject constructor(
         return Intent(context, RootActivity::class.java)
     }
 
-    override fun defaultStart() {
-        context.startActivity(
-            getRootIntent().apply {
-                applyWidgetStartFlags()
-            }
-        )
+    override fun homeIntent(): Intent {
+        return getRootIntent().apply {
+            applyFreshTaskFlags()
+        }
     }
 
-    override fun addTransactionStart(type: TransactionType) {
-        context.startActivity(
-            getRootIntent().apply {
-                putExtra(RootViewModel.EXTRA_ADD_TRANSACTION_TYPE, type)
-                applyWidgetStartFlags()
-            }
-        )
+    override fun addTransactionIntent(type: TransactionType): Intent {
+        return getRootIntent().apply {
+            putExtra(RootViewModel.EXTRA_ADD_TRANSACTION_TYPE, type)
+            applyFreshTaskFlags()
+        }
     }
 
-    private fun Intent.applyWidgetStartFlags() {
+    private fun Intent.applyFreshTaskFlags() {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     }
 }

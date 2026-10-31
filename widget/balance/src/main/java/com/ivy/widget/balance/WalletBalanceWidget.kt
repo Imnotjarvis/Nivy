@@ -14,6 +14,7 @@ import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
@@ -77,18 +78,18 @@ class WalletBalanceWidget(
                 currency = currency,
                 income = shortenAmount(income),
                 expense = shortenAmount(expense),
-                onIncomeClick = {
-                    getAppStarter().addTransactionStart(TransactionType.INCOME)
-                },
-                onExpenseClick = {
-                    getAppStarter().addTransactionStart(TransactionType.EXPENSE)
-                },
-                onTransferClick = {
-                    getAppStarter().addTransactionStart(TransactionType.TRANSFER)
-                },
-                onWidgetClick = {
-                    getAppStarter().defaultStart()
-                },
+                // Activity actions, so a tap opens the app directly instead of going through a
+                // broadcast receiver.
+                onIncomeClick = actionStartActivity(
+                    getAppStarter().addTransactionIntent(TransactionType.INCOME)
+                ),
+                onExpenseClick = actionStartActivity(
+                    getAppStarter().addTransactionIntent(TransactionType.EXPENSE)
+                ),
+                onTransferClick = actionStartActivity(
+                    getAppStarter().addTransactionIntent(TransactionType.TRANSFER)
+                ),
+                onWidgetClick = actionStartActivity(getAppStarter().homeIntent()),
             )
         }
     }
