@@ -186,32 +186,26 @@ class EditTransactionViewModel @Inject constructor(
     @Composable
     override fun uiState(): EditTransactionViewState {
         return EditTransactionViewState(
-            transactionType = getTransactionType(),
-            initialTitle = getInitialTitle(),
+            transactionType = transactionType,
+            initialTitle = initialTitle,
             titleSuggestions = getTitleSuggestions(),
-            currency = getCurrency(),
-            description = getDescription(),
-            dateTime = getDateTime(),
-            dueDate = getDueDate(),
-            accounts = getAccounts(),
-            categories = getCategories(),
-            account = getAccount(),
-            toAccount = getToAccount(),
-            category = getCategory(),
-            amount = getAmount(),
-            hasChanges = getHasChanges(),
-            displayLoanHelper = getDisplayLoanHelper(),
-            backgroundProcessingStarted = getBackgroundProcessingStarted(),
-            customExchangeRateState = getCustomExchangeRateState(),
-            tags = getTags(),
-            transactionAssociatedTags = getTransactionAssociatedTags()
+            currency = currency,
+            description = description,
+            dateTime = dateTime,
+            dueDate = dueDate,
+            accounts = accounts,
+            categories = categories,
+            account = account,
+            toAccount = toAccount,
+            category = category,
+            amount = amount,
+            hasChanges = hasChanges,
+            displayLoanHelper = displayLoanHelper,
+            backgroundProcessingStarted = backgroundProcessingStarted,
+            customExchangeRateState = customExchangeRateState,
+            tags = tags,
+            transactionAssociatedTags = transactionAssociatedTags
         )
-    }
-    private fun getTransactionType(): TransactionType {
-        return transactionType
-    }
-    private fun getInitialTitle(): String? {
-        return initialTitle
     }
 
     @Composable
@@ -221,54 +215,6 @@ class EditTransactionViewModel @Inject constructor(
         } else {
             persistentSetOf()
         }
-    }
-    private fun getCurrency(): String {
-        return currency
-    }
-    private fun getDescription(): String? {
-        return description
-    }
-    private fun getDateTime(): Instant? {
-        return dateTime
-    }
-    private fun getDueDate(): Instant? {
-        return dueDate
-    }
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts
-    }
-    private fun getCategories(): ImmutableList<Category> {
-        return categories
-    }
-    private fun getAccount(): Account? {
-        return account
-    }
-    private fun getToAccount(): Account? {
-        return toAccount
-    }
-    private fun getCategory(): Category? {
-        return category
-    }
-    private fun getAmount(): Double {
-        return amount
-    }
-    private fun getHasChanges(): Boolean {
-        return hasChanges
-    }
-    private fun getDisplayLoanHelper(): EditTransactionDisplayLoan {
-        return displayLoanHelper
-    }
-    private fun getBackgroundProcessingStarted(): Boolean {
-        return backgroundProcessingStarted
-    }
-    private fun getCustomExchangeRateState(): CustomExchangeRateState {
-        return customExchangeRateState
-    }
-    private fun getTags(): ImmutableList<Tag> {
-        return tags
-    }
-    private fun getTransactionAssociatedTags(): ImmutableList<TagId> {
-        return transactionAssociatedTags
     }
 
     @Suppress("CyclomaticComplexMethod")

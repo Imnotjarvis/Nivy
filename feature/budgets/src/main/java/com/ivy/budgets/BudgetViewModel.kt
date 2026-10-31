@@ -72,37 +72,16 @@ class BudgetViewModel @Inject constructor(
         }
 
         return BudgetScreenState(
-            baseCurrency = getBaseCurrency(),
-            categories = getCategories(),
-            budgets = getBudgets(),
-            categoryBudgetsTotal = getCategoryBudgetsTotal(),
-            appBudgetMax = getAppBudgetMax(),
+            baseCurrency = baseCurrency.value,
+            categories = categories.value,
+            budgets = budgets.value,
+            categoryBudgetsTotal = categoryBudgetsTotal.doubleValue,
+            appBudgetMax = appBudgetMax.doubleValue,
             totalRemainingBudgetText = getTotalRemainingBudgetText(),
-            timeRange = getTimeRange(),
-            reorderModalVisible = getReorderModalVisible(),
-            budgetModalData = getBudgetModalData()
+            timeRange = timeRange.value,
+            reorderModalVisible = reorderModalVisible.value,
+            budgetModalData = budgetModalData.value
         )
-    }
-    private fun getBaseCurrency(): String {
-        return baseCurrency.value
-    }
-    private fun getTimeRange(): FromToTimeRange? {
-        return timeRange.value
-    }
-    private fun getCategories(): ImmutableList<Category> {
-        return categories.value
-    }
-    private fun getBudgets(): ImmutableList<DisplayBudget> {
-        return budgets.value
-    }
-    private fun getReorderModalVisible(): Boolean {
-        return reorderModalVisible.value
-    }
-    private fun getCategoryBudgetsTotal(): Double {
-        return categoryBudgetsTotal.doubleValue
-    }
-    private fun getAppBudgetMax(): Double {
-        return appBudgetMax.doubleValue
     }
 
     @Composable
@@ -117,9 +96,6 @@ class BudgetViewModel @Inject constructor(
 
             else -> null
         }
-    }
-    private fun getBudgetModalData(): BudgetModalData? {
-        return budgetModalData.value
     }
 
     override fun onEvent(event: BudgetScreenEvent) {

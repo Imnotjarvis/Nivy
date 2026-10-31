@@ -57,51 +57,18 @@ class PieChartStatisticViewModel @Inject constructor(
     @Composable
     override fun uiState(): PieChartStatisticState {
         return PieChartStatisticState(
-            transactionType = getTransactionType(),
-            period = getPeriod(),
-            baseCurrency = getBaseCurrency(),
-            totalAmount = getTotalAmount(),
-            categoryAmounts = getCategoryAmounts(),
-            selectedCategory = getSelectedCategory(),
-            accountIdFilterList = getAccountIdFilterList(),
-            showCloseButtonOnly = getShowCloseButtonOnly(),
-            filterExcluded = getFilterExcluded(),
-            transactions = getTransactions(),
-            choosePeriodModal = getChoosePeriodModal()
+            transactionType = transactionType,
+            period = period,
+            baseCurrency = baseCurrency,
+            totalAmount = totalAmount,
+            categoryAmounts = categoryAmounts,
+            selectedCategory = selectedCategory,
+            accountIdFilterList = accountIdFilterList,
+            showCloseButtonOnly = showCloseButtonOnly,
+            filterExcluded = filterExcluded,
+            transactions = transactions,
+            choosePeriodModal = choosePeriodModal
         )
-    }
-    private fun getTransactionType(): TransactionType {
-        return transactionType
-    }
-    private fun getPeriod(): TimePeriod {
-        return period
-    }
-    private fun getBaseCurrency(): String {
-        return baseCurrency
-    }
-    private fun getTotalAmount(): Double {
-        return totalAmount
-    }
-    private fun getCategoryAmounts(): ImmutableList<CategoryAmount> {
-        return categoryAmounts
-    }
-    private fun getSelectedCategory(): SelectedCategory? {
-        return selectedCategory
-    }
-    private fun getAccountIdFilterList(): ImmutableList<UUID> {
-        return accountIdFilterList
-    }
-    private fun getShowCloseButtonOnly(): Boolean {
-        return showCloseButtonOnly
-    }
-    private fun getFilterExcluded(): Boolean {
-        return filterExcluded
-    }
-    private fun getTransactions(): ImmutableList<Transaction> {
-        return transactions
-    }
-    private fun getChoosePeriodModal(): ChoosePeriodModalData? {
-        return choosePeriodModal
     }
 
     override fun onEvent(event: PieChartStatisticEvent) {

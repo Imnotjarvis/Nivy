@@ -56,51 +56,18 @@ class PlannedPaymentsViewModel @Inject constructor(
         }
 
         return PlannedPaymentsScreenState(
-            currency = getCurrency(),
-            categories = getCategories(),
-            accounts = getAccounts(),
-            oneTimeIncome = getOneTimeIncome(),
-            oneTimeExpenses = getOneTimeExpenses(),
-            recurringExpenses = getRecurringExpenses(),
-            recurringIncome = getRecurringIncome(),
-            recurringPlannedPayment = getRecurringPlannedPayment(),
-            oneTimePlannedPayment = getOneTimePlannedPayment(),
-            isOneTimePaymentsExpanded = getOneTimePaymentsExpanded(),
-            isRecurringPaymentsExpanded = getRecurringPaymentsExpanded()
+            currency = currency,
+            categories = categories,
+            accounts = accounts,
+            oneTimeIncome = oneTimeIncome,
+            oneTimeExpenses = oneTimeExpenses,
+            recurringExpenses = recurringExpenses,
+            recurringIncome = recurringIncome,
+            recurringPlannedPayment = recurringPlannedPayment,
+            oneTimePlannedPayment = oneTimePlannedPayment,
+            isOneTimePaymentsExpanded = isOneTimePaymentsExpanded,
+            isRecurringPaymentsExpanded = isRecurringPaymentsExpanded
         )
-    }
-    private fun getCurrency(): String {
-        return currency
-    }
-    private fun getCategories(): ImmutableList<Category> {
-        return categories
-    }
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts
-    }
-    private fun getOneTimePlannedPayment(): ImmutableList<PlannedPaymentRule> {
-        return oneTimePlannedPayment
-    }
-    private fun getRecurringPlannedPayment(): ImmutableList<PlannedPaymentRule> {
-        return recurringPlannedPayment
-    }
-    private fun getOneTimeExpenses(): Double {
-        return oneTimeExpenses
-    }
-    private fun getOneTimeIncome(): Double {
-        return oneTimeIncome
-    }
-    private fun getRecurringExpenses(): Double {
-        return recurringExpenses
-    }
-    private fun getRecurringIncome(): Double {
-        return recurringIncome
-    }
-    private fun getRecurringPaymentsExpanded(): Boolean {
-        return isRecurringPaymentsExpanded
-    }
-    private fun getOneTimePaymentsExpanded(): Boolean {
-        return isOneTimePaymentsExpanded
     }
 
     override fun onEvent(event: PlannedPaymentsScreenEvent) {

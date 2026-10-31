@@ -130,32 +130,32 @@ class TransactionsViewModel @Inject constructor(
     @Composable
     override fun uiState(): TransactionsState {
         return TransactionsState(
-            period = getPeriod(),
-            baseCurrency = getBaseCurrency(),
-            currency = getCurrency(),
-            categories = getCategories(),
-            accounts = getAccounts(),
-            account = getAccount(),
-            category = getCategory(),
-            balance = getBalance(),
-            balanceBaseCurrency = getBalanceBaseCurrency(),
-            income = getIncome(),
-            expenses = getExpenses(),
-            initWithTransactions = getInitWithTransactions(),
-            treatTransfersAsIncomeExpense = getTreatTransfersAsIncomeExpense(),
-            history = getHistory(),
-            upcoming = getUpcoming(),
-            upcomingExpanded = getUpcomingExpanded(),
-            upcomingIncome = getUpcomingIncome(),
-            upcomingExpenses = getUpcomingExpenses(),
-            overdue = getOverdue(),
-            overdueExpanded = getOverdueExpanded(),
-            overdueIncome = getOverdueIncome(),
-            overdueExpenses = getOverdueExpenses(),
-            enableDeletionButton = getEnableDeletionButton(),
-            skipAllModalVisible = getSkipAllModalVisible(),
-            deleteModal1Visible = getDeleteModal1Visible(),
-            choosePeriodModal = getChoosePeriodModal(),
+            period = period.value,
+            baseCurrency = baseCurrency.value,
+            currency = currency.value,
+            categories = categories.value,
+            accounts = accounts.value,
+            account = account.value,
+            category = category.value,
+            balance = balance.doubleValue,
+            balanceBaseCurrency = balanceBaseCurrency.value,
+            income = income.doubleValue,
+            expenses = expenses.doubleValue,
+            initWithTransactions = initWithTransactions.value,
+            treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
+            history = history.value,
+            upcoming = upcoming.value,
+            upcomingExpanded = upcomingExpanded.value,
+            upcomingIncome = upcomingIncome.doubleValue,
+            upcomingExpenses = upcomingExpenses.doubleValue,
+            overdue = overdue.value,
+            overdueExpanded = overdueExpanded.value,
+            overdueIncome = overdueIncome.doubleValue,
+            overdueExpenses = overdueExpenses.doubleValue,
+            enableDeletionButton = enableDeletionButton.value,
+            skipAllModalVisible = skipAllModalVisible.value,
+            deleteModal1Visible = deleteModal1Visible.value,
+            choosePeriodModal = choosePeriodModal.value,
             showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions()
         )
     }
@@ -163,84 +163,6 @@ class TransactionsViewModel @Inject constructor(
     @Composable
     fun getShouldShowAccountSpecificColorInTransactions(): Boolean {
         return features.showAccountColorsInTransactions.asEnabledState()
-    }
-    private fun getPeriod(): TimePeriod {
-        return period.value
-    }
-    private fun getBaseCurrency(): String {
-        return baseCurrency.value
-    }
-    private fun getAccount(): Account? {
-        return account.value
-    }
-    private fun getCurrency(): String {
-        return currency.value
-    }
-    private fun getCategories(): ImmutableList<Category> {
-        return categories.value
-    }
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts.value
-    }
-    private fun getCategory(): Category? {
-        return category.value
-    }
-    private fun getBalance(): Double {
-        return balance.doubleValue
-    }
-    private fun getBalanceBaseCurrency(): Double? {
-        return balanceBaseCurrency.value
-    }
-    private fun getIncome(): Double {
-        return income.doubleValue
-    }
-    private fun getExpenses(): Double {
-        return expenses.doubleValue
-    }
-    private fun getInitWithTransactions(): Boolean {
-        return initWithTransactions.value
-    }
-    private fun getTreatTransfersAsIncomeExpense(): Boolean {
-        return treatTransfersAsIncomeExpense.value
-    }
-    private fun getUpcomingExpenses(): Double {
-        return upcomingExpenses.doubleValue
-    }
-    private fun getUpcoming(): ImmutableList<Transaction> {
-        return upcoming.value
-    }
-    private fun getUpcomingExpanded(): Boolean {
-        return upcomingExpanded.value
-    }
-    private fun getUpcomingIncome(): Double {
-        return upcomingIncome.doubleValue
-    }
-    private fun getHistory(): ImmutableList<TransactionHistoryItem> {
-        return history.value
-    }
-    private fun getOverdue(): ImmutableList<Transaction> {
-        return overdue.value
-    }
-    private fun getOverdueExpanded(): Boolean {
-        return overdueExpanded.value
-    }
-    private fun getOverdueIncome(): Double {
-        return overdueIncome.doubleValue
-    }
-    private fun getOverdueExpenses(): Double {
-        return overdueExpenses.doubleValue
-    }
-    private fun getEnableDeletionButton(): Boolean {
-        return enableDeletionButton.value
-    }
-    private fun getSkipAllModalVisible(): Boolean {
-        return skipAllModalVisible.value
-    }
-    private fun getDeleteModal1Visible(): Boolean {
-        return deleteModal1Visible.value
-    }
-    private fun getChoosePeriodModal(): ChoosePeriodModalData? {
-        return choosePeriodModal.value
     }
 
     override fun onEvent(event: TransactionsEvent) {

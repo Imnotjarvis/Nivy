@@ -91,91 +91,28 @@ class EditPlannedViewModel @Inject constructor(
     @Composable
     override fun uiState(): EditPlannedScreenState {
         return EditPlannedScreenState(
-            currency = getCurrency(),
-            categories = getCategories(),
-            accounts = getAccounts(),
-            transactionType = getTransactionType(),
-            startDate = getStartDate(),
-            intervalN = getIntervalN(),
-            oneTime = getOneTime(),
-            account = getAccount(),
-            category = getCategory(),
-            amount = getAmount(),
-            initialTitle = getInitialTitle(),
-            description = getDescription(),
-            intervalType = getIntervalType(),
-            categoryModalVisible = getCategoryModalVisibility(),
-            categoryModalData = getCategoryModalData(),
-            accountModalData = getAccountModalData(),
-            deleteTransactionModalVisible = getDeleteTransactionModalVisibility(),
-            descriptionModalVisible = getDescriptionModalVisibility(),
-            amountModalVisible = getAmountModalVisibility(),
-            transactionTypeModalVisible = getTransactionTypeModalVisibility(),
-            recurringRuleModalData = getRecurringRuleModalData()
+            currency = currency,
+            categories = categories,
+            accounts = accounts,
+            transactionType = transactionType,
+            startDate = startDate,
+            intervalN = intervalN,
+            oneTime = oneTime,
+            account = account,
+            category = category,
+            amount = amount,
+            initialTitle = initialTitle,
+            description = description,
+            intervalType = intervalType,
+            categoryModalVisible = categoryModalVisible,
+            categoryModalData = categoryModalData,
+            accountModalData = accountModalData,
+            deleteTransactionModalVisible = deleteTransactionModalVisible,
+            descriptionModalVisible = descriptionModalVisible,
+            amountModalVisible = amountModalVisible,
+            transactionTypeModalVisible = transactionTypeModalVisible,
+            recurringRuleModalData = recurringRuleModalData
         )
-    }
-    private fun getCurrency(): String {
-        return currency
-    }
-    private fun getCategories(): ImmutableList<Category> {
-        return categories
-    }
-    private fun getAccounts(): ImmutableList<Account> {
-        return accounts
-    }
-    private fun getTransactionType(): TransactionType {
-        return transactionType
-    }
-    private fun getStartDate(): LocalDateTime? {
-        return startDate
-    }
-    private fun getIntervalN(): Int? {
-        return intervalN
-    }
-    private fun getIntervalType(): IntervalType? {
-        return intervalType
-    }
-    private fun getOneTime(): Boolean {
-        return oneTime
-    }
-    private fun getInitialTitle(): String? {
-        return initialTitle
-    }
-    private fun getDescription(): String? {
-        return description
-    }
-    private fun getAccount(): Account? {
-        return account
-    }
-    private fun getCategory(): Category? {
-        return category
-    }
-    private fun getAmount(): Double {
-        return amount
-    }
-    private fun getCategoryModalVisibility(): Boolean {
-        return categoryModalVisible
-    }
-    private fun getDescriptionModalVisibility(): Boolean {
-        return descriptionModalVisible
-    }
-    private fun getDeleteTransactionModalVisibility(): Boolean {
-        return deleteTransactionModalVisible
-    }
-    private fun getTransactionTypeModalVisibility(): Boolean {
-        return transactionTypeModalVisible
-    }
-    private fun getAmountModalVisibility(): Boolean {
-        return amountModalVisible
-    }
-    private fun getCategoryModalData(): CategoryModalData? {
-        return categoryModalData
-    }
-    private fun getAccountModalData(): AccountModalData? {
-        return accountModalData
-    }
-    private fun getRecurringRuleModalData(): RecurringRuleModalData? {
-        return recurringRuleModalData
     }
 
     override fun onEvent(event: EditPlannedScreenEvent) {

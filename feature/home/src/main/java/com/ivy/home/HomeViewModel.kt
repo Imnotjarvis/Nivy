@@ -135,20 +135,20 @@ class HomeViewModel @Inject constructor(
         }
 
         return HomeState(
-            theme = getTheme(),
-            name = getName(),
-            period = getPeriod(),
-            baseData = getBaseData(),
-            history = getHistory(),
-            stats = getStats(),
-            balance = getBalance(),
-            buffer = getBuffer(),
-            upcoming = getUpcoming(),
-            overdue = getOverdue(),
-            customerJourneyCards = getCustomerJourneyCards(),
-            hideBalance = getHideBalance(),
-            expanded = getExpanded(),
-            hideIncome = getHideIncome(),
+            theme = currentTheme,
+            name = name,
+            period = period,
+            baseData = baseData,
+            history = history,
+            stats = stats,
+            balance = balance,
+            buffer = buffer,
+            upcoming = upcoming,
+            overdue = overdue,
+            customerJourneyCards = customerJourneyCards,
+            hideBalance = hideBalance,
+            expanded = expanded,
+            hideIncome = hideIncome,
             shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions()
         )
     }
@@ -156,48 +156,6 @@ class HomeViewModel @Inject constructor(
     @Composable
     fun getShouldShowAccountSpecificColorInTransactions(): Boolean {
         return features.showAccountColorsInTransactions.asEnabledState()
-    }
-    private fun getTheme(): Theme {
-        return currentTheme
-    }
-    private fun getName(): String {
-        return name
-    }
-    private fun getPeriod(): TimePeriod {
-        return period
-    }
-    private fun getBaseData(): AppBaseData {
-        return baseData
-    }
-    private fun getHistory(): ImmutableList<TransactionHistoryItem> {
-        return history
-    }
-    private fun getStats(): IncomeExpensePair {
-        return stats
-    }
-    private fun getBalance(): BigDecimal {
-        return balance
-    }
-    private fun getBuffer(): BufferInfo {
-        return buffer
-    }
-    private fun getUpcoming(): DueSection {
-        return upcoming
-    }
-    private fun getOverdue(): DueSection {
-        return overdue
-    }
-    private fun getCustomerJourneyCards(): ImmutableList<CustomerJourneyCardModel> {
-        return customerJourneyCards
-    }
-    private fun getHideBalance(): Boolean {
-        return hideBalance
-    }
-    private fun getExpanded(): Boolean {
-        return expanded
-    }
-    private fun getHideIncome(): Boolean {
-        return hideIncome
     }
 
     override fun onEvent(event: HomeEvent) {

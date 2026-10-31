@@ -90,49 +90,24 @@ class LoanViewModel @Inject constructor(
         }
 
         return LoanScreenState(
-            baseCurrency = getBaseCurrencyCode(),
-            accounts = getAccounts(),
-            selectedAccount = getSelectedAccount(),
-            loanModalData = getLoanModalData(),
-            reorderModalVisible = getReorderModalVisible(),
+            baseCurrency = baseCurrencyCode,
+            accounts = accounts,
+            selectedAccount = selectedAccount,
+            loanModalData = loanModalData,
+            reorderModalVisible = reorderModalVisible,
             totalOweAmount = getTotalOweAmount(totalOweAmount, defaultCurrencyCode),
             totalOwedAmount = getTotalOwedAmount(totalOwedAmount, defaultCurrencyCode),
-            paidOffLoanVisibility = getPaidOffLoanVisibility(),
+            paidOffLoanVisibility = paidOffLoanVisibility,
             dateTime = dateTime,
-            selectedTab = getSelectedTab(),
-            completedLoans = getCompletedLoans(),
-            pendingLoans = getPendingLoans()
+            selectedTab = selectedTab,
+            completedLoans = completedLoans,
+            pendingLoans = pendingLoans
         )
     }
 
     fun setTab(tab: LoanTab) {
         selectedTab = tab
     }
-    private fun getSelectedTab(): LoanTab {
-        return selectedTab
-    }
-    private fun getCompletedLoans(): ImmutableList<DisplayLoan> {
-        return completedLoans
-    }
-    private fun getPendingLoans(): ImmutableList<DisplayLoan> {
-        return pendingLoans
-    }
-
-    @Composable
-    private fun getReorderModalVisible() = reorderModalVisible
-
-    @Composable
-    private fun getLoanModalData() = loanModalData
-    private fun getBaseCurrencyCode(): String {
-        return baseCurrencyCode
-    }
-
-    @Composable
-    private fun getSelectedAccount() = selectedAccount
-
-    @Composable
-    private fun getAccounts() = accounts
-    private fun getPaidOffLoanVisibility(): Boolean = paidOffLoanVisibility
 
     override fun onEvent(event: LoanScreenEvent) {
         when (event) {

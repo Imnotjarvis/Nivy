@@ -76,16 +76,16 @@ class SettingsViewModel @Inject constructor(
         }
 
         return SettingsState(
-            currencyCode = getCurrencyCode(),
-            name = getName(),
-            currentTheme = getCurrentTheme(),
-            lockApp = getLockApp(),
-            showNotifications = getShowNotifications(),
-            hideCurrentBalance = getHideCurrentBalance(),
-            treatTransfersAsIncomeExpense = getTreatTransfersAsIncomeExpense(),
-            startDateOfMonth = getStartDateOfMonth(),
-            progressState = getProgressState(),
-            hideIncome = getHideIncome(),
+            currencyCode = currencyCode.value,
+            name = name.value,
+            currentTheme = currentTheme.value,
+            lockApp = lockApp.value,
+            showNotifications = showNotifications.value,
+            hideCurrentBalance = hideCurrentBalance.value,
+            treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
+            startDateOfMonth = startDateOfMonth.intValue.toString(),
+            progressState = progressState.value,
+            hideIncome = hideIncome.value,
             languageOptionVisible = isLanguageOptionVisible()
         )
     }
@@ -136,36 +136,6 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun initializeStartDateOfMonth() {
         startDateOfMonth.intValue = startDayOfMonthAct()
-    }
-    private fun getCurrencyCode(): String {
-        return currencyCode.value
-    }
-    private fun getName(): String {
-        return name.value
-    }
-    private fun getCurrentTheme(): Theme {
-        return currentTheme.value
-    }
-    private fun getLockApp(): Boolean {
-        return lockApp.value
-    }
-    private fun getShowNotifications(): Boolean {
-        return showNotifications.value
-    }
-    private fun getHideCurrentBalance(): Boolean {
-        return hideCurrentBalance.value
-    }
-    private fun getHideIncome(): Boolean {
-        return hideIncome.value
-    }
-    private fun getTreatTransfersAsIncomeExpense(): Boolean {
-        return treatTransfersAsIncomeExpense.value
-    }
-    private fun getStartDateOfMonth(): String {
-        return startDateOfMonth.intValue.toString()
-    }
-    private fun getProgressState(): Boolean {
-        return progressState.value
     }
 
     private fun isLanguageOptionVisible(): Boolean {

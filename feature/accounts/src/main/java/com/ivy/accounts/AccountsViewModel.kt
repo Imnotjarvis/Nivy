@@ -28,7 +28,6 @@ import com.ivy.wallet.domain.action.viewmodel.account.AccountDataAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -83,13 +82,13 @@ class AccountsViewModel @Inject constructor(
         }
 
         return AccountsState(
-            baseCurrency = getBaseCurrency(),
-            accountsData = getAccountsData(),
-            totalBalanceWithExcluded = getTotalBalanceWithExcluded(),
-            totalBalanceWithExcludedText = getTotalBalanceWithExcludedText(),
-            totalBalanceWithoutExcluded = getTotalBalanceWithoutExcluded(),
-            totalBalanceWithoutExcludedText = getTotalBalanceWithoutExcludedText(),
-            reorderVisible = getReorderVisible(),
+            baseCurrency = baseCurrency,
+            accountsData = accountsData.toImmutableList(),
+            totalBalanceWithExcluded = totalBalanceWithExcluded,
+            totalBalanceWithExcludedText = totalBalanceWithExcludedText,
+            totalBalanceWithoutExcluded = totalBalanceWithoutExcluded,
+            totalBalanceWithoutExcludedText = totalBalanceWithoutExcludedText,
+            reorderVisible = reorderVisible,
             compactAccountsModeEnabled = getCompactAccountsMode(),
             hideTotalBalance = getHideTotalBalance()
         )
@@ -98,27 +97,6 @@ class AccountsViewModel @Inject constructor(
     @Composable
     private fun getHideTotalBalance(): Boolean {
         return features.hideTotalBalance.asEnabledState()
-    }
-    private fun getBaseCurrency(): String {
-        return baseCurrency
-    }
-    private fun getAccountsData(): ImmutableList<AccountData> {
-        return accountsData.toImmutableList()
-    }
-    private fun getTotalBalanceWithExcluded(): String {
-        return totalBalanceWithExcluded
-    }
-    private fun getTotalBalanceWithExcludedText(): String {
-        return totalBalanceWithExcludedText
-    }
-    private fun getTotalBalanceWithoutExcluded(): String {
-        return totalBalanceWithoutExcluded
-    }
-    private fun getTotalBalanceWithoutExcludedText(): String {
-        return totalBalanceWithoutExcludedText
-    }
-    private fun getReorderVisible(): Boolean {
-        return reorderVisible
     }
 
     @Composable

@@ -69,12 +69,12 @@ class CategoriesViewModel @Inject constructor(
         }
 
         return CategoriesScreenState(
-            baseCurrency = getBaseCurrency(),
+            baseCurrency = baseCurrency.value,
             categories = getCategories(),
-            reorderModalVisible = getReorderModalVisible(),
-            categoryModalData = getCategoryModalData(),
-            sortOrder = getSortOrder(),
-            sortModalVisible = getSortModalVisible(),
+            reorderModalVisible = reorderModalVisible.value,
+            categoryModalData = categoryModalData.value,
+            sortOrder = sortOrder.value,
+            sortModalVisible = sortModalVisible.value,
             compactCategoriesModeEnabled = getCompactCategoriesMode(),
             showCategorySearchBar = getShowCategorySearchBar()
         )
@@ -89,9 +89,6 @@ class CategoriesViewModel @Inject constructor(
     private fun getShowCategorySearchBar(): Boolean {
         return features.showCategorySearchBar.asEnabledState()
     }
-    private fun getBaseCurrency(): String {
-        return baseCurrency.value
-    }
 
     @Composable
     private fun getCategories(): ImmutableList<CategoryData> {
@@ -101,18 +98,6 @@ class CategoriesViewModel @Inject constructor(
                 searchQuery.value.lowercase().trim() in it.category.name.toString().lowercase()
             }.toImmutableList()
         }
-    }
-    private fun getReorderModalVisible(): Boolean {
-        return reorderModalVisible.value
-    }
-    private fun getCategoryModalData(): CategoryModalData? {
-        return categoryModalData.value
-    }
-    private fun getSortOrder(): SortOrder {
-        return sortOrder.value
-    }
-    private fun getSortModalVisible(): Boolean {
-        return sortModalVisible.value
     }
 
     private var allAccounts = emptyList<Account>()
