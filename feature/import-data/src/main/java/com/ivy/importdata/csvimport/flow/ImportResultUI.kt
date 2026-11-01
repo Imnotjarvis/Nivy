@@ -73,6 +73,15 @@ internal fun ImportResultUI(
                 fontWeight = FontWeight.Black
             )
         )
+        result.error?.let { error ->
+            Spacer(Modifier.height(8.dp))
+            Text(
+                modifier = Modifier.padding(horizontal = 32.dp),
+                text = error,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Red,
+            )
+        }
 
         Spacer(Modifier.height(32.dp))
 

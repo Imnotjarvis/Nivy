@@ -8,8 +8,7 @@ import com.ivy.base.file.zip
 import com.ivy.base.threading.DispatchersProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
-import com.ivy.data.db.IvyRoomDatabase
-import com.ivy.data.db.SoftDeletedRows
+import com.ivy.data.db.DatabaseTransaction
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.BudgetDao
 import com.ivy.data.db.dao.read.CategoryDao
@@ -19,6 +18,7 @@ import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.ivy.data.db.dao.read.TagAssociationDao
 import com.ivy.data.db.dao.read.TagDao
 import com.ivy.data.db.dao.read.TransactionDao
+import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
 import com.ivy.data.db.dao.write.WriteLoanDao
@@ -30,8 +30,6 @@ import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.file.FileSystem
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
-import com.ivy.data.repository.AccountRepository
-import com.ivy.data.repository.mapper.AccountMapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.async
@@ -66,8 +64,7 @@ class BackupDataUseCase @Inject constructor(
     private val transactionDao: TransactionDao,
     private val transactionWriter: WriteTransactionDao,
     private val appPreferences: AppPreferences,
-    private val accountRepository: AccountRepository,
-    private val accountMapper: AccountMapper,
+    private val accountWriter: WriteAccountDao,
     private val categoryWriter: WriteCategoryDao,
     private val budgetWriter: WriteBudgetDao,
     private val loanWriter: WriteLoanDao,
@@ -83,7 +80,7 @@ class BackupDataUseCase @Inject constructor(
     private val tagAssociationReader: TagAssociationDao,
     private val tagsWriter: WriteTagDao,
     private val tagAssociationWriter: WriteTagAssociationDao,
-    private val db: IvyRoomDatabase,
+    private val transaction: DatabaseTransaction,
 ) {
     suspend fun exportToFile(
         zipFileUri: Uri
@@ -163,23 +160,28 @@ class BackupDataUseCase @Inject constructor(
         onProgress: suspend (progressPercent: Double) -> Unit
     ): ImportResult = withContext(dispatchersProvider.io) {
         return@withContext try {
+            // A zip with the JSON inside, or the JSON itself.
             val jsonString = try {
                 extractAndReadBackupZip(backupFileUri, onProgress)
             } catch (e: Exception) {
                 fileSystem.read(backupFileUri, Charsets.UTF_16).getOrNull()
             } ?: ""
 
-            importJson(jsonString, onProgress, clearCacheDir = true)
+            importJson(jsonString, onProgress)
         } catch (e: Exception) {
-            Timber.e("Import error: $e")
+            // The database is as it was: the import's writes are one transaction.
+            Timber.e(e, "Import failed")
             ImportResult(
                 rowsFound = 0,
                 transactionsImported = 0,
                 accountsImported = 0,
                 categoriesImported = 0,
-                failedRows = persistentListOf()
+                failedRows = persistentListOf(),
+                error = e.message ?: e.javaClass.simpleName,
             )
         } finally {
+            clearCacheDir()
+            // Whatever happened, what's in memory may not match the database any more.
             dataObserver.post(DataWriteEvent.AllDataChange)
         }
     }
@@ -217,169 +219,121 @@ class BackupDataUseCase @Inject constructor(
     suspend fun importJson(
         jsonString: String,
         onProgress: suspend (Double) -> Unit = {},
-        clearCacheDir: Boolean = false,
     ): ImportResult {
         val modifiedJsonString = accommodateExistingAccountsAndCategories(jsonString)
-        val ivyWalletCompleteData = modifiedJsonString?.let {
-            json.decodeFromString<IvyWalletCompleteData>(it)
-        } ?: error("Failed to parse backup JSON.")
+        // Older versions marked rows as deleted, for cloud sync, instead of deleting them, and
+        // their backups still carry those rows. They stay out: nothing should come back to life.
+        val completeData = json.decodeFromString<IvyWalletCompleteData>(modifiedJsonString)
+            .withoutSoftDeletedRows()
 
         onProgress(ImportProgress.PARSED)
-        insertDataToDb(completeData = ivyWalletCompleteData, onProgress = onProgress)
+        insertDataToDb(completeData = completeData, onProgress = onProgress)
+        applySettings(completeData)
         onProgress(1.0)
 
-        if (clearCacheDir) {
-            clearCacheDir()
-        }
-
         return ImportResult(
-            rowsFound = ivyWalletCompleteData.transactions.size,
-            transactionsImported = ivyWalletCompleteData.transactions.size,
-            accountsImported = ivyWalletCompleteData.accounts.size,
-            categoriesImported = ivyWalletCompleteData.categories.size,
+            rowsFound = completeData.transactions.size,
+            transactionsImported = completeData.transactions.size,
+            accountsImported = completeData.accounts.size,
+            categoriesImported = completeData.categories.size,
             failedRows = persistentListOf()
         )
     }
 
-    private suspend fun accommodateExistingAccountsAndCategories(jsonString: String?): String? {
-        if (jsonString == null) return null
+    // isDeleted is deprecated so nothing new reads it; this is the one place that has to.
+    @Suppress("DEPRECATION")
+    private fun IvyWalletCompleteData.withoutSoftDeletedRows() = copy(
+        accounts = accounts.filterNot { it.isDeleted },
+        budgets = budgets.filterNot { it.isDeleted },
+        categories = categories.filterNot { it.isDeleted },
+        loanRecords = loanRecords.filterNot { it.isDeleted },
+        loans = loans.filterNot { it.isDeleted },
+        plannedPaymentRules = plannedPaymentRules.filterNot { it.isDeleted },
+        transactions = transactions.filterNot { it.isDeleted },
+        tags = tags.filterNot { it.isDeleted },
+        tagAssociations = tagAssociations.filterNot { it.isDeleted },
+    )
 
+    private suspend fun accommodateExistingAccountsAndCategories(jsonString: String): String {
         val ivyWalletCompleteData = json.decodeFromString<IvyWalletCompleteData>(jsonString)
-        val replacementPairs = getReplacementPairs(ivyWalletCompleteData)
-
-        var modifiedString = jsonString
-        replacementPairs.forEach {
-            modifiedString = modifiedString!!.replace(it.first.toString(), it.second.toString())
+        return getReplacementPairs(ivyWalletCompleteData).fold(jsonString) { acc, (backupId, existingId) ->
+            acc.replace(backupId.toString(), existingId.toString())
         }
-
-        return modifiedString
     }
 
+    /** Every write in one transaction: a failure anywhere leaves the wallet as it was. */
     private suspend fun insertDataToDb(
         completeData: IvyWalletCompleteData,
         onProgress: suspend (progressPercent: Double) -> Unit = {}
     ) {
-        withContext(dispatchersProvider.io) {
+        transaction.run {
             transactionWriter.saveMany(completeData.transactions)
             onProgress(ImportProgress.TRANSACTIONS_SAVED)
 
-            val accounts = async {
-                val domainAccounts = with(accountMapper) {
-                    completeData.accounts.mapNotNull { entity ->
-                        entity.toDomain().getOrNull()
-                    }
-                }
-                accountRepository.saveMany(domainAccounts)
-            }
-            val budgets = async { budgetWriter.saveMany(completeData.budgets) }
-            val categories =
-                async { categoryWriter.saveMany(completeData.categories) }
-            accounts.await()
-            budgets.await()
-            categories.await()
-
+            accountWriter.saveMany(completeData.accounts)
+            budgetWriter.saveMany(completeData.budgets)
+            categoryWriter.saveMany(completeData.categories)
             onProgress(ImportProgress.BUDGETS_AND_CATEGORIES_SAVED)
 
-            val loans = async { loanWriter.saveMany(completeData.loans) }
-            val loanRecords =
-                async { loanRecordWriter.saveMany(completeData.loanRecords) }
-
-            loans.await()
-            loanRecords.await()
-
+            loanWriter.saveMany(completeData.loans)
+            loanRecordWriter.saveMany(completeData.loanRecords)
             onProgress(ImportProgress.LOANS_SAVED)
 
-            val tags = async { tagsWriter.save(completeData.tags) }
-            val tagAssociations = async { tagAssociationWriter.save(completeData.tagAssociations) }
-
-            val plannedPayments =
-                async { plannedPaymentRuleWriter.saveMany(completeData.plannedPaymentRules) }
-            val settings = async {
-                completeData.settings.firstOrNull()?.let {
-                    appPreferences.saveSettings(
-                        AppSettings(
-                            theme = it.theme,
-                            baseCurrency = it.currency,
-                            bufferAmount = it.bufferAmount,
-                            name = it.name,
-                        )
-                    )
-                }
-            }
-
-            // The display settings the backup carries replace the current ones; a setting the
-            // file doesn't mention stays as it is. The app lock is never taken from a file: a
-            // backup made by someone else, or one without the key, must not switch it off.
-            val backupPrefs = completeData.sharedPrefs
-            backupPrefs.flag(AppPreferences.BackupShowNotifications)
-                ?.let { appPreferences.setShowNotifications(it) }
-            backupPrefs.flag(AppPreferences.BackupHideCurrentBalance)
-                ?.let { appPreferences.setHideCurrentBalance(it) }
-            backupPrefs.flag(AppPreferences.BackupTransfersAsIncomeExpense)
-                ?.let { appPreferences.setTransfersAsIncomeExpense(it) }
-
-            plannedPayments.await()
-            settings.await()
-            tags.await()
-            tagAssociations.await()
-            SoftDeletedRows.delete(db.openHelper.writableDatabase)
-
+            tagsWriter.save(completeData.tags)
+            tagAssociationWriter.save(completeData.tagAssociations)
+            plannedPaymentRuleWriter.saveMany(completeData.plannedPaymentRules)
             onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }
 
+    /** The settings a backup carries, applied once its data is in. */
+    private suspend fun applySettings(completeData: IvyWalletCompleteData) {
+        completeData.settings.firstOrNull()?.let {
+            appPreferences.saveSettings(
+                AppSettings(
+                    theme = it.theme,
+                    baseCurrency = it.currency,
+                    bufferAmount = it.bufferAmount,
+                    name = it.name,
+                )
+            )
+        }
+
+        // The display settings the backup carries replace the current ones; a setting the
+        // file doesn't mention stays as it is. The app lock is never taken from a file: a
+        // backup made by someone else, or one without the key, must not switch it off.
+        val backupPrefs = completeData.sharedPrefs
+        backupPrefs.flag(AppPreferences.BackupShowNotifications)
+            ?.let { appPreferences.setShowNotifications(it) }
+        backupPrefs.flag(AppPreferences.BackupHideCurrentBalance)
+            ?.let { appPreferences.setHideCurrentBalance(it) }
+        backupPrefs.flag(AppPreferences.BackupTransfersAsIncomeExpense)
+            ?.let { appPreferences.setTransfersAsIncomeExpense(it) }
+    }
+
     private fun Map<String, String>.flag(key: String): Boolean? = this[key]?.toBooleanStrictOrNull()
 
-    /** This is used to replace account & category Ids in backup data with existing Ids
-     *  This removes the problem of duplicate Accounts & Categories
+    /**
+     * Pairs each account and category in the backup with the existing one of the same name, so
+     * that the backup's rows, and every transaction pointing at them, land on the existing row
+     * instead of adding a duplicate. Two same-named rows on the same side are left alone: they
+     * are distinct rows, whether in the backup or in the wallet.
      *
-     *  returns a Pair<A,B> of IDs where A is the UUID that needs to be replaced with B
+     * Returns (id in the backup, id it is replaced with).
      */
     private suspend fun getReplacementPairs(
         completeData: IvyWalletCompleteData
-    ): List<Pair<UUID, UUID>> {
-        return withContext(dispatchersProvider.io) {
-            val existingAccountsList = accountDao.findAll()
-            val existingCategoryList = categoryDao.findAll()
+    ): List<Pair<UUID, UUID>> = withContext(dispatchersProvider.io) {
+        val existingAccounts = accountDao.findAll().associateBy { it.name }
+        val existingCategories = categoryDao.findAll().associateBy { it.name }
 
-            val backupAccountsList = completeData.accounts
-            val backupCategoryList = completeData.categories
-
-            if (existingAccountsList.isEmpty() && existingCategoryList.isEmpty()) {
-                return@withContext emptyList()
-            }
-
-            val sumAccountList = existingAccountsList + backupAccountsList
-            val sumCategoriesList = existingCategoryList + backupCategoryList
-
-            val accountsReplace = async {
-                sumAccountList.groupBy { it.name }.filter { it.value.size == 2 }.map {
-                    val accountsZero = it.value[0]
-                    val accountsFirst = it.value[1]
-
-                    if (backupAccountsList.contains(accountsZero)) {
-                        Pair(accountsZero.id, accountsFirst.id)
-                    } else {
-                        Pair(accountsFirst.id, accountsZero.id)
-                    }
-                }
-            }
-
-            val categoriesReplace = async {
-                sumCategoriesList.groupBy { it.name }.filter { it.value.size == 2 }.map {
-                    val categoryZero = it.value[0]
-                    val categoryFirst = it.value[1]
-
-                    if (completeData.categories.contains(categoryZero)) {
-                        Pair(categoryZero.id, categoryFirst.id)
-                    } else {
-                        Pair(categoryFirst.id, categoryZero.id)
-                    }
-                }
-            }
-
-            accountsReplace.await() + categoriesReplace.await()
+        val accounts = completeData.accounts.mapNotNull { backup ->
+            existingAccounts[backup.name]?.takeIf { it.id != backup.id }?.let { backup.id to it.id }
         }
+        val categories = completeData.categories.mapNotNull { backup ->
+            existingCategories[backup.name]?.takeIf { it.id != backup.id }?.let { backup.id to it.id }
+        }
+        accounts + categories
     }
 
     private fun hasJsonExtension(file: File): Boolean {

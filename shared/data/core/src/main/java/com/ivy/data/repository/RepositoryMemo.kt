@@ -1,17 +1,22 @@
 package com.ivy.data.repository
 
+import com.ivy.base.di.AppCoroutineScope
 import com.ivy.base.threading.DispatchersProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
 import com.ivy.data.DeleteOperation
 import com.ivy.data.model.sync.Identifiable
 import com.ivy.data.model.sync.UniqueId
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RepositoryMemoFactory @Inject constructor(
     private val dataObserver: DataObserver,
     private val dispatchers: DispatchersProvider,
+    @AppCoroutineScope private val appScope: CoroutineScope,
 ) {
     fun <T : Identifiable<TID>, TID : UniqueId> createMemo(
         getDataWriteSaveEvent: (List<T>) -> DataWriteEvent,
@@ -19,6 +24,7 @@ class RepositoryMemoFactory @Inject constructor(
     ): RepositoryMemo<T, TID> = RepositoryMemo(
         dataObserver = dataObserver,
         dispatchers = dispatchers,
+        appScope = appScope,
         getDataWriteSaveEvent = getDataWriteSaveEvent,
         getDataWriteDeleteEvent = getDateWriteDeleteEvent,
     )
@@ -27,6 +33,7 @@ class RepositoryMemoFactory @Inject constructor(
 class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor(
     private val dataObserver: DataObserver,
     private val dispatchers: DispatchersProvider,
+    appScope: CoroutineScope,
     private val getDataWriteSaveEvent: (List<T>) -> DataWriteEvent,
     private val getDataWriteDeleteEvent: (DeleteOperation<TID>) -> DataWriteEvent,
 ) {
@@ -35,6 +42,21 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
     val items: Map<TID, T> = _memo
     var findAllMemoized = false
         private set
+
+    init {
+        // A backup import or "delete all data" rewrites the tables underneath this memo, through
+        // the DAOs. Both announce it with AllDataChange; the memo starts over from the database.
+        appScope.launch {
+            dataObserver.writeEvents
+                .filterIsInstance<DataWriteEvent.AllDataChange>()
+                .collect { invalidate() }
+        }
+    }
+
+    private fun invalidate() {
+        _memo.clear()
+        findAllMemoized = false
+    }
 
     suspend fun findAll(
         findAllOperation: suspend () -> List<T>,
