@@ -83,7 +83,7 @@ internal fun OnboardingType(
         Image(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             painter = painterResource(id = R.drawable.onboarding_illustration_import),
-            contentDescription = "import illustration"
+            contentDescription = null
         )
 
         OnboardingProgressSlider(

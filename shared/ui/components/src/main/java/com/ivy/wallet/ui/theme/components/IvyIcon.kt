@@ -13,7 +13,7 @@ fun IvyIcon(
     @DrawableRes icon: Int,
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
-    contentDescription: String = "icon"
+    contentDescription: String? = null
 ) {
     Icon(
         modifier = modifier,

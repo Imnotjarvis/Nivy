@@ -1,6 +1,7 @@
 package com.ivy.importdata.csv
 
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -268,18 +269,18 @@ private fun <M> LazyListScope.mappingRow(
                 .padding(vertical = 8.dp, horizontal = 8.dp)
         ) {
             Text(
-                text = mapping.ivyColumn,
+                text = stringResource(mapping.ivyColumn),
                 style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.primary),
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = mapping.helpInfo,
+                text = stringResource(mapping.helpInfo),
                 style = MaterialTheme.typography.labelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
             Spacer8()
-            Text(text = "Choose a matching CSV column:", style = MaterialTheme.typography.bodyLarge)
+            Text(text = stringResource(R.string.csv_choose_matching_column), style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier
@@ -316,15 +317,12 @@ private fun <M> LazyListScope.mappingRow(
     }
 }
 
-fun LazyListScope.sectionDivider(text: String) {
+fun LazyListScope.sectionDivider(@StringRes text: Int) {
     item {
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = text, style = MaterialTheme.typography.titleLarge)
+        Text(text = stringResource(text), style = MaterialTheme.typography.titleLarge)
         Text(
-            text = """
-                Match the CSV column with the appropriate Ivy type.
-                If the parsing is successful the border will turn green.
-            """.trimIndent(),
+            text = stringResource(R.string.csv_section_help),
             style = MaterialTheme.typography.numberBodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -338,7 +336,7 @@ fun LazyListScope.importantFields(
     importantFields: ImportantFields,
     onEvent: (CSVEvent) -> Unit,
 ) {
-    sectionDivider("Important")
+    sectionDivider(R.string.csv_section_important)
     mappingRow(
         columns = columns,
         mapping = importantFields.amount,
@@ -408,7 +406,7 @@ private fun AmountMetadata(
     multiplier: Int,
     onMetaChange: (Int) -> Unit,
 ) {
-    Text(text = "Multiplier", style = MaterialTheme.typography.numberBodyLarge)
+    Text(text = stringResource(R.string.csv_multiplier), style = MaterialTheme.typography.numberBodyLarge)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Button(onClick = {
             onMetaChange(
@@ -426,7 +424,7 @@ private fun AmountMetadata(
             text = when {
                 multiplier < 0 -> "/${abs(multiplier)}"
                 multiplier > 1 -> "*${abs(multiplier)}"
-                else -> "None"
+                else -> stringResource(R.string.csv_multiplier_none)
             },
             style = MaterialTheme.typography.numberBodyLarge,
             color = MaterialTheme.colorScheme.primary,
@@ -458,7 +456,7 @@ private fun TypeMetadata(
     }
 
     LabelContainsField(
-        label = "Income",
+        label = stringResource(R.string.income),
         value = metadata.income,
         onValueChange = {
             onTypeMetaEvent(metadata.copy(income = it))
@@ -466,16 +464,16 @@ private fun TypeMetadata(
     )
     Spacer8()
     LabelContainsField(
-        label = "Expense",
+        label = stringResource(R.string.expense),
         value = metadata.expense,
         onValueChange = {
             onTypeMetaEvent(metadata.copy(expense = it))
         }
     )
     Spacer8()
-    Text(text = "(optional)", style = MaterialTheme.typography.labelMedium)
+    Text(text = stringResource(R.string.csv_optional_in_parentheses), style = MaterialTheme.typography.labelMedium)
     LabelContainsField(
-        label = "Transfer",
+        label = stringResource(R.string.transfer),
         value = metadata.transfer ?: "",
         onValueChange = {
             onTypeMetaEvent(metadata.copy(transfer = it))
@@ -491,7 +489,7 @@ private fun LabelContainsField(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(text = label, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.numberTitleLarge)
-        Text(text = " contains ", style = MaterialTheme.typography.labelMedium)
+        Text(text = stringResource(R.string.csv_contains), style = MaterialTheme.typography.labelMedium)
         Spacer8(horizontal = true)
         var textField by remember {
             // move the cursor at the end of the text
@@ -514,11 +512,11 @@ private fun DateMetadataUI(
     metadata: DateMetadata,
     onEvent: (CSVEvent) -> Unit,
 ) {
-    Text(text = "Which is first in the format?")
+    Text(text = stringResource(R.string.csv_which_is_first))
     Row {
         EnabledButton(
             enabled = metadata == DateMetadata.DateFirst,
-            text = "Date/Day (1,2,3...31)",
+            text = stringResource(R.string.csv_date_first),
             onClick = {
                 onEvent(CSVEvent.DataMetaChange(DateMetadata.DateFirst))
             }
@@ -526,7 +524,7 @@ private fun DateMetadataUI(
         Spacer8(horizontal = true)
         EnabledButton(
             enabled = metadata == DateMetadata.MonthFirst,
-            text = "Month (1,2..12 / Jan, Feb..Dec)",
+            text = stringResource(R.string.csv_month_first),
             onClick = {
                 onEvent(CSVEvent.DataMetaChange(DateMetadata.MonthFirst))
             }
@@ -558,7 +556,7 @@ fun LazyListScope.transferFields(
     transferFields: TransferFields,
     onEvent: (CSVEvent) -> Unit,
 ) {
-    sectionDivider("Transfer fields")
+    sectionDivider(R.string.csv_section_transfer_fields)
     mappingRow(
         columns = columns,
         mapping = transferFields.toAccount,
@@ -613,7 +611,7 @@ fun LazyListScope.optionalFields(
     optionalFields: OptionalFields,
     onEvent: (CSVEvent) -> Unit,
 ) {
-    sectionDivider("Optional fields")
+    sectionDivider(R.string.csv_section_optional_fields)
     mappingRow(
         columns = columns,
         mapping = optionalFields.category,

@@ -60,7 +60,7 @@ fun ItemIconMDefaultIcon(
             Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
-                contentDescription = "item icon",
+                contentDescription = null,
                 tint = tint
             )
         }
@@ -104,7 +104,7 @@ fun ItemIconSDefaultIcon(
             Icon(
                 modifier = modifier,
                 painter = painterResource(id = defaultIcon),
-                contentDescription = "item icon",
+                contentDescription = null,
                 tint = tint
             )
         }

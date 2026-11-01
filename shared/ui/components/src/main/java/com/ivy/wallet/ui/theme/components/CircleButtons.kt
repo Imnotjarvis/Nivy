@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -28,7 +29,7 @@ fun CloseButton(
     CircleButton(
         modifier = modifier,
         icon = R.drawable.ic_dismiss,
-        contentDescription = "close",
+        contentDescription = stringResource(R.string.close),
         onClick = onClick,
     )
 }
@@ -37,7 +38,7 @@ fun CloseButton(
 fun CircleButton(
     @DrawableRes icon: Int,
     modifier: Modifier = Modifier,
-    contentDescription: String = "icon",
+    contentDescription: String? = null,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     tint: Color? = MaterialTheme.colorScheme.onSurface,
@@ -60,7 +61,7 @@ fun CircleButton(
 fun CircleButtonFilled(
     @DrawableRes icon: Int,
     modifier: Modifier = Modifier,
-    contentDescription: String = "icon",
+    contentDescription: String? = null,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     tint: Color? = MaterialTheme.colorScheme.onSurface,
     clickAreaPadding: Dp = 8.dp,
@@ -82,7 +83,7 @@ fun CircleButtonFilled(
 fun CircleButtonFilledGradient(
     @DrawableRes icon: Int,
     modifier: Modifier = Modifier,
-    contentDescription: String = "icon",
+    contentDescription: String? = null,
     iconPadding: Dp = 8.dp,
     backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
     tint: Color? = MaterialTheme.colorScheme.onSurface,
@@ -108,7 +109,7 @@ fun BackButton(
     CircleButton(
         modifier = modifier,
         icon = R.drawable.ic_back,
-        contentDescription = "back",
+        contentDescription = stringResource(R.string.back),
         onClick = onClick,
     )
 }

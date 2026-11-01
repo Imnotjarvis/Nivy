@@ -250,7 +250,8 @@ private fun CategoryButton(
                     .size(32.dp),
                 icon = R.drawable.ic_remove,
                 backgroundGradient = Gradient.solid(deselectBtnBackground),
-                tint = findContrastTextColor(deselectBtnBackground)
+                tint = findContrastTextColor(deselectBtnBackground),
+                contentDescription = stringResource(R.string.remove),
             ) {
                 onDeselect()
             }

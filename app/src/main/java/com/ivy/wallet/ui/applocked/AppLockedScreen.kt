@@ -73,7 +73,7 @@ internal fun BoxWithConstraintsScope.AppLockedScreen(
             painter = painterResource(id = R.drawable.ic_fingerprint),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceVariant),
             contentScale = ContentScale.FillBounds,
-            contentDescription = "unlock icon"
+            contentDescription = null
         )
 
         Spacer(Modifier.weight(1f))

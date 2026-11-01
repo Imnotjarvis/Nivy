@@ -145,7 +145,7 @@ private fun BoxWithConstraintsScope.UI(
                 Spacer(Modifier.height(16.dp))
             }
         }
-        items(state.accountsData) {
+        items(state.accountsData, key = { it.account.id.value }) {
             Spacer(Modifier.height(16.dp))
             AccountCard(
                 baseCurrency = state.baseCurrency,

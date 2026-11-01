@@ -33,6 +33,7 @@ fun IvyCircleButton(
     tint: Color = White,
     enabled: Boolean = true,
     hasShadow: Boolean = true,
+    contentDescription: String? = null,
     onClick: () -> Unit
 ) {
     IvyIcon(
@@ -63,7 +64,7 @@ fun IvyCircleButton(
             .padding(all = backgroundPadding),
         icon = icon,
         tint = tint,
-        contentDescription = "circle button"
+        contentDescription = contentDescription
     )
 }
 

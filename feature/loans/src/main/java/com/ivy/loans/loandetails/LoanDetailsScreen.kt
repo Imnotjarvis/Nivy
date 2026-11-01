@@ -624,7 +624,7 @@ fun LazyListScope.loanRecords(
     displayLoanRecords: List<DisplayLoanRecord> = emptyList(),
     onClick: (DisplayLoanRecord) -> Unit
 ) {
-    items(items = displayLoanRecords) { displayLoanRecord ->
+    items(items = displayLoanRecords, key = { it.loanRecord.id.value }) { displayLoanRecord ->
         LoanRecordItem(
             loan = loan,
             loanRecord = displayLoanRecord.loanRecord,

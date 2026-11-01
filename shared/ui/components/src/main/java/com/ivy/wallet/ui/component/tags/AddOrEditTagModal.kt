@@ -122,7 +122,7 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
             dividerModifier = Modifier
                 .padding(horizontal = 24.dp),
             value = titleTextFieldValue,
-            hint = "Enter TagName",
+            hint = stringResource(R.string.enter_tag_name),
             keyboardOptions = KeyboardOptions(
                 autoCorrectEnabled = true,
                 keyboardType = KeyboardType.Text,

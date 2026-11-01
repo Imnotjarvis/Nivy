@@ -116,7 +116,7 @@ private fun BoxWithConstraintsScope.UI(
         }
 
         LazyColumn(state = scrollState) {
-            items(loans) { item ->
+            items(loans, key = { it.loan.id.value }) { item ->
                 Spacer(Modifier.height(16.dp))
 
                 LoanItem(

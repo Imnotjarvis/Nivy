@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientRed
@@ -25,6 +26,7 @@ fun DeleteButton(
         enabled = true,
         hasShadow = hasShadow,
         tint = White,
+        contentDescription = stringResource(R.string.delete),
         onClick = onClick
     )
 }

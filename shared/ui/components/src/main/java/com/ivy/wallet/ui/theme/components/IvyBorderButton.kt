@@ -124,7 +124,7 @@ private fun IconStart(
     Icon(
         modifier = Modifier,
         painter = painterResource(id = icon),
-        contentDescription = "icon",
+        contentDescription = null,
         tint = tint,
     )
 
@@ -141,7 +141,7 @@ private fun IconEnd(
     Icon(
         modifier = Modifier,
         painter = painterResource(id = icon),
-        contentDescription = "icon",
+        contentDescription = null,
         tint = tint,
     )
 

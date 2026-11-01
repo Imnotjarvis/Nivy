@@ -14,10 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.exchangerates.data.RateUi
+import com.ivy.ui.R
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.ui.theme.components.DeleteButton
@@ -53,7 +55,7 @@ fun RateItem(
         ) {
             val currencyValue: Double = 1.0
             RateColumn(
-                label = "Sell",
+                label = stringResource(R.string.sell),
                 rate = rate.from,
                 value = currencyValue.format(currencyCode = rate.from)
             )
@@ -61,11 +63,11 @@ fun RateItem(
             Spacer(Modifier.width(16.dp))
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "arrow to next"
+                contentDescription = null
             )
             Spacer(Modifier.width(16.dp))
             RateColumn(
-                label = "Buy",
+                label = stringResource(R.string.buy),
                 rate = rate.to,
                 value = rate.rate.format(currencyCode = rate.to)
             )

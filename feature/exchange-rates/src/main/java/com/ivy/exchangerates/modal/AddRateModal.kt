@@ -11,12 +11,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Orange
 import com.ivy.exchangerates.RatesEvent
 import com.ivy.exchangerates.data.RateUi
+import com.ivy.ui.R
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
@@ -64,14 +66,14 @@ internal fun BoxWithConstraintsScope.AddRateModal(
         }
     ) {
         Spacer(Modifier.height(16.dp))
-        ModalTitle(text = "Add rate")
+        ModalTitle(text = stringResource(R.string.add_rate))
         Spacer(Modifier.height(24.dp))
 
         IvyNameTextField(
             modifier = Modifier.padding(horizontal = 32.dp),
             underlineModifier = Modifier.padding(horizontal = 24.dp),
             value = toCurrency,
-            hint = "Currency"
+            hint = stringResource(R.string.currency)
         ) {
             toCurrency = it
         }

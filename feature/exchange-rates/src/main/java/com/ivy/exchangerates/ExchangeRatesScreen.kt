@@ -1,5 +1,6 @@
 package com.ivy.exchangerates
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,6 +25,7 @@ import com.ivy.base.model.Theme
 import com.ivy.exchangerates.component.RateItem
 import com.ivy.exchangerates.data.RateUi
 import com.ivy.exchangerates.modal.AddRateModal
+import com.ivy.ui.R
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.ui.SearchInput
 import com.ivy.design.utils.selectEndTextFieldValue
@@ -84,7 +87,7 @@ private fun BoxWithConstraintsScope.UI(
         SearchField(onSearch = { onEvent(RatesEvent.Search(it)) })
         Spacer(Modifier.height(4.dp))
         LazyColumn {
-            ratesSection(text = "Manual")
+            ratesSection(text = R.string.manual_rates)
             items(items = state.manual) { rate ->
                 Spacer(Modifier.height(4.dp))
                 RateItem(
@@ -93,7 +96,7 @@ private fun BoxWithConstraintsScope.UI(
                     onClick = { onRateClick(rate) }
                 )
             }
-            ratesSection(text = "Automatic")
+            ratesSection(text = R.string.automatic_rates)
             items(items = state.automatic) { rate ->
                 Spacer(Modifier.height(4.dp))
                 RateItem(
@@ -160,7 +163,7 @@ private fun BoxWithConstraintsScope.UI(
 }
 
 private fun LazyListScope.ratesSection(
-    text: String
+    @StringRes text: Int
 ) {
     item {
         Spacer(Modifier.height(24.dp))
@@ -172,7 +175,7 @@ private fun LazyListScope.ratesSection(
             )
             Spacer(Modifier.width(16.dp))
             Text(
-                text = text,
+                text = stringResource(text),
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(Modifier.width(16.dp))
@@ -195,7 +198,7 @@ private fun SearchField(
 
     SearchInput(
         searchQueryTextFieldValue = searchQueryTextFieldValue,
-        hint = "Search currency",
+        hint = stringResource(R.string.search_currency),
         focus = false,
         showClearIcon = searchQueryTextFieldValue.text.isNotEmpty(),
         onSetSearchQueryTextField = {

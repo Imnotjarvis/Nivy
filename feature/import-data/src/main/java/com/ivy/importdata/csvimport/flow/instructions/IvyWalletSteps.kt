@@ -33,8 +33,8 @@ internal fun IvyWalletSteps(
 
     UploadFileStep(
         stepNumber = 2,
-        text = "Upload Backup (ZIP/CSV/JSON) file",
-        btnTitle = "Upload Backup file",
+        text = stringResource(R.string.upload_backup_file),
+        btnTitle = stringResource(R.string.upload_backup_file_button),
         onUploadClick = onUploadClick
     )
 }
