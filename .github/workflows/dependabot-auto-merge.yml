@@ -2,9 +2,10 @@
 # person. Three repository settings make it work (Settings > ...):
 # - General > Pull Requests > "Allow auto-merge".
 # - Rules > Rulesets: a ruleset on main that requires the status checks "checks", "build" and
-#   "test" (Build), "Analyze (java-kotlin)" (CodeQL) and "review" (Dependencies). Auto-merge waits
-#   for required checks; without them GitHub merges as soon as the pull request is mergeable.
-#   Jobs a run skips count as passed.
+#   "test" (Build), "Analyze (java-kotlin)" (CodeQL), "submit" and "review" (Dependencies).
+#   Auto-merge waits for required checks; without them GitHub merges as soon as the pull request
+#   is mergeable. Jobs a run skips count as passed, which is why "submit" is in the list: when it
+#   fails, "review" is skipped, and only a required "submit" then blocks the merge.
 # - Secrets and variables > Dependabot > AUTO_MERGE_TOKEN: a fine-grained personal access token
 #   for this repository with Contents and Pull requests set to read and write. GitHub starts no
 #   workflow from a merge made with a workflow's own GITHUB_TOKEN, so with that token main would

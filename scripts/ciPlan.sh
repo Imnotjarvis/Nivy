@@ -5,8 +5,9 @@
 #   test    unit and screenshot tests
 #   device  the R8-minified demo APK and the emulator job (startup crashes, R8 rules, Room, Hilt)
 #   lint    Android Lint
-# Branch pushes skip the device work when they only change code or resources of features a fresh
-# install never opens (everything but onboarding) or widgets, unit tests, or docs.
+# A push that only changes docs runs nothing. Branch pushes skip the device work when they only
+# change code or resources of features a fresh install never opens (everything but onboarding)
+# or widgets, or unit tests.
 # Pushes to claude/experimental-* branches (long refactors that push often) run only checks and
 # the build, which then also compiles the unit tests; a manual run on the branch runs everything.
 # Tags, pushes to the default branch, nightly and manual runs always run everything.
@@ -15,6 +16,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
 run=true test=true device=true lint=true reason=""
+DOCS='\.md$|^docs/|^LICENSE$'
 
 # Changed paths on stdin -> the ones that can affect the emulator job.
 device_relevant() {
@@ -43,8 +45,13 @@ case "$EVENT" in
         esac
         ;;
     push)
+        # The changed paths, or "everything" for a new branch or a force-push.
+        changed=$(scripts/changedPaths.sh || echo everything)
         if [[ "$REF" == refs/tags/* ]]; then
             reason="tag: everything"
+        elif [ "$changed" != everything ] && ! grep -qvE "$DOCS" <<< "$changed"; then
+            run=false test=false device=false lint=false
+            reason="push: only docs changed, nothing to build"
         elif [ "$REF" = "refs/heads/$DEFAULT_BRANCH" ]; then
             reason="push to $DEFAULT_BRANCH: everything"
         elif [[ "$REF" == refs/heads/claude/experimental-* ]]; then
@@ -52,12 +59,10 @@ case "$EVENT" in
             reason="experimental branch push: checks and build only (a manual run runs everything)"
         else
             lint=false
-            zero=0000000000000000000000000000000000000000
-            if [ -z "${BEFORE:-}" ] || [ "$BEFORE" = "$zero" ] \
-                || ! git fetch -q --depth=1 origin "$BEFORE" 2>/dev/null; then
+            if [ "$changed" = everything ]; then
                 reason="branch push: previous commit unknown (new branch?), so device tests run"
             else
-                relevant=$(git diff --name-only "$BEFORE" "$GITHUB_SHA" | device_relevant)
+                relevant=$(device_relevant <<< "$changed")
                 if [ -n "$relevant" ]; then
                     reason="branch push: device tests run for $(echo "$relevant" | head -3 | paste -sd ' ')"
                 else

@@ -12,15 +12,16 @@
 # build scripts, manifests, XML resources, or this file. A dependency bump or a docs change
 # doesn't start it (the Dependencies workflow covers dependencies). The weekly and manual runs
 # analyse everything, so new CodeQL queries also meet unchanged code.
+# The workflow itself has no path filter: a workflow that doesn't start reports no checks, and
+# a ruleset that requires "Analyze (java-kotlin)" would then block a docs-only pull request. A
+# skipped job reports its check as passed.
 name: CodeQL
 
 on:
   push:
     branches: [main]
-    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   pull_request:
     branches: [main]
-    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   schedule:
     - cron: '23 4 * * 1'
   workflow_dispatch:

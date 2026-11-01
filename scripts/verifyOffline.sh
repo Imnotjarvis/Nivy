@@ -5,7 +5,7 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-SRC_DIRS="app buildSrc config/detekt/config.yml feature shared temp widget gradle settings.gradle.kts build.gradle.kts"
+SRC_DIRS="app buildSrc config/detekt/config.yml feature shared widget gradle settings.gradle.kts build.gradle.kts"
 fail=0
 
 # check LABEL PATTERN [ALLOWED]: fails on any match, except in paths matching the ALLOWED regex.
@@ -16,7 +16,7 @@ check() {
     hits=$(grep -rnIiE "$pattern" $SRC_DIRS \
         --include='*.kt' --include='*.kts' --include='*.toml' --include='*.xml' \
         --include='*.json' --include='*.yml' --include='*.pro' \
-        2>/dev/null | grep -v '/build/' | grep -v 'lint-baseline.xml' | grep -vE "$allowed")
+        2>/dev/null | grep -v '/build/' | grep -vE "$allowed")
     if [ -n "$hits" ]; then
         echo "FAIL [$label]"
         echo "$hits" | head -5 | sed 's/^/       /'
