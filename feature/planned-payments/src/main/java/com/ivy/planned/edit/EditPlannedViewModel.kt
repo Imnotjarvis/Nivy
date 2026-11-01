@@ -44,6 +44,8 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -61,6 +63,8 @@ class EditPlannedViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<EditPlannedScreenState, EditPlannedScreenEvent>() {
+
+    private val saveMutex = Mutex()
 
     private var transactionType by mutableStateOf(TransactionType.INCOME)
     private var startDate by mutableStateOf<LocalDateTime?>(null)
@@ -285,8 +289,12 @@ class EditPlannedViewModel @Inject constructor(
         val rule = rule() ?: return
 
         viewModelScope.launch {
-            plannedPaymentRuleRepository.save(rule)
-            plannedPaymentsGenerator.generate(rule)
+            // Edit mode saves on every keystroke. Generating deletes the unpaid payments and adds
+            // them again, so overlapping runs would leave duplicates: one run at a time, in order.
+            saveMutex.withLock {
+                plannedPaymentRuleRepository.save(rule)
+                plannedPaymentsGenerator.generate(rule)
+            }
 
             if (closeScreen) {
                 nav.back()
