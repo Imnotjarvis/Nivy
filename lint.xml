@@ -24,6 +24,10 @@
          with each language's plural forms. -->
     <issue id="PluralsCandidate" severity="ignore" />
 
+    <!-- Screens take their view model with viewModel() in the body, as upstream wrote them (the
+         matching detekt rule, ViewModelInjection, is off in config/detekt/config.yml). -->
+    <issue id="ComposeViewModelInjection" severity="ignore" />
+
     <!-- Logos and illustrations sized by the layouts that show them, and imported icon paths. -->
     <issue id="IconLocation" severity="ignore" />
     <issue id="VectorPath" severity="ignore" />

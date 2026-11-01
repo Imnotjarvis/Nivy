@@ -120,8 +120,7 @@ opencsv-apache-commons = { module = "org.apache.commons:commons-lang3", version 
 
 # Linters
 detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
-# The rule-set plugins are pinned for detekt 1.23 (see the ignore list in .github/dependabot.yml).
-detekt-ruleset-compiler = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version = "0.0.4" }
+# The Compose rules are pinned for detekt 1.23 (see the ignore list in .github/dependabot.yml).
 detekt-ruleset-ktlint = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-ruleset-compose = { module = "io.nlopez.compose.rules:detekt", version = "0.4.10" }
 slack-lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version = "1.6.1" }

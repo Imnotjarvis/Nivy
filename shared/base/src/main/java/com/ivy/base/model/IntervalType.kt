@@ -2,21 +2,24 @@ package com.ivy.base.model
 
 import androidx.annotation.Keep
 import java.time.Instant
-import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
+import java.time.ZoneId
 
 @Keep
 enum class IntervalType {
     DAY, WEEK, MONTH, YEAR
 }
 
-/** [date] moved forward by [intervalN] intervals. Months and years are counted in UTC. */
-@Suppress("MagicNumber")
-fun IntervalType.incrementDate(date: Instant, intervalN: Long): Instant {
+/**
+ * [date] moved forward by [intervalN] intervals on [zone]'s calendar, so a monthly payment on
+ * the 1st stays on the 1st and a daily one keeps its local time across DST changes. Counting in
+ * UTC put rules created near midnight or far from UTC on the wrong day.
+ */
+fun IntervalType.incrementDate(date: Instant, intervalN: Long, zone: ZoneId): Instant {
+    val local = date.atZone(zone)
     return when (this) {
-        IntervalType.DAY -> date.plus(intervalN, ChronoUnit.DAYS)
-        IntervalType.WEEK -> date.plus(intervalN * 7, ChronoUnit.DAYS)
-        IntervalType.MONTH -> date.atZone(ZoneOffset.UTC).plusMonths(intervalN).toInstant()
-        IntervalType.YEAR -> date.atZone(ZoneOffset.UTC).plusYears(intervalN).toInstant()
-    }
+        IntervalType.DAY -> local.plusDays(intervalN)
+        IntervalType.WEEK -> local.plusWeeks(intervalN)
+        IntervalType.MONTH -> local.plusMonths(intervalN)
+        IntervalType.YEAR -> local.plusYears(intervalN)
+    }.toInstant()
 }

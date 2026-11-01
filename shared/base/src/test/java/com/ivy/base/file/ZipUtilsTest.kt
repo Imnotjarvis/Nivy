@@ -1,6 +1,7 @@
 package com.ivy.base.file
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -28,6 +29,21 @@ class ZipUtilsTest {
         // Then
         File(destination, "backup.json").readText() shouldBe "{}"
         File(destination, "nested/notes.txt").readText() shouldBe "hello"
+    }
+
+    @Test
+    fun `rejects an archive that inflates past the limit`() {
+        // Given: 2 MB of zeros, which zip to a few KB
+        val zip = zipOf("backup.json" to "0".repeat(2 * 1024 * 1024))
+        val destination = File(temp.root, "out")
+
+        // When
+        shouldThrow<IllegalStateException> {
+            unzip(FileInputStream(zip), destination, maxBytes = 1024 * 1024)
+        }
+
+        // Then: nothing beyond the limit was written
+        File(destination, "backup.json").length() shouldBeLessThanOrEqual 1024L * 1024
     }
 
     @Test

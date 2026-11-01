@@ -8,6 +8,7 @@ import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.TransactionMetadata
 import com.ivy.base.model.incrementDate
+import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.TransactionRepository
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class PlannedPaymentsGenerator @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
+    private val timeProvider: TimeProvider,
 ) {
     /**
      * Replaces the rule's unpaid transactions: one for a one-time rule, and for a recurring one,
@@ -47,7 +49,11 @@ class PlannedPaymentsGenerator @Inject constructor(
                 save(rule, asset, dueDate = date)
                 generated++
             }
-            date = interval.type.incrementDate(date, intervalN = interval.n.value.toLong())
+            date = interval.type.incrementDate(
+                date,
+                intervalN = interval.n.value.toLong(),
+                zone = timeProvider.getZoneId(),
+            )
         }
     }
 
