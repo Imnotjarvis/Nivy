@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.wallet.IvyWalletComponentPreview
-import com.ivy.design.utils.keyboardVisibleState
+import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.SUGGESTIONS_LIMIT
@@ -94,7 +94,7 @@ private fun Suggestions(
     suggestions: Set<String>,
     onClick: (String) -> Unit
 ) {
-    val keyboardVisible by keyboardVisibleState()
+    val keyboardVisible = isKeyboardVisible()
     if (keyboardVisible) {
         if (suggestions.isNotEmpty()) {
             for (suggestion in suggestions.take(SUGGESTIONS_LIMIT)) {

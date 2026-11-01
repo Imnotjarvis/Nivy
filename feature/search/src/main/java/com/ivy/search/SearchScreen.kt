@@ -25,9 +25,7 @@ import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.data.AppBaseData
 import com.ivy.wallet.ui.SearchInput
 import com.ivy.wallet.ui.component.transaction.transactions
-import com.ivy.design.utils.densityScope
-import com.ivy.design.utils.keyboardOnlyWindowInsets
-import com.ivy.design.utils.keyboardVisibleState
+import com.ivy.design.utils.keyboardHeight
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.screenScopedViewModel
@@ -109,11 +107,8 @@ private fun SearchUi(
             )
 
             item {
-                val keyboardVisible by keyboardVisibleState()
                 val keyboardShownInsetDp by animateDpAsState(
-                    targetValue = densityScope {
-                        if (keyboardVisible) keyboardOnlyWindowInsets().bottom.toDp() else 0.dp
-                    },
+                    targetValue = keyboardHeight(),
                     animationSpec = tween(DURATION_MODAL_ANIM)
                 )
 

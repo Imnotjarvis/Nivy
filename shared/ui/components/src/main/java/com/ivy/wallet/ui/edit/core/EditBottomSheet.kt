@@ -46,14 +46,14 @@ import androidx.compose.ui.unit.sp
 import com.ivy.data.model.Account
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.wallet.IvyWalletPreview
-import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.isKeyboardVisible
+import com.ivy.design.utils.keyboardHeight
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope
 import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.utils.format
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInsets
 import com.ivy.wallet.utils.springBounce
@@ -116,18 +116,9 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     convertedAmountCurrencyCode: String? = null,
 ) {
     val rootView = LocalView.current
-    var keyboardShown by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        rootView.addKeyboardListener {
-            keyboardShown = it
-        }
-    }
-
+    val keyboardShown = isKeyboardVisible()
     val keyboardShownInsetDp by animateDpAsState(
-        targetValue = densityScope {
-            if (keyboardShown) keyboardOnlyWindowInsets().bottom.toDp() else 0.dp
-        },
+        targetValue = keyboardHeight(),
         animationSpec = tween(DURATION_MODAL_ANIM)
     )
     val navBarPadding by animateDpAsState(
