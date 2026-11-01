@@ -4,8 +4,10 @@
 # the graph to GitHub. That graph is what Dependabot's vulnerability alerts and the review below
 # work from. `review` checks what a pull request changes and fails it if it adds a dependency
 # with a known vulnerability.
-# Both run on pushes to main and pull requests that can change the dependencies: the Gradle build
-# files, the version catalog, the wrapper, buildSrc or this workflow.
+# Both run for changes that can affect the dependencies: the Gradle build files, the version
+# catalog, the wrapper, buildSrc or this workflow. Pushes to main are filtered by path; pull
+# requests always start the workflow and a first job looks at what they change, so `review` is
+# reported (as skipped) on every pull request and can be a required status check.
 # Pull requests from forks get no write token, so neither job runs for them.
 name: Dependencies
 
@@ -21,13 +23,6 @@ on:
       - '.github/workflows/dependencies.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'gradle/libs.versions.toml'
-      - 'gradle/wrapper/**'
-      - '**/*.gradle.kts'
-      - 'gradle.properties'
-      - 'buildSrc/**'
-      - '.github/workflows/dependencies.yml'
 
 concurrency:
   group: dependencies-${{ github.ref }}
@@ -37,8 +32,37 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    outputs:
+      dependencies: ${{ steps.changes.outputs.dependencies }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pushes were filtered by path above; pull requests are checked here.
+      - name: Can the change affect the dependencies?
+        id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          changed=everything
+          [ "$EVENT" != pull_request ] || changed=$(scripts/changedPaths.sh || echo everything)
+          if grep -qE '^everything$|^gradle/libs\.versions\.toml$|^gradle/wrapper/|\.gradle\.kts$|^gradle\.properties$|^buildSrc/|^\.github/workflows/dependencies\.yml$' <<< "$changed"; then
+            echo "dependencies=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dependencies=false" >> "$GITHUB_OUTPUT"
+            echo "No build file changed: nothing to submit or review."
+          fi
+
   submit:
-    if: github.event_name == 'push' || !github.event.pull_request.head.repo.fork
+    needs: changes
+    if: >-
+      needs.changes.outputs.dependencies == 'true' &&
+      (github.event_name == 'push' || !github.event.pull_request.head.repo.fork)
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     permissions:
