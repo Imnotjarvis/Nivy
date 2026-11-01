@@ -23,16 +23,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -41,11 +40,11 @@ import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.IvyWalletPreview
-import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.isKeyboardVisible
+import com.ivy.design.utils.keyboardHeight
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.design.utils.keyboardOnlyWindowInsets
 import com.ivy.design.utils.navigationBarInsets
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.ui.theme.components.ActionsRow
@@ -56,7 +55,6 @@ import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop24
-import androidx.compose.runtime.LaunchedEffect
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.key
 
@@ -78,18 +76,9 @@ fun BoxScope.IvyModal(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val rootView = LocalView.current
-    var keyboardShown by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        rootView.addKeyboardListener {
-            keyboardShown = it
-        }
-    }
-
+    val keyboardShown = isKeyboardVisible()
     val keyboardShownInsetDp by animateDpAsState(
-        targetValue = densityScope {
-            if (keyboardShown) keyboardOnlyWindowInsets().bottom.toDp() else 0.dp
-        },
+        targetValue = keyboardHeight(),
         animationSpec = tween(DURATION_MODAL_ANIM)
     )
     val navBarPadding by animateDpAsState(

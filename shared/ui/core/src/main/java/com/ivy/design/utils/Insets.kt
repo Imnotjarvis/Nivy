@@ -22,15 +22,6 @@ fun navigationBarInsets(): Insets {
 
 @Composable
 @ReadOnlyComposable
-fun keyboardOnlyWindowInsets(): Insets {
-    val windowInsets = windowInsets()
-    return windowInsets.getInsets(
-        WindowInsetsCompat.Type.ime()
-    )
-}
-
-@Composable
-@ReadOnlyComposable
 fun statusBarInset(): Int {
     val windowInsets = windowInsets()
     return windowInsets.getInsets(WindowInsetsCompat.Type.statusBars()).top

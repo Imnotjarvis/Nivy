@@ -2,13 +2,17 @@ package com.ivy.navigation
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 
 private val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
@@ -21,17 +25,44 @@ fun NavigationRoot(
     CompositionLocalProvider(
         LocalNavigation provides navigation,
     ) {
-        val viewModelStore = LocalViewModelStoreOwner.current
-        DisposableEffect(navigation.currentScreen) {
-            onDispose {
-                // Destroy viewModels only for non-legacy screens
-                if (navigation.lastScreen?.isLegacy == false) {
-                    viewModelStore?.viewModelStore?.clear()
-                }
-            }
+        val screen = navigation.currentScreen
+        if (screen == null || screen.isLegacy) {
+            // Legacy screens keep their view models in the activity's store, for its lifetime.
+            navGraph(screen)
+        } else {
+            ScreenScope(screen) { navGraph(screen) }
         }
-        navGraph(navigation.currentScreen)
     }
+}
+
+/**
+ * A ViewModelStore of the screen's own, cleared when the screen is left: [screenScopedViewModel]
+ * reads it through [LocalViewModelStoreOwner]. The activity's store, where RootActivity's and the
+ * legacy screens' view models live, is never touched.
+ */
+@Composable
+private fun ScreenScope(screen: Screen, content: @Composable () -> Unit) {
+    val activity = requireNotNull(LocalViewModelStoreOwner.current) { "No ViewModelStoreOwner provided" }
+    val owner = remember(screen) { ScreenViewModelStoreOwner(activity) }
+    DisposableEffect(owner) {
+        onDispose { owner.viewModelStore.clear() }
+    }
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+        content()
+    }
+}
+
+private class ScreenViewModelStoreOwner(
+    private val activity: ViewModelStoreOwner,
+) : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+    override val viewModelStore = ViewModelStore()
+
+    // The activity's factory (Hilt's) and saved state build the screen's view models.
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+        get() = (activity as HasDefaultViewModelProviderFactory).defaultViewModelProviderFactory
+
+    override val defaultViewModelCreationExtras: CreationExtras
+        get() = (activity as HasDefaultViewModelProviderFactory).defaultViewModelCreationExtras
 }
 
 @Composable
@@ -41,10 +72,9 @@ fun navigation(): Navigation {
 }
 
 /**
- * Provides a [ViewModel] instance scoped the screen's life.
- * When the user navigates away from the screen all screen scoped
- * viewModels are destroyed.
- * Does not apply for legacy screens.
+ * Provides a [ViewModel] instance scoped to the screen's life: when the user leaves the screen,
+ * its view models are destroyed. Legacy screens have no scope of their own, so there it is the
+ * activity's view model.
  */
 @Composable
 inline fun <reified T : ViewModel> screenScopedViewModel(
@@ -52,9 +82,9 @@ inline fun <reified T : ViewModel> screenScopedViewModel(
 ): T {
     val viewModelStoreOwner = LocalViewModelStoreOwner.current
     requireNotNull(viewModelStoreOwner) { "No ViewModelStoreOwner provided" }
-    val viewModelProvider = factory?.let {
-        ViewModelProvider(viewModelStoreOwner, it)
-    } ?: ViewModelProvider(viewModelStoreOwner)
+    val viewModelProvider = remember(viewModelStoreOwner, factory) {
+        factory?.let { ViewModelProvider(viewModelStoreOwner, it) } ?: ViewModelProvider(viewModelStoreOwner)
+    }
     return viewModelProvider[T::class.java]
 }
 

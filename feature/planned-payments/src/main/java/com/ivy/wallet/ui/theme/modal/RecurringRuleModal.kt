@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.IntervalType
 import com.ivy.domain.RootScreen
 import com.ivy.wallet.IvyWalletPreview
-import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.thenIf
@@ -54,7 +53,6 @@ import com.ivy.wallet.ui.theme.components.IntervalPickerRow
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -297,17 +295,12 @@ private fun MultipleTimes(
 
     Spacer(Modifier.height(16.dp))
 
-    val rootView = LocalView.current
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        rootView.addKeyboardListener { keyboardShown ->
-            if (keyboardShown) {
-                coroutineScope.launch {
-                    delay(200)
-                    modalScrollState.animateScrollTo(modalScrollState.maxValue)
-                }
-            }
+    // Scroll the input into view once the keyboard has opened.
+    val keyboardShown = isKeyboardVisible()
+    LaunchedEffect(keyboardShown) {
+        if (keyboardShown) {
+            delay(200)
+            modalScrollState.animateScrollTo(modalScrollState.maxValue)
         }
     }
 

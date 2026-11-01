@@ -3,15 +3,11 @@ package com.ivy.design.utils
 import android.app.Activity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnLayout
-import timber.log.Timber
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 
 // Same JVM signature as View.hideKeyboard(), hence the JvmName.
 @JvmName("hideKeyboardSafely")
@@ -29,50 +25,13 @@ fun View.hideKeyboard() {
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
+// Both read the window's IME inset, which Compose keeps current: the caller recomposes as the
+// keyboard opens and closes, with nothing to register or remove.
+
+/** Whether the on-screen keyboard is showing. */
 @Composable
-fun keyboardVisibleState(): State<Boolean> {
-    val rootView = LocalView.current
+fun isKeyboardVisible(): Boolean = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
-    val keyboardVisible = remember {
-        mutableStateOf(false)
-    }
-
-    DisposableEffect(Unit) {
-        rootView.addKeyboardListener {
-            keyboardVisible.value = it
-        }
-        onDispose { }
-    }
-
-    return keyboardVisible
-}
-
-fun View.addKeyboardListener(keyboardCallback: (visible: Boolean) -> Unit) {
-    doOnLayout {
-        // get init state of keyboard
-        var keyboardVisible = isKeyboardOpen(this)
-
-        // callback as soon as the layout is set with whether the keyboard is open or not
-        keyboardCallback(keyboardVisible)
-
-        // whenever the layout resizes/changes, callback with the state of the keyboard.
-        viewTreeObserver.addOnGlobalLayoutListener {
-            val keyboardUpdateCheck = isKeyboardOpen(this)
-            // since the observer is hit quite often, only callback when there is a change.
-            if (keyboardUpdateCheck != keyboardVisible) {
-                keyboardCallback(keyboardUpdateCheck)
-                keyboardVisible = keyboardUpdateCheck
-            }
-        }
-    }
-}
-
-fun isKeyboardOpen(rootView: View): Boolean {
-    return try {
-        WindowInsetsCompat.toWindowInsetsCompat(rootView.rootWindowInsets, rootView)
-            .isVisible(WindowInsetsCompat.Type.ime())
-    } catch (e: Exception) {
-        Timber.e(e)
-        false
-    }
-}
+/** The on-screen keyboard's height, 0.dp while it is closed. */
+@Composable
+fun keyboardHeight(): Dp = with(LocalDensity.current) { WindowInsets.ime.getBottom(this).toDp() }

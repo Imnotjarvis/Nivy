@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +42,7 @@ import com.ivy.wallet.data.model.LastNTimeRange
 import com.ivy.wallet.data.model.Month.Companion.fromMonthValue
 import com.ivy.wallet.data.model.Month.Companion.monthsList
 import com.ivy.wallet.data.model.TimePeriod
-import com.ivy.design.utils.addKeyboardListener
+import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
@@ -453,17 +452,12 @@ private fun ColumnScope.LastNPeriod(
 
     onSelected: (LastNTimeRange) -> Unit
 ) {
-    val rootView = LocalView.current
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        rootView.addKeyboardListener { keyboardShown ->
-            if (keyboardShown) {
-                coroutineScope.launch {
-                    delay(200)
-                    modalScrollState.animateScrollTo(modalScrollState.maxValue)
-                }
-            }
+    // Scroll the input into view once the keyboard has opened.
+    val keyboardShown = isKeyboardVisible()
+    LaunchedEffect(keyboardShown) {
+        if (keyboardShown) {
+            delay(200)
+            modalScrollState.animateScrollTo(modalScrollState.maxValue)
         }
     }
 
