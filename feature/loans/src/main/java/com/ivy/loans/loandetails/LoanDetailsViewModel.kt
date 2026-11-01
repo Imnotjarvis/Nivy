@@ -341,6 +341,8 @@ class LoanDetailsViewModel @Inject constructor(
             loanTransactionsUseCase.recalculateRecords(loan, oldAccount = oldAccount)
             loanTransactionsUseCase.syncLoanTransaction(loan, create = createLoanTransaction)
             load(loanId = loan.id.value)
+            // Shown while an account change recalculates the records; nothing else hides it.
+            waitModalVisible.value = false
         }
     }
 
