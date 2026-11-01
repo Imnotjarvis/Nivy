@@ -164,17 +164,11 @@ class CSVImporterV2 @Inject constructor(
             null
         }
 
-        val csvAmount = if (type != TransactionType.TRANSFER) {
-            parseAmount(
-                value = row.extractValue(importantFields.amount),
-                metadata = importantFields.amount.metadata
-            )
-        } else {
-            parseAmount(
-                value = row.extractValue(transferFields.toAmount),
-                metadata = transferFields.toAmount.metadata
-            )
-        } ?: return null
+        // A transfer's Amount is what leaves the account; To Amount, if any, is what arrives.
+        val csvAmount = parseAmount(
+            value = row.extractValue(importantFields.amount),
+            metadata = importantFields.amount.metadata
+        ) ?: return null
         val amount = csvAmount.absoluteValue
 
         if (amount <= 0) {

@@ -316,25 +316,32 @@ class BackupDataUseCase @Inject constructor(
     /**
      * Pairs each account and category in the backup with the existing one of the same name, so
      * that the backup's rows, and every transaction pointing at them, land on the existing row
-     * instead of adding a duplicate. Two same-named rows on the same side are left alone: they
-     * are distinct rows, whether in the backup or in the wallet.
+     * instead of adding a duplicate. A name that occurs more than once on either side is left
+     * alone: those are distinct rows, whether in the backup or in the wallet. Accounts pair only
+     * in the same currency.
      *
      * Returns (id in the backup, id it is replaced with).
      */
     private suspend fun getReplacementPairs(
         completeData: IvyWalletCompleteData
     ): List<Pair<UUID, UUID>> = withContext(dispatchersProvider.io) {
-        val existingAccounts = accountDao.findAll().associateBy { it.name }
-        val existingCategories = categoryDao.findAll().associateBy { it.name }
+        val existingAccounts = accountDao.findAll().uniqueBy { it.name }
+        val existingCategories = categoryDao.findAll().uniqueBy { it.name }
 
-        val accounts = completeData.accounts.mapNotNull { backup ->
-            existingAccounts[backup.name]?.takeIf { it.id != backup.id }?.let { backup.id to it.id }
+        val accounts = completeData.accounts.uniqueBy { it.name }.values.mapNotNull { backup ->
+            existingAccounts[backup.name]
+                ?.takeIf { it.id != backup.id && it.currency == backup.currency }
+                ?.let { backup.id to it.id }
         }
-        val categories = completeData.categories.mapNotNull { backup ->
+        val categories = completeData.categories.uniqueBy { it.name }.values.mapNotNull { backup ->
             existingCategories[backup.name]?.takeIf { it.id != backup.id }?.let { backup.id to it.id }
         }
         accounts + categories
     }
+
+    /** The rows whose key no other row shares, by that key. */
+    private fun <T> List<T>.uniqueBy(key: (T) -> String): Map<String, T> =
+        groupBy(key).filterValues { it.size == 1 }.mapValues { it.value.single() }
 
     private fun hasJsonExtension(file: File): Boolean {
         val name = file.name

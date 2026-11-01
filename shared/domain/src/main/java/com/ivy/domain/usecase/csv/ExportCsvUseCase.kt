@@ -14,11 +14,13 @@ import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
+import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.NonNegativeDouble
 import com.ivy.data.model.primitive.toNonNegative
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TransactionRepository
+import com.ivy.wallet.domain.data.IvyCurrency
 import kotlinx.coroutines.withContext
 import org.apache.commons.text.StringEscapeUtils
 import java.text.DecimalFormat
@@ -82,19 +84,19 @@ class ExportCsvUseCase @Inject constructor(
         // Account
         csvAppend(accountsMap[account]?.name?.value)
         // Amount
-        csvAppend(amount.value.csvFormat())
+        csvAppend(amount.value.csvFormat(currency))
         // Currency
         csvAppend(currency.code)
         // Type
         csvAppend(type.name)
         // Transfer Amount
-        csvAppend(transferAmount?.value?.csvFormat())
+        csvAppend(transferCurrency?.let { transferAmount?.value?.csvFormat(it) })
         // Transfer Currency
         csvAppend(transferCurrency?.code)
         // To Account
         csvAppend(accountsMap[toAccountId]?.name?.value)
         // Receive Amount
-        csvAppend(receiveAmount?.value?.csvFormat())
+        csvAppend(receiveCurrency?.let { receiveAmount?.value?.csvFormat(it) })
         // Receive Currency
         csvAppend(receiveCurrency?.code)
         // Description
@@ -191,8 +193,10 @@ class ExportCsvUseCase @Inject constructor(
         }.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     }
 
-    private fun Double.csvFormat(): String = DecimalFormat(NUMBER_FORMAT).apply {
+    // Fiat keeps two decimals; crypto keeps as many as the app stores, or 0.00042 BTC is lost.
+    private fun Double.csvFormat(asset: AssetCode): String = DecimalFormat(NUMBER_FORMAT).apply {
         decimalFormatSymbols = DecimalFormatSymbols.getInstance(Locale.ENGLISH)
+        maximumFractionDigits = maxOf(minimumFractionDigits, IvyCurrency.getDecimalPlaces(asset.code))
     }.format(this)
 
     interface CsvRowScope {

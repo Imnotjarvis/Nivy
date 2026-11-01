@@ -4,7 +4,10 @@ import arrow.core.Some
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.base.time.impl.TestTimeConverter
 import com.ivy.data.file.FileSystem
+import com.ivy.data.model.PositiveValue
+import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.model.testing.account
 import com.ivy.data.model.testing.income
 import com.ivy.data.repository.AccountRepository
@@ -63,6 +66,29 @@ class ExportCsvUseCaseTest {
         val row = ReadCsvUseCase().readCsv(csv, skipLines = 1).single()
         row[titleColumn] shouldBe income.title?.value
         row[descriptionColumn] shouldBe income.description?.value
+    }
+
+    @Test
+    fun `crypto amounts keep their decimals and fiat amounts keep two`() = runTest {
+        // given
+        val btc = Arb.income().next().copy(
+            value = PositiveValue(PositiveDouble.unsafe(0.00042), AssetCode.unsafe("BTC"))
+        )
+        val eur = Arb.income().next().copy(
+            value = PositiveValue(PositiveDouble.unsafe(1234.5), AssetCode.unsafe("EUR"))
+        )
+        coEvery { accountRepository.findAll() } returns listOf(
+            Arb.account(accountId = Some(btc.account)).next(),
+            Arb.account(accountId = Some(eur.account)).next(),
+        )
+
+        // when
+        val csv = useCase.exportCsv { listOf(btc, eur) }
+
+        // then
+        val amountColumn = IvyCsvRow.Columns.indexOf("Amount")
+        ReadCsvUseCase().readCsv(csv, skipLines = 1).map { it[amountColumn] } shouldBe
+            listOf("0.00042", "1,234.50")
     }
 
     /** The cells as written to the file, without the guard's apostrophe being taken off. */

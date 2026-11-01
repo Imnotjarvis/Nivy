@@ -173,6 +173,48 @@ class BackupDataUseCaseTest {
         transactionDao.findAll().map { it.accountId } shouldBe listOf(existingCash.id)
     }
 
+    @Test
+    fun `re-importing two same-named accounts keeps each transaction on its own account`() =
+        runTest {
+            // given: the wallet already holds both accounts, e.g. from importing this backup before
+            val accountDao = FakeAccountDao()
+            val transactionDao = FakeTransactionDao()
+            val cashEur = AccountEntity(name = "Cash", currency = "EUR", color = 1)
+            val cashUsd = AccountEntity(name = "Cash", currency = "USD", color = 2)
+            accountDao.save(cashEur)
+            accountDao.save(cashUsd)
+            val useCase = newBackupDataUseCase(accountDao = accountDao, transactionDao = transactionDao)
+            val backup = IvyWalletCompleteData(
+                accounts = listOf(cashEur, cashUsd),
+                transactions = listOf(
+                    TransactionEntity(accountId = cashEur.id, type = TransactionType.EXPENSE, amount = 5.0)
+                ),
+            )
+
+            // when
+            useCase.importJson(json.encodeToString(backup))
+
+            // then
+            transactionDao.findAll().map { it.accountId } shouldBe listOf(cashEur.id)
+        }
+
+    @Test
+    fun `a same-named backup account in another currency stays a separate account`() = runTest {
+        // given
+        val accountDao = FakeAccountDao()
+        val existingCash = AccountEntity(name = "Cash", currency = "EUR", color = 1)
+        accountDao.save(existingCash)
+        val useCase = newBackupDataUseCase(accountDao = accountDao)
+        val backupCash = AccountEntity(name = "Cash", currency = "USD", color = 2)
+
+        // when
+        useCase.importJson(json.encodeToString(IvyWalletCompleteData(accounts = listOf(backupCash))))
+
+        // then: the existing account keeps its currency, and the backup's arrives beside it
+        accountDao.findAll().associate { it.id to it.currency } shouldBe
+            mapOf(existingCash.id to "EUR", backupCash.id to "USD")
+    }
+
     @Suppress("DEPRECATION") // the test is about the obsolete field
     @Test
     fun `rows a backup marks as deleted are not imported`() = runTest {
