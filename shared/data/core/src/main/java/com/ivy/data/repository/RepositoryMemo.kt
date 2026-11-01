@@ -7,11 +7,14 @@ import com.ivy.data.DataWriteEvent
 import com.ivy.data.DeleteOperation
 import com.ivy.data.model.sync.Identifiable
 import com.ivy.data.model.sync.UniqueId
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
 
 class RepositoryMemoFactory @Inject constructor(
     private val dataObserver: DataObserver,
@@ -30,6 +33,12 @@ class RepositoryMemoFactory @Inject constructor(
     )
 }
 
+/**
+ * A repository's in-memory copy of its table, read from the database once and kept current by
+ * the repository's own writes. Readers on any thread see a consistent map; the reads that fill
+ * it and the writes that change it take turns, so a row deleted while [findAll] is reading the
+ * table can't be put back by it. Writes announce themselves through [DataObserver] once done.
+ */
 class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor(
     private val dataObserver: DataObserver,
     private val dispatchers: DispatchersProvider,
@@ -38,10 +47,14 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
     private val getDataWriteDeleteEvent: (DeleteOperation<TID>) -> DataWriteEvent,
 ) {
 
-    private val _memo = mutableMapOf<TID, T>()
+    private val _memo = ConcurrentHashMap<TID, T>()
     val items: Map<TID, T> = _memo
+
+    @Volatile
     var findAllMemoized = false
         private set
+
+    private val mutex = Mutex()
 
     init {
         // A backup import or "delete all data" rewrites the tables underneath this memo, through
@@ -53,24 +66,20 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
         }
     }
 
-    private fun invalidate() {
-        _memo.clear()
-        findAllMemoized = false
-    }
-
     suspend fun findAll(
         findAllOperation: suspend () -> List<T>,
         sortMemo: Collection<T>.() -> List<T>,
     ): List<T> {
-        return if (findAllMemoized) {
-            sortMemo(_memo.values)
-        } else {
-            withContext(dispatchers.io) {
-                findAllOperation().also {
-                    memoize(it)
-                    findAllMemoized = true
-                }
+        if (findAllMemoized) return sortMemo(_memo.values)
+        return mutex.withLock {
+            if (!findAllMemoized) {
+                val all = withContext(dispatchers.io) { findAllOperation() }
+                // Replace rather than merge: a row deleted in the meantime must not survive.
+                _memo.clear()
+                memoize(all)
+                findAllMemoized = true
             }
+            sortMemo(_memo.values)
         }
     }
 
@@ -78,8 +87,8 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
         id: TID,
         findByIdOperation: suspend (TID) -> T?
     ): T? {
-        return items[id] ?: withContext(dispatchers.io) {
-            findByIdOperation(id)?.also(::memoize)
+        return items[id] ?: mutex.withLock {
+            items[id] ?: withContext(dispatchers.io) { findByIdOperation(id) }?.also(::memoize)
         }
     }
 
@@ -92,44 +101,49 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
         value: T,
         writeOperation: suspend (T) -> Unit,
     ) {
-        withContext(dispatchers.io) {
-            writeOperation(value)
+        mutex.withLock {
+            withContext(dispatchers.io) { writeOperation(value) }
             memoize(value)
-            dataObserver.post(getDataWriteSaveEvent(listOf(value)))
         }
+        dataObserver.post(getDataWriteSaveEvent(listOf(value)))
     }
 
     suspend fun saveMany(
         values: List<T>,
         writeOperation: suspend (List<T>) -> Unit,
     ) {
-        withContext(dispatchers.io) {
-            writeOperation(values)
+        mutex.withLock {
+            withContext(dispatchers.io) { writeOperation(values) }
             memoize(values)
-            dataObserver.post(getDataWriteSaveEvent(values))
         }
+        dataObserver.post(getDataWriteSaveEvent(values))
     }
 
     suspend fun deleteById(
         id: TID,
         deleteByIdOperation: suspend (TID) -> Unit,
     ) {
-        withContext(dispatchers.io) {
+        mutex.withLock {
             _memo.remove(id)
-            deleteByIdOperation(id)
-            dataObserver.post(
-                getDataWriteDeleteEvent(DeleteOperation.Just(listOf(id)))
-            )
+            withContext(dispatchers.io) { deleteByIdOperation(id) }
         }
+        dataObserver.post(getDataWriteDeleteEvent(DeleteOperation.Just(listOf(id))))
     }
 
     suspend fun deleteAll(
         deleteAllOperation: suspend () -> Unit,
     ) {
-        withContext(dispatchers.io) {
+        mutex.withLock {
             _memo.clear()
-            deleteAllOperation()
-            dataObserver.post(getDataWriteDeleteEvent(DeleteOperation.All))
+            withContext(dispatchers.io) { deleteAllOperation() }
+        }
+        dataObserver.post(getDataWriteDeleteEvent(DeleteOperation.All))
+    }
+
+    private suspend fun invalidate() {
+        mutex.withLock {
+            _memo.clear()
+            findAllMemoized = false
         }
     }
 
