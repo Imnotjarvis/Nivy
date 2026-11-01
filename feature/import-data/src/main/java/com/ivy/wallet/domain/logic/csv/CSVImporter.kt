@@ -21,6 +21,7 @@ import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
+import com.ivy.domain.usecase.csv.ReadCsvUseCase
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.design.system.colors.Green
@@ -29,12 +30,8 @@ import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.logic.csv.model.RowMapping
 import com.ivy.wallet.domain.pure.util.nextOrderNum
-import com.opencsv.CSVReaderBuilder
-import com.opencsv.validators.LineValidator
-import com.opencsv.validators.RowValidator
 import kotlinx.collections.immutable.toImmutableList
 import timber.log.Timber
-import java.io.StringReader
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -55,6 +52,7 @@ class CSVImporter @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
+    private val readCsv: ReadCsvUseCase,
 ) {
 
     lateinit var accounts: List<Account>
@@ -68,30 +66,7 @@ class CSVImporter @Inject constructor(
         rowMapping: RowMapping,
         onProgress: suspend (progressPercent: Double) -> Unit,
     ): ImportResult {
-        val csvReader = CSVReaderBuilder(StringReader(csv))
-            .withSkipLines(1)
-            .withLineValidator(object : LineValidator {
-                override fun isValid(line: String?): Boolean {
-                    return true
-                }
-
-                override fun validate(line: String?) {
-                    // do nothing
-                }
-            })
-            .withRowValidator(object : RowValidator {
-                override fun isValid(row: Array<out String>?): Boolean {
-                    return true
-                }
-
-                override fun validate(row: Array<out String>?) {
-                    // do nothing
-                }
-            })
-            .build()
-
-        val rows = csvReader.readAll()
-            .map { it.toList() }
+        val rows = readCsv.readCsv(csv, skipLines = 1)
         val rowsCount = rows.size
 
         newCategoryColorIndex = 0

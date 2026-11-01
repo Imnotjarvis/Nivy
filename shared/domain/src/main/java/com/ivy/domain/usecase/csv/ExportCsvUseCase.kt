@@ -109,20 +109,19 @@ class ExportCsvUseCase @Inject constructor(
         val columns = mutableListOf<String>()
         val rowScope = object : CsvRowScope {
             override fun csvAppend(value: String?) {
-                columns.add(value?.escapeCsvString() ?: "")
+                columns.add(value?.let(::escapeCsvCell) ?: "")
             }
         }
         rowScope.build()
         return columns.joinToString(separator = CSV_SEPARATOR)
     }
 
-    private fun String.escapeCsvString(): String = try {
-        StringEscapeUtils.escapeCsv(this).escapeSpecialChars()
-    } catch (e: Exception) {
-        escapeSpecialChars()
-    }
-
-    private fun String.escapeSpecialChars(): String = replace("\\", "")
+    /**
+     * Quotes the cell per RFC 4180 and keeps it from being run as a formula; see [CsvFormulaGuard].
+     * [ReadCsvUseCase] reverses both, so the data comes back exactly as it went out.
+     */
+    private fun escapeCsvCell(value: String): String =
+        StringEscapeUtils.escapeCsv(CsvFormulaGuard.escape(value))
 
     private fun Transaction.toIvyCsvRow(): IvyCsvRow = when (this) {
         is Expense -> expenseCsvRow()
