@@ -151,7 +151,6 @@ class PieChartStatisticViewModel @Inject constructor(
                     accountIdFilterList = accountIdFilterList,
                     treatTransferAsIncExp = treatTransferAsIncExp,
                     existingTransactions = transactions,
-                    showAccountTransfersCategory = accountIdFilterList.isNotEmpty()
                 )
             )
         }

@@ -4,16 +4,19 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.data.temp.migration.getValue
+import com.ivy.domain.usecase.transaction.TransactionAmountsUseCase
 import com.ivy.wallet.data.model.FromToTimeRange
 import com.ivy.wallet.data.model.filterOverdue
 import com.ivy.wallet.data.model.filterUpcoming
 import javax.inject.Inject
 
-/** Due transactions of one account, in its currency. */
+/** Due transactions of one account, with totals in the base currency as the screen labels them. */
 class AccountTransactionsLogic @Inject constructor(
     private val transactionRepository: TransactionRepository,
+    private val currencyRepository: CurrencyRepository,
+    private val transactionAmountsUseCase: TransactionAmountsUseCase,
     private val timeProvider: TimeProvider
 ) {
 
@@ -23,7 +26,7 @@ class AccountTransactionsLogic @Inject constructor(
     ): Double =
         upcoming(account, range = range)
             .filterIsInstance<Income>()
-            .sumOf { it.getValue().toDouble() }
+            .let { total(it) }
 
     suspend fun calculateUpcomingExpenses(
         account: Account,
@@ -31,7 +34,7 @@ class AccountTransactionsLogic @Inject constructor(
     ): Double =
         upcoming(account = account, range = range)
             .filterIsInstance<Expense>()
-            .sumOf { it.getValue().toDouble() }
+            .let { total(it) }
 
     suspend fun calculateOverdueIncome(
         account: Account,
@@ -39,7 +42,7 @@ class AccountTransactionsLogic @Inject constructor(
     ): Double =
         overdue(account, range = range)
             .filterIsInstance<Income>()
-            .sumOf { it.getValue().toDouble() }
+            .let { total(it) }
 
     suspend fun calculateOverdueExpenses(
         account: Account,
@@ -47,7 +50,7 @@ class AccountTransactionsLogic @Inject constructor(
     ): Double =
         overdue(account, range = range)
             .filterIsInstance<Expense>()
-            .sumOf { it.getValue().toDouble() }
+            .let { total(it) }
 
     suspend fun upcoming(
         account: Account,
@@ -70,4 +73,7 @@ class AccountTransactionsLogic @Inject constructor(
             endDate = range.overdueTo(timeProvider)
         ).filterOverdue(timeProvider)
     }
+
+    private suspend fun total(transactions: List<com.ivy.data.model.Transaction>): Double =
+        transactionAmountsUseCase.total(transactions, currencyRepository.getBaseCurrency())
 }

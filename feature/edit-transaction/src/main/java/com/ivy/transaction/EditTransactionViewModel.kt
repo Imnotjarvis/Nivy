@@ -677,6 +677,14 @@ class EditTransactionViewModel @Inject constructor(
         if (amount <= 0.0) {
             return false
         }
+        if (transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard &&
+            customExchangeRateState.exchangeRate == null
+        ) {
+            viewModelScope.launch {
+                toaster.show(R.string.msg_enter_exchange_rate)
+            }
+            return false
+        }
 
         return true
     }
@@ -740,7 +748,7 @@ class EditTransactionViewModel @Inject constructor(
                     exchangeUseCase.convert(
                         PositiveValue(PositiveDouble.unsafe(1.0), fromAcc.asset),
                         to = toAcc.asset
-                    ).getOrNull()?.amount?.value ?: 1.0
+                    ).getOrNull()?.amount?.value
                 }
 
             val amount = amt ?: amount
@@ -750,7 +758,7 @@ class EditTransactionViewModel @Inject constructor(
                 toCurrencyCode = toAccCurrencyCode,
                 fromCurrencyCode = fromAccCurrencyCode,
                 exchangeRate = exRate,
-                convertedAmount = exRate * amount
+                convertedAmount = exRate?.let { it * amount }
             )
 
             customExchangeRateState = customTransferExchangeRateState
