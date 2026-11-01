@@ -9,6 +9,7 @@ import com.ivy.frp.Pure
 import com.ivy.frp.SideEffect
 import com.ivy.wallet.utils.isNotNullOrBlank
 import java.math.BigDecimal
+import java.math.MathContext
 
 data class ExchangeData(
     val baseCurrency: String,
@@ -67,7 +68,7 @@ suspend fun exchange(
 
             EXPECTED: 10 EUR ~= 19.67 BGN
              */
-            amount / rateToFrom
+            amount.divide(rateToFrom, MathContext.DECIMAL64)
         }
         else -> {
             // exchange from other currency to other currency
@@ -86,7 +87,8 @@ suspend fun exchange(
             ).bind()
 
             // Convert: toBaseCurrency -> toToCurrency
-            val amountBaseCurrency = amount / rateBaseFrom
+            // "/" would round to the amount's own scale: 1.2E7 / 27,900 gives 0.
+            val amountBaseCurrency = amount.divide(rateBaseFrom, MathContext.DECIMAL64)
             amountBaseCurrency * rateBaseTo
         }
     }

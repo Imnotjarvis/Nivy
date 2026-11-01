@@ -243,7 +243,10 @@ class ReportViewModel @Inject constructor(
                 filter = reportFilter
             )
 
-            val tempHistory = transactionsList
+            // History, totals and the pie charts count what was paid, as Home does. Unpaid planned
+            // payments are listed under Upcoming and Overdue below.
+            val settledTransactions = transactionsList.filter { it.settled }.toImmutableList()
+            val tempHistory = settledTransactions
                 .sortedByDescending { it.time }
 
             val historyWithDateDividers = scope.async {
@@ -313,7 +316,7 @@ class ReportViewModel @Inject constructor(
                 accounts = tempAccounts.toImmutableList(),
                 reportFilter = reportFilter,
                 accountIdFilters = accountFilterIdList.await().toImmutableList(),
-                transactions = transactionsList,
+                transactions = settledTransactions,
                 balanceValue = tempBalance
             )
 
