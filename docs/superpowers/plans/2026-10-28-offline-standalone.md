@@ -26,6 +26,13 @@ This replaces the first draft, which was written against a different snapshot. C
 
 **Verification status.** Every path, symbol and line quoted here was checked against this tree. The source edits in Tasks 1 and 3–6 were dry-run in a scratch worktree: every edit matched exactly once, `scripts/verifyOffline.sh` exited 0, no references to removed symbols were left, and every edited Kotlin file stayed brace-balanced. **No Gradle build was run while writing the plan**, because the planning environment can't reach Google Maven (`dl.google.com`). Task 1 Step 3 is therefore the first real compile.
 
+## Update (2026-11-01)
+
+The baselines this plan mentions are gone: detekt and Android Lint run with none, every finding
+either fixed or turned off in `config/detekt/config.yml` and `lint.xml` with its reason, so the
+`update-lint-baseline` action and the compiler-warnings baseline script no longer exist. The demo
+APK is built by its own CI job, `demo`. `.github/workflows/build.yml` describes the current CI.
+
 ## Implementation status (2026-10-28)
 
 The code changes for all seven tasks are committed on `claude/adoring-bell-r022v1`, one commit per task. Ticked steps are done. Each removal was checked with `scripts/verifyOffline.sh` (exits 0), a scan for references to removed symbols (none) and a brace-balance check of every edited Kotlin file.

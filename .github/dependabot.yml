@@ -13,13 +13,11 @@ updates:
       gradle-minor-and-patch:
         update-types: [minor, patch]
     ignore:
-      # The detekt rule-set plugins stay on the last releases that work with detekt 1.23 as we use
-      # it; detekt 2 is still in alpha. Newer compiler-wrapper (0.1+) and Compose rules (0.5+) are
-      # built for detekt 2, and Compose rules 0.4.25+ need a newer Kotlin than detekt 1.23 runs on.
-      # 0.4.11-0.4.24 work, but their new and changed checks flag 168 places that pass today.
-      # Revisit when moving to detekt 2.
+      # The Compose rules stay on the last release that works with detekt 1.23 as we use it;
+      # detekt 2 is still in alpha. Compose rules 0.5+ are built for detekt 2, and 0.4.25+ need a
+      # newer Kotlin than detekt 1.23 runs on. 0.4.11-0.4.24 work, but their new and changed
+      # checks flag 168 places that pass today. Revisit when moving to detekt 2.
       - dependency-name: 'io.nlopez.compose.rules:detekt'
-      - dependency-name: 'com.braisgabin.detekt:kotlin-compiler-wrapper'
 
   - package-ecosystem: github-actions
     directory: /

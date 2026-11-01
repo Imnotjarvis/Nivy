@@ -16,12 +16,6 @@ kotlin {
 // Vulnerable libraries the Gradle plugins pull in are raised to patched versions.
 apply(from = "../gradle/minimum-versions.gradle.kts")
 
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)

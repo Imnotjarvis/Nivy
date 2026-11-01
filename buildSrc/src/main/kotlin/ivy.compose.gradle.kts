@@ -11,7 +11,6 @@ android {
 
     lint {
         disable += "MissingTranslation"
-        disable += "ComposeViewModelInjection"
         abortOnError = false
     }
 

@@ -2,6 +2,7 @@ package com.ivy.data.db.entity
 
 import androidx.annotation.Keep
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.ivy.base.kotlinxserilzation.KSerializerInstant
 import com.ivy.base.kotlinxserilzation.KSerializerUUID
@@ -14,7 +15,21 @@ import java.util.UUID
 @Suppress("DataClassDefaultValues")
 @Keep
 @Serializable
-@Entity(tableName = "transactions")
+@Entity(
+    tableName = "transactions",
+    // The columns the queries filter on: every balance and statistics query would otherwise
+    // read the whole table, once per account.
+    indices = [
+        Index("accountId"),
+        Index("toAccountId"),
+        Index("categoryId"),
+        Index("dateTime"),
+        Index("dueDate"),
+        Index("recurringRuleId"),
+        Index("loanId"),
+        Index("loanRecordId"),
+    ],
+)
 data class TransactionEntity(
     @SerialName("accountId")
     @Serializable(with = KSerializerUUID::class)

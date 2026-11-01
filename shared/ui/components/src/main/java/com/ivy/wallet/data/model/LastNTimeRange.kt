@@ -19,7 +19,8 @@ data class LastNTimeRange(
         timeProvider: TimeProvider
     ): Instant = periodType.incrementDate(
         date = timeProvider.utcNow(),
-        intervalN = -periodN.toLong()
+        intervalN = -periodN.toLong(),
+        zone = timeProvider.getZoneId(),
     )
 
     @Composable

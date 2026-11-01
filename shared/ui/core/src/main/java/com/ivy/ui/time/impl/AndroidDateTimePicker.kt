@@ -64,8 +64,17 @@ class AndroidDateTimePicker @Inject constructor(
                         (viewState.maxDate == null || year <= viewState.maxDate.year)
             }
         }
+        // With no date to start from, today or the nearest allowed day is preselected, so
+        // "Select" picks it rather than closing with nothing chosen.
+        val initialDate = viewState.initialDate ?: timeProvider.localDateNow().let { today ->
+            when {
+                viewState.allows(today) -> today
+                viewState.minDate != null && today < viewState.minDate -> viewState.minDate
+                else -> viewState.maxDate ?: today
+            }
+        }
         val pickerState = rememberDatePickerState(
-            initialSelectedDateMillis = viewState.initialDate?.toUtcMillis(),
+            initialSelectedDateMillis = initialDate.toUtcMillis(),
             selectableDates = selectableDates,
         )
         DatePickerDialog(

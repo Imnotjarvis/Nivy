@@ -104,6 +104,8 @@ complexity:
     includeStaticDeclarations: false
     includePrivateDeclarations: false
     ignoreOverloaded: false
+  # The size and complexity limits below are set where the upstream code lands today; tightening
+  # them is a refactor of its own, not a lint change.
   CyclomaticComplexMethod:
     active: true
     threshold: 20
@@ -133,6 +135,7 @@ complexity:
   LongParameterList:
     active: true
     functionThreshold: 12
+    # Hilt use cases and the CSV column mapping take their collaborators one by one.
     constructorThreshold: 36
     ignoreDefaultParameters: true
     ignoreDataClasses: true
@@ -794,15 +797,6 @@ style:
     excludeImports:
       - 'java.util.*'
 
-compiler:
-  CompilerInfo:
-    active: false
-    ignoreDiagnostic: []
-  CompilerWarning:
-    active: true
-    ignoreDiagnostic:
-      - 'OPT_IN_IS_NOT_ENABLED'
-
 formatting:
   active: true
   android: false
@@ -886,10 +880,14 @@ formatting:
     active: false
     autoCorrect: true
     indentSize: 4
+  # Imports follow the IDE's grouping, which this rule's lexicographic layout would reorder in
+  # every file; the IDE keeps them tidy.
   ImportOrdering:
     active: false
     autoCorrect: true
     layout: '*,java.**,javax.**,kotlin.**,^'
+  # Compose's continuation and trailing-lambda indents don't fit this rule; .editorconfig and the
+  # IDE set the indent.
   Indentation:
     active: false
     autoCorrect: true
@@ -1116,6 +1114,8 @@ Compose:
     active: false
   ViewModelForwarding:
     active: true
+  # Screens take their view model with viewModel() in the body, as upstream wrote them; the
+  # matching Android Lint check, ComposeViewModelInjection, is off in lint.xml for the same reason.
   ViewModelInjection:
     active: false
 

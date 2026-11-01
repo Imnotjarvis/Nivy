@@ -1,6 +1,7 @@
 package com.ivy.wallet
 
 import android.content.Intent
+import android.net.Uri
 import androidx.core.content.IntentCompat
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.ViewModel
@@ -55,6 +56,19 @@ class RootViewModel @Inject constructor(
 
     private val _appLocked = MutableStateFlow<Boolean?>(null)
     val appLocked = _appLocked.readOnly()
+
+    // The export or import waiting for the system file picker. It lives here rather than in the
+    // activity, which Android may recreate (a rotation on a tablet) while the picker is open.
+    private var onFilePicked: ((Uri) -> Unit)? = null
+
+    fun awaitFile(onPicked: (Uri) -> Unit) {
+        onFilePicked = onPicked
+    }
+
+    fun filePicked(uri: Uri) {
+        onFilePicked?.invoke(uri)
+        onFilePicked = null
+    }
 
     fun start(systemDarkMode: Boolean, intent: Intent) {
         viewModelScope.launch {

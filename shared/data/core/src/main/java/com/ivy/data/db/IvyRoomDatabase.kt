@@ -76,9 +76,11 @@ import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
             from = 121,
             to = 122,
             spec = IvyRoomDatabase.DeleteSEMigration::class
-        )
+        ),
+        // 133: indices on transactions (TransactionEntity).
+        AutoMigration(from = 132, to = 133),
     ],
-    version = 132,
+    version = 133,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)

@@ -76,10 +76,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
     lateinit var dateTimePicker: DateTimePicker
 
     private lateinit var createFileLauncher: ActivityResultLauncher<String>
-    private lateinit var onFileCreated: (fileUri: Uri) -> Unit
-
     private lateinit var openFileLauncher: ActivityResultLauncher<Unit>
-    private lateinit var onFileOpened: (fileUri: Uri) -> Unit
 
     private val viewModel: RootViewModel by viewModels()
 
@@ -195,14 +192,12 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 }
             }
         ) { _, intent ->
-            intent?.data?.also {
-                onFileCreated(it)
-            }
+            intent?.data?.also(viewModel::filePicked)
         }
     }
 
     override fun createNewFile(fileName: String, onCreated: (Uri) -> Unit) {
-        onFileCreated = onCreated
+        viewModel.awaitFile(onCreated)
         createFileLauncher.launch(fileName)
     }
 
@@ -213,14 +208,12 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 type = "*/*"
             }
         ) { _, intent ->
-            intent?.data?.also {
-                onFileOpened(it)
-            }
+            intent?.data?.also(viewModel::filePicked)
         }
     }
 
     override fun openFile(onOpened: (Uri) -> Unit) {
-        onFileOpened = onOpened
+        viewModel.awaitFile(onOpened)
         openFileLauncher.launch(Unit)
     }
 
