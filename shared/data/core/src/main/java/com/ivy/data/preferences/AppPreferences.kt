@@ -8,7 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.ivy.base.model.Theme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,6 +34,10 @@ class AppPreferences @Inject constructor(
 
     suspend fun isAppLockEnabled(): Boolean = get(AppLockEnabled, false)
     suspend fun setAppLockEnabled(enabled: Boolean) = set(AppLockEnabled, enabled)
+
+    /** The lock setting as it changes, for the activity that enforces it. */
+    val appLockEnabled: Flow<Boolean> =
+        dataStore.data.map { it[AppLockEnabled] ?: false }.distinctUntilChanged()
 
     suspend fun startDayOfMonth(): Int = get(StartDayOfMonth, 1)
     suspend fun setStartDayOfMonth(day: Int) = set(StartDayOfMonth, day)

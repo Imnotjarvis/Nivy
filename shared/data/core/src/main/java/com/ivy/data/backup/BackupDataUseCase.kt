@@ -307,19 +307,16 @@ class BackupDataUseCase @Inject constructor(
                 }
             }
 
+            // The display settings the backup carries replace the current ones; a setting the
+            // file doesn't mention stays as it is. The app lock is never taken from a file: a
+            // backup made by someone else, or one without the key, must not switch it off.
             val backupPrefs = completeData.sharedPrefs
-            appPreferences.setShowNotifications(
-                (backupPrefs[AppPreferences.BackupShowNotifications] ?: "true").toBoolean()
-            )
-            appPreferences.setAppLockEnabled(
-                (backupPrefs[AppPreferences.BackupAppLockEnabled] ?: "false").toBoolean()
-            )
-            appPreferences.setHideCurrentBalance(
-                (backupPrefs[AppPreferences.BackupHideCurrentBalance] ?: "false").toBoolean()
-            )
-            appPreferences.setTransfersAsIncomeExpense(
-                (backupPrefs[AppPreferences.BackupTransfersAsIncomeExpense] ?: "false").toBoolean()
-            )
+            backupPrefs.flag(AppPreferences.BackupShowNotifications)
+                ?.let { appPreferences.setShowNotifications(it) }
+            backupPrefs.flag(AppPreferences.BackupHideCurrentBalance)
+                ?.let { appPreferences.setHideCurrentBalance(it) }
+            backupPrefs.flag(AppPreferences.BackupTransfersAsIncomeExpense)
+                ?.let { appPreferences.setTransfersAsIncomeExpense(it) }
 
             plannedPayments.await()
             settings.await()
@@ -330,6 +327,8 @@ class BackupDataUseCase @Inject constructor(
             onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }
+
+    private fun Map<String, String>.flag(key: String): Boolean? = this[key]?.toBooleanStrictOrNull()
 
     /** This is used to replace account & category Ids in backup data with existing Ids
      *  This removes the problem of duplicate Accounts & Categories

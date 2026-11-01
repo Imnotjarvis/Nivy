@@ -114,4 +114,24 @@ class BackupDataUseCaseTest {
     fun `backup compatibility with 450 (150)`() = runTest {
         backupTestCase("450-150")
     }
+
+    @Test
+    fun `importing a backup leaves the app lock alone and keeps settings it doesn't mention`() =
+        runTest {
+            // given: the lock is on, notifications are off
+            val appPreferences = AppPreferences(InMemoryPreferencesDataStore())
+            appPreferences.setAppLockEnabled(true)
+            appPreferences.setShowNotifications(false)
+            val useCase = newBackupDataUseCase(appPreferences = appPreferences)
+            // a backup that says the lock is off and doesn't mention notifications
+            val backupJson = """{"sharedPrefs": {"lock_app": "false", "hide_current_balance": "true"}}"""
+
+            // when
+            useCase.importJson(backupJson, onProgress = {})
+
+            // then
+            appPreferences.isAppLockEnabled() shouldBe true
+            appPreferences.showNotifications() shouldBe false
+            appPreferences.hideCurrentBalance() shouldBe true
+        }
 }
