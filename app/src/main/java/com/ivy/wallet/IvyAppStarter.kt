@@ -24,6 +24,11 @@ class IvyAppStarter @Inject constructor(
 
     override fun addTransactionIntent(type: TransactionType): Intent {
         return getRootIntent().apply {
+            // The action tells PendingIntents apart: two PendingIntents are the same when their
+            // intents match by component, action, data and categories, and extras don't count.
+            // Without it, a widget button and the reminder notification (both open RootActivity)
+            // would share one PendingIntent and cancel or rewrite each other's.
+            action = RootViewModel.ACTION_ADD_TRANSACTION
             putExtra(RootViewModel.EXTRA_ADD_TRANSACTION_TYPE, type)
             applyFreshTaskFlags()
         }

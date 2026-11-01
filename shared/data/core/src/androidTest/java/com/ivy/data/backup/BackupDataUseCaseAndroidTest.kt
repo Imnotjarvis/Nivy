@@ -11,13 +11,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.base.di.KotlinxSerializationModule
 import com.ivy.data.DataObserver
+import com.ivy.data.db.DatabaseTransaction
 import com.ivy.data.db.IvyRoomDatabase
 import com.ivy.data.file.FileSystem
 import com.ivy.data.preferences.AppPreferences
-import com.ivy.data.repository.AccountRepository
-import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.fake.fakeRepositoryMemoFactory
-import com.ivy.data.repository.mapper.AccountMapper
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import kotlinx.coroutines.runBlocking
@@ -45,12 +42,6 @@ class BackupDataUseCaseAndroidTest {
                 File(context.cacheDir, "backup-test-${UUID.randomUUID()}.preferences_pb")
             }
         )
-        val accountMapper = AccountMapper(
-            currencyRepository = CurrencyRepository(
-                appPreferences = appPreferences,
-                dispatchersProvider = TestDispatchersProvider,
-            )
-        )
         useCase = BackupDataUseCase(
             accountDao = db.accountDao,
             budgetDao = db.budgetDao,
@@ -61,14 +52,7 @@ class BackupDataUseCaseAndroidTest {
             transactionDao = db.transactionDao,
             transactionWriter = db.writeTransactionDao,
             appPreferences = appPreferences,
-            accountRepository = AccountRepository(
-                accountDao = db.accountDao,
-                writeAccountDao = db.writeAccountDao,
-                mapper = accountMapper,
-                dispatchersProvider = TestDispatchersProvider,
-                memoFactory = fakeRepositoryMemoFactory(),
-            ),
-            accountMapper = accountMapper,
+            accountWriter = db.writeAccountDao,
             categoryWriter = db.writeCategoryDao,
             budgetWriter = db.writeBudgetDao,
             loanWriter = db.writeLoanDao,
@@ -83,7 +67,7 @@ class BackupDataUseCaseAndroidTest {
             tagAssociationReader = db.tagAssociationDao,
             tagsWriter = db.writeTagDao,
             tagAssociationWriter = db.writeTagAssociationDao,
-            db = db,
+            transaction = DatabaseTransaction(db),
         )
     }
 

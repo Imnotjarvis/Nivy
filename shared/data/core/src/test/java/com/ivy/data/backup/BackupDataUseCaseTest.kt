@@ -3,6 +3,8 @@ package com.ivy.data.backup
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.base.di.KotlinxSerializationModule
 import com.ivy.data.DataObserver
+import com.ivy.base.model.TransactionType
+import com.ivy.data.db.DatabaseTransaction
 import com.ivy.data.db.dao.fake.FakeAccountDao
 import com.ivy.data.db.dao.fake.FakeBudgetDao
 import com.ivy.data.db.dao.fake.FakeCategoryDao
@@ -14,18 +16,25 @@ import com.ivy.data.preferences.InMemoryPreferencesDataStore
 import com.ivy.data.db.dao.fake.FakeTagAssociationDao
 import com.ivy.data.db.dao.fake.FakeTagDao
 import com.ivy.data.db.dao.fake.FakeTransactionDao
-import com.ivy.data.repository.AccountRepository
-import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.fake.fakeRepositoryMemoFactory
-import com.ivy.data.repository.mapper.AccountMapper
+import com.ivy.data.db.entity.AccountEntity
+import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.testResource
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.encodeToString
 import org.junit.Test
 
 class BackupDataUseCaseTest {
+    private val json = KotlinxSerializationModule.provideJson()
+
+    /** The fakes have no transactions; the block simply runs. */
+    private class FakeDatabaseTransaction : DatabaseTransaction(mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R = block()
+    }
+
     private fun newBackupDataUseCase(
         accountDao: FakeAccountDao = FakeAccountDao(),
         categoryDao: FakeCategoryDao = FakeCategoryDao(),
@@ -38,22 +47,9 @@ class BackupDataUseCaseTest {
         tagDao: FakeTagDao = FakeTagDao(),
         tagAssociationDao: FakeTagAssociationDao = FakeTagAssociationDao()
     ): BackupDataUseCase {
-        val accountMapper = AccountMapper(
-            CurrencyRepository(
-                appPreferences = appPreferences,
-                dispatchersProvider = TestDispatchersProvider,
-            )
-        )
         return BackupDataUseCase(
             accountDao = accountDao,
-            accountMapper = accountMapper,
-            accountRepository = AccountRepository(
-                accountDao = accountDao,
-                writeAccountDao = accountDao,
-                mapper = accountMapper,
-                dispatchersProvider = TestDispatchersProvider,
-                memoFactory = fakeRepositoryMemoFactory(),
-            ),
+            accountWriter = accountDao,
             budgetDao = budgetDao,
             categoryDao = categoryDao,
             loanRecordDao = loanRecordDao,
@@ -69,7 +65,7 @@ class BackupDataUseCaseTest {
 
             context = mockk(relaxed = true),
             appPreferences = appPreferences,
-            json = KotlinxSerializationModule.provideJson(),
+            json = json,
             dispatchersProvider = TestDispatchersProvider,
             fileSystem = mockk(relaxed = true),
             dataObserver = DataObserver(),
@@ -77,7 +73,7 @@ class BackupDataUseCaseTest {
             tagsWriter = tagDao,
             tagAssociationReader = tagAssociationDao,
             tagAssociationWriter = tagAssociationDao,
-            db = mockk(relaxed = true),
+            transaction = FakeDatabaseTransaction(),
         )
     }
 
@@ -113,5 +109,99 @@ class BackupDataUseCaseTest {
     @Test
     fun `backup compatibility with 450 (150)`() = runTest {
         backupTestCase("450-150")
+    }
+
+    @Test
+    fun `importing a backup leaves the app lock alone and keeps settings it doesn't mention`() =
+        runTest {
+            // given: the lock is on, notifications are off
+            val appPreferences = AppPreferences(InMemoryPreferencesDataStore())
+            appPreferences.setAppLockEnabled(true)
+            appPreferences.setShowNotifications(false)
+            val useCase = newBackupDataUseCase(appPreferences = appPreferences)
+            // a backup that says the lock is off and doesn't mention notifications
+            val backupJson = """{"sharedPrefs": {"lock_app": "false", "hide_current_balance": "true"}}"""
+
+            // when
+            useCase.importJson(backupJson, onProgress = {})
+
+            // then
+            appPreferences.isAppLockEnabled() shouldBe true
+            appPreferences.showNotifications() shouldBe false
+            appPreferences.hideCurrentBalance() shouldBe true
+        }
+
+    @Test
+    fun `two same-named accounts in a backup stay two accounts`() = runTest {
+        // given: a wallet with one account, so the backup is matched against existing names
+        val accountDao = FakeAccountDao()
+        accountDao.save(AccountEntity(name = "Savings", color = 1))
+        val useCase = newBackupDataUseCase(accountDao = accountDao)
+        val cashEur = AccountEntity(name = "Cash", currency = "EUR", color = 2)
+        val cashUsd = AccountEntity(name = "Cash", currency = "USD", color = 3)
+        val backup = IvyWalletCompleteData(accounts = listOf(cashEur, cashUsd))
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then: both arrive under their own ids
+        accountDao.findAll().map { it.id } shouldContainExactlyInAnyOrder
+            listOf(accountDao.findAll().first { it.name == "Savings" }.id, cashEur.id, cashUsd.id)
+    }
+
+    @Test
+    fun `a backup account named like an existing one lands on the existing one`() = runTest {
+        // given
+        val accountDao = FakeAccountDao()
+        val transactionDao = FakeTransactionDao()
+        val existingCash = AccountEntity(name = "Cash", color = 1)
+        accountDao.save(existingCash)
+        val useCase = newBackupDataUseCase(accountDao = accountDao, transactionDao = transactionDao)
+        val backupCash = AccountEntity(name = "Cash", color = 2)
+        val backup = IvyWalletCompleteData(
+            accounts = listOf(backupCash),
+            transactions = listOf(
+                TransactionEntity(accountId = backupCash.id, type = TransactionType.EXPENSE, amount = 5.0)
+            ),
+        )
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then: one Cash, and the imported transaction points at it
+        accountDao.findAll().map { it.id } shouldBe listOf(existingCash.id)
+        transactionDao.findAll().map { it.accountId } shouldBe listOf(existingCash.id)
+    }
+
+    @Suppress("DEPRECATION") // the test is about the obsolete field
+    @Test
+    fun `rows a backup marks as deleted are not imported`() = runTest {
+        // given
+        val accountDao = FakeAccountDao()
+        val transactionDao = FakeTransactionDao()
+        val useCase = newBackupDataUseCase(accountDao = accountDao, transactionDao = transactionDao)
+        val live = AccountEntity(name = "Live", color = 1)
+        val deleted = AccountEntity(name = "Gone", color = 2, isDeleted = true)
+        val backup = IvyWalletCompleteData(
+            accounts = listOf(live, deleted),
+            transactions = listOf(
+                TransactionEntity(accountId = live.id, type = TransactionType.INCOME, amount = 1.0),
+                TransactionEntity(
+                    accountId = deleted.id,
+                    type = TransactionType.INCOME,
+                    amount = 2.0,
+                    isDeleted = true,
+                ),
+            ),
+        )
+
+        // when
+        val result = useCase.importJson(json.encodeToString(backup))
+
+        // then
+        accountDao.findAll().map { it.id } shouldBe listOf(live.id)
+        transactionDao.findAll().size shouldBe 1
+        result.accountsImported shouldBe 1
+        result.transactionsImported shouldBe 1
     }
 }

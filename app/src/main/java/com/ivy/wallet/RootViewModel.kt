@@ -40,11 +40,15 @@ class RootViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
+        /** The action the launcher shortcuts and the widgets open the app with (AndroidManifest). */
+        const val ACTION_ADD_TRANSACTION = "ivy.wallet.intent.action.add_transaction"
         const val EXTRA_ADD_TRANSACTION_TYPE = "add_transaction_type_extra"
 
         const val USER_INACTIVITY_TIME_LIMIT = 60 // Time in seconds
     }
 
+    // Kept current by the collector in start(); read by the activity on the main thread.
+    @Volatile
     private var appLockEnabled = false
 
     // The activity is recreated on configuration changes (dark mode, language, and from
@@ -85,10 +89,15 @@ class RootViewModel @Inject constructor(
         started = true
 
         viewModelScope.launch {
+            // Settings can turn the lock on or off while the app runs; the activity asks
+            // isAppLockEnabled() on every pause and focus change, so the answer has to follow.
+            appPreferences.appLockEnabled.collect { appLockEnabled = it }
+        }
+
+        viewModelScope.launch {
             ioThread {
-                appLockEnabled = appPreferences.isAppLockEnabled()
                 // initial app locked state
-                _appLocked.value = appLockEnabled
+                _appLocked.value = appPreferences.isAppLockEnabled()
 
                 if (isOnboardingCompleted()) {
                     navigateOnboardedUser(intent)

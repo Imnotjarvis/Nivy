@@ -131,13 +131,14 @@ class ImportViewModel @Inject constructor(
 
                 result
             } catch (e: Exception) {
-                Timber.e(e)
+                Timber.e(e, "CSV import failed")
                 ImportResult(
                     rowsFound = 0,
                     transactionsImported = 0,
                     accountsImported = 0,
                     categoriesImported = 0,
-                    failedRows = persistentListOf()
+                    failedRows = persistentListOf(),
+                    error = e.message ?: e.javaClass.simpleName,
                 )
             }
         }
