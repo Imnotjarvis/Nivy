@@ -674,7 +674,7 @@ class EditTransactionViewModel @Inject constructor(
             return false
         }
 
-        if (amount == 0.0) {
+        if (amount <= 0.0) {
             return false
         }
 
@@ -702,6 +702,9 @@ class EditTransactionViewModel @Inject constructor(
     private fun loadedTransaction() = loadedTransaction ?: error("Loaded transaction is null")
 
     private fun updateExchangeRate(exRate: Double?) {
+        // With a rate of 0 nothing is received, and the transfer would be stored with the sent
+        // amount on the receiving side instead.
+        if (exRate != null && exRate <= 0.0) return
         viewModelScope.launch {
             updateCustomExchangeRateState(exchangeRate = exRate, resetRate = exRate == null)
         }

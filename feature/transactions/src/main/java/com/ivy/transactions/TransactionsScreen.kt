@@ -106,7 +106,8 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
     val uiState = viewModel.uiState()
 
     val view = LocalView.current
-    LaunchedEffect(Unit) {
+    // Keyed on the screen: opening another account or category from here reuses this composable.
+    LaunchedEffect(screen) {
         viewModel.start(screen)
     }
     // This screen colors the status bar after the account; put the theme's back when leaving.
