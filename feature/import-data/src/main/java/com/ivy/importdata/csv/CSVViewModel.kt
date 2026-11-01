@@ -24,9 +24,7 @@ import com.ivy.importdata.csv.domain.parseToAccountCurrency
 import com.ivy.importdata.csv.domain.parseTransactionType
 import com.ivy.navigation.Navigation
 import com.ivy.data.file.FileSystem
-import com.opencsv.CSVReaderBuilder
-import com.opencsv.validators.LineValidator
-import com.opencsv.validators.RowValidator
+import com.ivy.domain.usecase.csv.ReadCsvUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -35,7 +33,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.StringReader
 import java.nio.charset.Charset
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -48,6 +45,7 @@ private const val Percent = 100
 @HiltViewModel
 class CSVViewModel @Inject constructor(
     private val fileReader: FileSystem,
+    private val readCsv: ReadCsvUseCase,
     private val csvImporter: CSVImporterV2,
     private val nav: Navigation,
 ) : ViewModel() {
@@ -484,29 +482,7 @@ class CSVViewModel @Inject constructor(
         } else {
             csv
         }
-        val csvReader = CSVReaderBuilder(StringReader(finalCSV))
-            .withLineValidator(object : LineValidator {
-                override fun isValid(line: String?): Boolean {
-                    return true
-                }
-
-                override fun validate(line: String?) {
-                    // do nothing
-                }
-            })
-            .withRowValidator(object : RowValidator {
-                override fun isValid(row: Array<out String>?): Boolean {
-                    return true
-                }
-
-                override fun validate(row: Array<out String>?) {
-                    // do nothing
-                }
-            })
-            .build()
-
-        return csvReader.readAll()
-            .map { CSVRow(it.toList()) }
+        return readCsv.readCsv(finalCSV).map(::CSVRow)
     }
     // endregion
 
