@@ -236,8 +236,7 @@ private class Adapter<T : Reorderable>(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.display(
             item = data[position],
-            itemContent = itemContent,
-            position = position
+            itemContent = itemContent
         )
     }
 
@@ -250,7 +249,6 @@ private class Adapter<T : Reorderable>(
         fun display(
             item: Any,
             itemContent: @Composable RowScope.(Int, Any) -> Unit,
-            position: Int
         ) {
             (itemView as ComposeView).setContent {
                 Row(
@@ -272,7 +270,7 @@ private class Adapter<T : Reorderable>(
                                 .testTag("reorder_drag_handle"),
                             icon = R.drawable.ic_drag_handle,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            contentDescription = "reorder_$position"
+                            contentDescription = stringResource(R.string.reorder)
                         )
 
                         Spacer(Modifier.width(4.dp))

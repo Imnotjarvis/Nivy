@@ -691,7 +691,7 @@ private fun AccountsFilter(
             Spacer(Modifier.width(24.dp))
         }
 
-        items(items = allAccounts) { account ->
+        items(items = allAccounts, key = { it.id.value }) { account ->
             ListItem(
                 icon = account.icon?.id,
                 defaultIcon = R.drawable.ic_custom_account_s,
@@ -763,7 +763,7 @@ private fun CategoriesFilter(
             Spacer(Modifier.width(24.dp))
         }
 
-        items(items = allCategories) { category ->
+        items(items = allCategories, key = { it.id.value }) { category ->
             ListItem(
                 icon = category.icon?.id,
                 defaultIcon = R.drawable.ic_custom_category_s,

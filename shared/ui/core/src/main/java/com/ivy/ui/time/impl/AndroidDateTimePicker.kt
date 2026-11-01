@@ -23,9 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.ui.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -153,7 +155,7 @@ class AndroidDateTimePicker @Inject constructor(
             modifier = modifier,
             onClick = onClick
         ) {
-            Text(text = "Select")
+            Text(text = stringResource(R.string.select))
         }
     }
 

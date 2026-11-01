@@ -304,7 +304,16 @@ private fun CurrencyList(
     LazyColumn(
         state = listState
     ) {
-        itemsIndexed(currenciesWithLetters) { index, item ->
+        itemsIndexed(
+            items = currenciesWithLetters,
+            key = { _, item ->
+                when (item) {
+                    is IvyCurrency -> item.code
+                    is LetterDivider -> "letter-${item.letter}"
+                    else -> item.toString()
+                }
+            },
+        ) { index, item ->
             when (item) {
                 is IvyCurrency -> {
                     CurrencyItemCard(

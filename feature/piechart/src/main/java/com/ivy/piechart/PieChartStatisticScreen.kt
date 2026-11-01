@@ -208,7 +208,8 @@ private fun BoxWithConstraintsScope.UI(
         }
 
         itemsIndexed(
-            items = state.categoryAmounts
+            items = state.categoryAmounts,
+            key = { _, item -> item.category?.id?.value ?: "unspecified" },
         ) { index, item ->
             if (item.amount != 0.0) {
                 if (index != 0) {

@@ -1,5 +1,6 @@
 package com.ivy.importdata.csv
 
+import androidx.annotation.StringRes
 import com.ivy.data.backup.ImportResult
 import kotlinx.collections.immutable.ImmutableList
 
@@ -61,8 +62,8 @@ data class OptionalFields(
 )
 
 data class ColumnMapping<M>(
-    val ivyColumn: String,
-    val helpInfo: String,
+    @StringRes val ivyColumn: Int,
+    @StringRes val helpInfo: Int,
     val name: String,
     val index: Int,
     val metadata: M,

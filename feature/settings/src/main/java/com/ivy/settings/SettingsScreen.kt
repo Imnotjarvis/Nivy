@@ -458,7 +458,7 @@ private fun StartDateOfMonth(
         Icon(
             modifier = Modifier.size(48.dp).padding(2.dp),
             painter = painterResource(id = R.drawable.ic_custom_calendar_m),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
 
@@ -499,7 +499,7 @@ private fun CustomFeatures(
         Icon(
             modifier = Modifier.size(48.dp).padding(0.dp),
             painter = painterResource(id = R.drawable.ic_custom_programming_m),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
 
@@ -551,7 +551,7 @@ private fun AppSwitch(
         Icon(
             modifier = Modifier.size(48.dp).padding(0.dp),
             painter = painterResource(id = icon),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
 
@@ -648,7 +648,7 @@ private fun AccountCardLocalAccount(
         Icon(
             modifier = Modifier.size(48.dp).padding(4.dp),
             painter = painterResource(id = R.drawable.ic_local_account),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
 
@@ -704,7 +704,7 @@ private fun SettingsPrimaryButton(
         Icon(
             modifier = Modifier.size(48.dp).padding(iconPadding),
             painter = painterResource(id = icon),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = textColor
         )
 
@@ -784,7 +784,7 @@ private fun CurrencyButton(
         Icon(
             modifier = Modifier.size(48.dp).padding(0.dp),
             painter = painterResource(id = R.drawable.ic_currency),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
 
@@ -814,7 +814,7 @@ private fun CurrencyButton(
         Icon(
             modifier = Modifier.size(48.dp).padding(4.dp),
             painter = painterResource(id = R.drawable.ic_arrow_right),
-            contentDescription = "icon",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
 

@@ -192,6 +192,7 @@ fun ModalDelete(
         backgroundGradient = GradientRed,
         enabled = enabled,
         tint = White,
+        contentDescription = stringResource(R.string.delete),
         onClick = onClick
     )
 }

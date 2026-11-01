@@ -546,7 +546,7 @@ private fun AccountsRow(
             Spacer(Modifier.width(24.dp))
         }
 
-        itemsIndexed(accounts) { _, account ->
+        itemsIndexed(accounts, key = { _, account -> account.id.value }) { _, account ->
             Account(
                 account = account,
                 selected = selectedAccount == account,

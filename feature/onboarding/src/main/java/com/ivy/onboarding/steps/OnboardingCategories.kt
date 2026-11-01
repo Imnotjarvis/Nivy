@@ -113,7 +113,7 @@ internal fun BoxWithConstraintsScope.OnboardingCategories(
                     Image(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         painter = painterResource(id = R.drawable.onboarding_illustration_categories),
-                        contentDescription = "categories illustration"
+                        contentDescription = null
                     )
 
                     OnboardingProgressSlider(

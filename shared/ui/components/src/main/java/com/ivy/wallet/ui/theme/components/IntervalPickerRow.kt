@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -127,7 +128,7 @@ private fun RowScope.IntervalTypeSelector(
                 .padding(all = 8.dp)
                 .rotate(-180f),
             icon = R.drawable.ic_arrow_right,
-            contentDescription = "interval_type_arrow_left"
+            contentDescription = stringResource(R.string.previous)
         )
 
         Spacer(Modifier.weight(1f))
@@ -158,7 +159,7 @@ private fun RowScope.IntervalTypeSelector(
                 }
                 .padding(all = 8.dp),
             icon = R.drawable.ic_arrow_right,
-            contentDescription = "interval_type_arrow_right"
+            contentDescription = stringResource(R.string.next)
         )
 
         Spacer(Modifier.width(20.dp))

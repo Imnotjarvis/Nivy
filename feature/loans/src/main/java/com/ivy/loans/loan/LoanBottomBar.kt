@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,7 +64,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
     ) {
         Tab(
             icon = R.drawable.ic_custom_loan_s,
-            name = "Pending",
+            name = stringResource(R.string.pending),
             selected = tab == LoanTab.PENDING,
             selectedColor = Violet
         ) {
@@ -74,7 +75,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
 
         Tab(
             icon = R.drawable.ic_custom_loan_s,
-            name = "Completed",
+            name = stringResource(R.string.completed),
             selected = tab == LoanTab.COMPLETED,
             selectedColor = Green
         ) {

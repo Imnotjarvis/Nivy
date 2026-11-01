@@ -165,7 +165,7 @@ internal fun BoxWithConstraintsScope.OnboardingSplashLogin(
                 },
             painter = painterResource(id = R.drawable.ivy_wallet_logo),
             contentScale = ContentScale.FillBounds,
-            contentDescription = "Nivy logo"
+            contentDescription = null
         )
 
         Spacer(Modifier.height(marginTextTop))

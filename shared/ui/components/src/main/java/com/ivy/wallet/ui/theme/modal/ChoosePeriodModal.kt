@@ -227,7 +227,7 @@ private fun ColumnScope.ChooseMonth(
             Spacer(Modifier.width(12.dp))
         }
 
-        items(items = months) { monthYear ->
+        items(items = months, key = { "${it.year}-${it.month.monthValue}" }) { monthYear ->
             MonthButton(
                 selected = monthYear == selectedMonthYear,
                 text = monthYear.forDisplay(currentYear = currentYear)

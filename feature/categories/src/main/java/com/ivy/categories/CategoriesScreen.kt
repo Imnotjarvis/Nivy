@@ -860,7 +860,7 @@ private fun SearchField(
 
     SearchInput(
         searchQueryTextFieldValue = searchQueryTextFieldValue,
-        hint = "Search categories",
+        hint = stringResource(R.string.search_categories),
         focus = false,
         showClearIcon = searchQueryTextFieldValue.text.isNotEmpty(),
         onSetSearchQueryTextField = {

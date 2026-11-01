@@ -228,7 +228,7 @@ private fun CategoriesRow(
             Spacer(Modifier.width(24.dp))
         }
 
-        items(items = categories) { category ->
+        items(items = categories, key = { it.id.value }) { category ->
             ListItem(
                 icon = category.icon?.id,
                 defaultIcon = R.drawable.ic_custom_category_s,

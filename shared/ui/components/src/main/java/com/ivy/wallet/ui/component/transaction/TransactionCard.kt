@@ -280,7 +280,7 @@ private fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
         item {
             // Tag Text
             Text(
-                text = "Tags:",
+                text = stringResource(R.string.tags_colon),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Normal

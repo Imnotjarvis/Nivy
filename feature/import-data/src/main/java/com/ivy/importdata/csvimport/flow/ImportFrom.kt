@@ -102,7 +102,7 @@ internal fun BoxWithConstraintsScope.ImportFrom(
             Spacer(Modifier.height(24.dp))
         }
 
-        items(importTypes) {
+        items(importTypes, key = { it.name }) {
             ImportOption(
                 importType = it,
                 onImportFrom = onImportFrom

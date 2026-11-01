@@ -69,7 +69,7 @@ fun OnboardingButton(
                     .padding(vertical = 8.dp)
                     .padding(start = 24.dp),
                 painter = painterResource(id = iconStart),
-                contentDescription = "iconStart"
+                contentDescription = null
             )
         }
 
@@ -89,7 +89,7 @@ fun OnboardingButton(
                     .padding(vertical = 8.dp)
                     .padding(end = 24.dp),
                 painter = painterResource(id = R.drawable.ic_onboarding_next_arrow),
-                contentDescription = "next"
+                contentDescription = null
             )
         }
     }

@@ -99,7 +99,7 @@ fun Toolbar(
                     Icon(
                         modifier = Modifier.padding(6.dp),
                         imageVector = Icons.Sharp.CopyAll,
-                        contentDescription = "duplicate_button",
+                        contentDescription = stringResource(R.string.duplicate),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }

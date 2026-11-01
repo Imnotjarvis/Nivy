@@ -122,7 +122,7 @@ private fun LazyListScope.plannedPaymentItems(
         }
 
         if (oneTimeExpanded) {
-            itemsIndexed(oneTime) { _, item ->
+            itemsIndexed(oneTime, key = { _, item -> item.id.value }) { _, item ->
                 PlannedPaymentCard(
                     baseCurrency = currency,
                     categories = categories,
@@ -152,7 +152,7 @@ private fun LazyListScope.plannedPaymentItems(
         }
 
         if (recurringExpanded) {
-            itemsIndexed(recurring) { _, item ->
+            itemsIndexed(recurring, key = { _, item -> item.id.value }) { _, item ->
                 PlannedPaymentCard(
                     baseCurrency = currency,
                     categories = categories,
