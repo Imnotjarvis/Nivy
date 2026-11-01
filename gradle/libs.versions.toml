@@ -11,6 +11,8 @@ compose-material3 = "1.4.0"
 compose-material-icons = "1.7.8"
 glance = "1.2.0"
 hilt = "2.60.1"
+# hilt-work and its compiler must match: the compiler generates code against that runtime.
+androidx-hilt = "1.4.0"
 room = "2.8.5"
 androidx-work = "2.12.0"
 kotlinx-collections = "0.5.2"
@@ -99,7 +101,8 @@ datastore = { module = "androidx.datastore:datastore-preferences", version = "1.
 
 # Hilt
 hilt = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-work = { module = "androidx.hilt:hilt-work", version = "1.4.0" }
+hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "androidx-hilt" }
+hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "androidx-hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 hilt-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 

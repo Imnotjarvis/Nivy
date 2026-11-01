@@ -213,7 +213,7 @@ data class TimePeriod(
         val year = year
         return if (year != null && timeProvider.localNow().year != year) {
             // not this year
-            "${month.displayName().substring(0, MonthNameAbbreviationLength)}, $year"
+            "${month.displayName().take(MonthNameAbbreviationLength)}, $year"
         } else {
             // this year
             month.displayName()
