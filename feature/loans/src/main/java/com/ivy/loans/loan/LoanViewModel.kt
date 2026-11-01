@@ -15,14 +15,18 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
+import com.ivy.data.model.Value
+import com.ivy.data.model.primitive.AssetCode
 import com.ivy.base.model.LoanType
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
+import com.ivy.data.model.primitive.NonZeroDouble
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.LoanRepository
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.ivy.wallet.domain.logic.AccountCreator
 import com.ivy.wallet.utils.format
@@ -58,6 +62,7 @@ class LoanViewModel @Inject constructor(
     private val accountCreator: AccountCreator,
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val loansAct: LoansAct,
+    private val exchangeUseCase: ExchangeUseCase,
     private val accountsAct: AccountsAct,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
@@ -184,9 +189,11 @@ class LoanViewModel @Inject constructor(
                         }
                         val currCode = findCurrencyCode(accounts, loan.account?.value)
 
+                        // The totals are shown in the base currency; each loan is in its account's.
+                        val remaining = inBaseCurrency(loanTotalAmount - amountPaid, currCode)
                         when (loan.type) {
-                            LoanType.BORROW -> totalOweAmount += (loanTotalAmount - amountPaid)
-                            LoanType.LEND -> totalOwedAmount += (loanTotalAmount - amountPaid)
+                            LoanType.BORROW -> totalOweAmount += remaining
+                            LoanType.LEND -> totalOwedAmount += remaining
                         }
 
                         DisplayLoan(
@@ -336,6 +343,15 @@ class LoanViewModel @Inject constructor(
         } ?: run {
             return if (accounts.isNotEmpty()) accounts[0] else null
         }
+    }
+
+    /** The amount in the base currency, or 0 when there's no rate for it, as budgets count it. */
+    private suspend fun inBaseCurrency(amount: Double, currencyCode: String): Double {
+        val nonZero = NonZeroDouble.from(amount).getOrNull() ?: return 0.0
+        return exchangeUseCase.convert(
+            Value(amount = nonZero, asset = AssetCode.unsafe(currencyCode)),
+            to = AssetCode.unsafe(defaultCurrencyCode),
+        ).getOrNull()?.amount?.value ?: 0.0
     }
 
     private fun findCurrencyCode(accounts: List<Account>, accountId: UUID?): String {
