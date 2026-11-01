@@ -66,7 +66,9 @@ class LoanTransactionsUseCase @Inject constructor(
             account = loan.account ?: return,
             amount = loan.amount,
             title = loan.name,
-            time = existing?.time ?: timeProvider.utcNow(),
+            // The loan's date when it has one, so editing that date moves the transaction too.
+            time = loan.dateTime?.atZone(timeProvider.getZoneId())?.toInstant()
+                ?: existing?.time ?: timeProvider.utcNow(),
             metadata = loanMetadata(loan.id, record = null),
         )
     }
@@ -169,6 +171,8 @@ class LoanTransactionsUseCase @Inject constructor(
             name = transaction.title ?: loan.name,
             type = if (transaction is Income) LoanType.BORROW else LoanType.LEND,
             account = transaction.getFromAccount(),
+            // The transaction's date is the loan's date: a later loan edit must not undo it.
+            dateTime = transaction.time.atZone(timeProvider.getZoneId()).toLocalDateTime(),
         )
         recalculateRecords(updated, oldAccount = loan.account)
         loanRepository.save(updated)

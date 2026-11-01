@@ -20,26 +20,31 @@ class PeriodState @Inject constructor(
     var selected: TimePeriod = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
         private set
 
-    private var selectedInitialized = false
+    // Until the user picks a period, the selection is the current month, whichever it is now.
+    private var pickedByUser = false
 
     fun setStartDayOfMonth(day: Int) {
         startDayOfMonth = day
     }
 
-    /** Selects the current month the first time, or again with [force]; returns the selection. */
+    /**
+     * Selects the current month unless the user picked a period, or always with [force];
+     * returns the selection.
+     */
     fun initSelected(startDayOfMonth: Int, force: Boolean = false): TimePeriod {
-        if (!selectedInitialized || force) {
+        if (!pickedByUser || force) {
             selected = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
-            selectedInitialized = true
+            pickedByUser = false
         }
         return selected
     }
 
     fun select(period: TimePeriod) {
         selected = period
+        pickedByUser = true
     }
 
     /** Selects the month [increment] months away from [month] of [year], and returns it. */
     fun selectMonth(month: Month, increment: Long, year: Int): TimePeriod =
-        month.incrementMonthPeriod(increment, year).also { selected = it }
+        month.incrementMonthPeriod(increment, year).also { select(it) }
 }

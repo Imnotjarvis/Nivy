@@ -41,7 +41,8 @@ data class TimePeriod(
 
             // Examples month = Nov. startDate = 7; Period = from Nov (7) till Dec (6)
             // => new period starts if today => startDayOfMonth
-            val newPeriodStarted = dayToday >= startDayOfMonth
+            // A start day past the month's end (31 in April) is its last day, as toRange counts it.
+            val newPeriodStarted = dayToday >= minOf(startDayOfMonth, today.lengthOfMonth())
 
             val periodDate = if (newPeriodStarted) {
                 // new monthly period has already started then observe it => current month

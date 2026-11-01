@@ -35,6 +35,7 @@ class DueTransactionsUseCaseTest {
     private val plannedPaymentRuleRepository = mockk<PlannedPaymentRuleRepository>(relaxed = true)
     private val currencyRepository = mockk<CurrencyRepository>()
     private val transactionAmountsUseCase = mockk<TransactionAmountsUseCase>()
+    private val plannedPaymentsGenerator = mockk<PlannedPaymentsGenerator>(relaxed = true)
     private val timeProvider = mockk<TimeProvider>()
 
     private val useCase = DueTransactionsUseCase(
@@ -42,6 +43,7 @@ class DueTransactionsUseCaseTest {
         plannedPaymentRuleRepository = plannedPaymentRuleRepository,
         currencyRepository = currencyRepository,
         transactionAmountsUseCase = transactionAmountsUseCase,
+        plannedPaymentsGenerator = plannedPaymentsGenerator,
         timeProvider = timeProvider,
     )
 
@@ -83,8 +85,9 @@ class DueTransactionsUseCaseTest {
         // when
         useCase.pay(expense(rule = MonthlyRule.id, settled = false))
 
-        // then
+        // then: it gets more occurrences instead
         coVerify(exactly = 0) { plannedPaymentRuleRepository.deleteById(any()) }
+        coVerify { plannedPaymentsGenerator.topUp(MonthlyRule) }
     }
 
     @Test
