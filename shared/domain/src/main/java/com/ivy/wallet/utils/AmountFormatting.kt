@@ -28,12 +28,18 @@ fun String.amountToDouble(): Double {
 fun String.normalizeAmount(): String {
     return this.removeGroupingSeparator()
         .normalizeDecimalSeparator()
+        .toAsciiDigits()
 }
 
 fun String.normalizeExpression(): String {
     return this.removeGroupingSeparator()
         .normalizeDecimalSeparator()
+        .toAsciiDigits()
 }
+
+// Some locales, Arabic among them, format numbers with their own digits (١٢٣); parsing takes 0-9.
+private fun String.toAsciiDigits(): String =
+    map { if (it.isDigit()) '0' + it.digitToInt() else it }.joinToString("")
 
 fun String.removeGroupingSeparator(): String {
     return replace(localGroupingSeparator(), "")
