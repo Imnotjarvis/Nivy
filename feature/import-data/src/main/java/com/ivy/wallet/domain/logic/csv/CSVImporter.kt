@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
-import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.data.db.dao.read.AccountDao
@@ -51,7 +50,6 @@ class CSVImporter @Inject constructor(
     private val accountRepository: AccountRepository,
     private val currencyRepository: CurrencyRepository,
     private val timeConverter: TimeConverter,
-    private val timeProvider: TimeProvider,
     private val readCsv: ReadCsvUseCase,
 ) {
 
@@ -112,6 +110,7 @@ class CSVImporter @Inject constructor(
         )
 
         val transactions = joinResult.transactions
+        var imported = 0
 
         for ((index, transaction) in transactions.withIndex()) {
             val progressPercent = if (rowsCount > 0) {
@@ -123,13 +122,14 @@ class CSVImporter @Inject constructor(
             with(transactionMapper) {
                 transaction.toDomain().getOrNull()?.let {
                     transactionRepository.save(it)
+                    imported++
                 }
             }
         }
 
         return ImportResult(
             rowsFound = rowsCount - joinResult.mergedCount,
-            transactionsImported = transactions.size,
+            transactionsImported = imported,
             accountsImported = accounts.size - initialAccountsCount,
             categoriesImported = categories.size - initialCategoriesCount,
             failedRows = failedRows.toImmutableList()
@@ -393,9 +393,7 @@ class CSVImporter @Inject constructor(
         }
 
         Timber.e("Import: Cannot parse $dateString")
-        // As a fallback set all transactions 1 year before now
-        return timeProvider.localNow()
-            .minusYears(1)
+        return null
     }
 
     private fun String.parseDateOnly(
