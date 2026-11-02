@@ -85,6 +85,21 @@ class LoanTransactionsUseCaseTest {
     }
 
     @Test
+    fun `a loan with a date dates its transaction by it`() = runTest {
+        // given
+        coEvery { timeProvider.getZoneId() } returns java.time.ZoneOffset.UTC
+        val loan = BorrowedLoan.copy(dateTime = java.time.LocalDateTime.of(2024, 1, 15, 10, 0))
+
+        // when
+        useCase.syncLoanTransaction(loan, create = true)
+
+        // then
+        val saved = slot<Transaction>()
+        coVerify { transactionRepository.save(capture(saved)) }
+        saved.captured.time shouldBe Instant.parse("2024-01-15T10:00:00Z")
+    }
+
+    @Test
     fun `not creating deletes the existing loan transaction`() = runTest {
         // given
         val existing = mockk<Transaction>(relaxed = true)

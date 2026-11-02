@@ -424,12 +424,12 @@ class LoanDetailsViewModel @Inject constructor(
         dateTimePicker.pickDate(
             initialDate = loanRecordModalData.value?.loanRecord?.dateTime?.let {
                 with(timeConverter) { it.toLocalDateTime().toUTC() }
-            } ?: timeProvider.utcNow()
+            } ?: dateTime.value
         ) { localDate ->
 
             val localTime = loanRecordModalData.value?.loanRecord?.dateTime?.let {
                 with(timeConverter) { it.toLocalTime() }
-            } ?: timeProvider.localTimeNow()
+            } ?: with(timeConverter) { dateTime.value.toLocalTime() }
 
             updateDateTime(localDate.atTime(localTime))
         }
@@ -439,11 +439,11 @@ class LoanDetailsViewModel @Inject constructor(
         dateTimePicker.pickTime(
             initialTime = loanRecordModalData.value?.loanRecord?.dateTime?.let {
                 with(timeConverter) { it.toLocalTime() }
-            } ?: timeProvider.localTimeNow()
+            } ?: with(timeConverter) { dateTime.value.toLocalTime() }
         ) { localTime ->
             val localDate = loanRecordModalData.value?.loanRecord?.dateTime?.let {
                 with(timeConverter) { it.toLocalDate() }
-            } ?: timeProvider.localDateNow()
+            } ?: with(timeConverter) { dateTime.value.toLocalDate() }
 
             updateDateTime(localDate.atTime(localTime))
         }
@@ -465,12 +465,12 @@ class LoanDetailsViewModel @Inject constructor(
         dateTimePicker.pickDate(
             initialDate = loanModalData.value?.loan?.dateTime?.let {
                 with(timeConverter) { it.toUTC() }
-            } ?: timeProvider.utcNow()
+            } ?: dateTime.value
         ) { localDate ->
 
             val localTime = loanModalData.value?.loan?.dateTime?.let {
                 with(timeConverter) { it.toLocalTime() }
-            } ?: timeProvider.localTimeNow()
+            } ?: with(timeConverter) { dateTime.value.toLocalTime() }
 
             updateLoanDateTime(localDate.atTime(localTime))
         }
@@ -480,11 +480,11 @@ class LoanDetailsViewModel @Inject constructor(
         dateTimePicker.pickTime(
             initialTime = loanModalData.value?.loan?.dateTime?.let {
                 with(timeConverter) { it.toLocalTime() }
-            } ?: timeProvider.localTimeNow()
+            } ?: with(timeConverter) { dateTime.value.toLocalTime() }
         ) { localTime ->
             val localDate = loanModalData.value?.loan?.dateTime?.let {
                 with(timeConverter) { it.toLocalDate() }
-            } ?: timeProvider.localDateNow()
+            } ?: with(timeConverter) { dateTime.value.toLocalDate() }
 
             updateLoanDateTime(localDate.atTime(localTime))
         }
