@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.4.21"
 kotlin-coroutines = "1.11.0"
-ktor = "3.6.0"
+ktor = "3.6.1"
 arrow = "2.3.0.1"
 kotest = "6.2.6"
 # https://developer.android.com/develop/ui/compose/bom/bom-mapping (BOM 2026.09.00)
@@ -129,7 +129,7 @@ detekt-ruleset-compose = { module = "io.nlopez.compose.rules:detekt", version = 
 slack-lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version = "1.6.1" }
 
 # KSP
-ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version = "2.3.12" }
+ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version = "2.3.13" }
 
 # Modules Graph
 module-graph-plugin = { module = "com.jraska.module.graph.assertion:plugin", version = "2.9.1" }
