@@ -23,25 +23,16 @@ fun <Arg> foldTransactions(
     valueFunctions = valueFunctions
 )
 
+// One pass over the list: recursing on drop(1) copied the rest of it at every step.
 @Pure
-internal tailrec fun <A> sumTransactionsInternal(
+internal fun <A> sumTransactionsInternal(
     transactions: List<Transaction>,
     valueFunctionArgument: A,
     valueFunctions: NonEmptyList<ValueFunction<A>>,
     sum: NonEmptyList<BigDecimal> = nonEmptyListOfZeros(n = valueFunctions.size)
-): NonEmptyList<BigDecimal> {
-    return if (transactions.isEmpty()) {
-        sum
-    } else {
-        sumTransactionsInternal(
-            valueFunctionArgument = valueFunctionArgument,
-            transactions = transactions.drop(1),
-            valueFunctions = valueFunctions,
-            sum = sum.mapIndexedNel { index, sumValue ->
-                val valueFunction = valueFunctions[index]
-                sumValue + valueFunction(transactions.first(), valueFunctionArgument)
-            }
-        )
+): NonEmptyList<BigDecimal> = transactions.fold(sum) { total, transaction ->
+    total.mapIndexedNel { index, sumValue ->
+        sumValue + valueFunctions[index](transaction, valueFunctionArgument)
     }
 }
 
@@ -57,24 +48,14 @@ suspend fun <Arg> foldTransactionsSuspend(
 )
 
 @Pure
-internal tailrec suspend fun <A> sumTransactionsSuspendInternal(
+internal suspend fun <A> sumTransactionsSuspendInternal(
     transactions: List<Transaction>,
     valueFunctionArgument: A,
     valueFunctions: NonEmptyList<SuspendValueFunction<A>>,
     sum: NonEmptyList<BigDecimal> = nonEmptyListOfZeros(n = valueFunctions.size)
-): NonEmptyList<BigDecimal> {
-    return if (transactions.isEmpty()) {
-        sum
-    } else {
-        sumTransactionsSuspendInternal(
-            valueFunctionArgument = valueFunctionArgument,
-            transactions = transactions.drop(1),
-            valueFunctions = valueFunctions,
-            sum = sum.mapIndexedNelSuspend { index, sumValue ->
-                val valueFunction = valueFunctions[index]
-                sumValue + valueFunction(transactions.first(), valueFunctionArgument)
-            }
-        )
+): NonEmptyList<BigDecimal> = transactions.fold(sum) { total, transaction ->
+    total.mapIndexedNelSuspend { index, sumValue ->
+        sumValue + valueFunctions[index](transaction, valueFunctionArgument)
     }
 }
 

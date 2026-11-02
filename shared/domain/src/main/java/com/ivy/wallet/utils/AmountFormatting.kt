@@ -142,7 +142,7 @@ fun shouldShortAmount(amount: Double): Boolean {
     return abs(amount) >= N_100K
 }
 
-fun formatInt(number: Int): String {
+fun formatInt(number: Long): String {
     return DecimalFormat("#,###,###,###").format(number)
 }
 
@@ -194,7 +194,7 @@ fun formatInputAmount(
     val decimalCountOkay = IvyCurrency.fromCode(currency)?.isCrypto == true ||
             decimalCount <= decimalCountMax
     if (amountDouble != null && decimalCountOkay) {
-        val intPart = truncate(amountDouble).toInt()
+        val intPart = truncate(amountDouble).toLong()
         val decimalPartFormatted = if (decimalPartString != null) {
             "${localDecimalSeparator()}$decimalPartString"
         } else {

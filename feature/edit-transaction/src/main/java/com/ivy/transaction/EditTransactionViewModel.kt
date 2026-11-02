@@ -521,6 +521,12 @@ class EditTransactionViewModel @Inject constructor(
                     .copy(
                         id = id,
                         dateTime = timeProvider.utcNow(),
+                        // Not another payment of the planned rule, nor part of the loan.
+                        dueDate = null,
+                        recurringRuleId = null,
+                        paidFor = null,
+                        loanId = null,
+                        loanRecordId = null,
                     )
                     .toDomain(transactionMapper)
                     ?.let {
@@ -560,8 +566,12 @@ class EditTransactionViewModel @Inject constructor(
         updateTitleSuggestions()
     }
 
+    private var titleSuggestionsJob: Job? = null
+
     private fun updateTitleSuggestions(title: String? = loadedTransaction().title) {
-        viewModelScope.launch {
+        // Each keystroke asks again: an older, slower lookup must not overwrite a newer one.
+        titleSuggestionsJob?.cancel()
+        titleSuggestionsJob = viewModelScope.launch {
             titleSuggestions = ioThread {
                 smartTitleSuggestionsLogic.suggest(
                     title = title,
@@ -592,11 +602,16 @@ class EditTransactionViewModel @Inject constructor(
         if (!validTransaction()) {
             return
         }
+        // A double tap would save twice and go back twice.
+        if (closeScreen && closingSave?.isActive == true) return
 
-        viewModelScope.launch {
+        val job = viewModelScope.launch {
             saveInternal(closeScreen = closeScreen)
         }
+        if (closeScreen) closingSave = job
     }
+
+    private var closingSave: Job? = null
 
     private suspend fun saveInternal(closeScreen: Boolean) {
         try {
@@ -677,6 +692,14 @@ class EditTransactionViewModel @Inject constructor(
         if (amount <= 0.0) {
             return false
         }
+        if (transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard &&
+            customExchangeRateState.exchangeRate == null
+        ) {
+            viewModelScope.launch {
+                toaster.show(R.string.msg_enter_exchange_rate)
+            }
+            return false
+        }
 
         return true
     }
@@ -740,7 +763,7 @@ class EditTransactionViewModel @Inject constructor(
                     exchangeUseCase.convert(
                         PositiveValue(PositiveDouble.unsafe(1.0), fromAcc.asset),
                         to = toAcc.asset
-                    ).getOrNull()?.amount?.value ?: 1.0
+                    ).getOrNull()?.amount?.value
                 }
 
             val amount = amt ?: amount
@@ -750,7 +773,7 @@ class EditTransactionViewModel @Inject constructor(
                 toCurrencyCode = toAccCurrencyCode,
                 fromCurrencyCode = fromAccCurrencyCode,
                 exchangeRate = exRate,
-                convertedAmount = exRate * amount
+                convertedAmount = exRate?.let { it * amount }
             )
 
             customExchangeRateState = customTransferExchangeRateState

@@ -7,6 +7,7 @@ data class CustomExchangeRateState(
     val showCard: Boolean = false,
     val toCurrencyCode: String? = null,
     val fromCurrencyCode: String? = null,
-    val exchangeRate: Double = 1.0,
+    // Null while there is no rate for the pair: the transfer can't be saved until one is entered.
+    val exchangeRate: Double? = null,
     val convertedAmount: Double? = null
 )

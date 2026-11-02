@@ -66,7 +66,9 @@ class LoanTransactionsUseCase @Inject constructor(
             account = loan.account ?: return,
             amount = loan.amount,
             title = loan.name,
-            time = existing?.time ?: timeProvider.utcNow(),
+            // The loan's date when it has one, so editing that date moves the transaction too.
+            time = loan.dateTime?.atZone(timeProvider.getZoneId())?.toInstant()
+                ?: existing?.time ?: timeProvider.utcNow(),
             metadata = loanMetadata(loan.id, record = null),
         )
     }
@@ -93,6 +95,18 @@ class LoanTransactionsUseCase @Inject constructor(
             time = record.dateTime,
             metadata = loanMetadata(loan.id, record = record.id),
         )
+    }
+
+    /**
+     * Brings the records' existing transactions in line with [loan]: whether a record is income or
+     * an expense depends on the loan's type. Records without a transaction keep having none.
+     */
+    suspend fun syncRecordTransactions(loan: Loan) {
+        loanRepository.findRecordsByLoanId(loan.id).forEach { record ->
+            if (transactionRepository.findLoanRecordTransaction(record.id.value) != null) {
+                syncLoanRecordTransaction(loan, record, create = true)
+            }
+        }
     }
 
     suspend fun deleteLoanTransactions(loan: LoanId) {
@@ -169,9 +183,12 @@ class LoanTransactionsUseCase @Inject constructor(
             name = transaction.title ?: loan.name,
             type = if (transaction is Income) LoanType.BORROW else LoanType.LEND,
             account = transaction.getFromAccount(),
+            // The transaction's date is the loan's date: a later loan edit must not undo it.
+            dateTime = transaction.time.atZone(timeProvider.getZoneId()).toLocalDateTime(),
         )
         recalculateRecords(updated, oldAccount = loan.account)
         loanRepository.save(updated)
+        if (updated.type != loan.type) syncRecordTransactions(updated)
     }
 
     private suspend fun updateLoanRecord(

@@ -116,11 +116,12 @@ private fun <T : Reorderable> BoxScope.ReorderModal(
     onReordered: ((List<Any>) -> Unit)? = null,
     itemContent: @Composable RowScope.(Int, Any) -> Unit
 ) {
-    var items by remember(id, initialItems) { mutableStateOf(initialItems) }
-    var reOrderedList: List<Any>? by remember {
+    // Each opening starts from the current list: an earlier session's order must not be re-sent.
+    var items by remember(id, initialItems, visible) { mutableStateOf(initialItems) }
+    var reOrderedList: List<Any>? by remember(id, initialItems, visible) {
         mutableStateOf(null)
     }
-    var orderNumUpdates by remember {
+    var orderNumUpdates by remember(id, initialItems, visible) {
         mutableStateOf(
             mapOf<T, Double>()
         )

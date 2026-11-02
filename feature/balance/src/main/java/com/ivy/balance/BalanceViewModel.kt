@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -38,7 +37,6 @@ class BalanceViewModel @Inject constructor(
     private var currentBalance by mutableDoubleStateOf(0.0)
     private var plannedPaymentsAmount by mutableDoubleStateOf(0.0)
     private var balanceAfterPlannedPayments by mutableDoubleStateOf(0.0)
-    private var numberOfMonthsAhead by mutableIntStateOf(1)
 
     @Composable
     override fun uiState(): BalanceState {
@@ -75,13 +73,13 @@ class BalanceViewModel @Inject constructor(
             ).toDouble()
 
             plannedPaymentsAmount = ioThread {
-                val range = timePeriod.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
+                // What's due from the start of the current month to the end of the selected one:
                 // + positive if Income > Expenses else - negative
-                dueTransactionsUseCase.dueBalance(range.from(), range.to()) * if (numberOfMonthsAhead >= 0) {
-                    numberOfMonthsAhead.toDouble()
-                } else {
-                    1.0
-                }
+                val startDay = periodState.startDayOfMonth
+                val currentMonth = TimePeriod.currentMonth(startDay, timeProvider)
+                    .toRange(startDay, timeConverter, timeProvider)
+                val range = timePeriod.toRange(startDay, timeConverter, timeProvider)
+                dueTransactionsUseCase.dueBalance(currentMonth.from(), range.to())
             }
             balanceAfterPlannedPayments =
                 currentBalance + plannedPaymentsAmount
@@ -95,7 +93,6 @@ class BalanceViewModel @Inject constructor(
     private fun nextMonth() {
         val month = period.month
         val year = period.year ?: timeProvider.localDateNow().year
-        numberOfMonthsAhead += 1
         if (month != null) {
             start(
                 timePeriod = periodState.selectMonth(month, 1L, year)
@@ -106,7 +103,6 @@ class BalanceViewModel @Inject constructor(
     private fun previousMonth() {
         val month = period.month
         val year = period.year ?: timeProvider.localDateNow().year
-        numberOfMonthsAhead -= 1
         if (month != null) {
             start(
                 timePeriod = periodState.selectMonth(month, -1L, year)

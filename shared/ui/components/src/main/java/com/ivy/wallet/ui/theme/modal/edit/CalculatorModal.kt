@@ -42,12 +42,13 @@ internal fun BoxWithConstraintsScope.CalculatorModal(
       initialAmount: Double?,
       visible: Boolean,
       currency: String,
+      decimalCountMax: Int,
       dismiss: () -> Unit,
       id: UUID = UUID.randomUUID(),
       onCalculation: (Double) -> Unit
 ) {
     var expression by remember(id, initialAmount) {
-        mutableStateOf(initialAmount?.format(currency) ?: "")
+        mutableStateOf(initialAmount?.formatAmount(currency, decimalCountMax) ?: "")
     }
 
     IvyModal(
@@ -150,7 +151,7 @@ internal fun BoxWithConstraintsScope.CalculatorModal(
                 ) {
                     val result = calculate(expression)
                     if (result != null) {
-                        expression = result.format(currency)
+                        expression = result.formatAmount(currency, decimalCountMax)
                     }
                 }
             },
@@ -177,6 +178,10 @@ internal fun BoxWithConstraintsScope.CalculatorModal(
         Spacer(Modifier.height(24.dp))
     }
 }
+
+/** As the amount field shows it: the currency's format, or [decimalCountMax] decimals without one. */
+internal fun Double.formatAmount(currency: String, decimalCountMax: Int): String =
+    if (currency.isNotEmpty()) format(currency) else format(decimalCountMax)
 
 private fun handleOperator(expression: String, operator: String): String {
     return if (expression.isNotEmpty() && expression.last().isOperator()) {
@@ -246,6 +251,7 @@ private fun Preview() {
             visible = true,
             initialAmount = 50.23,
             currency = "BGN",
+            decimalCountMax = 2,
             dismiss = { },
             onCalculation = {}
         )

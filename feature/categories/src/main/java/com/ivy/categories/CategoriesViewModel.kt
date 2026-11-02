@@ -71,6 +71,7 @@ class CategoriesViewModel @Inject constructor(
         return CategoriesScreenState(
             baseCurrency = baseCurrency.value,
             categories = getCategories(),
+            allCategories = categories.value,
             reorderModalVisible = reorderModalVisible.value,
             categoryModalData = categoryModalData.value,
             sortOrder = sortOrder.value,
@@ -104,6 +105,8 @@ class CategoriesViewModel @Inject constructor(
     private var transactions = emptyList<Transaction>()
 
     private fun start() {
+        // The search field starts empty, so the list does too.
+        searchQuery.value = ""
         viewModelScope.launch(Dispatchers.IO) {
             initialise()
             loadCategories()

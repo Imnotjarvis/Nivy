@@ -23,19 +23,20 @@ data class FromToTimeRange(
     fun upcomingFrom(
         timeProvider: TimeProvider
     ): Instant {
-        val startOfDayNowUTC = timeProvider.utcNow()
-        return if (includes(startOfDayNowUTC)) startOfDayNowUTC else from()
+        val startOfToday = startOfToday(timeProvider)
+        return if (includes(startOfToday)) startOfToday else from()
     }
 
     fun overdueTo(
         timeProvider: TimeProvider
     ): Instant {
-        val startOfDayNowUTC = timeProvider.utcNow()
-        return if (includes(startOfDayNowUTC)) startOfDayNowUTC else to()
+        val startOfToday = startOfToday(timeProvider)
+        return if (includes(startOfToday)) startOfToday else to()
     }
 
+    /** Both ends included: a period's first and last moments belong to it. */
     fun includes(dateTime: Instant): Boolean =
-        dateTime.isAfter(from()) && dateTime.isBefore(to())
+        !dateTime.isBefore(from()) && !dateTime.isAfter(to())
 
     fun toDisplay(
         timeFormatter: TimeFormatter
@@ -61,26 +62,22 @@ data class FromToTimeRange(
     }
 }
 
+// Due today counts as upcoming, earlier days as overdue.
+private fun startOfToday(timeProvider: TimeProvider): Instant =
+    timeProvider.localDateNow().atStartOfDay(timeProvider.getZoneId()).toInstant()
+
 fun Iterable<com.ivy.data.model.Transaction>.filterUpcoming(
     timeProvider: TimeProvider,
 ): List<com.ivy.data.model.Transaction> {
-    val todayStartOfDayUTC = timeProvider.localDateNow().atStartOfDay(timeProvider.getZoneId()).toInstant()
-
-    return filter {
-        // make sure that it's in the future
-        !it.settled && it.time.isAfter(todayStartOfDayUTC)
-    }
+    val startOfToday = startOfToday(timeProvider)
+    return filter { !it.settled && !it.time.isBefore(startOfToday) }
 }
 
 fun Iterable<com.ivy.data.model.Transaction>.filterOverdue(
     timeProvider: TimeProvider,
 ): List<com.ivy.data.model.Transaction> {
-    val todayStartOfDayUTC = timeProvider.localDateNow().atStartOfDay(timeProvider.getZoneId()).toInstant()
-
-    return filter {
-        // make sure that it's in the past
-        !it.settled && it.time.isBefore(todayStartOfDayUTC)
-    }
+    val startOfToday = startOfToday(timeProvider)
+    return filter { !it.settled && it.time.isBefore(startOfToday) }
 }
 
 fun FromToTimeRange.toCloseTimeRange(): ClosedTimeRange {

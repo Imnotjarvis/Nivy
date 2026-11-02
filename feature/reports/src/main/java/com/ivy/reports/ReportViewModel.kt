@@ -209,12 +209,16 @@ class ReportViewModel @Inject constructor(
             categories =
                 (listOf(unSpecifiedCategory) + categoryRepository.findAll()).toImmutableList()
             allTags = tagRepository.findAll().toImmutableList()
+            // Data may have changed since the report was last shown.
+            filter?.let { setFilter(it) }
         }
     }
 
     private suspend fun setFilter(reportFilter: ReportFilter?) {
         scopedIOThread { scope ->
             if (reportFilter == null) {
+                // The transfers checkbox recomputes the totals from it.
+                historyIncomeExpense = IncomeExpenseTransferPair.zero()
                 setReportValues(
                     income = 0.00,
                     expense = 0.00,
@@ -224,7 +228,7 @@ class ReportViewModel @Inject constructor(
                     upcomingTransactions = persistentListOf(),
                     overdueTransactions = persistentListOf(),
                     accounts = accountsAct(),
-                    reportFilter = filter,
+                    reportFilter = null,
                     accountIdFilters = persistentListOf(),
                     transactions = persistentListOf(),
                     balanceValue = 0.00
@@ -313,7 +317,8 @@ class ReportViewModel @Inject constructor(
                 history = historyWithDateDividers.await().toImmutableList(),
                 upcomingTransactions = upcomingTransactionsList,
                 overdueTransactions = overdue,
-                accounts = tempAccounts.toImmutableList(),
+                // All of them: the filter lists every account to pick from.
+                accounts = accountsAct(),
                 reportFilter = reportFilter,
                 accountIdFilters = accountFilterIdList.await().toImmutableList(),
                 transactions = settledTransactions,

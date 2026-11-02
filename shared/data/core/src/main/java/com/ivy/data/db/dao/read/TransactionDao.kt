@@ -163,32 +163,15 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE title LIKE :pattern")
     suspend fun findAllByTitleMatchingPattern(pattern: String): List<TransactionEntity>
 
-    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern")
-    suspend fun countByTitleMatchingPattern(
-        pattern: String,
-    ): Long
-
     @Query("SELECT * FROM transactions WHERE (categoryId = :categoryId) ORDER BY dateTime DESC")
     suspend fun findAllByCategory(
         categoryId: UUID,
     ): List<TransactionEntity>
 
-    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND categoryId = :categoryId")
-    suspend fun countByTitleMatchingPatternAndCategoryId(
-        pattern: String,
-        categoryId: UUID
-    ): Long
-
     @Query("SELECT * FROM transactions WHERE accountId = :accountId ORDER BY dateTime DESC")
     suspend fun findAllByAccount(
         accountId: UUID
     ): List<TransactionEntity>
-
-    @Query("SELECT COUNT(*) FROM transactions WHERE title LIKE :pattern AND accountId = :accountId")
-    suspend fun countByTitleMatchingPatternAndAccountId(
-        pattern: String,
-        accountId: UUID
-    ): Long
 
     @Query("SELECT * FROM transactions WHERE loanId = :loanId AND loanRecordId IS NULL")
     suspend fun findLoanTransaction(

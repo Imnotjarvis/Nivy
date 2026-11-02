@@ -342,7 +342,7 @@ private fun ColumnScope.FromToRange(
                     to = with(converter) { to?.plusDays(1)?.minusNanos(1)?.toUTC() }
                 ) ?: FromToTimeRange(
                     from = null,
-                    to = with(converter) { to?.toUTC() }
+                    to = with(converter) { to?.plusDays(1)?.minusNanos(1)?.toUTC() }
                 )
             }
         )

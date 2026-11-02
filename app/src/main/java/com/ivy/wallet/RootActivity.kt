@@ -47,6 +47,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
+import com.ivy.data.preferences.AppPreferences
+import com.ivy.navigation.MainScreen
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
@@ -75,8 +83,13 @@ class RootActivity : AppCompatActivity(), RootScreen {
     @Inject
     lateinit var dateTimePicker: DateTimePicker
 
+    @Inject
+    lateinit var appPreferences: AppPreferences
+
     private lateinit var createFileLauncher: ActivityResultLauncher<String>
     private lateinit var openFileLauncher: ActivityResultLauncher<Unit>
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+    private var notificationPermissionAsked = false
 
     private val viewModel: RootViewModel by viewModels()
 
@@ -92,6 +105,9 @@ class RootActivity : AppCompatActivity(), RootScreen {
 
             LaunchedEffect(isSystemInDarkTheme) {
                 viewModel.start(isSystemInDarkTheme, intent)
+            }
+            LaunchedEffect(navigation.currentScreen) {
+                if (navigation.currentScreen == MainScreen) askForNotificationPermission()
             }
 
             val appLocked by viewModel.appLocked.collectAsState()
@@ -172,6 +188,24 @@ class RootActivity : AppCompatActivity(), RootScreen {
         createFileLauncher()
 
         openFileLauncher()
+
+        // Nothing to do with the answer: without the permission Android drops notifications.
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    }
+
+    /**
+     * Android 13 and newer drop notifications until the user allows them, and nothing asked, so
+     * the reminders never showed. Asks once, when the user is in the app with them switched on.
+     */
+    private fun askForNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || notificationPermissionAsked) return
+        notificationPermissionAsked = true
+        val permission = Manifest.permission.POST_NOTIFICATIONS
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) return
+        lifecycleScope.launch {
+            if (appPreferences.showNotifications()) notificationPermissionLauncher.launch(permission)
+        }
     }
 
     private fun createFileLauncher() {
