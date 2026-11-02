@@ -135,3 +135,5 @@ data object ExchangeRatesScreen : Screen {
 }
 
 data object FeaturesScreen : Screen
+
+data object TrendsScreen : Screen

@@ -61,6 +61,7 @@ import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.CategoriesScreen
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.LoansScreen
+import com.ivy.navigation.TrendsScreen
 import com.ivy.navigation.PlannedPaymentsScreen
 import com.ivy.navigation.ReportScreen
 import com.ivy.navigation.SearchScreen
@@ -460,6 +461,15 @@ private fun QuickAccess(
                 label = stringResource(R.string.loans),
             ) {
                 nav.navigateTo(LoansScreen)
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            MoreMenuButton(
+                icon = R.drawable.ic_vue_chart_trend_up,
+                label = stringResource(R.string.trends),
+            ) {
+                nav.navigateTo(TrendsScreen)
             }
 
             Spacer(Modifier.weight(1f))

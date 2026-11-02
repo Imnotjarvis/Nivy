@@ -345,6 +345,10 @@
     <string name="credit_used_of_limit">Credit used: %1$s of %2$s %3$s</string>
     <string name="charged_on">Charged on %1$s</string>
     <string name="purchased_on">Purchased on %1$s</string>
+    <string name="trends">Trends</string>
+    <string name="trends_subtitle">Last %1$s months, in %2$s</string>
+    <string name="income_vs_expenses">Income vs expenses</string>
+    <string name="net_worth">Net worth</string>
     <string name="borrowed_uppercase">BORROWED</string>
     <string name="lent_uppercase">LENT</string>
     <string name="january">January</string>
