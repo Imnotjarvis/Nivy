@@ -11,10 +11,7 @@ import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.invalidTransactionEntity
 import com.ivy.data.model.AccountId
-import com.ivy.data.model.Expense
-import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
-import com.ivy.data.model.Transfer
 import com.ivy.data.model.testing.ModelFixtures
 import com.ivy.data.model.testing.accountId
 import com.ivy.data.model.testing.transaction
