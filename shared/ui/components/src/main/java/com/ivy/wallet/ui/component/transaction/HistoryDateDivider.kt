@@ -21,7 +21,9 @@ import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
+import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
+import com.ivy.ui.time.TimeFormatter
 import java.time.LocalDate
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
@@ -47,9 +49,9 @@ internal fun HistoryDateDivider(
 
         Column {
             Text(
-                text = date.formatLocal(
-                    if (today.year == date.year) "MMMM dd." else "MMM dd. yyy"
-                ),
+                text = with(LocalTimeFormatter.current) {
+                    date.atStartOfDay().format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+                },
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold

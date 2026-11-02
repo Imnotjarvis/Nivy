@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.ivy.base.model.DateDisplayFormat
 import com.ivy.base.model.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -41,6 +42,12 @@ class AppPreferences @Inject constructor(
 
     suspend fun startDayOfMonth(): Int = get(StartDayOfMonth, 1)
     suspend fun setStartDayOfMonth(day: Int) = set(StartDayOfMonth, day)
+
+    /** How dates are shown, as it changes. */
+    val dateFormat: Flow<DateDisplayFormat> = dataStore.data.map { prefs ->
+        DateDisplayFormat.entries.find { it.name == prefs[DateFormat] } ?: DateDisplayFormat.Default
+    }.distinctUntilChanged()
+    suspend fun setDateFormat(format: DateDisplayFormat) = set(DateFormat, format.name)
 
     suspend fun showNotifications(): Boolean = get(ShowNotifications, true)
     suspend fun setShowNotifications(show: Boolean) = set(ShowNotifications, show)
@@ -103,6 +110,7 @@ class AppPreferences @Inject constructor(
         private val LastSelectedAccountId = stringPreferencesKey("last_selected_account_id")
         private val AppLockEnabled = booleanPreferencesKey("lock_app")
         private val StartDayOfMonth = intPreferencesKey("start_date_of_month")
+        private val DateFormat = stringPreferencesKey("date_format")
         private val ShowNotifications = booleanPreferencesKey("show_notifications")
         private val HideCurrentBalance = booleanPreferencesKey("hide_current_balance")
         private val HideIncome = booleanPreferencesKey("hide_income")

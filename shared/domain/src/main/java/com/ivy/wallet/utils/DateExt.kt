@@ -31,7 +31,7 @@ fun LocalDate.formatLocal(
     return this.format(
         DateTimeFormatter
             .ofPattern(pattern)
-            .withLocale(Locale.getDefault())
+            .withLocale(Locale.ENGLISH) // the app is in English, month and day names included
             .withZone(zone) // this is if you want to display the Zone in the pattern
     )
 }

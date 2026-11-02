@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ivy.base.model.DateDisplayFormat
 import com.ivy.base.model.Theme
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
@@ -89,7 +89,7 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         treatTransfersAsIncomeExpense = uiState.treatTransfersAsIncomeExpense,
         nameLocalAccount = uiState.name,
         startDateOfMonth = uiState.startDateOfMonth.toInt(),
-        languageOptionVisible = uiState.languageOptionVisible,
+        dateFormat = uiState.dateFormat,
         onSetCurrency = {
             viewModel.onEvent(SettingsEvent.SetCurrency(it))
         },
@@ -123,8 +123,8 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         onDeleteAllUserData = {
             viewModel.onEvent(SettingsEvent.DeleteAllUserData)
         },
-        onSwitchLanguage = {
-            viewModel.onEvent(SettingsEvent.SwitchLanguage)
+        onSetDateFormat = {
+            viewModel.onEvent(SettingsEvent.SetDateFormat(it))
         }
     )
 }
@@ -138,9 +138,9 @@ private fun BoxWithConstraintsScope.UI(
     onSwitchTheme: () -> Unit,
     lockApp: Boolean,
     nameLocalAccount: String?,
-    languageOptionVisible: Boolean,
     onSetCurrency: (String) -> Unit,
     startDateOfMonth: Int = 1,
+    dateFormat: DateDisplayFormat = DateDisplayFormat.Default,
     showNotifications: Boolean = true,
     hideCurrentBalance: Boolean = false,
     hideIncome: Boolean = false,
@@ -156,11 +156,12 @@ private fun BoxWithConstraintsScope.UI(
     onSetHideIncome: (Boolean) -> Unit = {},
     onSetStartDateOfMonth: (Int) -> Unit = {},
     onDeleteAllUserData: () -> Unit = {},
-    onSwitchLanguage: () -> Unit = {}
+    onSetDateFormat: (DateDisplayFormat) -> Unit = {}
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
     var nameModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
+    var chooseDateFormatVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
@@ -281,19 +282,6 @@ private fun BoxWithConstraintsScope.UI(
 
             val nav = navigation()
 
-            if (languageOptionVisible) {
-                SettingsDefaultButton(
-                    icon = R.drawable.ic_vue_location_global,
-                    iconPadding = 6.dp,
-                    text = stringResource(R.string.language),
-                    description = LocalConfiguration.current.locales[0].displayName
-                ) {
-                    onSwitchLanguage()
-                }
-
-                Spacer(Modifier.height(12.dp))
-            }
-
             SettingsDefaultButton(
                 icon = R.drawable.ic_currency,
                 text = stringResource(R.string.exchange_rates),
@@ -359,6 +347,14 @@ private fun BoxWithConstraintsScope.UI(
 
             Spacer(Modifier.height(12.dp))
 
+            DateFormatRow(
+                dateFormat = dateFormat
+            ) {
+                chooseDateFormatVisible = true
+            }
+
+            Spacer(Modifier.height(12.dp))
+
             CustomFeatures(
                 onClick = { nav.navigateTo(FeaturesScreen) }
             )
@@ -410,6 +406,13 @@ private fun BoxWithConstraintsScope.UI(
     ) {
         onSetStartDateOfMonth(it)
     }
+
+    ChooseDateFormatModal(
+        visible = chooseDateFormatVisible,
+        selected = dateFormat,
+        dismiss = { chooseDateFormatVisible = false },
+        onSelect = onSetDateFormat,
+    )
 
     DeleteModal(
         title = stringResource(R.string.delete_all_user_data_question),
@@ -477,6 +480,48 @@ private fun StartDateOfMonth(
 
         Text(
             text = startDateOfMonth.toString(),
+            style = MaterialTheme.typography.numberBodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
+            )
+        )
+
+        Spacer(Modifier.width(32.dp))
+    }
+}
+
+@Composable
+private fun DateFormatRow(
+    dateFormat: DateDisplayFormat,
+    onClick: () -> Unit
+) {
+    SettingsButtonRow(
+        onClick = onClick
+    ) {
+        Spacer(Modifier.width(12.dp))
+
+        Icon(
+            modifier = Modifier.size(48.dp).padding(12.dp),
+            painter = painterResource(id = R.drawable.ic_vue_main_calendar),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+
+        Spacer(Modifier.width(8.dp))
+
+        Text(
+            modifier = Modifier.padding(vertical = 20.dp),
+            text = stringResource(R.string.date_format),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        Text(
+            text = dateFormat.example(),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
@@ -872,8 +917,7 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
             onSwitchTheme = {},
             lockApp = false,
             currencyCode = "BGN",
-            onSetCurrency = {},
-            languageOptionVisible = true
+            onSetCurrency = {}
         )
     }
 }

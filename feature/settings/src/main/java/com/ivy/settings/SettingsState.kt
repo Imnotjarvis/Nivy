@@ -1,5 +1,6 @@
 package com.ivy.settings
 
+import com.ivy.base.model.DateDisplayFormat
 import com.ivy.base.model.Theme
 
 data class SettingsState(
@@ -12,6 +13,6 @@ data class SettingsState(
     val hideIncome: Boolean,
     val treatTransfersAsIncomeExpense: Boolean,
     val startDateOfMonth: String,
+    val dateFormat: DateDisplayFormat,
     val progressState: Boolean,
-    val languageOptionVisible: Boolean
 )

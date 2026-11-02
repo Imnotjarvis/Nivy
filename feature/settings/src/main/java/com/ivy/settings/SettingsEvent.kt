@@ -1,5 +1,6 @@
 package com.ivy.settings
 
+import com.ivy.base.model.DateDisplayFormat
 import com.ivy.domain.RootScreen
 
 sealed interface SettingsEvent {
@@ -16,6 +17,6 @@ sealed interface SettingsEvent {
         SettingsEvent
 
     data class SetStartDateOfMonth(val startDate: Int) : SettingsEvent
+    data class SetDateFormat(val format: DateDisplayFormat) : SettingsEvent
     data object DeleteAllUserData : SettingsEvent
-    data object SwitchLanguage : SettingsEvent
 }

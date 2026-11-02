@@ -19,9 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.IntervalType
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.forDisplay
-import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
@@ -124,7 +125,9 @@ private fun RecurringRuleCard(
         Spacer(Modifier.weight(1f))
 
         Text(
-            text = startDate.toLocalDate().formatLocal("MMM. dd"),
+            text = with(LocalTimeFormatter.current) {
+                startDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+            },
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold

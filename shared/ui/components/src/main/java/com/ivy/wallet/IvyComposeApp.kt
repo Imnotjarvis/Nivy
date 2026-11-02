@@ -30,6 +30,7 @@ import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.domain.RootScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.NavigationRoot
+import com.ivy.ui.time.DateFormatState
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
@@ -145,7 +146,8 @@ fun IvyWalletPreview(
             resourceProvider = AndroidResourceProvider(context),
             timeProvider = timeProvider,
             converter = timeConverter,
-            devicePreferences = AndroidDevicePreferences(context)
+            devicePreferences = AndroidDevicePreferences(context),
+            dateFormatState = DateFormatState(),
         ),
     ) {
         NavigationRoot(navigation = Navigation()) {

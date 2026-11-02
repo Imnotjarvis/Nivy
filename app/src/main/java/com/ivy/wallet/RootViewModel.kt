@@ -15,6 +15,7 @@ import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
+import com.ivy.ui.time.DateFormatState
 import com.ivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import com.ivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +38,7 @@ class RootViewModel @Inject constructor(
     private val appPreferences: AppPreferences,
     private val transactionReminderScheduler: TransactionReminderScheduler,
     private val migrationsManager: MigrationsManager,
+    private val dateFormatState: DateFormatState,
 ) : ViewModel() {
 
     companion object {
@@ -92,6 +94,11 @@ class RootViewModel @Inject constructor(
             // Settings can turn the lock on or off while the app runs; the activity asks
             // isAppLockEnabled() on every pause and focus change, so the answer has to follow.
             appPreferences.appLockEnabled.collect { appLockEnabled = it }
+        }
+
+        viewModelScope.launch {
+            // Dates follow the format chosen in the settings, from start-up and as it changes.
+            appPreferences.dateFormat.collect { dateFormatState.format = it }
         }
 
         viewModelScope.launch {

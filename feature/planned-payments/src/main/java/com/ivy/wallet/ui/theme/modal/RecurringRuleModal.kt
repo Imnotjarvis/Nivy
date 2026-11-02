@@ -36,6 +36,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.IntervalType
 import com.ivy.domain.RootScreen
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.design.utils.clickableNoIndication
@@ -338,9 +340,13 @@ private fun DateRow(
         ) {
             val date = dateTime.toLocalDate()
             val closeDay = date.closeDay()
+            // The full weekday name, then the date in the format the user chose.
+            val weekdayAndDate = date.formatLocal("EEEE") + ", " + with(LocalTimeFormatter.current) {
+                dateTime.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+            }
 
             Text(
-                text = closeDay ?: date.formatLocal("EEEE, dd MMM"),
+                text = closeDay ?: weekdayAndDate,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal
@@ -351,7 +357,7 @@ private fun DateRow(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = date.formatLocal("EEEE, dd MMM"),
+                    text = weekdayAndDate,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.SemiBold
