@@ -341,12 +341,12 @@
     <string name="show_archived_accounts">Show archived (%1$s)</string>
     <string name="hide_archived_accounts">Hide archived</string>
     <string name="all_account_types">All</string>
-    <string name="credit_used">Credit used: %1$s %2$s</string>
-    <string name="credit_used_of_limit">Credit used: %1$s of %2$s %3$s</string>
-    <string name="charged_on">Charged on %1$s</string>
+    <string name="credit_used">Credit used</string>
+    <string name="charged_on">Charged on</string>
     <string name="purchased_on">Purchased on %1$s</string>
     <string name="trends">Trends</string>
-    <string name="trends_subtitle">Last %1$s months, in %2$s</string>
+    <string name="trends_net_worth_in">Net worth in %1$s</string>
+    <string name="trends_last_months">Last %1$s months</string>
     <string name="income_vs_expenses">Income vs expenses</string>
     <string name="net_worth">Net worth</string>
     <string name="borrowed_uppercase">BORROWED</string>

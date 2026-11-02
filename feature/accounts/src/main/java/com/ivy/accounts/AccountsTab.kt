@@ -1,8 +1,11 @@
 package com.ivy.accounts
 
 import com.ivy.base.model.AccountType
+import com.ivy.design.system.typography.numberTitleSmall
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.displayName
@@ -273,23 +276,39 @@ private fun AccountCard(
         if (accountData.creditUsed != null) {
             Spacer(Modifier.height(12.dp))
 
-            Text(
+            // The label in the text font and the amounts in the number font, as budgets show them.
+            Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .testTag("account_credit_used"),
-                text = account.creditLimit?.let { limit ->
-                    stringResource(
-                        R.string.credit_used_of_limit,
-                        accountData.creditUsed.format(currency),
-                        limit.value.format(currency),
-                        currency
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.credit_used),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.ExtraBold
                     )
-                } ?: stringResource(R.string.credit_used, accountData.creditUsed.format(currency), currency),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
                 )
-            )
+
+                Spacer(Modifier.width(8.dp))
+
+                val used = accountData.creditUsed.format(currency)
+                Text(
+                    text = account.creditLimit?.let { "$used / ${it.value.format(currency)} $currency" }
+                        ?: "$used $currency",
+                    style = MaterialTheme.typography.numberTitleSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            }
+
+            if (compactModeEnabled) {
+                // Nothing follows it in compact mode: it would sit on the card's border.
+                Spacer(Modifier.height(12.dp))
+            }
         }
 
         if (!compactModeEnabled) {
@@ -338,8 +357,12 @@ private fun AccountHeader(
 
             Spacer(Modifier.width(8.dp))
 
+            // A long name gives way to the labels after it, which would otherwise be pushed out.
             Text(
+                modifier = Modifier.weight(1f, fill = false),
                 text = account.name.value,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
@@ -369,6 +392,8 @@ private fun AccountHeader(
                     )
                 )
             }
+
+            Spacer(Modifier.width(20.dp))
         }
 
         Spacer(Modifier.height(4.dp))

@@ -1,37 +1,39 @@
 package com.ivy.reports.trends
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
@@ -39,14 +41,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
-import com.ivy.design.system.colors.Red
+import com.ivy.design.system.colors.White
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.utils.format
+import com.ivy.wallet.ui.theme.components.BackButtonType
+import com.ivy.wallet.ui.theme.components.BalanceRow
+import com.ivy.wallet.ui.theme.components.IvyIcon
+import com.ivy.wallet.ui.theme.components.IvyToolbar
+import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -58,97 +66,184 @@ fun TrendsScreen() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// Laid out like the reports screen: close button, title, the selected month's net worth as
+// the big number, its income and expenses as the home screen's cards, then the charts.
 @Composable
 private fun TrendsUi(
     state: TrendsState,
     onEvent: (TrendsEvent) -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(R.string.trends)) },
-                navigationIcon = { BackButton() },
+    val nav = navigation()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        IvyToolbar(
+            backButtonType = BackButtonType.CLOSE,
+            onBack = { nav.back() },
+        )
+
+        Text(
+            modifier = Modifier.padding(start = 32.dp),
+            text = stringResource(R.string.trends),
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
             )
-        },
-    ) { innerPadding ->
-        Column(
+        )
+
+        val selected = state.months.getOrNull(state.selectedIndex) ?: return@Column
+        val onSelect = { index: Int -> onEvent(TrendsEvent.SelectMonth(index)) }
+        val currency = state.baseCurrency
+
+        Spacer(Modifier.height(4.dp))
+        Text(
+            modifier = Modifier.padding(start = 32.dp),
+            text = stringResource(
+                R.string.trends_net_worth_in,
+                "${selected.period.month?.displayName().orEmpty()} ${selected.period.year ?: ""}"
+            ),
+            style = MaterialTheme.typography.bodyMedium.copy(color = Gray, fontWeight = FontWeight.Bold),
+        )
+        Spacer(Modifier.height(8.dp))
+        BalanceRow(
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
+                .padding(start = 32.dp)
+                .testTag("trends_net_worth"),
+            currency = currency,
+            balance = selected.netWorth,
+        )
+
+        Spacer(Modifier.height(20.dp))
+        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+            MonthCard(
+                icon = R.drawable.ic_income,
+                label = stringResource(R.string.income),
+                amount = selected.income,
+                currency = currency,
+                background = GradientGreen,
+                textColor = White,
+            )
+            Spacer(Modifier.width(12.dp))
+            MonthCard(
+                icon = R.drawable.ic_expense,
+                label = stringResource(R.string.expenses),
+                amount = selected.expense,
+                currency = currency,
+                background = Gradient(MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.onSurfaceVariant),
+                textColor = MaterialTheme.colorScheme.surface,
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+        ChartPanel(
+            title = stringResource(R.string.income_vs_expenses),
+            legend = {
+                LegendDot(color = Green, label = stringResource(R.string.income))
+                Spacer(Modifier.width(12.dp))
+                LegendDot(color = MaterialTheme.colorScheme.onSurface, label = stringResource(R.string.expenses))
+            },
         ) {
-            val selected = state.months.getOrNull(state.selectedIndex) ?: return@Column
-            val onSelect = { index: Int -> onEvent(TrendsEvent.SelectMonth(index)) }
+            IncomeExpenseBars(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
+            MonthLabels(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
+        }
 
+        Spacer(Modifier.height(16.dp))
+        ChartPanel(
+            title = stringResource(R.string.net_worth),
+            legend = {
+                Text(
+                    text = stringResource(R.string.trends_last_months, state.months.size.toString()),
+                    style = MaterialTheme.typography.labelMedium.copy(color = Gray),
+                )
+            },
+        ) {
+            NetWorthLine(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
+            MonthLabels(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
+        }
+
+        Spacer(Modifier.height(32.dp))
+    }
+}
+
+/** The selected month's income or expenses, in the style of the home screen's cards. */
+@Composable
+private fun RowScope.MonthCard(
+    @DrawableRes icon: Int,
+    label: String,
+    amount: Double,
+    currency: String,
+    background: Gradient,
+    textColor: Color,
+) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .clip(MaterialTheme.shapes.medium)
+            .background(background.asHorizontalBrush())
+            .padding(vertical = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(Modifier.width(16.dp))
+            IvyIcon(icon = icon, tint = textColor)
+            Spacer(Modifier.width(4.dp))
             Text(
-                text = stringResource(R.string.trends_subtitle, state.months.size.toString(), state.baseCurrency),
-                style = MaterialTheme.typography.bodyMedium.copy(color = Gray),
+                text = label,
+                style = MaterialTheme.typography.labelMedium.copy(color = textColor, fontWeight = FontWeight.ExtraBold),
             )
-
-            Spacer(Modifier.height(24.dp))
-            SectionTitle(stringResource(R.string.income_vs_expenses))
-            Spacer(Modifier.height(8.dp))
-            Row {
-                LegendItem(color = Green, label = stringResource(R.string.income))
-                Spacer(Modifier.width(16.dp))
-                LegendItem(color = Red, label = stringResource(R.string.expenses))
-            }
-            Spacer(Modifier.height(16.dp))
-            IncomeExpenseBars(
-                months = state.months,
-                selectedIndex = state.selectedIndex,
-                onSelect = onSelect,
-            )
-            MonthLabels(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
-
-            Spacer(Modifier.height(32.dp))
-            SectionTitle(stringResource(R.string.net_worth))
-            Spacer(Modifier.height(16.dp))
-            NetWorthLine(
-                months = state.months,
-                selectedIndex = state.selectedIndex,
-                onSelect = onSelect,
-            )
-            MonthLabels(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
-
-            Spacer(Modifier.height(32.dp))
-            SelectedMonth(month = selected, currency = state.baseCurrency)
-            Spacer(Modifier.height(32.dp))
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(Modifier.width(20.dp))
+            AmountCurrencyB1(amount = amount, currency = currency, textColor = textColor, shortenBigNumbers = true)
         }
     }
 }
 
 @Composable
-private fun BackButton() {
-    val nav = navigation()
-    IconButton(onClick = { nav.back() }) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = stringResource(R.string.back)
-        )
+private fun ChartPanel(
+    title: String,
+    legend: @Composable RowScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge)
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
+                ),
+            )
+            Spacer(Modifier.weight(1f))
+            legend()
+        }
+        Spacer(Modifier.height(16.dp))
+        content()
     }
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
-    )
-}
-
-@Composable
-private fun LegendItem(color: Color, label: String) {
+private fun LegendDot(color: Color, label: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Spacer(
             Modifier
-                .size(12.dp)
+                .size(8.dp)
                 .background(color, CircleShape)
         )
-        Spacer(Modifier.width(6.dp))
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.width(4.dp))
+        Text(text = label, style = MaterialTheme.typography.labelMedium.copy(color = Gray))
     }
 }
 
@@ -162,12 +257,13 @@ private fun IncomeExpenseBars(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
 ) {
-    val highlight = MaterialTheme.colorScheme.surfaceVariant
+    val highlight = MaterialTheme.colorScheme.surface
+    val expenseColor = MaterialTheme.colorScheme.onSurface
     val max = months.maxOf { maxOf(it.income, it.expense) }.takeIf { it > 0 } ?: 1.0
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(160.dp)
             .testTag("trends_income_expense_chart")
             .pointerInput(months.size) {
                 detectTapGestures { onSelect(monthAt(it.x, size.width, months.size)) }
@@ -175,23 +271,29 @@ private fun IncomeExpenseBars(
     ) {
         val slot = size.width / months.size
         val barWidth = slot * BarWidthFraction
+        val radius = CornerRadius(barWidth / 2)
+        drawRoundRect(
+            highlight,
+            topLeft = Offset(selectedIndex * slot, 0f),
+            size = Size(slot, size.height),
+            cornerRadius = CornerRadius(SelectionRadius.toPx()),
+        )
         months.forEachIndexed { index, month ->
-            val slotStart = index * slot
-            if (index == selectedIndex) {
-                drawRect(highlight, topLeft = Offset(slotStart, 0f), size = Size(slot, size.height))
-            }
-            val left = slotStart + (slot - 2 * barWidth) / 2
-            val incomeHeight = (month.income / max).toFloat() * size.height
-            val expenseHeight = (month.expense / max).toFloat() * size.height
-            drawRect(
+            val left = index * slot + (slot - 2 * barWidth - BarGap.toPx()) / 2
+            val chartHeight = size.height - BarTopSpace.toPx()
+            val incomeHeight = (month.income / max).toFloat() * chartHeight
+            val expenseHeight = (month.expense / max).toFloat() * chartHeight
+            drawRoundRect(
                 Green,
                 topLeft = Offset(left, size.height - incomeHeight),
-                size = Size(barWidth, incomeHeight)
+                size = Size(barWidth, incomeHeight),
+                cornerRadius = radius,
             )
-            drawRect(
-                Red,
-                topLeft = Offset(left + barWidth, size.height - expenseHeight),
-                size = Size(barWidth, expenseHeight)
+            drawRoundRect(
+                expenseColor,
+                topLeft = Offset(left + barWidth + BarGap.toPx(), size.height - expenseHeight),
+                size = Size(barWidth, expenseHeight),
+                cornerRadius = radius,
             )
         }
     }
@@ -203,7 +305,7 @@ private fun NetWorthLine(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
 ) {
-    val highlight = MaterialTheme.colorScheme.surfaceVariant
+    val highlight = MaterialTheme.colorScheme.surface
     val zeroLine = MaterialTheme.colorScheme.outlineVariant
     val values = months.map { it.netWorth }
     // Zero stays in view, so that the line's height compares with nothing.
@@ -213,33 +315,49 @@ private fun NetWorthLine(
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .height(140.dp)
             .testTag("trends_net_worth_chart")
             .pointerInput(months.size) {
                 detectTapGestures { onSelect(monthAt(it.x, size.width, months.size)) }
             }
     ) {
         val slot = size.width / months.size
-        val padding = PointRadius.toPx() * 2
+        val padding = PointRadius.toPx() * 3
         val chartHeight = size.height - 2 * padding
         fun y(value: Double) = padding + ((max - value) / span).toFloat() * chartHeight
         val points = values.mapIndexed { index, value -> Offset(index * slot + slot / 2, y(value)) }
 
-        drawRect(
+        drawRoundRect(
             highlight,
             topLeft = Offset(selectedIndex * slot, 0f),
-            size = Size(slot, size.height)
+            size = Size(slot, size.height),
+            cornerRadius = CornerRadius(SelectionRadius.toPx()),
         )
         drawLine(zeroLine, start = Offset(0f, y(0.0)), end = Offset(size.width, y(0.0)))
-        val path = Path().apply {
+        val line = Path().apply {
             points.forEachIndexed { index, point ->
                 if (index == 0) moveTo(point.x, point.y) else lineTo(point.x, point.y)
             }
         }
-        drawPath(path, color = Ivy, style = Stroke(width = LineWidth.toPx()))
+        val area = Path().apply {
+            addPath(line)
+            lineTo(points.last().x, y(0.0))
+            lineTo(points.first().x, y(0.0))
+            close()
+        }
+        drawPath(area, brush = Brush.verticalGradient(listOf(Ivy.copy(alpha = AreaAlpha), Color.Transparent)))
+        drawPath(
+            line,
+            color = Ivy,
+            style = Stroke(width = LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+        )
         points.forEachIndexed { index, point ->
-            val radius = if (index == selectedIndex) PointRadius.toPx() * 1.5f else PointRadius.toPx()
-            drawCircle(Ivy, radius = radius, center = point)
+            if (index == selectedIndex) {
+                drawCircle(highlight, radius = PointRadius.toPx() * 2.5f, center = point)
+                drawCircle(Ivy, radius = PointRadius.toPx() * 1.5f, center = point)
+            } else {
+                drawCircle(Ivy, radius = PointRadius.toPx(), center = point)
+            }
         }
     }
 }
@@ -256,52 +374,23 @@ private fun MonthLabels(
                 modifier = Modifier
                     .weight(1f)
                     .clickable { onSelect(index) }
-                    .padding(vertical = 6.dp),
+                    .padding(top = 8.dp),
                 text = month.period.month?.displayName()?.take(MonthLabelLength).orEmpty(),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 style = MaterialTheme.typography.labelSmall.copy(
                     color = if (index == selectedIndex) MaterialTheme.colorScheme.onSurface else Gray,
-                    fontWeight = if (index == selectedIndex) FontWeight.ExtraBold else FontWeight.Normal,
                 ),
             )
         }
     }
 }
 
-@Composable
-private fun SelectedMonth(month: MonthTrend, currency: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
-            .padding(16.dp)
-            .testTag("trends_selected_month"),
-    ) {
-        Text(
-            text = "${month.period.month?.displayName().orEmpty()} ${month.period.year ?: ""}",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-        )
-        Spacer(Modifier.height(8.dp))
-        AmountRow(label = stringResource(R.string.income), amount = month.income, currency = currency)
-        AmountRow(label = stringResource(R.string.expenses), amount = month.expense, currency = currency)
-        AmountRow(label = stringResource(R.string.net_worth), amount = month.netWorth, currency = currency)
-    }
-}
-
-@Composable
-private fun AmountRow(label: String, amount: Double, currency: String) {
-    Row(modifier = Modifier.padding(vertical = 2.dp)) {
-        Text(text = label, style = MaterialTheme.typography.bodyLarge)
-        Spacer(Modifier.weight(1f))
-        Text(
-            text = "${amount.format(currency)} $currency",
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        )
-    }
-}
-
-private const val BarWidthFraction = 0.3f
+private const val BarWidthFraction = 0.28f
 private const val MonthLabelLength = 3
+private const val AreaAlpha = 0.25f
+private val BarGap = 2.dp
+private val BarTopSpace = 8.dp
+private val SelectionRadius = 12.dp
 private val PointRadius = 3.dp
-private val LineWidth = 2.dp
+private val LineWidth = 3.dp

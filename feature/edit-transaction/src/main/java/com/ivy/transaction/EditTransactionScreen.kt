@@ -1,5 +1,9 @@
 package com.ivy.transaction
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
+import com.ivy.design.system.typography.numberTitleSmall
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.design.system.colors.Gray
@@ -393,21 +397,28 @@ private fun BoxWithConstraintsScope.UI(
         if (chargeDate != null) {
             Spacer(Modifier.height(8.dp))
 
-            Text(
+            // Like the date row above: the label in the text font, the date in the number font.
+            Row(
                 modifier = Modifier
                     .padding(horizontal = 32.dp)
                     .testTag("transaction_charge_date"),
-                text = stringResource(
-                    R.string.charged_on,
-                    with(LocalTimeFormatter.current) {
-                        chargeDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
-                    }
-                ),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Gray,
-                    fontWeight = FontWeight.SemiBold
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.charged_on),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = Gray,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = with(LocalTimeFormatter.current) {
+                        chargeDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+                    },
+                    style = MaterialTheme.typography.numberTitleSmall.copy(color = Gray)
+                )
+            }
         }
 
         if (transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard) {
