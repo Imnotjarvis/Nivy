@@ -23,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Budget
 import com.ivy.data.model.BudgetId
 import com.ivy.data.model.Category
@@ -57,6 +59,7 @@ data class BudgetModalData(
 
     val baseCurrency: String,
     val categories: List<Category>,
+    val accounts: List<Account>,
 
     val id: UUID = UUID.randomUUID(),
     val autoFocusKeyboard: Boolean = true,
@@ -66,7 +69,12 @@ data class BudgetModalData(
 internal fun BoxWithConstraintsScope.BudgetModal(
     modal: BudgetModalData?,
 
-    onCreate: (name: NotBlankTrimmedString, amount: PositiveDouble, categories: List<CategoryId>) -> Unit,
+    onCreate: (
+        name: NotBlankTrimmedString,
+        amount: PositiveDouble,
+        categories: List<CategoryId>,
+        accounts: List<AccountId>,
+    ) -> Unit,
     onEdit: (Budget) -> Unit,
     onDelete: (Budget) -> Unit,
     dismiss: () -> Unit
@@ -80,6 +88,9 @@ internal fun BoxWithConstraintsScope.BudgetModal(
     }
     var categoryIds by remember(modal) {
         mutableStateOf(modal?.budget?.categories ?: emptyList())
+    }
+    var accountIds by remember(modal) {
+        mutableStateOf(modal?.budget?.accounts ?: emptyList())
     }
 
     var amountModalVisible by remember(modal) { mutableStateOf(false) }
@@ -103,10 +114,11 @@ internal fun BoxWithConstraintsScope.BudgetModal(
                             name = name,
                             amount = positiveAmount,
                             categories = categoryIds,
+                            accounts = accountIds,
                         )
                     )
                 } else {
-                    onCreate(name, positiveAmount, categoryIds)
+                    onCreate(name, positiveAmount, categoryIds, accountIds)
                 }
 
                 dismiss()
@@ -157,6 +169,16 @@ internal fun BoxWithConstraintsScope.BudgetModal(
             budgetCategoryIds = categoryIds.toImmutableList(),
             onSetBudgetCategoryIds = {
                 categoryIds = it
+            }
+        )
+
+        Spacer(Modifier.height(24.dp))
+
+        AccountsRow(
+            accounts = modal?.accounts ?: emptyList(),
+            budgetAccountIds = accountIds.toImmutableList(),
+            onSetBudgetAccountIds = {
+                accountIds = it
             }
         )
 
@@ -253,6 +275,58 @@ private fun CategoriesRow(
     }
 }
 
+@Composable
+private fun AccountsRow(
+    accounts: List<Account>,
+    budgetAccountIds: ImmutableList<AccountId>,
+
+    onSetBudgetAccountIds: (List<AccountId>) -> Unit,
+) {
+    Text(
+        modifier = Modifier.padding(start = 32.dp),
+        text = if (budgetAccountIds.isEmpty()) {
+            stringResource(R.string.budget_all_accounts)
+        } else {
+            stringResource(R.string.budget_selected_accounts, budgetAccountIds.size.toString())
+        },
+        style = MaterialTheme.typography.titleLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    LazyRow(
+        modifier = Modifier.testTag("budget_accounts_row")
+    ) {
+        item {
+            Spacer(Modifier.width(24.dp))
+        }
+
+        items(items = accounts, key = { it.id.value }) { account ->
+            ListItem(
+                icon = account.icon?.id,
+                defaultIcon = R.drawable.ic_custom_account_s,
+                text = account.name.value,
+                selectedColor = account.color.value.toComposeColor().takeIf {
+                    budgetAccountIds.contains(account.id)
+                }
+            ) { selected ->
+                if (selected) {
+                    onSetBudgetAccountIds(budgetAccountIds.filter { it != account.id })
+                } else {
+                    onSetBudgetAccountIds(budgetAccountIds.plus(account.id))
+                }
+            }
+        }
+
+        item {
+            Spacer(Modifier.width(24.dp))
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun Preview_create() {
@@ -286,8 +360,9 @@ private fun Preview_create() {
                         orderNum = 0.0,
                     ),
                 ),
+                accounts = emptyList(),
             ),
-            onCreate = { _, _, _ -> },
+            onCreate = { _, _, _, _ -> },
             onEdit = {},
             onDelete = {}
         ) {
@@ -335,8 +410,9 @@ private fun Preview_edit() {
                         orderNum = 0.0,
                     ),
                 ),
+                accounts = emptyList(),
             ),
-            onCreate = { _, _, _ -> },
+            onCreate = { _, _, _, _ -> },
             onEdit = {},
             onDelete = {}
         ) {

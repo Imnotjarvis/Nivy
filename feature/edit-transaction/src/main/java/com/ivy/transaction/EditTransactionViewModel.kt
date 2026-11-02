@@ -23,6 +23,7 @@ import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.TransactionId
+import com.ivy.data.model.pickable
 import com.ivy.data.model.primitive.AssociationId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
@@ -34,6 +35,8 @@ import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TagMapper
 import com.ivy.data.repository.mapper.TransactionMapper
+import com.ivy.domain.usecase.creditcard.CreditCardChargeUseCase
+import com.ivy.domain.usecase.creditcard.chargeDateTime
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
@@ -106,6 +109,7 @@ class EditTransactionViewModel @Inject constructor(
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
+    private val creditCardChargeUseCase: CreditCardChargeUseCase,
 ) : ComposeViewModel<EditTransactionViewState, EditTransactionViewEvent>() {
 
     private var transactionType by mutableStateOf(TransactionType.EXPENSE)
@@ -155,7 +159,6 @@ class EditTransactionViewModel @Inject constructor(
                 closeScreen()
                 return@launch
             }
-            accounts = getAccounts
 
             categories = sortCategories()
 
@@ -166,13 +169,20 @@ class EditTransactionViewModel @Inject constructor(
             } ?: TransactionDraft(
                 accountId = defaultAccountId(
                     screen = screen,
-                    accounts = getAccounts
+                    accounts = getAccounts.pickable().ifEmpty { getAccounts }
                 ),
                 categoryId = screen.categoryId,
                 type = screen.type,
                 amount = 0.0,
                 toAmount = 0.0
             )
+
+            accounts = getAccounts.pickable(
+                listOf(
+                    AccountId(loadedTransaction().accountId),
+                    loadedTransaction().toAccountId?.let(::AccountId),
+                )
+            ).toImmutableList()
 
             tags = tagList.await()
             transactionAssociatedTags =
@@ -192,6 +202,7 @@ class EditTransactionViewModel @Inject constructor(
             description = description,
             dateTime = dateTime,
             dueDate = dueDate,
+            chargeDate = chargeDate(),
             accounts = accounts,
             categories = categories,
             account = account,
@@ -205,6 +216,13 @@ class EditTransactionViewModel @Inject constructor(
             tags = tags,
             transactionAssociatedTags = transactionAssociatedTags
         )
+    }
+
+    /** When the card charges the expense, if it's paid with a credit card and not planned. */
+    private fun chargeDate(): LocalDateTime? {
+        if (transactionType != TransactionType.EXPENSE || dueDate != null) return null
+        val purchase = dateTime ?: timeProvider.utcNow()
+        return account?.chargeDateTime(with(timeConverter) { purchase.toLocalDateTime() })
     }
 
     @Composable
@@ -529,7 +547,7 @@ class EditTransactionViewModel @Inject constructor(
                     )
                     .toDomain(transactionMapper)
                     ?.let {
-                        transactionRepo.save(it)
+                        transactionRepo.save(creditCardChargeUseCase.dated(it))
                     }
 
                 tagRepository.findByIds(transactionAssociatedTags).forEach {
@@ -592,7 +610,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct()
+                accounts = accountsAct().pickable(listOf(account?.id, toAccount?.id)).toImmutableList()
             }
         }
     }
@@ -642,7 +660,7 @@ class EditTransactionViewModel @Inject constructor(
                         loanTransactionsUseCase.updateFromTransaction(it)
                         backgroundProcessingStarted = false
                     }
-                    transactionRepo.save(it)
+                    transactionRepo.save(creditCardChargeUseCase.dated(it))
                 }
 
                 context.refreshWidget(WalletBalanceWidgetReceiver::class.java)

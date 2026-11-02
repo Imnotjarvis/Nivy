@@ -64,7 +64,8 @@ class TransactionMapperTest {
                 recurringRuleId = RecurringRuleId,
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
-                loanRecordId = LoanRecordId
+                loanRecordId = LoanRecordId,
+                purchaseDateTime = null
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -117,7 +118,8 @@ class TransactionMapperTest {
                 recurringRuleId = RecurringRuleId,
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
-                loanRecordId = LoanRecordId
+                loanRecordId = LoanRecordId,
+                purchaseDateTime = null
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -170,7 +172,8 @@ class TransactionMapperTest {
                 recurringRuleId = RecurringRuleId,
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
-                loanRecordId = LoanRecordId
+                loanRecordId = LoanRecordId,
+                purchaseDateTime = null
             ),
             fromValue = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -240,7 +243,8 @@ class TransactionMapperTest {
                 recurringRuleId = RecurringRuleId,
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
-                loanRecordId = LoanRecordId
+                loanRecordId = LoanRecordId,
+                purchaseDateTime = null
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -363,7 +367,8 @@ class TransactionMapperTest {
                 recurringRuleId = RecurringRuleId,
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
-                loanRecordId = LoanRecordId
+                loanRecordId = LoanRecordId,
+                purchaseDateTime = null
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -491,7 +496,8 @@ class TransactionMapperTest {
                 recurringRuleId = RecurringRuleId,
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
-                loanRecordId = LoanRecordId
+                loanRecordId = LoanRecordId,
+                purchaseDateTime = null
             ),
             fromValue = PositiveValue(
                 amount = PositiveDouble.unsafe(50.0),

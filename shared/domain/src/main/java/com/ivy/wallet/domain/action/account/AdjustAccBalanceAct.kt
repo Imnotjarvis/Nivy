@@ -43,6 +43,7 @@ class AdjustAccBalanceAct @Inject constructor(
             paidForDateTime = null,
             loanId = null,
             loanRecordId = null,
+            purchaseDateTime = null,
         )
         transactionRepository.save(
             if (diff < 0) {

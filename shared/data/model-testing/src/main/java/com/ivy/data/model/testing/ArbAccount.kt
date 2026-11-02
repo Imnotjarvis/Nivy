@@ -1,5 +1,6 @@
 package com.ivy.data.model.testing
 
+import com.ivy.base.model.AccountType
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.getOrElse
@@ -26,6 +27,10 @@ fun Arb.Companion.account(
         color = Arb.colorInt().bind(),
         icon = Arb.maybe(Arb.iconAsset()).bind(),
         includeInBalance = includeInBalance.getOrElse { Arb.boolean().bind() },
+        type = AccountType.OTHER,
+        archived = false,
+        creditLimit = null,
+        chargeDay = null,
         orderNum = orderNum.getOrElse { Arb.double().bind() },
     )
 }

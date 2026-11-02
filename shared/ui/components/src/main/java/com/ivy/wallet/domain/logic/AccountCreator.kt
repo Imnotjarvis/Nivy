@@ -9,6 +9,7 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.repository.AccountRepository
 import com.ivy.wallet.domain.action.account.AdjustAccBalanceAct
 import com.ivy.wallet.utils.ioThread
@@ -36,6 +37,10 @@ class AccountCreator @Inject constructor(
                     color = ColorInt(data.color.toArgb()),
                     icon = data.icon?.let(IconAsset::from)?.getOrNull(),
                     includeInBalance = data.includeBalance,
+                    type = data.type,
+                    archived = false,
+                    creditLimit = data.creditLimit?.let(PositiveDouble::from)?.getOrNull(),
+                    chargeDay = data.chargeDay,
                     orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
                 )
             }.getOrNull() ?: return@ioThread

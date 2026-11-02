@@ -18,6 +18,7 @@ import com.ivy.data.model.primitive.PositiveInt
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
+import com.ivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.ivy.domain.usecase.transaction.TransactionAmountsUseCase
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -37,6 +38,9 @@ class DueTransactionsUseCaseTest {
     private val transactionAmountsUseCase = mockk<TransactionAmountsUseCase>()
     private val plannedPaymentsGenerator = mockk<PlannedPaymentsGenerator>(relaxed = true)
     private val timeProvider = mockk<TimeProvider>()
+    private val creditCardChargeUseCase = mockk<CreditCardChargeUseCase> {
+        coEvery { dated(any()) } answers { firstArg() }
+    }
 
     private val useCase = DueTransactionsUseCase(
         transactionRepository = transactionRepository,
@@ -44,6 +48,7 @@ class DueTransactionsUseCaseTest {
         currencyRepository = currencyRepository,
         transactionAmountsUseCase = transactionAmountsUseCase,
         plannedPaymentsGenerator = plannedPaymentsGenerator,
+        creditCardChargeUseCase = creditCardChargeUseCase,
         timeProvider = timeProvider,
     )
 
@@ -141,6 +146,7 @@ class DueTransactionsUseCaseTest {
             recurringRuleId = rule.value,
             paidForDateTime = null,
             loanRecordId = null,
+            purchaseDateTime = null,
         ),
         tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(42.0), Usd),

@@ -264,6 +264,7 @@ class LoanTransactionsUseCase @Inject constructor(
         paidForDateTime = null,
         loanId = loan.value,
         loanRecordId = record?.value,
+        purchaseDateTime = null,
     )
 
     /** The first category with "loan" in its name, or a new "Loans" category. */

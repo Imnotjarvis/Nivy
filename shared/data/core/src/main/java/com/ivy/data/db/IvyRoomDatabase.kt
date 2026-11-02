@@ -79,8 +79,10 @@ import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
         ),
         // 133: indices on transactions (TransactionEntity).
         AutoMigration(from = 132, to = 133),
+        // 134: account type, archived, credit limit and charge day; transaction purchase date.
+        AutoMigration(from = 133, to = 134),
     ],
-    version = 133,
+    version = 134,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)

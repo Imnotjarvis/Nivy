@@ -109,6 +109,8 @@ fun TransactionCard(
 ) {
     val type = transaction.getTransactionType()
     val dueDate = transaction.time.takeUnless { transaction.settled }
+    // A credit card expense is listed on its charge date.
+    val purchaseDate = transaction.metadata.purchaseDateTime
     val title = transaction.title?.value
     Column(
         modifier = modifier
@@ -163,10 +165,29 @@ fun TransactionCard(
             )
         }
 
+        if (purchaseDate != null) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .testTag("transaction_purchase_date"),
+                text = stringResource(
+                    R.string.purchased_on,
+                    with(LocalTimeFormatter.current) {
+                        purchaseDate.formatLocal(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+                    }
+                ).uppercase(),
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+
         if (title != null) {
             Spacer(
                 Modifier.height(
-                    if (dueDate != null) 8.dp else 12.dp
+                    if (dueDate != null || purchaseDate != null) 8.dp else 12.dp
                 )
             )
             Text(

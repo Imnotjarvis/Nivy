@@ -104,6 +104,7 @@ class PlannedPaymentsGenerator @Inject constructor(
             paidForDateTime = null,
             loanId = null,
             loanRecordId = null,
+            purchaseDateTime = null,
         )
         transactionRepository.save(
             if (rule.type == TransactionType.INCOME) {

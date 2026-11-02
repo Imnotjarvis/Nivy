@@ -1,5 +1,6 @@
 package com.ivy.data.repository.mapper
 
+import com.ivy.base.model.AccountType
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.ivy.data.db.entity.AccountEntity
@@ -46,6 +47,10 @@ class AccountMapperTest {
             color = ColorInt(value = 42),
             icon = IconAsset.unsafe("icon"),
             includeInBalance = includeInBalance,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 3.14,
         )
 
@@ -88,6 +93,10 @@ class AccountMapperTest {
             color = ColorInt(value = 42),
             icon = IconAsset.unsafe("icon"),
             includeInBalance = includeInBalance,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 42.0,
         )
     }

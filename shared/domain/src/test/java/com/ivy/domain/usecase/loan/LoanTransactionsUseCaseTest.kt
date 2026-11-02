@@ -1,5 +1,6 @@
 package com.ivy.domain.usecase.loan
 
+import com.ivy.base.model.AccountType
 import arrow.core.Some
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.time.TimeProvider
@@ -244,6 +245,10 @@ class LoanTransactionsUseCaseTest {
             color = ColorInt(0),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
     }

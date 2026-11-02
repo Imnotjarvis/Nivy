@@ -43,7 +43,8 @@ internal fun Transaction.toDraft(): TransactionDraft = TransactionDraft(
     toAmount = (this as? Transfer)?.toValue?.amount?.value ?: getFromValue().amount.value,
     title = title?.value,
     description = description?.value,
-    dateTime = time.takeIf { settled },
+    // A credit card expense shows when it was bought; saving dates it on its charge date again.
+    dateTime = (metadata.purchaseDateTime ?: time).takeIf { settled },
     categoryId = category?.value,
     dueDate = time.takeUnless { settled },
     recurringRuleId = metadata.recurringRuleId,

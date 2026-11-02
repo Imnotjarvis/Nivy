@@ -22,7 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ivy.data.model.pickable
 import com.ivy.budgets.model.DisplayBudget
+import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import com.ivy.wallet.ui.theme.components.BudgetBattery
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.wallet.utils.format
@@ -74,6 +76,18 @@ private fun BoxWithConstraintsScope.UI(
             }
         )
 
+        if (state.period != null) {
+            Spacer(Modifier.height(16.dp))
+
+            // Budgets are monthly, so there's no other period to choose.
+            PeriodSelector(
+                period = state.period,
+                onPreviousMonth = { onEvent(BudgetScreenEvent.OnPreviousMonth) },
+                onNextMonth = { onEvent(BudgetScreenEvent.OnNextMonth) },
+                onShowChoosePeriodModal = {},
+            )
+        }
+
         Spacer(Modifier.height(8.dp))
 
         for (item in state.budgets) {
@@ -89,6 +103,7 @@ private fun BoxWithConstraintsScope.UI(
                             budget = item.budget,
                             baseCurrency = state.baseCurrency,
                             categories = state.categories,
+                            accounts = state.accounts.pickable(item.budget.accounts),
                             autoFocusKeyboard = false
                         )
                     )
@@ -119,6 +134,7 @@ private fun BoxWithConstraintsScope.UI(
                         budget = null,
                         baseCurrency = state.baseCurrency,
                         categories = state.categories,
+                        accounts = state.accounts.pickable(),
                     )
                 )
             )
@@ -151,8 +167,8 @@ private fun BoxWithConstraintsScope.UI(
 
     BudgetModal(
         modal = state.budgetModalData,
-        onCreate = { name, amount, categories ->
-            onEvent(BudgetScreenEvent.OnCreateBudget(name, amount, categories))
+        onCreate = { name, amount, categories, accounts ->
+            onEvent(BudgetScreenEvent.OnCreateBudget(name, amount, categories, accounts))
         },
         onEdit = { onEvent(BudgetScreenEvent.OnEditBudget(it)) },
         onDelete = { onEvent(BudgetScreenEvent.OnDeleteBudget(it)) },

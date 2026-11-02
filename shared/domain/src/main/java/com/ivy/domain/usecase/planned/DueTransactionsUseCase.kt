@@ -6,6 +6,7 @@ import com.ivy.data.model.Income
 import com.ivy.data.model.PlannedPaymentRuleId
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
+import com.ivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
@@ -20,6 +21,7 @@ class DueTransactionsUseCase @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val transactionAmountsUseCase: TransactionAmountsUseCase,
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
+    private val creditCardChargeUseCase: CreditCardChargeUseCase,
     private val timeProvider: TimeProvider,
 ) {
     /** Income minus expenses of what's due between [from] and [to], in the base currency. */
@@ -35,7 +37,8 @@ class DueTransactionsUseCase @Inject constructor(
      */
     suspend fun pay(transaction: Transaction): Transaction? {
         if (transaction.settled) return null
-        val paid = transaction.paidNow()
+        // Paid with a credit card, it counts when the card charges it.
+        val paid = creditCardChargeUseCase.dated(transaction.paidNow())
         transactionRepository.save(paid)
         afterHandled(transaction)
         return paid

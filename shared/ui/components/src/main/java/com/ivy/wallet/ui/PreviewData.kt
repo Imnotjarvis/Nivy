@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui
 
+import com.ivy.base.model.AccountType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.ivy.base.model.LoanRecordType
@@ -48,6 +49,10 @@ fun previewAccount(
     color = ColorInt(color.toArgb()),
     icon = icon?.let(IconAsset::unsafe),
     includeInBalance = includeInBalance,
+    type = AccountType.OTHER,
+    archived = false,
+    creditLimit = null,
+    chargeDay = null,
     orderNum = 0.0,
 )
 
@@ -137,6 +142,7 @@ fun previewTransaction(
         paidForDateTime = null,
         loanId = null,
         loanRecordId = null,
+        purchaseDateTime = null,
     )
     val transactionId = TransactionId(id)
     val notBlankTitle = title?.let(NotBlankTrimmedString::unsafe)

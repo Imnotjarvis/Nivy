@@ -1,5 +1,6 @@
 package com.ivy.domain.usecase.planned
 
+import com.ivy.base.model.AccountType
 import com.ivy.base.model.IntervalType
 import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
@@ -122,6 +123,10 @@ class PlannedPaymentsGeneratorTest {
             color = ColorInt(0),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 

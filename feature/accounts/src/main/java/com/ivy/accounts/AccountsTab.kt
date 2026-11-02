@@ -1,5 +1,15 @@
 package com.ivy.accounts
 
+import com.ivy.base.model.AccountType
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.ui.text.style.TextAlign
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.Ivy
+import com.ivy.wallet.ui.displayName
+import com.ivy.wallet.ui.iconName
+import com.ivy.wallet.ui.theme.components.ListItem
+import com.ivy.wallet.utils.format
+import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -144,8 +154,16 @@ private fun BoxWithConstraintsScope.UI(
                 }
                 Spacer(Modifier.height(16.dp))
             }
+
+            if (state.accountTypes.size > 1) {
+                AccountTypeFilter(
+                    types = state.accountTypes,
+                    selected = state.typeFilter,
+                    onSelect = { onEvent(AccountsEvent.OnTypeFilter(it)) }
+                )
+            }
         }
-        items(state.accountsData, key = { it.account.id.value }) {
+        items(state.shownAccountsData, key = { it.account.id.value }) {
             Spacer(Modifier.height(16.dp))
             AccountCard(
                 baseCurrency = state.baseCurrency,
@@ -164,6 +182,30 @@ private fun BoxWithConstraintsScope.UI(
                     TransactionsScreen(
                         accountId = it.account.id.value,
                         categoryId = null
+                    )
+                )
+            }
+        }
+
+        if (state.archivedCount > 0) {
+            item {
+                Spacer(Modifier.height(24.dp))
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onEvent(AccountsEvent.OnShowArchived(!state.showArchived)) }
+                        .padding(vertical = 12.dp)
+                        .testTag("accounts_show_archived"),
+                    text = if (state.showArchived) {
+                        stringResource(R.string.hide_archived_accounts)
+                    } else {
+                        stringResource(R.string.show_archived_accounts, state.archivedCount.toString())
+                    },
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Gray,
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
@@ -228,6 +270,28 @@ private fun AccountCard(
             onBalanceClick = onBalanceClick
         )
 
+        if (accountData.creditUsed != null) {
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .testTag("account_credit_used"),
+                text = account.creditLimit?.let { limit ->
+                    stringResource(
+                        R.string.credit_used_of_limit,
+                        accountData.creditUsed.format(currency),
+                        limit.value.format(currency),
+                        currency
+                    )
+                } ?: stringResource(R.string.credit_used, accountData.creditUsed.format(currency), currency),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+
         if (!compactModeEnabled) {
             Spacer(Modifier.height(12.dp))
 
@@ -282,6 +346,18 @@ private fun AccountHeader(
                 )
             )
 
+            if (account.archived) {
+                Spacer(Modifier.width(8.dp))
+
+                Text(
+                    text = stringResource(R.string.archived),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = account.color.value.toComposeColor().dynamicContrast(),
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+
             if (!account.includeInBalance) {
                 Spacer(Modifier.width(8.dp))
 
@@ -332,6 +408,45 @@ private fun AccountHeader(
     }
 }
 
+@Composable
+private fun AccountTypeFilter(
+    types: ImmutableList<AccountType>,
+    selected: AccountType?,
+    onSelect: (AccountType?) -> Unit,
+) {
+    LazyRow(
+        modifier = Modifier.testTag("accounts_type_filter")
+    ) {
+        item {
+            Spacer(Modifier.width(16.dp))
+
+            ListItem(
+                icon = null,
+                defaultIcon = R.drawable.ic_custom_account_s,
+                text = stringResource(R.string.all_account_types),
+                selectedColor = Ivy.takeIf { selected == null },
+            ) {
+                onSelect(null)
+            }
+        }
+
+        items(items = types) { type ->
+            ListItem(
+                icon = type.iconName(),
+                defaultIcon = R.drawable.ic_custom_account_s,
+                text = type.displayName(),
+                selectedColor = Ivy.takeIf { type == selected },
+            ) {
+                onSelect(type)
+            }
+        }
+
+        item {
+            Spacer(Modifier.width(4.dp))
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
@@ -343,6 +458,10 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 
@@ -353,6 +472,10 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 
@@ -363,6 +486,10 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = IconAsset.unsafe("revolut"),
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 
@@ -373,40 +500,54 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = IconAsset.unsafe("cash"),
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
+        )
+        val accounts = persistentListOf(
+            AccountData(
+                account = acc1,
+                balance = 2125.0,
+                balanceBaseCurrency = null,
+                monthlyExpenses = 920.0,
+                monthlyIncome = 3045.0,
+                creditUsed = null
+            ),
+            AccountData(
+                account = acc2,
+                balance = 12125.21,
+                balanceBaseCurrency = null,
+                monthlyExpenses = 1350.50,
+                monthlyIncome = 8000.48,
+                creditUsed = null
+            ),
+            AccountData(
+                account = acc3,
+                balance = 1200.0,
+                balanceBaseCurrency = 1979.64,
+                monthlyExpenses = 750.0,
+                monthlyIncome = 1000.30,
+                creditUsed = null
+            ),
+            AccountData(
+                account = acc4,
+                balance = 820.0,
+                balanceBaseCurrency = null,
+                monthlyExpenses = 340.0,
+                monthlyIncome = 400.0,
+                creditUsed = null
+            ),
         )
         val state = AccountsState(
             baseCurrency = "BGN",
-            accountsData = persistentListOf(
-                AccountData(
-                    account = acc1,
-                    balance = 2125.0,
-                    balanceBaseCurrency = null,
-                    monthlyExpenses = 920.0,
-                    monthlyIncome = 3045.0
-                ),
-                AccountData(
-                    account = acc2,
-                    balance = 12125.21,
-                    balanceBaseCurrency = null,
-                    monthlyExpenses = 1350.50,
-                    monthlyIncome = 8000.48
-                ),
-                AccountData(
-                    account = acc3,
-                    balance = 1200.0,
-                    balanceBaseCurrency = 1979.64,
-                    monthlyExpenses = 750.0,
-                    monthlyIncome = 1000.30
-                ),
-                AccountData(
-                    account = acc4,
-                    balance = 820.0,
-                    balanceBaseCurrency = null,
-                    monthlyExpenses = 340.0,
-                    monthlyIncome = 400.0
-                ),
-            ),
+            accountsData = accounts,
+            shownAccountsData = accounts,
+            accountTypes = persistentListOf(),
+            typeFilter = null,
+            archivedCount = 0,
+            showArchived = false,
             totalBalanceWithExcluded = "25.54",
             totalBalanceWithExcludedText = "BGN 25.54",
             totalBalanceWithoutExcluded = "25.54",
@@ -430,6 +571,10 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 
@@ -440,6 +585,10 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 
@@ -450,6 +599,10 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = IconAsset.unsafe("revolut"),
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
         )
 
@@ -460,40 +613,54 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             asset = AssetCode.unsafe("USD"),
             icon = IconAsset.unsafe("cash"),
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 0.0,
+        )
+        val accounts = persistentListOf(
+            AccountData(
+                account = acc1,
+                balance = 2125.0,
+                balanceBaseCurrency = null,
+                monthlyExpenses = 920.0,
+                monthlyIncome = 3045.0,
+                creditUsed = null
+            ),
+            AccountData(
+                account = acc2,
+                balance = 12125.21,
+                balanceBaseCurrency = null,
+                monthlyExpenses = 1350.50,
+                monthlyIncome = 8000.48,
+                creditUsed = null
+            ),
+            AccountData(
+                account = acc3,
+                balance = 1200.0,
+                balanceBaseCurrency = 1979.64,
+                monthlyExpenses = 750.0,
+                monthlyIncome = 1000.30,
+                creditUsed = null
+            ),
+            AccountData(
+                account = acc4,
+                balance = 820.0,
+                balanceBaseCurrency = null,
+                monthlyExpenses = 340.0,
+                monthlyIncome = 400.0,
+                creditUsed = null
+            ),
         )
         val state = AccountsState(
             baseCurrency = "BGN",
-            accountsData = persistentListOf(
-                AccountData(
-                    account = acc1,
-                    balance = 2125.0,
-                    balanceBaseCurrency = null,
-                    monthlyExpenses = 920.0,
-                    monthlyIncome = 3045.0
-                ),
-                AccountData(
-                    account = acc2,
-                    balance = 12125.21,
-                    balanceBaseCurrency = null,
-                    monthlyExpenses = 1350.50,
-                    monthlyIncome = 8000.48
-                ),
-                AccountData(
-                    account = acc3,
-                    balance = 1200.0,
-                    balanceBaseCurrency = 1979.64,
-                    monthlyExpenses = 750.0,
-                    monthlyIncome = 1000.30
-                ),
-                AccountData(
-                    account = acc4,
-                    balance = 820.0,
-                    balanceBaseCurrency = null,
-                    monthlyExpenses = 340.0,
-                    monthlyIncome = 400.0
-                ),
-            ),
+            accountsData = accounts,
+            shownAccountsData = accounts,
+            accountTypes = persistentListOf(),
+            typeFilter = null,
+            archivedCount = 0,
+            showArchived = false,
             totalBalanceWithExcluded = "25.54",
             totalBalanceWithExcludedText = "BGN 25.54",
             totalBalanceWithoutExcluded = "25.54",

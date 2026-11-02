@@ -1,6 +1,7 @@
 package com.ivy.budgets
 
 import com.ivy.budgets.model.DisplayBudget
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Budget
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
@@ -12,9 +13,12 @@ sealed interface BudgetScreenEvent {
         val name: NotBlankTrimmedString,
         val amount: PositiveDouble,
         val categories: List<CategoryId>,
+        val accounts: List<AccountId>,
     ) : BudgetScreenEvent
     data class OnEditBudget(val budget: Budget) : BudgetScreenEvent
     data class OnDeleteBudget(val budget: Budget) : BudgetScreenEvent
     data class OnReorderModalVisible(val visible: Boolean) : BudgetScreenEvent
     data class OnBudgetModalData(val budgetModalData: BudgetModalData?) : BudgetScreenEvent
+    data object OnPreviousMonth : BudgetScreenEvent
+    data object OnNextMonth : BudgetScreenEvent
 }
