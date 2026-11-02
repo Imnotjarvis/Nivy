@@ -322,6 +322,8 @@
     <string name="total_budget">Total Budget</string>
     <string name="category_budget">Category Budget</string>
     <string name="multi_category_budget">Multi-Category (%1$s) Budget</string>
+    <string name="budget_all_accounts">All accounts</string>
+    <string name="budget_selected_accounts">Accounts (%1$s)</string>
     <string name="account_type">Account type</string>
     <string name="account_type_cash">Cash</string>
     <string name="account_type_bank">Bank</string>
