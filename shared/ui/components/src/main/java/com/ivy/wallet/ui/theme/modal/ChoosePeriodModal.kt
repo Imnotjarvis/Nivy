@@ -35,6 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.IntervalType
 import com.ivy.domain.RootScreen
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.LocalPeriodState
 import com.ivy.wallet.data.model.FromToTimeRange
@@ -43,7 +45,6 @@ import com.ivy.wallet.data.model.Month.Companion.fromMonthValue
 import com.ivy.wallet.data.model.Month.Companion.monthsList
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.design.utils.isKeyboardVisible
-import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -416,7 +417,9 @@ private fun IntervalFromToDate(
         }
 
         Text(
-            text = dateTime?.toLocalDate()?.formatLocal("dd MMM, yyyy")
+            text = dateTime?.let {
+                with(LocalTimeFormatter.current) { it.format(TimeFormatter.Style.DateOnly(includeWeekDay = false)) }
+            }
                 ?: stringResource(R.string.add_date),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = if (dateTime != null) MaterialTheme.colorScheme.onSurface else Gray,

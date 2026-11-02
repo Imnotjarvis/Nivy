@@ -27,7 +27,8 @@ android {
     }
 
     androidResources {
-        generateLocaleConfig = true
+        // The app is in English only: other languages from libraries stay out too.
+        localeFilters += "en"
     }
 
     signingConfigs {

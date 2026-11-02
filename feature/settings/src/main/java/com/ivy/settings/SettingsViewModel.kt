@@ -2,10 +2,6 @@ package com.ivy.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -28,6 +24,7 @@ import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.ivy.ui.time.DateFormatState
 import com.ivy.wallet.ThemeState
 import com.ivy.wallet.utils.getISOFormattedDateTime
 import com.ivy.wallet.utils.ioThread
@@ -66,6 +63,7 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val timeProvider: TimeProvider,
     private val toaster: Toaster,
+    private val dateFormatState: DateFormatState,
 ) : ComposeViewModel<SettingsState, SettingsEvent>() {
 
     private val currencyCode = mutableStateOf("")
@@ -94,9 +92,9 @@ class SettingsViewModel @Inject constructor(
             hideCurrentBalance = hideCurrentBalance.value,
             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
             startDateOfMonth = startDateOfMonth.intValue.toString(),
+            dateFormat = dateFormatState.format,
             progressState = progressState.value,
             hideIncome = hideIncome.value,
-            languageOptionVisible = isLanguageOptionVisible()
         )
     }
 
@@ -148,10 +146,6 @@ class SettingsViewModel @Inject constructor(
         startDateOfMonth.intValue = startDayOfMonthAct()
     }
 
-    private fun isLanguageOptionVisible(): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-    }
-
     override fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.SetCurrency -> setCurrency(event.newCurrency)
@@ -175,8 +169,10 @@ class SettingsViewModel @Inject constructor(
 
             is SettingsEvent.SetStartDateOfMonth -> setStartDateOfMonth(event.startDate)
 
+            // Saved; the root view model updates the format the app's dates use.
+            is SettingsEvent.SetDateFormat -> viewModelScope.launch { appPreferences.setDateFormat(event.format) }
+
             SettingsEvent.DeleteAllUserData -> deleteAllUserData()
-            SettingsEvent.SwitchLanguage -> switchLanguage()
         }
     }
 
@@ -337,15 +333,6 @@ class SettingsViewModel @Inject constructor(
             deleteAllDataUseCase()
             nav.resetBackStack()
             nav.navigateTo(OnboardingScreen)
-        }
-    }
-
-    private fun switchLanguage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS)
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.data = Uri.fromParts("package", context.packageName, null)
-            context.applicationContext.startActivity(intent)
         }
     }
 }

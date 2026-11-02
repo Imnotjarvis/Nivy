@@ -33,12 +33,13 @@ import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.forDisplay
 import com.ivy.wallet.ui.component.transaction.TypeAmountCurrency
 import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.ui.previewPlannedPaymentRule
-import com.ivy.wallet.utils.formatLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
@@ -233,7 +234,9 @@ private fun RuleTextRow(
             )
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
-                text = startDate?.toLocalDate()?.formatLocal("dd MMM, yyyy")
+                text = startDate?.let {
+                    with(LocalTimeFormatter.current) { it.format(TimeFormatter.Style.DateOnly(includeWeekDay = false)) }
+                }
                     ?: stringResource(R.string.null_text),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
@@ -241,7 +244,9 @@ private fun RuleTextRow(
                 )
             )
         } else {
-            val startDateFormatted = startDate?.toLocalDate()?.formatLocal("MMM. dd")
+            val startDateFormatted = startDate?.let {
+                with(LocalTimeFormatter.current) { it.format(TimeFormatter.Style.DateOnly(includeWeekDay = false)) }
+            }
             Text(
                 text = stringResource(R.string.starts_date, startDateFormatted ?: ""),
                 style = MaterialTheme.typography.numberLabelMedium.copy(

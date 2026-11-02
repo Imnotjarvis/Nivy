@@ -6,6 +6,8 @@ import com.ivy.base.resource.TestResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.ui.R
+import com.ivy.base.model.DateDisplayFormat
+import com.ivy.ui.time.DateFormatState
 import com.ivy.ui.time.DevicePreferences
 import com.ivy.ui.time.TimeFormatter.Style
 import io.kotest.matchers.shouldBe
@@ -25,9 +27,8 @@ class IvyTimeFormatterTest {
 
     private val timeProvider = mockk<TimeProvider>()
     private val converter = mockk<TimeConverter>()
-    private val devicePreferences = mockk<DevicePreferences> {
-        every { locale() } returns Locale.ENGLISH
-    }
+    private val devicePreferences = mockk<DevicePreferences>()
+    private val dateFormatState = DateFormatState()
 
     private lateinit var formatter: IvyTimeFormatter
 
@@ -41,7 +42,8 @@ class IvyTimeFormatterTest {
             },
             timeProvider = timeProvider,
             converter = converter,
-            devicePreferences = devicePreferences
+            devicePreferences = devicePreferences,
+            dateFormatState = dateFormatState,
         )
     }
 
@@ -79,7 +81,7 @@ class IvyTimeFormatterTest {
             date = LocalDateTime.of(2024, 8, 29, 0, 0),
             style = Style.DateOnly(includeWeekDay = true),
             today = LocalDate.of(2023, 8, 7),
-            expectedFormatted = "Thu, Aug 29 2024"
+            expectedFormatted = "Thu, Aug 29, 2024"
         ),
         NO_WEEK_DAY__TODAY(
             date = LocalDateTime.of(2021, 1, 1, 0, 0),
@@ -109,7 +111,7 @@ class IvyTimeFormatterTest {
             date = LocalDateTime.of(2024, 8, 29, 0, 0),
             style = Style.DateOnly(includeWeekDay = false),
             today = LocalDate.of(2023, 8, 7),
-            expectedFormatted = "Aug 29 2024"
+            expectedFormatted = "Aug 29, 2024"
         ),
     }
 
@@ -154,14 +156,14 @@ class IvyTimeFormatterTest {
             style = Style.DateAndTime(includeWeekDay = true),
             today = LocalDate.of(2022, 1, 1),
             is24HourFormat = false,
-            expectedFormatted = "Yesterday, Dec 31 2021 11:59 PM"
+            expectedFormatted = "Yesterday, Dec 31, 2021 11:59 PM"
         ),
         NEW_YEAR_EVE_24H(
             date = LocalDateTime.of(2021, 12, 31, 23, 59),
             style = Style.DateAndTime(includeWeekDay = true),
             today = LocalDate.of(2022, 1, 1),
             is24HourFormat = true,
-            expectedFormatted = "Yesterday, Dec 31 2021 23:59"
+            expectedFormatted = "Yesterday, Dec 31, 2021 23:59"
         ),
         RANDOM_DAY_7AM(
             date = LocalDateTime.of(2023, 5, 4, 7, 20),
@@ -246,5 +248,59 @@ class IvyTimeFormatterTest {
 
         // Then
         formatted shouldBe testCase.expectedFormatted
+    }
+
+    enum class DateFormatTestCase(
+        val format: DateDisplayFormat,
+        val today: LocalDate,
+        val expectedFormatted: String,
+    ) {
+        DAY_MONTH_YEAR__CURRENT_YEAR(DateDisplayFormat.DAY_MONTH_YEAR, LocalDate.of(2024, 1, 1), "Thu, 29 Aug"),
+        DAY_MONTH_YEAR__OTHER_YEAR(DateDisplayFormat.DAY_MONTH_YEAR, LocalDate.of(2025, 1, 1), "Thu, 29 Aug 2024"),
+        MONTH_DAY_YEAR__CURRENT_YEAR(DateDisplayFormat.MONTH_DAY_YEAR, LocalDate.of(2024, 1, 1), "Thu, Aug 29"),
+        MONTH_DAY_YEAR__OTHER_YEAR(DateDisplayFormat.MONTH_DAY_YEAR, LocalDate.of(2025, 1, 1), "Thu, Aug 29, 2024"),
+        NUMERIC__CURRENT_YEAR(DateDisplayFormat.NUMERIC_DAY_MONTH_YEAR, LocalDate.of(2024, 1, 1), "Thu, 29/08/2024"),
+        NUMERIC__OTHER_YEAR(DateDisplayFormat.NUMERIC_DAY_MONTH_YEAR, LocalDate.of(2025, 1, 1), "Thu, 29/08/2024"),
+        ISO__CURRENT_YEAR(DateDisplayFormat.ISO, LocalDate.of(2024, 1, 1), "Thu, 2024-08-29"),
+        ISO__OTHER_YEAR(DateDisplayFormat.ISO, LocalDate.of(2025, 1, 1), "Thu, 2024-08-29"),
+    }
+
+    @Test
+    fun `dates follow the chosen format`(
+        @TestParameter testCase: DateFormatTestCase
+    ) {
+        // Given
+        every { timeProvider.localDateNow() } returns testCase.today
+        dateFormatState.format = testCase.format
+
+        // When
+        val formatted = with(formatter) {
+            LocalDateTime.of(2024, 8, 29, 14, 30).format(Style.DateOnly(includeWeekDay = true))
+        }
+
+        // Then
+        formatted shouldBe testCase.expectedFormatted
+    }
+
+    @Test
+    fun `month and day names are in English whatever the phone's language`() {
+        // Given
+        val phoneLocale = Locale.getDefault()
+        Locale.setDefault(Locale.ITALIAN)
+        every { timeProvider.localDateNow() } returns LocalDate.of(2024, 1, 1)
+        every { devicePreferences.is24HourFormat() } returns false
+        dateFormatState.format = DateDisplayFormat.DAY_MONTH_YEAR
+
+        try {
+            // When
+            val formatted = with(formatter) {
+                LocalDateTime.of(2024, 8, 29, 14, 30).format(Style.DateAndTime(includeWeekDay = true))
+            }
+
+            // Then
+            formatted shouldBe "Thu, 29 Aug 2:30 PM"
+        } finally {
+            Locale.setDefault(phoneLocale)
+        }
     }
 }

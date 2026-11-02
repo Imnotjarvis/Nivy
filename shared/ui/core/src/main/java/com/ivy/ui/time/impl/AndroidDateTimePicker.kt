@@ -1,5 +1,6 @@
 package com.ivy.ui.time.impl
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -15,6 +16,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ivy.base.time.TimeConverter
@@ -32,6 +35,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,8 +50,16 @@ class AndroidDateTimePicker @Inject constructor(
 
     @Composable
     override fun Content() {
-        datePickerViewState?.let { DatePicker(it) }
-        timePickerViewState?.let { TimePicker(it) }
+        // The app is in English: the pickers' month and day names too. Only they get the
+        // English locale, so the rest of the app keeps the phone's region for numbers.
+        val configuration = LocalConfiguration.current
+        val english = remember(configuration) {
+            Configuration(configuration).apply { setLocale(Locale.ENGLISH) }
+        }
+        CompositionLocalProvider(LocalConfiguration provides english) {
+            datePickerViewState?.let { DatePicker(it) }
+            timePickerViewState?.let { TimePicker(it) }
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
