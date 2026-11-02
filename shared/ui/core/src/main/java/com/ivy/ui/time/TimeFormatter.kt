@@ -8,7 +8,6 @@ interface TimeFormatter {
     fun LocalDateTime.format(style: Style): String
     fun LocalTime.format(): String
     fun Instant.formatLocal(style: Style): String
-    fun Instant.formatUtc(style: Style): String
 
     /**
      * Possible formats:

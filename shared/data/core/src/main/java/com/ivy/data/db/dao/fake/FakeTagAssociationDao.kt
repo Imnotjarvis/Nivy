@@ -13,14 +13,6 @@ class FakeTagAssociationDao : TagAssociationDao, WriteTagAssociationDao {
         return items
     }
 
-    override suspend fun findById(id: UUID): TagAssociationEntity? {
-        return items.find { it.tagId == id }
-    }
-
-    override suspend fun findByAssociatedId(associatedId: UUID): TagAssociationEntity? {
-        return items.find { it.associatedId == associatedId }
-    }
-
     override suspend fun findByAllAssociatedIdForTagId(tagIds: List<UUID>): Map<UUID, List<TagAssociationEntity>> {
         val setOfIds = tagIds.toSet()
         return items.filter { setOfIds.contains(it.tagId) }.groupBy(

@@ -7,12 +7,9 @@ import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
-import com.ivy.data.model.Expense
-import com.ivy.data.model.Income
 import com.ivy.data.model.TagId
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.TransactionId
-import com.ivy.data.model.Transfer
 import com.ivy.data.model.primitive.AssociationId
 import com.ivy.data.model.primitive.NonNegativeLong
 import com.ivy.data.model.primitive.toNonNegative
@@ -39,47 +36,6 @@ class TransactionRepository @Inject constructor(
             }
         )
     }
-
-    suspend fun findAllIncomeByAccount(
-        accountId: AccountId
-    ): List<Income> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByTypeAndAccount(
-                type = TransactionType.INCOME,
-                accountId = accountId.value
-            )
-        }
-    ).filterIsInstance<Income>()
-
-    suspend fun findAllExpenseByAccount(
-        accountId: AccountId
-    ): List<Expense> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByTypeAndAccount(
-                type = TransactionType.EXPENSE,
-                accountId = accountId.value
-            )
-        }
-    ).filterIsInstance<Expense>()
-
-    suspend fun findAllTransferByAccount(
-        accountId: AccountId
-    ): List<Transfer> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByTypeAndAccount(
-                type = TransactionType.TRANSFER,
-                accountId = accountId.value
-            )
-        }
-    ).filterIsInstance<Transfer>()
-
-    suspend fun findAllTransfersToAccount(
-        toAccountId: AccountId
-    ): List<Transfer> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllTransfersToAccount(toAccountId = toAccountId.value)
-        }
-    ).filterIsInstance<Transfer>()
 
     suspend fun findAllBetween(
         startDate: Instant,

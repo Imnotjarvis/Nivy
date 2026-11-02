@@ -11,10 +11,7 @@ import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.invalidTransactionEntity
 import com.ivy.data.model.AccountId
-import com.ivy.data.model.Expense
-import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
-import com.ivy.data.model.Transfer
 import com.ivy.data.model.testing.ModelFixtures
 import com.ivy.data.model.testing.accountId
 import com.ivy.data.model.testing.transaction
@@ -139,77 +136,6 @@ class TransactionRepositoryTest {
         daoMethod = transactionDao::findAll,
         repoMethod = repository::findAll
     )
-
-    @Test
-    fun findAllIncomeByAccount() {
-        val account = ModelFixtures.AccountId
-
-        transactionsTestCase(
-            daoMethod = {
-                transactionDao.findAllByTypeAndAccount(
-                    type = TransactionType.INCOME,
-                    accountId = account.value
-                )
-            },
-            repoMethod = {
-                repository.findAllIncomeByAccount(account)
-            },
-            mapExpectedResult = { it.filterIsInstance<Income>() }
-        )
-    }
-
-    @Test
-    fun findAllExpenseByAccount() {
-        val account = ModelFixtures.AccountId
-
-        transactionsTestCase(
-            daoMethod = {
-                transactionDao.findAllByTypeAndAccount(
-                    type = TransactionType.EXPENSE,
-                    accountId = account.value
-                )
-            },
-            repoMethod = {
-                repository.findAllExpenseByAccount(account)
-            },
-            mapExpectedResult = { it.filterIsInstance<Expense>() }
-        )
-    }
-
-    @Test
-    fun findAllTransferByAccount() {
-        val account = ModelFixtures.AccountId
-
-        transactionsTestCase(
-            daoMethod = {
-                transactionDao.findAllByTypeAndAccount(
-                    type = TransactionType.TRANSFER,
-                    accountId = account.value
-                )
-            },
-            repoMethod = {
-                repository.findAllTransferByAccount(account)
-            },
-            mapExpectedResult = { it.filterIsInstance<Transfer>() }
-        )
-    }
-
-    @Test
-    fun findAllTransfersToAccount() {
-        val account = ModelFixtures.AccountId
-
-        transactionsTestCase(
-            daoMethod = {
-                transactionDao.findAllTransfersToAccount(
-                    toAccountId = account.value
-                )
-            },
-            repoMethod = {
-                repository.findAllTransfersToAccount(account)
-            },
-            mapExpectedResult = { it.filterIsInstance<Transfer>() }
-        )
-    }
 
     @Test
     fun `find all by ids`() {

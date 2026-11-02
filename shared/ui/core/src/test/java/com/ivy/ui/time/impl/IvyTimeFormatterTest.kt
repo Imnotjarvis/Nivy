@@ -18,7 +18,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
 import java.util.Locale
 
 @RunWith(TestParameterInjector::class)
@@ -244,21 +243,6 @@ class IvyTimeFormatterTest {
 
         // When
         val formatted = with(formatter) { instant.formatLocal(testCase.style) }
-
-        // Then
-        formatted shouldBe testCase.expectedFormatted
-    }
-
-    @Test
-    fun `validate Instant - formatUtc (date-only)`(
-        @TestParameter testCase: DateOnlyTestCases
-    ) {
-        // Given
-        every { timeProvider.localDateNow() } returns testCase.today
-        val instant = testCase.date.toInstant(ZoneOffset.UTC)
-
-        // When
-        val formatted = with(formatter) { instant.formatUtc(testCase.style) }
 
         // Then
         formatted shouldBe testCase.expectedFormatted

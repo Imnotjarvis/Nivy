@@ -10,7 +10,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -72,11 +71,6 @@ class IvyTimeFormatter @Inject constructor(
     override fun Instant.formatLocal(style: TimeFormatter.Style): String {
         val instant = this
         val localDateTime = with(converter) { instant.toLocalDateTime() }
-        return localDateTime.format(style)
-    }
-
-    override fun Instant.formatUtc(style: TimeFormatter.Style): String {
-        val localDateTime = this.atZone(ZoneOffset.UTC).toLocalDateTime()
         return localDateTime.format(style)
     }
 

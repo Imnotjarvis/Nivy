@@ -16,22 +16,6 @@ interface TransactionDao {
     suspend fun hasTransactions(): Boolean
 
     @Query(
-        "SELECT * FROM transactions WHERE type = :type and accountId = :accountId ORDER BY dateTime DESC"
-    )
-    suspend fun findAllByTypeAndAccount(
-        type: TransactionType,
-        accountId: UUID
-    ): List<TransactionEntity>
-
-    @Query(
-        "SELECT * FROM transactions WHERE type = :type and toAccountId = :toAccountId ORDER BY dateTime DESC"
-    )
-    suspend fun findAllTransfersToAccount(
-        toAccountId: UUID,
-        type: TransactionType = TransactionType.TRANSFER
-    ): List<TransactionEntity>
-
-    @Query(
         "SELECT * FROM transactions WHERE dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
     )
     suspend fun findAllBetween(
