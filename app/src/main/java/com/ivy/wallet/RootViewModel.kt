@@ -99,6 +99,9 @@ class RootViewModel @Inject constructor(
                 // initial app locked state
                 _appLocked.value = appPreferences.isAppLockEnabled()
 
+                // Navigation is a singleton that outlives activities: a widget's task-clearing
+                // launch would otherwise put the old activity's screens behind the new one.
+                nav.resetBackStack()
                 if (isOnboardingCompleted()) {
                     navigateOnboardedUser(intent)
                 } else {
@@ -194,6 +197,9 @@ class RootViewModel @Inject constructor(
     @Suppress("MagicNumber")
     fun startUserInactiveTimeCounter() {
         if (userInactiveJob != null && userInactiveJob!!.isActive) return
+        // Counts from this pause: after a timed lock the count stayed at the limit, so every
+        // later pause, a file picker included, locked the app at once.
+        resetUserInactiveTimer()
 
         userInactiveJob = viewModelScope.launch(Dispatchers.IO) {
             while (userInactiveTime.get() < USER_INACTIVITY_TIME_LIMIT &&

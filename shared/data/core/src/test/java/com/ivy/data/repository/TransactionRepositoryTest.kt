@@ -64,6 +64,23 @@ class TransactionRepositoryTest {
     )
 
     @Test
+    fun `finding many ids queries at most 999 at a time`() = runTest {
+        // given: more ids than SQLite before 3.32 (Android 9 to 11) allows in one query
+        val ids = List(1500) { com.ivy.data.model.TransactionId(java.util.UUID.randomUUID()) }
+        val queried = mutableListOf<Int>()
+        coEvery { transactionDao.findByIds(any()) } answers {
+            queried += firstArg<List<java.util.UUID>>().size
+            emptyList()
+        }
+
+        // when
+        repository.findByIds(ids)
+
+        // then
+        queried shouldBe listOf(999, 501)
+    }
+
+    @Test
     fun `find by id - not existing`() = runTest {
         // given
         val transactionId = ModelFixtures.TransactionId

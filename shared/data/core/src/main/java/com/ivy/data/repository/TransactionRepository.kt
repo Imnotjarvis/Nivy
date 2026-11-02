@@ -248,7 +248,9 @@ class TransactionRepository @Inject constructor(
             val tagMap = async { findTagsForTransactionIds(ids) }
             retrieveTrns(
                 dbCall = {
-                    transactionDao.findByIds(ids.map { it.value })
+                    // SQLite before 3.32 (Android 9 to 11) allows at most 999 variables a query.
+                    ids.map { it.value }.chunked(MAX_SQL_LITE_QUERY_SIZE)
+                        .flatMap { transactionDao.findByIds(it) }
                 },
                 retrieveTags = {
                     tagMap.await()[it.id] ?: emptyList()
@@ -351,3 +353,5 @@ class TransactionRepository @Inject constructor(
         }
     }
 }
+
+private const val MAX_SQL_LITE_QUERY_SIZE = 999
