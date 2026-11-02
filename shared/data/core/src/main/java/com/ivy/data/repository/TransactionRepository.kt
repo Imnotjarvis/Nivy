@@ -40,47 +40,6 @@ class TransactionRepository @Inject constructor(
         )
     }
 
-    suspend fun findAllIncomeByAccount(
-        accountId: AccountId
-    ): List<Income> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByTypeAndAccount(
-                type = TransactionType.INCOME,
-                accountId = accountId.value
-            )
-        }
-    ).filterIsInstance<Income>()
-
-    suspend fun findAllExpenseByAccount(
-        accountId: AccountId
-    ): List<Expense> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByTypeAndAccount(
-                type = TransactionType.EXPENSE,
-                accountId = accountId.value
-            )
-        }
-    ).filterIsInstance<Expense>()
-
-    suspend fun findAllTransferByAccount(
-        accountId: AccountId
-    ): List<Transfer> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByTypeAndAccount(
-                type = TransactionType.TRANSFER,
-                accountId = accountId.value
-            )
-        }
-    ).filterIsInstance<Transfer>()
-
-    suspend fun findAllTransfersToAccount(
-        toAccountId: AccountId
-    ): List<Transfer> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllTransfersToAccount(toAccountId = toAccountId.value)
-        }
-    ).filterIsInstance<Transfer>()
-
     suspend fun findAllBetween(
         startDate: Instant,
         endDate: Instant

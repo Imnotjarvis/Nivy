@@ -24,23 +24,6 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         return findAll().isNotEmpty()
     }
 
-    override suspend fun findAllByTypeAndAccount(
-        type: TransactionType,
-        accountId: UUID
-    ): List<TransactionEntity> {
-        return items.filter { type == it.type && it.accountId == accountId }
-            .sortedByDescending { it.dateTime }
-    }
-
-    override suspend fun findAllTransfersToAccount(
-        toAccountId: UUID,
-        type: TransactionType
-    ): List<TransactionEntity> {
-        return items.filter {
-            it.type == TransactionType.TRANSFER && it.toAccountId == toAccountId
-        }.sortedByDescending { it.dateTime }
-    }
-
     override suspend fun findAllBetween(
         startDate: Instant,
         endDate: Instant

@@ -14,10 +14,6 @@ class FakeBudgetDao : BudgetDao, WriteBudgetDao {
         return items
     }
 
-    override suspend fun findById(id: UUID): BudgetEntity? {
-        return items.find { it.id == id }
-    }
-
     override suspend fun findMaxOrderNum(): Double? {
         return items.maxOfOrNull { it.orderId }
     }

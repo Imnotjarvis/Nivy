@@ -23,25 +23,6 @@ import com.ivy.wallet.utils.toLowerCaseLocal
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 
-@Composable
-fun ItemIconL(
-    iconName: String?,
-    modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
-    iconContentScale: ContentScale? = null,
-    default: (@Composable () -> Unit)? = null
-) {
-    ItemIcon(
-        modifier = modifier
-            .size(64.dp),
-        size = "l",
-        iconName = iconName,
-        tint = tint,
-        iconContentScale = iconContentScale,
-        default = default
-    )
-}
-
 // ItemIcon draws either the custom icon or the default one, never both, so modifier reaches
 // only one of them.
 @Suppress("ModifierReused", "ModifierNotUsedAtRoot", "ComposeModifierReused")
@@ -288,14 +269,6 @@ fun fallbackToNewIconFormat(
         } catch (e: Exception) {
             null
         }
-    }
-}
-
-@Preview
-@Composable
-private fun Preview_L() {
-    IvyWalletComponentPreview {
-        ItemIconL(iconName = "dna")
     }
 }
 

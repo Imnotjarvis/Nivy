@@ -48,11 +48,6 @@ class LoanRepository @Inject constructor(
     }
 
     /** Newest first. */
-    suspend fun findAllRecords(): List<LoanRecord> = withContext(dispatchersProvider.io) {
-        loanRecordDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
-    }
-
-    /** Newest first. */
     suspend fun findRecordsByLoanId(loanId: LoanId): List<LoanRecord> =
         withContext(dispatchersProvider.io) {
             loanRecordDao.findAllByLoanId(loanId.value)

@@ -11,7 +11,6 @@ sealed interface OnboardingEvent {
     data object LoginOfflineAccount : OnboardingEvent
     data object StartImport : OnboardingEvent
     data object ImportSkip : OnboardingEvent
-    data class ImportFinished(val success: Boolean) : OnboardingEvent
     data object StartFresh : OnboardingEvent
     data class SetBaseCurrency(val baseCurrency: IvyCurrency) : OnboardingEvent
     data class EditAccount(val account: Account, val newBalance: Double) : OnboardingEvent

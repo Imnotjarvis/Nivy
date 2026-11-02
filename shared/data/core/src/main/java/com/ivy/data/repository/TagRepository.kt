@@ -33,11 +33,6 @@ class TagRepository @Inject constructor(
         getDateWriteDeleteEvent = DataWriteEvent::DeleteTags,
     )
 
-    suspend fun findById(id: TagId): Tag? = memo.findById(
-        id = id,
-        findByIdOperation = ::findByIdOperation
-    )
-
     suspend fun findByIds(ids: List<TagId>): List<Tag> = memo.findByIds(
         ids = ids,
         findByIdOperation = ::findByIdOperation,

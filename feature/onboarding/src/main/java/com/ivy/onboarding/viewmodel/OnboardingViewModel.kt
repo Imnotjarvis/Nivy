@@ -141,7 +141,6 @@ class OnboardingViewModel @Inject constructor(
                 is OnboardingEvent.CreateCategory -> createCategory(event.data)
                 is OnboardingEvent.EditAccount -> editAccount(event.account, event.newBalance)
                 is OnboardingEvent.EditCategory -> editCategory(event.updatedCategory)
-                is OnboardingEvent.ImportFinished -> importFinished(event.success)
                 OnboardingEvent.ImportSkip -> importSkip()
                 OnboardingEvent.LoginOfflineAccount -> loginOfflineAccount()
                 OnboardingEvent.OnAddAccountsDone -> onAddAccountsDone()

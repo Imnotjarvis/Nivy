@@ -19,10 +19,6 @@ class PlannedPaymentRuleRepository @Inject constructor(
     private val mapper: PlannedPaymentRuleMapper,
     private val dispatchersProvider: DispatchersProvider,
 ) {
-    /** Largest amount first, then by start date. */
-    suspend fun findAll(): List<PlannedPaymentRule> = withContext(dispatchersProvider.io) {
-        plannedPaymentRuleDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
-    }
 
     suspend fun findAllByOneTime(oneTime: Boolean): List<PlannedPaymentRule> =
         withContext(dispatchersProvider.io) {
