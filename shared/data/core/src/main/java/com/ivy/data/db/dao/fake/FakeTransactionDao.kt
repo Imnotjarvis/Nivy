@@ -184,36 +184,14 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
             .sortedByDescending { it.dateTime }
     }
 
-    override suspend fun countByTitleMatchingPattern(pattern: String): Long {
-        return items.count { it.title?.contains(pattern) == true }.toLong()
-    }
-
     override suspend fun findAllByCategory(categoryId: UUID): List<TransactionEntity> {
         return items.filter { it.categoryId == categoryId }
             .sortedByDescending { it.dateTime }
     }
 
-    override suspend fun countByTitleMatchingPatternAndCategoryId(
-        pattern: String,
-        categoryId: UUID
-    ): Long {
-        return items.count {
-            it.title?.contains(pattern) == true && it.categoryId == categoryId
-        }.toLong()
-    }
-
     override suspend fun findAllByAccount(accountId: UUID): List<TransactionEntity> {
         return items.filter { it.accountId == accountId }
             .sortedByDescending { it.dateTime }
-    }
-
-    override suspend fun countByTitleMatchingPatternAndAccountId(
-        pattern: String,
-        accountId: UUID
-    ): Long {
-        return items.count {
-            it.title?.contains(pattern) == true && it.accountId == accountId
-        }.toLong()
     }
 
     override suspend fun findLoanTransaction(loanId: UUID): TransactionEntity? {

@@ -566,8 +566,12 @@ class EditTransactionViewModel @Inject constructor(
         updateTitleSuggestions()
     }
 
+    private var titleSuggestionsJob: Job? = null
+
     private fun updateTitleSuggestions(title: String? = loadedTransaction().title) {
-        viewModelScope.launch {
+        // Each keystroke asks again: an older, slower lookup must not overwrite a newer one.
+        titleSuggestionsJob?.cancel()
+        titleSuggestionsJob = viewModelScope.launch {
             titleSuggestions = ioThread {
                 smartTitleSuggestionsLogic.suggest(
                     title = title,
