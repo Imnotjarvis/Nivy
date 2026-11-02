@@ -31,7 +31,7 @@ import com.ivy.design.system.typography.numberBodyLarge
 fun CustomExchangeRateCard(
     fromCurrencyCode: String,
     toCurrencyCode: String,
-    exchangeRate: Double,
+    exchangeRate: Double?,
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.exchange_rate),
     onRefresh: () -> Unit = {},
@@ -102,7 +102,7 @@ fun CustomExchangeRateCard(
                 )
                 IvyIcon(icon = R.drawable.ic_arrow_right, tint = Orange)
                 Text(
-                    text = exchangeRate.format(IvyCurrency.getDecimalPlaces(toCurrencyCode)),
+                    text = exchangeRate?.format(IvyCurrency.getDecimalPlaces(toCurrencyCode)) ?: "?",
                     style = MaterialTheme.typography.numberBodyLarge.copy(
                         color = Orange,
                         fontWeight = FontWeight.ExtraBold

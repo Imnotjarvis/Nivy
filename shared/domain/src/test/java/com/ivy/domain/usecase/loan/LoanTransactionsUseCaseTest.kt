@@ -161,6 +161,26 @@ class LoanTransactionsUseCaseTest {
         converted shouldBe PositiveDouble.unsafe(100.0)
     }
 
+    @Test
+    fun `changing a loan's type flips the records' existing transactions`() = runTest {
+        // given: a borrowed loan, repaid with an expense, is changed to a lent one
+        val repaid = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+        val noTransaction = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+        coEvery { loanRepository.findRecordsByLoanId(BorrowedLoan.id) } returns
+            listOf(repaid, noTransaction)
+        coEvery { transactionRepository.findLoanRecordTransaction(repaid.id.value) } returns
+            mockk<Expense>(relaxed = true)
+        val lent = BorrowedLoan.copy(type = LoanType.LEND)
+
+        // when
+        useCase.syncRecordTransactions(lent)
+
+        // then: being paid back on a lent loan is income; a record without one gets none
+        val saved = slot<Transaction>()
+        coVerify(exactly = 1) { transactionRepository.save(capture(saved)) }
+        saved.captured.shouldBeInstanceOf<Income>().metadata.loanRecordId shouldBe repaid.id.value
+    }
+
     private fun record(type: LoanRecordType, account: AccountId) = LoanRecord(
         id = LoanRecordId(UUID.randomUUID()),
         loan = BorrowedLoan.id,

@@ -17,12 +17,15 @@ import com.ivy.base.model.next
 import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.BackupDataUseCase
+import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.RootScreen
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.wallet.ThemeState
 import com.ivy.wallet.utils.getISOFormattedDateTime
@@ -53,6 +56,8 @@ class SettingsViewModel @Inject constructor(
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val updateStartDayOfMonthAct: UpdateStartDayOfMonthAct,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
+    private val budgetRepository: BudgetRepository,
+    private val exchangeUseCase: ExchangeUseCase,
     private val exportCsvUseCase: ExportCsvUseCase,
     @ApplicationContext private val context: Context,
     private val timeProvider: TimeProvider,
@@ -175,12 +180,28 @@ class SettingsViewModel @Inject constructor(
 
         viewModelScope.launch {
             ioThread {
+                // Before the switch: the stored rates are relative to the old base currency.
+                AssetCode.from(newCurrency).onRight { convertBudgets(to = it) }
                 appPreferences.setBaseCurrency(newCurrency)
                 AssetCode.from(newCurrency).onRight {
                     syncExchangeRatesUseCase.sync(it)
                 }
             }
         }
+    }
+
+    /**
+     * Budgets have no currency of their own: they are in the base currency, so their amounts
+     * follow it. A budget without a rate for the new currency keeps its amount.
+     */
+    private suspend fun convertBudgets(to: AssetCode) {
+        val from = currencyRepository.getBaseCurrency()
+        if (from == to) return
+        val converted = budgetRepository.findAll().mapNotNull { budget ->
+            exchangeUseCase.convert(PositiveValue(budget.amount, from), to = to).getOrNull()
+                ?.let { budget.copy(amount = it.amount) }
+        }
+        budgetRepository.saveMany(converted)
     }
 
     private fun setName(newName: String) {

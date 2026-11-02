@@ -95,6 +95,18 @@ class LoanTransactionsUseCase @Inject constructor(
         )
     }
 
+    /**
+     * Brings the records' existing transactions in line with [loan]: whether a record is income or
+     * an expense depends on the loan's type. Records without a transaction keep having none.
+     */
+    suspend fun syncRecordTransactions(loan: Loan) {
+        loanRepository.findRecordsByLoanId(loan.id).forEach { record ->
+            if (transactionRepository.findLoanRecordTransaction(record.id.value) != null) {
+                syncLoanRecordTransaction(loan, record, create = true)
+            }
+        }
+    }
+
     suspend fun deleteLoanTransactions(loan: LoanId) {
         transactionRepository.findAllByLoanId(loan.value)
             .forEach { transactionRepository.deleteById(it.id) }
@@ -172,6 +184,7 @@ class LoanTransactionsUseCase @Inject constructor(
         )
         recalculateRecords(updated, oldAccount = loan.account)
         loanRepository.save(updated)
+        if (updated.type != loan.type) syncRecordTransactions(updated)
     }
 
     private suspend fun updateLoanRecord(

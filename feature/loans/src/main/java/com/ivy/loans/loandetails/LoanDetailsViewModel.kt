@@ -340,6 +340,8 @@ class LoanDetailsViewModel @Inject constructor(
             loanRepository.save(loan)
             loanTransactionsUseCase.recalculateRecords(loan, oldAccount = oldAccount)
             loanTransactionsUseCase.syncLoanTransaction(loan, create = createLoanTransaction)
+            // A changed type turns the records' income into expenses and the other way round.
+            loanTransactionsUseCase.syncRecordTransactions(loan)
             load(loanId = loan.id.value)
             // Shown while an account change recalculates the records; nothing else hides it.
             waitModalVisible.value = false

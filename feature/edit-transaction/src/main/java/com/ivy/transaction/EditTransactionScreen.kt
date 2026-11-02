@@ -52,7 +52,6 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.domain.data.CustomExchangeRateState
-import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
 import com.ivy.wallet.ui.edit.core.Category
@@ -86,6 +85,8 @@ import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
+
+private const val ExchangeRateDecimals = 12
 
 @ExperimentalFoundationApi
 @Composable
@@ -603,9 +604,8 @@ private fun BoxWithConstraintsScope.UI(
         currency = "",
         initialAmount = customExchangeRateState.exchangeRate,
         dismiss = { exchangeRateAmountModalShown = false },
-        decimalCountMax = IvyCurrency.getDecimalPlaces(
-            customExchangeRateState.toCurrencyCode ?: baseCurrency
-        ),
+        // A rate needs more decimals than an amount (1.0853, 0.0067), as on the exchange-rates screen.
+        decimalCountMax = ExchangeRateDecimals,
         onAmountChanged = {
             onExchangeRateChange(it)
         }
