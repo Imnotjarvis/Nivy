@@ -22,7 +22,6 @@ import com.ivy.base.model.IntervalType
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.forDisplay
 import com.ivy.wallet.utils.formatLocal
-import com.ivy.wallet.utils.uppercaseLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
@@ -111,7 +110,7 @@ private fun RecurringRuleCard(
             if (!oneTime && intervalType != null && intervalN != null) {
                 Spacer(Modifier.height(4.dp))
 
-                val intervalTypeLabel = intervalType.forDisplay(intervalN).uppercaseLocal()
+                val intervalTypeLabel = intervalType.forDisplay(intervalN)
                 Text(
                     text = stringResource(R.string.repeats_every, intervalN, intervalTypeLabel),
                     style = MaterialTheme.typography.labelMedium.copy(

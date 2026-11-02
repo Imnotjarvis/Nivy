@@ -379,7 +379,7 @@ private fun LoanItem(
                 Text(
                     text = with(LocalTimeFormatter.current) {
                         it.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
-                    }.uppercase(),
+                    },
                     style = MaterialTheme.typography.numberLabelMedium.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.Bold
@@ -724,7 +724,7 @@ private fun LoanRecordItem(
             text = with(timeFormatter) {
                 loanRecord.dateTime.formatLocal(
                     TimeFormatter.Style.DateAndTime(includeWeekDay = true)
-                ).uppercase()
+                )
             },
             style = MaterialTheme.typography.numberLabelMedium.copy(
                 color = Gray,
@@ -821,7 +821,7 @@ private fun InitialRecordItem(
                 text = with(timeFormatter) {
                     dateTime.format(
                         TimeFormatter.Style.DateAndTime(includeWeekDay = true)
-                    ).uppercase()
+                    )
                 },
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Gray,

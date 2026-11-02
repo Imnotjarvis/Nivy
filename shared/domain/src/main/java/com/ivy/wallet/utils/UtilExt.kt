@@ -27,8 +27,6 @@ fun String.toUpperCaseLocal() = this.uppercase(Locale.getDefault())
 
 fun String.toLowerCaseLocal() = this.lowercase(Locale.getDefault())
 
-fun String.uppercaseLocal(): String = this.uppercase(Locale.getDefault())
-
 fun String.capitalizeLocal(): String = this.replaceFirstChar {
     if (it.isLowerCase()) {
         it.titlecase(

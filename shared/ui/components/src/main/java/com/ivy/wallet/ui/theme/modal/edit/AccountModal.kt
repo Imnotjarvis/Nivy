@@ -233,7 +233,7 @@ fun BoxWithConstraintsScope.AccountModal(
                     }
                 }
             },
-            label = stringResource(R.string.enter_account_balance).uppercase(),
+            label = stringResource(R.string.enter_account_balance),
             currency = currencyCode,
             amount = amount,
             amountPaddingTop = 40.dp,

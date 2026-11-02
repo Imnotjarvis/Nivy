@@ -74,9 +74,12 @@ private fun TrendsUi(
     onEvent: (TrendsEvent) -> Unit,
 ) {
     val nav = navigation()
+    // A Material3 screen gets no Surface from the app (only legacy screens do), so it paints the
+    // theme's background itself: white, dark or black with the theme.
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
             .verticalScroll(rememberScrollState()),
     ) {
