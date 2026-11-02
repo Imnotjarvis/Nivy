@@ -18,7 +18,6 @@ import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
-import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
 fun Description(
@@ -59,7 +58,7 @@ private fun DescriptionText(
                 .padding(horizontal = 24.dp)
                 .testTag("trn_description"),
             text = description,
-            style = MaterialTheme.typography.numberBodyLarge.copy(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Left

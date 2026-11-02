@@ -206,7 +206,7 @@ fun TransactionCard(
             Text(
                 text = description,
                 modifier = Modifier.padding(horizontal = 24.dp),
-                style = MaterialTheme.typography.numberLabelMedium.copy(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 ),
@@ -302,7 +302,7 @@ private fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
             // Tag Text
             Text(
                 text = stringResource(R.string.tags_colon),
-                style = MaterialTheme.typography.numberLabelMedium.copy(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Normal
                 )
@@ -314,7 +314,7 @@ private fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
         items(tags, key = { it.id.value }) { tag ->
             Text(
                 text = "#${tag.name.value}",
-                style = MaterialTheme.typography.numberLabelMedium.copy(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = BlueLight,
                     fontWeight = FontWeight.Normal
                 )

@@ -90,7 +90,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop24
 import com.ivy.design.system.typography.numberBodyLarge
-import com.ivy.design.system.typography.numberLabelMedium
 
 const val SWIPE_UP_EXPANDED_THRESHOLD = 200
 
@@ -755,7 +754,7 @@ private fun LabelAccountMini(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.numberLabelMedium.copy(
+            style = MaterialTheme.typography.labelMedium.copy(
                 color = MaterialTheme.colorScheme.inverseSurface,
                 fontWeight = FontWeight.Medium
             )

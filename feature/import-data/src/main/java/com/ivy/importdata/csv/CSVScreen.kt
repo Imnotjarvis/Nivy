@@ -323,7 +323,7 @@ fun LazyListScope.sectionDivider(@StringRes text: Int) {
         Text(text = stringResource(text), style = MaterialTheme.typography.titleLarge)
         Text(
             text = stringResource(R.string.csv_section_help),
-            style = MaterialTheme.typography.numberBodyLarge,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer8()
@@ -406,7 +406,7 @@ private fun AmountMetadata(
     multiplier: Int,
     onMetaChange: (Int) -> Unit,
 ) {
-    Text(text = stringResource(R.string.csv_multiplier), style = MaterialTheme.typography.numberBodyLarge)
+    Text(text = stringResource(R.string.csv_multiplier), style = MaterialTheme.typography.bodyLarge)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Button(onClick = {
             onMetaChange(
