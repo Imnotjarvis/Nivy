@@ -28,10 +28,7 @@ class SmartTitleSuggestionsLogic @Inject constructor(
         if (!title.isNullOrEmpty()) {
             // suggest by title
             val suggestionsByTitle = transactionDao.findAllByTitleMatchingPattern("$title%")
-                .uniqueTitles()
-                .sortedByMostUsedFirst {
-                    transactionDao.countByTitleMatchingPattern("$it%")
-                }
+                .titlesByUse()
 
             suggestions.addAll(suggestionsByTitle)
         }
@@ -46,13 +43,7 @@ class SmartTitleSuggestionsLogic @Inject constructor(
                     categoryId = categoryId
                 )
                 // exclude already suggested suggestions so they're ordered by priority at the end
-                .uniqueTitles(excludeSuggestions = suggestions)
-                .sortedByMostUsedFirst {
-                    transactionDao.countByTitleMatchingPatternAndCategoryId(
-                        pattern = it,
-                        categoryId = categoryId
-                    )
-                }
+                .titlesByUse(excludeSuggestions = suggestions)
 
             suggestions.addAll(suggestionsByCategory)
         }
@@ -67,13 +58,7 @@ class SmartTitleSuggestionsLogic @Inject constructor(
                     accountId = accountId
                 )
                 // exclude already suggested suggestions so they're ordered by priority at the end
-                .uniqueTitles(excludeSuggestions = suggestions)
-                .sortedByMostUsedFirst {
-                    transactionDao.countByTitleMatchingPatternAndAccountId(
-                        pattern = it,
-                        accountId = accountId
-                    )
-                }
+                .titlesByUse(excludeSuggestions = suggestions)
 
             suggestions.addAll(suggestionsByAccount)
         }
@@ -84,14 +69,12 @@ class SmartTitleSuggestionsLogic @Inject constructor(
     }
 }
 
-private fun List<TransactionEntity>.uniqueTitles(
+/** The titles of these transactions, most used first, counted here rather than one query each. */
+private fun List<TransactionEntity>.titlesByUse(
     excludeSuggestions: Set<String> = emptySet()
-): Set<String> = mapNotNull { it.title?.takeIf(String::isNotBlank) }
+): List<String> = mapNotNull { it.title?.takeIf(String::isNotBlank) }
     .map { it.trim().capitalizeWords() }
     .filterNot { it in excludeSuggestions }
-    .toSet()
-
-private suspend fun Set<String>.sortedByMostUsedFirst(countUses: suspend (String) -> Long): Set<String> {
-    val uses = associateWith { countUses(it) }
-    return sortedByDescending { uses.getValue(it) }.toSet()
-}
+    .groupingBy { it }.eachCount()
+    .entries.sortedByDescending { it.value }
+    .map { it.key }

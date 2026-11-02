@@ -22,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -70,11 +71,16 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    private var searchJob: Job? = null
+
     private fun search(query: String) {
         searchQuery.value = query
         val normalizedQuery = query.lowercase().trim()
 
-        viewModelScope.launch {
+        // Each keystroke searches again: stop the previous search, so that its results, which
+        // may arrive later, can't replace the newer ones.
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
             val queryResult = ioThread {
                 val filteredTransactions = allTrnsAct()
                     .filter { transaction ->
