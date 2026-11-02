@@ -46,7 +46,9 @@ class OnboardingRouter(
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
 ) {
 
-    var isLoginCache = false
+    // The user restored their data with an import, rather than starting fresh: the currency step
+    // then finishes onboarding, and going back from it discards the import.
+    private var restoredFromImport = false
 
     // Back goes one onboarding step back. The screen doesn't send it on the login step, where back
     // leaves the app, and it does nothing on the splash.
@@ -64,13 +66,12 @@ class OnboardingRouter(
             }
 
             OnboardingState.CURRENCY -> {
-                if (isLoginCache) {
-                    // user with Ivy account
+                if (restoredFromImport) {
                     viewModelScope.launch {
                         deleteAllDataUseCase()
                         nav.resetBackStack()
                         nav.navigateTo(OnboardingScreen)
-                        isLoginCache = false
+                        restoredFromImport = false
                         restartOnboarding()
                         state.value = OnboardingState.LOGIN
                     }
@@ -101,11 +102,6 @@ class OnboardingRouter(
     // ------------------------------------- Step 0 -------------------------------------------------
 
     // ------------------------------------- Step 1 - Login -----------------------------------------
-    private suspend fun isLogin(): Boolean {
-        isLoginCache = ioThread { accountDao.findAll().isNotEmpty() }
-        return isLoginCache
-    }
-
     suspend fun offlineAccountNext() {
         state.value = OnboardingState.CHOOSE_PATH
     }
@@ -126,6 +122,7 @@ class OnboardingRouter(
 
     fun importFinished(success: Boolean) {
         if (success) {
+            restoredFromImport = true
             state.value = OnboardingState.CURRENCY
         }
     }
@@ -145,7 +142,7 @@ class OnboardingRouter(
             accountsWithBalance = accountsWithBalance
         )
 
-        if (isLogin()) {
+        if (restoredFromImport) {
             completeOnboarding(baseCurrency = baseCurrency)
         }
     }
@@ -159,8 +156,9 @@ class OnboardingRouter(
     suspend fun accountsSkip() {
         routeToCategories()
 
+        // Skipping again after going back must not add Cash and Bank a second time.
         ioThread {
-            starterData.preloadAccounts()
+            if (accountDao.findAll().isEmpty()) starterData.preloadAccounts()
         }
     }
     // ------------------------------------- Step 4 -------------------------------------------------
@@ -222,6 +220,7 @@ class OnboardingRouter(
 
     private fun resetState() {
         state.value = OnboardingState.SPLASH
+        restoredFromImport = false
     }
 
     private fun navigateOutOfOnboarding() {
