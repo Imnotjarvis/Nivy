@@ -18,6 +18,7 @@ import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
+import com.ivy.data.model.getFromAccount
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
@@ -468,6 +469,34 @@ class TransactionsViewModel @Inject constructor(
         overdue.value = ioThread { categoryLogic.overdueUnspecified(range).toImmutableList() }
     }
 
+    /** A pie chart's "Unspecified" slice: its transactions without a category, in its accounts. */
+    private suspend fun initForUnspecifiedWithTransactions(
+        accountFilterList: List<UUID>,
+        transactions: List<Transaction>,
+    ) {
+        initWithTransactions.value = true
+        val accountFilterSet = accountFilterList.toSet()
+        val trans = transactions.filter { it !is Transfer && it.category == null }
+
+        income.doubleValue = categoryLogic.calculateCategoryIncome(
+            incomeTransaction = trans.filterIsInstance<Income>(),
+            accountFilterSet = accountFilterSet,
+        )
+        expenses.doubleValue = categoryLogic.calculateCategoryExpenses(
+            expenseTransactions = trans.filterIsInstance<Expense>(),
+            accountFilterSet = accountFilterSet,
+        )
+        balance.doubleValue = income.doubleValue - expenses.doubleValue
+        history.value = trnsWithDateDivsAct(
+            TrnsWithDateDivsAct.Input(
+                baseCurrency = baseCurrency.value,
+                transactions = trans.filter {
+                    it.settled && (accountFilterSet.isEmpty() || it.getFromAccount().value in accountFilterSet)
+                }
+            )
+        ).toImmutableList()
+    }
+
     private suspend fun initForAccountTransfersCategory(
         accountFilterList: List<UUID>,
         transactions: List<Transaction>,
@@ -693,8 +722,16 @@ class TransactionsViewModel @Inject constructor(
                     )
                 }
 
-                screen.unspecifiedCategory == true && screen.transactions.isNotEmpty() -> {
+                screen.unspecifiedCategory == true && screen.categoryId != null &&
+                        screen.transactions.isNotEmpty() -> {
                     initForAccountTransfersCategory(
+                        screen.accountIdFilterList,
+                        screen.transactions
+                    )
+                }
+
+                screen.unspecifiedCategory == true && screen.transactions.isNotEmpty() -> {
+                    initForUnspecifiedWithTransactions(
                         screen.accountIdFilterList,
                         screen.transactions
                     )

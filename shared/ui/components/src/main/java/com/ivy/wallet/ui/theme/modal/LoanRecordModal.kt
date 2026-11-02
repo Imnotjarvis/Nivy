@@ -88,37 +88,37 @@ fun BoxWithConstraintsScope.LoanRecordModal(
 ) {
     val initialRecord = modal?.loanRecord
 
-    var noteTextFieldValue by remember(modal) {
+    var noteTextFieldValue by remember(modal?.id) {
         mutableStateOf(selectEndTextFieldValue(initialRecord?.note?.value))
     }
-    var currencyCode by remember(modal) {
+    var currencyCode by remember(modal?.id) {
         mutableStateOf(modal?.baseCurrency ?: "")
     }
-    var amount by remember(modal) {
+    var amount by remember(modal?.id) {
         mutableDoubleStateOf(modal?.loanRecord?.amount?.value ?: 0.0)
     }
-    var selectedAcc by remember(modal) {
+    var selectedAcc by remember(modal?.id) {
         mutableStateOf(modal?.selectedAccount)
     }
-    var createLoanRecordTrans by remember(modal) {
+    var createLoanRecordTrans by remember(modal?.id) {
         mutableStateOf(modal?.createLoanRecordTransaction ?: false)
     }
-    var loanInterest by remember(modal) {
+    var loanInterest by remember(modal?.id) {
         mutableStateOf(modal?.isLoanInterest ?: false)
     }
-    var reCalculate by remember(modal) {
+    var reCalculate by remember(modal?.id) {
         mutableStateOf(false)
     }
-    var reCalculateVisible by remember(modal) {
+    var reCalculateVisible by remember(modal?.id) {
         mutableStateOf(modal?.loanAccountCurrencyCode != null && modal.loanAccountCurrencyCode != modal.baseCurrency)
     }
-    var loanRecordType by remember(modal) {
+    var loanRecordType by remember(modal?.id) {
         mutableStateOf(modal?.loanRecord?.type ?: LoanRecordType.DECREASE)
     }
 
     var dateTime = modal?.loanRecord?.dateTime ?: dateTime
     var amountModalVisible by remember { mutableStateOf(false) }
-    var deleteModalVisible by remember(modal) { mutableStateOf(false) }
+    var deleteModalVisible by remember(modal?.id) { mutableStateOf(false) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
     var accountChangeConformationModal by remember { mutableStateOf(false) }
 

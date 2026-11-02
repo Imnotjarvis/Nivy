@@ -521,6 +521,12 @@ class EditTransactionViewModel @Inject constructor(
                     .copy(
                         id = id,
                         dateTime = timeProvider.utcNow(),
+                        // Not another payment of the planned rule, nor part of the loan.
+                        dueDate = null,
+                        recurringRuleId = null,
+                        paidFor = null,
+                        loanId = null,
+                        loanRecordId = null,
                     )
                     .toDomain(transactionMapper)
                     ?.let {
@@ -592,11 +598,16 @@ class EditTransactionViewModel @Inject constructor(
         if (!validTransaction()) {
             return
         }
+        // A double tap would save twice and go back twice.
+        if (closeScreen && closingSave?.isActive == true) return
 
-        viewModelScope.launch {
+        val job = viewModelScope.launch {
             saveInternal(closeScreen = closeScreen)
         }
+        if (closeScreen) closingSave = job
     }
+
+    private var closingSave: Job? = null
 
     private suspend fun saveInternal(closeScreen: Boolean) {
         try {

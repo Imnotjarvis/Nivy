@@ -101,43 +101,43 @@ fun BoxWithConstraintsScope.LoanModal(
     val loan = modal?.loan
     val timeConverter = LocalTimeConverter.current
 
-    var nameTextFieldValue by remember(modal) {
+    var nameTextFieldValue by remember(modal?.id) {
         mutableStateOf(selectEndTextFieldValue(loan?.name?.value))
     }
     var dateTime = modal?.loan?.dateTime ?: with(timeConverter) {
         dateTime.toLocalDateTime()
     }
-    var type by remember(modal) {
+    var type by remember(modal?.id) {
         mutableStateOf(modal?.loan?.type ?: LoanType.BORROW)
     }
-    var amount by remember(modal) {
+    var amount by remember(modal?.id) {
         mutableDoubleStateOf(modal?.loan?.amount?.value ?: 0.0)
     }
-    var color by remember(modal) {
+    var color by remember(modal?.id) {
         mutableStateOf(loan?.color?.let { Color(it.value) } ?: Ivy)
     }
-    var icon by remember(modal) {
+    var icon by remember(modal?.id) {
         mutableStateOf(loan?.icon?.id)
     }
-    var noteTextFieldValue by remember(modal) {
+    var noteTextFieldValue by remember(modal?.id) {
         mutableStateOf(selectEndTextFieldValue(loan?.note?.value))
     }
-    var currencyCode by remember(modal) {
+    var currencyCode by remember(modal?.id) {
         mutableStateOf(modal?.baseCurrency ?: "")
     }
 
-    var selectedAcc by remember(modal) {
+    var selectedAcc by remember(modal?.id) {
         mutableStateOf(modal?.selectedAccount)
     }
 
-    var createLoanTrans by remember(modal) {
+    var createLoanTrans by remember(modal?.id) {
         mutableStateOf(modal?.createLoanTransaction ?: false)
     }
 
     var accountChangeModal by remember { mutableStateOf(false) }
     var amountModalVisible by remember { mutableStateOf(false) }
     var currencyModalVisible by remember { mutableStateOf(false) }
-    var chooseIconModalVisible by remember(modal) {
+    var chooseIconModalVisible by remember(modal?.id) {
         mutableStateOf(false)
     }
 

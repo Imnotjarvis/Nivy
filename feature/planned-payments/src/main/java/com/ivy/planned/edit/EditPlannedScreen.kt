@@ -198,14 +198,14 @@ private fun BoxWithConstraintsScope.UI(
         if (screen.plannedPaymentRuleId == null) {
             // Create mode
             if (screen.mandatoryFilled()) {
-                // Flow Convert (Amount, Account, Category)
+                // Flow Convert (Amount, Account, Category). A new rule has no schedule yet; the
+                // state may still hold the previous rule's, as start() hasn't run.
                 latestOnEvent(
                     EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
                         RecurringRuleModalData(
-                            initialStartDate = state.startDate,
-                            initialIntervalN = state.intervalN,
-                            initialIntervalType = state.intervalType,
-                            initialOneTime = state.oneTime
+                            initialStartDate = null,
+                            initialIntervalN = null,
+                            initialIntervalType = null,
                         )
                     )
                 )
