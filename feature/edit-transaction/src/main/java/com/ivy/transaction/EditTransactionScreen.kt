@@ -92,7 +92,6 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.typography.numberBodyLarge
 
 private const val ExchangeRateDecimals = 12
 
@@ -341,7 +340,7 @@ private fun BoxWithConstraintsScope.UI(
             Text(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 text = loanData.loanCaption,
-                style = MaterialTheme.typography.numberBodyLarge.copy(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.inverseSurface,
                     fontWeight = FontWeight.Normal
                 )

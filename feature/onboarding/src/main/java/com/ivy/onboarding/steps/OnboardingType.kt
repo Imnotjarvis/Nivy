@@ -32,7 +32,6 @@ import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButtonFillMaxWidth
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.navigation.rememberOnBack
 
 @Composable
@@ -72,7 +71,7 @@ internal fun OnboardingType(
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.from_ivy_or_another_app),
-            style = MaterialTheme.typography.numberBodyLarge.copy(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Bold
             )

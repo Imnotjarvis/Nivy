@@ -573,7 +573,7 @@ private fun AppSwitch(
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
                     text = description,
-                    style = MaterialTheme.typography.numberBodyLarge.copy(
+                    style = MaterialTheme.typography.bodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.Normal
                     ).copy(fontSize = 14.sp)
@@ -726,7 +726,7 @@ private fun SettingsPrimaryButton(
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
                     text = description,
-                    style = MaterialTheme.typography.numberBodyLarge.copy(
+                    style = MaterialTheme.typography.bodyLarge.copy(
                         color = Gray,
                         fontWeight = FontWeight.Normal
                     ).copy(fontSize = 14.sp)

@@ -227,7 +227,7 @@ private fun RuleTextRow(
         if (oneTime) {
             Text(
                 text = stringResource(R.string.planned_for_uppercase),
-                style = MaterialTheme.typography.numberLabelMedium.copy(
+                style = MaterialTheme.typography.labelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.SemiBold
                 )
