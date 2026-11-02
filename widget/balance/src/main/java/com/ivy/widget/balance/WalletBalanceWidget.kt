@@ -25,7 +25,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.AppStarter
-import com.ivy.wallet.PeriodState
+import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.wallet.utils.shortenAmount
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -125,9 +125,6 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var calcIncomeExpenseAct: CalcIncomeExpenseAct
 
     @Inject
-    lateinit var periodState: PeriodState
-
-    @Inject
     lateinit var appPreferences: AppPreferences
 
     @Inject
@@ -151,13 +148,16 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
             val currency = currencyRepository.getBaseCurrency().code
             val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
             val accounts = accountsAct()
-            val period = periodState.selected
+            // This month with the user's start day: not the month the app happens to show, nor
+            // the default start day a process started for the widget alone would have.
+            val startDayOfMonth = appPreferences.startDayOfMonth()
+            val period = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
             val incomeExpense = calcIncomeExpenseAct(
                 CalcIncomeExpenseAct.Input(
                     baseCurrency = currency,
                     accounts = accounts,
                     range = period.toRange(
-                        startDateOfMonth = periodState.startDayOfMonth,
+                        startDateOfMonth = startDayOfMonth,
                         timeConverter = timeConverter,
                         timeProvider = timeProvider,
 
