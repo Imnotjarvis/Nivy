@@ -71,6 +71,8 @@ data class TransactionMetadata(
     val loanId: UUID? = null,
     // This refers to the loan record id that is linked with a transaction
     val loanRecordId: UUID?,
+    // When a credit card expense was bought; its time is then the date the card charges it.
+    val purchaseDateTime: Instant?,
 )
 
 fun Transaction.getFromValue(): PositiveValue = when (this) {

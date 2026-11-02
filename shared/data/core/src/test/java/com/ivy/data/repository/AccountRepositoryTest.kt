@@ -1,5 +1,6 @@
 package com.ivy.data.repository
 
+import com.ivy.base.model.AccountType
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.data.DataObserver
 import com.ivy.data.preferences.AppPreferences
@@ -88,6 +89,10 @@ class AccountRepositoryTest {
             color = ColorInt(1),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 1.0,
         )
     }
@@ -169,6 +174,10 @@ class AccountRepositoryTest {
                 color = ColorInt(1),
                 icon = null,
                 includeInBalance = true,
+                type = AccountType.OTHER,
+                archived = false,
+                creditLimit = null,
+                chargeDay = null,
                 orderNum = 1.0,
             ),
             Account(
@@ -178,6 +187,10 @@ class AccountRepositoryTest {
                 color = ColorInt(2),
                 icon = null,
                 includeInBalance = true,
+                type = AccountType.OTHER,
+                archived = false,
+                creditLimit = null,
+                chargeDay = null,
                 orderNum = 2.0,
             )
         )
@@ -225,6 +238,10 @@ class AccountRepositoryTest {
                 color = ColorInt(1),
                 icon = null,
                 includeInBalance = true,
+                type = AccountType.OTHER,
+                archived = false,
+                creditLimit = null,
+                chargeDay = null,
                 orderNum = 1.0,
             )
         )
@@ -266,6 +283,10 @@ class AccountRepositoryTest {
             color = ColorInt(1),
             icon = null,
             includeInBalance = true,
+            type = AccountType.OTHER,
+            archived = false,
+            creditLimit = null,
+            chargeDay = null,
             orderNum = 1.0,
         )
 
@@ -304,6 +325,10 @@ class AccountRepositoryTest {
                 color = ColorInt(1),
                 icon = null,
                 includeInBalance = true,
+                type = AccountType.OTHER,
+                archived = false,
+                creditLimit = null,
+                chargeDay = null,
                 orderNum = 1.0,
             ),
             Account(
@@ -313,6 +338,10 @@ class AccountRepositoryTest {
                 color = ColorInt(2),
                 icon = null,
                 includeInBalance = true,
+                type = AccountType.OTHER,
+                archived = false,
+                creditLimit = null,
+                chargeDay = null,
                 orderNum = 2.0,
             )
         )

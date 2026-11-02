@@ -1,5 +1,9 @@
 package com.ivy.transaction
 
+import com.ivy.ui.time.LocalTimeFormatter
+import com.ivy.ui.time.TimeFormatter
+import com.ivy.design.system.colors.Gray
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -112,6 +116,7 @@ fun BoxWithConstraintsScope.EditTransactionScreen(screen: EditTransactionScreen)
         account = uiState.account,
         toAccount = uiState.toAccount,
         dueDate = uiState.dueDate,
+        chargeDate = uiState.chargeDate,
         amount = uiState.amount,
         loanData = uiState.displayLoanHelper,
         backgroundProcessing = uiState.backgroundProcessingStarted,
@@ -230,6 +235,7 @@ private fun BoxWithConstraintsScope.UI(
     onExchangeRateChange: (Double?) -> Unit = { },
     onTagOperation: (EditTransactionViewEvent.TagEvent) -> Unit = {},
     loanData: EditTransactionDisplayLoan = EditTransactionDisplayLoan(),
+    chargeDate: LocalDateTime? = null,
     backgroundProcessing: Boolean = false,
     hasChanges: Boolean = false,
 
@@ -383,6 +389,26 @@ private fun BoxWithConstraintsScope.UI(
             onEditDate = onSetDate,
             onEditTime = onSetTime,
         )
+
+        if (chargeDate != null) {
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 32.dp)
+                    .testTag("transaction_charge_date"),
+                text = stringResource(
+                    R.string.charged_on,
+                    with(LocalTimeFormatter.current) {
+                        chargeDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+                    }
+                ),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = Gray,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+        }
 
         if (transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard) {
             Spacer(Modifier.height(12.dp))

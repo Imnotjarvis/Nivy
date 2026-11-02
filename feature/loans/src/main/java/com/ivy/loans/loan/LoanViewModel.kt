@@ -12,6 +12,7 @@ import arrow.core.raise.either
 import com.ivy.base.model.processByType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.model.pickable
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
 import com.ivy.data.model.LoanId
@@ -234,7 +235,7 @@ class LoanViewModel @Inject constructor(
     }
 
     private suspend fun initialiseAccounts() {
-        val accountsList = accountsAct()
+        val accountsList = accountsAct().pickable().toImmutableList()
         accounts = accountsList
         selectedAccount = defaultAccountId(accountsList)
         selectedAccount?.let {
@@ -324,7 +325,7 @@ class LoanViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct()
+                accounts = accountsAct().pickable().toImmutableList()
             }
         }
     }

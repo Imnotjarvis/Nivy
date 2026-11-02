@@ -72,6 +72,10 @@ data class TransactionEntity(
     @SerialName("loanRecordId")
     @Serializable(with = KSerializerUUID::class)
     val loanRecordId: UUID? = null,
+    // When a credit card expense was bought; dateTime is then the date the card charges it.
+    @SerialName("purchaseDateTime")
+    @Serializable(with = KSerializerInstant::class)
+    val purchaseDateTime: Instant? = null,
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")
     val isSynced: Boolean = false,

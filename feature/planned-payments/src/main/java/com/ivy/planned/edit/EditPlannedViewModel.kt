@@ -19,6 +19,7 @@ import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PlannedPaymentRuleId
+import com.ivy.data.model.pickable
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.model.primitive.PositiveInt
@@ -175,7 +176,6 @@ class EditPlannedViewModel @Inject constructor(
                 nav.back()
                 return@launch
             }
-            this@EditPlannedViewModel.accounts = accounts
             categories = categoryRepository.findAll().toImmutableList()
 
             reset()
@@ -183,10 +183,12 @@ class EditPlannedViewModel @Inject constructor(
             val rule = screen.plannedPaymentRuleId?.let {
                 plannedPaymentRuleRepository.findById(PlannedPaymentRuleId(it))
             }
+            val pickable = accounts.pickable(listOf(rule?.account)).ifEmpty { accounts }.toImmutableList()
+            this@EditPlannedViewModel.accounts = pickable
             if (rule != null) {
                 display(rule)
             } else {
-                displayNew(screen, accounts)
+                displayNew(screen, pickable)
             }
         }
     }
@@ -358,7 +360,7 @@ class EditPlannedViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct()
+                accounts = accountsAct().pickable(listOf(account?.id)).toImmutableList()
             }
         }
     }

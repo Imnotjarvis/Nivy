@@ -3,6 +3,7 @@ package com.ivy.data.db
 import androidx.room.TypeConverter
 import com.ivy.base.model.LoanRecordType
 import com.ivy.base.model.TransactionType
+import com.ivy.base.model.AccountType
 import com.ivy.base.model.IntervalType
 import com.ivy.base.model.LoanType
 import java.time.Instant
@@ -51,6 +52,12 @@ class RoomTypeConverters {
 
     @TypeConverter
     fun parseInstant(value: Long): Instant = Instant.ofEpochMilli(value)
+
+    @TypeConverter
+    fun saveAccountType(value: AccountType?): String? = value?.name
+
+    @TypeConverter
+    fun parseAccountType(value: String?): AccountType? = value?.let { AccountType.valueOf(it) }
 
     @TypeConverter
     fun saveLoanRecordType(value: LoanRecordType?): String? = value?.name

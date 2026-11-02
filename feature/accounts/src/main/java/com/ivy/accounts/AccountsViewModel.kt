@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.ivy.base.model.AccountType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.DataObserver
@@ -58,6 +59,8 @@ class AccountsViewModel @Inject constructor(
     private var totalBalanceWithoutExcluded by mutableStateOf("")
     private var totalBalanceWithoutExcludedText by mutableStateOf("")
     private var reorderVisible by mutableStateOf(false)
+    private var typeFilter by mutableStateOf<AccountType?>(null)
+    private var showArchived by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
@@ -81,9 +84,21 @@ class AccountsViewModel @Inject constructor(
             onStart()
         }
 
+        val unarchived = accountsData.filterNot { it.account.archived }
+        val accountTypes = unarchived.map { it.account.type }.distinct().sorted()
+        // A filter by a type no account has anymore would show nothing.
+        val filter = typeFilter?.takeIf { it in accountTypes }
         return AccountsState(
             baseCurrency = baseCurrency,
             accountsData = accountsData.toImmutableList(),
+            shownAccountsData = accountsData
+                .filter { showArchived || !it.account.archived }
+                .filter { filter == null || it.account.type == filter }
+                .toImmutableList(),
+            accountTypes = accountTypes.toImmutableList(),
+            typeFilter = filter,
+            archivedCount = accountsData.size - unarchived.size,
+            showArchived = showArchived,
             totalBalanceWithExcluded = totalBalanceWithExcluded,
             totalBalanceWithExcludedText = totalBalanceWithExcludedText,
             totalBalanceWithoutExcluded = totalBalanceWithoutExcluded,
@@ -109,6 +124,8 @@ class AccountsViewModel @Inject constructor(
             when (event) {
                 is AccountsEvent.OnReorder -> reorder(event.reorderedList)
                 is AccountsEvent.OnReorderModalVisible -> reorderModalVisible(event.reorderVisible)
+                is AccountsEvent.OnTypeFilter -> typeFilter = event.type
+                is AccountsEvent.OnShowArchived -> showArchived = event.show
             }
         }
     }

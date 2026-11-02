@@ -1,5 +1,6 @@
 package com.ivy.importdata.csv.domain
 
+import com.ivy.base.model.AccountType
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
 import com.ivy.base.model.TransactionType
@@ -280,6 +281,10 @@ class CSVImporterV2 @Inject constructor(
                 color = ColorInt(colorArgb),
                 icon = icon?.let(IconAsset::from)?.getOrNull(),
                 includeInBalance = true,
+                type = AccountType.OTHER,
+                archived = false,
+                creditLimit = null,
+                chargeDay = null,
                 orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull() ?: return null

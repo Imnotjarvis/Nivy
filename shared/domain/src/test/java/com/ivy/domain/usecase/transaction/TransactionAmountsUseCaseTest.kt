@@ -115,6 +115,7 @@ class TransactionAmountsUseCaseTest {
             recurringRuleId = null,
             paidForDateTime = null,
             loanRecordId = null,
+            purchaseDateTime = null,
         )
     }
 }

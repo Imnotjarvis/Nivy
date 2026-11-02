@@ -1,11 +1,13 @@
 package com.ivy.wallet.domain.action.viewmodel.account
 
 import arrow.core.toOption
+import com.ivy.base.model.AccountType
 import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.action.account.CalcAccIncomeExpenseAct
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
+import com.ivy.wallet.utils.ivyMaxTime
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
@@ -54,12 +56,26 @@ class AccountDataAct @Inject constructor(
             )
         ).incomeExpensePair
 
+        val creditUsed = if (acc.type == AccountType.CREDIT_CARD) {
+            // The balance with the purchases dated on their future charge dates.
+            val balanceWithPendingCharges = calcAccBalanceAct(
+                CalcAccBalanceAct.Input(
+                    account = acc,
+                    range = ClosedTimeRange.to(ivyMaxTime())
+                )
+            ).balance
+            maxOf(0.0, -balanceWithPendingCharges.toDouble())
+        } else {
+            null
+        }
+
         return com.ivy.wallet.data.model.AccountData(
             account = acc,
             balance = balance.toDouble(),
             balanceBaseCurrency = balanceBaseCurrency?.toDouble(),
             monthlyIncome = incomeExpensePair.income.toDouble(),
             monthlyExpenses = incomeExpensePair.expense.toDouble(),
+            creditUsed = creditUsed,
         )
     }
 

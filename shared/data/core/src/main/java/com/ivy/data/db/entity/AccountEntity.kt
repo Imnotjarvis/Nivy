@@ -1,9 +1,11 @@
 package com.ivy.data.db.entity
 
 import androidx.annotation.Keep
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.ivy.base.kotlinxserilzation.KSerializerUUID
+import com.ivy.base.model.AccountType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.*
@@ -25,6 +27,17 @@ data class AccountEntity(
     val orderNum: Double = 0.0,
     @SerialName("includeInBalance")
     val includeInBalance: Boolean = true,
+    @SerialName("type")
+    @ColumnInfo(defaultValue = "OTHER")
+    val type: AccountType = AccountType.OTHER,
+    @SerialName("archived")
+    @ColumnInfo(defaultValue = "0")
+    val archived: Boolean = false,
+    // Only for credit cards: the limit, and the day of the month purchases are charged.
+    @SerialName("creditLimit")
+    val creditLimit: Double? = null,
+    @SerialName("chargeDay")
+    val chargeDay: Int? = null,
 
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")

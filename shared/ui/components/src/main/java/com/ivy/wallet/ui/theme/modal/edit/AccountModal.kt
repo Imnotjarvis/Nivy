@@ -32,6 +32,8 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.wallet.ui.IvyColorPicker
+import com.ivy.wallet.ui.displayName
+import com.ivy.wallet.ui.iconName
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
@@ -49,6 +51,14 @@ import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalAddSave
 import com.ivy.wallet.ui.theme.modal.ModalAmountSection
 import com.ivy.wallet.ui.theme.modal.ModalTitle
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import com.ivy.base.model.AccountType
+import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.wallet.ui.theme.components.ListItem
+import com.ivy.wallet.ui.theme.modal.ChooseStartDateOfMonthModal
+import com.ivy.wallet.utils.format
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -92,12 +102,17 @@ fun BoxWithConstraintsScope.AccountModal(
     var includeInBalance by remember(modal) {
         mutableStateOf(account?.includeInBalance ?: true)
     }
+    var typeSettings by remember(modal) {
+        mutableStateOf(AccountTypeSettings.of(account))
+    }
 
     var amountModalVisible by remember { mutableStateOf(false) }
     var currencyModalVisible by remember { mutableStateOf(false) }
     var chooseIconModalVisible by remember(modal) {
         mutableStateOf(false)
     }
+    var chargeDayModalVisible by remember(modal) { mutableStateOf(false) }
+    var creditLimitModalVisible by remember(modal) { mutableStateOf(false) }
 
     val forceNonZeroBalance = modal?.forceNonZeroBalance ?: false
 
@@ -110,7 +125,8 @@ fun BoxWithConstraintsScope.AccountModal(
         primaryAction = {
             ModalAddSave(
                 item = modal?.account,
-                enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0)
+                enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0) &&
+                    typeSettings.complete()
             ) {
                 save(
                     account = account,
@@ -120,6 +136,7 @@ fun BoxWithConstraintsScope.AccountModal(
                     icon = icon,
                     amount = amount,
                     includeInBalance = includeInBalance,
+                    typeSettings = typeSettings,
 
                     onCreateAccount = onCreateAccount,
                     onEditAccount = onEditAccount,
@@ -170,6 +187,16 @@ fun BoxWithConstraintsScope.AccountModal(
             onColorSelected = { color = it }
         )
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        AccountTypeSection(
+            settings = typeSettings,
+            currencyCode = currencyCode,
+            onSelectType = { typeSettings = typeSettings.copy(type = it) },
+            onChargeDayClick = { chargeDayModalVisible = true },
+            onCreditLimitClick = { creditLimitModalVisible = true },
+        )
+
         Spacer(modifier = Modifier.height(40.dp))
 
         ModalAmountSection(
@@ -192,6 +219,18 @@ fun BoxWithConstraintsScope.AccountModal(
                     checked = includeInBalance
                 ) {
                     includeInBalance = it
+                }
+
+                if (account != null) {
+                    IvyCheckboxWithText(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .align(Alignment.Start),
+                        text = stringResource(R.string.archive_account),
+                        checked = typeSettings.archived
+                    ) {
+                        typeSettings = typeSettings.copy(archived = it)
+                    }
                 }
             },
             label = stringResource(R.string.enter_account_balance).uppercase(),
@@ -226,6 +265,7 @@ fun BoxWithConstraintsScope.AccountModal(
                 icon = icon,
                 amount = newAmount,
                 includeInBalance = includeInBalance,
+                typeSettings = typeSettings,
 
                 onCreateAccount = onCreateAccount,
                 onEditAccount = onEditAccount,
@@ -241,6 +281,28 @@ fun BoxWithConstraintsScope.AccountModal(
         dismiss = { currencyModalVisible = false }
     ) {
         currencyCode = it
+    }
+
+    ChooseStartDateOfMonthModal(
+        visible = chargeDayModalVisible,
+        selectedStartDateOfMonth = typeSettings.chargeDay ?: 0,
+        title = stringResource(R.string.charge_day),
+        dismiss = { chargeDayModalVisible = false },
+    ) {
+        typeSettings = typeSettings.copy(chargeDay = it)
+    }
+
+    val creditLimitModalId = remember(modal, typeSettings.creditLimit) {
+        UUID.randomUUID()
+    }
+    AmountModal(
+        id = creditLimitModalId,
+        visible = creditLimitModalVisible,
+        currency = currencyCode,
+        initialAmount = typeSettings.creditLimit,
+        dismiss = { creditLimitModalVisible = false }
+    ) {
+        typeSettings = typeSettings.copy(creditLimit = it.takeIf { limit -> limit > 0 })
     }
 
     ChooseIconModal(
@@ -261,6 +323,7 @@ private fun save(
     icon: String?,
     amount: Double,
     includeInBalance: Boolean,
+    typeSettings: AccountTypeSettings,
 
     onCreateAccount: (CreateAccountData) -> Unit,
     onEditAccount: (Account, balance: Double) -> Unit,
@@ -276,7 +339,11 @@ private fun save(
                     asset = asset,
                     includeInBalance = includeInBalance,
                     icon = icon?.let(IconAsset::from)?.getOrNull(),
-                    color = ColorInt(color.toArgb())
+                    color = ColorInt(color.toArgb()),
+                    type = typeSettings.type,
+                    archived = typeSettings.archived,
+                    creditLimit = typeSettings.creditLimitIfCard()?.let(PositiveDouble::from)?.getOrNull(),
+                    chargeDay = typeSettings.chargeDayIfCard(),
                 ),
                 amount
             )
@@ -289,12 +356,144 @@ private fun save(
                 color = color,
                 icon = icon,
                 balance = amount,
-                includeBalance = includeInBalance
+                includeBalance = includeInBalance,
+                type = typeSettings.type,
+                creditLimit = typeSettings.creditLimitIfCard(),
+                chargeDay = typeSettings.chargeDayIfCard(),
             )
         )
     }
 
     dismiss()
+}
+
+/** The type fields of the dialog; the card's limit and charge day are kept only for a credit card. */
+private data class AccountTypeSettings(
+    val type: AccountType,
+    val archived: Boolean,
+    val creditLimit: Double?,
+    val chargeDay: Int?,
+) {
+    // A credit card needs its charge day to date its purchases.
+    fun complete(): Boolean = type != AccountType.CREDIT_CARD || chargeDay != null
+    fun creditLimitIfCard(): Double? = creditLimit.takeIf { type == AccountType.CREDIT_CARD }
+    fun chargeDayIfCard(): Int? = chargeDay.takeIf { type == AccountType.CREDIT_CARD }
+
+    companion object {
+        fun of(account: Account?) = AccountTypeSettings(
+            type = account?.type ?: AccountType.OTHER,
+            archived = account?.archived ?: false,
+            creditLimit = account?.creditLimit?.value,
+            chargeDay = account?.chargeDay,
+        )
+    }
+}
+
+@Composable
+private fun AccountTypeSection(
+    settings: AccountTypeSettings,
+    currencyCode: String,
+    onSelectType: (AccountType) -> Unit,
+    onChargeDayClick: () -> Unit,
+    onCreditLimitClick: () -> Unit,
+) {
+    Text(
+        modifier = Modifier.padding(start = 32.dp),
+        text = stringResource(R.string.account_type),
+        style = MaterialTheme.typography.titleLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    LazyRow(
+        modifier = Modifier.testTag("account_type_row")
+    ) {
+        item {
+            Spacer(Modifier.width(24.dp))
+        }
+
+        items(items = AccountType.entries) { item ->
+            ListItem(
+                icon = item.iconName(),
+                defaultIcon = R.drawable.ic_custom_account_s,
+                text = item.displayName(),
+                selectedColor = Ivy.takeIf { item == settings.type },
+            ) {
+                onSelectType(item)
+            }
+        }
+
+        item {
+            Spacer(Modifier.width(24.dp))
+        }
+    }
+
+    if (settings.type == AccountType.CREDIT_CARD) {
+        Spacer(Modifier.height(16.dp))
+
+        AccountSettingRow(
+            label = stringResource(R.string.charge_day),
+            value = settings.chargeDay?.let { stringResource(R.string.charge_day_value, it.toString()) }
+                ?: stringResource(R.string.charge_day_not_set),
+            testTag = "account_modal_charge_day",
+            onClick = onChargeDayClick,
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        AccountSettingRow(
+            label = stringResource(R.string.credit_limit),
+            value = settings.creditLimit?.let { "${it.format(currencyCode)} $currencyCode" }
+                ?: stringResource(R.string.credit_limit_not_set),
+            testTag = "account_modal_credit_limit",
+            onClick = onCreditLimitClick,
+        )
+    }
+}
+
+@Composable
+private fun AccountSettingRow(
+    label: String,
+    value: String,
+    testTag: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = onClick)
+            .padding(vertical = 16.dp)
+            .testTag(testTag),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(24.dp))
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = Gray,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+
+        Spacer(Modifier.width(24.dp))
+    }
 }
 
 @Composable

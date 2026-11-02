@@ -24,6 +24,8 @@ data class EditTransactionViewState(
     val description: String?,
     val dateTime: Instant?,
     val dueDate: Instant?,
+    // When the credit card charges this expense; null when it isn't one.
+    val chargeDate: LocalDateTime?,
     val accounts: ImmutableList<Account>,
     val categories: ImmutableList<Category>,
     val account: Account?,

@@ -38,6 +38,7 @@ fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal(
     selectedStartDateOfMonth: Int,
     dismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.choose_start_date_of_month),
 
     id: UUID = UUID.randomUUID(),
     onStartDateOfMonthSelected: (Int) -> Unit,
@@ -51,7 +52,7 @@ fun BoxWithConstraintsScope.ChooseStartDateOfMonthModal(
     ) {
         Spacer(Modifier.height(32.dp))
 
-        ModalTitle(text = stringResource(R.string.choose_start_date_of_month))
+        ModalTitle(text = title)
 
         Spacer(Modifier.height(32.dp))
 

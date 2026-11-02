@@ -1,5 +1,6 @@
 package com.ivy.onboarding
 
+import com.ivy.base.model.AccountType
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
 import com.ivy.base.resource.ResourceProvider
@@ -68,6 +69,10 @@ class StarterData @Inject constructor(
                     color = ColorInt(color.toArgb()),
                     icon = IconAsset.from(icon).getOrNull(),
                     includeInBalance = true,
+                    type = AccountType.OTHER,
+                    archived = false,
+                    creditLimit = null,
+                    chargeDay = null,
                     orderNum = index.toDouble(),
                 )
             }.getOrNull()?.let { accountRepository.save(it) }
