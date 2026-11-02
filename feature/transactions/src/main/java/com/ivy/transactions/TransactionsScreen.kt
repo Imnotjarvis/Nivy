@@ -453,6 +453,7 @@ private fun BoxWithConstraintsScope.UI(
             onSkipAllModalVisible(it)
         },
         onSkipAllTransactions = onSkipAllTransactions,
+        overdue = overdue,
         deleteModal1Visible = deleteModal1Visible,
         setDeleteModal1Visible = onDeleteModal1Visible
     )

@@ -200,7 +200,7 @@ private fun BoxWithConstraintsScope.UI(
 
     ReorderModalSingleType(
         visible = state.reorderModalVisible,
-        initialItems = state.categories,
+        initialItems = state.allCategories,
         dismiss = {
             onEvent(CategoriesScreenEvent.OnReorderModalVisible(false))
         },
@@ -240,7 +240,7 @@ private fun BoxWithConstraintsScope.UI(
             onEvent(CategoriesScreenEvent.OnSortOrderModalVisible(visible = false))
         },
         onSortOrderChange = {
-            onEvent(CategoriesScreenEvent.OnReorder(state.categories, it))
+            onEvent(CategoriesScreenEvent.OnReorder(state.allCategories, it))
         }
     )
 }

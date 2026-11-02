@@ -30,6 +30,15 @@ class AmountFormattingTest {
     }
 
     @Test
+    fun `amounts past the Int range keep their value`() {
+        val typed = "3000000000".map { it.toString() }.fold("") { amount, key ->
+            formatInputAmount(currency = "VND", amount = amount, newSymbol = key) ?: amount
+        }
+
+        typed.amountToDouble() shouldBe 3_000_000_000.0
+    }
+
+    @Test
     fun `a calculator expression with localized digits evaluates`() {
         "${formatInt(12)}+3".normalizeExpression() shouldBe "12+3"
     }

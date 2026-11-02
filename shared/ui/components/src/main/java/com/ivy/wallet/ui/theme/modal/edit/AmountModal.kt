@@ -183,11 +183,12 @@ fun BoxWithConstraintsScope.AmountModal(
         visible = calculatorModalVisible,
         initialAmount = amount.amountToDoubleOrNull(),
         currency = currency,
+        decimalCountMax = decimalCountMax,
         dismiss = {
             calculatorModalVisible = false
         },
         onCalculation = {
-            amount = if (currency.isNotEmpty()) it.format(currency) else it.format(decimalCountMax)
+            amount = it.formatAmount(currency, decimalCountMax)
         }
     )
 }
@@ -281,16 +282,16 @@ fun AmountInput(
     )
 }
 
+// After a backspace: removing a digit never adds decimals, so any count is fine.
 private fun formatNumber(number: String): String? {
     val decimalPartString = number
         .split(localDecimalSeparator())
         .getOrNull(1)
-    val newDecimalCount = decimalPartString?.length ?: 0
 
     val amountDouble = number.amountToDoubleOrNull()
 
-    if (newDecimalCount <= 2 && amountDouble != null) {
-        val intPart = truncate(amountDouble).toInt()
+    if (amountDouble != null) {
+        val intPart = truncate(amountDouble).toLong()
         val decimalFormatted = if (decimalPartString != null) {
             "${localDecimalSeparator()}$decimalPartString"
         } else {
