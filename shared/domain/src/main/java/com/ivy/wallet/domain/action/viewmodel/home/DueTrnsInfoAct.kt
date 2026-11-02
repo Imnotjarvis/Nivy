@@ -2,10 +2,11 @@ package com.ivy.wallet.domain.action.viewmodel.home
 
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Transaction
-import com.ivy.wallet.domain.action.account.AccountByIdAct
+import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.TransactionRepository
 import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.wallet.domain.action.transaction.DueTrnsAct
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import com.ivy.wallet.domain.pure.exchange.ExchangeTrnArgument
@@ -19,15 +20,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class DueTrnsInfoAct @Inject constructor(
-    private val dueTrnsAct: DueTrnsAct,
-    private val accountByIdAct: AccountByIdAct,
+    private val transactionRepository: TransactionRepository,
+    private val accountRepository: AccountRepository,
     private val exchangeAct: ExchangeAct,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) {
     suspend operator fun invoke(input: Input): Output = withContext(Dispatchers.IO) {
         val dateNow = timeProvider.localDateNow()
-        val dueTrns = dueTrnsAct(input.range).filter {
+        val dueTrns = transactionRepository.findAllDueToBetween(input.range.from, input.range.to).filter {
             input.dueFilter(with(timeConverter) { it.time.toLocalDate() }, dateNow)
         }
 
@@ -35,7 +36,7 @@ class DueTrnsInfoAct @Inject constructor(
         val exchangeArg = ExchangeTrnArgument(
             baseCurrency = input.baseCurrency,
             exchange = exchangeAct::convert,
-            getAccount = { accountId -> accountByIdAct(accountId) }
+            getAccount = { accountId -> accountRepository.findById(AccountId(accountId)) }
         )
 
         Output(

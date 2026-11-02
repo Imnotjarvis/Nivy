@@ -34,7 +34,6 @@ import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.loan.LoanByIdAct
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateLoanRecordData
 import com.ivy.wallet.domain.logic.model.EditLoanRecordData
@@ -60,7 +59,6 @@ class LoanDetailsViewModel @Inject constructor(
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val nav: Navigation,
     private val accountsAct: AccountsAct,
-    private val loanByIdAct: LoanByIdAct,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
@@ -254,7 +252,7 @@ class LoanDetailsViewModel @Inject constructor(
 
             accounts.value = accountsAct()
 
-            loan.value = loanByIdAct(loanId)
+            loan.value = loanRepository.findById(LoanId(loanId))
 
             loan.value?.let { loan ->
                 selectedLoanAccount.value = accounts.value.find {

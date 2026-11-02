@@ -6,8 +6,6 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.data.model.Transaction
-import com.ivy.frp.Pure
-import com.ivy.frp.SideEffect
 import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.ivy.wallet.domain.data.TransactionHistoryEntry
 import com.ivy.wallet.domain.data.TransactionHistoryItem
@@ -19,16 +17,12 @@ import java.math.BigDecimal
 import java.util.UUID
 
 /** Groups [transactions] by local day, newest first, each day headed by its income and expenses. */
-@Pure
 suspend fun transactionsWithDateDividers(
     transactions: List<Transaction>,
     baseCurrencyCode: String,
     timeConverter: TimeConverter,
-    @SideEffect
     getAccount: suspend (accountId: UUID) -> Account?,
-    @SideEffect
     exchange: suspend (ExchangeData, BigDecimal) -> Option<BigDecimal>,
-    @SideEffect
     getTags: suspend (tagIds: List<TagId>) -> List<Tag> = { emptyList() },
 ): List<TransactionHistoryItem> {
     if (transactions.isEmpty()) return emptyList()

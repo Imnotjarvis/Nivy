@@ -3,7 +3,6 @@ package com.ivy.wallet.domain.pure.transaction
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import com.ivy.data.model.Transaction
-import com.ivy.frp.Pure
 import com.ivy.wallet.domain.pure.util.mapIndexedNel
 import com.ivy.wallet.domain.pure.util.mapIndexedNelSuspend
 import com.ivy.wallet.domain.pure.util.nonEmptyListOfZeros
@@ -12,7 +11,6 @@ import java.math.BigDecimal
 typealias ValueFunction<A> = (Transaction, A) -> BigDecimal
 typealias SuspendValueFunction<A> = suspend (Transaction, A) -> BigDecimal
 
-@Pure
 fun <Arg> foldTransactions(
     transactions: List<Transaction>,
     valueFunctions: NonEmptyList<ValueFunction<Arg>>,
@@ -24,7 +22,6 @@ fun <Arg> foldTransactions(
 )
 
 // One pass over the list: recursing on drop(1) copied the rest of it at every step.
-@Pure
 internal fun <A> sumTransactionsInternal(
     transactions: List<Transaction>,
     valueFunctionArgument: A,
@@ -36,7 +33,6 @@ internal fun <A> sumTransactionsInternal(
     }
 }
 
-@Pure
 suspend fun <Arg> foldTransactionsSuspend(
     transactions: List<Transaction>,
     valueFunctions: NonEmptyList<SuspendValueFunction<Arg>>,
@@ -47,7 +43,6 @@ suspend fun <Arg> foldTransactionsSuspend(
     valueFunctionArgument = arg
 )
 
-@Pure
 internal suspend fun <A> sumTransactionsSuspendInternal(
     transactions: List<Transaction>,
     valueFunctionArgument: A,

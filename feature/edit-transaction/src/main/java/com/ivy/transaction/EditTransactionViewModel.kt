@@ -16,6 +16,7 @@ import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
@@ -26,6 +27,7 @@ import com.ivy.data.model.primitive.AssociationId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
@@ -48,9 +50,7 @@ import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.ui.time.impl.DateTimePicker
-import com.ivy.wallet.domain.action.account.AccountByIdAct
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.transaction.TrnByIdAct
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.logic.SmartTitleSuggestionsLogic
@@ -97,8 +97,7 @@ class EditTransactionViewModel @Inject constructor(
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
-    private val trnByIdAct: TrnByIdAct,
-    private val accountByIdAct: AccountByIdAct,
+    private val accountRepository: AccountRepository,
     private val transactionRepo: TransactionRepository,
     private val transactionMapper: TransactionMapper,
     private val tagRepository: TagRepository,
@@ -163,7 +162,7 @@ class EditTransactionViewModel @Inject constructor(
             reset()
 
             loadedTransaction = screen.initialTransactionId?.let {
-                trnByIdAct(it)?.toDraft()
+                transactionRepo.findById(TransactionId(it))?.toDraft()
             } ?: TransactionDraft(
                 accountId = defaultAccountId(
                     screen = screen,
@@ -289,10 +288,10 @@ class EditTransactionViewModel @Inject constructor(
         description = transaction.description
         dueDate = transaction.dueDate
         paidHistory = transaction.paidFor
-        val selectedAccount = accountByIdAct(transaction.accountId)!!
+        val selectedAccount = accountRepository.findById(AccountId(transaction.accountId))!!
         account = selectedAccount
         toAccount = transaction.toAccountId?.let {
-            accountByIdAct(it)
+            accountRepository.findById(AccountId(it))
         }
         category = transaction.categoryId?.let {
             categoryRepository.findById(CategoryId(it))

@@ -36,7 +36,6 @@ import com.ivy.loans.loan.data.DisplayLoan
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.loan.LoansAct
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateLoanData
 import com.ivy.wallet.ui.theme.modal.LoanModalData
@@ -61,7 +60,6 @@ class LoanViewModel @Inject constructor(
     private val appPreferences: AppPreferences,
     private val accountCreator: AccountCreator,
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
-    private val loansAct: LoansAct,
     private val exchangeUseCase: ExchangeUseCase,
     private val accountsAct: AccountsAct,
     private val timeConverter: TimeConverter,
@@ -179,7 +177,7 @@ class LoanViewModel @Inject constructor(
             totalOwedAmount = 0.0
 
             allLoans = ioThread {
-                loansAct()
+                loanRepository.findAll()
                     .map { loan ->
                         val (amountPaid, loanTotalAmount) = calculateAmountPaidAndTotalAmount(loan)
                         val percentPaid = if (loanTotalAmount != 0.0) {

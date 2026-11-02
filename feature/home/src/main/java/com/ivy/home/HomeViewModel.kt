@@ -11,6 +11,7 @@ import com.ivy.base.model.Theme
 import com.ivy.base.model.next
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.model.Account
 import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
@@ -30,7 +31,6 @@ import com.ivy.wallet.data.DueSection
 import com.ivy.wallet.data.model.MainTab
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toUTCCloseTimeRange
-import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideIncomeAct
 import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.MainScreen
@@ -38,11 +38,8 @@ import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
-import com.ivy.wallet.domain.action.settings.CalcBufferDiffAct
 import com.ivy.wallet.domain.action.transaction.HistoryWithDateDivsAct
-import com.ivy.wallet.domain.action.viewmodel.home.HasTrnsAct
 import com.ivy.wallet.domain.action.viewmodel.home.OverdueAct
-import com.ivy.wallet.domain.action.viewmodel.home.ShouldHideBalanceAct
 import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
 import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
 import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
@@ -78,13 +75,10 @@ class HomeViewModel @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
-    private val calcBufferDiffAct: CalcBufferDiffAct,
     private val upcomingAct: UpcomingAct,
     private val overdueAct: OverdueAct,
-    private val hasTrnsAct: HasTrnsAct,
+    private val transactionDao: TransactionDao,
     private val startDayOfMonthAct: StartDayOfMonthAct,
-    private val shouldHideBalanceAct: ShouldHideBalanceAct,
-    private val shouldHideIncomeAct: ShouldHideIncomeAct,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features
@@ -196,8 +190,8 @@ class HomeViewModel @Inject constructor(
             bufferAmount = stored?.bufferAmount ?: 0.0,
             name = stored?.name.orEmpty(),
         )
-        val hideBalance = shouldHideBalanceAct()
-        val hideIncome = shouldHideIncomeAct()
+        val hideBalance = appPreferences.hideCurrentBalance()
+        val hideIncome = appPreferences.hideIncome()
 
         currentTheme = settings.theme
         name = settings.name
@@ -266,15 +260,8 @@ class HomeViewModel @Inject constructor(
     ): Pair<String, ClosedTimeRange> {
         val (settings, timeRange, balance) = input
 
-        buffer = BufferInfo(
-            amount = settings.bufferAmount.toBigDecimal(),
-            bufferDiff = calcBufferDiffAct(
-                CalcBufferDiffAct.Input(
-                    balance = balance,
-                    buffer = settings.bufferAmount.toBigDecimal()
-                )
-            )
-        )
+        val bufferAmount = settings.bufferAmount.toBigDecimal()
+        buffer = BufferInfo(amount = bufferAmount, bufferDiff = balance - bufferAmount)
 
         return settings.baseCurrency to timeRange
     }
@@ -327,7 +314,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onBalanceClick() {
-        val hasTransactions = hasTrnsAct()
+        val hasTransactions = transactionDao.hasTransactions()
         if (hasTransactions) {
             // has transactions show him "Balance" screen
             nav.navigateTo(BalanceScreen)
