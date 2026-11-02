@@ -24,6 +24,7 @@ import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
+import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.FromToTimeRange
@@ -31,7 +32,6 @@ import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.wallet.utils.format
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.transaction.HistoryTrnsAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -49,7 +49,7 @@ class BudgetViewModel @Inject constructor(
     private val periodState: PeriodState,
     private val categoryRepository: CategoryRepository,
     private val currencyRepository: CurrencyRepository,
-    private val historyTrnsAct: HistoryTrnsAct,
+    private val transactionRepository: TransactionRepository,
     private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
@@ -145,7 +145,8 @@ class BudgetViewModel @Inject constructor(
                 .filter { it.categories.isNotEmpty() }
                 .sumOf { it.amount.value }
 
-            val transactions = historyTrnsAct(timeRange.toCloseTimeRange())
+            val range = timeRange.toCloseTimeRange()
+            val transactions = transactionRepository.findAllBetween(range.from, range.to)
             this@BudgetViewModel.budgets.value = budgets.map {
                 DisplayBudget(
                     budget = it,
