@@ -116,7 +116,7 @@ class OnboardingViewModel @Inject constructor(
 
     private suspend fun initiateSettings(isSystemDarkMode: Boolean) {
         val defaultCurrency = IvyCurrency.getDefault()
-        _currency.value = defaultCurrency
+        _currency.value = savedCurrency() ?: defaultCurrency
 
         if (appPreferences.settings() == null) {
             appPreferences.saveSettings(
@@ -129,6 +129,10 @@ class OnboardingViewModel @Inject constructor(
             )
         }
     }
+
+    /** The base currency already saved, e.g. by a restored backup. */
+    private suspend fun savedCurrency(): IvyCurrency? =
+        appPreferences.settings()?.baseCurrency?.let(IvyCurrency::fromCode)
 
     override fun onEvent(event: OnboardingEvent) {
         viewModelScope.launch {
@@ -166,6 +170,12 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun importFinished(success: Boolean) {
+        if (success) {
+            // A restored backup brings its base currency: offer that rather than the device's.
+            viewModelScope.launch {
+                savedCurrency()?.let { _currency.value = it }
+            }
+        }
         router.importFinished(success)
     }
 
