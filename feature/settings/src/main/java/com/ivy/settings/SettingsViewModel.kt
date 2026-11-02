@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.base.model.next
+import com.ivy.base.Toaster
 import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.backup.BackupDataUseCase
@@ -39,6 +40,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import timber.log.Timber
+import kotlinx.coroutines.CancellationException
+import com.ivy.ui.R
 
 @Stable
 @SuppressLint("StaticFieldLeak")
@@ -56,6 +60,7 @@ class SettingsViewModel @Inject constructor(
     private val exportCsvUseCase: ExportCsvUseCase,
     @ApplicationContext private val context: Context,
     private val timeProvider: TimeProvider,
+    private val toaster: Toaster,
 ) : ComposeViewModel<SettingsState, SettingsEvent>() {
 
     private val currencyCode = mutableStateOf("")
@@ -217,13 +222,26 @@ class SettingsViewModel @Inject constructor(
         ) { fileUri ->
             viewModelScope.launch(Dispatchers.IO) {
                 progressState.value = true
-                backupDataUseCase.exportToFile(zipFileUri = fileUri)
+                // The file provider can refuse the write, or the disk be full.
+                val exported = try {
+                    backupDataUseCase.exportToFile(zipFileUri = fileUri)
+                    true
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Timber.e(e, "Backup export failed")
+                    false
+                }
                 progressState.value = false
 
-                uiThread {
-                    rootScreen.shareZipFile(
-                        fileUri = fileUri
-                    )
+                if (exported) {
+                    uiThread {
+                        rootScreen.shareZipFile(
+                            fileUri = fileUri
+                        )
+                    }
+                } else {
+                    toaster.show(R.string.msg_export_failed)
                 }
             }
         }

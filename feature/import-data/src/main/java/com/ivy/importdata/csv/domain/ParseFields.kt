@@ -5,13 +5,10 @@ import com.ivy.importdata.csv.CSVRow
 import com.ivy.importdata.csv.ColumnMapping
 import com.ivy.importdata.csv.DateMetadata
 import com.ivy.importdata.csv.TrnTypeMetadata
-import java.text.DecimalFormat
-import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.Locale
 import kotlin.math.abs
 
 // region Parse amount
@@ -31,27 +28,29 @@ fun parseAmount(
     abs(double * multiplier)
 }
 
+/**
+ * Reads amounts written with either decimal separator: "12,50", "1 234,56", "1.234,56",
+ * "1,234.56". Spaces and apostrophes group thousands. The last ',' or '.' is the decimal one
+ * when the other kind comes before it, or when it isn't followed by exactly three digits;
+ * otherwise it groups thousands ("1,234"), unless only a zero comes before it ("0,125").
+ */
 private fun parsePositiveDouble(string: String): Double? {
-    val cleanedString = string
-        .replace("-", "")
-        .replace(" ", ".")
-        .filter { it.isDigit() || it == '.' }
+    val number = string.filter { it.isDigit() || it == '.' || it == ',' }
+    val decimalIndex = number.indexOfLast { it == '.' || it == ',' }
+    if (decimalIndex == -1) return number.toDoubleOrNull()
 
-    val numberFormat = NumberFormat.getInstance(Locale.US)
-    if (numberFormat is DecimalFormat) {
-        try {
-            numberFormat.applyPattern("#,###.##")
-            val parsedNumber = numberFormat.parse(cleanedString)?.toDouble()
-            if (parsedNumber != null) {
-                return parsedNumber
-            }
-        } catch (e: Exception) {
-            // ignored
-        }
-    }
+    val separator = number[decimalIndex]
+    val integerPart = number.substring(0, decimalIndex)
+    val fraction = number.substring(decimalIndex + 1)
+    val isDecimal = integerPart.any { !it.isDigit() && it != separator } ||
+        number.count { it == separator } == 1 &&
+        (fraction.length != THOUSANDS_GROUP || integerPart.trimStart('0').isEmpty())
 
-    return cleanedString.toDoubleOrNull() ?: string.toDoubleOrNull()
+    val digits = integerPart.filter { it.isDigit() }
+    return if (isDecimal) "$digits.$fraction".toDoubleOrNull() else (digits + fraction).toDoubleOrNull()
 }
+
+private const val THOUSANDS_GROUP = 3
 // endregion
 
 fun parseTransactionType(
@@ -136,14 +135,15 @@ private fun possibleDateFormats(metadata: DateMetadata): List<String> {
             "d MMM yyyy HH:mm",
             "d MMM yyyy",
             "dd MMM yyyy",
-            "yyyy/dd/MM HH:mm:ss",
-            "yyyy-dd-MM HH:mm:ss",
-            "yyyy/dd/MM H:mm",
-            "yyyy-dd-MM H:mm",
-            "yyyy/dd/MM HH:mm",
-            "yyyy-dd-MM HH:mm",
-            "yyyy/dd/MM",
-            "yyyy-dd-MM",
+            // Year first is year-month-day (ISO), whichever order the file uses otherwise.
+            "yyyy/MM/dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy/MM/dd H:mm",
+            "yyyy-MM-dd H:mm",
+            "yyyy/MM/dd HH:mm",
+            "yyyy-MM-dd HH:mm",
+            "yyyy/MM/dd",
+            "yyyy-MM-dd",
             "yyyy d MMM HH:mm:ss",
             "yyyy d MMM H:mm",
             "yyyy d MMM HH:mm",

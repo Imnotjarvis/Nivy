@@ -86,13 +86,14 @@ class CSVImporterV2 @Inject constructor(
             }
             onProgress(progressPercent / 2)
 
+            // A row the mapper rejects (e.g. a transfer to its own account) failed too.
             val transaction = mapToTransaction(
                 baseCurrency = baseCurrency,
                 importantFields = importantFields,
                 transferFields = transferFields,
                 optionalFields = optionalFields,
                 row = row,
-            )
+            )?.let { with(transactionMapper) { it.toDomain().getOrNull() } }
 
             if (transaction == null) {
                 failedRows.add(
@@ -112,11 +113,7 @@ class CSVImporterV2 @Inject constructor(
                 0.0
             }
             onProgress(SavingStartsAt + progressPercent * (1 - SavingStartsAt))
-            with(transactionMapper) {
-                transaction.toDomain().getOrNull()?.let {
-                    transactionRepository.save(it)
-                }
-            }
+            transactionRepository.save(transaction)
         }
 
         return ImportResult(
