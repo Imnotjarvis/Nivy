@@ -153,7 +153,7 @@ fun TransactionCard(
                             )
                         )
                     }
-                ).uppercase(),
+                ),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = if (dueDate.isAfter(timeProvider.utcNow())) {
                         Orange
@@ -176,7 +176,7 @@ fun TransactionCard(
                     with(LocalTimeFormatter.current) {
                         purchaseDate.formatLocal(TimeFormatter.Style.DateOnly(includeWeekDay = true))
                     }
-                ).uppercase(),
+                ),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold

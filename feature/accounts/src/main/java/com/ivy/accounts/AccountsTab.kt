@@ -1,8 +1,10 @@
 package com.ivy.accounts
 
 import com.ivy.base.model.AccountType
-import com.ivy.design.system.typography.numberTitleSmall
-import androidx.compose.foundation.layout.Arrangement
+import com.ivy.design.system.typography.OpenSans
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -276,34 +278,30 @@ private fun AccountCard(
         if (accountData.creditUsed != null) {
             Spacer(Modifier.height(12.dp))
 
-            // The label in the text font and the amounts in the number font, as budgets show them.
-            Row(
+            // One line of text, so that the label and the amounts share a baseline: the label in
+            // the text font, the amounts in the number font.
+            val used = accountData.creditUsed.format(currency)
+            val amounts = account.creditLimit?.let {
+                stringResource(R.string.credit_used_of_limit, used, it.value.format(currency), currency)
+            } ?: "$used $currency"
+            Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .testTag("account_credit_used"),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.credit_used),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.credit_used))
+                    append("  ")
+                    withStyle(SpanStyle(fontFamily = OpenSans, fontWeight = FontWeight.Bold)) {
+                        append(amounts)
+                    }
+                },
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
                 )
-
-                Spacer(Modifier.width(8.dp))
-
-                val used = accountData.creditUsed.format(currency)
-                Text(
-                    text = account.creditLimit?.let { "$used / ${it.value.format(currency)} $currency" }
-                        ?: "$used $currency",
-                    style = MaterialTheme.typography.numberTitleSmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-            }
+            )
 
             if (compactModeEnabled) {
                 // Nothing follows it in compact mode: it would sit on the card's border.

@@ -83,7 +83,6 @@ import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
-import java.util.Locale
 import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.foundation.shape.CircleShape
@@ -763,8 +762,8 @@ private fun LabelAccountMini(
         Spacer(Modifier.height(2.dp))
 
         Text(
-            text = account?.name?.value?.uppercase(Locale.getDefault()) ?: "",
-            style = MaterialTheme.typography.numberBodyLarge.copy(
+            text = account?.name?.value ?: "",
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )

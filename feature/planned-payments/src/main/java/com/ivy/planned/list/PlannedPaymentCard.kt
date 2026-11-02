@@ -39,7 +39,6 @@ import com.ivy.wallet.ui.component.transaction.TypeAmountCurrency
 import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.ui.previewPlannedPaymentRule
 import com.ivy.wallet.utils.formatLocal
-import com.ivy.wallet.utils.uppercaseLocal
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
@@ -234,7 +233,7 @@ private fun RuleTextRow(
             )
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
-                text = startDate?.toLocalDate()?.formatLocal("dd MMM, yyyy")?.uppercaseLocal()
+                text = startDate?.toLocalDate()?.formatLocal("dd MMM, yyyy")
                     ?: stringResource(R.string.null_text),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
@@ -242,7 +241,7 @@ private fun RuleTextRow(
                 )
             )
         } else {
-            val startDateFormatted = startDate?.toLocalDate()?.formatLocal("MMM. dd")?.uppercaseLocal()
+            val startDateFormatted = startDate?.toLocalDate()?.formatLocal("MMM. dd")
             Text(
                 text = stringResource(R.string.starts_date, startDateFormatted ?: ""),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
@@ -250,7 +249,7 @@ private fun RuleTextRow(
                     fontWeight = FontWeight.SemiBold
                 )
             )
-            val intervalTypeFormatted = intervalType?.forDisplay(intervalN ?: 0)?.uppercaseLocal()
+            val intervalTypeFormatted = intervalType?.forDisplay(intervalN ?: 0)
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
                 text = stringResource(
