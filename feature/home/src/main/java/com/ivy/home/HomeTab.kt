@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.Theme
 import com.ivy.data.model.Transaction
-import com.ivy.home.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.home.customerjourney.CustomerJourney
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.wallet.IvyWalletPreview
@@ -35,14 +34,10 @@ import com.ivy.wallet.LocalPeriodState
 import com.ivy.wallet.data.AppBaseData
 import com.ivy.wallet.data.BufferInfo
 import com.ivy.wallet.data.DueSection
-import com.ivy.wallet.data.model.MainTab
 import com.ivy.wallet.data.model.Month
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.ui.component.transaction.TransactionsDividerLine
 import com.ivy.wallet.ui.component.transaction.transactions
-import com.ivy.wallet.utils.horizontalSwipeListener
-import com.ivy.wallet.utils.rememberSwipeListenerState
-import com.ivy.wallet.utils.verticalSwipeListener
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -99,23 +94,6 @@ fun BoxWithConstraintsScope.HomeUi(
         modifier = modifier
             .fillMaxSize()
             .systemBarsPadding()
-            .verticalSwipeListener(
-                sensitivity = Constants.SWIPE_DOWN_THRESHOLD_OPEN_MORE_MENU,
-                state = rememberSwipeListenerState(),
-                onSwipeDown = {
-                    setMoreMenuExpanded(true)
-                }
-            )
-            .horizontalSwipeListener(
-                sensitivity = SWIPE_HORIZONTAL_THRESHOLD,
-                state = rememberSwipeListenerState(),
-                onSwipeLeft = {
-                    mainScreenState.selectTab(MainTab.ACCOUNTS)
-                },
-                onSwipeRight = {
-                    mainScreenState.selectTab(MainTab.ACCOUNTS)
-                }
-            )
     ) {
         val listState = rememberScrollPositionListState(key = "home_lazy_column")
 
@@ -153,9 +131,6 @@ fun BoxWithConstraintsScope.HomeUi(
                 onEvent(HomeEvent.SetExpanded(it))
             },
             balance = uiState.balance,
-            onOpenMoreMenu = {
-                setMoreMenuExpanded(true)
-            },
             onBalanceClick = {
                 onEvent(HomeEvent.BalanceClick)
             },
@@ -263,7 +238,6 @@ fun HomeLazyColumn(
     setUpcomingExpanded: (Boolean) -> Unit,
     setOverdueExpanded: (Boolean) -> Unit,
 
-    onOpenMoreMenu: () -> Unit,
     onBalanceClick: () -> Unit,
 
     onPayOrGet: (Transaction) -> Unit,
@@ -320,7 +294,6 @@ fun HomeLazyColumn(
                 monthlyIncome = stats.income.toDouble(),
                 monthlyExpenses = stats.expense.toDouble(),
 
-                onOpenMoreMenu = onOpenMoreMenu,
                 onBalanceClick = onBalanceClick,
                 onHiddenBalanceClick = onHiddenBalanceClick,
                 hideIncome = hideIncome,

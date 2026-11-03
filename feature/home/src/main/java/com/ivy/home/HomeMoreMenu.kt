@@ -52,11 +52,9 @@ import com.ivy.design.utils.colorLerp
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.wallet.utils.springBounce
 import com.ivy.design.utils.statusBarInset
 import com.ivy.design.utils.toDensityPx
-import com.ivy.wallet.utils.verticalSwipeListener
 import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.CategoriesScreen
 import com.ivy.navigation.IvyPreview
@@ -78,8 +76,6 @@ import java.util.UUID
 import kotlin.math.roundToInt
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
-
-private const val SWIPE_UP_THRESHOLD_CLOSE_MORE_MENU = 300
 
 @Composable
 fun BoxWithConstraintsScope.MoreMenu(
@@ -161,13 +157,6 @@ fun BoxWithConstraintsScope.MoreMenu(
                 .alpha(percentExpanded)
                 .verticalScroll(rememberScrollState())
                 .zIndex(510f)
-                .verticalSwipeListener(
-                    sensitivity = SWIPE_UP_THRESHOLD_CLOSE_MORE_MENU,
-                    state = rememberSwipeListenerState(),
-                    onSwipeUp = {
-                        setExpanded(false)
-                    }
-                )
         ) {
             val modalId = remember {
                 UUID.randomUUID()
