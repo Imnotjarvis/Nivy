@@ -40,10 +40,8 @@ import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.lerp
 import com.ivy.wallet.utils.springBounceSlow
-import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.toDensityDp
 import com.ivy.design.utils.toDensityPx
@@ -244,7 +242,6 @@ private fun LoginSection(
                 text = stringResource(R.string.continue_offline),
                 textColor = MaterialTheme.colorScheme.onSurface,
                 backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
-                hasShadow = false
             ) {
                 onSkip()
             }
@@ -284,16 +281,12 @@ private fun LoginButton(
     text: String,
     textColor: Color,
     backgroundGradient: Gradient,
-    hasShadow: Boolean,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
-            .thenIf(hasShadow) {
-                drawColoredShadow(backgroundGradient.startColor)
-            }
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundGradient.asHorizontalBrush(), MaterialTheme.shapes.medium)
             .clickable {

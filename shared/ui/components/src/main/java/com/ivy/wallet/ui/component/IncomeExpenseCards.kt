@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.wallet.utils.format
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
@@ -125,10 +124,6 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .drawColoredShadow(
-                color = backgroundColor,
-                alpha = 0.1f
-            )
             .background(backgroundColor, MaterialTheme.shapes.extraLarge)
             .clickable { onHeaderCardClicked() },
     ) {
@@ -191,7 +186,6 @@ private fun RowScope.HeaderCard(
                     .padding(horizontal = 8.dp)
                     .align(Alignment.CenterHorizontally),
                 text = addButtonText,
-                shadowAlpha = 0.1f,
                 backgroundGradient = Gradient.solid(addButtonBackground),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = findContrastTextColor(addButtonBackground),

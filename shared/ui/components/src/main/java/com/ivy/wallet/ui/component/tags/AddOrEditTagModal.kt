@@ -105,7 +105,6 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
 
             if (initialTag != null) {
                 DeleteButton(
-                    hasShadow = false,
                     onClick = {
                         onTagDelete(initialTag)
                     }

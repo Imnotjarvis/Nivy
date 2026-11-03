@@ -94,10 +94,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
         TransactionTypeButton(
             transactionType = TransactionType.EXPENSE,
             selected = transactionType == TransactionType.EXPENSE,
-            selectedGradient = Gradient(
-                MaterialTheme.colorScheme.onSurface,
-                MaterialTheme.colorScheme.onSurfaceVariant
-            ),
+            selectedGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
             textSelectedColor = MaterialTheme.colorScheme.surface
         ) {
             transactionType = TransactionType.EXPENSE

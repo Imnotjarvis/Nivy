@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Purple
 import com.ivy.wallet.IvyWalletComponentPreview
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
@@ -107,7 +106,6 @@ private fun AddNewButton(
 ) {
     Row(
         modifier = Modifier
-            .drawColoredShadow(color = MaterialTheme.colorScheme.inverseSurface)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.inverseSurface, CircleShape)
             .clickable {

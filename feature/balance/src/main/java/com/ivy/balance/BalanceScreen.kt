@@ -230,7 +230,6 @@ private fun ColumnScope.CloseButton() {
         backgroundPadding = 8.dp,
         icon = R.drawable.ic_add,
         backgroundGradient = Gradient.solid(Gray),
-        hasShadow = false,
         tint = White
     ) {
         nav.back()

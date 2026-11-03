@@ -34,7 +34,6 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
@@ -196,9 +195,6 @@ private fun CategoryButton(
 
     Row(
         modifier = Modifier
-            .thenIf(selected) {
-                drawColoredShadow(categoryColor)
-            }
             .clip(CircleShape)
             .border(
                 width = 2.dp,

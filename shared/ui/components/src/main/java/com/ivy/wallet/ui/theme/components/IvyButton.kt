@@ -24,8 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
-import com.ivy.design.utils.drawColoredShadow
-import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -47,9 +45,7 @@ fun IvyButton(
     @DrawableRes iconEnd: Int? = null,
     iconTint: Color = White,
     enabled: Boolean = true,
-    shadowAlpha: Float = 0.15f,
     wrapContentMode: Boolean = true,
-    hasGlow: Boolean = true,
     padding: Dp = 12.dp,
     iconEdgePadding: Dp = 12.dp,
     iconTextPadding: Dp = 4.dp,
@@ -57,16 +53,6 @@ fun IvyButton(
 ) {
     Row(
         modifier = modifier
-            .thenIf(enabled && hasGlow) {
-                drawColoredShadow(
-                    color = backgroundGradient.startColor,
-                    borderRadius = 0.dp,
-                    shadowRadius = 16.dp,
-                    alpha = shadowAlpha,
-                    offsetX = 0.dp,
-                    offsetY = 8.dp
-                )
-            }
             .clip(CircleShape)
             .background(
                 brush = if (enabled) {

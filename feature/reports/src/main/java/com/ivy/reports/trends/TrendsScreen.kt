@@ -135,7 +135,7 @@ private fun TrendsUi(
                 label = stringResource(R.string.expenses),
                 amount = selected.expense,
                 currency = currency,
-                background = Gradient(MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.onSurfaceVariant),
+                background = Gradient.solid(MaterialTheme.colorScheme.onSurface),
                 textColor = MaterialTheme.colorScheme.surface,
             )
         }
