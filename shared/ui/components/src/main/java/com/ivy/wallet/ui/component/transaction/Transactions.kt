@@ -32,11 +32,11 @@ import com.ivy.design.system.colors.Black
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.Palette
 
 // With this many transactions or fewer, the list gets a taller spacer at the end so it can scroll.
 private const val FewTransactions = 5
@@ -165,7 +165,7 @@ private fun LazyListScope.overdueSection(
                 expanded = overdue.expanded,
                 setExpanded = setExpanded,
                 title = stringResource(R.string.overdue),
-                titleColor = Red,
+                titleColor = Palette.Red,
                 baseCurrency = baseData.baseCurrency,
                 income = overdue.stats.income.toDouble(),
                 expenses = overdue.stats.expense.abs().toDouble()

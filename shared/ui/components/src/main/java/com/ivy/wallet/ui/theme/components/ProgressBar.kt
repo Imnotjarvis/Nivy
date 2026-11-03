@@ -17,8 +17,8 @@ import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.Red
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.Palette
 
 @Composable
 fun ProgressBar(
@@ -35,7 +35,7 @@ fun ProgressBar(
                 drawRect(
                     color = when {
                         percent <= 0.25 -> {
-                            if (positiveProgress) Red else Green
+                            if (positiveProgress) Palette.Red else Green
                         }
                         percent <= 0.50 -> {
                             if (positiveProgress) Orange else Ivy
@@ -43,7 +43,7 @@ fun ProgressBar(
                         percent <= 0.75 -> {
                             if (positiveProgress) Ivy else Orange
                         }
-                        else -> if (positiveProgress) Green else Red
+                        else -> if (positiveProgress) Green else Palette.Red
                     },
                     size = size.copy(
                         width = (size.width * percent).toFloat()

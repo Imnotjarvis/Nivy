@@ -28,11 +28,11 @@ import com.ivy.ui.R
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
 import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.Palette
 
 @Composable
 fun BufferBattery(
@@ -85,7 +85,7 @@ fun BufferBattery(
                             Orange
                         }
 
-                        else -> Red
+                        else -> Palette.Red
                     },
                     size = size.copy(
                         width = (size.width * bufferExceededPercent).toFloat()

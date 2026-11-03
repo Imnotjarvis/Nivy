@@ -24,8 +24,7 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.csv.ReadCsvUseCase
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
-import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Palette
 import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.logic.csv.model.RowMapping
@@ -436,11 +435,11 @@ class CSVImporter @Inject constructor(
         // create new account
         val colorArgb = color ?: when {
             accountNameString.toLowerCaseLocal().contains("cash") -> {
-                Green
+                Palette.Green
             }
 
             accountNameString.toLowerCaseLocal().contains("revolut") -> {
-                IvyDark
+                Palette.IvyDark
             }
 
             else -> IVY_COLOR_PICKER_COLORS_FREE.getOrElse(newAccountColorIndex++) {

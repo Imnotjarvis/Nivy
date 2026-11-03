@@ -7,8 +7,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
-import com.ivy.design.system.colors.GradientRed
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Palette
 
 @Composable
 fun DeleteButton(
@@ -21,7 +22,7 @@ fun DeleteButton(
             .testTag("delete_button"),
         backgroundPadding = 6.dp,
         icon = R.drawable.ic_delete,
-        backgroundGradient = GradientRed,
+        backgroundGradient = Gradient.solid(Palette.Red),
         enabled = true,
         tint = White,
         contentDescription = stringResource(R.string.delete),

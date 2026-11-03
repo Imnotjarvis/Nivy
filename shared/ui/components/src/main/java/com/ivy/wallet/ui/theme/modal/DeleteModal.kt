@@ -24,10 +24,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.Palette
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -62,7 +62,7 @@ fun BoxWithConstraintsScope.DeleteModal(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = Red,
+                color = Palette.Red,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -122,7 +122,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = Red,
+                color = Palette.Red,
                 fontWeight = FontWeight.ExtraBold
             )
         )

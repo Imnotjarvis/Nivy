@@ -11,6 +11,7 @@ import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.design.system.shapes.AppCornerRadius
+import com.ivy.design.system.colors.ColorMode
 import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.utils.readOnly
 import com.ivy.navigation.EditTransactionScreen
@@ -106,6 +107,11 @@ class RootViewModel @Inject constructor(
         viewModelScope.launch {
             // Blocks and pills follow the corner radius chosen in the settings.
             appPreferences.cornerRadius.collect { AppCornerRadius.setting = it?.dp }
+        }
+
+        viewModelScope.launch {
+            // The app is drawn in minimal colors when the settings say so.
+            appPreferences.minimalColors.collect { ColorMode.minimal = it }
         }
 
         viewModelScope.launch {

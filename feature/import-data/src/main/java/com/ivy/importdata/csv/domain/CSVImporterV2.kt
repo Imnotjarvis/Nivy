@@ -29,8 +29,7 @@ import com.ivy.importdata.csv.TransferFields
 import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.pure.util.nextOrderNum
-import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.IvyDark
+import com.ivy.design.system.colors.Palette
 import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import javax.inject.Inject
@@ -258,11 +257,11 @@ class CSVImporterV2 @Inject constructor(
         // create new account
         val colorArgb = color ?: when {
             accountNameString.toLowerCaseLocal().contains("cash") -> {
-                Green
+                Palette.Green
             }
 
             accountNameString.toLowerCaseLocal().contains("revolut") -> {
-                IvyDark
+                Palette.IvyDark
             }
 
             else -> IVY_COLOR_PICKER_COLORS_FREE.getOrElse(newAccountColorIndex++) {

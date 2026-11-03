@@ -55,7 +55,7 @@ import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateLoanData
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Palette
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
@@ -114,7 +114,7 @@ fun BoxWithConstraintsScope.LoanModal(
         mutableDoubleStateOf(modal?.loan?.amount?.value ?: 0.0)
     }
     var color by remember(modal?.id) {
-        mutableStateOf(loan?.color?.let { Color(it.value) } ?: Ivy)
+        mutableStateOf(loan?.color?.let { Color(it.value) } ?: Palette.Ivy)
     }
     var icon by remember(modal?.id) {
         mutableStateOf(loan?.icon?.id)

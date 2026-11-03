@@ -26,11 +26,11 @@ import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.utils.springBounce
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyDividerDot
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberLabelMedium
+import com.ivy.design.system.colors.Palette
 
 @Composable
 fun SectionDivider(
@@ -177,7 +177,7 @@ private fun Preview_Expenses() {
         SectionDivider(
             expanded = true,
             title = "Overdue",
-            titleColor = Red,
+            titleColor = Palette.Red,
             baseCurrency = "BGN",
             income = 0.0,
             expenses = 923.87

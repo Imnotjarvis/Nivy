@@ -14,31 +14,6 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.design.system.colors.Blue
-import com.ivy.design.system.colors.Blue2
-import com.ivy.design.system.colors.Blue2Light
-import com.ivy.design.system.colors.Blue3
-import com.ivy.design.system.colors.BlueDark
-import com.ivy.design.system.colors.BlueLight
-import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.Green2
-import com.ivy.design.system.colors.Green2Light
-import com.ivy.design.system.colors.GreenLight
-import com.ivy.design.system.colors.Ivy
-import com.ivy.design.system.colors.IvyDark
-import com.ivy.design.system.colors.IvyLight
-import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.Orange2
-import com.ivy.design.system.colors.Orange3
-import com.ivy.design.system.colors.Orange3Light
-import com.ivy.design.system.colors.Purple1
-import com.ivy.design.system.colors.Purple2
-import com.ivy.design.system.colors.Red
-import com.ivy.design.system.colors.Red3
-import com.ivy.design.system.colors.Red3Light
-import com.ivy.design.system.colors.RedLight
-import com.ivy.design.system.colors.Yellow
-import com.ivy.design.system.colors.YellowLight
 import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
@@ -47,6 +22,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import javax.inject.Inject
+import com.ivy.design.system.colors.Palette
 
 /** The accounts and categories a new wallet can start with. */
 class StarterData @Inject constructor(
@@ -58,8 +34,8 @@ class StarterData @Inject constructor(
     suspend fun preloadAccounts() {
         val baseCurrency = currencyRepository.getBaseCurrency()
         listOf(
-            Triple(R.string.cash, Green, "cash"),
-            Triple(R.string.bank, IvyDark, "bank"),
+            Triple(R.string.cash, Palette.Green, "cash"),
+            Triple(R.string.bank, Palette.IvyDark, "bank"),
         ).forEachIndexed { index, (name, color, icon) ->
             either {
                 Account(
@@ -85,21 +61,21 @@ class StarterData @Inject constructor(
             CreateAccountData(
                 name = resourceProvider.getString(R.string.cash),
                 currency = baseCurrency,
-                color = Green,
+                color = Palette.Green,
                 icon = "cash",
                 balance = 0.0
             ),
             CreateAccountData(
                 name = resourceProvider.getString(R.string.bank),
                 currency = baseCurrency,
-                color = IvyDark,
+                color = Palette.IvyDark,
                 icon = "bank",
                 balance = 0.0
             ),
             CreateAccountData(
                 name = resourceProvider.getString(R.string.revoult),
                 currency = baseCurrency,
-                color = Blue,
+                color = Palette.Blue,
                 icon = "revolut",
                 balance = 0.0
             ),
@@ -114,61 +90,61 @@ class StarterData @Inject constructor(
     private fun preloadCategoriesCreateData() = listOf(
         CreateCategoryData(
             name = resourceProvider.getString(R.string.food_drinks),
-            color = Green,
+            color = Palette.Green,
             icon = "fooddrink"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.bills_fees),
-            color = Red,
+            color = Palette.Red,
             icon = "bills"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.transport),
-            color = YellowLight,
+            color = Palette.YellowLight,
             icon = "transport"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.groceries),
-            color = GreenLight,
+            color = Palette.GreenLight,
             icon = "groceries"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.entertainment),
-            color = Orange,
+            color = Palette.Orange,
             icon = "game"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.shopping),
-            color = Ivy,
+            color = Palette.Ivy,
             icon = "shopping"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.gifts),
-            color = RedLight,
+            color = Palette.RedLight,
             icon = "gift"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.health),
-            color = IvyLight,
+            color = Palette.IvyLight,
             icon = "health"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.investments),
-            color = IvyDark,
+            color = Palette.IvyDark,
             icon = "leaf"
         ),
 
         CreateCategoryData(
             name = resourceProvider.getString(R.string.loans),
-            color = BlueDark,
+            color = Palette.BlueDark,
             icon = "loan"
         ),
     )
@@ -197,91 +173,91 @@ class StarterData @Inject constructor(
             listOf(
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.car),
-                    color = Blue3,
+                    color = Palette.Blue3,
                     icon = "vehicle"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.work),
-                    color = Blue2Light,
+                    color = Palette.Blue2Light,
                     icon = "work"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.home_category),
-                    color = Green2,
+                    color = Palette.Green2,
                     icon = "house"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.restaurant),
-                    color = Orange3,
+                    color = Palette.Orange3,
                     icon = "restaurant"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.family),
-                    color = Red3Light,
+                    color = Palette.Red3Light,
                     icon = "family"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.social_life),
-                    color = Blue2,
+                    color = Palette.Blue2,
                     icon = "people"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.order_food),
-                    color = Orange2,
+                    color = Palette.Orange2,
                     icon = "orderfood2"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.travel),
-                    color = BlueLight,
+                    color = Palette.BlueLight,
                     icon = "travel"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.fitness),
-                    color = Purple2,
+                    color = Palette.Purple2,
                     icon = "fitness"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.self_development),
-                    color = Yellow,
+                    color = Palette.Yellow,
                     icon = "selfdevelopment"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.clothes),
-                    color = Green2Light,
+                    color = Palette.Green2Light,
                     icon = "clothes2"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.beauty),
-                    color = Red3,
+                    color = Palette.Red3,
                     icon = "makeup"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.education),
-                    color = Blue,
+                    color = Palette.Blue,
                     icon = "education"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.pet),
-                    color = Orange3Light,
+                    color = Palette.Orange3Light,
                     icon = "pet"
                 ),
 
                 CreateCategoryData(
                     name = resourceProvider.getString(R.string.sports),
-                    color = Purple1,
+                    color = Palette.Purple1,
                     icon = "sports"
                 ),
             )

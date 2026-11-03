@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.ivy.base.model.DateDisplayFormat
 import com.ivy.base.model.Theme
 import com.ivy.design.system.shapes.AppCornerRadius
+import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.rootScreen
@@ -51,7 +52,6 @@ import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvySwitch
 import com.ivy.wallet.ui.theme.components.IvyToolbar
@@ -68,6 +68,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import com.ivy.navigation.rememberOnBack
 import kotlin.math.roundToInt
+import com.ivy.design.system.colors.Palette
 
 @ExperimentalFoundationApi
 @Composable
@@ -129,6 +130,9 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         },
         onSetCornerRadius = {
             viewModel.onEvent(SettingsEvent.SetCornerRadius(it))
+        },
+        onSetMinimalColors = {
+            viewModel.onEvent(SettingsEvent.SetMinimalColors(it))
         }
     )
 }
@@ -161,7 +165,8 @@ private fun BoxWithConstraintsScope.UI(
     onSetStartDateOfMonth: (Int) -> Unit = {},
     onDeleteAllUserData: () -> Unit = {},
     onSetDateFormat: (DateDisplayFormat) -> Unit = {},
-    onSetCornerRadius: (Int?) -> Unit = {}
+    onSetCornerRadius: (Int?) -> Unit = {},
+    onSetMinimalColors: (Boolean) -> Unit = {},
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
     var nameModalVisible by remember { mutableStateOf(false) }
@@ -373,6 +378,16 @@ private fun BoxWithConstraintsScope.UI(
 
             Spacer(Modifier.height(12.dp))
 
+            AppSwitch(
+                lockApp = ColorMode.minimal,
+                onSetLockApp = onSetMinimalColors,
+                text = stringResource(R.string.minimal_colors),
+                description = stringResource(R.string.minimal_colors_description),
+                icon = R.drawable.ic_custom_palette_m
+            )
+
+            Spacer(Modifier.height(12.dp))
+
             CustomFeatures(
                 onClick = { nav.navigateTo(FeaturesScreen) }
             )
@@ -381,7 +396,7 @@ private fun BoxWithConstraintsScope.UI(
         item {
             SettingsSectionDivider(
                 text = stringResource(R.string.danger_zone),
-                color = Red
+                color = Palette.Red
             )
 
             Spacer(Modifier.height(16.dp))
@@ -389,7 +404,7 @@ private fun BoxWithConstraintsScope.UI(
             SettingsPrimaryButton(
                 icon = R.drawable.ic_delete,
                 text = stringResource(R.string.delete_all_user_data),
-                backgroundGradient = Gradient.solid(Red)
+                backgroundGradient = Gradient.solid(Palette.Red)
             ) {
                 deleteAllDataModalVisible = true
             }

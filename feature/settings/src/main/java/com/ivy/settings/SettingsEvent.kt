@@ -21,5 +21,6 @@ sealed interface SettingsEvent {
 
     /** A radius in dp, or null to match the phone's screen corners. */
     data class SetCornerRadius(val dp: Int?) : SettingsEvent
+    data class SetMinimalColors(val minimal: Boolean) : SettingsEvent
     data object DeleteAllUserData : SettingsEvent
 }
