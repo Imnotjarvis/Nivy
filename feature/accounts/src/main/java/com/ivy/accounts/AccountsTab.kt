@@ -256,7 +256,7 @@ private fun AccountCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .opensScreen()
+            .opensScreen(accountData.account.color.value.toComposeColor())
             .clip(MaterialTheme.shapes.medium)
             // Behind the content: the colored header covers it, so it frames only the rest.
             .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)

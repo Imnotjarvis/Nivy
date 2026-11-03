@@ -280,7 +280,7 @@ private fun DefaultCategoryCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .opensScreen()
+            .opensScreen(categoryData.category.color.value.toComposeColor())
             .clip(MaterialTheme.shapes.medium)
             // Behind the content: the colored header covers it, so it frames only the rest.
             .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
@@ -323,7 +323,7 @@ private fun CompactCategoryCard(
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .opensScreen()
+            .opensScreen(category.color.value.toComposeColor())
             .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick

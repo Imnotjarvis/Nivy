@@ -434,7 +434,7 @@ private fun CategoryAmountCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .opensScreen()
+            .opensScreen(backgroundColor)
             .clip(MaterialTheme.shapes.large)
             .background(backgroundColor, MaterialTheme.shapes.large)
             .clickable {

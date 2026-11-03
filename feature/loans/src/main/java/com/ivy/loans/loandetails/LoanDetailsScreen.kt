@@ -437,7 +437,7 @@ private fun LoanInfoCard(
                 IvyButton(
                     modifier = Modifier
                         .padding(end = 16.dp, top = 12.dp)
-                        .opensScreen(),
+                        .opensScreen(loan.color.value.toComposeColor()),
                     backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
                     iconTint = contrastColor,
                     text = selectedLoanAccount.name.value,
@@ -660,7 +660,7 @@ private fun LoanRecordItem(
             Row(Modifier.padding(16.dp)) {
                 if (account != null) {
                     IvyButton(
-                        modifier = Modifier.opensScreen(),
+                        modifier = Modifier.opensScreen(MaterialTheme.colorScheme.surface),
                         backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                         iconTint = MaterialTheme.colorScheme.onSurface,
                         text = account.name.value,
