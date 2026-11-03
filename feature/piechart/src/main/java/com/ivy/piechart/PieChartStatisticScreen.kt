@@ -275,7 +275,8 @@ private fun Header(
             .fillMaxWidth()
             .background(pureBlur())
             .statusBarsPadding()
-            .padding(top = 16.dp),
+            // Like Home's header: room below the row too, so scrolled content stays clear of it.
+            .padding(top = 16.dp, bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
