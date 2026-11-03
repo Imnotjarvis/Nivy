@@ -70,10 +70,10 @@ import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.design.system.colors.findContrastTextColor
-import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.accountColor
 
 @Composable
 fun BoxWithConstraintsScope.AccountsTab() {
@@ -223,7 +223,7 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(vertical = 8.dp),
             text = item.account.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = item.account.color.value.toComposeColor(),
+                color = accountColor(item.account.color.value),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -242,7 +242,7 @@ private fun AccountCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .opensScreen(accountData.account.color.value.toComposeColor())
+            .opensScreen(accountColor(accountData.account.color.value))
             .clip(MaterialTheme.shapes.medium)
             // Behind the content: the colored header covers it, so it frames only the rest.
             .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
@@ -251,7 +251,7 @@ private fun AccountCard(
             )
     ) {
         val account = accountData.account
-        val contrastColor = findContrastTextColor(account.color.value.toComposeColor())
+        val contrastColor = findContrastTextColor(accountColor(account.color.value))
         val currency = account.asset.code
 
         AccountHeader(
@@ -325,7 +325,7 @@ private fun AccountHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(account.color.value.toComposeColor())
+            .background(accountColor(account.color.value))
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -360,7 +360,7 @@ private fun AccountHeader(
                 Text(
                     text = stringResource(R.string.archived),
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = account.color.value.toComposeColor().dynamicContrast(),
+                        color = accountColor(account.color.value).dynamicContrast(),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -372,7 +372,7 @@ private fun AccountHeader(
                 Text(
                     text = stringResource(R.string.excluded),
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = account.color.value.toComposeColor().dynamicContrast(),
+                        color = accountColor(account.color.value).dynamicContrast(),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -407,7 +407,7 @@ private fun AccountHeader(
                         onBalanceClick()
                     }
                     .testTag("baseCurrencyEquivalent"),
-                textColor = account.color.value.toComposeColor().dynamicContrast(),
+                textColor = accountColor(account.color.value).dynamicContrast(),
                 currency = baseCurrency,
                 balance = accountData.balanceBaseCurrency,
                 currencyUpfront = false

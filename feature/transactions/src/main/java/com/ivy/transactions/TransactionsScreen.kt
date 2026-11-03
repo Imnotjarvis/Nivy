@@ -102,6 +102,7 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop
 import androidx.compose.runtime.DisposableEffect
+import com.ivy.design.system.colors.accountColor
 
 @Composable
 fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
@@ -272,7 +273,8 @@ private fun BoxWithConstraintsScope.UI(
 ) {
     val periodState = LocalPeriodState.current
     val screenSize = LocalScreenSize.current
-    val itemColor = (account?.color?.value ?: category?.color?.value)?.toComposeColor() ?: Gray
+    val itemColor = account?.let { accountColor(it.color.value) }
+        ?: category?.color?.value?.toComposeColor() ?: Gray
 
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
@@ -790,7 +792,7 @@ private fun Item(
                     Text(
                         text = stringResource(R.string.excluded),
                         style = MaterialTheme.typography.labelMedium.copy(
-                            color = account.color.value.toComposeColor().dynamicContrast(),
+                            color = accountColor(account.color.value).dynamicContrast(),
                             fontWeight = FontWeight.Bold
                         )
                     )

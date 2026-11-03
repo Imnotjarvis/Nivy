@@ -88,6 +88,7 @@ import kotlinx.collections.immutable.toImmutableList
 import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.accountColor
 
 @SuppressLint("ComposeModifierMissing")
 @Suppress("LongMethod")
@@ -696,7 +697,7 @@ private fun AccountsFilter(
                 icon = account.icon?.id,
                 defaultIcon = R.drawable.ic_custom_account_s,
                 text = account.name.value,
-                selectedColor = account.color.value.toComposeColor().takeIf {
+                selectedColor = accountColor(account.color.value).takeIf {
                     filter?.accounts?.contains(account) == true
                 }
             ) { selected ->

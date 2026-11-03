@@ -1,5 +1,8 @@
 package com.ivy.design.system.colors
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,3 +28,12 @@ fun Color.toGrey(): Color {
     return Color(lightness, lightness, lightness, alpha, ColorSpaces.LinearSrgb)
         .convert(ColorSpaces.Srgb)
 }
+
+/**
+ * An account's saved color as drawn: in minimal colors every account is the same grey, the cards'
+ * one. Categories keep greys of their own lightness, which charts tell apart.
+ */
+@Composable
+@ReadOnlyComposable
+fun accountColor(argb: Int): Color =
+    if (ColorMode.minimal) MaterialTheme.colorScheme.surfaceVariant else argb.toComposeColor()

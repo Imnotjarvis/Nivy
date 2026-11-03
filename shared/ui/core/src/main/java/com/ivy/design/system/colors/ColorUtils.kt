@@ -14,6 +14,9 @@ private const val DarkLuminance = 0.5
 // The WCAG contrast ratio adds this to both luminances.
 private const val ContrastOffset = 0.05f
 
+// A color whose channels differ by less than this is a grey.
+private const val GreyTolerance = 0.01f
+
 // dynamicContrast() sorts a color by its HSV saturation (s) and value (v): vivid colors, pale
 // colors and deep colors, and lightens or darkens it to stand out against itself.
 private const val VividMinSaturation = 0.5f
@@ -50,6 +53,16 @@ fun readableOn(background: Color): Color {
     val blackContrast = (lightness + ContrastOffset) / (Black.luminance() + ContrastOffset)
     return if (whiteContrast >= blackContrast) White else Black
 }
+
+/**
+ * An icon's [tint] on [background]: in minimal colors, on a grey, the more readable of black and
+ * white; otherwise the tint as it is (also on what keeps its color, like the warnings' red).
+ */
+fun readableTint(background: Color, tint: Color): Color =
+    if (ColorMode.minimal && background.isOpaqueGrey()) readableOn(background) else tint
+
+private fun Color.isOpaqueGrey(): Boolean =
+    alpha >= 1f && maxOf(red, green, blue) - minOf(red, green, blue) < GreyTolerance
 
 fun isDarkColor(color: Color): Boolean {
     return isDarkColor(color.toArgb())

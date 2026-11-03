@@ -53,6 +53,7 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import com.ivy.design.system.colors.accountColor
 
 data class BudgetModalData(
     val budget: Budget?,
@@ -309,7 +310,7 @@ private fun AccountsRow(
                 icon = account.icon?.id,
                 defaultIcon = R.drawable.ic_custom_account_s,
                 text = account.name.value,
-                selectedColor = account.color.value.toComposeColor().takeIf {
+                selectedColor = accountColor(account.color.value).takeIf {
                     budgetAccountIds.contains(account.id)
                 }
             ) { selected ->

@@ -65,13 +65,13 @@ import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
 import com.ivy.wallet.ui.theme.modal.edit.IconNameRow
-import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.accountColor
 
 data class LoanModalData(
     val loan: Loan?,
@@ -442,7 +442,7 @@ private fun Account(
     testTag: String,
     onClick: () -> Unit
 ) {
-    val accountColor = account.color.value.toComposeColor()
+    val accountColor = accountColor(account.color.value)
     val textColor =
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
