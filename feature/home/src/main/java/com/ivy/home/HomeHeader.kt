@@ -30,12 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.design.utils.thenIf
 import com.ivy.wallet.LocalPeriodState
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.ui.component.transaction.TransactionsDividerLine
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.wallet.utils.isNotNullOrBlank
@@ -222,7 +220,6 @@ fun CashFlowInfo(
     onHiddenIncomeClick: () -> Unit,
     onOpenMoreMenu: () -> Unit,
     onBalanceClick: () -> Unit,
-    percentExpanded: Float,
     onHiddenBalanceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -256,7 +253,6 @@ fun CashFlowInfo(
         Spacer(modifier = Modifier.height(24.dp))
 
         IncomeExpenses(
-            percentExpanded = percentExpanded,
             currency = currency,
             monthlyIncome = monthlyIncome,
             monthlyExpenses = monthlyExpenses,
@@ -293,7 +289,6 @@ fun CashFlowInfo(
 
 @Composable
 private fun IncomeExpenses(
-    percentExpanded: Float,
     currency: String,
     monthlyIncome: Double,
     monthlyExpenses: Double,
@@ -309,7 +304,6 @@ private fun IncomeExpenses(
         val nav = navigation()
 
         HeaderCard(
-            percentVisible = percentExpanded,
             icon = R.drawable.ic_income,
             backgroundGradient = GradientGreen,
             textColor = White,
@@ -332,12 +326,8 @@ private fun IncomeExpenses(
         Spacer(Modifier.width(12.dp))
 
         HeaderCard(
-            percentVisible = percentExpanded,
             icon = R.drawable.ic_expense,
-            backgroundGradient = Gradient(
-                MaterialTheme.colorScheme.onSurface,
-                MaterialTheme.colorScheme.onSurfaceVariant
-            ),
+            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
             textColor = MaterialTheme.colorScheme.surface,
             label = stringResource(R.string.expenses),
             currency = currency,
@@ -359,7 +349,6 @@ private fun IncomeExpenses(
 private fun RowScope.HeaderCard(
     @DrawableRes icon: Int,
     backgroundGradient: Gradient,
-    percentVisible: Float,
     textColor: Color,
     label: String,
     currency: String,
@@ -370,9 +359,6 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .thenIf(percentVisible == 1f) {
-                drawColoredShadow(backgroundGradient.startColor)
-            }
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundGradient.asHorizontalBrush())
             .testTag(testTag)

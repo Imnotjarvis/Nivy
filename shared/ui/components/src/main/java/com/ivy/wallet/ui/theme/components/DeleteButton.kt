@@ -13,7 +13,6 @@ import com.ivy.design.system.colors.White
 @Composable
 fun DeleteButton(
     modifier: Modifier = Modifier,
-    hasShadow: Boolean = true,
     onClick: () -> Unit,
 ) {
     IvyCircleButton(
@@ -24,7 +23,6 @@ fun DeleteButton(
         icon = R.drawable.ic_delete,
         backgroundGradient = GradientRed,
         enabled = true,
-        hasShadow = hasShadow,
         tint = White,
         contentDescription = stringResource(R.string.delete),
         onClick = onClick

@@ -28,10 +28,7 @@ data class Gradient(
 
         @Composable
         @ReadOnlyComposable
-        fun black() = Gradient(
-            MaterialTheme.colorScheme.onSurfaceVariant,
-            MaterialTheme.colorScheme.onSurface
-        )
+        fun black() = solid(MaterialTheme.colorScheme.onSurface)
     }
 
     fun asHorizontalBrush() = Brush.horizontalGradient(colors = listOf(startColor, endColor))
@@ -39,18 +36,16 @@ data class Gradient(
     fun asVerticalBrush() = Brush.verticalGradient(colors = listOf(startColor, endColor))
 }
 
-val GradientRed = Gradient(Red, Color(0xFFFF99AB))
-val GradientPurple = Gradient(Violet, Color(0xFFED3EF7))
-val GradientGreen = Gradient(Green, Color(0xFF49F2C8))
-val GradientOrangeRevert = Gradient(Color(0xFFF2CD9E), Orange)
-val GradientIvy = Gradient(Ivy, Color(0xFFAA99FF))
+// The app's fills are solid colors.
+val GradientRed = Gradient.solid(Red)
+val GradientPurple = Gradient.solid(Violet)
+val GradientGreen = Gradient.solid(Green)
+val GradientOrangeRevert = Gradient.solid(Orange)
+val GradientIvy = Gradient.solid(Ivy)
 
 @Composable
 @ReadOnlyComposable
-fun gradientExpenses() = Gradient(
-    MaterialTheme.colorScheme.onSurface,
-    MaterialTheme.colorScheme.onSurfaceVariant
-)
+fun gradientExpenses() = Gradient.solid(MaterialTheme.colorScheme.onSurface)
 
 // The screen background, slightly see-through, for bars that float over scrolling content.
 @Composable

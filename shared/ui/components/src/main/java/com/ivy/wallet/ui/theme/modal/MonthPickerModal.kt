@@ -25,7 +25,6 @@ import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.data.model.Month
 import com.ivy.wallet.data.model.Month.Companion.monthsList
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
@@ -124,9 +123,6 @@ private fun MonthButton(
 
     Text(
         modifier = Modifier
-            .thenIf(selected) {
-                drawColoredShadow(monthColor)
-            }
             .clip(CircleShape)
             .clickable(onClick = onClick)
             .thenIf(!selected) {

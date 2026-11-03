@@ -45,7 +45,6 @@ import com.ivy.wallet.humanReadableType
 import com.ivy.wallet.ui.component.ItemStatisticToolbar
 import com.ivy.wallet.ui.component.transaction.TypeAmountCurrency
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.wallet.ui.previewLoan
 import com.ivy.wallet.ui.previewLoanRecord
 import com.ivy.wallet.utils.format
@@ -418,10 +417,6 @@ private fun LoanInfoCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .drawColoredShadow(
-                color = backgroundColor,
-                alpha = 0.1f
-            )
             .background(backgroundColor, MaterialTheme.shapes.extraLarge),
     ) {
         Row(
@@ -441,7 +436,6 @@ private fun LoanInfoCard(
                 IvyButton(
                     modifier = Modifier.padding(end = 16.dp, top = 12.dp),
                     backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
-                    hasGlow = false,
                     iconTint = contrastColor,
                     text = selectedLoanAccount.name.value,
                     iconStart = getCustomIconIdS(
@@ -604,7 +598,6 @@ private fun LoanInfoCard(
                 .padding(horizontal = 16.dp)
                 .align(Alignment.CenterHorizontally),
             text = stringResource(R.string.add_record),
-            shadowAlpha = 0.1f,
             backgroundGradient = Gradient.solid(contrastColor),
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = findContrastTextColor(contrastColor),
@@ -665,7 +658,6 @@ private fun LoanRecordItem(
                 if (account != null) {
                     IvyButton(
                         backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
-                        hasGlow = false,
                         iconTint = MaterialTheme.colorScheme.onSurface,
                         text = account.name.value,
                         iconStart = getCustomIconIdS(
@@ -696,7 +688,6 @@ private fun LoanRecordItem(
                     IvyButton(
                         modifier = Modifier.padding(start = 8.dp),
                         backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
-                        hasGlow = false,
                         iconTint = textIconColor,
                         text = stringResource(R.string.interest),
                         iconStart = getCustomIconIdS(

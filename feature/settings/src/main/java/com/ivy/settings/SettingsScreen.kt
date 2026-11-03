@@ -40,7 +40,6 @@ import com.ivy.base.model.Theme
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.rootScreen
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.ExchangeRatesScreen
 import com.ivy.navigation.FeaturesScreen
 import com.ivy.navigation.ImportScreen
@@ -732,7 +731,6 @@ private fun ExportCSV(
 private fun SettingsPrimaryButton(
     @DrawableRes icon: Int,
     text: String,
-    hasShadow: Boolean = false,
     backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
     textColor: Color = White,
     iconPadding: Dp = 0.dp,
@@ -740,7 +738,6 @@ private fun SettingsPrimaryButton(
     onClick: () -> Unit
 ) {
     SettingsButtonRow(
-        hasShadow = hasShadow,
         backgroundGradient = backgroundGradient,
         onClick = onClick
     ) {
@@ -784,16 +781,12 @@ private fun SettingsPrimaryButton(
 @Composable
 private fun SettingsButtonRow(
     onClick: (() -> Unit)?,
-    hasShadow: Boolean = false,
     backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .thenIf(hasShadow) {
-                drawColoredShadow(color = backgroundGradient.startColor)
-            }
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundGradient.asHorizontalBrush(), MaterialTheme.shapes.medium)

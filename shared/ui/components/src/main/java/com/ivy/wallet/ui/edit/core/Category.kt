@@ -60,7 +60,6 @@ private fun CategoryButton(
             fontWeight = FontWeight.Bold
         ),
         iconTint = contrastColor,
-        hasGlow = false,
         iconEnd = R.drawable.ic_onboarding_next_arrow,
         wrapContentMode = true,
         onClick = onClick

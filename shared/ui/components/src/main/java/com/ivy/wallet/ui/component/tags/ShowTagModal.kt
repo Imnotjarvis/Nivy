@@ -33,7 +33,6 @@ import com.ivy.data.repository.mapper.TagMapper.Companion.createNewTagId
 import com.ivy.design.system.colors.Blue2Dark
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.ui.SearchInput
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.system.colors.Gradient
@@ -245,9 +244,6 @@ private fun ExistingTag(
 
     Row(
         modifier = Modifier
-            .thenIf(selected) {
-                drawColoredShadow(tagColor)
-            }
             .clip(CircleShape)
             .border(
                 width = 2.dp,

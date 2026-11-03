@@ -251,7 +251,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 GradientGreen
             }
         },
-        hasShadow = !expanded,
         tint = when (tab) {
             MainTab.HOME -> White
             MainTab.ACCOUNTS -> White
@@ -473,7 +472,6 @@ private fun AddExpenseButton(
             .zIndex(200f),
         icon = R.drawable.ic_expense,
         backgroundGradient = gradientExpenses(),
-        horizontalGradient = false,
         tint = White,
         onClick = onAddExpense
     )

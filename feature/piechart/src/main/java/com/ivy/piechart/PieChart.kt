@@ -31,10 +31,7 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Black
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.IvyDark
@@ -48,7 +45,6 @@ import java.util.UUID
 import kotlin.math.acos
 import kotlin.math.sqrt
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.colors.isLight
 
 // Angles in degrees; slices start at the top, a quarter turn before 0 (3 o'clock).
 private const val FullTurn = 360.0
@@ -72,20 +68,8 @@ fun PieChart(
         AndroidView(
             modifier = Modifier
                 .size((PIE_CHART_RADIUS_DP * 2).dp)
-                .drawColoredShadow(
-                    color = Black,
-                    alpha = if (MaterialTheme.colorScheme.isLight()) 0.05f else 0.5f,
-                    offsetY = 32.dp,
-                    shadowRadius = 48.dp
-                )
                 .clip(CircleShape)
-                .background(
-                    brush = Gradient(
-                        MaterialTheme.colorScheme.surfaceVariant,
-                        MaterialTheme.colorScheme.surface
-                    ).asVerticalBrush(),
-                    shape = CircleShape
-                )
+                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                 .padding(all = 16.dp),
             factory = {
                 PieChartView(it)

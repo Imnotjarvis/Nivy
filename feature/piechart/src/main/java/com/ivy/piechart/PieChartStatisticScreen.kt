@@ -46,8 +46,6 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.design.utils.thenIf
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.wallet.LocalPeriodState
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.horizontalSwipeListener
@@ -386,9 +384,6 @@ private fun CategoryAmountCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .thenIf(selectedState) {
-                drawColoredShadow(backgroundColor)
-            }
             .clip(MaterialTheme.shapes.large)
             .background(backgroundColor, MaterialTheme.shapes.large)
             .clickable {

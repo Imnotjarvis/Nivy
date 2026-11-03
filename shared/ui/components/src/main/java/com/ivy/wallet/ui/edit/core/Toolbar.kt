@@ -107,9 +107,7 @@ fun Toolbar(
                 Spacer(Modifier.width(12.dp))
             }
 
-            DeleteButton(
-                hasShadow = false
-            ) {
+            DeleteButton {
                 onDeleteTrnModal()
             }
 

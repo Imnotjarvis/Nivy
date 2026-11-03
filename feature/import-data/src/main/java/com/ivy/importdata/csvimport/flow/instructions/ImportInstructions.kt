@@ -32,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.importdata.csvimport.flow.ImportSteps
 import com.ivy.wallet.domain.logic.csv.model.ImportType
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientIvy
@@ -340,7 +339,6 @@ private fun App(
     ) {
         IvyIcon(
             modifier = Modifier
-                .drawColoredShadow(importType.color())
                 .size(48.dp),
             icon = importType.logo(),
             tint = Color.Unspecified

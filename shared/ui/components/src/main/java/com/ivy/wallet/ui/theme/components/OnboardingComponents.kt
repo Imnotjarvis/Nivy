@@ -20,8 +20,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
-import com.ivy.design.utils.drawColoredShadow
-import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -41,15 +39,6 @@ fun OnboardingButton(
 ) {
     Box(
         modifier = modifier
-            .thenIf(enabled) {
-                drawColoredShadow(
-                    color = backgroundGradient.startColor,
-                    borderRadius = 0.dp,
-                    shadowRadius = 16.dp,
-                    offsetX = 0.dp,
-                    offsetY = 8.dp
-                )
-            }
             .clip(CircleShape)
             .background(
                 brush = if (enabled) {

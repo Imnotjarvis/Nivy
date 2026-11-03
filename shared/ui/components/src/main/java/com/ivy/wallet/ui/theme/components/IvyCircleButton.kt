@@ -13,8 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
-import com.ivy.design.utils.drawColoredShadow
-import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
@@ -29,32 +27,17 @@ fun IvyCircleButton(
     modifier: Modifier = Modifier,
     backgroundPadding: Dp = 0.dp,
     backgroundGradient: Gradient = GradientIvy,
-    horizontalGradient: Boolean = true,
     tint: Color = White,
     enabled: Boolean = true,
-    hasShadow: Boolean = true,
     contentDescription: String? = null,
     onClick: () -> Unit
 ) {
     IvyIcon(
         modifier = modifier
-            .thenIf(enabled && hasShadow) {
-                drawColoredShadow(
-                    color = backgroundGradient.startColor,
-                    borderRadius = 0.dp,
-                    shadowRadius = 16.dp,
-                    offsetX = 0.dp,
-                    offsetY = 8.dp
-                )
-            }
             .clip(CircleShape)
             .background(
                 brush = if (enabled) {
-                    if (horizontalGradient) {
-                        backgroundGradient.asHorizontalBrush()
-                    } else {
-                        backgroundGradient.asVerticalBrush()
-                    }
+                    backgroundGradient.asHorizontalBrush()
                 } else {
                     SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
                 },

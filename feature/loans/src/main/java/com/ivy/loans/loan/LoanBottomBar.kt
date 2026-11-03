@@ -104,7 +104,6 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
         backgroundPadding = 8.dp,
         icon = R.drawable.ic_add,
         backgroundGradient = GradientPurple,
-        hasShadow = true,
         tint = White
     ) {
         onAdd()

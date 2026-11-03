@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.ivy.domain.RootScreen
 import com.ivy.wallet.LocalMainScreenState
 import com.ivy.wallet.rootScreen
-import com.ivy.design.utils.drawColoredShadow
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
@@ -81,7 +80,6 @@ fun CustomerJourneyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .drawColoredShadow(cardData.background.startColor)
             .background(cardData.background.asHorizontalBrush(), MaterialTheme.shapes.large)
             .clip(MaterialTheme.shapes.large)
             .clickable {
@@ -143,7 +141,6 @@ fun CustomerJourneyCard(
                     .padding(horizontal = 20.dp)
                     .testTag("cta_prompt_${cardData.id}"),
                 text = stringResource(cta),
-                shadowAlpha = 0f,
                 iconStart = cardData.ctaIcon,
                 iconTint = cardData.background.startColor,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
