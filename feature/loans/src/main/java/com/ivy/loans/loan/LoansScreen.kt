@@ -1,7 +1,6 @@
 package com.ivy.loans.loan
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -33,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.base.model.Theme
 import com.ivy.base.model.LoanType
+import com.ivy.design.utils.outlineBehind
 import com.ivy.design.system.typography.numberTitleSmall
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.humanReadableType
@@ -62,7 +62,6 @@ import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
-import com.ivy.design.system.shapes.ShapeTop
 import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
@@ -273,7 +272,8 @@ private fun LoanItem(
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+            // Behind the content: the colored header covers it, so it frames only the rest.
+            .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .testTag("loan_item")
             .clickable(
                 onClick = onClick
@@ -304,7 +304,7 @@ private fun LoanHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(loan.color.value.toComposeColor(), ShapeTop)
+            .background(loan.color.value.toComposeColor())
     ) {
         Spacer(Modifier.height(16.dp))
 

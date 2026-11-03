@@ -7,6 +7,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.ivy.design.utils.outlineBehind
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
 import com.ivy.wallet.ui.displayName
@@ -15,7 +16,6 @@ import com.ivy.wallet.ui.theme.components.ListItem
 import com.ivy.wallet.utils.format
 import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -76,7 +76,6 @@ import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop
 
 @Composable
 fun BoxWithConstraintsScope.AccountsTab() {
@@ -257,7 +256,8 @@ private fun AccountCard(
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+            // Behind the content: the colored header covers it, so it frames only the rest.
+            .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick
             )
@@ -337,7 +337,7 @@ private fun AccountHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(account.color.value.toComposeColor(), ShapeTop)
+            .background(account.color.value.toComposeColor())
     ) {
         Spacer(Modifier.height(16.dp))
 
