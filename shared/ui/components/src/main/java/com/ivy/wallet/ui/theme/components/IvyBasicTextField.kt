@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.hideKeyboard
@@ -50,6 +51,7 @@ fun IvyBasicTextField(
         contentAlignment = Alignment.CenterStart
     ) {
         if (isEmpty && hint.isNotNullOrBlank()) {
+            // One line: a hint wider than the field ends with an ellipsis instead of growing it.
             Text(
                 modifier = Modifier,
                 text = hint!!,
@@ -58,6 +60,8 @@ fun IvyBasicTextField(
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Start
                 ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 

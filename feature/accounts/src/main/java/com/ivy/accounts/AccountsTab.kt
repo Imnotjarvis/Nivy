@@ -1,7 +1,6 @@
 package com.ivy.accounts
 
 import com.ivy.base.model.AccountType
-import com.ivy.design.system.typography.OpenSans
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -292,7 +291,7 @@ private fun AccountCard(
                 text = buildAnnotatedString {
                     append(stringResource(R.string.credit_used))
                     append("  ")
-                    withStyle(SpanStyle(fontFamily = OpenSans, fontWeight = FontWeight.Bold)) {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(amounts)
                     }
                 },

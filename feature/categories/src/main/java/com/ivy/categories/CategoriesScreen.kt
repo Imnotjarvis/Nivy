@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.ivy.wallet.IvyWalletPreview
@@ -352,13 +353,19 @@ private fun CompactCategoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // A long name gives way to the amount: one line, cut with an ellipsis.
                 Text(
+                    modifier = Modifier.weight(1f),
                     text = category.name.value,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
-                    )
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically
