@@ -37,6 +37,7 @@ import com.ivy.design.system.colors.isDarkColor
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberTitleLarge
 import com.ivy.navigation.opensScreen
+import com.ivy.design.system.colors.ColorMode
 
 @Suppress("ParameterNaming")
 @Composable
@@ -114,10 +115,13 @@ private fun RowScope.HeaderCard(
     onHeaderCardClicked: () -> Unit = {},
     onAddClick: () -> Unit
 ) {
-    val backgroundColor = if (isDarkColor(itemColor)) {
-        MediumBlack.copy(alpha = 0.9f)
-    } else {
-        MediumWhite.copy(alpha = 0.9f)
+    val backgroundColor = when {
+        // In minimal colors an account's header is the cards' grey: the page's color sets these
+        // apart from it.
+        ColorMode.minimal && itemColor == MaterialTheme.colorScheme.surfaceVariant ->
+            MaterialTheme.colorScheme.surface
+        isDarkColor(itemColor) -> MediumBlack.copy(alpha = 0.9f)
+        else -> MediumWhite.copy(alpha = 0.9f)
     }
 
     val contrastColor = findContrastTextColor(backgroundColor)

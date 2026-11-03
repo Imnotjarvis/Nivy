@@ -95,6 +95,7 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
+import com.ivy.design.system.colors.accountColor
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @Composable
@@ -371,7 +372,7 @@ private fun TransactionHeaderRow(
             )
 
             val accountBackgroundColor = if (shouldShowAccountSpecificColorInTransactions) {
-                account?.color?.value?.toComposeColor() ?: MaterialTheme.colorScheme.surface
+                account?.let { accountColor(it.color.value) } ?: MaterialTheme.colorScheme.surface
             } else {
                 MaterialTheme.colorScheme.surface
             }
@@ -505,10 +506,10 @@ private fun TransferHeader(
                         .background(
                             // Two solid halves: the source account's color, then the destination's.
                             brush = Brush.horizontalGradient(
-                                0f to account.color.value.toComposeColor(),
-                                0.5f to account.color.value.toComposeColor(),
-                                0.5f to toAccount.color.value.toComposeColor(),
-                                1f to toAccount.color.value.toComposeColor()
+                                0f to accountColor(account.color.value),
+                                0.5f to accountColor(account.color.value),
+                                0.5f to accountColor(toAccount.color.value),
+                                1f to accountColor(toAccount.color.value)
                             ),
                             shape = PillShape
                         )
@@ -522,7 +523,7 @@ private fun TransferHeader(
 
         val accountContrastColor =
             if (shouldShowAccountSpecificColorInTransactions && account != null) {
-                findContrastTextColor(account.color.value.toComposeColor())
+                findContrastTextColor(accountColor(account.color.value))
             } else {
                 MaterialTheme.colorScheme.onSurface
             }
@@ -554,7 +555,7 @@ private fun TransferHeader(
 
         val toAccountContrastColor =
             if (shouldShowAccountSpecificColorInTransactions && toAccount != null) {
-                findContrastTextColor(toAccount.color.value.toComposeColor())
+                findContrastTextColor(accountColor(toAccount.color.value))
             } else {
                 MaterialTheme.colorScheme.onSurface
             }

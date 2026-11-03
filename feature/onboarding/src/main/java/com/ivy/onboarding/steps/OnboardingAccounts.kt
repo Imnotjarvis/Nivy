@@ -55,10 +55,10 @@ import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
 import androidx.compose.material3.MaterialTheme
 import com.ivy.navigation.rememberOnBack
+import com.ivy.design.system.colors.accountColor
 
 @ExperimentalFoundationApi
 @Composable
@@ -229,7 +229,7 @@ private fun AccountCard(
     onClick: () -> Unit
 ) {
     val account = accountBalance.account
-    val accountColor = account.color.value.toComposeColor()
+    val accountColor = accountColor(account.color.value)
     val dynamicContrast = accountColor.dynamicContrast()
 
     Row(

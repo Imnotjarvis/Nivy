@@ -20,6 +20,7 @@ import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.readableTint
 
 @Composable
 fun CloseButton(
@@ -75,7 +76,7 @@ fun CircleButtonFilled(
             .padding(clickAreaPadding),
         painter = painterResource(id = icon),
         contentDescription = contentDescription,
-        tint = tint ?: Color.Unspecified,
+        tint = tint?.let { readableTint(backgroundColor, it) } ?: Color.Unspecified,
     )
 }
 
@@ -97,7 +98,7 @@ fun CircleButtonFilledGradient(
             .padding(iconPadding),
         painter = painterResource(id = icon),
         contentDescription = contentDescription,
-        tint = tint ?: Color.Unspecified,
+        tint = tint?.let { readableTint(backgroundGradient.startColor, it) } ?: Color.Unspecified,
     )
 }
 

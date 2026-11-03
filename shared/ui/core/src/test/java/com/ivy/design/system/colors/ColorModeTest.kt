@@ -53,6 +53,30 @@ class ColorModeTest {
         IVY_COLOR_PICKER_COLORS_PREMIUM.last() shouldBe Palette.Red3Dark
     }
 
+    @Test
+    fun `in minimal colors, text on grey is the more readable of black and white`() {
+        ColorMode.minimal = true
+
+        // The green account's grey is mid-light: white on it would be about 2:1, black about 10:1.
+        findContrastTextColor(Green) shouldBe Black
+        Green.dynamicContrast() shouldBe Black
+        findContrastTextColor(IvyDark) shouldBe White
+        readableOn(White) shouldBe Black
+        readableOn(Black) shouldBe White
+    }
+
+    @Test
+    fun `in minimal colors, icons on grey are readable, on colors they keep their tint`() {
+        readableTint(Green, White) shouldBe White
+
+        ColorMode.minimal = true
+
+        // The income button's light grey takes a black icon; the warnings' red keeps its white one.
+        readableTint(Green, White) shouldBe Black
+        readableTint(IvyDark, Black) shouldBe White
+        readableTint(Palette.Red, White) shouldBe White
+    }
+
     private companion object {
         const val Tolerance = 0.01
     }

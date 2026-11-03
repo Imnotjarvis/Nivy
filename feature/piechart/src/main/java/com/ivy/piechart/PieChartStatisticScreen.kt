@@ -86,7 +86,6 @@ import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
-import com.ivy.design.system.colors.pureBlur
 import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
 import kotlinx.collections.immutable.persistentListOf
@@ -274,7 +273,8 @@ private fun Header(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(pureBlur())
+            // Solid, in the page's own color: not a lighter shade over it.
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             // Like Home's header: room below the row too, so scrolled content stays clear of it.
             .padding(top = 16.dp, bottom = 16.dp),

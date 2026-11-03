@@ -18,6 +18,7 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.GradientRed
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
@@ -46,7 +47,7 @@ fun IvyCircleButton(
             .clickable(onClick = onClick, enabled = enabled)
             .padding(all = backgroundPadding),
         icon = icon,
-        tint = tint,
+        tint = readableTint(backgroundGradient.startColor, tint),
         contentDescription = contentDescription
     )
 }

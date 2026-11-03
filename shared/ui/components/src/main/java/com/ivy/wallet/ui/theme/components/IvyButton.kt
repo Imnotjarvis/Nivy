@@ -31,6 +31,7 @@ import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.readableTint
 
 @Composable
 fun IvyButton(
@@ -69,7 +70,7 @@ fun IvyButton(
             iconStart != null -> {
                 IconStart(
                     icon = iconStart,
-                    tint = iconTint,
+                    tint = readableTint(backgroundGradient.startColor, iconTint),
                     iconEdgePadding = iconEdgePadding,
                     iconTextPadding = iconTextPadding
                 )
@@ -115,7 +116,7 @@ fun IvyButton(
             iconEnd != null -> {
                 IconEnd(
                     icon = iconEnd,
-                    tint = iconTint,
+                    tint = readableTint(backgroundGradient.startColor, iconTint),
                     iconEdgePadding = iconEdgePadding,
                     iconTextPadding = iconTextPadding
                 )

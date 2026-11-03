@@ -11,6 +11,12 @@ import androidx.core.graphics.ColorUtils
 // Colors at or below this luminance count as dark.
 private const val DarkLuminance = 0.5
 
+// The WCAG contrast ratio adds this to both luminances.
+private const val ContrastOffset = 0.05f
+
+// A color whose channels differ by less than this is a grey.
+private const val GreyTolerance = 0.01f
+
 // dynamicContrast() sorts a color by its HSV saturation (s) and value (v): vivid colors, pale
 // colors and deep colors, and lightens or darkens it to stand out against itself.
 private const val VividMinSaturation = 0.5f
@@ -32,8 +38,31 @@ fun Color.asBrush(): Brush {
 }
 
 fun findContrastTextColor(backgroundColor: Color): Color {
+    if (ColorMode.minimal) return readableOn(backgroundColor)
     return if (isDarkColor(backgroundColor.toArgb())) White else Black
 }
+
+/**
+ * White or Black, whichever reads better on [background]: the higher contrast ratio, as WCAG
+ * measures it. Minimal colors uses it for text on greys, where the threshold above would put
+ * white on mid greys.
+ */
+fun readableOn(background: Color): Color {
+    val lightness = background.luminance()
+    val whiteContrast = (White.luminance() + ContrastOffset) / (lightness + ContrastOffset)
+    val blackContrast = (lightness + ContrastOffset) / (Black.luminance() + ContrastOffset)
+    return if (whiteContrast >= blackContrast) White else Black
+}
+
+/**
+ * An icon's [tint] on [background]: in minimal colors, on a grey, the more readable of black and
+ * white; otherwise the tint as it is (also on what keeps its color, like the warnings' red).
+ */
+fun readableTint(background: Color, tint: Color): Color =
+    if (ColorMode.minimal && background.isOpaqueGrey()) readableOn(background) else tint
+
+private fun Color.isOpaqueGrey(): Boolean =
+    alpha >= 1f && maxOf(red, green, blue) - minOf(red, green, blue) < GreyTolerance
 
 fun isDarkColor(color: Color): Boolean {
     return isDarkColor(color.toArgb())
@@ -44,6 +73,7 @@ fun isDarkColor(@ColorInt color: Int): Boolean {
 }
 
 fun Color.dynamicContrast(): Color {
+    if (ColorMode.minimal) return readableOn(this)
     val pickedColor = this.toHSVSpec()
 
     return when {
@@ -119,8 +149,7 @@ fun Color.hsv(
     hsv[1] = s
     hsv[2] = v
 
-    // A grey's hue is red's, so setting its saturation would tint it: drawn grey in minimal colors.
-    return Color(android.graphics.Color.HSVToColor(hsv)).shown()
+    return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
 /** A saved color (an account's, a category's, …) as drawn: grey in minimal colors. */

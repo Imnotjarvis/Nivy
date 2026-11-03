@@ -81,7 +81,6 @@ import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import com.ivy.wallet.ui.theme.modal.ModalSave
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
-import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.roundToInt
@@ -89,6 +88,7 @@ import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.shapes.ShapeTop
 import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.colors.accountColor
 
 const val SWIPE_UP_EXPANDED_THRESHOLD = 200
 
@@ -385,7 +385,7 @@ private fun TransferRowMini(
     ) {
         Spacer(Modifier.width(24.dp))
 
-        val fromColor = fromAccount?.color?.value?.toComposeColor() ?: Ivy
+        val fromColor = fromAccount?.let { accountColor(it.color.value) } ?: Ivy
         val fromContrastColor = findContrastTextColor(fromColor)
         IvyButton(
             text = fromAccount?.name?.value ?: "Null",
@@ -406,7 +406,7 @@ private fun TransferRowMini(
             tint = MaterialTheme.colorScheme.onSurface
         )
 
-        val toColor = toAccount?.color?.value?.toComposeColor() ?: Ivy
+        val toColor = toAccount?.let { accountColor(it.color.value) } ?: Ivy
         val toContrastColor = findContrastTextColor(toColor)
         IvyButton(
             text = toAccount?.name?.value ?: "Null",
@@ -571,7 +571,7 @@ private fun Account(
     testTag: String,
     onClick: () -> Unit
 ) {
-    val accountColor = account.color.value.toComposeColor()
+    val accountColor = accountColor(account.color.value)
     val textColor =
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 

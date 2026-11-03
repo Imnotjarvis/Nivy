@@ -73,6 +73,9 @@ val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
 private val PillHeight = 56.dp
 private val TabSize = 48.dp
+
+// Around and between the pill's buttons; the + button gets the same gap on each side.
+private val PillGap = 12.dp
 private val PillBottomMargin = 12.dp
 
 // The bar's buttons and their expand animation share one state.
@@ -88,6 +91,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
     onAddPlannedPayment: () -> Unit,
 
     showAddAccountModal: () -> Unit,
+    onOpenBudgets: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     val screenSize = LocalScreenSize.current
 
@@ -118,7 +123,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
-    // A compact floating pill, centered: Home, the + button (placed over the gap) and Accounts.
+    // A compact floating pill, centered: Budgets, Home, the + button (placed over the gap),
+    // Accounts and Settings.
     Row(
         modifier = Modifier
             .align(Alignment.BottomCenter)
@@ -132,9 +138,19 @@ internal fun BoxWithConstraintsScope.BottomBar(
             .clickableNoIndication(rememberInteractionSource()) {
                 // consume click
             }
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = PillGap),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Tab(
+            icon = R.drawable.home_more_menu_budgets,
+            name = stringResource(R.string.budgets),
+            selected = false,
+            selectedColor = MaterialTheme.colorScheme.onSurface,
+            onClick = onOpenBudgets,
+        )
+
+        Spacer(Modifier.width(PillGap))
+
         Tab(
             icon = R.drawable.ic_home,
             name = stringResource(R.string.home),
@@ -144,7 +160,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
             selectTab(MainTab.HOME)
         }
 
-        Spacer(Modifier.width(FAB_BUTTON_SIZE + 16.dp))
+        Spacer(Modifier.width(FAB_BUTTON_SIZE + PillGap * 2))
 
         Tab(
             icon = R.drawable.ic_accounts,
@@ -154,6 +170,16 @@ internal fun BoxWithConstraintsScope.BottomBar(
         ) {
             selectTab(MainTab.ACCOUNTS)
         }
+
+        Spacer(Modifier.width(PillGap))
+
+        Tab(
+            icon = R.drawable.home_more_menu_settings,
+            name = stringResource(R.string.settings),
+            selected = false,
+            selectedColor = MaterialTheme.colorScheme.onSurface,
+            onClick = onOpenSettings,
+        )
     }
 
     if (expandedBackgroundOffset < screenHeightDp) {
@@ -480,7 +506,8 @@ private fun AddExpenseButton(
             .zIndex(200f),
         icon = R.drawable.ic_expense,
         backgroundGradient = gradientExpenses(),
-        tint = White,
+        // The button is the text color: its icon the background's, to show in dark mode too.
+        tint = MaterialTheme.colorScheme.surface,
         onClick = onAddExpense
     )
 
