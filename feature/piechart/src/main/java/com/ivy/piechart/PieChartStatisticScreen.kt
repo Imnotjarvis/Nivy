@@ -328,9 +328,6 @@ private fun Header(
                 }
                 CircleButtonFilledGradient(
                     modifier = Modifier
-                        .thenIf(percentExpanded == 1f) {
-                            drawColoredShadow(backgroundGradient.startColor)
-                        }
                         .alpha(percentExpanded)
                         .size(com.ivy.design.utils.lerp(1, 40, percentExpanded).dp),
                     iconPadding = 4.dp,
