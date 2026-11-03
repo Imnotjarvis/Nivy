@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
 import java.util.Stack
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,10 +21,29 @@ class Navigation @Inject constructor() {
   var lastScreen: Screen? = null
     private set
 
+  /** The block just pressed, if it opens a screen: see [opensScreen]. */
+  internal var pressedBlock: Rect? = null
+
+  /** How the latest screen change animates; null when it doesn't. */
+  internal var animation: ScreenAnimation? by mutableStateOf(null)
+    private set
+
+  // The block each screen was opened from, if any, to shrink back into it: the current screen's,
+  // and below it those of the screens on the back stack.
+  private var currentBlock: Rect? = null
+  private val blockStack: Stack<Rect?> = Stack()
+
   fun navigateTo(screen: Screen) {
+    // A screen of the same kind would share its view model with the one it covers.
+    val from = lastScreen
+    val block = pressedBlock?.takeIf { from != null && from::class != screen::class }
+    pressedBlock = null
     if (lastScreen != null) {
       backStack.push(lastScreen)
+      blockStack.push(currentBlock)
     }
+    currentBlock = block
+    animation = block?.let { ScreenAnimation(block = it, opening = true) }
     switchScreen(screen)
   }
 
@@ -31,10 +51,13 @@ class Navigation @Inject constructor() {
 
   private fun popBackStack() {
     backStack.pop()
+    blockStack.pop()
   }
 
   fun back(): Boolean {
     if (!backStack.empty()) {
+      animation = currentBlock?.let { ScreenAnimation(block = it, opening = false) }
+      currentBlock = blockStack.pop()
       switchScreen(backStack.pop())
       return true
     }
@@ -51,5 +74,9 @@ class Navigation @Inject constructor() {
       popBackStack()
     }
     lastScreen = null
+    currentBlock = null
   }
 }
+
+/** A screen growing out of the [block] it was opened from, or shrinking back into it. */
+internal data class ScreenAnimation(val block: Rect, val opening: Boolean)

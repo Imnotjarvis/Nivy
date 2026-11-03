@@ -58,6 +58,7 @@ import com.ivy.wallet.utils.format
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
+import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
@@ -117,6 +118,7 @@ fun TransactionCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp)
+            .opensScreen()
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
@@ -449,6 +451,7 @@ private fun TransactionBadge(
 ) {
     Row(
         modifier = Modifier
+            .opensScreen()
             .clip(PillShape)
             .background(backgroundColor, PillShape)
             .clickable {

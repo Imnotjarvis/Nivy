@@ -42,6 +42,7 @@ import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.ui.previewPlannedPaymentRule
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
+import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Blue
 import com.ivy.design.system.colors.Gradient
@@ -77,6 +78,7 @@ internal fun LazyItemScope.PlannedPaymentCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .opensScreen()
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
@@ -160,6 +162,7 @@ private fun PlannedPaymentHeaderRow(
                 plannedPayment.category?.let { targetId -> categories.find { it.id == targetId } }
             if (category != null) {
                 IvyButton(
+                    modifier = Modifier.opensScreen(),
                     iconTint = findContrastTextColor(category.color.value.toComposeColor()),
                     iconStart = getCustomIconIdS(
                         category.icon?.id,
@@ -187,6 +190,7 @@ private fun PlannedPaymentHeaderRow(
 
             val account = accounts.find { it.id == plannedPayment.account }
             IvyButton(
+                modifier = Modifier.opensScreen(),
                 backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
                 text = account?.name?.value ?: stringResource(R.string.deleted),
                 iconTint = MaterialTheme.colorScheme.onSurface,
