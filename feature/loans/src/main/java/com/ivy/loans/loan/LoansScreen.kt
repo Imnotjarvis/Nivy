@@ -44,6 +44,7 @@ import com.ivy.loans.loan.Constants.SWIPE_HORIZONTAL_THRESHOLD
 import com.ivy.loans.loan.data.DisplayLoan
 import com.ivy.navigation.LoanDetailsScreen
 import com.ivy.navigation.navigation
+import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.design.system.colors.Blue
@@ -271,6 +272,7 @@ private fun LoanItem(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
+            .opensScreen()
             .clip(MaterialTheme.shapes.medium)
             // Behind the content: the colored header covers it, so it frames only the rest.
             .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)

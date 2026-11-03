@@ -32,6 +32,7 @@ import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.navigation.opensScreen
 import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.material3.MaterialTheme
 
@@ -80,6 +81,7 @@ fun CustomerJourneyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .opensScreen()
             .background(cardData.background.asHorizontalBrush(), MaterialTheme.shapes.large)
             .clip(MaterialTheme.shapes.large)
             .clickable {

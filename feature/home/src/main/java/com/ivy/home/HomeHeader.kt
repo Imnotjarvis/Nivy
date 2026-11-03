@@ -44,6 +44,7 @@ import com.ivy.wallet.utils.springBounce
 import com.ivy.wallet.utils.verticalSwipeListener
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
+import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientGreen
@@ -170,6 +171,7 @@ private fun HeaderStickyRow(
                 BalanceRowMini(
                     modifier = Modifier
                         .alpha(alpha = 1f - percentExpanded)
+                        .opensScreen()
                         .clickableNoIndication(rememberInteractionSource()) {
                             if (hideBalance) {
                                 onHiddenBalanceClick()
@@ -243,6 +245,7 @@ fun CashFlowInfo(
         BalanceRow(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
+                .opensScreen()
                 .clickableNoIndication(rememberInteractionSource()) {
                     if (hideBalance) {
                         onHiddenBalanceClick()
@@ -366,6 +369,7 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
+            .opensScreen()
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundGradient.asHorizontalBrush())
             .testTag(testTag)

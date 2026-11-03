@@ -36,6 +36,7 @@ import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.isDarkColor
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberTitleLarge
+import com.ivy.navigation.opensScreen
 
 @Suppress("ParameterNaming")
 @Composable
@@ -124,6 +125,7 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
+            .opensScreen()
             .background(backgroundColor, MaterialTheme.shapes.extraLarge)
             .clickable { onHeaderCardClicked() },
     ) {

@@ -7,7 +7,7 @@ import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -120,7 +120,7 @@ private fun Modifier.forgetPressedBlock(navigation: Navigation) = pointerInput(n
 @Composable
 private fun AnimatedVisibilityScope.screenAnimation(animation: ScreenAnimation?): Modifier {
     val progress = transition.animateFloat(
-        transitionSpec = { if (animation == null) snap() else tween(DurationMillis, easing = Emphasized) },
+        transitionSpec = { if (animation == null) snap() else tween(DurationMillis, easing = FastOutSlowInEasing) },
         label = "screen",
     ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
     val entering = transition.targetState == EnterExitState.Visible
@@ -165,9 +165,9 @@ private fun Modifier.blockTouches() = pointerInput(Unit) {
     }
 }
 
-// Like Android's app opening: about a third of a second, fast at first and settling gently.
+// About a third of a second, like Android's app opening; starting gently, so the block is seen
+// growing, and settling gently.
 private const val DurationMillis = 350
-private val Emphasized = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
 
 // The screen fades in over this part of the animation, and out over the same part going back.
 private const val FadeInPart = 0.3f
