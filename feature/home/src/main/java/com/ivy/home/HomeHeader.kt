@@ -46,11 +46,9 @@ import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.Red
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
@@ -315,8 +313,7 @@ private fun IncomeExpenses(
 
         HeaderCard(
             icon = R.drawable.ic_income,
-            backgroundGradient = GradientGreen,
-            textColor = White,
+            amountColor = Green,
             label = stringResource(R.string.income),
             currency = currency,
             amount = monthlyIncome,
@@ -337,8 +334,7 @@ private fun IncomeExpenses(
 
         HeaderCard(
             icon = R.drawable.ic_expense,
-            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
-            textColor = MaterialTheme.colorScheme.surface,
+            amountColor = Red,
             label = stringResource(R.string.expenses),
             currency = currency,
             amount = monthlyExpenses.absoluteValue,
@@ -358,8 +354,7 @@ private fun IncomeExpenses(
 @Composable
 private fun RowScope.HeaderCard(
     @DrawableRes icon: Int,
-    backgroundGradient: Gradient,
-    textColor: Color,
+    amountColor: Color,
     label: String,
     currency: String,
     amount: Double,
@@ -369,9 +364,10 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .opensScreen(backgroundGradient.startColor)
+            .opensScreen(MaterialTheme.colorScheme.surfaceVariant)
             .clip(MaterialTheme.shapes.medium)
-            .background(backgroundGradient.asHorizontalBrush())
+            // Like the transaction cards: a plain card, the amount in green or red.
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .testTag(testTag)
             .clickable(
                 onClick = onClick,
@@ -386,7 +382,7 @@ private fun RowScope.HeaderCard(
 
             IvyIcon(
                 icon = icon,
-                tint = textColor,
+                tint = MaterialTheme.colorScheme.onSurface,
             )
 
             Spacer(Modifier.width(4.dp))
@@ -394,7 +390,7 @@ private fun RowScope.HeaderCard(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium.copy(
-                    color = textColor,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 ),
             )
@@ -413,7 +409,7 @@ private fun RowScope.HeaderCard(
             AmountCurrencyB1(
                 amount = amount,
                 currency = currency,
-                textColor = textColor,
+                textColor = amountColor,
                 shortenBigNumbers = true,
             )
 
