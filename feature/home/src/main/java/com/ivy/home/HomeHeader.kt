@@ -171,7 +171,7 @@ private fun HeaderStickyRow(
                 BalanceRowMini(
                     modifier = Modifier
                         .alpha(alpha = 1f - percentExpanded)
-                        .opensScreen()
+                        .opensScreen(MaterialTheme.colorScheme.surface)
                         .clickableNoIndication(rememberInteractionSource()) {
                             if (hideBalance) {
                                 onHiddenBalanceClick()
@@ -245,7 +245,7 @@ fun CashFlowInfo(
         BalanceRow(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
-                .opensScreen()
+                .opensScreen(MaterialTheme.colorScheme.surface)
                 .clickableNoIndication(rememberInteractionSource()) {
                     if (hideBalance) {
                         onHiddenBalanceClick()
@@ -369,7 +369,7 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .opensScreen()
+            .opensScreen(backgroundGradient.startColor)
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundGradient.asHorizontalBrush())
             .testTag(testTag)

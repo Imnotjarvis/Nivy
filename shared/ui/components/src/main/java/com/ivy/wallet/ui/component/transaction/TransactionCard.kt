@@ -118,7 +118,7 @@ fun TransactionCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp)
-            .opensScreen()
+            .opensScreen(MaterialTheme.colorScheme.surfaceVariant)
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable {
@@ -451,7 +451,7 @@ private fun TransactionBadge(
 ) {
     Row(
         modifier = Modifier
-            .opensScreen()
+            .opensScreen(backgroundColor)
             .clip(PillShape)
             .background(backgroundColor, PillShape)
             .clickable {

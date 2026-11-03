@@ -81,7 +81,7 @@ fun CustomerJourneyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .opensScreen()
+            .opensScreen(cardData.background.startColor)
             .background(cardData.background.asHorizontalBrush(), MaterialTheme.shapes.large)
             .clip(MaterialTheme.shapes.large)
             .clickable {

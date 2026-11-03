@@ -125,7 +125,7 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .opensScreen()
+            .opensScreen(backgroundColor)
             .background(backgroundColor, MaterialTheme.shapes.extraLarge)
             .clickable { onHeaderCardClicked() },
     ) {

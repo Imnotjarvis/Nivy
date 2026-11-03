@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import java.util.Stack
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,7 +23,7 @@ class Navigation @Inject constructor() {
     private set
 
   /** The block just pressed, if it opens a screen: see [opensScreen]. */
-  internal var pressedBlock: Rect? = null
+  internal var pressedBlock: Block? = null
 
   /** How the latest screen change animates; null when it doesn't. */
   internal var animation: ScreenAnimation? by mutableStateOf(null)
@@ -30,8 +31,8 @@ class Navigation @Inject constructor() {
 
   // The block each screen was opened from, if any, to shrink back into it: the current screen's,
   // and below it those of the screens on the back stack.
-  private var currentBlock: Rect? = null
-  private val blockStack: Stack<Rect?> = Stack()
+  private var currentBlock: Block? = null
+  private val blockStack: Stack<Block?> = Stack()
 
   fun navigateTo(screen: Screen) {
     // A screen of the same kind would share its view model with the one it covers.
@@ -78,5 +79,8 @@ class Navigation @Inject constructor() {
   }
 }
 
+/** A block that opens a screen: where it is, and its color, which the card growing from it has. */
+internal data class Block(val bounds: Rect, val color: Color)
+
 /** A screen growing out of the [block] it was opened from, or shrinking back into it. */
-internal data class ScreenAnimation(val block: Rect, val opening: Boolean)
+internal data class ScreenAnimation(val block: Block, val opening: Boolean)

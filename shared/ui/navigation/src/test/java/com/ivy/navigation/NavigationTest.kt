@@ -1,6 +1,7 @@
 package com.ivy.navigation
 
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import com.ivy.base.model.TransactionType
 import io.kotest.matchers.shouldBe
 import org.junit.Test
@@ -65,7 +66,7 @@ class NavigationTest {
     private companion object {
         val Transaction = EditTransactionScreen(initialTransactionId = null, type = TransactionType.EXPENSE)
         val Account = TransactionsScreen(accountId = UUID.randomUUID())
-        val TransactionBlock = Rect(16f, 400f, 1064f, 560f)
-        val AccountBlock = Rect(16f, 200f, 540f, 380f)
+        val TransactionBlock = Block(Rect(16f, 400f, 1064f, 560f), Color.LightGray)
+        val AccountBlock = Block(Rect(16f, 200f, 540f, 380f), Color.Blue)
     }
 }
