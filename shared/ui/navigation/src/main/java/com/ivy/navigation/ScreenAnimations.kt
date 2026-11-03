@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
@@ -35,6 +36,7 @@ import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -51,6 +53,9 @@ fun Modifier.opensScreen(): Modifier = this then OpensScreenElement
 private data object OpensScreenElement : ModifierNodeElement<OpensScreenNode>() {
     override fun create() = OpensScreenNode()
     override fun update(node: OpensScreenNode) = Unit
+    override fun InspectorInfo.inspectableProperties() {
+        name = "opensScreen"
+    }
 }
 
 private class OpensScreenNode :
@@ -98,8 +103,10 @@ internal fun AnimatedScreens(
         },
         label = "screens",
     ) { screen ->
+        val animation = navigation.animation
+        val entering = transition.targetState == EnterExitState.Visible
         Box(
-            modifier = screenAnimation(navigation.animation),
+            modifier = Modifier.screenAnimation(animation, entering, screenProgress(animation)),
             propagateMinConstraints = true,
         ) {
             content(screen)
@@ -115,18 +122,25 @@ private fun Modifier.forgetPressedBlock(navigation: Navigation) = pointerInput(n
     }
 }
 
-// How a screen shows during a change: growing from (or shrinking into) the block when it's the
-// screen opening (or closing), otherwise as it is, kept until the other one is done.
+// From 0 to 1 as a screen enters, from 1 to 0 as it leaves; animated only when [animation] is, and
+// part of the screen's transition, so a screen leaving is kept until it's done.
 @Composable
-private fun AnimatedVisibilityScope.screenAnimation(animation: ScreenAnimation?): Modifier {
-    val progress = transition.animateFloat(
+private fun AnimatedVisibilityScope.screenProgress(animation: ScreenAnimation?): State<Float> =
+    transition.animateFloat(
         transitionSpec = { if (animation == null) snap() else tween(DurationMillis, easing = FastOutSlowInEasing) },
         label = "screen",
     ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
-    val entering = transition.targetState == EnterExitState.Visible
-    val leaving = if (entering) Modifier else Modifier.blockTouches()
-    val block = animation?.block?.takeIf { animation.opening == entering } ?: return leaving
-    return leaving.graphicsLayer {
+
+// How a screen shows during a change: growing from (or shrinking into) the block when it's the
+// screen opening (or closing), otherwise as it is. A screen leaving takes no touches.
+private fun Modifier.screenAnimation(
+    animation: ScreenAnimation?,
+    entering: Boolean,
+    progress: State<Float>,
+): Modifier {
+    val touches = if (entering) this else blockTouches()
+    val block = animation?.block?.takeIf { animation.opening == entering } ?: return touches
+    return touches.graphicsLayer {
         growFrom(block, progress.value, AppCornerRadius.value.toPx())
     }
 }
