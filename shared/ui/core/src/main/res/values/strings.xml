@@ -338,7 +338,7 @@
     <string name="charge_day">Charge day</string>
     <string name="day_of_month">Day %1$s</string>
     <string name="statement_closes">Statement closes</string>
-    <string name="end_of_month">End of month</string>
+    <string name="last_day_of_month">Last day</string>
     <string name="charge_day_not_set">Choose a day</string>
     <string name="credit_limit">Credit limit</string>
     <string name="credit_limit_not_set">None</string>

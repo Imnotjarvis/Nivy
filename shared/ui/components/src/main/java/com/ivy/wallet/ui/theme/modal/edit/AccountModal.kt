@@ -458,7 +458,7 @@ private fun AccountTypeSection(
         AccountSettingRow(
             label = stringResource(R.string.statement_closes),
             value = settings.statementClosingDay?.let { stringResource(R.string.day_of_month, it.toString()) }
-                ?: stringResource(R.string.end_of_month),
+                ?: stringResource(R.string.last_day_of_month),
             testTag = "account_modal_closing_day",
             onClick = onClosingDayClick,
         )
