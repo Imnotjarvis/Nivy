@@ -44,6 +44,7 @@ import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Palette
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.modal.ChooseIconModal
 import com.ivy.wallet.ui.theme.modal.CurrencyModal
@@ -88,7 +89,7 @@ fun BoxWithConstraintsScope.AccountModal(
         mutableStateOf(selectEndTextFieldValue(account?.name?.value))
     }
     var color by remember(modal) {
-        mutableStateOf(account?.color?.let { Color(it.value) } ?: Ivy)
+        mutableStateOf(account?.color?.let { Color(it.value) } ?: Palette.Ivy)
     }
     var amount by remember(modal) {
         mutableDoubleStateOf(modal?.balance ?: 0.0)

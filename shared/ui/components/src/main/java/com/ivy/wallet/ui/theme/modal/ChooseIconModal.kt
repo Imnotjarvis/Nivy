@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.ivy.design.system.colors.shown
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -93,7 +94,7 @@ internal fun BoxWithConstraintsScope.ChooseIconModal(
                 Spacer(Modifier.height(4.dp))
             }
 
-            icons(selectedIcon = selectedIcon, color = color) {
+            icons(selectedIcon = selectedIcon, color = color.shown()) {
                 selectedIcon = it
             }
 

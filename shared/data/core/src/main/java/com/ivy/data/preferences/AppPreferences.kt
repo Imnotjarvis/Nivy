@@ -55,6 +55,10 @@ class AppPreferences @Inject constructor(
         dataStore.edit { if (dp == null) it.remove(CornerRadiusDp) else it[CornerRadiusDp] = dp }
     }
 
+    /** Whether the app is drawn in greys only (see ColorMode). */
+    val minimalColors: Flow<Boolean> = dataStore.data.map { it[MinimalColors] ?: false }.distinctUntilChanged()
+    suspend fun setMinimalColors(minimal: Boolean) = set(MinimalColors, minimal)
+
     suspend fun showNotifications(): Boolean = get(ShowNotifications, true)
     suspend fun setShowNotifications(show: Boolean) = set(ShowNotifications, show)
 
@@ -118,6 +122,7 @@ class AppPreferences @Inject constructor(
         private val StartDayOfMonth = intPreferencesKey("start_date_of_month")
         private val DateFormat = stringPreferencesKey("date_format")
         private val CornerRadiusDp = intPreferencesKey("corner_radius")
+        private val MinimalColors = booleanPreferencesKey("minimal_colors")
         private val ShowNotifications = booleanPreferencesKey("show_notifications")
         private val HideCurrentBalance = booleanPreferencesKey("hide_current_balance")
         private val HideIncome = booleanPreferencesKey("hide_income")

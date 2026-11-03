@@ -26,7 +26,6 @@ import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BackButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
@@ -36,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberHeadlineMedium
 import com.ivy.navigation.rememberOnBack
+import com.ivy.design.system.colors.Palette
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -69,7 +69,7 @@ internal fun ImportResultUI(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = if (importSuccess) stringResource(R.string.success) else stringResource(R.string.failure),
             style = MaterialTheme.typography.headlineMedium.copy(
-                color = if (importSuccess) MaterialTheme.colorScheme.onSurface else Red,
+                color = if (importSuccess) MaterialTheme.colorScheme.onSurface else Palette.Red,
                 fontWeight = FontWeight.Black
             )
         )
@@ -79,7 +79,7 @@ internal fun ImportResultUI(
                 modifier = Modifier.padding(horizontal = 32.dp),
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Red,
+                color = Palette.Red,
             )
         }
 
@@ -247,7 +247,7 @@ private fun FailedSectionUI(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = stringResource(R.string.failed),
             style = MaterialTheme.typography.titleLarge.copy(
-                color = Red,
+                color = Palette.Red,
                 fontWeight = FontWeight.Black
             )
         )

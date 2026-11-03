@@ -221,6 +221,8 @@
     <string name="exporting_data_description">Please wait, exporting data</string>
     <string name="start_date_of_month">Choose the start date of the month</string>
     <string name="date_format">Date format</string>
+    <string name="minimal_colors">Minimal colors</string>
+    <string name="minimal_colors_description">Greys only. Home\'s income and expenses and warnings keep their color.</string>
     <string name="corner_radius">Corner radius</string>
     <string name="corner_radius_value">%1$d dp</string>
     <string name="match_my_phone">Match my phone</string>

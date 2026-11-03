@@ -48,7 +48,6 @@ import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.Red
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
@@ -60,6 +59,7 @@ import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
+import com.ivy.design.system.colors.Palette
 
 @ExperimentalAnimationApi
 @Composable
@@ -313,7 +313,7 @@ private fun IncomeExpenses(
 
         HeaderCard(
             icon = R.drawable.ic_income,
-            amountColor = Green,
+            amountColor = Palette.Green,
             label = stringResource(R.string.income),
             currency = currency,
             amount = monthlyIncome,
@@ -334,7 +334,7 @@ private fun IncomeExpenses(
 
         HeaderCard(
             icon = R.drawable.ic_expense,
-            amountColor = Red,
+            amountColor = Palette.Red,
             label = stringResource(R.string.expenses),
             currency = currency,
             amount = monthlyExpenses.absoluteValue,

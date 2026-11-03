@@ -119,7 +119,9 @@ fun Color.hsv(
     hsv[1] = s
     hsv[2] = v
 
-    return Color(android.graphics.Color.HSVToColor(hsv))
+    // A grey's hue is red's, so setting its saturation would tint it: drawn grey in minimal colors.
+    return Color(android.graphics.Color.HSVToColor(hsv)).shown()
 }
 
-fun Int.toComposeColor() = Color(this)
+/** A saved color (an account's, a category's, …) as drawn: grey in minimal colors. */
+fun Int.toComposeColor() = Color(this).shown()

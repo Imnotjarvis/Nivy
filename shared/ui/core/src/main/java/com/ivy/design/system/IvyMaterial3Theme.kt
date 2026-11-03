@@ -20,10 +20,8 @@ import com.ivy.design.system.colors.MediumWhite
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.OrangeDark
 import com.ivy.design.system.colors.OrangeLight
+import com.ivy.design.system.colors.Palette
 import com.ivy.design.system.colors.Purple
-import com.ivy.design.system.colors.Red
-import com.ivy.design.system.colors.RedDark
-import com.ivy.design.system.colors.RedLight
 import com.ivy.design.system.colors.TrueBlack
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.shapes.AppCornerRadius
@@ -71,10 +69,11 @@ private fun ivyLightColorScheme(): ColorScheme = lightColorScheme(
     tertiaryContainer = OrangeLight,
     onTertiaryContainer = OrangeDark,
 
-    error = Red,
+    // Errors are warnings: red also in minimal colors.
+    error = Palette.Red,
     onError = White,
-    errorContainer = RedLight,
-    onErrorContainer = RedDark,
+    errorContainer = Palette.RedLight,
+    onErrorContainer = Palette.RedDark,
 
     background = BackgroundLight,
     onBackground = Black,
@@ -114,10 +113,11 @@ private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorSch
     tertiaryContainer = OrangeDark,
     onTertiaryContainer = OrangeLight,
 
-    error = Red,
+    // Errors are warnings: red also in minimal colors.
+    error = Palette.Red,
     onError = White,
-    errorContainer = RedDark,
-    onErrorContainer = RedLight,
+    errorContainer = Palette.RedDark,
+    onErrorContainer = Palette.RedLight,
 
     background = if (isTrueBlack) TrueBlack else BackgroundDark,
     onBackground = White,

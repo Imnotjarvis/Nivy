@@ -13,12 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientGreen
-import com.ivy.design.system.colors.GradientRed
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.Gradient
+import com.ivy.design.system.colors.Palette
 
 @Composable
 internal fun ModalDynamicPrimaryAction(
@@ -152,7 +153,7 @@ fun ModalNegativeButton(
 ) {
     IvyButton(
         text = text,
-        backgroundGradient = GradientRed,
+        backgroundGradient = Gradient.solid(Palette.Red),
         iconStart = iconStart,
         onClick = onClick,
         enabled = enabled
@@ -189,7 +190,7 @@ fun ModalDelete(
             .size(40.dp)
             .testTag(testTag),
         icon = R.drawable.ic_delete,
-        backgroundGradient = GradientRed,
+        backgroundGradient = Gradient.solid(Palette.Red),
         enabled = enabled,
         tint = White,
         contentDescription = stringResource(R.string.delete),

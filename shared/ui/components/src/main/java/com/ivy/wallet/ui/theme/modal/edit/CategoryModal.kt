@@ -45,7 +45,8 @@ import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
-import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.shown
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import com.ivy.design.system.colors.dynamicContrast
@@ -75,7 +76,7 @@ fun BoxWithConstraintsScope.CategoryModal(
         mutableStateOf(selectEndTextFieldValue(initialCategory?.name?.value))
     }
     var color by remember(modal) {
-        mutableStateOf(initialCategory?.color?.let { Color(it.value) } ?: Ivy)
+        mutableStateOf(initialCategory?.color?.let { Color(it.value) } ?: Palette.Ivy)
     }
     var icon by remember(modal) {
         mutableStateOf(initialCategory?.icon)
@@ -200,13 +201,13 @@ internal fun IconNameRow(
         ItemIconMDefaultIcon(
             modifier = Modifier
                 .clip(PillShape)
-                .background(color, PillShape)
+                .background(color.shown(), PillShape)
                 .clickable {
                     showChooseIconModal()
                 }
                 .testTag("modal_item_icon"),
             iconName = icon,
-            tint = color.dynamicContrast(),
+            tint = color.shown().dynamicContrast(),
             defaultIcon = defaultIcon
         )
 
