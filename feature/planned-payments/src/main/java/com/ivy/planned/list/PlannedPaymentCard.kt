@@ -53,7 +53,7 @@ import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
 import com.ivy.design.system.colors.findContrastTextColor
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.ImmutableList
@@ -162,16 +162,16 @@ private fun PlannedPaymentHeaderRow(
                 plannedPayment.category?.let { targetId -> categories.find { it.id == targetId } }
             if (category != null) {
                 IvyButton(
-                    modifier = Modifier.opensScreen(category.color.value.toComposeColor()),
-                    iconTint = findContrastTextColor(category.color.value.toComposeColor()),
+                    modifier = Modifier.opensScreen(categoryColor(category.color.value)),
+                    iconTint = findContrastTextColor(categoryColor(category.color.value)),
                     iconStart = getCustomIconIdS(
                         category.icon?.id,
                         R.drawable.ic_custom_category_s
                     ),
                     text = category.name.value,
-                    backgroundGradient = Gradient.solid(category.color.value.toComposeColor()),
+                    backgroundGradient = Gradient.solid(categoryColor(category.color.value)),
                     textStyle = MaterialTheme.typography.labelMedium.copy(
-                        color = findContrastTextColor(category.color.value.toComposeColor()),
+                        color = findContrastTextColor(categoryColor(category.color.value)),
                         fontWeight = FontWeight.ExtraBold
                     ),
                     padding = 8.dp,

@@ -60,7 +60,7 @@ import com.ivy.wallet.ui.theme.components.OnboardingButton
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.navigation.rememberOnBack
@@ -226,7 +226,7 @@ private fun CategoryCard(
     category: Category,
     onClick: () -> Unit
 ) {
-    val categoryColor = category.color.value.toComposeColor()
+    val categoryColor = categoryColor(category.color.value)
 
     Row(
         modifier = Modifier

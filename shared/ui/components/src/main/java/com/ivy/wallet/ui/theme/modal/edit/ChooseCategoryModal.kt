@@ -48,7 +48,7 @@ import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSkip
 import com.ivy.wallet.ui.theme.modal.ModalTitle
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -189,7 +189,7 @@ private fun CategoryButton(
     onLongClick: () -> Unit,
     onDeselect: () -> Unit,
 ) {
-    val categoryColor = category.color.value.toComposeColor()
+    val categoryColor = categoryColor(category.color.value)
 
     val rFull = PillShape
 

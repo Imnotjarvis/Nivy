@@ -79,12 +79,13 @@ import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.gradientExpenses
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -403,7 +404,7 @@ fun CategoryBadgeDisplay(
 ) {
     TransactionBadge(
         text = category.name.value,
-        backgroundColor = category.color.value.toComposeColor(),
+        backgroundColor = categoryColor(category.color.value),
         icon = category.icon?.id,
         defaultIcon = R.drawable.ic_custom_category_s
     ) {
@@ -633,8 +634,9 @@ fun TypeAmountCurrency(
                         // Normal Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
+                            // The pill is in the text color, the icon in the background's.
                             gradient = Gradient.black(),
-                            iconTint = White,
+                            iconTint = MaterialTheme.colorScheme.surface,
                             textColor = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -656,7 +658,7 @@ fun TypeAmountCurrency(
             modifier = Modifier
                 .background(style.gradient.asHorizontalBrush(), PillShape),
             icon = style.icon,
-            tint = style.iconTint
+            tint = readableTint(style.gradient.startColor, style.iconTint)
         )
 
         Spacer(Modifier.width(12.dp))
