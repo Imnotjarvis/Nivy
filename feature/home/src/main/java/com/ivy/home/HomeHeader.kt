@@ -36,12 +36,11 @@ import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.ui.component.transaction.TransactionsDividerLine
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.wallet.utils.format
-import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.wallet.utils.springBounce
-import com.ivy.wallet.utils.verticalSwipeListener
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
@@ -225,20 +224,12 @@ fun CashFlowInfo(
     hideBalance: Boolean,
     hideIncome: Boolean,
     onHiddenIncomeClick: () -> Unit,
-    onOpenMoreMenu: () -> Unit,
     onBalanceClick: () -> Unit,
     onHiddenBalanceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .verticalSwipeListener(
-                sensitivity = Constants.SWIPE_DOWN_THRESHOLD_OPEN_MORE_MENU,
-                state = rememberSwipeListenerState(),
-                onSwipeDown = {
-                    onOpenMoreMenu()
-                },
-            ),
+        modifier = modifier,
     ) {
         BalanceRow(
             modifier = Modifier

@@ -7,13 +7,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
@@ -73,7 +71,8 @@ import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
-private val PillHeight = 64.dp
+private val PillHeight = 56.dp
+private val TabSize = 48.dp
 private val PillBottomMargin = 12.dp
 
 // The bar's buttons and their expand animation share one state.
@@ -119,13 +118,12 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
-    // A floating pill: Home, the + button (placed over the gap) and Accounts.
+    // A compact floating pill, centered: Home, the + button (placed over the gap) and Accounts.
     Row(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .navigationBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = PillBottomMargin)
-            .fillMaxWidth()
+            .padding(bottom = PillBottomMargin)
             .height(PillHeight)
             .alpha(1f - buttonsShownPercent)
             .clip(PillShape)
@@ -621,42 +619,30 @@ private fun AddTransferButton(
     )
 }
 
+// An icon only, its name read out by screen readers; the selected one on a tinted circle.
 @Composable
-private fun RowScope.Tab(
+private fun Tab(
     @DrawableRes icon: Int,
     name: String,
     selected: Boolean,
     selectedColor: Color,
     onClick: () -> Unit,
 ) {
-    Row(
+    Box(
         modifier = Modifier
-            .weight(1f)
-            .height(48.dp)
+            .size(TabSize)
             .clip(PillShape)
             .thenIf(selected) {
                 background(selectedColor.copy(alpha = 0.15f))
             }
             .clickable(onClick = onClick)
             .testTag(name.lowercase()),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        contentAlignment = Alignment.Center
     ) {
         IvyIcon(
             icon = icon,
-            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
+            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface,
+            contentDescription = name
         )
-
-        if (selected) {
-            Spacer(modifier = Modifier.width(4.dp))
-
-            Text(
-                text = name,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = selectedColor,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
     }
 }

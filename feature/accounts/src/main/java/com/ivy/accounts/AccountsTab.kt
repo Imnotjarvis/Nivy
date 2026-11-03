@@ -52,12 +52,9 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.wallet.IvyWalletPreview
-import com.ivy.wallet.LocalMainScreenState
 import com.ivy.wallet.data.model.AccountData
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
@@ -95,7 +92,6 @@ private fun BoxWithConstraintsScope.UI(
     onEvent: (AccountsEvent) -> Unit = {}
 ) {
     val nav = navigation()
-    val mainScreenState = LocalMainScreenState.current
     var listState = rememberLazyListState()
     if (!state.accountsData.isEmpty()) {
         listState = rememberScrollPositionListState(key = "accounts_lazy_column")
@@ -104,17 +100,7 @@ private fun BoxWithConstraintsScope.UI(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .navigationBarsPadding()
-            .horizontalSwipeListener(
-                sensitivity = 200,
-                state = rememberSwipeListenerState(),
-                onSwipeLeft = {
-                    mainScreenState.selectTab(com.ivy.wallet.data.model.MainTab.HOME)
-                },
-                onSwipeRight = {
-                    mainScreenState.selectTab(com.ivy.wallet.data.model.MainTab.HOME)
-                }
-            ),
+            .navigationBarsPadding(),
         state = listState
     ) {
         item {
