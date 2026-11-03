@@ -17,8 +17,10 @@ import com.ivy.home.HomeTab
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.LocalMainScreenState
 import com.ivy.wallet.data.model.MainTab
+import com.ivy.navigation.BudgetScreen
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
+import com.ivy.navigation.SettingsScreen
 import com.ivy.navigation.navigation
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
@@ -113,7 +115,9 @@ private fun BoxWithConstraintsScope.UI(
                 balance = 0.0,
                 baseCurrency = baseCurrency
             )
-        }
+        },
+        onOpenBudgets = { nav.navigateTo(BudgetScreen) },
+        onOpenSettings = { nav.navigateTo(SettingsScreen) },
     )
 
     AccountModal(

@@ -59,6 +59,7 @@ import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.typography.numberTitleLarge
 
 @ExperimentalAnimationApi
 @Composable
@@ -308,6 +309,7 @@ private fun IncomeExpenses(
             label = stringResource(R.string.income),
             currency = currency,
             amount = monthlyIncome,
+            hidden = hideIncome,
             testTag = "home_card_income"
         ) {
             if (hideIncome) {
@@ -350,6 +352,7 @@ private fun RowScope.HeaderCard(
     currency: String,
     amount: Double,
     testTag: String,
+    hidden: Boolean = false,
     onClick: () -> Unit,
 ) {
     Column(
@@ -397,12 +400,23 @@ private fun RowScope.HeaderCard(
         ) {
             Spacer(Modifier.width(20.dp))
 
-            AmountCurrencyB1(
-                amount = amount,
-                currency = currency,
-                textColor = amountColor,
-                shortenBigNumbers = true,
-            )
+            if (hidden) {
+                // Like the hidden balance: tapping shows the amount for a few seconds.
+                Text(
+                    text = "****",
+                    style = MaterialTheme.typography.numberTitleLarge.copy(
+                        color = amountColor,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                )
+            } else {
+                AmountCurrencyB1(
+                    amount = amount,
+                    currency = currency,
+                    textColor = amountColor,
+                    shortenBigNumbers = true,
+                )
+            }
 
             Spacer(Modifier.width(4.dp))
         }
