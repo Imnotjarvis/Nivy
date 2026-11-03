@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -63,7 +65,6 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
-import com.ivy.design.system.colors.pureBlur
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -72,6 +73,8 @@ import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
+private val PillHeight = 64.dp
+private val PillBottomMargin = 12.dp
 
 // The bar's buttons and their expand animation share one state.
 @Suppress("LongMethod")
@@ -116,16 +119,22 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
+    // A floating pill: Home, the + button (placed over the gap) and Accounts.
     Row(
         modifier = Modifier
-            .fillMaxWidth()
             .align(Alignment.BottomCenter)
-            .background(pureBlur())
-            .alpha(1f - buttonsShownPercent)
             .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp, bottom = PillBottomMargin)
+            .fillMaxWidth()
+            .height(PillHeight)
+            .alpha(1f - buttonsShownPercent)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), CircleShape)
             .clickableNoIndication(rememberInteractionSource()) {
                 // consume click
-            },
+            }
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Tab(
@@ -137,7 +146,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
             selectTab(MainTab.HOME)
         }
 
-        Spacer(Modifier.width(FAB_BUTTON_SIZE))
+        Spacer(Modifier.width(FAB_BUTTON_SIZE + 16.dp))
 
         Tab(
             icon = R.drawable.ic_accounts,
@@ -165,8 +174,9 @@ internal fun BoxWithConstraintsScope.BottomBar(
 
     // ------------------------------------ BUTTONS--------------------------------------------------
     val fabStartX = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
+    // Centered in the pill.
     val fabStartY = screenSize.height - navigationBarInset() -
-            30.dp.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
+            (PillBottomMargin + (PillHeight + FAB_BUTTON_SIZE) / 2).toDensityPx()
 
     TransactionButtons(
         buttonsShownPercent = buttonsShownPercent,
@@ -622,9 +632,12 @@ private fun RowScope.Tab(
     Row(
         modifier = Modifier
             .weight(1f)
+            .height(48.dp)
             .clip(CircleShape)
+            .thenIf(selected) {
+                background(selectedColor.copy(alpha = 0.15f))
+            }
             .clickable(onClick = onClick)
-            .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
