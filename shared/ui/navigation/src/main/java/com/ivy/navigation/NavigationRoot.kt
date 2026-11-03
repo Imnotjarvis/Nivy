@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 
-private val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
+internal val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
 
 @Composable
 fun NavigationRoot(
@@ -25,12 +25,13 @@ fun NavigationRoot(
     CompositionLocalProvider(
         LocalNavigation provides navigation,
     ) {
-        val screen = navigation.currentScreen
-        if (screen == null || screen.isLegacy) {
-            // Legacy screens keep their view models in the activity's store, for its lifetime.
-            navGraph(screen)
-        } else {
-            ScreenScope(screen) { navGraph(screen) }
+        AnimatedScreens(navigation) { screen ->
+            if (screen == null || screen.isLegacy) {
+                // Legacy screens keep their view models in the activity's store, for its lifetime.
+                navGraph(screen)
+            } else {
+                ScreenScope(screen) { navGraph(screen) }
+            }
         }
     }
 }
