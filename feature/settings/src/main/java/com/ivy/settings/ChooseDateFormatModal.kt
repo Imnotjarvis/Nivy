@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -31,6 +32,7 @@ import java.util.UUID
 
 /** Today's date in this format, with its year, to show what the format looks like. */
 @Composable
+@ReadOnlyComposable
 internal fun DateDisplayFormat.example(): String = LocalTimeProvider.current.localDateNow()
     .format(DateTimeFormatter.ofPattern(pattern(currentYear = false), Locale.ENGLISH))
 

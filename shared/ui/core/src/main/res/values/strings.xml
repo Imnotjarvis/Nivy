@@ -459,7 +459,7 @@
     <string name="csv_multiplier_none">None</string>
     <string name="csv_optional_in_parentheses">(optional)</string>
     <string name="csv_which_is_first">Which is first in the format?</string>
-    <string name="csv_date_first">Date/Day (1,2,3...31)</string>
+    <string name="csv_date_first">Date/Day (1,2,3…31)</string>
     <string name="csv_month_first">Month (1,2..12 / Jan, Feb..Dec)</string>
     <string name="csv_column_amount">Amount</string>
     <string name="csv_column_amount_help">The amount of the transactions, a positive number. Negative numbers will be made positive.</string>
