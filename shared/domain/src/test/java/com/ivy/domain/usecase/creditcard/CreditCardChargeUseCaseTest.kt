@@ -57,6 +57,49 @@ class CreditCardChargeUseCaseTest {
     }
 
     @Test
+    fun `a purchase before the statement closes is charged on the next charge day`() {
+        card(chargeDay = 5, statementClosingDay = 25).chargeDateTime(LocalDateTime.of(2026, 10, 20, 9, 0)) shouldBe
+            LocalDateTime.of(2026, 11, 5, 9, 0)
+    }
+
+    @Test
+    fun `a purchase on the closing day is in that statement`() {
+        card(chargeDay = 5, statementClosingDay = 25).chargeDateTime(LocalDateTime.of(2026, 10, 25, 9, 0)) shouldBe
+            LocalDateTime.of(2026, 11, 5, 9, 0)
+    }
+
+    @Test
+    fun `a purchase after the statement closed is charged a month later`() {
+        card(chargeDay = 5, statementClosingDay = 25).chargeDateTime(LocalDateTime.of(2026, 10, 27, 9, 0)) shouldBe
+            LocalDateTime.of(2026, 12, 5, 9, 0)
+    }
+
+    @Test
+    fun `a card can charge in the month its statement closes`() {
+        card(chargeDay = 25, statementClosingDay = 5).chargeDateTime(LocalDateTime.of(2026, 11, 3, 9, 0)) shouldBe
+            LocalDateTime.of(2026, 11, 25, 9, 0)
+    }
+
+    @Test
+    fun `a moved charge is that many months away`() {
+        val card = card(chargeDay = 5, statementClosingDay = 25)
+        val purchase = LocalDateTime.of(2026, 10, 27, 9, 0)
+
+        card.chargeDateTime(purchase, shift = 1) shouldBe LocalDateTime.of(2027, 1, 5, 9, 0)
+        card.chargeDateTime(purchase, shift = -1) shouldBe LocalDateTime.of(2026, 11, 5, 9, 0)
+    }
+
+    @Test
+    fun `a charge can't move to the purchase's day or before it`() {
+        val card = card(chargeDay = 5, statementClosingDay = 25)
+        val purchase = LocalDateTime.of(2026, 10, 27, 9, 0)
+
+        card.minChargeShift(purchase) shouldBe -1
+        card.chargeDateTime(purchase, shift = -3) shouldBe LocalDateTime.of(2026, 11, 5, 9, 0)
+        card.minChargeShift(LocalDateTime.of(2026, 11, 5, 9, 0)) shouldBe 0
+    }
+
+    @Test
     fun `an expense on a credit card moves to its charge date and keeps its purchase date`() = runTest {
         val card = card(chargeDay = 15)
         coEvery { accountRepository.findById(card.id) } returns card
@@ -78,6 +121,17 @@ class CreditCardChargeUseCaseTest {
 
         datedTwice.time shouldBe Instant.parse("2026-11-15T18:30:00Z")
         datedTwice.metadata.purchaseDateTime shouldBe purchase
+    }
+
+    @Test
+    fun `an expense whose charge was moved is dated on the moved charge date`() = runTest {
+        val card = card(chargeDay = 15)
+        coEvery { accountRepository.findById(card.id) } returns card
+        val expense = expense(card.id, time = Instant.parse("2026-10-03T18:30:00Z"))
+
+        val dated = useCase.dated(expense.copy(metadata = expense.metadata.copy(chargeShift = 1)))
+
+        dated.time shouldBe Instant.parse("2026-12-15T18:30:00Z")
     }
 
     @Test
@@ -118,7 +172,7 @@ class CreditCardChargeUseCaseTest {
         useCase.dated(expense) shouldBe expense
     }
 
-    private fun card(chargeDay: Int) = Account(
+    private fun card(chargeDay: Int, statementClosingDay: Int? = null) = Account(
         id = AccountId(UUID.randomUUID()),
         name = NotBlankTrimmedString.unsafe("Card"),
         asset = Eur,
@@ -129,6 +183,7 @@ class CreditCardChargeUseCaseTest {
         archived = false,
         creditLimit = PositiveDouble.unsafe(1500.0),
         chargeDay = chargeDay,
+        statementClosingDay = statementClosingDay,
         orderNum = 0.0,
     )
 

@@ -26,6 +26,8 @@ data class EditTransactionViewState(
     val dueDate: Instant?,
     // When the credit card charges this expense; null when it isn't one.
     val chargeDate: LocalDateTime?,
+    // Whether the charge can move a month earlier without falling on or before the purchase.
+    val canMoveChargeEarlier: Boolean,
     val accounts: ImmutableList<Account>,
     val categories: ImmutableList<Category>,
     val account: Account?,
@@ -50,6 +52,7 @@ sealed interface EditTransactionViewEvent {
     data class OnDueDateChanged(val newDueDate: LocalDateTime?) : EditTransactionViewEvent
     data object OnChangeDate : EditTransactionViewEvent
     data object OnChangeTime : EditTransactionViewEvent
+    data class OnMoveCharge(val months: Int) : EditTransactionViewEvent
     data class OnSetTransactionType(val newTransactionType: TransactionType) :
         EditTransactionViewEvent
 

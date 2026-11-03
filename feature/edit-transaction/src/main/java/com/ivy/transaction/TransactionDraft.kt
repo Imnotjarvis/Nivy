@@ -32,6 +32,7 @@ internal data class TransactionDraft(
     val paidFor: Instant? = null,
     val loanId: UUID? = null,
     val loanRecordId: UUID? = null,
+    val chargeShift: Int = 0,
     val id: UUID = UUID.randomUUID(),
 )
 
@@ -51,6 +52,7 @@ internal fun Transaction.toDraft(): TransactionDraft = TransactionDraft(
     paidFor = metadata.paidForDateTime,
     loanId = metadata.loanId,
     loanRecordId = metadata.loanRecordId,
+    chargeShift = metadata.chargeShift,
     id = id.value,
 )
 
@@ -71,6 +73,7 @@ internal suspend fun TransactionDraft.toDomain(mapper: TransactionMapper): Trans
         paidForDateTime = paidFor,
         loanId = loanId,
         loanRecordId = loanRecordId,
+        chargeShift = chargeShift,
         id = id,
     )
     return with(mapper) { entity.toDomain() }.getOrNull()

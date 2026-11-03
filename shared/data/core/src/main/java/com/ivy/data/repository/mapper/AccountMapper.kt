@@ -29,6 +29,7 @@ class AccountMapper @Inject constructor(
             archived = archived,
             creditLimit = creditLimit?.let(PositiveDouble::from)?.getOrNull(),
             chargeDay = chargeDay?.takeIf { it in 1..MaxDayOfMonth },
+            statementClosingDay = statementClosingDay?.takeIf { it in 1 until MaxDayOfMonth },
             orderNum = orderNum,
         )
     }
@@ -45,6 +46,7 @@ class AccountMapper @Inject constructor(
             archived = archived,
             creditLimit = creditLimit?.value,
             chargeDay = chargeDay,
+            statementClosingDay = statementClosingDay,
             id = id.value,
             isSynced = true, // TODO: Delete this
         )

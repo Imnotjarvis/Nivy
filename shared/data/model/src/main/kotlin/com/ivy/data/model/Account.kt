@@ -17,7 +17,9 @@ value class AccountId(override val value: UUID) : UniqueId
  * @property archived hidden from the accounts list and from account pickers; its transactions stay.
  * @property creditLimit only for a [AccountType.CREDIT_CARD].
  * @property chargeDay only for a [AccountType.CREDIT_CARD]: the day of the month (1-31) the card
- * charges the previous month's purchases.
+ * charges the last statement's purchases.
+ * @property statementClosingDay only for a [AccountType.CREDIT_CARD]: the day of the month (1-30)
+ * its statement closes; null for the month's last day.
  */
 data class Account(
     override val id: AccountId,
@@ -30,6 +32,7 @@ data class Account(
     val archived: Boolean,
     val creditLimit: PositiveDouble?,
     val chargeDay: Int?,
+    val statementClosingDay: Int?,
     override val orderNum: Double,
 ) : Identifiable<AccountId>, Reorderable
 

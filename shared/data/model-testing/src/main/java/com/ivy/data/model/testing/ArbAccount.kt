@@ -31,6 +31,7 @@ fun Arb.Companion.account(
         archived = false,
         creditLimit = null,
         chargeDay = null,
+        statementClosingDay = null,
         orderNum = orderNum.getOrElse { Arb.double().bind() },
     )
 }

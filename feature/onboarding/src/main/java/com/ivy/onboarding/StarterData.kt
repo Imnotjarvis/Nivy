@@ -73,6 +73,7 @@ class StarterData @Inject constructor(
                     archived = false,
                     creditLimit = null,
                     chargeDay = null,
+                    statementClosingDay = null,
                     orderNum = index.toDouble(),
                 )
             }.getOrNull()?.let { accountRepository.save(it) }

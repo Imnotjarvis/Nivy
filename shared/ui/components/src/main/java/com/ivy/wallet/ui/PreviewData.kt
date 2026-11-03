@@ -53,6 +53,7 @@ fun previewAccount(
     archived = false,
     creditLimit = null,
     chargeDay = null,
+    statementClosingDay = null,
     orderNum = 0.0,
 )
 

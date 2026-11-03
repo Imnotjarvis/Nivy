@@ -41,6 +41,7 @@ class AccountCreator @Inject constructor(
                     archived = false,
                     creditLimit = data.creditLimit?.let(PositiveDouble::from)?.getOrNull(),
                     chargeDay = data.chargeDay,
+                    statementClosingDay = data.statementClosingDay,
                     orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
                 )
             }.getOrNull() ?: return@ioThread

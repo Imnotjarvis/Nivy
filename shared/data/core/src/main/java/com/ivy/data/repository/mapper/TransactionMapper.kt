@@ -36,7 +36,8 @@ class TransactionMapper @Inject constructor(
             paidForDateTime = paidForDateTime,
             loanId = loanId,
             loanRecordId = loanRecordId,
-            purchaseDateTime = purchaseDateTime
+            purchaseDateTime = purchaseDateTime,
+            chargeShift = chargeShift,
         )
 
         val settled = dateTime != null
@@ -161,6 +162,7 @@ class TransactionMapper @Inject constructor(
             loanId = metadata.loanId,
             loanRecordId = metadata.loanRecordId,
             purchaseDateTime = metadata.purchaseDateTime,
+            chargeShift = metadata.chargeShift,
             isSynced = true,
             isDeleted = false,
             id = id.value
