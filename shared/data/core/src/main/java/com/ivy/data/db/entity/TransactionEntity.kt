@@ -1,6 +1,7 @@
 package com.ivy.data.db.entity
 
 import androidx.annotation.Keep
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -76,6 +77,10 @@ data class TransactionEntity(
     @SerialName("purchaseDateTime")
     @Serializable(with = KSerializerInstant::class)
     val purchaseDateTime: Instant? = null,
+    // The months the user moved a credit card expense's charge from its usual date.
+    @SerialName("chargeShift")
+    @ColumnInfo(defaultValue = "0")
+    val chargeShift: Int = 0,
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")
     val isSynced: Boolean = false,

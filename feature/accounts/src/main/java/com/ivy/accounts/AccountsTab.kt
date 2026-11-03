@@ -484,6 +484,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -498,6 +499,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -512,6 +514,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -526,6 +529,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
         val accounts = persistentListOf(
@@ -597,6 +601,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -611,6 +616,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -625,6 +631,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -639,6 +646,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 0.0,
         )
         val accounts = persistentListOf(

@@ -51,6 +51,7 @@ class AccountMapperTest {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 3.14,
         )
 
@@ -97,6 +98,7 @@ class AccountMapperTest {
             archived = false,
             creditLimit = null,
             chargeDay = null,
+            statementClosingDay = null,
             orderNum = 42.0,
         )
     }
@@ -148,6 +150,18 @@ class AccountMapperTest {
 
         // then
         result.shouldBeRight().icon shouldBe null
+    }
+
+    @Test
+    fun `maps entity to domain - statement closing day`() = runTest {
+        val closesOn25th = ValidEntity.copy(statementClosingDay = 25)
+        val closesOn31st = ValidEntity.copy(statementClosingDay = 31)
+
+        with(mapper) {
+            closesOn25th.toDomain().shouldBeRight().statementClosingDay shouldBe 25
+            // The 31st is every month's last day, which null already means.
+            closesOn31st.toDomain().shouldBeRight().statementClosingDay shouldBe null
+        }
     }
     // endregion
 

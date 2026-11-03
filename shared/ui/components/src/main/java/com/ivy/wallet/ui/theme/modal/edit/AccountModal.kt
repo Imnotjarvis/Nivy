@@ -112,6 +112,7 @@ fun BoxWithConstraintsScope.AccountModal(
         mutableStateOf(false)
     }
     var chargeDayModalVisible by remember(modal) { mutableStateOf(false) }
+    var closingDayModalVisible by remember(modal) { mutableStateOf(false) }
     var creditLimitModalVisible by remember(modal) { mutableStateOf(false) }
 
     val forceNonZeroBalance = modal?.forceNonZeroBalance ?: false
@@ -194,6 +195,7 @@ fun BoxWithConstraintsScope.AccountModal(
             currencyCode = currencyCode,
             onSelectType = { typeSettings = typeSettings.copy(type = it) },
             onChargeDayClick = { chargeDayModalVisible = true },
+            onClosingDayClick = { closingDayModalVisible = true },
             onCreditLimitClick = { creditLimitModalVisible = true },
         )
 
@@ -292,6 +294,16 @@ fun BoxWithConstraintsScope.AccountModal(
         typeSettings = typeSettings.copy(chargeDay = it)
     }
 
+    ChooseStartDateOfMonthModal(
+        visible = closingDayModalVisible,
+        selectedStartDateOfMonth = typeSettings.statementClosingDay ?: LastDayOfMonth,
+        title = stringResource(R.string.statement_closes),
+        dismiss = { closingDayModalVisible = false },
+    ) {
+        // The 31st closes every month on its last day, which null already means.
+        typeSettings = typeSettings.copy(statementClosingDay = it.takeIf { day -> day < LastDayOfMonth })
+    }
+
     val creditLimitModalId = remember(modal, typeSettings.creditLimit) {
         UUID.randomUUID()
     }
@@ -344,6 +356,7 @@ private fun save(
                     archived = typeSettings.archived,
                     creditLimit = typeSettings.creditLimitIfCard()?.let(PositiveDouble::from)?.getOrNull(),
                     chargeDay = typeSettings.chargeDayIfCard(),
+                    statementClosingDay = typeSettings.closingDayIfCard(),
                 ),
                 amount
             )
@@ -360,6 +373,7 @@ private fun save(
                 type = typeSettings.type,
                 creditLimit = typeSettings.creditLimitIfCard(),
                 chargeDay = typeSettings.chargeDayIfCard(),
+                statementClosingDay = typeSettings.closingDayIfCard(),
             )
         )
     }
@@ -367,17 +381,22 @@ private fun save(
     dismiss()
 }
 
-/** The type fields of the dialog; the card's limit and charge day are kept only for a credit card. */
+/**
+ * The type fields of the dialog; the card's limit, charge day and closing day are kept only for a
+ * credit card.
+ */
 private data class AccountTypeSettings(
     val type: AccountType,
     val archived: Boolean,
     val creditLimit: Double?,
     val chargeDay: Int?,
+    val statementClosingDay: Int?,
 ) {
     // A credit card needs its charge day to date its purchases.
     fun complete(): Boolean = type != AccountType.CREDIT_CARD || chargeDay != null
     fun creditLimitIfCard(): Double? = creditLimit.takeIf { type == AccountType.CREDIT_CARD }
     fun chargeDayIfCard(): Int? = chargeDay.takeIf { type == AccountType.CREDIT_CARD }
+    fun closingDayIfCard(): Int? = statementClosingDay.takeIf { type == AccountType.CREDIT_CARD }
 
     companion object {
         fun of(account: Account?) = AccountTypeSettings(
@@ -385,6 +404,7 @@ private data class AccountTypeSettings(
             archived = account?.archived ?: false,
             creditLimit = account?.creditLimit?.value,
             chargeDay = account?.chargeDay,
+            statementClosingDay = account?.statementClosingDay,
         )
     }
 }
@@ -395,6 +415,7 @@ private fun AccountTypeSection(
     currencyCode: String,
     onSelectType: (AccountType) -> Unit,
     onChargeDayClick: () -> Unit,
+    onClosingDayClick: () -> Unit,
     onCreditLimitClick: () -> Unit,
 ) {
     Text(
@@ -435,8 +456,18 @@ private fun AccountTypeSection(
         Spacer(Modifier.height(16.dp))
 
         AccountSettingRow(
+            label = stringResource(R.string.statement_closes),
+            value = settings.statementClosingDay?.let { stringResource(R.string.day_of_month, it.toString()) }
+                ?: stringResource(R.string.last_day_of_month),
+            testTag = "account_modal_closing_day",
+            onClick = onClosingDayClick,
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        AccountSettingRow(
             label = stringResource(R.string.charge_day),
-            value = settings.chargeDay?.let { stringResource(R.string.charge_day_value, it.toString()) }
+            value = settings.chargeDay?.let { stringResource(R.string.day_of_month, it.toString()) }
                 ?: stringResource(R.string.charge_day_not_set),
             testTag = "account_modal_charge_day",
             onClick = onChargeDayClick,
@@ -555,3 +586,5 @@ private fun Preview() {
         }
     }
 }
+
+private const val LastDayOfMonth = 31

@@ -81,8 +81,10 @@ import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
         AutoMigration(from = 132, to = 133),
         // 134: account type, archived, credit limit and charge day; transaction purchase date.
         AutoMigration(from = 133, to = 134),
+        // 135: credit card statement closing day; the months a transaction's charge was moved.
+        AutoMigration(from = 134, to = 135),
     ],
-    version = 134,
+    version = 135,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)

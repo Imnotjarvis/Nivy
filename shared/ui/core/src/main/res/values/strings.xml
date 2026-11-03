@@ -336,7 +336,9 @@
     <string name="account_type_investment">Investment</string>
     <string name="account_type_other">Other</string>
     <string name="charge_day">Charge day</string>
-    <string name="charge_day_value">Day %1$s of next month</string>
+    <string name="day_of_month">Day %1$s</string>
+    <string name="statement_closes">Statement closes</string>
+    <string name="last_day_of_month">Last day</string>
     <string name="charge_day_not_set">Choose a day</string>
     <string name="credit_limit">Credit limit</string>
     <string name="credit_limit_not_set">None</string>
@@ -348,6 +350,8 @@
     <string name="credit_used">Credit used</string>
     <string name="credit_used_of_limit">%1$s of %2$s %3$s</string>
     <string name="charged_on">Charged on</string>
+    <string name="charge_earlier">Charge a month earlier</string>
+    <string name="charge_later">Charge a month later</string>
     <string name="purchased_on">Purchased on %1$s</string>
     <string name="trends">Trends</string>
     <string name="trends_net_worth_in">Net worth in %1$s</string>

@@ -73,6 +73,8 @@ data class TransactionMetadata(
     val loanRecordId: UUID?,
     // When a credit card expense was bought; its time is then the date the card charges it.
     val purchaseDateTime: Instant?,
+    // The months the user moved a credit card expense's charge from its usual date: + later, - earlier.
+    val chargeShift: Int = 0,
 )
 
 fun Transaction.getFromValue(): PositiveValue = when (this) {

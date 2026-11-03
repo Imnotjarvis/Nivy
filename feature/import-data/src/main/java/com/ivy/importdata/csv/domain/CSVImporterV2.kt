@@ -285,6 +285,7 @@ class CSVImporterV2 @Inject constructor(
                 archived = false,
                 creditLimit = null,
                 chargeDay = null,
+                statementClosingDay = null,
                 orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull() ?: return null

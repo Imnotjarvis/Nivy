@@ -119,7 +119,8 @@ class TransactionMapperTest {
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
                 loanRecordId = LoanRecordId,
-                purchaseDateTime = null
+                purchaseDateTime = null,
+                chargeShift = -1,
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -150,6 +151,7 @@ class TransactionMapperTest {
             attachmentUrl = null,
             loanId = LoanId,
             loanRecordId = LoanRecordId,
+            chargeShift = -1,
             isSynced = true,
             isDeleted = false,
             id = TransactionId.value
@@ -349,6 +351,7 @@ class TransactionMapperTest {
         val entity = ValidExpense.copy(
             dateTime = InstantNow.takeIf { settled },
             dueDate = InstantNow.takeIf { !settled },
+            chargeShift = 2,
         )
         mockkAccounts(account = EUR)
 
@@ -368,7 +371,8 @@ class TransactionMapperTest {
                 loanId = LoanId,
                 paidForDateTime = PaidForDateTime,
                 loanRecordId = LoanRecordId,
-                purchaseDateTime = null
+                purchaseDateTime = null,
+                chargeShift = 2,
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),

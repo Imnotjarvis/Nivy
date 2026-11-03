@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -37,6 +38,7 @@ import com.ivy.data.repository.mapper.TagMapper
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.ivy.domain.usecase.creditcard.chargeDateTime
+import com.ivy.domain.usecase.creditcard.minChargeShift
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
@@ -119,6 +121,7 @@ class EditTransactionViewModel @Inject constructor(
     private var description by mutableStateOf<String?>(null)
     private var dateTime by mutableStateOf<Instant?>(null)
     private var dueDate by mutableStateOf<Instant?>(null)
+    private var chargeShift by mutableIntStateOf(0)
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var tags by mutableStateOf<ImmutableList<Tag>>(persistentListOf())
@@ -203,6 +206,7 @@ class EditTransactionViewModel @Inject constructor(
             dateTime = dateTime,
             dueDate = dueDate,
             chargeDate = chargeDate(),
+            canMoveChargeEarlier = canMoveChargeEarlier(),
             accounts = accounts,
             categories = categories,
             account = account,
@@ -221,8 +225,16 @@ class EditTransactionViewModel @Inject constructor(
     /** When the card charges the expense, if it's paid with a credit card and not planned. */
     private fun chargeDate(): LocalDateTime? {
         if (transactionType != TransactionType.EXPENSE || dueDate != null) return null
-        val purchase = dateTime ?: timeProvider.utcNow()
-        return account?.chargeDateTime(with(timeConverter) { purchase.toLocalDateTime() })
+        return account?.chargeDateTime(purchase(), chargeShift)
+    }
+
+    private fun canMoveChargeEarlier(): Boolean {
+        val account = account ?: return false
+        return chargeShift > account.minChargeShift(purchase())
+    }
+
+    private fun purchase(): LocalDateTime = with(timeConverter) {
+        (dateTime ?: timeProvider.utcNow()).toLocalDateTime()
     }
 
     @Composable
@@ -252,6 +264,7 @@ class EditTransactionViewModel @Inject constructor(
             EditTransactionViewEvent.OnPayPlannedPayment -> onPayPlannedPayment()
             is EditTransactionViewEvent.OnChangeDate -> handleChangeDate()
             is EditTransactionViewEvent.OnChangeTime -> handleChangeTime()
+            is EditTransactionViewEvent.OnMoveCharge -> onMoveCharge(event.months)
             is EditTransactionViewEvent.OnSetTransactionType ->
                 onSetTransactionType(event.newTransactionType)
 
@@ -305,6 +318,7 @@ class EditTransactionViewModel @Inject constructor(
         dateTime = transaction.dateTime
         description = transaction.description
         dueDate = transaction.dueDate
+        chargeShift = transaction.chargeShift
         paidHistory = transaction.paidFor
         val selectedAccount = accountRepository.findById(AccountId(transaction.accountId))!!
         account = selectedAccount
@@ -490,6 +504,16 @@ class EditTransactionViewModel @Inject constructor(
             dateTime = newDateTimeUtc,
         )
         dateTime = newDateTimeUtc
+
+        saveIfEditMode()
+    }
+
+    // The move is kept when the purchase date changes; a move earlier than the purchase allows
+    // counts as the earliest one.
+    private fun onMoveCharge(months: Int) {
+        val earliest = account?.minChargeShift(purchase()) ?: return
+        chargeShift = (chargeShift.coerceAtLeast(earliest) + months).coerceAtLeast(earliest)
+        loadedTransaction = loadedTransaction().copy(chargeShift = chargeShift)
 
         saveIfEditMode()
     }
