@@ -138,11 +138,13 @@ data class TimePeriod(
         timeConverter: TimeConverter,
         timeProvider: TimeProvider,
         timeFormatter: TimeFormatter,
+        // "Nov" rather than "November" for a month of this year, where room is short.
+        shortMonth: Boolean = false,
     ): String = with(timeFormatter) {
         when {
             month != null -> {
                 if (startDateOfMonth == 1) {
-                    displayMonthStartingOn1st(month = month, timeProvider)
+                    displayMonthStartingOn1st(month = month, timeProvider, shortMonth)
                 } else {
                     val range = toRange(
                         startDateOfMonth = startDateOfMonth,
@@ -210,6 +212,7 @@ data class TimePeriod(
     private fun displayMonthStartingOn1st(
         month: Month,
         timeProvider: TimeProvider,
+        shortMonth: Boolean = false,
     ): String {
         val year = year
         return if (year != null && timeProvider.localNow().year != year) {
@@ -217,7 +220,7 @@ data class TimePeriod(
             "${month.displayName().take(MonthNameAbbreviationLength)}, $year"
         } else {
             // this year
-            month.displayName()
+            month.displayName().let { if (shortMonth) it.take(MonthNameAbbreviationLength) else it }
         }
     }
 }
