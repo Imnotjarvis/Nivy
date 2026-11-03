@@ -48,7 +48,7 @@ import com.ivy.wallet.ui.theme.modal.ModalAmountSection
 import com.ivy.wallet.ui.theme.modal.ModalDelete
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import kotlinx.collections.immutable.ImmutableList
@@ -256,7 +256,7 @@ private fun CategoriesRow(
                 icon = category.icon?.id,
                 defaultIcon = R.drawable.ic_custom_category_s,
                 text = category.name.value,
-                selectedColor = category.color.value.toComposeColor().takeIf {
+                selectedColor = categoryColor(category.color.value).takeIf {
                     budgetCategoryIds.contains(category.id)
                 }
             ) { selected ->

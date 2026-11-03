@@ -79,12 +79,14 @@ import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.ColorMode
+import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.gradientExpenses
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -403,7 +405,7 @@ fun CategoryBadgeDisplay(
 ) {
     TransactionBadge(
         text = category.name.value,
-        backgroundColor = category.color.value.toComposeColor(),
+        backgroundColor = categoryColor(category.color.value),
         icon = category.icon?.id,
         defaultIcon = R.drawable.ic_custom_category_s
     ) {
@@ -450,11 +452,13 @@ private fun TransactionBadge(
 
     onClick: () -> Unit
 ) {
+    // In minimal colors the items' grey is the card's own: the tags take the page's color instead.
+    val pillColor = if (ColorMode.minimal) MaterialTheme.colorScheme.surface else backgroundColor
     Row(
         modifier = Modifier
-            .opensScreen(backgroundColor)
+            .opensScreen(pillColor)
             .clip(PillShape)
-            .background(backgroundColor, PillShape)
+            .background(pillColor, PillShape)
             .clickable {
                 onClick()
             }
@@ -463,7 +467,7 @@ private fun TransactionBadge(
     ) {
         Spacer(Modifier.width(8.dp))
 
-        val contrastColor = findContrastTextColor(backgroundColor)
+        val contrastColor = findContrastTextColor(pillColor)
 
         ItemIconSDefaultIcon(
             iconName = icon,
@@ -497,11 +501,13 @@ private fun TransferHeader(
     val toAccount = remember(accounts, transaction) {
         accounts.find { it.id == transaction.toAccount }
     }
+    // In minimal colors the accounts' grey is the card's own: the pill takes the page's color, as tags do.
+    val accountColors = shouldShowAccountSpecificColorInTransactions && !ColorMode.minimal
 
     Row(
         modifier = Modifier
             .then(
-                if (shouldShowAccountSpecificColorInTransactions && account != null && toAccount != null) {
+                if (accountColors && account != null && toAccount != null) {
                     Modifier
                         .background(
                             // Two solid halves: the source account's color, then the destination's.
@@ -522,7 +528,7 @@ private fun TransferHeader(
         Spacer(Modifier.width(8.dp))
 
         val accountContrastColor =
-            if (shouldShowAccountSpecificColorInTransactions && account != null) {
+            if (accountColors && account != null) {
                 findContrastTextColor(accountColor(account.color.value))
             } else {
                 MaterialTheme.colorScheme.onSurface
@@ -554,7 +560,7 @@ private fun TransferHeader(
         Spacer(Modifier.width(12.dp))
 
         val toAccountContrastColor =
-            if (shouldShowAccountSpecificColorInTransactions && toAccount != null) {
+            if (accountColors && toAccount != null) {
                 findContrastTextColor(accountColor(toAccount.color.value))
             } else {
                 MaterialTheme.colorScheme.onSurface
@@ -633,8 +639,9 @@ fun TypeAmountCurrency(
                         // Normal Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
+                            // The pill is in the text color, the icon in the background's.
                             gradient = Gradient.black(),
-                            iconTint = White,
+                            iconTint = MaterialTheme.colorScheme.surface,
                             textColor = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -656,7 +663,7 @@ fun TypeAmountCurrency(
             modifier = Modifier
                 .background(style.gradient.asHorizontalBrush(), PillShape),
             icon = style.icon,
-            tint = style.iconTint
+            tint = readableTint(style.gradient.startColor, style.iconTint)
         )
 
         Spacer(Modifier.width(12.dp))

@@ -73,6 +73,7 @@ import com.ivy.design.system.colors.findContrastTextColor
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
+import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.accountColor
 
 @Composable
@@ -223,7 +224,12 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(vertical = 8.dp),
             text = item.account.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = accountColor(item.account.color.value),
+                // In minimal colors the names are in the text color: the accounts' grey is the list's.
+                color = if (ColorMode.minimal) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    accountColor(item.account.color.value)
+                },
                 fontWeight = FontWeight.Bold
             )
         )

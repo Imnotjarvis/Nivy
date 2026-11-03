@@ -78,13 +78,14 @@ import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
+import com.ivy.design.system.colors.ColorMode
+import com.ivy.design.system.colors.categoryColor
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -217,7 +218,12 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(vertical = 8.dp),
             text = item.category.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = item.category.color.value.toComposeColor(),
+                // In minimal colors the names are in the text color: the categories' grey is the list's.
+                color = if (ColorMode.minimal) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    categoryColor(item.category.color.value)
+                },
                 fontWeight = FontWeight.Bold
             )
         )
@@ -254,7 +260,7 @@ private fun CategoryCard(
     compactModeEnabled: Boolean,
     onClick: () -> Unit
 ) {
-    val contrastColor = findContrastTextColor(categoryData.category.color.value.toComposeColor())
+    val contrastColor = findContrastTextColor(categoryColor(categoryData.category.color.value))
 
     if (!compactModeEnabled) {
         Spacer(Modifier.height(16.dp))
@@ -280,7 +286,7 @@ private fun DefaultCategoryCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .opensScreen(categoryData.category.color.value.toComposeColor())
+            .opensScreen(categoryColor(categoryData.category.color.value))
             .clip(MaterialTheme.shapes.medium)
             // Behind the content: the colored header covers it, so it frames only the rest.
             .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
@@ -291,7 +297,7 @@ private fun DefaultCategoryCard(
         CategoryHeader(
             categoryData = categoryData,
             currency = currency,
-            contrastColor = findContrastTextColor(categoryData.category.color.value.toComposeColor())
+            contrastColor = findContrastTextColor(categoryColor(categoryData.category.color.value))
         )
 
         Spacer(Modifier.height(12.dp))
@@ -323,7 +329,7 @@ private fun CompactCategoryCard(
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .opensScreen(category.color.value.toComposeColor())
+            .opensScreen(categoryColor(category.color.value))
             .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick
@@ -338,7 +344,7 @@ private fun CompactCategoryCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(PillShape)
-                    .background(category.color.value.toComposeColor()),
+                    .background(categoryColor(category.color.value)),
                 contentAlignment = Alignment.Center,
             ) {
                 ItemIconSDefaultIcon(
@@ -515,7 +521,7 @@ private fun CategoryHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(category.color.value.toComposeColor())
+            .background(categoryColor(category.color.value))
     ) {
         Spacer(Modifier.height(16.dp))
 

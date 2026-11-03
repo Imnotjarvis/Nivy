@@ -14,7 +14,7 @@ import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
 import com.ivy.design.system.colors.findContrastTextColor
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -46,7 +46,7 @@ private fun CategoryButton(
     category: Category,
     onClick: () -> Unit,
 ) {
-    val contrastColor = findContrastTextColor(category.color.value.toComposeColor())
+    val contrastColor = findContrastTextColor(categoryColor(category.color.value))
     IvyButton(
         modifier = Modifier.padding(start = 24.dp),
         text = category.name.value,
@@ -54,7 +54,7 @@ private fun CategoryButton(
             iconName = category.icon?.id,
             defaultIcon = R.drawable.ic_custom_category_s
         ),
-        backgroundGradient = Gradient.from(category.color.value, category.color.value),
+        backgroundGradient = Gradient.solid(categoryColor(category.color.value)),
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = contrastColor,
             fontWeight = FontWeight.Bold

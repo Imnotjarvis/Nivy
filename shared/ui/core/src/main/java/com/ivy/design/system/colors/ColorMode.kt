@@ -31,9 +31,17 @@ fun Color.toGrey(): Color {
 
 /**
  * An account's saved color as drawn: in minimal colors every account is the same grey, the cards'
- * one. Categories keep greys of their own lightness, which charts tell apart.
+ * one.
  */
 @Composable
 @ReadOnlyComposable
 fun accountColor(argb: Int): Color =
     if (ColorMode.minimal) MaterialTheme.colorScheme.surfaceVariant else argb.toComposeColor()
+
+/**
+ * A category's saved color as drawn: in minimal colors the accounts' grey. The pie chart, whose
+ * slices are told apart by shade, keeps greys of their own lightness.
+ */
+@Composable
+@ReadOnlyComposable
+fun categoryColor(argb: Int): Color = accountColor(argb)

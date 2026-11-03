@@ -94,7 +94,7 @@ import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.ivy.design.system.colors.toComposeColor
+import com.ivy.design.system.colors.categoryColor
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -274,7 +274,7 @@ private fun BoxWithConstraintsScope.UI(
     val periodState = LocalPeriodState.current
     val screenSize = LocalScreenSize.current
     val itemColor = account?.let { accountColor(it.color.value) }
-        ?: category?.color?.value?.toComposeColor() ?: Gray
+        ?: category?.let { categoryColor(it.color.value) } ?: Gray
 
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
