@@ -16,16 +16,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -145,7 +147,7 @@ private fun Modifier.screenAnimation(
     val block = animation?.block?.takeIf { animation.opening == entering } ?: return touches
     return touches
         .drawBehind { drawCard(block, progress.value, AppCornerRadius.value.toPx()) }
-        .graphicsLayer { showMiniature(block.bounds, progress.value, AppCornerRadius.value.toPx()) }
+        .graphicsLayer { showInCard(block.bounds, progress.value, AppCornerRadius.value.toPx()) }
 }
 
 /**
@@ -166,27 +168,20 @@ private fun DrawScope.drawCard(block: Block, progress: Float, blockRadius: Float
 }
 
 /**
- * The whole screen in miniature inside the card, at [progress] 0 to 1: scaled to fit with a
- * margin, so the card's edges show around it, centered, with corners concentric with the card's,
- * and fading in over the first part.
+ * The screen, at [progress] 0 to 1: at its own size and place, seen only inside the card, and only
+ * at the end, fading in once the card nearly fills the screen; until then the card is a plain color.
  */
-private fun GraphicsLayerScope.showMiniature(block: Rect, progress: Float, blockRadius: Float) {
+private fun GraphicsLayerScope.showInCard(block: Rect, progress: Float, blockRadius: Float) {
     val card = cardBounds(block, size, progress)
-    val margin = lerp(MiniatureMargin.toPx(), 0f, progress)
-    val scale = minOf(
-        (card.width - 2 * margin) / size.width,
-        (card.height - 2 * margin) / size.height,
-    ).coerceAtLeast(MinScale)
-    transformOrigin = TransformOrigin(0f, 0f)
-    scaleX = scale
-    scaleY = scale
-    translationX = card.left + (card.width - size.width * scale) / 2
-    translationY = card.top + (card.height - size.height * scale) / 2
-    // The corner radius is in the screen's own coordinates, before the scale.
-    val radius = (lerp(blockRadius, 0f, progress) - margin).coerceAtLeast(0f)
-    shape = RoundedCornerShape(radius / scale)
+    shape = CardShape(card, radius = lerp(blockRadius, 0f, progress))
     clip = true
-    alpha = (progress / MiniatureFadeIn).coerceAtMost(1f)
+    alpha = ((progress - ScreenFadeInFrom) / (1f - ScreenFadeInFrom)).coerceIn(0f, 1f)
+}
+
+// The card's rounded rectangle, at its place in the screen.
+private data class CardShape(val card: Rect, val radius: Float) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density) =
+        Outline.Rounded(RoundRect(card, CornerRadius(radius)))
 }
 
 // The card at [progress]: from the block's bounds at 0 to the whole screen at 1.
@@ -212,13 +207,10 @@ private const val DurationMillis = 350
 // How dark the screen underneath gets: Material's scrim.
 private const val DimAlpha = 0.32f
 
-// The card fades in over the block, and the miniature into the card, over these parts of the
-// animation; going back, they fade out over the same parts.
+// The card fades in over the block over this first part of the animation; going back, it fades
+// out over the same last part.
 private const val CardFadeIn = 0.15f
-private const val MiniatureFadeIn = 0.35f
 
-// Between the card's edges and the miniature, shrinking to none as the card fills the screen.
-private val MiniatureMargin = 8.dp
-
-// A block too small for the margin still gets a (tiny) miniature.
-private const val MinScale = 0.01f
+// The screen fades in from this point, when the card covers most of it; going back, it fades out
+// until then, and the card shrinks plain.
+private const val ScreenFadeInFrom = 0.8f
