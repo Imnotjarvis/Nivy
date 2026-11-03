@@ -25,6 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -317,7 +320,7 @@ private fun BoxWithConstraintsScope.UI(
                 .statusBarsPadding()
                 .padding(top = 16.dp)
                 .clip(ShapeTop)
-                .background(MaterialTheme.colorScheme.surface)
+                .surfaceBelowHeader(listState, MaterialTheme.colorScheme.surface)
                 .testTag("item_stats_lazy_column"),
             state = listState,
         ) {
@@ -978,4 +981,15 @@ fun TransactionsUiTest(isDark: Boolean) {
     IvyWalletPreview(theme) {
         Preview_empty_upcoming(isDark)
     }
+}
+
+/**
+ * The list's background, below its header (the first item) while it shows: under the header, the
+ * rounded corners would cut the background's edge and the header's alike, and the background would
+ * show through as a faint arc.
+ */
+private fun Modifier.surfaceBelowHeader(listState: LazyListState, color: Color) = drawBehind {
+    val header = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }
+    val top = header?.let { (it.offset + it.size).toFloat() } ?: 0f
+    drawRect(color, topLeft = Offset(0f, top))
 }
