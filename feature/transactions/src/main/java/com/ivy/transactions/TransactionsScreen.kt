@@ -97,7 +97,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop32
+import com.ivy.design.system.shapes.ShapeTop
 import androidx.compose.runtime.DisposableEffect
 
 @Composable
@@ -316,7 +316,7 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .clip(ShapeTop32)
+                .clip(ShapeTop)
                 .background(MaterialTheme.colorScheme.surface)
                 .testTag("item_stats_lazy_column"),
             state = listState,
@@ -502,7 +502,7 @@ private fun LazyListScope.choosePeriodModal(
                     .height(32.dp)
                     .fillMaxWidth()
                     .background(itemColor) // itemColor is displayed below the clip
-                    .background(MaterialTheme.colorScheme.surface, ShapeTop32)
+                    .background(MaterialTheme.colorScheme.surface, ShapeTop)
             )
 
             PeriodSelector(

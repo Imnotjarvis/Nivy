@@ -85,7 +85,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop32
+import com.ivy.design.system.shapes.ShapeTop
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
 import com.ivy.design.system.typography.numberTitleLarge
@@ -121,7 +121,7 @@ private fun BoxWithConstraintsScope.UI(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .clip(ShapeTop32)
+                .clip(ShapeTop)
                 .background(MaterialTheme.colorScheme.surface),
             state = listState,
         ) {
@@ -162,7 +162,7 @@ private fun BoxWithConstraintsScope.UI(
                         .height(32.dp)
                         .fillMaxWidth()
                         .background(itemColor) // itemColor is displayed below the clip
-                        .background(MaterialTheme.colorScheme.surface, ShapeTop32)
+                        .background(MaterialTheme.colorScheme.surface, ShapeTop)
                 )
             }
 

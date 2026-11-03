@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -449,8 +449,8 @@ private fun TransactionBadge(
 ) {
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .background(backgroundColor, CircleShape)
+            .clip(PillShape)
+            .background(backgroundColor, PillShape)
             .clickable {
                 onClick()
             }
@@ -507,10 +507,10 @@ private fun TransferHeader(
                                 0.5f to toAccount.color.value.toComposeColor(),
                                 1f to toAccount.color.value.toComposeColor()
                             ),
-                            shape = CircleShape
+                            shape = PillShape
                         )
                 } else {
-                    Modifier.background(MaterialTheme.colorScheme.surface, CircleShape)
+                    Modifier.background(MaterialTheme.colorScheme.surface, PillShape)
                 }
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -650,7 +650,7 @@ fun TypeAmountCurrency(
 
         IvyIcon(
             modifier = Modifier
-                .background(style.gradient.asHorizontalBrush(), CircleShape),
+                .background(style.gradient.asHorizontalBrush(), PillShape),
             icon = style.icon,
             tint = style.iconTint
         )

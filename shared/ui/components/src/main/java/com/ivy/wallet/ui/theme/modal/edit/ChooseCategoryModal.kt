@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -191,15 +191,15 @@ private fun CategoryButton(
 ) {
     val categoryColor = category.color.value.toComposeColor()
 
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Row(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .border(
                 width = 2.dp,
                 color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
-                shape = CircleShape
+                shape = PillShape
             )
             .thenIf(selected) {
                 background(categoryColor, rFull)
@@ -215,7 +215,7 @@ private fun CategoryButton(
 
         ItemIconSDefaultIcon(
             modifier = Modifier
-                .background(categoryColor, CircleShape),
+                .background(categoryColor, PillShape),
             iconName = category.icon?.id,
             defaultIcon = R.drawable.ic_custom_category_s,
             tint = findContrastTextColor(categoryColor)

@@ -18,5 +18,8 @@ sealed interface SettingsEvent {
 
     data class SetStartDateOfMonth(val startDate: Int) : SettingsEvent
     data class SetDateFormat(val format: DateDisplayFormat) : SettingsEvent
+
+    /** A radius in dp, or null to match the phone's screen corners. */
+    data class SetCornerRadius(val dp: Int?) : SettingsEvent
     data object DeleteAllUserData : SettingsEvent
 }

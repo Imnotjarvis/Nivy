@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -221,7 +221,7 @@ fun InstructionButton(
 
         if (icon != null) {
             IvyIcon(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surface, CircleShape),
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface, PillShape),
                 icon = icon,
                 tint = Color.Unspecified
             )
@@ -294,7 +294,7 @@ internal fun StepTitle(
         Text(
             modifier = Modifier
                 .size(24.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                .background(MaterialTheme.colorScheme.surfaceVariant, PillShape),
             text = number.toString(),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,

@@ -62,7 +62,7 @@ import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
-import com.ivy.design.system.shapes.ShapeTop16
+import com.ivy.design.system.shapes.ShapeTop
 import com.ivy.design.system.typography.numberBodyLarge
 
 @Composable
@@ -304,7 +304,7 @@ private fun LoanHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(loan.color.value.toComposeColor(), ShapeTop16)
+            .background(loan.color.value.toComposeColor(), ShapeTop)
     ) {
         Spacer(Modifier.height(16.dp))
 

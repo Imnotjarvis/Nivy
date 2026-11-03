@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.design.utils.thenIf
 import com.ivy.design.system.colors.findContrastTextColor
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -34,11 +34,11 @@ fun ListItem(
         if (selectedColor != null) findContrastTextColor(selectedColor) else MaterialTheme.colorScheme.onSurface
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .thenIf(selectedColor == null) {
                 border(2.dp, medium, rFull)
             }

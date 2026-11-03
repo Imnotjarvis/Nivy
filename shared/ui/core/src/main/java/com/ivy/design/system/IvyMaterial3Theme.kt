@@ -26,7 +26,8 @@ import com.ivy.design.system.colors.RedDark
 import com.ivy.design.system.colors.RedLight
 import com.ivy.design.system.colors.TrueBlack
 import com.ivy.design.system.colors.White
-import com.ivy.design.system.shapes.IvyShapes
+import com.ivy.design.system.shapes.AppCornerRadius
+import com.ivy.design.system.shapes.ivyShapes
 import com.ivy.design.system.typography.IvyTypography
 
 // How the Ivy design maps onto Material3 color roles:
@@ -47,7 +48,7 @@ fun IvyMaterial3Theme(
     MaterialTheme(
         colorScheme = if (dark) ivyDarkColorScheme(isTrueBlack) else ivyLightColorScheme(),
         typography = IvyTypography,
-        shapes = IvyShapes,
+        shapes = ivyShapes(AppCornerRadius.value),
         content = content,
     )
 }

@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -243,7 +243,7 @@ private fun CategoryCard(
 
         ItemIconSDefaultIcon(
             modifier = Modifier
-                .background(categoryColor, CircleShape),
+                .background(categoryColor, PillShape),
             iconName = category.icon?.id,
             defaultIcon = R.drawable.ic_custom_category_s,
             tint = findContrastTextColor(categoryColor)

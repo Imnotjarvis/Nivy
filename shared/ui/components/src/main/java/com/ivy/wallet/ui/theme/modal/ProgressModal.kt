@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Red
 import java.util.UUID
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -65,7 +65,7 @@ fun BoxWithConstraintsScope.ProgressModal(
                 .padding(horizontal = 32.dp)
                 .height(8.dp)
                 .clip(
-                    CircleShape
+                    PillShape
                 ),
             color = color
         )

@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.CopyAll
 import androidx.compose.material3.Icon
@@ -87,9 +87,9 @@ fun Toolbar(
                 OutlinedIconButton(
                     modifier = Modifier
                         .size(48.dp)
-                        .background(Color.Transparent, CircleShape)
+                        .background(Color.Transparent, PillShape)
                         .testTag("duplicate_button"),
-                    shape = CircleShape,
+                    shape = PillShape,
                     colors = IconButtonDefaults.outlinedIconButtonColors()
                         .copy(contentColor = MaterialTheme.colorScheme.surfaceVariant),
                     border = IconButtonDefaults.outlinedIconButtonBorder(enabled = true)

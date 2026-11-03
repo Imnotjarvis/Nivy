@@ -54,7 +54,7 @@ import com.ivy.design.system.colors.mediumBlur
 import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop24
+import com.ivy.design.system.shapes.ShapeTop
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.key
 
@@ -138,7 +138,7 @@ fun BoxScope.IvyModal(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(top = 24.dp)
-                .background(MaterialTheme.colorScheme.surface, ShapeTop24)
+                .background(MaterialTheme.colorScheme.surface, ShapeTop)
                 .consumeClicks(rememberInteractionSource())
                 .thenIf(scrollState != null) {
                     verticalScroll(scrollState!!)

@@ -18,7 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.AppCornerRadius
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -243,7 +244,7 @@ private fun LegendDot(color: Color, label: String) {
         Spacer(
             Modifier
                 .size(8.dp)
-                .background(color, CircleShape)
+                .background(color, PillShape)
         )
         Spacer(Modifier.width(4.dp))
         Text(text = label, style = MaterialTheme.typography.labelMedium.copy(color = Gray))
@@ -279,7 +280,7 @@ private fun IncomeExpenseBars(
             highlight,
             topLeft = Offset(selectedIndex * slot, 0f),
             size = Size(slot, size.height),
-            cornerRadius = CornerRadius(SelectionRadius.toPx()),
+            cornerRadius = CornerRadius(AppCornerRadius.value.toPx()),
         )
         months.forEachIndexed { index, month ->
             val left = index * slot + (slot - 2 * barWidth - BarGap.toPx()) / 2
@@ -334,7 +335,7 @@ private fun NetWorthLine(
             highlight,
             topLeft = Offset(selectedIndex * slot, 0f),
             size = Size(slot, size.height),
-            cornerRadius = CornerRadius(SelectionRadius.toPx()),
+            cornerRadius = CornerRadius(AppCornerRadius.value.toPx()),
         )
         drawLine(zeroLine, start = Offset(0f, y(0.0)), end = Offset(size.width, y(0.0)))
         val line = Path().apply {
@@ -394,6 +395,5 @@ private const val MonthLabelLength = 3
 private const val AreaAlpha = 0.25f
 private val BarGap = 2.dp
 private val BarTopSpace = 8.dp
-private val SelectionRadius = 12.dp
 private val PointRadius = 3.dp
 private val LineWidth = 3.dp

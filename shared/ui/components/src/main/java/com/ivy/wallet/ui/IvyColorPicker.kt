@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -132,11 +132,11 @@ private fun ColorItem(
 
     Box(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .size(48.dp)
-            .background(color, CircleShape)
+            .background(color, PillShape)
             .thenIf(selected) {
-                border(width = 4.dp, color = color.dynamicContrast(), CircleShape)
+                border(width = 4.dp, color = color.dynamicContrast(), PillShape)
             }
             .clickable(onClick = {
                 onSelected(ivyColor)

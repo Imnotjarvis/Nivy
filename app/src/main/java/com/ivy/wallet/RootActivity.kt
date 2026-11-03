@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
+import android.view.RoundedCorner
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -23,6 +24,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,6 +33,7 @@ import com.ivy.base.model.Theme
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.design.system.IvyMaterial3Theme
+import com.ivy.design.system.shapes.AppCornerRadius
 import com.ivy.domain.RootScreen
 import com.ivy.wallet.utils.activityForResultLauncher
 import com.ivy.wallet.utils.simpleActivityForResultLauncher
@@ -163,10 +166,20 @@ class RootActivity : AppCompatActivity(), RootScreen {
     }
 
     private fun setupApp() {
+        matchScreenCorners()
         setupActivityForResultLaunchers()
         AddTransactionWidget.updateBroadcast(this)
         AddTransactionWidgetCompact.updateBroadcast(this)
         WalletBalanceWidgetReceiver.updateBroadcast(this)
+    }
+
+    // By default blocks follow the screen's rounded corners: their radius less the margin blocks keep
+    // from the edge. Android reports the radius from version 12.
+    private fun matchScreenCorners() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        val corner = display?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT) ?: return
+        val radius = (corner.radius / resources.displayMetrics.density).dp
+        AppCornerRadius.matchPhone = (radius - AppCornerRadius.ScreenMargin).coerceAtLeast(0.dp)
     }
 
     // Dismissing the dialog picks nothing.

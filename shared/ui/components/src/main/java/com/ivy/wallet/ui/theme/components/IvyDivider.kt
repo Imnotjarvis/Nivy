@@ -1,6 +1,6 @@
 package com.ivy.wallet.ui.theme.components
 
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -27,7 +27,7 @@ fun IvyDividerLineRounded(
     modifier: Modifier = Modifier
 ) {
     HorizontalDivider(
-        modifier = modifier.clip(CircleShape),
+        modifier = modifier.clip(PillShape),
         thickness = 2.dp,
         color = MaterialTheme.colorScheme.surfaceVariant
     )

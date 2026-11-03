@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -264,7 +263,7 @@ private fun <M> LazyListScope.mappingRow(
                         status.success -> MaterialTheme.colorScheme.secondary
                         else -> MaterialTheme.colorScheme.surfaceVariant
                     },
-                    shape = RoundedCornerShape(4.dp),
+                    shape = MaterialTheme.shapes.medium,
                 )
                 .padding(vertical = 8.dp, horizontal = 8.dp)
         ) {

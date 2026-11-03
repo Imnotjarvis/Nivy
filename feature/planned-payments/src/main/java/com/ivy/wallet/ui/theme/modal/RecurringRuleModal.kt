@@ -59,7 +59,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
@@ -209,12 +209,12 @@ private fun RowScope.TimesSelectorButton(
     label: String,
     onClick: () -> Unit
 ) {
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Text(
         modifier = Modifier
             .weight(1f)
-            .clip(CircleShape)
+            .clip(PillShape)
             .clickable {
                 onClick()
             }

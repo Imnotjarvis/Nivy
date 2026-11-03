@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.wallet.utils.isNotNullOrBlank
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.draw.clip
@@ -99,7 +99,7 @@ fun ColumnScope.IvyTitleTextField(
     Spacer(Modifier.height(8.dp))
 
     HorizontalDivider(
-        modifier = dividerModifier.clip(CircleShape),
+        modifier = dividerModifier.clip(PillShape),
         thickness = 2.dp,
         color = MaterialTheme.colorScheme.surfaceVariant
     )

@@ -20,7 +20,7 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyBasicTextField
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
@@ -38,9 +38,9 @@ fun SearchInput(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(CircleShape)
+            .clip(PillShape)
             .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, Gray, CircleShape),
+            .border(1.dp, Gray, PillShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IvyIcon(icon = R.drawable.ic_search, modifier = Modifier.weight(1f))

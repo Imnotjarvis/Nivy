@@ -68,7 +68,7 @@ import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
@@ -128,9 +128,9 @@ internal fun BoxWithConstraintsScope.BottomBar(
             .fillMaxWidth()
             .height(PillHeight)
             .alpha(1f - buttonsShownPercent)
-            .clip(CircleShape)
+            .clip(PillShape)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), CircleShape)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), PillShape)
             .clickableNoIndication(rememberInteractionSource()) {
                 // consume click
             }
@@ -633,7 +633,7 @@ private fun RowScope.Tab(
         modifier = Modifier
             .weight(1f)
             .height(48.dp)
-            .clip(CircleShape)
+            .clip(PillShape)
             .thenIf(selected) {
                 background(selectedColor.copy(alpha = 0.15f))
             }

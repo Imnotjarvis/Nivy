@@ -221,6 +221,9 @@
     <string name="exporting_data_description">Please wait, exporting data</string>
     <string name="start_date_of_month">Choose the start date of the month</string>
     <string name="date_format">Date format</string>
+    <string name="corner_radius">Corner radius</string>
+    <string name="corner_radius_value">%1$d dp</string>
+    <string name="match_my_phone">Match my phone</string>
     <string name="account_uppercase">Account</string>
     <string name="anonymous">Anonymous</string>
     <string name="export_to_csv">Export to CSV</string>

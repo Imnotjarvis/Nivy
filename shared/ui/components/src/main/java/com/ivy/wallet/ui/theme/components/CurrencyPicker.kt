@@ -55,7 +55,7 @@ import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
@@ -139,8 +139,8 @@ private fun SearchInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.inverseSurface, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, MaterialTheme.colorScheme.inverseSurface, PillShape)
             .clickable {
                 inputFocus.requestFocus()
             },

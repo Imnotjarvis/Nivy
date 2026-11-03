@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -46,9 +46,9 @@ fun CircleButton(
 ) {
     Icon(
         modifier = modifier
-            .clip(CircleShape)
-            .background(backgroundColor, CircleShape)
-            .border(2.dp, borderColor, CircleShape)
+            .clip(PillShape)
+            .background(backgroundColor, PillShape)
+            .border(2.dp, borderColor, PillShape)
             .clickable(onClick = onClick) // enlarge click area
             .padding(6.dp),
         painter = painterResource(id = icon),
@@ -69,8 +69,8 @@ fun CircleButtonFilled(
 ) {
     Icon(
         modifier = modifier
-            .clip(CircleShape)
-            .background(backgroundColor, CircleShape)
+            .clip(PillShape)
+            .background(backgroundColor, PillShape)
             .clickable(onClick = onClick) // enlarge click area
             .padding(clickAreaPadding),
         painter = painterResource(id = icon),
@@ -91,8 +91,8 @@ fun CircleButtonFilledGradient(
 ) {
     Icon(
         modifier = modifier
-            .clip(CircleShape)
-            .background(backgroundGradient.asHorizontalBrush(), CircleShape)
+            .clip(PillShape)
+            .background(backgroundGradient.asHorizontalBrush(), PillShape)
             .clickable(onClick = onClick) // enlarge click area
             .padding(iconPadding),
         painter = painterResource(id = icon),

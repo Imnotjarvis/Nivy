@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -204,10 +204,10 @@ private fun NumberView(
     Box(
         modifier = Modifier
             .size(48.dp)
-            .clip(CircleShape)
-            .border(2.dp, if (selected) Ivy else MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, if (selected) Ivy else MaterialTheme.colorScheme.surfaceVariant, PillShape)
             .thenIf(selected) {
-                background(Ivy, CircleShape)
+                background(Ivy, PillShape)
             }
             .clickable {
                 onClick(number)

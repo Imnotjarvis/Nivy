@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -395,13 +395,13 @@ private fun CategoryAmountCard(
         Spacer(Modifier.width(20.dp))
 
         ItemIconM(
-            modifier = Modifier.background(categoryColor, CircleShape),
+            modifier = Modifier.background(categoryColor, PillShape),
             iconName = category?.icon?.id,
             tint = findContrastTextColor(categoryColor),
             iconContentScale = ContentScale.None,
             default = {
                 ItemIconMDefaultIcon(
-                    modifier = Modifier.background(categoryColor, CircleShape),
+                    modifier = Modifier.background(categoryColor, PillShape),
                     iconName = category?.icon?.id,
                     defaultIcon = R.drawable.ic_custom_category_m,
                     tint = findContrastTextColor(categoryColor)

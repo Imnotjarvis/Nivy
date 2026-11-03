@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.draw.clip
@@ -62,7 +62,7 @@ fun IncomeExpensesRow(
         VerticalDivider(
             modifier = Modifier
                 .height(48.dp)
-                .clip(CircleShape),
+                .clip(PillShape),
             thickness = 2.dp,
             color = dividerColor
         )

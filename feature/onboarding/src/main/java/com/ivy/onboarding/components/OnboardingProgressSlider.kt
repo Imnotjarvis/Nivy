@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -47,6 +47,6 @@ private fun Line(
     Spacer(
         modifier = Modifier
             .size(width = width, height = 4.dp)
-            .background(color, CircleShape)
+            .background(color, PillShape)
     )
 }

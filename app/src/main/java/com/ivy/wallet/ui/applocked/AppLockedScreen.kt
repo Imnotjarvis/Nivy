@@ -35,7 +35,7 @@ import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyButton
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @SuppressLint("ComposeModifierMissing")
@@ -55,7 +55,7 @@ internal fun BoxWithConstraintsScope.AppLockedScreen(
 
         Text(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant, PillShape)
                 .padding(vertical = 12.dp)
                 .padding(horizontal = 32.dp),
             text = stringResource(R.string.app_locked),
