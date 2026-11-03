@@ -152,7 +152,8 @@ private fun Modifier.screenAnimation(
 
 /**
  * Behind the screen, at [progress] 0 to 1: the screen underneath dimming, and over it the card the
- * block becomes, from the block's place to the whole screen, fading in over the block at first.
+ * block becomes, from the block's place to the whole screen: a see-through tint of the block's
+ * color, faint at first (appearing over the block) and stronger by the time the screen fades in.
  */
 private fun DrawScope.drawCard(block: Block, progress: Float, blockRadius: Float) {
     if (progress >= 1f) return
@@ -163,7 +164,8 @@ private fun DrawScope.drawCard(block: Block, progress: Float, blockRadius: Float
         topLeft = card.topLeft,
         size = card.size,
         cornerRadius = CornerRadius(lerp(blockRadius, 0f, progress)),
-        alpha = (progress / CardFadeIn).coerceAtMost(1f),
+        alpha = (progress / CardFadeIn).coerceAtMost(1f) *
+            lerp(CardStartAlpha, CardEndAlpha, (progress / ScreenFadeInFrom).coerceAtMost(1f)),
     )
 }
 
@@ -210,6 +212,10 @@ private const val DimAlpha = 0.32f
 // The card fades in over the block over this first part of the animation; going back, it fades
 // out over the same last part.
 private const val CardFadeIn = 0.15f
+
+// How much of the block's color the card shows: starting faint, never solid.
+private const val CardStartAlpha = 0.1f
+private const val CardEndAlpha = 0.5f
 
 // The screen fades in from this point, when the card covers most of it; going back, it fades out
 // until then, and the card shrinks plain.
