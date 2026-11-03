@@ -37,6 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.base.model.TransactionType
@@ -47,7 +50,10 @@ import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.wallet.LocalPeriodState
+import com.ivy.design.system.typography.numberHeadlineLarge
 import com.ivy.wallet.utils.format
+import androidx.compose.foundation.text.TextAutoSize
+import com.ivy.wallet.utils.shortenAmount
 import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.navigation.EditTransactionScreen
@@ -278,20 +284,25 @@ private fun Header(
             onClose()
         }
 
-        // Balance mini row
-        if (percentExpanded < 1f) {
-            Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(12.dp))
 
-            BalanceRowMini(
-                modifier = Modifier
-                    .alpha(1f - percentExpanded),
-                currency = currency,
-                balance = amount,
-            )
+        // The amount takes the room the other items leave, so it never runs into the month
+        // selector.
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            if (percentExpanded < 1f) {
+                FittingBalanceMini(
+                    modifier = Modifier.alpha(1f - percentExpanded),
+                    currency = currency,
+                    amount = amount,
+                )
+            }
         }
 
         if (!showCloseButtonOnly) {
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(16.dp))
 
             IvyOutlinedButton(
                 modifier = Modifier.horizontalSwipeListener(
@@ -310,6 +321,7 @@ private fun Header(
                     timeConverter = LocalTimeConverter.current,
                     timeProvider = LocalTimeProvider.current,
                     timeFormatter = LocalTimeFormatter.current,
+                    shortMonth = true,
 
                     ),
             ) {
@@ -342,6 +354,42 @@ private fun Header(
             }
 
             Spacer(Modifier.width(20.dp))
+        }
+    }
+}
+
+// The amount in full when it fits the width it's given, otherwise shortened (2.69k), and
+// smaller still if even that is too wide.
+@Composable
+private fun FittingBalanceMini(
+    currency: String,
+    amount: Double,
+    modifier: Modifier = Modifier,
+) {
+    SubcomposeLayout(modifier) { constraints ->
+        val loose = constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity)
+        val full = subcompose("full") {
+            BalanceRowMini(currency = currency, balance = amount)
+        }.map { it.measure(loose) }
+        val placeables = if (full.maxOf { it.width } <= constraints.maxWidth) {
+            full
+        } else {
+            subcompose("short") {
+                Text(
+                    text = "$currency ${shortenAmount(amount)}",
+                    style = MaterialTheme.typography.numberHeadlineLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.ExtraBold,
+                    ),
+                    maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = 14.sp, maxFontSize = 22.sp),
+                )
+            }.map { it.measure(constraints.copy(minWidth = 0)) }
+        }
+        val width = placeables.maxOf { it.width }.coerceAtMost(constraints.maxWidth)
+        val height = placeables.maxOf { it.height }
+        layout(width, height) {
+            placeables.forEach { it.place(0, (height - it.height) / 2) }
         }
     }
 }
