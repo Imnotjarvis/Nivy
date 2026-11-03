@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -485,12 +485,12 @@ private fun circleButtonModifier(
 ): Modifier {
     return Modifier
         .size(size)
-        .clip(CircleShape)
+        .clip(PillShape)
         .clickable(
             onClick = onClick
         )
-        .background(MaterialTheme.colorScheme.surface, CircleShape)
-        .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+        .background(MaterialTheme.colorScheme.surface, PillShape)
+        .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, PillShape)
         .wrapContentHeight()
 }
 

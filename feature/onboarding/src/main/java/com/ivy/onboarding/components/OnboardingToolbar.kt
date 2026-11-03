@@ -16,7 +16,7 @@ import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyToolbar
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -33,7 +33,7 @@ fun OnboardingToolbar(
 
             Text(
                 modifier = Modifier
-                    .clip(CircleShape)
+                    .clip(PillShape)
                     .clickable {
                         onSkip()
                     }

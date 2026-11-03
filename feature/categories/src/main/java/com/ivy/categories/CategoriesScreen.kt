@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -87,7 +87,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop16
+import com.ivy.design.system.shapes.ShapeTop
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
 import androidx.compose.material3.VerticalDivider
@@ -332,7 +332,7 @@ private fun CompactCategoryCard(
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(CircleShape)
+                    .clip(PillShape)
                     .background(category.color.value.toComposeColor()),
                 contentAlignment = Alignment.Center,
             ) {
@@ -429,7 +429,7 @@ fun AddedSpent(
         VerticalDivider(
             modifier = Modifier
                 .height(48.dp)
-                .clip(CircleShape),
+                .clip(PillShape),
             thickness = 2.dp,
             color = dividerColor
         )
@@ -504,7 +504,7 @@ private fun CategoryHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(category.color.value.toComposeColor(), ShapeTop16)
+            .background(category.color.value.toComposeColor(), ShapeTop)
     ) {
         Spacer(Modifier.height(16.dp))
 

@@ -85,9 +85,9 @@ import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.roundToInt
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop24
+import com.ivy.design.system.shapes.ShapeTop
 import com.ivy.design.system.typography.numberBodyLarge
 
 const val SWIPE_UP_EXPANDED_THRESHOLD = 200
@@ -162,9 +162,9 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             .border(
                 width = 2.dp,
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = ShapeTop24
+                shape = ShapeTop
             )
-            .background(MaterialTheme.colorScheme.surface, ShapeTop24)
+            .background(MaterialTheme.colorScheme.surface, ShapeTop)
             .verticalSwipeListener(
                 sensitivity = SWIPE_UP_EXPANDED_THRESHOLD,
                 state = rememberSwipeListenerState(),
@@ -576,11 +576,11 @@ private fun Account(
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Row(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)
             }
@@ -621,8 +621,8 @@ private fun AddAccount(
 ) {
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, PillShape)
             .clickable(onClick = onClick)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -76,7 +76,7 @@ import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.util.UUID
 import kotlin.math.roundToInt
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 private const val SWIPE_UP_THRESHOLD_CLOSE_MORE_MENU = 300
@@ -265,9 +265,9 @@ private fun SearchButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(CircleShape)
+            .clip(PillShape)
             .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, Gray, CircleShape)
+            .border(1.dp, Gray, PillShape)
             .clickable {
                 onClick()
             },

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.thenIf
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Suppress("ParameterNaming")
@@ -49,14 +49,14 @@ fun IvyOutlinedTextField(
     onValueChanged: (TextFieldValue) -> Unit
 ) {
     val isEmpty = value.text.isBlank()
-    val rFull = CircleShape
+    val rFull = PillShape
     Box(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .border(
                 width = 2.dp,
                 color = if (isEmpty) emptyBorderColor else backgroundColor,
-                shape = CircleShape
+                shape = PillShape
             )
             .thenIf(validateInput(value)) {
                 background(backgroundColor.copy(alpha = 0.1f), rFull)

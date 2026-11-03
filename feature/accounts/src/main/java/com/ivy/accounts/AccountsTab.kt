@@ -77,7 +77,7 @@ import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.shapes.ShapeTop16
+import com.ivy.design.system.shapes.ShapeTop
 
 @Composable
 fun BoxWithConstraintsScope.AccountsTab() {
@@ -338,7 +338,7 @@ private fun AccountHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(account.color.value.toComposeColor(), ShapeTop16)
+            .background(account.color.value.toComposeColor(), ShapeTop)
     ) {
         Spacer(Modifier.height(16.dp))
 

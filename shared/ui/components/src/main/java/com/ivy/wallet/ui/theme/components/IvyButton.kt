@@ -29,7 +29,7 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -53,14 +53,14 @@ fun IvyButton(
 ) {
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .background(
                 brush = if (enabled) {
                     backgroundGradient.asHorizontalBrush()
                 } else {
                     SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
                 },
-                shape = CircleShape
+                shape = PillShape
             )
             .clickable(onClick = onClick, enabled = enabled),
         verticalAlignment = Alignment.CenterVertically

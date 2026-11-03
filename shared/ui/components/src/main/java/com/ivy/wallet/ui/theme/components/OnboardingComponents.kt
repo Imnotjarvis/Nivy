@@ -23,7 +23,7 @@ import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -39,14 +39,14 @@ fun OnboardingButton(
 ) {
     Box(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .background(
                 brush = if (enabled) {
                     backgroundGradient.asHorizontalBrush()
                 } else {
                     SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
                 },
-                shape = CircleShape
+                shape = PillShape
             )
             .clickable(onClick = onClick, enabled = enabled),
         contentAlignment = Alignment.Center

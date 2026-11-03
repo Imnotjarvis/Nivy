@@ -61,7 +61,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import androidx.compose.runtime.LaunchedEffect
@@ -270,10 +270,10 @@ private fun MonthButton(
     val background = if (selected) GradientIvy else Gradient.solid(MaterialTheme.colorScheme.surfaceVariant)
     Text(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .background(
                 brush = background.asHorizontalBrush(),
-                shape = CircleShape
+                shape = PillShape
             )
             .clickable {
                 onClick()
@@ -365,8 +365,8 @@ private fun IntervalFromToDate(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
-            .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, PillShape)
             .clickable {
                 (context as RootScreen).pickDate(
                     minDate = if (border == IntervalBorder.TO) {

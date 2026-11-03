@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,7 +44,7 @@ fun PeriodSelector(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, PillShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
@@ -53,7 +53,7 @@ fun PeriodSelector(
             IvyIcon(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
+                    .clip(PillShape)
                     .clickable {
                         onPreviousMonth()
                     }
@@ -69,7 +69,7 @@ fun PeriodSelector(
             modifier = Modifier
                 .height(48.dp)
                 .defaultMinSize(minWidth = 48.dp)
-                .clip(CircleShape)
+                .clip(PillShape)
                 .clickable {
                     onShowChoosePeriodModal()
                 },
@@ -103,7 +103,7 @@ fun PeriodSelector(
             IvyIcon(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
+                    .clip(PillShape)
                     .clickable {
                         onNextMonth()
                     }

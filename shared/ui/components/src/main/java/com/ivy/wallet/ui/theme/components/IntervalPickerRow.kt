@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -69,7 +69,7 @@ fun IntervalPickerRow(
                             .solid(MaterialTheme.colorScheme.surfaceVariant)
                             .asHorizontalBrush()
                     },
-                    shape = CircleShape
+                    shape = PillShape
                 )
                 .padding(vertical = 12.dp),
             value = interNTextFieldValue,
@@ -106,7 +106,7 @@ private fun RowScope.IntervalTypeSelector(
     Row(
         modifier = Modifier
             .weight(1f)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, PillShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(20.dp))
@@ -114,7 +114,7 @@ private fun RowScope.IntervalTypeSelector(
         IvyIcon(
             modifier = Modifier
                 .size(48.dp)
-                .clip(CircleShape)
+                .clip(PillShape)
                 .clickable {
                     onSetIntervalType(
                         when (intervalType) {
@@ -146,7 +146,7 @@ private fun RowScope.IntervalTypeSelector(
         IvyIcon(
             modifier = Modifier
                 .size(48.dp)
-                .clip(CircleShape)
+                .clip(PillShape)
                 .clickable {
                     onSetIntervalType(
                         when (intervalType) {

@@ -57,7 +57,7 @@ import com.ivy.design.system.colors.toComposeColor
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 data class LoanRecordModalData(
@@ -476,11 +476,11 @@ private fun LoanRecordType(
         }
     val selected = selectedRecordType == loanRecordType
     val medium = MaterialTheme.colorScheme.surfaceVariant
-    val rFull = CircleShape
+    val rFull = PillShape
     val selectedColor = MaterialTheme.colorScheme.secondaryContainer
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)
             }
@@ -581,11 +581,11 @@ private fun Account(
         if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Row(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)
             }
@@ -628,8 +628,8 @@ private fun AddAccount(
 ) {
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, PillShape)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {

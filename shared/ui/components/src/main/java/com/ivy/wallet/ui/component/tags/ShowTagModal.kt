@@ -47,7 +47,7 @@ import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.WrapContentRow
 import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
@@ -240,15 +240,15 @@ private fun ExistingTag(
     onDeselect: () -> Unit,
 ) {
     val tagColor = Blue2Dark
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Row(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .border(
                 width = 2.dp,
                 color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceVariant,
-                shape = CircleShape
+                shape = PillShape
             )
             .thenIf(selected) {
                 background(tagColor, rFull)

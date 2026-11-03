@@ -49,6 +49,12 @@ class AppPreferences @Inject constructor(
     }.distinctUntilChanged()
     suspend fun setDateFormat(format: DateDisplayFormat) = set(DateFormat, format.name)
 
+    /** The corner radius the user picked, in dp, or null to match the phone's screen corners. */
+    val cornerRadius: Flow<Int?> = dataStore.data.map { it[CornerRadiusDp] }.distinctUntilChanged()
+    suspend fun setCornerRadius(dp: Int?) {
+        dataStore.edit { if (dp == null) it.remove(CornerRadiusDp) else it[CornerRadiusDp] = dp }
+    }
+
     suspend fun showNotifications(): Boolean = get(ShowNotifications, true)
     suspend fun setShowNotifications(show: Boolean) = set(ShowNotifications, show)
 
@@ -111,6 +117,7 @@ class AppPreferences @Inject constructor(
         private val AppLockEnabled = booleanPreferencesKey("lock_app")
         private val StartDayOfMonth = intPreferencesKey("start_date_of_month")
         private val DateFormat = stringPreferencesKey("date_format")
+        private val CornerRadiusDp = intPreferencesKey("corner_radius")
         private val ShowNotifications = booleanPreferencesKey("show_notifications")
         private val HideCurrentBalance = booleanPreferencesKey("hide_current_balance")
         private val HideIncome = booleanPreferencesKey("hide_income")

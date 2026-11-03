@@ -172,6 +172,9 @@ class SettingsViewModel @Inject constructor(
             // Saved; the root view model updates the format the app's dates use.
             is SettingsEvent.SetDateFormat -> viewModelScope.launch { appPreferences.setDateFormat(event.format) }
 
+            // Saved; the root view model updates the radius the app's shapes use.
+            is SettingsEvent.SetCornerRadius -> viewModelScope.launch { appPreferences.setCornerRadius(event.dp) }
+
             SettingsEvent.DeleteAllUserData -> deleteAllUserData()
         }
     }

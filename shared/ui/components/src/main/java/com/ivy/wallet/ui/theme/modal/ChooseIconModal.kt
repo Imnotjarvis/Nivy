@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -280,10 +280,10 @@ private fun Icon(
 ) {
     ItemIconS(
         modifier = Modifier
-            .clip(CircleShape)
-            .border(2.dp, if (selected) color else MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, if (selected) color else MaterialTheme.colorScheme.surfaceVariant, PillShape)
             .thenIf(selected) {
-                background(color, CircleShape)
+                background(color, PillShape)
             }
             .clickable {
                 onClick()

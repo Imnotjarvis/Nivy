@@ -22,7 +22,7 @@ import com.ivy.ui.R
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -90,7 +90,7 @@ private fun ProgressBar(
             .fillMaxWidth()
             .height(32.dp)
             .padding(horizontal = 24.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+            .background(MaterialTheme.colorScheme.surfaceVariant, PillShape),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (progressPercent > 0) {
@@ -98,7 +98,7 @@ private fun ProgressBar(
                 modifier = Modifier
                     .weight(progressPercent.toFloat())
                     .height(32.dp)
-                    .background(GradientGreen.asHorizontalBrush(), CircleShape),
+                    .background(GradientGreen.asHorizontalBrush(), PillShape),
             )
         }
 

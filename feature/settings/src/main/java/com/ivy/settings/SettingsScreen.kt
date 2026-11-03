@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.base.model.DateDisplayFormat
 import com.ivy.base.model.Theme
+import com.ivy.design.system.shapes.AppCornerRadius
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.rootScreen
@@ -66,6 +67,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import com.ivy.navigation.rememberOnBack
+import kotlin.math.roundToInt
 
 @ExperimentalFoundationApi
 @Composable
@@ -124,6 +126,9 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         },
         onSetDateFormat = {
             viewModel.onEvent(SettingsEvent.SetDateFormat(it))
+        },
+        onSetCornerRadius = {
+            viewModel.onEvent(SettingsEvent.SetCornerRadius(it))
         }
     )
 }
@@ -155,12 +160,14 @@ private fun BoxWithConstraintsScope.UI(
     onSetHideIncome: (Boolean) -> Unit = {},
     onSetStartDateOfMonth: (Int) -> Unit = {},
     onDeleteAllUserData: () -> Unit = {},
-    onSetDateFormat: (DateDisplayFormat) -> Unit = {}
+    onSetDateFormat: (DateDisplayFormat) -> Unit = {},
+    onSetCornerRadius: (Int?) -> Unit = {}
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
     var nameModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
     var chooseDateFormatVisible by remember { mutableStateOf(false) }
+    var chooseCornerRadiusVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
@@ -346,10 +353,22 @@ private fun BoxWithConstraintsScope.UI(
 
             Spacer(Modifier.height(12.dp))
 
-            DateFormatRow(
-                dateFormat = dateFormat
+            SettingsValueRow(
+                icon = R.drawable.ic_vue_main_calendar,
+                label = stringResource(R.string.date_format),
+                value = dateFormat.example()
             ) {
                 chooseDateFormatVisible = true
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            SettingsValueRow(
+                icon = R.drawable.ic_vue_design_bezier,
+                label = stringResource(R.string.corner_radius),
+                value = stringResource(R.string.corner_radius_value, AppCornerRadius.value.value.roundToInt())
+            ) {
+                chooseCornerRadiusVisible = true
             }
 
             Spacer(Modifier.height(12.dp))
@@ -411,6 +430,12 @@ private fun BoxWithConstraintsScope.UI(
         selected = dateFormat,
         dismiss = { chooseDateFormatVisible = false },
         onSelect = onSetDateFormat,
+    )
+
+    ChooseCornerRadiusModal(
+        visible = chooseCornerRadiusVisible,
+        dismiss = { chooseCornerRadiusVisible = false },
+        onSet = onSetCornerRadius,
     )
 
     DeleteModal(
@@ -489,9 +514,12 @@ private fun StartDateOfMonth(
     }
 }
 
+// A setting showing its current value on the right.
 @Composable
-private fun DateFormatRow(
-    dateFormat: DateDisplayFormat,
+private fun SettingsValueRow(
+    @DrawableRes icon: Int,
+    label: String,
+    value: String,
     onClick: () -> Unit
 ) {
     SettingsButtonRow(
@@ -501,7 +529,7 @@ private fun DateFormatRow(
 
         Icon(
             modifier = Modifier.size(48.dp).padding(12.dp),
-            painter = painterResource(id = R.drawable.ic_vue_main_calendar),
+            painter = painterResource(id = icon),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface
         )
@@ -510,7 +538,7 @@ private fun DateFormatRow(
 
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
-            text = stringResource(R.string.date_format),
+            text = label,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
@@ -520,7 +548,7 @@ private fun DateFormatRow(
         Spacer(Modifier.weight(1f))
 
         Text(
-            text = dateFormat.example(),
+            text = value,
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold

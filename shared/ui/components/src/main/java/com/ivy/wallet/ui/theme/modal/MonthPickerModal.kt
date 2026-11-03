@@ -33,7 +33,7 @@ import com.ivy.wallet.ui.theme.components.WrapContentRow
 import com.ivy.design.system.colors.findContrastTextColor
 import java.time.LocalDate
 import java.util.UUID
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
@@ -119,11 +119,11 @@ private fun MonthButton(
     val monthColor = Ivy
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
-    val rFull = CircleShape
+    val rFull = PillShape
 
     Text(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .clickable(onClick = onClick)
             .thenIf(!selected) {
                 border(2.dp, medium, rFull)

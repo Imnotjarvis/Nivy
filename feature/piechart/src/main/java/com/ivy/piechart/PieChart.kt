@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,8 +68,8 @@ fun PieChart(
         AndroidView(
             modifier = Modifier
                 .size((PIE_CHART_RADIUS_DP * 2).dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                .clip(PillShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant, PillShape)
                 .padding(all = 16.dp),
             factory = {
                 PieChartView(it)
@@ -86,7 +86,7 @@ fun PieChart(
         IvyIcon(
             modifier = Modifier
                 .size(100.dp)
-                .clip(CircleShape)
+                .clip(PillShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(all = 20.dp),
             icon = if (type == TransactionType.INCOME) R.drawable.ic_income else R.drawable.ic_expense,

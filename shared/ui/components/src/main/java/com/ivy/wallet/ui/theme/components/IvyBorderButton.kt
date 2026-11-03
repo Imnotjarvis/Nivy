@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -47,7 +47,7 @@ fun IvyBorderButton(
 ) {
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .border(
                 width = 2.dp,
                 brush = if (enabled) {
@@ -55,7 +55,7 @@ fun IvyBorderButton(
                 } else {
                     SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
                 },
-                shape = CircleShape
+                shape = PillShape
             )
             .clickable(onClick = onClick, enabled = enabled),
         verticalAlignment = Alignment.CenterVertically

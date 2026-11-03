@@ -25,7 +25,7 @@ import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Red
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.WrapContentRow
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -74,8 +74,8 @@ private fun Suggestion(
 ) {
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .clip(PillShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant, PillShape)
             .clickable {
                 onClick()
             },
@@ -106,8 +106,8 @@ private fun AddNewButton(
 ) {
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.inverseSurface, CircleShape)
+            .clip(PillShape)
+            .background(MaterialTheme.colorScheme.inverseSurface, PillShape)
             .clickable {
                 onClick()
             },

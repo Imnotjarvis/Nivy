@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -149,7 +149,7 @@ private fun PlannedPaymentHeaderRow(
 
             IvyIcon(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surface, CircleShape),
+                    .background(MaterialTheme.colorScheme.surface, PillShape),
                 icon = R.drawable.ic_planned_payments,
                 tint = MaterialTheme.colorScheme.onSurface
             )

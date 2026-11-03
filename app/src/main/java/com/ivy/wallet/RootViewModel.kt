@@ -4,11 +4,13 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.content.IntentCompat
 import androidx.biometric.BiometricPrompt
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.Theme
 import com.ivy.base.model.TransactionType
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.design.system.shapes.AppCornerRadius
 import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.utils.readOnly
 import com.ivy.navigation.EditTransactionScreen
@@ -99,6 +101,11 @@ class RootViewModel @Inject constructor(
         viewModelScope.launch {
             // Dates follow the format chosen in the settings, from start-up and as it changes.
             appPreferences.dateFormat.collect { dateFormatState.format = it }
+        }
+
+        viewModelScope.launch {
+            // Blocks and pills follow the corner radius chosen in the settings.
+            appPreferences.cornerRadius.collect { AppCornerRadius.setting = it?.dp }
         }
 
         viewModelScope.launch {

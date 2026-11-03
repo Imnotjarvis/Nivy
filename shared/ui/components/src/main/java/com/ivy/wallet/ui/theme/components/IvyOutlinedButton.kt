@@ -25,7 +25,7 @@ import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Green
-import androidx.compose.foundation.shape.CircleShape
+import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -43,12 +43,12 @@ fun IvyOutlinedButton(
     onClick: () -> Unit,
 ) {
     val pure = MaterialTheme.colorScheme.surface
-    val rFull = CircleShape
+    val rFull = PillShape
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(PillShape)
             .defaultMinSize(minWidth, minHeight)
-            .border(2.dp, borderColor, CircleShape)
+            .border(2.dp, borderColor, PillShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
             }
@@ -96,12 +96,12 @@ fun IvyOutlinedButtonFillMaxWidth(
     onClick: () -> Unit,
 ) {
     val pure = MaterialTheme.colorScheme.surface
-    val rFull = CircleShape
+    val rFull = PillShape
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(CircleShape)
-            .border(2.dp, borderColor, CircleShape)
+            .clip(PillShape)
+            .border(2.dp, borderColor, PillShape)
             .thenIf(solidBackground) {
                 background(pure, rFull)
             }
