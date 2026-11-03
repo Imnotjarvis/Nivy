@@ -122,4 +122,5 @@ fun Color.hsv(
     return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
-fun Int.toComposeColor() = Color(this)
+/** A saved color (an account's, a category's, …) as drawn: grey in minimal colors. */
+fun Int.toComposeColor() = Color(this).shown()

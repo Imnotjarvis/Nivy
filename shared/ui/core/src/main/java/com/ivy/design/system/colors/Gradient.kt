@@ -36,12 +36,12 @@ data class Gradient(
     fun asVerticalBrush() = Brush.verticalGradient(colors = listOf(startColor, endColor))
 }
 
-// The app's fills are solid colors.
-val GradientRed = Gradient.solid(Red)
-val GradientPurple = Gradient.solid(Violet)
-val GradientGreen = Gradient.solid(Green)
-val GradientOrangeRevert = Gradient.solid(Orange)
-val GradientIvy = Gradient.solid(Ivy)
+// The app's fills are solid colors, drawn as the hues are (grey in minimal colors).
+val GradientRed: Gradient get() = Gradient.solid(Red)
+val GradientPurple: Gradient get() = Gradient.solid(Violet)
+val GradientGreen: Gradient get() = Gradient.solid(Green)
+val GradientOrangeRevert: Gradient get() = Gradient.solid(Orange)
+val GradientIvy: Gradient get() = Gradient.solid(Ivy)
 
 @Composable
 @ReadOnlyComposable
