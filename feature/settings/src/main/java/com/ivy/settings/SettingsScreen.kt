@@ -492,7 +492,9 @@ private fun StartDateOfMonth(
         Spacer(Modifier.width(8.dp))
 
         Text(
-            modifier = Modifier.padding(vertical = 20.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 20.dp),
             text = stringResource(R.string.start_date_of_month),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -500,7 +502,7 @@ private fun StartDateOfMonth(
             )
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.width(16.dp))
 
         Text(
             text = startDateOfMonth.toString(),
@@ -537,7 +539,9 @@ private fun SettingsValueRow(
         Spacer(Modifier.width(8.dp))
 
         Text(
-            modifier = Modifier.padding(vertical = 20.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 20.dp),
             text = label,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -545,7 +549,7 @@ private fun SettingsValueRow(
             )
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.width(16.dp))
 
         Text(
             text = value,
