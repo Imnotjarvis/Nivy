@@ -27,6 +27,7 @@ import com.ivy.design.utils.thenIf
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
@@ -217,7 +218,8 @@ private fun NumberView(
         Text(
             text = number.toString(),
             style = MaterialTheme.typography.numberBodyLarge.copy(
-                color = if (selected) White else MaterialTheme.colorScheme.onSurface,
+                // Readable on the fill, also where minimal colors turn it into the text color.
+                color = if (selected) readableTint(Ivy, White) else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
