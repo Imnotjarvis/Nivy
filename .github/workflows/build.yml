@@ -37,10 +37,10 @@
 # Artifacts are kept for 3 days and the signed release APK for 30; an older APK can be rebuilt
 # from its commit.
 #
-# Signed releases: push a tag such as v2026.11.01 (bump version-code / version-name in
-# gradle/libs.versions.toml first, or Android refuses to install it as an update), or run the
-# workflow by hand with "release". That needs four repository secrets
-# (Settings -> Secrets and variables -> Actions):
+# Signed releases: push a tag such as v2026.11.01, or run the workflow by hand with "release".
+# The APK's version comes from the commit it's built from (its date and time, see
+# app/build.gradle.kts), so a later commit's APK always installs over an earlier one's.
+# Releasing needs four repository secrets (Settings -> Secrets and variables -> Actions):
 #   RELEASE_KEYSTORE_BASE64  output of: base64 -w0 release.jks
 #   RELEASE_STORE_PASSWORD   keystore password
 #   RELEASE_KEY_ALIAS        e.g. ivy-offline
