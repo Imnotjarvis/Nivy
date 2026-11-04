@@ -17,9 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,8 +40,6 @@ fun IvyOutlinedButton(
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     padding: Dp = 12.dp,
-    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    maxLines: Int = Int.MAX_VALUE,
     onClick: () -> Unit,
 ) {
     val pure = MaterialTheme.colorScheme.surface
@@ -77,12 +73,10 @@ fun IvyOutlinedButton(
         Text(
             modifier = Modifier.padding(vertical = padding, horizontal = 4.dp),
             text = text,
-            style = textStyle.copy(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
                 fontWeight = FontWeight.Bold
             ),
-            maxLines = maxLines,
-            overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
         )
 
         Spacer(Modifier.width(24.dp))
