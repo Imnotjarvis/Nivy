@@ -154,6 +154,7 @@ fun BoxWithConstraintsScope.HomeUi(
 
             customerJourneyCards = uiState.customerJourneyCards,
             shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions,
+            compactTransactions = uiState.compactTransactions,
 
             onPayOrGet = { onEvent(HomeEvent.PayOrGetPlanned(it)) },
             onDismiss = { onEvent(HomeEvent.DismissCustomerJourneyCard(it)) },
@@ -246,7 +247,8 @@ fun HomeLazyColumn(
     onHiddenIncomeClick: () -> Unit,
     onSkipTransaction: (Transaction) -> Unit,
     onSkipAllTransactions: (List<Transaction>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compactTransactions: Boolean = false,
 ) {
     val periodState = LocalPeriodState.current
 
@@ -325,7 +327,8 @@ fun HomeLazyColumn(
             emptyStateText = emptyStateText,
             shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
             onSkipTransaction = onSkipTransaction,
-            onSkipAllTransactions = onSkipAllTransactions
+            onSkipAllTransactions = onSkipAllTransactions,
+            compact = compactTransactions,
         )
     }
 }

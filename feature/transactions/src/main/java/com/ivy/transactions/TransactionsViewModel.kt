@@ -157,7 +157,8 @@ class TransactionsViewModel @Inject constructor(
             skipAllModalVisible = skipAllModalVisible.value,
             deleteModal1Visible = deleteModal1Visible.value,
             choosePeriodModal = choosePeriodModal.value,
-            showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions()
+            showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions(),
+            compactTransactions = features.compactTransactionsMode.asEnabledState(),
         )
     }
 

@@ -143,7 +143,8 @@ class HomeViewModel @Inject constructor(
             hideBalance = hideBalance,
             expanded = expanded,
             hideIncome = hideIncome,
-            shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions()
+            shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions(),
+            compactTransactions = features.compactTransactionsMode.asEnabledState(),
         )
     }
 
