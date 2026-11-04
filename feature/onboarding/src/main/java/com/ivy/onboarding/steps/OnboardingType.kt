@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.onboarding.components.OnboardingProgressSlider
 import com.ivy.ui.R
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Orange
@@ -124,7 +124,7 @@ internal fun OnboardingType(
                 .fillMaxWidth(),
             text = stringResource(R.string.start_fresh),
             textColor = White,
-            backgroundGradient = GradientIvy,
+            backgroundColor = Ivy,
             hasNext = true,
             enabled = true
         ) {

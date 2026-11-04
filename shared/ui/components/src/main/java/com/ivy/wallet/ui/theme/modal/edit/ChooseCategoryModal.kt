@@ -36,7 +36,6 @@ import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Red
@@ -245,7 +244,7 @@ private fun CategoryButton(
                 modifier = Modifier
                     .size(32.dp),
                 icon = R.drawable.ic_remove,
-                backgroundGradient = Gradient.solid(deselectBtnBackground),
+                backgroundColor = deselectBtnBackground,
                 tint = readableOn(deselectBtnBackground),
                 contentDescription = stringResource(R.string.remove),
             ) {
@@ -265,7 +264,7 @@ fun AddNewButton(
     IvyBorderButton(
         modifier = modifier,
         text = stringResource(R.string.add_new),
-        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.inverseSurface),
+        backgroundColor = MaterialTheme.colorScheme.inverseSurface,
         iconStart = R.drawable.ic_plus,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

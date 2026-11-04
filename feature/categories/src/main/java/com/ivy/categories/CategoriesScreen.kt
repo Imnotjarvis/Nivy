@@ -60,7 +60,6 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.data.SortOrder
-import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.GreenLight
@@ -614,7 +613,7 @@ fun BoxWithConstraintsScope.SortModal(
                     SortOrder.ALPHABETICAL -> R.drawable.ic_sort_by_alpha_24
                 },
                 selected = it == sortOrder,
-                selectedFill = GradientGreen,
+                selectedFill = Green,
             ) {
                 sortOrder = it
                 applyChange()

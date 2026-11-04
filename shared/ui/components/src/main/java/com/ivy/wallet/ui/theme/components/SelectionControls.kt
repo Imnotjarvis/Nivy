@@ -16,13 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.readableTint
@@ -51,13 +49,13 @@ fun RowScope.SegmentedButton(
             .clickable(onClick = onClick)
             .padding(vertical = 8.dp)
             .thenIf(selected) {
-                background(GradientIvy.asHorizontalBrush(), PillShape)
+                background(Ivy, PillShape)
             }
             .padding(vertical = 8.dp),
         text = label,
         style = MaterialTheme.typography.bodyLarge.copy(
             // Readable on the fill, also where minimal colors turn it into the text color.
-            color = if (selected) readableTint(GradientIvy.startColor, White) else Gray,
+            color = if (selected) readableTint(Ivy, White) else Gray,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
@@ -73,7 +71,7 @@ fun SelectableOptionRow(
     text: String,
     @DrawableRes icon: Int,
     selected: Boolean,
-    selectedFill: Gradient,
+    selectedFill: Color,
     modifier: Modifier = Modifier,
     selectedContent: Color = White,
     onClick: () -> Unit,
@@ -84,11 +82,7 @@ fun SelectableOptionRow(
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .background(
-                brush = if (selected) {
-                    selectedFill.asHorizontalBrush()
-                } else {
-                    SolidColor(MaterialTheme.colorScheme.surfaceVariant)
-                },
+                color = if (selected) selectedFill else MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.medium
             )
             .clickable(onClick = onClick)
@@ -98,7 +92,7 @@ fun SelectableOptionRow(
         Spacer(Modifier.width(16.dp))
 
         // Readable on the selected fill, also where minimal colors turn it into the text color.
-        val content = readableTint(selectedFill.startColor, selectedContent)
+        val content = readableTint(selectedFill, selectedContent)
         val textColor = if (selected) content else MaterialTheme.colorScheme.onSurface
 
         IvyIcon(

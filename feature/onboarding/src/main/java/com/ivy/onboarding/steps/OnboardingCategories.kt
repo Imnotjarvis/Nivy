@@ -45,9 +45,8 @@ import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
 import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
-import com.ivy.design.system.colors.GradientIvy
-import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.OrangeLight
@@ -187,7 +186,7 @@ internal fun BoxWithConstraintsScope.OnboardingCategories(
 
             text = stringResource(R.string.finish),
             textColor = White,
-            backgroundGradient = GradientIvy,
+            backgroundColor = Ivy,
             hasNext = false,
             enabled = true
         ) {

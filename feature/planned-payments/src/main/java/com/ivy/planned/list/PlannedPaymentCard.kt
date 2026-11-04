@@ -45,7 +45,6 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Blue
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Orange
 import com.ivy.ui.time.LocalTimeConverter
@@ -169,7 +168,7 @@ private fun PlannedPaymentHeaderRow(
                         R.drawable.ic_custom_category_s
                     ),
                     text = category.name.value,
-                    backgroundGradient = Gradient.solid(categoryColor(category.color.value)),
+                    backgroundColor = categoryColor(category.color.value),
                     textStyle = MaterialTheme.typography.labelMedium.copy(
                         color = readableOn(categoryColor(category.color.value)),
                         fontWeight = FontWeight.ExtraBold
@@ -191,7 +190,7 @@ private fun PlannedPaymentHeaderRow(
             val account = accounts.find { it.id == plannedPayment.account }
             IvyButton(
                 modifier = Modifier.opensScreen(MaterialTheme.colorScheme.surface),
-                backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
+                backgroundColor = MaterialTheme.colorScheme.surface,
                 text = account?.name?.value ?: stringResource(R.string.deleted),
                 iconTint = MaterialTheme.colorScheme.onSurface,
                 iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),

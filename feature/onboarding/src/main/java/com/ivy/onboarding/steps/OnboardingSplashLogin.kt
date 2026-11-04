@@ -47,7 +47,6 @@ import com.ivy.design.utils.toDensityDp
 import com.ivy.design.utils.toDensityPx
 import com.ivy.onboarding.OnboardingState
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import kotlin.math.roundToInt
@@ -241,7 +240,7 @@ private fun LoginSection(
                 icon = R.drawable.ic_local_account,
                 text = stringResource(R.string.continue_offline),
                 textColor = MaterialTheme.colorScheme.onSurface,
-                backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
             ) {
                 onSkip()
             }
@@ -280,7 +279,7 @@ private fun LoginButton(
     @DrawableRes icon: Int,
     text: String,
     textColor: Color,
-    backgroundGradient: Gradient,
+    backgroundColor: Color,
     onClick: () -> Unit
 ) {
     Row(
@@ -288,7 +287,7 @@ private fun LoginButton(
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .background(backgroundGradient.asHorizontalBrush(), MaterialTheme.shapes.medium)
+            .background(backgroundColor, MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
             },

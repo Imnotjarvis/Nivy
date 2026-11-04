@@ -28,7 +28,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.pureBlur
 import com.ivy.design.utils.LocalScreenSize
@@ -136,7 +135,7 @@ fun bottomBarFabStart(): Offset {
 /** The + button, raised over the middle of [TabsBottomBar]. */
 @Composable
 fun BottomBarFab(
-    backgroundGradient: Gradient,
+    backgroundColor: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -155,7 +154,7 @@ fun BottomBarFab(
             .then(modifier),
         backgroundPadding = 8.dp,
         icon = R.drawable.ic_add,
-        backgroundGradient = backgroundGradient,
+        backgroundColor = backgroundColor,
         tint = White,
         onClick = onClick
     )

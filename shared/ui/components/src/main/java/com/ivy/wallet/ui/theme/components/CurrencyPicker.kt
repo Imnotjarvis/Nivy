@@ -50,8 +50,7 @@ import com.ivy.design.utils.hideKeyboard
 import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.design.system.colors.GradientGreen
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.readableTint
@@ -208,16 +207,16 @@ private fun SelectedCurrencyCard(
     currency: IvyCurrency,
     preselected: Boolean,
 ) {
-    val fill = if (preselected) GradientGreen else GradientIvy
+    val fill = if (preselected) Green else Ivy
     // Readable on the card, also where minimal colors turn it into the text color.
-    val content = readableTint(fill.startColor, White)
+    val content = readableTint(fill, White)
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
             .background(
-                brush = fill.asHorizontalBrush(),
+                color = fill,
                 shape = MaterialTheme.shapes.large
             )
             .padding(vertical = 20.dp),

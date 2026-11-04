@@ -41,15 +41,11 @@ import com.ivy.wallet.utils.springBounceFast
 import com.ivy.design.utils.toDensityDp
 import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientGreen
-import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
-import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import java.util.UUID
 import kotlin.math.abs
@@ -210,13 +206,13 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 }
             }
             .testTag("fab_add"),
-        backgroundGradient = when (tab) {
+        backgroundColor = when (tab) {
             MainTab.HOME -> {
-                if (!expanded) GradientIvy else Gradient.solid(MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!expanded) Ivy else MaterialTheme.colorScheme.onSurfaceVariant
             }
 
             MainTab.ACCOUNTS -> {
-                GradientGreen
+                Green
             }
         },
     ) {
@@ -350,7 +346,7 @@ private fun AddIncomeButton(
             .size(FAB_BUTTON_SIZE)
             .zIndex(200f),
         icon = R.drawable.ic_income,
-        backgroundGradient = GradientGreen,
+        backgroundColor = Green,
         tint = White,
         onClick = onAddIncome
     )
@@ -435,7 +431,7 @@ private fun AddExpenseButton(
             .size(FAB_BUTTON_SIZE)
             .zIndex(200f),
         icon = R.drawable.ic_expense,
-        backgroundGradient = gradientExpenses(),
+        backgroundColor = MaterialTheme.colorScheme.onSurface,
         // The button is the text color: its icon the background's, to show in dark mode too.
         tint = MaterialTheme.colorScheme.surface,
         onClick = onAddExpense
@@ -522,7 +518,7 @@ private fun AddTransferButton(
             .size(FAB_BUTTON_SIZE)
             .zIndex(200f),
         icon = R.drawable.ic_transfer,
-        backgroundGradient = GradientIvy,
+        backgroundColor = Ivy,
         tint = White,
         onClick = onAddTransfer
     )

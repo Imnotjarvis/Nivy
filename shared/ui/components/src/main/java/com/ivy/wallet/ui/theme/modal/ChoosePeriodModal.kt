@@ -46,8 +46,7 @@ import com.ivy.wallet.data.model.Month.Companion.monthsList
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
@@ -268,12 +267,12 @@ private fun MonthButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val background = if (selected) GradientIvy else Gradient.solid(MaterialTheme.colorScheme.surfaceVariant)
+    val background = if (selected) Ivy else MaterialTheme.colorScheme.surfaceVariant
     Text(
         modifier = modifier
             .clip(PillShape)
             .background(
-                brush = background.asHorizontalBrush(),
+                color = background,
                 shape = PillShape
             )
             .clickable {
@@ -286,7 +285,7 @@ private fun MonthButton(
         text = text,
         style = MaterialTheme.typography.bodyLarge.copy(
             // Readable on the fill, also where minimal colors turn it into the text color.
-            color = if (selected) readableTint(background.startColor, White) else Gray,
+            color = if (selected) readableTint(background, White) else Gray,
             fontWeight = FontWeight.Bold
         )
     )

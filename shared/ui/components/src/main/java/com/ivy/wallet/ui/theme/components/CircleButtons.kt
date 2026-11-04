@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.colors.readableTint
 
@@ -81,28 +80,6 @@ fun CircleButtonFilled(
 }
 
 @Composable
-fun CircleButtonFilledGradient(
-    @DrawableRes icon: Int,
-    modifier: Modifier = Modifier,
-    contentDescription: String? = null,
-    iconPadding: Dp = 8.dp,
-    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
-    tint: Color? = MaterialTheme.colorScheme.onSurface,
-    onClick: () -> Unit,
-) {
-    Icon(
-        modifier = modifier
-            .clip(PillShape)
-            .background(backgroundGradient.asHorizontalBrush(), PillShape)
-            .clickable(onClick = onClick) // enlarge click area
-            .padding(iconPadding),
-        painter = painterResource(id = icon),
-        contentDescription = contentDescription,
-        tint = tint?.let { readableTint(backgroundGradient.startColor, it) } ?: Color.Unspecified,
-    )
-}
-
-@Composable
 fun BackButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
@@ -141,18 +118,6 @@ private fun PreviewCircleButtonFilled() {
             icon = R.drawable.ic_sort_by_alpha_24,
             onClick = {},
             clickAreaPadding = 12.dp,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewCircleButtonFilledGradient() {
-    IvyWalletComponentPreview {
-        CircleButtonFilledGradient(
-            icon = R.drawable.ic_sort_by_alpha_24,
-            onClick = {},
-            iconPadding = 12.dp,
         )
     }
 }

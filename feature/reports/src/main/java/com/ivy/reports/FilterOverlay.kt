@@ -56,7 +56,6 @@ import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.utils.capitalizeLocal
 import com.ivy.wallet.utils.springBounce
 import com.ivy.ui.R
-import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.GreenLight
@@ -312,7 +311,7 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
         IvyButton(
             text = stringResource(R.string.apply_filter),
             iconStart = R.drawable.ic_filter_xs,
-            backgroundGradient = GradientGreen,
+            backgroundColor = Green,
             padding = 10.dp,
         ) {
             if (localFilter != null) {

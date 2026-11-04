@@ -49,8 +49,7 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvySwitch
@@ -258,7 +257,7 @@ private fun BoxWithConstraintsScope.UI(
             SettingsPrimaryButton(
                 icon = R.drawable.ic_export_csv,
                 text = stringResource(R.string.import_data),
-                backgroundGradient = GradientGreen
+                backgroundColor = Green
             ) {
                 nav.navigateTo(
                     ImportScreen(
@@ -405,7 +404,7 @@ private fun BoxWithConstraintsScope.UI(
             SettingsPrimaryButton(
                 icon = R.drawable.ic_delete,
                 text = stringResource(R.string.delete_all_user_data),
-                backgroundGradient = Gradient.solid(Palette.Red)
+                backgroundColor = Palette.Red
             ) {
                 deleteAllDataModalVisible = true
             }
@@ -617,7 +616,7 @@ private fun AppThemeButton(
     SettingsPrimaryButton(
         icon = icon,
         text = label,
-        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         textColor = MaterialTheme.colorScheme.onSurface,
         iconPadding = 6.dp,
         description = stringResource(R.string.tap_to_switch_theme),
@@ -779,16 +778,16 @@ private fun ExportCSV(
 private fun SettingsPrimaryButton(
     @DrawableRes icon: Int,
     text: String,
-    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     textColor: Color = White,
     iconPadding: Dp = 0.dp,
     description: String? = null,
     onClick: () -> Unit
 ) {
     // Readable on the button, also where minimal colors turn it into the text color.
-    val content = readableTint(backgroundGradient.startColor, textColor)
+    val content = readableTint(backgroundColor, textColor)
     SettingsButtonRow(
-        backgroundGradient = backgroundGradient,
+        backgroundColor = backgroundColor,
         onClick = onClick
     ) {
         Spacer(Modifier.width(12.dp))
@@ -831,7 +830,7 @@ private fun SettingsPrimaryButton(
 @Composable
 private fun SettingsButtonRow(
     onClick: (() -> Unit)?,
-    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
@@ -839,7 +838,7 @@ private fun SettingsButtonRow(
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .background(backgroundGradient.asHorizontalBrush(), MaterialTheme.shapes.medium)
+            .background(backgroundColor, MaterialTheme.shapes.medium)
             .thenIf(onClick != null) {
                 clickable {
                     onClick?.invoke()
@@ -940,7 +939,7 @@ private fun SettingsDefaultButton(
     SettingsPrimaryButton(
         icon = icon,
         text = text,
-        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surfaceVariant),
+        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         textColor = MaterialTheme.colorScheme.onSurface,
         iconPadding = iconPadding,
         description = description

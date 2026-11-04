@@ -42,9 +42,8 @@ import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.onboarding.components.Suggestions
 import com.ivy.ui.R
 import com.ivy.wallet.domain.logic.model.CreateAccountData
-import com.ivy.design.system.colors.GradientIvy
-import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.White
@@ -189,7 +188,7 @@ internal fun BoxWithConstraintsScope.OnboardingAccounts(
 
             text = stringResource(R.string.next),
             textColor = White,
-            backgroundGradient = GradientIvy,
+            backgroundColor = Ivy,
             hasNext = true,
             enabled = true
         ) {

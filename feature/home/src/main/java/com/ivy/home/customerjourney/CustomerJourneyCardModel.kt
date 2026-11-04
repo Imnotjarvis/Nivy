@@ -4,10 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.ivy.base.time.TimeProvider
-import com.ivy.design.system.colors.Gradient
 import com.ivy.domain.RootScreen
 import com.ivy.wallet.MainScreenState
 import com.ivy.navigation.Navigation
+import androidx.compose.ui.graphics.Color
 
 @Immutable
 data class CustomerJourneyCardModel(
@@ -21,7 +21,7 @@ data class CustomerJourneyCardModel(
 
     val hasDismiss: Boolean = true,
 
-    val background: Gradient,
+    val background: Color,
     val onAction: (Navigation, MainScreenState, RootScreen) -> Unit
 )
 

@@ -5,42 +5,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
-@Immutable
-data class Gradient(
-    val startColor: Color,
-    val endColor: Color
-) {
-    companion object {
-        fun from(startColor: Int, endColor: Int?) = Gradient(
-            startColor = startColor.toComposeColor(),
-            endColor = (endColor ?: startColor).toComposeColor()
-        )
-
-        fun solid(color: Color) = Gradient(color, color)
-    }
-
-    fun asHorizontalBrush() = Brush.horizontalGradient(colors = listOf(startColor, endColor))
-
-    fun asVerticalBrush() = Brush.verticalGradient(colors = listOf(startColor, endColor))
-}
-
-// The app's fills are solid colors, drawn as the hues are (grey in minimal colors).
-val GradientRed: Gradient get() = Gradient.solid(Red)
-val GradientGreen: Gradient get() = Gradient.solid(Green)
-val GradientOrangeRevert: Gradient get() = Gradient.solid(Orange)
-val GradientIvy: Gradient get() = Gradient.solid(Ivy)
-
-@Composable
-@ReadOnlyComposable
-fun gradientExpenses() = Gradient.solid(MaterialTheme.colorScheme.onSurface)
 
 // The screen background, slightly see-through, for bars that float over scrolling content.
 @Composable

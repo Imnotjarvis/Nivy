@@ -29,7 +29,6 @@ import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.ivy.wallet.domain.data.TransactionHistoryEntry
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.design.system.colors.Black
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.White
@@ -182,14 +181,7 @@ private fun LazyListScope.overdueSection(
                     modifier = Modifier.padding(horizontal = 24.dp),
                     text = stringResource(R.string.skip_all),
                     wrapContentMode = false,
-                    backgroundGradient = if (isLightTheme) {
-                        Gradient(White, White)
-                    } else {
-                        Gradient(
-                            Black,
-                            Black
-                        )
-                    },
+                    backgroundColor = if (isLightTheme) White else Black,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = if (isLightTheme) Black else White,
                         fontWeight = FontWeight.Bold

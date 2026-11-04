@@ -27,7 +27,6 @@ import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.data.TransactionHistoryEntry
 import com.ivy.wallet.domain.data.TransactionHistoryItem
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.MediumBlack
 import com.ivy.design.system.colors.MediumWhite
@@ -195,7 +194,7 @@ private fun RowScope.HeaderCard(
                     .padding(horizontal = 8.dp)
                     .align(Alignment.CenterHorizontally),
                 text = addButtonText,
-                backgroundGradient = Gradient.solid(addButtonBackground),
+                backgroundColor = addButtonBackground,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = readableOn(addButtonBackground),
                     fontWeight = FontWeight.Bold

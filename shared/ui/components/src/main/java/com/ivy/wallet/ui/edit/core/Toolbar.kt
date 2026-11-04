@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.design.system.colors.asBrush
+import androidx.compose.ui.graphics.SolidColor
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.CloseButton
@@ -93,7 +93,7 @@ fun Toolbar(
                     colors = IconButtonDefaults.outlinedIconButtonColors()
                         .copy(contentColor = MaterialTheme.colorScheme.surfaceVariant),
                     border = IconButtonDefaults.outlinedIconButtonBorder(enabled = true)
-                        .copy(width = 2.dp, brush = MaterialTheme.colorScheme.surfaceVariant.asBrush()),
+                        .copy(width = 2.dp, brush = SolidColor(MaterialTheme.colorScheme.surfaceVariant)),
                     onClick = onDuplicate
                 ) {
                     Icon(

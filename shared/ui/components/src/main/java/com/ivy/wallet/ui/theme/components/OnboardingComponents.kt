@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,8 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.readableTint
 import com.ivy.design.system.colors.White
 import androidx.compose.ui.graphics.ColorFilter
@@ -33,7 +31,7 @@ import androidx.compose.material3.MaterialTheme
 fun OnboardingButton(
     text: String,
     textColor: Color,
-    backgroundGradient: Gradient,
+    backgroundColor: Color,
     modifier: Modifier = Modifier,
     @DrawableRes iconStart: Int? = null,
     hasNext: Boolean = false,
@@ -41,17 +39,13 @@ fun OnboardingButton(
     onClick: () -> Unit
 ) {
     // Readable on the fill drawn, also on a disabled button's grey.
-    val fill = if (enabled) backgroundGradient.startColor else MaterialTheme.colorScheme.onSurfaceVariant
+    val fill = if (enabled) backgroundColor else MaterialTheme.colorScheme.onSurfaceVariant
     val content = readableTint(fill, textColor)
     Box(
         modifier = modifier
             .clip(PillShape)
             .background(
-                brush = if (enabled) {
-                    backgroundGradient.asHorizontalBrush()
-                } else {
-                    SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
-                },
+                color = fill,
                 shape = PillShape
             )
             .clickable(onClick = onClick, enabled = enabled),
@@ -113,7 +107,7 @@ private fun PreviewOnboardingButton() {
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth(),
             text = "Login",
-            backgroundGradient = GradientIvy,
+            backgroundColor = Ivy,
             hasNext = true,
             textColor = MaterialTheme.colorScheme.surface,
             iconStart = null,

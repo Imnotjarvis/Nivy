@@ -5,7 +5,6 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GreenLight
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
@@ -66,7 +65,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
       description = R.string.adjust_initial_balance_description,
       cta = R.string.to_accounts,
       ctaIcon = R.drawable.ic_custom_account_s,
-      background = Gradient.solid(Ivy),
+      background = Ivy,
       hasDismiss = false,
       onAction = { _, mainScreenState, _ ->
         mainScreenState.selectTab(MainTab.ACCOUNTS)
@@ -82,7 +81,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
       description = R.string.create_first_planned_payment_description,
       cta = R.string.add_planned_payment,
       ctaIcon = R.drawable.ic_planned_payments,
-      background = Gradient.solid(Orange),
+      background = Orange,
       hasDismiss = true,
       onAction = { navigation, _, _ ->
         navigation.navigateTo(
@@ -103,7 +102,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
       description = R.string.widget_description,
       cta = R.string.add_widget,
       ctaIcon = R.drawable.ic_custom_atom_s,
-      background = Gradient.solid(GreenLight),
+      background = GreenLight,
       hasDismiss = true,
       onAction = { _, _, ivyActivity ->
         ivyActivity.pinWidget(AddTransactionWidgetCompact::class.java)
@@ -119,7 +118,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
       description = R.string.you_can_see_a_piechart,
       cta = R.string.expenses_piechart,
       ctaIcon = R.drawable.ic_custom_bills_s,
-      background = Gradient.solid(Red),
+      background = Red,
       hasDismiss = true,
       onAction = { navigation, _, _ ->
         navigation.navigateTo(PieChartStatisticScreen(type = TransactionType.EXPENSE))

@@ -8,7 +8,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.TagId
 import com.ivy.design.system.colors.Orange3
-import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.design.system.colors.readableOn
@@ -37,7 +36,7 @@ private fun ViewTagsButton(
     IvyButton(
         modifier = Modifier.padding(start = 24.dp),
         text = if (transactionTags.size <= 1) "${transactionTags.size}\t Tag" else "${transactionTags.size}\t Tags",
-        backgroundGradient = Gradient.solid(Orange3),
+        backgroundColor = Orange3,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = contrastColor,
             fontWeight = FontWeight.Bold
