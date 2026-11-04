@@ -68,26 +68,44 @@ class ColorModeTest {
     fun `in minimal colors, text on the text color is the background's`() {
         ColorMode.minimal = true
 
-        findContrastTextColor(Green) shouldBe White
+        readableOn(Green) shouldBe White
         Green.dynamicContrast() shouldBe White
         readableOn(White) shouldBe Black
         readableOn(Black) shouldBe White
 
         ColorMode.dark = true
 
-        findContrastTextColor(Green) shouldBe Black
+        readableOn(Green) shouldBe Black
     }
 
     @Test
-    fun `in minimal colors, content on fills is readable, on colors it keeps its tint`() {
-        readableTint(Green, White) shouldBe White
+    fun `text on a fill is the more readable of white and black, in every color mode`() {
+        // The brand purple keeps white text; a bright green takes black (9:1 where white is 2:1).
+        readableOn(Palette.Ivy) shouldBe White
+        readableOn(Palette.Green) shouldBe Black
+
+        // On every color the pickers offer, at least 4.2:1: the closest calls, a mid red and a
+        // dull yellow, are a hair under 4.5 either way.
+        (IVY_COLOR_PICKER_COLORS_FREE + IVY_COLOR_PICKER_COLORS_PREMIUM).forEach { fill ->
+            contrast(readableOn(fill), fill) shouldBeGreaterThanOrEqual 4.2
+        }
+    }
+
+    @Test
+    fun `white content on a fill follows the rule, other tints stay unless the fill went grey`() {
+        // A green button's white text turns black; on the brand purple it stays white.
+        readableTint(Green, White) shouldBe Black
+        readableTint(Ivy, White) shouldBe White
+        // A tint chosen for its color stays, as does anything on a translucent fill.
+        readableTint(White, Green) shouldBe Green
+        readableTint(Ivy.copy(alpha = 0.5f), White) shouldBe White
 
         ColorMode.minimal = true
 
         // A button asking for black content on the (black) text color still gets white.
         readableTint(Green, Black) shouldBe White
-        // The warnings' red keeps its white icon.
-        readableTint(Palette.Red, White) shouldBe White
+        // The warnings' red keeps its hue; its white icon follows the rule: black (5.5:1).
+        readableTint(Palette.Red, White) shouldBe Black
 
         ColorMode.dark = true
 

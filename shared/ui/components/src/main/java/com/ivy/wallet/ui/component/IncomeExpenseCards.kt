@@ -32,7 +32,7 @@ import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.MediumBlack
 import com.ivy.design.system.colors.MediumWhite
 import com.ivy.wallet.ui.theme.components.IvyButton
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.isDarkColor
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberTitleLarge
@@ -126,7 +126,7 @@ private fun RowScope.HeaderCard(
         else -> MediumWhite.copy(alpha = 0.9f)
     }
 
-    val contrastColor = findContrastTextColor(backgroundColor)
+    val contrastColor = readableOn(backgroundColor)
 
     Column(
         modifier = Modifier
@@ -197,7 +197,7 @@ private fun RowScope.HeaderCard(
                 text = addButtonText,
                 backgroundGradient = Gradient.solid(addButtonBackground),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = findContrastTextColor(addButtonBackground),
+                    color = readableOn(addButtonBackground),
                     fontWeight = FontWeight.Bold
                 ).copy(fontSize = 12.sp),
                 wrapContentMode = false

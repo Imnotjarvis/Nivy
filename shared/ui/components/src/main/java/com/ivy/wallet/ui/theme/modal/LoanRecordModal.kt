@@ -49,7 +49,7 @@ import com.ivy.wallet.domain.logic.model.EditLoanRecordData
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
@@ -578,7 +578,7 @@ private fun Account(
 ) {
     val accountColor = accountColor(account.color.value)
     val textColor =
-        if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
+        if (selected) readableOn(accountColor) else MaterialTheme.colorScheme.onSurface
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
     val rFull = PillShape

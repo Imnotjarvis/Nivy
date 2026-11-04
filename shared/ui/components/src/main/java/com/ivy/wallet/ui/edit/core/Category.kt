@@ -13,7 +13,7 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.categoryColor
 import androidx.compose.material3.MaterialTheme
 
@@ -46,7 +46,7 @@ private fun CategoryButton(
     category: Category,
     onClick: () -> Unit,
 ) {
-    val contrastColor = findContrastTextColor(categoryColor(category.color.value))
+    val contrastColor = readableOn(categoryColor(category.color.value))
     IvyButton(
         modifier = Modifier.padding(start = 24.dp),
         text = category.name.value,

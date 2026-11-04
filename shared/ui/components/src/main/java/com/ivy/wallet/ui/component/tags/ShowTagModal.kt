@@ -38,7 +38,7 @@ import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
@@ -272,7 +272,7 @@ private fun ExistingTag(
                 .weight(1f, fill = false),
             text = "#${tag.name.value}",
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = if (selected) findContrastTextColor(tagColor) else MaterialTheme.colorScheme.onSurface,
+                color = if (selected) readableOn(tagColor) else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             ),
             maxLines = 1,
@@ -280,12 +280,12 @@ private fun ExistingTag(
         )
 
         if (selected) {
-            val deselectBtnBackground = findContrastTextColor(tagColor)
+            val deselectBtnBackground = readableOn(tagColor)
             IvyCircleButton(
                 modifier = Modifier.size(32.dp),
                 icon = R.drawable.ic_remove,
                 backgroundGradient = Gradient.solid(deselectBtnBackground),
-                tint = findContrastTextColor(deselectBtnBackground),
+                tint = readableOn(deselectBtnBackground),
                 contentDescription = stringResource(R.string.remove),
             ) {
                 onDeselect()

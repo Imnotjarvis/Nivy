@@ -44,7 +44,7 @@ import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.WrapContentRow
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSkip
 import com.ivy.wallet.ui.theme.modal.ModalTitle
@@ -218,7 +218,7 @@ private fun CategoryButton(
                 .background(categoryColor, PillShape),
             iconName = category.icon?.id,
             defaultIcon = R.drawable.ic_custom_category_s,
-            tint = findContrastTextColor(categoryColor)
+            tint = readableOn(categoryColor)
         )
 
         Text(
@@ -231,7 +231,7 @@ private fun CategoryButton(
             text = category.name.value,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = if (selected) {
-                    findContrastTextColor(categoryColor)
+                    readableOn(categoryColor)
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
@@ -240,13 +240,13 @@ private fun CategoryButton(
         )
 
         if (selected) {
-            val deselectBtnBackground = findContrastTextColor(categoryColor)
+            val deselectBtnBackground = readableOn(categoryColor)
             IvyCircleButton(
                 modifier = Modifier
                     .size(32.dp),
                 icon = R.drawable.ic_remove,
                 backgroundGradient = Gradient.solid(deselectBtnBackground),
-                tint = findContrastTextColor(deselectBtnBackground),
+                tint = readableOn(deselectBtnBackground),
                 contentDescription = stringResource(R.string.remove),
             ) {
                 onDeselect()

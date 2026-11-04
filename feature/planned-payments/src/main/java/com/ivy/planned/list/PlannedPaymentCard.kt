@@ -52,7 +52,7 @@ import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.categoryColor
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -163,7 +163,7 @@ private fun PlannedPaymentHeaderRow(
             if (category != null) {
                 IvyButton(
                     modifier = Modifier.opensScreen(categoryColor(category.color.value)),
-                    iconTint = findContrastTextColor(categoryColor(category.color.value)),
+                    iconTint = readableOn(categoryColor(category.color.value)),
                     iconStart = getCustomIconIdS(
                         category.icon?.id,
                         R.drawable.ic_custom_category_s
@@ -171,7 +171,7 @@ private fun PlannedPaymentHeaderRow(
                     text = category.name.value,
                     backgroundGradient = Gradient.solid(categoryColor(category.color.value)),
                     textStyle = MaterialTheme.typography.labelMedium.copy(
-                        color = findContrastTextColor(categoryColor(category.color.value)),
+                        color = readableOn(categoryColor(category.color.value)),
                         fontWeight = FontWeight.ExtraBold
                     ),
                     padding = 8.dp,
