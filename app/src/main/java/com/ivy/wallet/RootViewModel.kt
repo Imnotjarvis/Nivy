@@ -1,5 +1,6 @@
 package com.ivy.wallet
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.IntentCompat
@@ -12,6 +13,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.design.system.shapes.AppCornerRadius
 import com.ivy.design.system.colors.ColorMode
+import com.ivy.domain.features.Features
 import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.utils.readOnly
 import com.ivy.navigation.EditTransactionScreen
@@ -22,6 +24,7 @@ import com.ivy.ui.time.DateFormatState
 import com.ivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import com.ivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -42,6 +45,8 @@ class RootViewModel @Inject constructor(
     private val transactionReminderScheduler: TransactionReminderScheduler,
     private val migrationsManager: MigrationsManager,
     private val dateFormatState: DateFormatState,
+    private val features: Features,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     companion object {
@@ -118,6 +123,10 @@ class RootViewModel @Inject constructor(
             ioThread {
                 // initial app locked state
                 _appLocked.value = appPreferences.isAppLockEnabled()
+
+                // Read before the first screen, so screens start from the stored features, not
+                // from their defaults: a compact list doesn't open as cards first.
+                features.allFeatures.forEach { it.isEnabled(appContext) }
 
                 // Navigation is a singleton that outlives activities: a widget's task-clearing
                 // launch would otherwise put the old activity's screens behind the new one.
