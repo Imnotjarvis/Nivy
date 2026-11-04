@@ -1,3 +1,7 @@
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
@@ -7,6 +11,17 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.devtools.ksp")
 }
+
+// The version is the latest commit's: its date (UTC) names it, like 2026.11.04, and its time in
+// minutes since 2024 numbers it, so a later commit's APK always installs over an earlier one's.
+// Built without git (from a source archive), it's the one in libs.versions.toml.
+val lastCommit: Instant? = runCatching {
+    providers.exec { commandLine("git", "log", "-1", "--format=%ct") }
+        .standardOutput.asText.get().trim().toLong()
+}.getOrNull()?.let(Instant::ofEpochSecond)
+val versionNameFormat: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("yyyy.MM.dd").withZone(ZoneOffset.UTC)
+val versionCodeEpoch: Instant = Instant.parse("2024-01-01T00:00:00Z")
 
 // Release signing comes from an untracked keystore.properties at the repo root.
 val keystoreProps = Properties().apply {
@@ -22,8 +37,9 @@ android {
         applicationId = "com.ivy.wallet.offline"
         minSdk = libs.versions.min.sdk.get().toInt()
         targetSdk = libs.versions.target.sdk.get().toInt()
-        versionName = libs.versions.version.name.get()
-        versionCode = libs.versions.version.code.get().toInt()
+        versionName = lastCommit?.let(versionNameFormat::format) ?: libs.versions.version.name.get()
+        versionCode = lastCommit?.let { Duration.between(versionCodeEpoch, it).toMinutes().toInt() }
+            ?: libs.versions.version.code.get().toInt()
     }
 
     androidResources {

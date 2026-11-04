@@ -22,6 +22,8 @@ paparazzi = "2.0.0-alpha05.1"
 min-sdk = "28"
 compile-sdk = "37"
 target-sdk = "36"
+# The app takes its version from the latest commit (app/build.gradle.kts); these are for builds
+# without git, like from a source archive.
 version-name = "2025.07.17"
 version-code = "206"
 jvm-target = "17"
