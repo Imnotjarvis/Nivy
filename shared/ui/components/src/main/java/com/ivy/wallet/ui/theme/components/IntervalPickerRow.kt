@@ -33,6 +33,7 @@ import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.readableTint
 import com.ivy.design.system.colors.White
 import androidx.compose.material3.MaterialTheme
 
@@ -73,7 +74,12 @@ fun IntervalPickerRow(
                 )
                 .padding(vertical = 12.dp),
             value = interNTextFieldValue,
-            textColor = if (validInput) White else MaterialTheme.colorScheme.onSurface,
+            // Readable on the fill, also where minimal colors turn it into the text color.
+            textColor = if (validInput) {
+                readableTint(GradientIvy.startColor, White)
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
             hint = "0"
         ) {
             val filteredText = it.text.take(RepeatIntervalCharLimit)
