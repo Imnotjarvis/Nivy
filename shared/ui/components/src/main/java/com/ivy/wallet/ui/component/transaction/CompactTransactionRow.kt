@@ -35,7 +35,6 @@ import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.incomeGreen
 import com.ivy.design.system.shapes.PillShape
 import com.ivy.design.system.typography.numberBodyLarge
-import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.wallet.data.AppBaseData
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
@@ -66,7 +65,6 @@ fun CompactTransactionRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .padding(top = 8.dp)
-            .opensScreen(outline)
             .clip(MaterialTheme.shapes.medium)
             .border(2.dp, outline, MaterialTheme.shapes.medium)
             .clickable {

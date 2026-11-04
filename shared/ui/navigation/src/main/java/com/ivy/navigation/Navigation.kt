@@ -4,8 +4,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import java.util.Stack
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,29 +20,15 @@ class Navigation @Inject constructor() {
   var lastScreen: Screen? = null
     private set
 
-  /** The block just pressed, if it opens a screen: see [opensScreen]. */
-  internal var pressedBlock: Block? = null
-
   /** How the latest screen change animates; null when it doesn't. */
   internal var animation: ScreenAnimation? by mutableStateOf(null)
     private set
 
-  // The block each screen was opened from, if any, to shrink back into it: the current screen's,
-  // and below it those of the screens on the back stack.
-  private var currentBlock: Block? = null
-  private val blockStack: Stack<Block?> = Stack()
-
   fun navigateTo(screen: Screen) {
-    // A screen of the same kind would share its view model with the one it covers.
-    val from = lastScreen
-    val block = pressedBlock?.takeIf { from != null && from::class != screen::class }
-    pressedBlock = null
+    animation = ScreenAnimation.Opening.takeIf { animates(from = lastScreen, to = screen) }
     if (lastScreen != null) {
       backStack.push(lastScreen)
-      blockStack.push(currentBlock)
     }
-    currentBlock = block
-    animation = block?.let { ScreenAnimation(block = it, opening = true) }
     switchScreen(screen)
   }
 
@@ -52,14 +36,13 @@ class Navigation @Inject constructor() {
 
   private fun popBackStack() {
     backStack.pop()
-    blockStack.pop()
   }
 
   fun back(): Boolean {
     if (!backStack.empty()) {
-      animation = currentBlock?.let { ScreenAnimation(block = it, opening = false) }
-      currentBlock = blockStack.pop()
-      switchScreen(backStack.pop())
+      val screen = backStack.pop()
+      animation = ScreenAnimation.Closing.takeIf { animates(from = lastScreen, to = screen) }
+      switchScreen(screen)
       return true
     }
     return false
@@ -75,12 +58,12 @@ class Navigation @Inject constructor() {
       popBackStack()
     }
     lastScreen = null
-    currentBlock = null
   }
 }
 
-/** A block that opens a screen: where it is, and its color, which the card growing from it has. */
-internal data class Block(val bounds: Rect, val color: Color)
+// The first screen just shows. A screen of the same kind would share its view model with the one
+// it covers, both on screen while it animates.
+private fun animates(from: Screen?, to: Screen) = from != null && from::class != to::class
 
-/** A screen growing out of the [block] it was opened from, or shrinking back into it. */
-internal data class ScreenAnimation(val block: Block, val opening: Boolean)
+/** A screen rising over the one it covers, or sinking off the one it uncovers. */
+internal enum class ScreenAnimation { Opening, Closing }
