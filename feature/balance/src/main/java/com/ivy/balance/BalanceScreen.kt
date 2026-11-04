@@ -41,6 +41,7 @@ import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BalanceRow
+import com.ivy.wallet.ui.theme.components.FAB_BUTTON_SIZE
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
@@ -48,8 +49,6 @@ import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberLabelMedium
-
-val FAB_BUTTON_SIZE = 56.dp
 
 @Composable
 fun BoxWithConstraintsScope.BalanceScreen() {
