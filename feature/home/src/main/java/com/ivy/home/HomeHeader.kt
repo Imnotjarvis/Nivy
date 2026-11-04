@@ -46,7 +46,7 @@ import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.shown
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
@@ -262,6 +262,7 @@ fun CashFlowInfo(
         )
 
         val cashflow = monthlyIncome - monthlyExpenses
+        val page = MaterialTheme.colorScheme.background
         if (cashflow != 0.0 && !hideBalance) {
             Spacer(Modifier.height(12.dp))
 
@@ -276,7 +277,8 @@ fun CashFlowInfo(
                     currency,
                 ),
                 style = MaterialTheme.typography.numberBodyLarge.copy(
-                    color = if (cashflow < 0) Gray else Green,
+                    // Readable on light pages; the text color in minimal colors.
+                    color = if (cashflow < 0) Gray else incomeGreen(page).shown(),
                     fontWeight = FontWeight.Bold
                 ),
             )

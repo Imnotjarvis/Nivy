@@ -20,7 +20,8 @@ import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.shown
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
@@ -88,7 +89,8 @@ internal fun HistoryDateDivider(
         Text(
             text = "${if (cashflow > 0) "+" else ""}${cashflow.format(baseCurrency)} $baseCurrency",
             style = MaterialTheme.typography.numberBodyLarge.copy(
-                color = if (cashflow > 0) Green else Gray,
+                // Readable on light pages; the text color in minimal colors.
+                color = if (cashflow > 0) incomeGreen(MaterialTheme.colorScheme.background).shown() else Gray,
                 fontWeight = FontWeight.Bold
             )
         )
