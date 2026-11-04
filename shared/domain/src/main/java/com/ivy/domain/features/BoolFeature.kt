@@ -22,26 +22,38 @@ class BoolFeature(
     val description: String? = null,
     private val defaultValue: Boolean
 ) {
+    // The value last read or set. A screen starts from it: starting from the default, a screen
+    // drew the other layout for a moment, until the stored value arrived (a compact list opened
+    // as cards, then turned compact).
+    @Volatile
+    private var lastKnown: Boolean? = null
+
+    /** What a screen draws before the stored value arrives. */
+    internal val initialValue: Boolean
+        get() = lastKnown ?: defaultValue
+
     @Composable
     fun asEnabledState(): Boolean {
         val context = LocalContext.current
         val featureFlag = remember { enabledFlow(context) }
-            .collectAsState(defaultValue).value
+            .collectAsState(initialValue).value
         return featureFlag ?: defaultValue
     }
 
     suspend fun isEnabled(appContext: Context): Boolean =
         enabledFlow(appContext).first() ?: defaultValue
 
-    fun enabledFlow(appContext: Context): Flow<Boolean?> = appContext.dataStore
-        .data.map {
-            it[featureKey] ?: defaultValue
-        }
+    fun enabledFlow(appContext: Context): Flow<Boolean?> = enabledFlow(appContext.dataStore.data)
+
+    internal fun enabledFlow(preferences: Flow<Preferences>): Flow<Boolean?> = preferences.map {
+        (it[featureKey] ?: defaultValue).also { enabled -> lastKnown = enabled }
+    }
 
     suspend fun set(appContext: Context, enabled: Boolean) {
         appContext.dataStore.edit {
             it[featureKey] = enabled
         }
+        lastKnown = enabled
     }
 
     private val featureKey: Preferences.Key<Boolean>
