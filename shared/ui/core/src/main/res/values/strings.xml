@@ -392,8 +392,8 @@
     <string name="confirm_skip_all_description">Are you sure you want to skip all overdue planned payments?</string>
     <string name="wallet_balance">Wallet balance</string>
     <string name="total_exclusive">Total (exclusive): %1$s %2$s</string>
-    <string name="total_balance">Total Balance</string>
-    <string name="total_balance_excluded">Total Balance (excluded)</string>
+    <string name="total_balance">Active Balance</string>
+    <string name="total_balance_excluded">Net worth</string>
     <string name="initial_loan_record">Starting record</string>
     <string name="loan_record_type">Record type</string>
     <string name="increase_loan">Increase</string>
