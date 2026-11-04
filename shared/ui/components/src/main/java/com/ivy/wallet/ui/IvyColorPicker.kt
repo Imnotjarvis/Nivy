@@ -27,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_FREE
 import com.ivy.design.system.colors.IVY_COLOR_PICKER_COLORS_PREMIUM
-import com.ivy.design.system.colors.shown
 import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.thenIf
@@ -126,8 +125,6 @@ private fun ColorItem(
 ) {
     val color = ivyColor.color
     val selected = color == selectedColor
-    // Picking saves the color itself; it's drawn grey in minimal colors.
-    val shown = color.shown()
 
     if (index == 0) {
         Spacer(Modifier.width(24.dp))
@@ -137,9 +134,11 @@ private fun ColorItem(
         modifier = Modifier
             .clip(PillShape)
             .size(48.dp)
-            .background(shown, PillShape)
+            // The color itself, also in minimal colors: where it's used, it's drawn grey there,
+            // but here it's what's being picked.
+            .background(color, PillShape)
             .thenIf(selected) {
-                border(width = 4.dp, color = shown.dynamicContrast(), PillShape)
+                border(width = 4.dp, color = color.dynamicContrast(), PillShape)
             }
             .clickable(onClick = {
                 onSelected(ivyColor)
