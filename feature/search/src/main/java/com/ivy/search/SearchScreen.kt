@@ -47,6 +47,7 @@ fun SearchScreen() {
 @Composable
 private fun SearchUi(
     uiState: SearchState,
+    focusSearch: Boolean = true,
     onEvent: (SearchEvent) -> Unit
 ) {
     Column(
@@ -65,6 +66,7 @@ private fun SearchUi(
         SearchInput(
             searchQueryTextFieldValue = searchQueryTextFieldValue,
             hint = stringResource(R.string.search_transactions),
+            focus = focusSearch,
             showClearIcon = searchQueryTextFieldValue.text.isNotEmpty(),
             onSetSearchQueryTextField = {
                 searchQueryTextFieldValue = it
@@ -133,6 +135,9 @@ private fun Preview(isDark: Boolean = false) {
                 categories = persistentListOf(),
                 shouldShowAccountSpecificColorInTransactions = false
             ),
+            // Focusing asks for the keyboard, and the screenshot tests' renderer can crash
+            // starting it (the input method's latency tracker, on a thread it starts).
+            focusSearch = false,
             onEvent = {}
         )
     }

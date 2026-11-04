@@ -1,19 +1,12 @@
 package com.ivy.main
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,13 +17,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -46,7 +36,6 @@ import com.ivy.wallet.data.model.MainTab
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.lerp
-import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.utils.springBounceFast
 import com.ivy.design.utils.toDensityDp
@@ -59,19 +48,20 @@ import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
-import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
-import com.ivy.design.system.colors.pureBlur
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import com.ivy.wallet.ui.theme.components.FAB_BUTTON_SIZE
+import com.ivy.wallet.ui.theme.components.TabsBottomBar
+import com.ivy.wallet.ui.theme.components.BottomBarTab
+import com.ivy.wallet.ui.theme.components.BottomBarFab
+import com.ivy.wallet.ui.theme.components.bottomBarFabStart
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
-val FAB_BUTTON_SIZE = 56.dp
 
 // The bar's buttons and their expand animation share one state.
 @Suppress("LongMethod")
@@ -116,38 +106,29 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.BottomCenter)
-            .background(pureBlur())
-            .alpha(1f - buttonsShownPercent)
-            .navigationBarsPadding()
-            .clickableNoIndication(rememberInteractionSource()) {
-                // consume click
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Tab(
-            icon = R.drawable.ic_home,
-            name = stringResource(R.string.home),
-            selected = tab == MainTab.HOME,
-            selectedColor = Ivy
-        ) {
-            selectTab(MainTab.HOME)
-        }
-
-        Spacer(Modifier.width(FAB_BUTTON_SIZE))
-
-        Tab(
-            icon = R.drawable.ic_accounts,
-            name = stringResource(R.string.accounts),
-            selected = tab == MainTab.ACCOUNTS,
-            selectedColor = Green
-        ) {
-            selectTab(MainTab.ACCOUNTS)
-        }
-    }
+    TabsBottomBar(
+        contentAlpha = 1f - buttonsShownPercent,
+        start = {
+            BottomBarTab(
+                icon = R.drawable.ic_home,
+                name = stringResource(R.string.home),
+                selected = tab == MainTab.HOME,
+                selectedColor = Ivy
+            ) {
+                selectTab(MainTab.HOME)
+            }
+        },
+        end = {
+            BottomBarTab(
+                icon = R.drawable.ic_accounts,
+                name = stringResource(R.string.accounts),
+                selected = tab == MainTab.ACCOUNTS,
+                selectedColor = Green
+            ) {
+                selectTab(MainTab.ACCOUNTS)
+            }
+        },
+    )
 
     if (expandedBackgroundOffset < screenHeightDp) {
         Spacer(
@@ -164,9 +145,9 @@ internal fun BoxWithConstraintsScope.BottomBar(
     }
 
     // ------------------------------------ BUTTONS--------------------------------------------------
-    val fabStartX = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
-    val fabStartY = screenSize.height - navigationBarInset() -
-            30.dp.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
+    val fabStart = bottomBarFabStart()
+    val fabStartX = fabStart.x
+    val fabStartY = fabStart.y
 
     TransactionButtons(
         buttonsShownPercent = buttonsShownPercent,
@@ -184,20 +165,9 @@ internal fun BoxWithConstraintsScope.BottomBar(
         mutableStateOf(Offset.Zero)
     }
     // + & x button
-    IvyCircleButton(
+    BottomBarFab(
         modifier = Modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = fabStartX.roundToInt(),
-                        y = fabStartY.roundToInt()
-                    )
-                }
-            }
-            .size(FAB_BUTTON_SIZE)
             .rotate(fabRotation)
-            .zIndex(200f)
             .thenIf(tab == MainTab.HOME) {
                 pointerInput(Unit) {
                     detectDragGestures(
@@ -240,8 +210,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 }
             }
             .testTag("fab_add"),
-        backgroundPadding = 8.dp,
-        icon = R.drawable.ic_add,
         backgroundGradient = when (tab) {
             MainTab.HOME -> {
                 if (!expanded) GradientIvy else Gradient.solid(MaterialTheme.colorScheme.onSurfaceVariant)
@@ -251,10 +219,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 GradientGreen
             }
         },
-        tint = when (tab) {
-            MainTab.HOME -> White
-            MainTab.ACCOUNTS -> White
-        }
     ) {
         when (tab) {
             MainTab.HOME -> {
@@ -612,39 +576,3 @@ private fun AddTransferButton(
     )
 }
 
-@Composable
-private fun RowScope.Tab(
-    @DrawableRes icon: Int,
-    name: String,
-    selected: Boolean,
-    selectedColor: Color,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .weight(1f)
-            .clip(CircleShape)
-            .clickable(onClick = onClick)
-            .padding(top = 12.dp, bottom = 16.dp)
-            .testTag(name.lowercase()),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IvyIcon(
-            icon = icon,
-            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
-        )
-
-        if (selected) {
-            Spacer(modifier = Modifier.width(4.dp))
-
-            Text(
-                text = name,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = selectedColor,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
-}
