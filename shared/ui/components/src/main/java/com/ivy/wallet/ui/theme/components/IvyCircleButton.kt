@@ -33,6 +33,8 @@ fun IvyCircleButton(
     contentDescription: String? = null,
     onClick: () -> Unit
 ) {
+    // The fill drawn: the icon is readable on it, also on a disabled button's grey.
+    val fill = if (enabled) backgroundGradient.startColor else MaterialTheme.colorScheme.onSurfaceVariant
     IvyIcon(
         modifier = modifier
             .clip(PillShape)
@@ -47,7 +49,7 @@ fun IvyCircleButton(
             .clickable(onClick = onClick, enabled = enabled)
             .padding(all = backgroundPadding),
         icon = icon,
-        tint = readableTint(backgroundGradient.startColor, tint),
+        tint = readableTint(fill, tint),
         contentDescription = contentDescription
     )
 }

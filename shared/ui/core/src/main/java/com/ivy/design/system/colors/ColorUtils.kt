@@ -50,16 +50,20 @@ fun readableOn(background: Color): Color {
 }
 
 /**
- * A component's own [tint] (a button's white text, say) on [background], kept as designed; but
- * where minimal colors turned the fill into a grey, [readableOn] it, as the tint was chosen for
- * the color the fill no longer has. Colors that keep their hue, like the warnings' red, keep
- * their tint.
+ * A component's own [tint] on its [background] fill. White content (a button's text, the +)
+ * follows [readableOn], the rule for text on fills: black on a bright green. Other tints stay as
+ * designed, unless minimal colors turned the fill grey, as they were chosen for the color it no
+ * longer has. On a translucent fill the tint stays: what shows through isn't known here.
  */
-fun readableTint(background: Color, tint: Color): Color =
-    if (ColorMode.minimal && background.isOpaqueGrey()) readableOn(background) else tint
+fun readableTint(background: Color, tint: Color): Color = when {
+    background.alpha < 1f -> tint
+    tint == White -> readableOn(background)
+    ColorMode.minimal && background.isGrey() -> readableOn(background)
+    else -> tint
+}
 
-private fun Color.isOpaqueGrey(): Boolean =
-    alpha >= 1f && maxOf(red, green, blue) - minOf(red, green, blue) < GreyTolerance
+private fun Color.isGrey(): Boolean =
+    maxOf(red, green, blue) - minOf(red, green, blue) < GreyTolerance
 
 fun isDarkColor(color: Color): Boolean {
     return isDarkColor(color.toArgb())

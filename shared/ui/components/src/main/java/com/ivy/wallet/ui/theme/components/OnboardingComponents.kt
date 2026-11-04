@@ -40,8 +40,9 @@ fun OnboardingButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    // Readable on the button, also where minimal colors turn it into the text color.
-    val content = readableTint(backgroundGradient.startColor, textColor)
+    // Readable on the fill drawn, also on a disabled button's grey.
+    val fill = if (enabled) backgroundGradient.startColor else MaterialTheme.colorScheme.onSurfaceVariant
+    val content = readableTint(fill, textColor)
     Box(
         modifier = modifier
             .clip(PillShape)
@@ -83,7 +84,7 @@ fun OnboardingButton(
                     .padding(vertical = 8.dp)
                     .padding(end = 24.dp),
                 painter = painterResource(id = R.drawable.ic_onboarding_next_arrow),
-                colorFilter = ColorFilter.tint(readableTint(backgroundGradient.startColor, White)),
+                colorFilter = ColorFilter.tint(readableTint(fill, White)),
                 contentDescription = null
             )
         }

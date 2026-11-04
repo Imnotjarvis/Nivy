@@ -52,6 +52,8 @@ fun IvyButton(
     iconTextPadding: Dp = 4.dp,
     onClick: () -> Unit
 ) {
+    // The fill drawn: content is readable on it, also on a disabled button's grey.
+    val fill = if (enabled) backgroundGradient.startColor else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = modifier
             .clip(PillShape)
@@ -70,7 +72,7 @@ fun IvyButton(
             iconStart != null -> {
                 IconStart(
                     icon = iconStart,
-                    tint = readableTint(backgroundGradient.startColor, iconTint),
+                    tint = readableTint(fill, iconTint),
                     iconEdgePadding = iconEdgePadding,
                     iconTextPadding = iconTextPadding
                 )
@@ -97,7 +99,7 @@ fun IvyButton(
                 vertical = padding,
             ),
             text = text,
-            style = textStyle.copy(color = readableTint(backgroundGradient.startColor, textStyle.color))
+            style = textStyle.copy(color = readableTint(fill, textStyle.color))
         )
 
         if (!wrapContentMode) {
@@ -116,7 +118,7 @@ fun IvyButton(
             iconEnd != null -> {
                 IconEnd(
                     icon = iconEnd,
-                    tint = readableTint(backgroundGradient.startColor, iconTint),
+                    tint = readableTint(fill, iconTint),
                     iconEdgePadding = iconEdgePadding,
                     iconTextPadding = iconTextPadding
                 )

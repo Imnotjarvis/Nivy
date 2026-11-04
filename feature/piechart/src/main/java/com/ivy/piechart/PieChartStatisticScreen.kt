@@ -434,9 +434,7 @@ private fun CategoryAmountCard(
     }
     val backgroundColor = if (selectedState) categoryColor else MaterialTheme.colorScheme.surfaceVariant
 
-    val textColor = readableOn(
-        backgroundColor = backgroundColor
-    )
+    val textColor = readableOn(backgroundColor)
 
     Row(
         modifier = Modifier

@@ -92,15 +92,20 @@ class ColorModeTest {
     }
 
     @Test
-    fun `in minimal colors, content on fills is readable, on colors it keeps its tint`() {
-        readableTint(Green, White) shouldBe White
+    fun `white content on a fill follows the rule, other tints stay unless the fill went grey`() {
+        // A green button's white text turns black; on the brand purple it stays white.
+        readableTint(Green, White) shouldBe Black
+        readableTint(Ivy, White) shouldBe White
+        // A tint chosen for its color stays, as does anything on a translucent fill.
+        readableTint(White, Green) shouldBe Green
+        readableTint(Ivy.copy(alpha = 0.5f), White) shouldBe White
 
         ColorMode.minimal = true
 
         // A button asking for black content on the (black) text color still gets white.
         readableTint(Green, Black) shouldBe White
-        // The warnings' red keeps its white icon.
-        readableTint(Palette.Red, White) shouldBe White
+        // The warnings' red keeps its hue; its white icon follows the rule: black (5.5:1).
+        readableTint(Palette.Red, White) shouldBe Black
 
         ColorMode.dark = true
 
