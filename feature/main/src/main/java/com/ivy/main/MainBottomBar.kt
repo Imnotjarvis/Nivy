@@ -575,4 +575,3 @@ private fun AddTransferButton(
             }
     )
 }
-
