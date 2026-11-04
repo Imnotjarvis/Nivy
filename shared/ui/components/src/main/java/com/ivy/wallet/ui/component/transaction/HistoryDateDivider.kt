@@ -20,7 +20,8 @@ import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
@@ -86,9 +87,14 @@ internal fun HistoryDateDivider(
 
         val cashflow = income - expenses
         Text(
-            text = "${cashflow.format(baseCurrency)} $baseCurrency",
+            text = "${if (cashflow > 0) "+" else ""}${cashflow.format(baseCurrency)} $baseCurrency",
             style = MaterialTheme.typography.numberBodyLarge.copy(
-                color = if (cashflow > 0) Green else Gray,
+                // Green when the day earned, red when it spent, also in minimal colors.
+                color = when {
+                    cashflow > 0 -> incomeGreen(MaterialTheme.colorScheme.background)
+                    cashflow < 0 -> expenseRed(MaterialTheme.colorScheme.background)
+                    else -> Gray
+                },
                 fontWeight = FontWeight.Bold
             )
         )

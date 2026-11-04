@@ -29,6 +29,8 @@ fun IncomeExpensesRow(
     currency: String,
     modifier: Modifier = Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
+    incomeColor: Color = textColor,
+    expensesColor: Color = textColor,
     dividerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     incomeLabel: String = stringResource(R.string.income_uppercase),
     expensesLabel: String = stringResource(R.string.expenses_uppercase),
@@ -45,6 +47,7 @@ fun IncomeExpensesRow(
 
         LabelAmountColumn(
             textColor = textColor,
+            amountColor = incomeColor,
             label = incomeLabel,
             amount = income,
             currency = currency,
@@ -77,6 +80,7 @@ fun IncomeExpensesRow(
 
         LabelAmountColumn(
             textColor = textColor,
+            amountColor = expensesColor,
             label = expensesLabel,
             amount = expenses,
             currency = currency,
@@ -95,6 +99,7 @@ private fun LabelAmountColumn(
     amount: Double,
     currency: String,
     textColor: Color,
+    amountColor: Color,
     center: Boolean
 ) {
     Column(
@@ -114,7 +119,7 @@ private fun LabelAmountColumn(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AmountCurrencyB1(
-                textColor = textColor,
+                textColor = amountColor,
                 amount = amount,
                 currency = currency
             )

@@ -70,14 +70,12 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.GradientOrangeRevert
-import com.ivy.design.system.colors.GradientRed
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.Red
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.readableTint
@@ -98,6 +96,8 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
 import com.ivy.design.system.colors.accountColor
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @Composable
@@ -607,9 +607,9 @@ fun TypeAmountCurrency(
             TransactionType.INCOME -> {
                 AmountTypeStyle(
                     icon = R.drawable.ic_income,
-                    gradient = GradientGreen,
+                    gradient = Gradient.solid(incomeGreen(MaterialTheme.colorScheme.surfaceVariant)),
                     iconTint = White,
-                    textColor = Green
+                    textColor = incomeGreen(MaterialTheme.colorScheme.surfaceVariant)
                 )
             }
 
@@ -626,12 +626,12 @@ fun TypeAmountCurrency(
                     }
 
                     dueDate != null && dueDate.isBefore(LocalTimeProvider.current.localDateNow().atStartOfDay()) -> {
-                        // Overdue Expense
+                        // Overdue Expense: a warning, red also in minimal colors.
                         AmountTypeStyle(
                             icon = R.drawable.ic_overdue,
-                            gradient = GradientRed,
+                            gradient = Gradient.solid(expenseRed(MaterialTheme.colorScheme.surfaceVariant)),
                             iconTint = White,
-                            textColor = Red
+                            textColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
 
@@ -639,10 +639,9 @@ fun TypeAmountCurrency(
                         // Normal Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
-                            // The pill is in the text color, the icon in the background's.
-                            gradient = Gradient.black(),
-                            iconTint = MaterialTheme.colorScheme.surface,
-                            textColor = MaterialTheme.colorScheme.onSurface
+                            gradient = Gradient.solid(expenseRed(MaterialTheme.colorScheme.surfaceVariant)),
+                            iconTint = White,
+                            textColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
                 }
@@ -671,11 +670,22 @@ fun TypeAmountCurrency(
         AmountCurrencyB1(
             amount = amount,
             currency = currency,
-            textColor = style.textColor
+            textColor = style.textColor,
+            prefix = amountPrefix(transactionType)
         )
 
         Spacer(Modifier.width(24.dp))
     }
+}
+
+/**
+ * The sign before a transaction's amount: "+" for income, "-" for expenses, none for transfers.
+ * With the green and red, and the in and out icons, it tells them apart also without color.
+ */
+fun amountPrefix(type: TransactionType): String = when (type) {
+    TransactionType.INCOME -> "+"
+    TransactionType.EXPENSE -> "-"
+    TransactionType.TRANSFER -> ""
 }
 
 private data class AmountTypeStyle(
