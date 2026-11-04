@@ -64,6 +64,7 @@ import com.ivy.navigation.opensScreen
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
+import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
@@ -128,6 +129,8 @@ private fun BoxWithConstraintsScope.UI(
         animationSpec = com.ivy.wallet.utils.springBounce(),
         label = "percent expanded"
     )
+    // The chart's order (the largest first), which gives each slice its tone in minimal colors.
+    val bySize = remember(state.categoryAmounts) { state.categoryAmounts.sortedByDescending { it.amount } }
 
     LazyColumn(
         modifier = Modifier
@@ -222,6 +225,7 @@ private fun BoxWithConstraintsScope.UI(
 
                 CategoryAmountCard(
                     categoryAmount = item,
+                    rank = bySize.indexOf(item),
                     currency = state.baseCurrency,
                     totalAmount = state.totalAmount,
                     selectedCategory = state.selectedCategory
@@ -399,6 +403,7 @@ private fun FittingBalanceMini(
 @Composable
 private fun CategoryAmountCard(
     categoryAmount: CategoryAmount,
+    rank: Int,
     currency: String,
     totalAmount: Double,
 
@@ -409,8 +414,12 @@ private fun CategoryAmountCard(
     val category = categoryAmount.category
     val amount = categoryAmount.amount
 
-    val categoryColor =
+    // In minimal colors, the slice's tone: the list is the chart's legend.
+    val categoryColor = if (ColorMode.minimal) {
+        pieTone(rank)
+    } else {
         category?.color?.value?.toComposeColor() ?: Gray // Unspecified category = Gray
+    }
     val selectedState = when {
         selectedCategory == null -> {
             // no selectedCategory

@@ -32,7 +32,10 @@ import com.ivy.data.model.CategoryId
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.ui.R
+import com.ivy.design.system.colors.Black
+import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.RedLight
@@ -50,6 +53,9 @@ import androidx.compose.material3.MaterialTheme
 private const val FullTurn = 360.0
 private const val QuarterTurn = 90.0
 
+// In minimal colors, the gap between slices.
+private const val GapWidthDp = 3f
+
 const val PIE_CHART_RADIUS_DP = 128
 const val RADIUS_DP = 112f
 
@@ -61,6 +67,8 @@ fun PieChart(
     modifier: Modifier = Modifier,
     onCategoryClick: (Category?) -> Unit = {}
 ) {
+    // In minimal colors slices share a few greys: gaps in the backdrop's color set them apart.
+    val gapColor = MaterialTheme.colorScheme.surfaceVariant.takeIf { ColorMode.minimal }
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
@@ -78,6 +86,7 @@ fun PieChart(
                 view.display(
                     categoryAmounts = categoryAmounts.sortedByDescending { it.amount },
                     selectedCategory = selectedCategory,
+                    gapColor = gapColor,
                     onCategoryClicked = onCategoryClick
                 )
             }
@@ -98,6 +107,7 @@ fun PieChart(
 private class PieChartView(context: Context) : View(context) {
     private var categoryAmounts = emptyList<CategoryAmount>()
     private var paints = mapOf<Category?, Paint>()
+    private var gapPaint: Paint? = null
     private var totalAmount = 0.0
 
     val rectangle = RectF(
@@ -112,17 +122,23 @@ private class PieChartView(context: Context) : View(context) {
     fun display(
         categoryAmounts: List<CategoryAmount>,
         selectedCategory: SelectedCategory?,
+        gapColor: Color?,
         onCategoryClicked: (Category?) -> Unit
     ) {
         this.onCategoryClicked = onCategoryClicked
+        this.gapPaint = gapColor?.let(::gapPaintFor)
 
         this.categoryAmounts = categoryAmounts
         this.totalAmount = categoryAmounts.sumOf { it.amount }
 
         this.paints = categoryAmounts
-            .map {
-                val category = it.category
-                val categoryColor = category?.color?.value?.toComposeColor() ?: Gray
+            .mapIndexed { rank, categoryAmount ->
+                val category = categoryAmount.category
+                val categoryColor = if (ColorMode.minimal) {
+                    pieTone(rank)
+                } else {
+                    category?.color?.value?.toComposeColor() ?: Gray
+                }
                 val color = if (selectedCategory == null) {
                     categoryColor
                 } else {
@@ -150,6 +166,15 @@ private class PieChartView(context: Context) : View(context) {
             this.strokeWidth = com.ivy.design.utils.convertDpToPixel(context, 2f)
             this.strokeCap = Paint.Cap.ROUND
             this.strokeJoin = Paint.Join.ROUND
+            this.isAntiAlias = true
+        }
+    }
+
+    private fun gapPaintFor(color: Color): Paint {
+        return Paint().apply {
+            this.color = color.toArgb()
+            this.style = Paint.Style.STROKE
+            this.strokeWidth = com.ivy.design.utils.convertDpToPixel(context, GapWidthDp)
             this.isAntiAlias = true
         }
     }
@@ -186,6 +211,7 @@ private class PieChartView(context: Context) : View(context) {
                 true,
                 paint
             ) // draw
+            gapPaint?.let { canvas.drawArc(rectangle, startAngle.toFloat(), sweepAngle.toFloat(), true, it) }
 
             startAngle += sweepAngle
         }
@@ -330,3 +356,15 @@ private fun Preview() {
         }
     }
 }
+
+/**
+ * In minimal colors, a slice's tone by its rank (the largest first): three greys, each at 3:1 or
+ * more against the chart's backdrop, darkest to lightest on light themes and the reverse on dark.
+ */
+internal fun pieTone(rank: Int): Color {
+    val tones = if (ColorMode.dark) PieTonesDark else PieTonesLight
+    return tones[rank % tones.size]
+}
+
+private val PieTonesLight = listOf(Black, Color(0xFF4A4A4F), Color(0xFF808080))
+private val PieTonesDark = listOf(White, Color(0xFFBDBDBD), Color(0xFF7A7A7A))

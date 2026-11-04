@@ -48,6 +48,7 @@ import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -182,6 +183,8 @@ private fun RowScope.MonthCard(
     background: Gradient,
     textColor: Color,
 ) {
+    // Readable on the card, also where minimal colors turn it into the text color.
+    val content = readableTint(background.startColor, textColor)
     Column(
         modifier = Modifier
             .weight(1f)
@@ -191,17 +194,17 @@ private fun RowScope.MonthCard(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.width(16.dp))
-            IvyIcon(icon = icon, tint = textColor)
+            IvyIcon(icon = icon, tint = content)
             Spacer(Modifier.width(4.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium.copy(color = textColor, fontWeight = FontWeight.ExtraBold),
+                style = MaterialTheme.typography.labelMedium.copy(color = content, fontWeight = FontWeight.ExtraBold),
             )
         }
         Spacer(Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.width(20.dp))
-            AmountCurrencyB1(amount = amount, currency = currency, textColor = textColor, shortenBigNumbers = true)
+            AmountCurrencyB1(amount = amount, currency = currency, textColor = content, shortenBigNumbers = true)
         }
     }
 }

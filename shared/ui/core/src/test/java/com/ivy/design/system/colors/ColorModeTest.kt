@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.doubles.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import org.junit.After
 import org.junit.Test
@@ -12,24 +13,7 @@ class ColorModeTest {
     @After
     fun tearDown() {
         ColorMode.minimal = false
-    }
-
-    @Test
-    fun `a color's grey has its lightness`() {
-        for (color in listOf(Palette.Green, Palette.Ivy, Palette.Yellow, Palette.RedDark)) {
-            val grey = color.toGrey()
-
-            grey.red.toDouble() shouldBe (grey.green.toDouble() plusOrMinus Tolerance)
-            grey.green.toDouble() shouldBe (grey.blue.toDouble() plusOrMinus Tolerance)
-            grey.luminance().toDouble() shouldBe (color.luminance().toDouble() plusOrMinus Tolerance)
-        }
-    }
-
-    @Test
-    fun `white, black and transparency stay`() {
-        Color.White.toGrey().red.toDouble() shouldBe (1.0 plusOrMinus Tolerance)
-        Color.Black.toGrey().red.toDouble() shouldBe (0.0 plusOrMinus Tolerance)
-        Palette.Green.copy(alpha = 0.5f).toGrey().alpha.toDouble() shouldBe (0.5 plusOrMinus Tolerance)
+        ColorMode.dark = false
     }
 
     @Test
@@ -37,12 +21,39 @@ class ColorModeTest {
         Green shouldBe Palette.Green
         GradientIvy.startColor shouldBe Palette.Ivy
         Palette.Ivy.toArgb().toComposeColor() shouldBe Palette.Ivy
+    }
 
+    @Test
+    fun `in minimal colors, hues are the theme's text color`() {
         ColorMode.minimal = true
 
-        Green shouldBe Palette.Green.toGrey()
-        GradientIvy.startColor shouldBe Palette.Ivy.toGrey()
-        Palette.Ivy.toArgb().toComposeColor() shouldBe Palette.Ivy.toGrey()
+        Green shouldBe Black
+        GradientIvy.startColor shouldBe Black
+        Orange shouldBe Black
+
+        ColorMode.dark = true
+
+        Green shouldBe White
+        GradientIvy.startColor shouldBe White
+    }
+
+    @Test
+    fun `in minimal colors, hues keep their transparency`() {
+        ColorMode.minimal = true
+
+        Green.copy(alpha = 0.5f).alpha.toDouble() shouldBe (0.5 plusOrMinus Tolerance)
+        Palette.Green.copy(alpha = 0.5f).shown().alpha.toDouble() shouldBe (0.5 plusOrMinus Tolerance)
+    }
+
+    @Test
+    fun `in minimal colors, saved item colors are the cards' grey`() {
+        ColorMode.minimal = true
+
+        Palette.Ivy.toArgb().toComposeColor() shouldBe MediumWhite
+
+        ColorMode.dark = true
+
+        Palette.Ivy.toArgb().toComposeColor() shouldBe MediumBlack
     }
 
     @Test
@@ -54,30 +65,57 @@ class ColorModeTest {
     }
 
     @Test
-    fun `in minimal colors, text on grey is the more readable of black and white`() {
+    fun `in minimal colors, text on the text color is the background's`() {
         ColorMode.minimal = true
 
-        // The green account's grey is mid-light: white on it would be about 2:1, black about 10:1.
-        findContrastTextColor(Green) shouldBe Black
-        Green.dynamicContrast() shouldBe Black
-        findContrastTextColor(IvyDark) shouldBe White
+        findContrastTextColor(Green) shouldBe White
+        Green.dynamicContrast() shouldBe White
         readableOn(White) shouldBe Black
         readableOn(Black) shouldBe White
+
+        ColorMode.dark = true
+
+        findContrastTextColor(Green) shouldBe Black
     }
 
     @Test
-    fun `in minimal colors, icons on grey are readable, on colors they keep their tint`() {
+    fun `in minimal colors, content on fills is readable, on colors it keeps its tint`() {
         readableTint(Green, White) shouldBe White
 
         ColorMode.minimal = true
 
-        // The income button's light grey takes a black icon; the warnings' red keeps its white one.
-        readableTint(Green, White) shouldBe Black
-        readableTint(IvyDark, Black) shouldBe White
+        // A button asking for black content on the (black) text color still gets white.
+        readableTint(Green, Black) shouldBe White
+        // The warnings' red keeps its white icon.
         readableTint(Palette.Red, White) shouldBe White
+
+        ColorMode.dark = true
+
+        // On dark themes the text color is white: white content on it turns black.
+        readableTint(Green, White) shouldBe Black
+    }
+
+    @Test
+    fun `in minimal colors on the light theme, secondary text reads at 4,5 to 1`() {
+        Gray shouldBe Color(0xFF939199)
+
+        ColorMode.minimal = true
+
+        contrast(Gray, White) shouldBeGreaterThanOrEqual TextContrast
+        contrast(Gray, MediumWhite) shouldBeGreaterThanOrEqual TextContrast
+
+        ColorMode.dark = true
+
+        Gray shouldBe Color(0xFF939199)
+    }
+
+    private fun contrast(a: Color, b: Color): Double {
+        val (light, dark) = listOf(a.luminance(), b.luminance()).sortedDescending()
+        return (light + 0.05) / (dark + 0.05)
     }
 
     private companion object {
         const val Tolerance = 0.01
+        const val TextContrast = 4.5
     }
 }

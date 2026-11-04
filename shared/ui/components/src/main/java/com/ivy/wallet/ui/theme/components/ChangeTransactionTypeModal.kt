@@ -32,6 +32,7 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
@@ -166,7 +167,9 @@ private fun TransactionTypeButton(
     ) {
         Spacer(Modifier.width(16.dp))
 
-        val textColor = if (selected) textSelectedColor else MaterialTheme.colorScheme.onSurface
+        // Readable on the selected fill, also where minimal colors turn it into the text color.
+        val selectedContent = readableTint(selectedGradient.startColor, textSelectedColor)
+        val textColor = if (selected) selectedContent else MaterialTheme.colorScheme.onSurface
 
         IvyIcon(
             icon = when (transactionType) {
@@ -196,13 +199,13 @@ private fun TransactionTypeButton(
 
             IvyIcon(
                 icon = R.drawable.ic_check,
-                tint = textSelectedColor
+                tint = selectedContent
             )
 
             Text(
                 text = stringResource(R.string.selected_text),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = textSelectedColor,
+                    color = selectedContent,
                     fontWeight = FontWeight.SemiBold
                 )
             )

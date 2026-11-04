@@ -14,8 +14,8 @@ private const val DarkLuminance = 0.5
 // The WCAG contrast ratio adds this to both luminances.
 private const val ContrastOffset = 0.05f
 
-// A color whose channels differ by less than this is a grey.
-private const val GreyTolerance = 0.01f
+// A color whose channels differ by less than this is a grey: also the near-neutral Black (#111114).
+private const val GreyTolerance = 0.02f
 
 // dynamicContrast() sorts a color by its HSV saturation (s) and value (v): vivid colors, pale
 // colors and deep colors, and lightens or darkens it to stand out against itself.
@@ -153,4 +153,4 @@ fun Color.hsv(
 }
 
 /** A saved color (an account's, a category's, …) as drawn: grey in minimal colors. */
-fun Int.toComposeColor() = Color(this).shown()
+fun Int.toComposeColor() = if (ColorMode.minimal) itemGrey else Color(this)
