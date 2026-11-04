@@ -29,20 +29,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
+import com.ivy.design.utils.clickableNoIndication
+import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.toDensityPx
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Blue
-import com.ivy.design.system.colors.GradientPurple
+import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.Violet
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.pureBlur
 import kotlin.math.roundToInt
-import com.ivy.design.system.shapes.PillShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
 val FAB_BUTTON_SIZE = 56.dp
@@ -54,19 +56,23 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
     selectTab: (LoanTab) -> Unit,
     onAdd: () -> Unit
 ) {
+    // Styled as the main screen's bar: its purple and green, round tabs, taps kept from the list.
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .align(Alignment.BottomCenter)
             .background(pureBlur())
-            .navigationBarsPadding(),
+            .navigationBarsPadding()
+            .clickableNoIndication(rememberInteractionSource()) {
+                // consume click
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Tab(
             icon = R.drawable.ic_custom_loan_s,
             name = stringResource(R.string.pending),
             selected = tab == LoanTab.PENDING,
-            selectedColor = Violet
+            selectedColor = Ivy
         ) {
             selectTab(LoanTab.PENDING)
         }
@@ -103,7 +109,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
             .zIndex(ZINDEX),
         backgroundPadding = 8.dp,
         icon = R.drawable.ic_add,
-        backgroundGradient = GradientPurple,
+        backgroundGradient = GradientIvy,
         tint = White
     ) {
         onAdd()
@@ -121,7 +127,7 @@ private fun RowScope.Tab(
     Row(
         modifier = Modifier
             .weight(1f)
-            .clip(PillShape)
+            .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
