@@ -42,13 +42,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
-import com.ivy.design.system.colors.White
-import com.ivy.design.system.colors.readableTint
+import com.ivy.design.system.colors.Palette
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -128,8 +124,7 @@ private fun TrendsUi(
                 label = stringResource(R.string.income),
                 amount = selected.income,
                 currency = currency,
-                background = GradientGreen,
-                textColor = White,
+                amountColor = Palette.Green,
             )
             Spacer(Modifier.width(12.dp))
             MonthCard(
@@ -137,8 +132,7 @@ private fun TrendsUi(
                 label = stringResource(R.string.expenses),
                 amount = selected.expense,
                 currency = currency,
-                background = Gradient.solid(MaterialTheme.colorScheme.onSurface),
-                textColor = MaterialTheme.colorScheme.surface,
+                amountColor = Palette.Red,
             )
         }
 
@@ -146,9 +140,9 @@ private fun TrendsUi(
         ChartPanel(
             title = stringResource(R.string.income_vs_expenses),
             legend = {
-                LegendDot(color = Green, label = stringResource(R.string.income))
+                LegendDot(color = Palette.Green, label = stringResource(R.string.income))
                 Spacer(Modifier.width(12.dp))
-                LegendDot(color = MaterialTheme.colorScheme.onSurface, label = stringResource(R.string.expenses))
+                LegendDot(color = Palette.Red, label = stringResource(R.string.expenses))
             },
         ) {
             IncomeExpenseBars(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
@@ -173,38 +167,41 @@ private fun TrendsUi(
     }
 }
 
-/** The selected month's income or expenses, in the style of the home screen's cards. */
+/**
+ * The selected month's income or expenses, like the home screen's cards: a plain card, the amount
+ * in green or red, which keep their color in minimal colors too.
+ */
 @Composable
 private fun RowScope.MonthCard(
     @DrawableRes icon: Int,
     label: String,
     amount: Double,
     currency: String,
-    background: Gradient,
-    textColor: Color,
+    amountColor: Color,
 ) {
-    // Readable on the card, also where minimal colors turn it into the text color.
-    val content = readableTint(background.startColor, textColor)
     Column(
         modifier = Modifier
             .weight(1f)
             .clip(MaterialTheme.shapes.medium)
-            .background(background.asHorizontalBrush())
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(vertical = 12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.width(16.dp))
-            IvyIcon(icon = icon, tint = content)
+            IvyIcon(icon = icon, tint = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(4.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium.copy(color = content, fontWeight = FontWeight.ExtraBold),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
+                ),
             )
         }
         Spacer(Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.width(20.dp))
-            AmountCurrencyB1(amount = amount, currency = currency, textColor = content, shortenBigNumbers = true)
+            AmountCurrencyB1(amount = amount, currency = currency, textColor = amountColor, shortenBigNumbers = true)
         }
     }
 }
@@ -265,7 +262,6 @@ private fun IncomeExpenseBars(
     onSelect: (Int) -> Unit,
 ) {
     val highlight = MaterialTheme.colorScheme.surface
-    val expenseColor = MaterialTheme.colorScheme.onSurface
     val max = months.maxOf { maxOf(it.income, it.expense) }.takeIf { it > 0 } ?: 1.0
     Canvas(
         modifier = Modifier
@@ -290,14 +286,15 @@ private fun IncomeExpenseBars(
             val chartHeight = size.height - BarTopSpace.toPx()
             val incomeHeight = (month.income / max).toFloat() * chartHeight
             val expenseHeight = (month.expense / max).toFloat() * chartHeight
+            // Green and red as on Home's cards, also in minimal colors.
             drawRoundRect(
-                Green,
+                Palette.Green,
                 topLeft = Offset(left, size.height - incomeHeight),
                 size = Size(barWidth, incomeHeight),
                 cornerRadius = radius,
             )
             drawRoundRect(
-                expenseColor,
+                Palette.Red,
                 topLeft = Offset(left + barWidth + BarGap.toPx(), size.height - expenseHeight),
                 size = Size(barWidth, expenseHeight),
                 cornerRadius = radius,
