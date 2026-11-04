@@ -4,15 +4,15 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -62,6 +62,7 @@ import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.design.system.colors.gradientExpenses
+import com.ivy.design.system.colors.pureBlur
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import java.util.UUID
 import kotlin.math.abs
@@ -71,12 +72,7 @@ import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
-private val PillHeight = 56.dp
 private val TabSize = 48.dp
-
-// Around and between the pill's buttons; the + button gets the same gap on each side.
-private val PillGap = 12.dp
-private val PillBottomMargin = 12.dp
 
 // The bar's buttons and their expand animation share one state.
 @Suppress("LongMethod")
@@ -123,22 +119,19 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
-    // A compact floating pill, centered: Budgets, Home, the + button (placed over the gap),
-    // Accounts and Settings.
+    // Along the bottom edge: Budgets, Home, the + button (raised over the gap), Accounts and
+    // Settings.
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .align(Alignment.BottomCenter)
-            .navigationBarsPadding()
-            .padding(bottom = PillBottomMargin)
-            .height(PillHeight)
+            .background(pureBlur())
             .alpha(1f - buttonsShownPercent)
-            .clip(PillShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), PillShape)
+            .navigationBarsPadding()
             .clickableNoIndication(rememberInteractionSource()) {
                 // consume click
             }
-            .padding(horizontal = PillGap),
+            .padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Tab(
@@ -149,8 +142,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
             onClick = onOpenBudgets,
         )
 
-        Spacer(Modifier.width(PillGap))
-
         Tab(
             icon = R.drawable.ic_home,
             name = stringResource(R.string.home),
@@ -160,7 +151,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
             selectTab(MainTab.HOME)
         }
 
-        Spacer(Modifier.width(FAB_BUTTON_SIZE + PillGap * 2))
+        Spacer(Modifier.width(FAB_BUTTON_SIZE))
 
         Tab(
             icon = R.drawable.ic_accounts,
@@ -170,8 +161,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
         ) {
             selectTab(MainTab.ACCOUNTS)
         }
-
-        Spacer(Modifier.width(PillGap))
 
         Tab(
             icon = R.drawable.home_more_menu_settings,
@@ -198,9 +187,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
 
     // ------------------------------------ BUTTONS--------------------------------------------------
     val fabStartX = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2
-    // Centered in the pill.
     val fabStartY = screenSize.height - navigationBarInset() -
-            (PillBottomMargin + (PillHeight + FAB_BUTTON_SIZE) / 2).toDensityPx()
+            30.dp.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
     TransactionButtons(
         buttonsShownPercent = buttonsShownPercent,
@@ -646,9 +634,10 @@ private fun AddTransferButton(
     )
 }
 
-// An icon only, its name read out by screen readers; the selected one on a tinted circle.
+// An icon only in an equal share of the bar, its name read out by screen readers; the selected
+// one on a tinted circle.
 @Composable
-private fun Tab(
+private fun RowScope.Tab(
     @DrawableRes icon: Int,
     name: String,
     selected: Boolean,
@@ -656,20 +645,25 @@ private fun Tab(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .size(TabSize)
-            .clip(PillShape)
-            .thenIf(selected) {
-                background(selectedColor.copy(alpha = 0.15f))
-            }
-            .clickable(onClick = onClick)
-            .testTag(name.lowercase()),
+        modifier = Modifier.weight(1f),
         contentAlignment = Alignment.Center
     ) {
-        IvyIcon(
-            icon = icon,
-            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface,
-            contentDescription = name
-        )
+        Box(
+            modifier = Modifier
+                .size(TabSize)
+                .clip(PillShape)
+                .thenIf(selected) {
+                    background(selectedColor.copy(alpha = 0.15f))
+                }
+                .clickable(onClick = onClick)
+                .testTag(name.lowercase()),
+            contentAlignment = Alignment.Center
+        ) {
+            IvyIcon(
+                icon = icon,
+                tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface,
+                contentDescription = name
+            )
+        }
     }
 }

@@ -79,7 +79,7 @@ internal fun BoxWithConstraintsScope.ImportFrom(
                 Text(
                     text = stringResource(id = R.string.manual_csv_import),
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 )
