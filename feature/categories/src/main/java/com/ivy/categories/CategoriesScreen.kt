@@ -89,7 +89,6 @@ import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
 import androidx.compose.material3.VerticalDivider
 import com.ivy.wallet.ui.theme.components.SelectableOptionRow
-import com.ivy.design.system.colors.Ivy
 
 @Composable
 fun BoxWithConstraintsScope.CategoriesScreen() {
