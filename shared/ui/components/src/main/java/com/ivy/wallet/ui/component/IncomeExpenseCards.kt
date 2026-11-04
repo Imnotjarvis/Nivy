@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberTitleLarge
 import com.ivy.navigation.opensScreen
 import com.ivy.design.system.colors.ColorMode
+import com.ivy.design.system.colors.Palette
 
 @Suppress("ParameterNaming")
 @Composable
@@ -150,7 +151,8 @@ private fun RowScope.HeaderCard(
             modifier = Modifier.padding(horizontal = 24.dp),
             text = amount.format(currencyCode),
             style = MaterialTheme.typography.numberTitleLarge.copy(
-                color = contrastColor,
+                // Green and red as on Home's cards, also in minimal colors.
+                color = if (isIncome) Palette.Green else Palette.Red,
                 fontWeight = FontWeight.ExtraBold
             )
         )

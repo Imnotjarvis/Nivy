@@ -45,7 +45,6 @@ import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
@@ -275,7 +274,8 @@ fun CashFlowInfo(
                     currency,
                 ),
                 style = MaterialTheme.typography.numberBodyLarge.copy(
-                    color = if (cashflow < 0) Gray else Green,
+                    // Green when it grows, red when it shrinks, also in minimal colors.
+                    color = if (cashflow < 0) Palette.Red else Palette.Green,
                     fontWeight = FontWeight.Bold
                 ),
             )

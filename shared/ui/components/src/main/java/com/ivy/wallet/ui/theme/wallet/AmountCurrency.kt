@@ -84,10 +84,12 @@ fun AmountCurrencyB1(
     modifier: Modifier = Modifier,
     amountFontWeight: FontWeight = FontWeight.Bold,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    shortenBigNumbers: Boolean = false
+    shortenBigNumbers: Boolean = false,
+    // A sign before the amount, like a transaction's "+" or "-".
+    prefix: String = "",
 ) {
     val shortAmount = shortenBigNumbers && shouldShortAmount(amount)
-    val text = if (shortAmount) shortenAmount(amount) else amount.format(currency)
+    val text = prefix + if (shortAmount) shortenAmount(amount) else amount.format(currency)
     Text(
         modifier = modifier.testTag("amount_currency_b1"),
         text = text,

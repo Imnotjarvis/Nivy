@@ -25,10 +25,6 @@ data class Gradient(
         )
 
         fun solid(color: Color) = Gradient(color, color)
-
-        @Composable
-        @ReadOnlyComposable
-        fun black() = solid(MaterialTheme.colorScheme.onSurface)
     }
 
     fun asHorizontalBrush() = Brush.horizontalGradient(colors = listOf(startColor, endColor))

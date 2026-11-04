@@ -82,6 +82,7 @@ import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.categoryColor
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.readableTint
+import com.ivy.design.system.colors.Palette
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
@@ -430,6 +431,8 @@ fun AddedSpent(
 
         LabelAmount(
             textColor = textColor,
+            // Green and red as on Home's cards, also in minimal colors.
+            amountColor = Palette.Red,
             label = stringResource(R.string.month_expenses),
             amount = monthlyExpenses,
             currency = currency,
@@ -462,6 +465,7 @@ fun AddedSpent(
 
         LabelAmount(
             textColor = textColor,
+            amountColor = Palette.Green,
             label = stringResource(R.string.month_income),
             amount = monthlyIncome,
             currency = currency,
@@ -480,6 +484,7 @@ private fun LabelAmount(
     amount: Double,
     currency: String,
     textColor: Color,
+    amountColor: Color,
     center: Boolean
 ) {
     Column(
@@ -499,7 +504,7 @@ private fun LabelAmount(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AmountCurrencyB1(
-                textColor = textColor,
+                textColor = amountColor,
                 amount = amount,
                 currency = currency
             )
