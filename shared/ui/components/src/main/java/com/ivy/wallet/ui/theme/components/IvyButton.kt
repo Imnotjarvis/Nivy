@@ -97,7 +97,7 @@ fun IvyButton(
                 vertical = padding,
             ),
             text = text,
-            style = textStyle
+            style = textStyle.copy(color = readableTint(backgroundGradient.startColor, textStyle.color))
         )
 
         if (!wrapContentMode) {

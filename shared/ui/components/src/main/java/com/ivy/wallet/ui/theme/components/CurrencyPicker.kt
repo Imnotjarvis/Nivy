@@ -54,6 +54,7 @@ import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
@@ -207,13 +208,16 @@ private fun SelectedCurrencyCard(
     currency: IvyCurrency,
     preselected: Boolean,
 ) {
+    val fill = if (preselected) GradientGreen else GradientIvy
+    // Readable on the card, also where minimal colors turn it into the text color.
+    val content = readableTint(fill.startColor, White)
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
             .background(
-                brush = (if (preselected) GradientGreen else GradientIvy).asHorizontalBrush(),
+                brush = fill.asHorizontalBrush(),
                 shape = MaterialTheme.shapes.large
             )
             .padding(vertical = 20.dp),
@@ -225,7 +229,7 @@ private fun SelectedCurrencyCard(
             Text(
                 text = currency.name,
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = White,
+                    color = content,
                     fontWeight = FontWeight.SemiBold
                 )
             )
@@ -235,7 +239,7 @@ private fun SelectedCurrencyCard(
             Text(
                 text = currency.code,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = White,
+                    color = content,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -245,13 +249,13 @@ private fun SelectedCurrencyCard(
 
         IvyIcon(
             icon = R.drawable.ic_check,
-            tint = White
+            tint = content
         )
 
         Text(
             text = if (preselected) stringResource(R.string.pre_selected) else stringResource(R.string.selected_text),
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = White,
+                color = content,
                 fontWeight = FontWeight.SemiBold
             )
         )

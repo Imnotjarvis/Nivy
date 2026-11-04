@@ -23,6 +23,9 @@ import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.readableTint
+import com.ivy.design.system.colors.White
+import androidx.compose.ui.graphics.ColorFilter
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
@@ -37,6 +40,8 @@ fun OnboardingButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    // Readable on the button, also where minimal colors turn it into the text color.
+    val content = readableTint(backgroundGradient.startColor, textColor)
     Box(
         modifier = modifier
             .clip(PillShape)
@@ -66,7 +71,7 @@ fun OnboardingButton(
             modifier = Modifier.padding(vertical = 16.dp),
             text = text,
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = textColor,
+                color = content,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -78,6 +83,7 @@ fun OnboardingButton(
                     .padding(vertical = 8.dp)
                     .padding(end = 24.dp),
                 painter = painterResource(id = R.drawable.ic_onboarding_next_arrow),
+                colorFilter = ColorFilter.tint(readableTint(backgroundGradient.startColor, White)),
                 contentDescription = null
             )
         }

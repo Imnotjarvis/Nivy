@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import com.ivy.design.system.colors.BackgroundDark
 import com.ivy.design.system.colors.BackgroundLight
 import com.ivy.design.system.colors.Black
+import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
@@ -43,8 +44,11 @@ fun IvyMaterial3Theme(
     dark: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    // Before anything below draws: minimal colors draw with the theme's text color.
+    ColorMode.dark = dark
+    val colorScheme = if (dark) ivyDarkColorScheme(isTrueBlack) else ivyLightColorScheme()
     MaterialTheme(
-        colorScheme = if (dark) ivyDarkColorScheme(isTrueBlack) else ivyLightColorScheme(),
+        colorScheme = if (ColorMode.minimal) colorScheme.monochrome() else colorScheme,
         typography = IvyTypography,
         shapes = ivyShapes(AppCornerRadius.value),
         content = content,
@@ -143,3 +147,19 @@ private fun ivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorSch
 )
 
 private fun darkSurface(isTrueBlack: Boolean) = if (isTrueBlack) TrueBlack else Black
+
+// Minimal colors, as Material's monochrome scheme: the primary roles are the text color (the hues
+// turn into it), with the background's color on them; the containers are the cards' grey, with
+// the text color on them. Errors stay red.
+private fun ColorScheme.monochrome(): ColorScheme = copy(
+    onPrimary = surface,
+    onSecondary = surface,
+    onTertiary = surface,
+    primaryContainer = surfaceVariant,
+    onPrimaryContainer = onSurface,
+    secondaryContainer = surfaceVariant,
+    onSecondaryContainer = onSurface,
+    tertiaryContainer = surfaceVariant,
+    onTertiaryContainer = onSurface,
+    inversePrimary = inverseOnSurface,
+)

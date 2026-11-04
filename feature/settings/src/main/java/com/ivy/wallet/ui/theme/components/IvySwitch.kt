@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.IvyWalletComponentPreview
 
 // A Material3 switch in Ivy's colors: green when on, a gray outline when off.
@@ -27,7 +28,8 @@ fun IvySwitch(
         checked = enabled,
         onCheckedChange = onEnabledChange,
         colors = SwitchDefaults.colors(
-            checkedThumbColor = White,
+            // Readable on the track, also where minimal colors turn it into the text color.
+            checkedThumbColor = readableTint(Green, White),
             checkedTrackColor = Green,
             checkedBorderColor = Green,
             uncheckedThumbColor = Gray,
