@@ -30,6 +30,8 @@ jvm-target = "17"
 
 
 # Linters
+# detekt's last 1.x. Its Gradle plugin calls ReportingExtension.file, which Gradle 10 removes (the
+# build's "incompatible with Gradle 10" warning), so Gradle 10 needs detekt 2, still in alpha.
 detekt = "1.23.8" # https://detekt.dev/docs/gettingstarted/gradle/
 
 # Minimum Bouncy Castle for the build tools (see the build-tooling-minimums bundle).
