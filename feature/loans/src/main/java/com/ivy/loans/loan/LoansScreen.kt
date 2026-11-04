@@ -57,7 +57,7 @@ import com.ivy.wallet.ui.theme.components.ProgressBar
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.LoanModal
 import com.ivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
@@ -266,7 +266,7 @@ private fun LoanItem(
     onClick: () -> Unit
 ) {
     val loan = displayLoan.loan
-    val contrastColor = findContrastTextColor(loan.color.value.toComposeColor())
+    val contrastColor = readableOn(loan.color.value.toComposeColor())
 
     Column(
         modifier = Modifier

@@ -2,12 +2,10 @@ package com.ivy.wallet.ui.theme.modal
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,13 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.IntervalType
@@ -42,15 +38,11 @@ import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.hideKeyboard
-import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientIvy
-import com.ivy.design.system.colors.readableTint
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.White
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.IntervalPickerRow
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
@@ -60,9 +52,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
-import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import com.ivy.wallet.ui.theme.components.SegmentedButton
 
 data class RecurringRuleModalData(
     val initialStartDate: LocalDateTime?,
@@ -184,54 +176,24 @@ private fun TimesSelector(
     ) {
         Spacer(Modifier.width(8.dp))
 
-        TimesSelectorButton(
+        SegmentedButton(
+            label = stringResource(R.string.one_time),
             selected = oneTime,
-            label = stringResource(R.string.one_time)
         ) {
             onSetOneTime(true)
         }
 
         Spacer(Modifier.width(8.dp))
 
-        TimesSelectorButton(
+        SegmentedButton(
+            label = stringResource(R.string.multiple_times),
             selected = !oneTime,
-            label = stringResource(R.string.multiple_times)
         ) {
             onSetOneTime(false)
         }
 
         Spacer(Modifier.width(8.dp))
     }
-}
-
-@Composable
-private fun RowScope.TimesSelectorButton(
-    selected: Boolean,
-    label: String,
-    onClick: () -> Unit
-) {
-    val rFull = PillShape
-
-    Text(
-        modifier = Modifier
-            .weight(1f)
-            .clip(PillShape)
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 8.dp)
-            .thenIf(selected) {
-                background(GradientIvy.asHorizontalBrush(), rFull)
-            }
-            .padding(vertical = 8.dp),
-        text = label,
-        style = MaterialTheme.typography.bodyLarge.copy(
-            // Readable on the fill, also where minimal colors turn it into the text color.
-            color = if (selected) readableTint(GradientIvy.startColor, White) else Gray,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center
-        )
-    )
 }
 
 @Composable

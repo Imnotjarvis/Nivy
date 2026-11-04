@@ -57,7 +57,7 @@ import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.ivy.wallet.ui.theme.modal.edit.CategoryModalData
 import com.ivy.design.system.colors.categoryColor
@@ -246,7 +246,7 @@ private fun CategoryCard(
                 .background(categoryColor, PillShape),
             iconName = category.icon?.id,
             defaultIcon = R.drawable.ic_custom_category_s,
-            tint = findContrastTextColor(categoryColor)
+            tint = readableOn(categoryColor)
         )
 
         Spacer(Modifier.width(16.dp))

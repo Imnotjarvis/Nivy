@@ -74,7 +74,7 @@ import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ProgressBar
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.isDarkColor
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.LoanModal
@@ -275,7 +275,7 @@ private fun Header(
     selectedLoanAccount: Account? = null,
     onAddRecord: () -> Unit
 ) {
-    val contrastColor = findContrastTextColor(itemColor)
+    val contrastColor = readableOn(itemColor)
 
     val darkColor = isDarkColor(itemColor)
     StatusBarDarkText(darkText = !darkColor)
@@ -408,7 +408,7 @@ private fun LoanInfoCard(
         MediumWhite.copy(alpha = 0.9f)
     }
 
-    val contrastColor = findContrastTextColor(backgroundColor)
+    val contrastColor = readableOn(backgroundColor)
     val percentPaid = amountPaid / loanTotalAmount
     val loanPercentPaid = loanAmountPaid / loanTotalAmount
     val leftToPay = loanTotalAmount - amountPaid
@@ -603,7 +603,7 @@ private fun LoanInfoCard(
             text = stringResource(R.string.add_record),
             backgroundGradient = Gradient.solid(contrastColor),
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = findContrastTextColor(contrastColor),
+                color = readableOn(contrastColor),
                 fontWeight = FontWeight.Bold
             ),
             wrapContentMode = false

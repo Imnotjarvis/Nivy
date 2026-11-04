@@ -84,7 +84,7 @@ import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.ItemIconM
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.design.system.colors.toComposeColor
@@ -434,7 +434,7 @@ private fun CategoryAmountCard(
     }
     val backgroundColor = if (selectedState) categoryColor else MaterialTheme.colorScheme.surfaceVariant
 
-    val textColor = findContrastTextColor(
+    val textColor = readableOn(
         backgroundColor = backgroundColor
     )
 
@@ -456,14 +456,14 @@ private fun CategoryAmountCard(
         ItemIconM(
             modifier = Modifier.background(categoryColor, PillShape),
             iconName = category?.icon?.id,
-            tint = findContrastTextColor(categoryColor),
+            tint = readableOn(categoryColor),
             iconContentScale = ContentScale.None,
             default = {
                 ItemIconMDefaultIcon(
                     modifier = Modifier.background(categoryColor, PillShape),
                     iconName = category?.icon?.id,
                     defaultIcon = R.drawable.ic_custom_category_m,
-                    tint = findContrastTextColor(categoryColor)
+                    tint = readableOn(categoryColor)
                 )
             }
         )

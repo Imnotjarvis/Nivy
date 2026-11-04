@@ -31,7 +31,7 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.navigation.opensScreen
 import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.material3.MaterialTheme
@@ -99,7 +99,7 @@ fun CustomerJourneyCard(
                     .padding(start = 24.dp, end = 16.dp),
                 text = stringResource(cardData.title),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = findContrastTextColor(cardData.background.startColor),
+                    color = readableOn(cardData.background.startColor),
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -128,7 +128,7 @@ fun CustomerJourneyCard(
                 .padding(start = 24.dp, end = 32.dp),
             text = stringResource(cardData.description),
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = findContrastTextColor(cardData.background.startColor),
+                color = readableOn(cardData.background.startColor),
                 fontWeight = FontWeight.Medium
             )
         )
@@ -150,7 +150,7 @@ fun CustomerJourneyCard(
                     fontWeight = FontWeight.Bold
                 ),
                 padding = 8.dp,
-                backgroundGradient = Gradient.solid(findContrastTextColor(cardData.background.startColor))
+                backgroundGradient = Gradient.solid(readableOn(cardData.background.startColor))
             ) {
                 onCTA()
             }

@@ -68,14 +68,27 @@ class ColorModeTest {
     fun `in minimal colors, text on the text color is the background's`() {
         ColorMode.minimal = true
 
-        findContrastTextColor(Green) shouldBe White
+        readableOn(Green) shouldBe White
         Green.dynamicContrast() shouldBe White
         readableOn(White) shouldBe Black
         readableOn(Black) shouldBe White
 
         ColorMode.dark = true
 
-        findContrastTextColor(Green) shouldBe Black
+        readableOn(Green) shouldBe Black
+    }
+
+    @Test
+    fun `text on a fill is the more readable of white and black, in every color mode`() {
+        // The brand purple keeps white text; a bright green takes black (9:1 where white is 2:1).
+        readableOn(Palette.Ivy) shouldBe White
+        readableOn(Palette.Green) shouldBe Black
+
+        // On every color the pickers offer, at least 4.2:1: the closest calls, a mid red and a
+        // dull yellow, are a hair under 4.5 either way.
+        (IVY_COLOR_PICKER_COLORS_FREE + IVY_COLOR_PICKER_COLORS_PREMIUM).forEach { fill ->
+            contrast(readableOn(fill), fill) shouldBeGreaterThanOrEqual 4.2
+        }
     }
 
     @Test

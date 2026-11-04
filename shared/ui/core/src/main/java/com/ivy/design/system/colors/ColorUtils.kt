@@ -37,15 +37,10 @@ fun Color.asBrush(): Brush {
     return Brush.horizontalGradient(listOf(this, this))
 }
 
-fun findContrastTextColor(backgroundColor: Color): Color {
-    if (ColorMode.minimal) return readableOn(backgroundColor)
-    return if (isDarkColor(backgroundColor.toArgb())) White else Black
-}
-
 /**
- * White or Black, whichever reads better on [background]: the higher contrast ratio, as WCAG
- * measures it. Minimal colors uses it for text on greys, where the threshold above would put
- * white on mid greys.
+ * The color for text and icons on [background]: White or Black, whichever reads better on it,
+ * the higher contrast ratio as WCAG measures it. The one rule for content on a fill, in every
+ * color mode: on a bright green, black (9:1) rather than white (2:1).
  */
 fun readableOn(background: Color): Color {
     val lightness = background.luminance()
@@ -55,8 +50,10 @@ fun readableOn(background: Color): Color {
 }
 
 /**
- * An icon's [tint] on [background]: in minimal colors, on a grey, the more readable of black and
- * white; otherwise the tint as it is (also on what keeps its color, like the warnings' red).
+ * A component's own [tint] (a button's white text, say) on [background], kept as designed; but
+ * where minimal colors turned the fill into a grey, [readableOn] it, as the tint was chosen for
+ * the color the fill no longer has. Colors that keep their hue, like the warnings' red, keep
+ * their tint.
  */
 fun readableTint(background: Color, tint: Color): Color =
     if (ColorMode.minimal && background.isOpaqueGrey()) readableOn(background) else tint
@@ -72,14 +69,19 @@ fun isDarkColor(@ColorInt color: Int): Boolean {
     return ColorUtils.calculateLuminance(color) <= DarkLuminance
 }
 
+/**
+ * A shade of this color that stands out on it, for secondary text and icons on a fill: lighter
+ * where [readableOn] puts white text on it, darker where it puts black, so both lean the same way.
+ */
 fun Color.dynamicContrast(): Color {
     if (ColorMode.minimal) return readableOn(this)
     val pickedColor = this.toHSVSpec()
+    val lightContent = readableOn(this) == White
 
     return when {
         pickedColor.s >= VividMinSaturation && pickedColor.v >= VividMinValue -> {
             // Primary
-            if (isDarkColor(this)) {
+            if (lightContent) {
                 lighten()
             } else {
                 darken()
@@ -97,7 +99,7 @@ fun Color.dynamicContrast(): Color {
         }
 
         else -> {
-            if (isDarkColor(this)) {
+            if (lightContent) {
                 lighten()
             } else {
                 darken()

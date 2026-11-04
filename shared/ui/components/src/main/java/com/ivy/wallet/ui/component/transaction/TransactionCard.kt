@@ -82,7 +82,7 @@ import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.design.system.colors.categoryColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
@@ -467,7 +467,7 @@ private fun TransactionBadge(
     ) {
         Spacer(Modifier.width(8.dp))
 
-        val contrastColor = findContrastTextColor(pillColor)
+        val contrastColor = readableOn(pillColor)
 
         ItemIconSDefaultIcon(
             iconName = icon,
@@ -529,7 +529,7 @@ private fun TransferHeader(
 
         val accountContrastColor =
             if (accountColors && account != null) {
-                findContrastTextColor(accountColor(account.color.value))
+                readableOn(accountColor(account.color.value))
             } else {
                 MaterialTheme.colorScheme.onSurface
             }
@@ -561,7 +561,7 @@ private fun TransferHeader(
 
         val toAccountContrastColor =
             if (accountColors && toAccount != null) {
-                findContrastTextColor(accountColor(toAccount.color.value))
+                readableOn(accountColor(toAccount.color.value))
             } else {
                 MaterialTheme.colorScheme.onSurface
             }

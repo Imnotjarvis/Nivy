@@ -84,7 +84,7 @@ import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMedium
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.isDarkColor
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
@@ -623,7 +623,7 @@ private fun Header(
     showAccountModal: () -> Unit,
     treatTransfersAsIncomeExpense: Boolean = false,
 ) {
-    val contrastColor = findContrastTextColor(itemColor)
+    val contrastColor = readableOn(itemColor)
 
     val darkColor = isDarkColor(itemColor)
     StatusBarDarkText(darkText = !darkColor)

@@ -1,28 +1,16 @@
 package com.ivy.wallet.ui.theme.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
@@ -32,7 +20,6 @@ import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.White
-import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
@@ -76,11 +63,13 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
 
         Spacer(Modifier.height(32.dp))
 
-        TransactionTypeButton(
-            transactionType = TransactionType.INCOME,
+        SelectableOptionRow(
+            modifier = Modifier.testTag("modal_type_INCOME"),
+            text = stringResource(R.string.income),
+            icon = R.drawable.ic_income,
             selected = transactionType == TransactionType.INCOME,
-            selectedGradient = GradientGreen,
-            textSelectedColor = White
+            selectedFill = GradientGreen,
+            selectedContent = White,
         ) {
             transactionType = TransactionType.INCOME
             save(
@@ -92,11 +81,13 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
 
         Spacer(Modifier.height(12.dp))
 
-        TransactionTypeButton(
-            transactionType = TransactionType.EXPENSE,
+        SelectableOptionRow(
+            modifier = Modifier.testTag("modal_type_EXPENSE"),
+            text = stringResource(R.string.expense),
+            icon = R.drawable.ic_expense,
             selected = transactionType == TransactionType.EXPENSE,
-            selectedGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
-            textSelectedColor = MaterialTheme.colorScheme.surface
+            selectedFill = Gradient.solid(MaterialTheme.colorScheme.onSurface),
+            selectedContent = MaterialTheme.colorScheme.surface,
         ) {
             transactionType = TransactionType.EXPENSE
             save(
@@ -109,11 +100,13 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
         if (includeTransferType) {
             Spacer(Modifier.height(12.dp))
 
-            TransactionTypeButton(
-                transactionType = TransactionType.TRANSFER,
+            SelectableOptionRow(
+                modifier = Modifier.testTag("modal_type_TRANSFER"),
+                text = stringResource(R.string.transfer),
+                icon = R.drawable.ic_transfer,
                 selected = transactionType == TransactionType.TRANSFER,
-                selectedGradient = GradientIvy,
-                textSelectedColor = White
+                selectedFill = GradientIvy,
+                selectedContent = White,
             ) {
                 transactionType = TransactionType.TRANSFER
                 save(
@@ -135,84 +128,6 @@ private fun save(
 ) {
     onTransactionTypeChanged(transactionType)
     dismiss()
-}
-
-@Composable
-private fun TransactionTypeButton(
-    transactionType: TransactionType,
-    selected: Boolean,
-    selectedGradient: Gradient,
-    textSelectedColor: Color,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .background(
-                brush = if (selected) {
-                    selectedGradient.asHorizontalBrush()
-                } else {
-                    SolidColor(MaterialTheme.colorScheme.surfaceVariant)
-                },
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 16.dp)
-            .testTag("modal_type_${transactionType.name}"),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(16.dp))
-
-        // Readable on the selected fill, also where minimal colors turn it into the text color.
-        val selectedContent = readableTint(selectedGradient.startColor, textSelectedColor)
-        val textColor = if (selected) selectedContent else MaterialTheme.colorScheme.onSurface
-
-        IvyIcon(
-            icon = when (transactionType) {
-                TransactionType.INCOME -> R.drawable.ic_income
-                TransactionType.EXPENSE -> R.drawable.ic_expense
-                TransactionType.TRANSFER -> R.drawable.ic_transfer
-            },
-            tint = textColor
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        Text(
-            text = when (transactionType) {
-                TransactionType.INCOME -> stringResource(R.string.income)
-                TransactionType.EXPENSE -> stringResource(R.string.expense)
-                TransactionType.TRANSFER -> stringResource(R.string.transfer)
-            },
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = textColor,
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        if (selected) {
-            Spacer(Modifier.weight(1f))
-
-            IvyIcon(
-                icon = R.drawable.ic_check,
-                tint = selectedContent
-            )
-
-            Text(
-                text = stringResource(R.string.selected_text),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = selectedContent,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(Modifier.width(24.dp))
-        }
-    }
 }
 
 @Preview

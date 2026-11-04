@@ -1,6 +1,5 @@
 package com.ivy.categories
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -35,12 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.ivy.wallet.IvyWalletPreview
 import androidx.compose.ui.unit.Dp
@@ -64,24 +60,20 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.data.SortOrder
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.GreenLight
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
-import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.categoryColor
-import com.ivy.design.system.colors.findContrastTextColor
-import com.ivy.design.system.colors.readableTint
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.incomeGreen
 import com.ivy.design.system.colors.expenseRed
 import com.ivy.wallet.ui.theme.modal.IvyModal
@@ -97,6 +89,7 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
 import androidx.compose.material3.VerticalDivider
+import com.ivy.wallet.ui.theme.components.SelectableOptionRow
 
 @Composable
 fun BoxWithConstraintsScope.CategoriesScreen() {
@@ -263,7 +256,7 @@ private fun CategoryCard(
     compactModeEnabled: Boolean,
     onClick: () -> Unit
 ) {
-    val contrastColor = findContrastTextColor(categoryColor(categoryData.category.color.value))
+    val contrastColor = readableOn(categoryColor(categoryData.category.color.value))
 
     if (!compactModeEnabled) {
         Spacer(Modifier.height(16.dp))
@@ -300,7 +293,7 @@ private fun DefaultCategoryCard(
         CategoryHeader(
             categoryData = categoryData,
             currency = currency,
-            contrastColor = findContrastTextColor(categoryColor(categoryData.category.color.value))
+            contrastColor = readableOn(categoryColor(categoryData.category.color.value))
         )
 
         Spacer(Modifier.height(12.dp))
@@ -611,7 +604,8 @@ fun BoxWithConstraintsScope.SortModal(
         Spacer(Modifier.height(32.dp))
 
         items.forEach {
-            SelectTypeButton(
+            SelectableOptionRow(
+                modifier = Modifier.height(64.dp),
                 text = it.displayName,
                 icon = when (it) {
                     SortOrder.DEFAULT -> R.drawable.ic_custom_star_s
@@ -619,86 +613,13 @@ fun BoxWithConstraintsScope.SortModal(
                     SortOrder.EXPENSES -> R.drawable.ic_expense
                     SortOrder.ALPHABETICAL -> R.drawable.ic_sort_by_alpha_24
                 },
-                selected = it == sortOrder
+                selected = it == sortOrder,
+                selectedFill = GradientGreen,
             ) {
                 sortOrder = it
                 applyChange()
             }
             Spacer(Modifier.height(12.dp))
-        }
-    }
-}
-
-@Composable
-private fun SelectTypeButton(
-    text: String,
-    @DrawableRes icon: Int,
-    selected: Boolean,
-    selectedGradient: Gradient = GradientGreen,
-    textSelectedColor: Color = White,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(64.dp)
-            .clip(MaterialTheme.shapes.medium)
-            .background(
-                brush = if (selected) {
-                    selectedGradient.asHorizontalBrush()
-                } else {
-                    SolidColor(MaterialTheme.colorScheme.surfaceVariant)
-                },
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(16.dp))
-
-        // Readable on the selected fill, also where minimal colors turn it into the text color.
-        val selectedContent = readableTint(selectedGradient.startColor, textSelectedColor)
-        val textColor = if (selected) selectedContent else MaterialTheme.colorScheme.onSurface
-
-        IvyIcon(
-            icon = icon,
-            tint = textColor,
-            modifier = Modifier.fillMaxHeight()
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        Text(
-            modifier = Modifier.wrapContentHeight(),
-            text = text,
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = textColor,
-                fontWeight = FontWeight.Bold
-            ),
-            textAlign = TextAlign.Center,
-        )
-
-        if (selected) {
-            Spacer(Modifier.weight(1f))
-
-            IvyIcon(
-                icon = R.drawable.ic_check,
-                tint = selectedContent
-            )
-
-            Text(
-                text = stringResource(R.string.selected_text),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = selectedContent,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(Modifier.width(24.dp))
         }
     }
 }

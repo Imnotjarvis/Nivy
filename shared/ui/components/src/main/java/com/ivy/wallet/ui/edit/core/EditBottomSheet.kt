@@ -76,7 +76,7 @@ import com.ivy.wallet.ui.theme.components.CircleButton
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import com.ivy.wallet.ui.theme.modal.ModalSave
 import com.ivy.wallet.ui.theme.modal.ModalSet
@@ -386,7 +386,7 @@ private fun TransferRowMini(
         Spacer(Modifier.width(24.dp))
 
         val fromColor = fromAccount?.let { accountColor(it.color.value) } ?: Ivy
-        val fromContrastColor = findContrastTextColor(fromColor)
+        val fromContrastColor = readableOn(fromColor)
         IvyButton(
             text = fromAccount?.name?.value ?: "Null",
             iconStart = R.drawable.ic_accounts,
@@ -407,7 +407,7 @@ private fun TransferRowMini(
         )
 
         val toColor = toAccount?.let { accountColor(it.color.value) } ?: Ivy
-        val toContrastColor = findContrastTextColor(toColor)
+        val toContrastColor = readableOn(toColor)
         IvyButton(
             text = toAccount?.name?.value ?: "Null",
             iconStart = R.drawable.ic_accounts,
@@ -573,7 +573,7 @@ private fun Account(
 ) {
     val accountColor = accountColor(account.color.value)
     val textColor =
-        if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
+        if (selected) readableOn(accountColor) else MaterialTheme.colorScheme.onSurface
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
     val rFull = PillShape

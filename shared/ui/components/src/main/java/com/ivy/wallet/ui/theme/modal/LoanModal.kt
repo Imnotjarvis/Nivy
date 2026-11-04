@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,7 +31,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
@@ -53,15 +51,11 @@ import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateLoanData
-import com.ivy.design.system.colors.GradientIvy
-import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Palette
-import com.ivy.design.system.colors.White
-import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
@@ -73,6 +67,7 @@ import java.util.UUID
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.colors.accountColor
+import com.ivy.wallet.ui.theme.components.SegmentedButton
 
 data class LoanModalData(
     val loan: Loan?,
@@ -445,7 +440,7 @@ private fun Account(
 ) {
     val accountColor = accountColor(account.color.value)
     val textColor =
-        if (selected) findContrastTextColor(accountColor) else MaterialTheme.colorScheme.onSurface
+        if (selected) readableOn(accountColor) else MaterialTheme.colorScheme.onSurface
 
     val medium = MaterialTheme.colorScheme.surfaceVariant
     val rFull = PillShape
@@ -549,53 +544,24 @@ private fun ColumnScope.LoanTypePicker(
     ) {
         Spacer(Modifier.width(8.dp))
 
-        SelectorButton(
+        SegmentedButton(
+            label = stringResource(R.string.borrow_money),
             selected = type == LoanType.BORROW,
-            label = stringResource(R.string.borrow_money)
         ) {
             onTypeSelected(LoanType.BORROW)
         }
 
         Spacer(Modifier.width(8.dp))
 
-        SelectorButton(
+        SegmentedButton(
+            label = stringResource(R.string.lend_money),
             selected = type == LoanType.LEND,
-            label = stringResource(R.string.lend_money)
         ) {
             onTypeSelected(LoanType.LEND)
         }
 
         Spacer(Modifier.width(8.dp))
     }
-}
-
-@Composable
-private fun RowScope.SelectorButton(
-    selected: Boolean,
-    label: String,
-    onClick: () -> Unit
-) {
-    val rFull = PillShape
-    Text(
-        modifier = Modifier
-            .weight(1f)
-            .clip(PillShape)
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 8.dp)
-            .thenIf(selected) {
-                background(GradientIvy.asHorizontalBrush(), rFull)
-            }
-            .padding(vertical = 8.dp),
-        text = label,
-        style = MaterialTheme.typography.bodyLarge.copy(
-            // Readable on the fill, also where minimal colors turn it into the text color.
-            color = if (selected) readableTint(GradientIvy.startColor, White) else Gray,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center
-        )
-    )
 }
 
 private fun save(

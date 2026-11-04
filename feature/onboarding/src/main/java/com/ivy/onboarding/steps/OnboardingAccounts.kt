@@ -52,7 +52,7 @@ import com.ivy.wallet.ui.theme.components.GradientCutBottom
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.OnboardingButton
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.modal.edit.AccountModal
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
@@ -269,7 +269,7 @@ private fun AccountCard(
                 amount = accountBalance.balance,
                 currency = account.asset.code,
                 amountFontWeight = FontWeight.ExtraBold,
-                textColor = findContrastTextColor(accountColor)
+                textColor = readableOn(accountColor)
             )
         }
 

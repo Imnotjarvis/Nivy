@@ -11,7 +11,7 @@ import com.ivy.design.system.colors.Orange3
 import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyButton
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import kotlinx.collections.immutable.ImmutableList
 import com.ivy.ui.R
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +33,7 @@ private fun ViewTagsButton(
     transactionTags: ImmutableList<TagId>,
     onClick: () -> Unit,
 ) {
-    val contrastColor = findContrastTextColor(Orange3)
+    val contrastColor = readableOn(Orange3)
     IvyButton(
         modifier = Modifier.padding(start = 24.dp),
         text = if (transactionTags.size <= 1) "${transactionTags.size}\t Tag" else "${transactionTags.size}\t Tags",

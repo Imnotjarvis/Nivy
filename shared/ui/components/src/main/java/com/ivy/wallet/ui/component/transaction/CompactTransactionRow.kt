@@ -31,7 +31,7 @@ import com.ivy.data.temp.migration.getTransactionType
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.categoryColor
 import com.ivy.design.system.colors.expenseRed
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.incomeGreen
 import com.ivy.design.system.shapes.PillShape
 import com.ivy.design.system.typography.numberBodyLarge
@@ -91,7 +91,7 @@ fun CompactTransactionRow(
                 ItemIconSDefaultIcon(
                     iconName = category?.icon?.id,
                     defaultIcon = R.drawable.ic_custom_category_s,
-                    tint = findContrastTextColor(iconBackground),
+                    tint = readableOn(iconBackground),
                 )
             }
         }

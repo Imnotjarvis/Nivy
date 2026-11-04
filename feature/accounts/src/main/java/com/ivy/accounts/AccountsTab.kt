@@ -69,7 +69,7 @@ import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.design.system.colors.dynamicContrast
-import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableOn
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
@@ -259,7 +259,7 @@ private fun AccountCard(
             )
     ) {
         val account = accountData.account
-        val contrastColor = findContrastTextColor(accountColor(account.color.value))
+        val contrastColor = readableOn(accountColor(account.color.value))
         val currency = account.asset.code
 
         AccountHeader(
