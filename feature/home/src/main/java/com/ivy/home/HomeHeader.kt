@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -25,9 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
@@ -38,6 +42,7 @@ import com.ivy.design.utils.clickableNoIndication
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.rememberInteractionSource
+import com.ivy.design.utils.thenIf
 import com.ivy.wallet.utils.horizontalSwipeListener
 import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.wallet.utils.springBounce
@@ -128,6 +133,9 @@ private fun HeaderStickyRow(
     onHiddenBalanceClick: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
 ) {
+    // Expanded, the greeting gives way to the period; collapsed, the period gives way to the
+    // balance, which keeps its size.
+    val collapsed = percentExpanded < 0.5f
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -141,12 +149,14 @@ private fun HeaderStickyRow(
     ) {
         Box(
             modifier = Modifier
-                .weight(1f)
+                .thenIf(!collapsed) { weight(1f) }
                 .wrapContentHeight(unbounded = true),
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
                 modifier = Modifier
+                    // Collapsed, as wide as the balance: it fades out without taking room.
+                    .thenIf(collapsed) { matchParentSize() }
                     .alpha(percentExpanded)
                     .testTag("home_greeting_text"),
                 text = if (name.isNotNullOrBlank()) {
@@ -187,6 +197,53 @@ private fun HeaderStickyRow(
             }
         }
 
+        PeriodButton(
+            modifier = Modifier
+                // Collapsed, the room left by the balance, a gap from it, and room for the settings
+                // menu button at the end.
+                .thenIf(collapsed) { weight(1f).padding(start = 8.dp) }
+                .padding(end = 52.dp),
+            text = period.toDisplayShort(
+                startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
+                timeConverter = LocalTimeConverter.current,
+                timeProvider = LocalTimeProvider.current,
+                timeFormatter = LocalTimeFormatter.current,
+            ),
+            onShowMonthModal = onShowMonthModal,
+            onSelectNextMonth = onSelectNextMonth,
+            onSelectPreviousMonth = onSelectPreviousMonth,
+        )
+    }
+}
+
+// The button's width around its text: the start spacer, the icon, the text's padding, the end.
+private val PeriodButtonChrome = 72.dp
+
+/**
+ * The period, at the end of the room it's given. A period too long for one line (a range across
+ * years) goes on two smaller ones, start over end, in the same height.
+ */
+@Composable
+private fun PeriodButton(
+    text: String,
+    onShowMonthModal: () -> Unit,
+    onSelectNextMonth: () -> Unit,
+    onSelectPreviousMonth: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val oneLine = MaterialTheme.typography.bodyLarge
+    val textMeasurer = rememberTextMeasurer()
+    val chrome = with(LocalDensity.current) { PeriodButtonChrome.roundToPx() }
+    BoxWithConstraints(
+        modifier = modifier,
+        contentAlignment = Alignment.CenterEnd,
+    ) {
+        val fits = textMeasurer.measure(
+            text = text,
+            style = oneLine.copy(fontWeight = FontWeight.Bold),
+            maxLines = 1,
+            softWrap = false,
+        ).size.width <= constraints.maxWidth - chrome
         IvyOutlinedButton(
             modifier = Modifier.horizontalSwipeListener(
                 sensitivity = 75,
@@ -199,20 +256,14 @@ private fun HeaderStickyRow(
                 },
             ),
             iconStart = R.drawable.ic_calendar,
-            text = period.toDisplayShort(
-                startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
-                timeConverter = LocalTimeConverter.current,
-                timeProvider = LocalTimeProvider.current,
-                timeFormatter = LocalTimeFormatter.current,
-            ),
+            text = if (fits) text else text.replace(" - ", " -\n"),
+            textStyle = if (fits) oneLine else MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
+            maxLines = if (fits) 1 else 2,
+            padding = if (fits) 12.dp else 4.dp,
             minWidth = 130.dp,
         ) {
             onShowMonthModal()
         }
-
-        Spacer(Modifier.width(12.dp))
-
-        Spacer(Modifier.width(40.dp)) // settings menu button spacer
     }
 }
 
