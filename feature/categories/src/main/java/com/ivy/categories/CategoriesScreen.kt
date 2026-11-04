@@ -55,7 +55,6 @@ import com.ivy.wallet.utils.format
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
-import com.ivy.navigation.opensScreen
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
@@ -281,7 +280,6 @@ private fun DefaultCategoryCard(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .opensScreen(categoryColor(categoryData.category.color.value))
             .clip(MaterialTheme.shapes.medium)
             // Behind the content: the colored header covers it, so it frames only the rest.
             .outlineBehind(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
@@ -324,7 +322,6 @@ private fun CompactCategoryCard(
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .opensScreen(categoryColor(category.color.value))
             .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .clickable(
                 onClick = onClick

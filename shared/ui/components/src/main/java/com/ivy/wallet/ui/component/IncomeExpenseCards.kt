@@ -35,7 +35,6 @@ import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.colors.isDarkColor
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberTitleLarge
-import com.ivy.navigation.opensScreen
 import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.incomeGreen
 import com.ivy.design.system.colors.expenseRed
@@ -130,7 +129,6 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .opensScreen(backgroundColor)
             .background(backgroundColor, MaterialTheme.shapes.extraLarge)
             .clickable { onHeaderCardClicked() },
     ) {

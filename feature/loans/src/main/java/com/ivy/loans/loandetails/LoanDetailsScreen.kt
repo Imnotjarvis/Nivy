@@ -58,7 +58,6 @@ import com.ivy.loans.loandetails.events.LoanRecordModalEvent
 import com.ivy.navigation.LoanDetailsScreen
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.navigation.navigation
-import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.TimeFormatter
@@ -434,9 +433,7 @@ private fun LoanInfoCard(
             )
             if (selectedLoanAccount != null) {
                 IvyButton(
-                    modifier = Modifier
-                        .padding(end = 16.dp, top = 12.dp)
-                        .opensScreen(loan.color.value.toComposeColor()),
+                    modifier = Modifier.padding(end = 16.dp, top = 12.dp),
                     backgroundColor = loan.color.value.toComposeColor(),
                     iconTint = contrastColor,
                     text = selectedLoanAccount.name.value,
@@ -659,7 +656,6 @@ private fun LoanRecordItem(
             Row(Modifier.padding(16.dp)) {
                 if (account != null) {
                     IvyButton(
-                        modifier = Modifier.opensScreen(MaterialTheme.colorScheme.surface),
                         backgroundColor = MaterialTheme.colorScheme.surface,
                         iconTint = MaterialTheme.colorScheme.onSurface,
                         text = account.name.value,

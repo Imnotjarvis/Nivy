@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 
-internal val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
+private val LocalNavigation = compositionLocalOf<Navigation> { error("No LocalNavigation") }
 
 @Composable
 fun NavigationRoot(

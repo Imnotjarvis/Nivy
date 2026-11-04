@@ -41,7 +41,6 @@ import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.wallet.utils.springBounce
 import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
-import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.shown
@@ -191,7 +190,6 @@ fun CashFlowInfo(
         BalanceRow(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
-                .opensScreen(MaterialTheme.colorScheme.surface)
                 .clickableNoIndication(rememberInteractionSource()) {
                     if (hideBalance) {
                         onHiddenBalanceClick()
@@ -316,7 +314,6 @@ private fun RowScope.HeaderCard(
     Column(
         modifier = Modifier
             .weight(1f)
-            .opensScreen(MaterialTheme.colorScheme.surfaceVariant)
             .clip(MaterialTheme.shapes.medium)
             // Like the transaction cards: a plain card, the amount in green or red.
             .background(MaterialTheme.colorScheme.surfaceVariant)
