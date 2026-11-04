@@ -61,10 +61,7 @@ fun ModalAmountSection(
             currency = currency,
             balance = amount,
 
-            spacerCurrency = 8.dp,
-
             balanceFontSize = 40.sp,
-            currencyFontSize = 30.sp,
 
             currencyUpfront = false
         )

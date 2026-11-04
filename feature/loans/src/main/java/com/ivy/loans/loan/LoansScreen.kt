@@ -352,7 +352,6 @@ private fun LoanHeader(
             balance = leftToPay,
 
             balanceFontSize = 30.sp,
-            currencyFontSize = 30.sp,
 
             currencyUpfront = false
         )
