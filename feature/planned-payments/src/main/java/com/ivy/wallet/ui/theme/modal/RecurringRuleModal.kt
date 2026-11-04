@@ -41,7 +41,6 @@ import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.IntervalPickerRow
@@ -339,7 +338,7 @@ private fun DateRow(
                 .testTag("recurring_modal_pick_date"),
             backgroundPadding = 4.dp,
             icon = R.drawable.ic_calendar,
-            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.onSurface),
+            backgroundColor = MaterialTheme.colorScheme.onSurface,
             tint = MaterialTheme.colorScheme.surface
         ) {
             (context as RootScreen).pickDateAtNoon(dateTime.toLocalDate(), onDatePicked)

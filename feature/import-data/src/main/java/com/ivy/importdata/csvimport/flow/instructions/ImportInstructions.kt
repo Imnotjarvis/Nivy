@@ -34,7 +34,7 @@ import com.ivy.importdata.csvimport.flow.ImportSteps
 import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.GradientCutBottom
@@ -271,7 +271,7 @@ internal fun UploadFileStep(
             .padding(horizontal = 16.dp),
         text = btnTitle,
         textColor = White,
-        backgroundGradient = GradientIvy,
+        backgroundColor = Ivy,
         hasNext = false,
         iconStart = R.drawable.ic_upload
     ) {

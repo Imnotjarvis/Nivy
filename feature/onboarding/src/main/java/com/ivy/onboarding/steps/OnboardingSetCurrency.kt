@@ -25,7 +25,7 @@ import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.StatusBarDarkText
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.components.BackButton
 import com.ivy.wallet.ui.theme.components.CurrencyPicker
@@ -107,7 +107,7 @@ internal fun BoxWithConstraintsScope.OnboardingSetCurrency(
 
         text = stringResource(R.string.set),
         textColor = White,
-        backgroundGradient = GradientIvy,
+        backgroundColor = Ivy,
         hasNext = true,
         enabled = true
     ) {

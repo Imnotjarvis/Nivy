@@ -2,7 +2,6 @@ package com.ivy.design.system.colors
 
 import androidx.annotation.ColorInt
 import androidx.compose.material3.ColorScheme
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
@@ -32,10 +31,6 @@ private const val HsvComponents = 3
 
 /** True for the light Ivy theme, false for the dark and true-black ones. */
 fun ColorScheme.isLight(): Boolean = surface.luminance() > DarkLuminance
-
-fun Color.asBrush(): Brush {
-    return Brush.horizontalGradient(listOf(this, this))
-}
 
 /**
  * The color for text and icons on [background]: White or Black, whichever reads better on it,

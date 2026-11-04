@@ -66,16 +66,12 @@ import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.design.system.colors.Blue
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientGreen
-import com.ivy.design.system.colors.GradientIvy
-import com.ivy.design.system.colors.GradientOrangeRevert
-import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
-import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.Ivy
-import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.Orange
+import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.colors.GreenDark
+import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.readableTint
@@ -83,7 +79,6 @@ import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.readableOn
-import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.design.system.colors.categoryColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.time.Instant
@@ -260,7 +255,7 @@ fun TransactionCard(
                         .padding(start = 24.dp),
                     text = stringResource(R.string.skip),
                     wrapContentMode = false,
-                    backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
+                    backgroundColor = MaterialTheme.colorScheme.surface,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
@@ -277,7 +272,7 @@ fun TransactionCard(
                         .padding(end = 24.dp),
                     text = if (isExpense) stringResource(R.string.pay) else stringResource(R.string.get),
                     wrapContentMode = false,
-                    backgroundGradient = if (isExpense) gradientExpenses() else GradientGreen,
+                    backgroundColor = if (isExpense) MaterialTheme.colorScheme.onSurface else Green,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = if (isExpense) MaterialTheme.colorScheme.surface else White,
                         fontWeight = FontWeight.Bold
@@ -607,7 +602,7 @@ fun TypeAmountCurrency(
             TransactionType.INCOME -> {
                 AmountTypeStyle(
                     icon = R.drawable.ic_income,
-                    gradient = Gradient.solid(incomeGreen(MaterialTheme.colorScheme.surfaceVariant)),
+                    fill = incomeGreen(MaterialTheme.colorScheme.surfaceVariant),
                     iconTint = White,
                     textColor = incomeGreen(MaterialTheme.colorScheme.surfaceVariant)
                 )
@@ -619,7 +614,7 @@ fun TypeAmountCurrency(
                         // Upcoming Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
-                            gradient = GradientOrangeRevert,
+                            fill = Orange,
                             iconTint = White,
                             textColor = Orange
                         )
@@ -629,7 +624,7 @@ fun TypeAmountCurrency(
                         // Overdue Expense: a warning, red also in minimal colors.
                         AmountTypeStyle(
                             icon = R.drawable.ic_overdue,
-                            gradient = Gradient.solid(expenseRed(MaterialTheme.colorScheme.surfaceVariant)),
+                            fill = expenseRed(MaterialTheme.colorScheme.surfaceVariant),
                             iconTint = White,
                             textColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
                         )
@@ -639,7 +634,7 @@ fun TypeAmountCurrency(
                         // Normal Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
-                            gradient = Gradient.solid(expenseRed(MaterialTheme.colorScheme.surfaceVariant)),
+                            fill = expenseRed(MaterialTheme.colorScheme.surfaceVariant),
                             iconTint = White,
                             textColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
                         )
@@ -651,7 +646,7 @@ fun TypeAmountCurrency(
                 // Transfer
                 AmountTypeStyle(
                     icon = R.drawable.ic_transfer,
-                    gradient = GradientIvy,
+                    fill = Ivy,
                     iconTint = White,
                     textColor = Ivy
                 )
@@ -660,9 +655,9 @@ fun TypeAmountCurrency(
 
         IvyIcon(
             modifier = Modifier
-                .background(style.gradient.asHorizontalBrush(), PillShape),
+                .background(style.fill, PillShape),
             icon = style.icon,
-            tint = readableTint(style.gradient.startColor, style.iconTint)
+            tint = readableTint(style.fill, style.iconTint)
         )
 
         Spacer(Modifier.width(12.dp))
@@ -690,7 +685,7 @@ fun amountPrefix(type: TransactionType): String = when (type) {
 
 private data class AmountTypeStyle(
     @DrawableRes val icon: Int,
-    val gradient: Gradient,
+    val fill: Color,
     val iconTint: Color,
     val textColor: Color
 )

@@ -9,7 +9,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Category
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.getCustomIconIdS
@@ -54,7 +53,7 @@ private fun CategoryButton(
             iconName = category.icon?.id,
             defaultIcon = R.drawable.ic_custom_category_s
         ),
-        backgroundGradient = Gradient.solid(categoryColor(category.color.value)),
+        backgroundColor = categoryColor(category.color.value),
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = contrastColor,
             fontWeight = FontWeight.Bold

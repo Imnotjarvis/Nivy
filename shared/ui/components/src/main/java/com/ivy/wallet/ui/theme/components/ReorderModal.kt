@@ -38,7 +38,7 @@ import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.Reorderable
@@ -138,7 +138,7 @@ private fun <T : Reorderable> BoxScope.ReorderModal(
                 modifier = Modifier
                     .size(48.dp)
                     .testTag("reorder_done"),
-                backgroundGradient = GradientGreen,
+                backgroundColor = Green,
                 icon = R.drawable.ic_check,
                 tint = White
             ) {

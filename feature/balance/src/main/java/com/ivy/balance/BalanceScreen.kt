@@ -36,7 +36,6 @@ import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.utils.format
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.White
@@ -227,7 +226,7 @@ private fun ColumnScope.CloseButton() {
             .zIndex(200f),
         backgroundPadding = 8.dp,
         icon = R.drawable.ic_add,
-        backgroundGradient = Gradient.solid(Gray),
+        backgroundColor = Gray,
         tint = White
     ) {
         nav.back()

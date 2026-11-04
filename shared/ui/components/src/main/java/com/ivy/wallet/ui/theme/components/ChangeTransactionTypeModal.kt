@@ -16,9 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientGreen
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
@@ -68,7 +67,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
             text = stringResource(R.string.income),
             icon = R.drawable.ic_income,
             selected = transactionType == TransactionType.INCOME,
-            selectedFill = GradientGreen,
+            selectedFill = Green,
             selectedContent = White,
         ) {
             transactionType = TransactionType.INCOME
@@ -86,7 +85,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
             text = stringResource(R.string.expense),
             icon = R.drawable.ic_expense,
             selected = transactionType == TransactionType.EXPENSE,
-            selectedFill = Gradient.solid(MaterialTheme.colorScheme.onSurface),
+            selectedFill = MaterialTheme.colorScheme.onSurface,
             selectedContent = MaterialTheme.colorScheme.surface,
         ) {
             transactionType = TransactionType.EXPENSE
@@ -105,7 +104,7 @@ fun BoxWithConstraintsScope.ChangeTransactionTypeModal(
                 text = stringResource(R.string.transfer),
                 icon = R.drawable.ic_transfer,
                 selected = transactionType == TransactionType.TRANSFER,
-                selectedFill = GradientIvy,
+                selectedFill = Ivy,
                 selectedContent = White,
             ) {
                 transactionType = TransactionType.TRANSFER

@@ -19,7 +19,7 @@ class ColorModeTest {
     @Test
     fun `colors are drawn as they are unless in minimal colors`() {
         Green shouldBe Palette.Green
-        GradientIvy.startColor shouldBe Palette.Ivy
+        Ivy shouldBe Palette.Ivy
         Palette.Ivy.toArgb().toComposeColor() shouldBe Palette.Ivy
     }
 
@@ -28,13 +28,13 @@ class ColorModeTest {
         ColorMode.minimal = true
 
         Green shouldBe Black
-        GradientIvy.startColor shouldBe Black
+        Ivy shouldBe Black
         Orange shouldBe Black
 
         ColorMode.dark = true
 
         Green shouldBe White
-        GradientIvy.startColor shouldBe White
+        Ivy shouldBe White
     }
 
     @Test

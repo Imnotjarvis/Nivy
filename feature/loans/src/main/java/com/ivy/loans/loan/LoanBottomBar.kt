@@ -11,9 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Blue
-import com.ivy.design.system.colors.GradientIvy
-import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
+import com.ivy.design.system.colors.Green
 import com.ivy.wallet.ui.theme.components.TabsBottomBar
 import com.ivy.wallet.ui.theme.components.BottomBarTab
 import com.ivy.wallet.ui.theme.components.BottomBarFab
@@ -48,7 +47,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
         },
     )
 
-    BottomBarFab(backgroundGradient = GradientIvy) {
+    BottomBarFab(backgroundColor = Ivy) {
         onAdd()
     }
 }

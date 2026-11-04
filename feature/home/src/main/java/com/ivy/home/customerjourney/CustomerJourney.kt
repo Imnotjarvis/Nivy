@@ -27,7 +27,6 @@ import com.ivy.wallet.rootScreen
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.dynamicContrast
@@ -81,8 +80,8 @@ fun CustomerJourneyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .opensScreen(cardData.background.startColor)
-            .background(cardData.background.asHorizontalBrush(), MaterialTheme.shapes.large)
+            .opensScreen(cardData.background)
+            .background(cardData.background, MaterialTheme.shapes.large)
             .clip(MaterialTheme.shapes.large)
             .clickable {
                 onCTA()
@@ -99,7 +98,7 @@ fun CustomerJourneyCard(
                     .padding(start = 24.dp, end = 16.dp),
                 text = stringResource(cardData.title),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = readableOn(cardData.background.startColor),
+                    color = readableOn(cardData.background),
                     fontWeight = FontWeight.ExtraBold
                 )
             )
@@ -112,7 +111,7 @@ fun CustomerJourneyCard(
                         }
                         .padding(8.dp), // enlarge click area
                     icon = R.drawable.ic_dismiss,
-                    tint = cardData.background.startColor.dynamicContrast(),
+                    tint = cardData.background.dynamicContrast(),
                     contentDescription = stringResource(R.string.dismiss),
                 )
 
@@ -128,7 +127,7 @@ fun CustomerJourneyCard(
                 .padding(start = 24.dp, end = 32.dp),
             text = stringResource(cardData.description),
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = readableOn(cardData.background.startColor),
+                color = readableOn(cardData.background),
                 fontWeight = FontWeight.Medium
             )
         )
@@ -144,13 +143,13 @@ fun CustomerJourneyCard(
                     .testTag("cta_prompt_${cardData.id}"),
                 text = stringResource(cta),
                 iconStart = cardData.ctaIcon,
-                iconTint = cardData.background.startColor,
+                iconTint = cardData.background,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = cardData.background.startColor,
+                    color = cardData.background,
                     fontWeight = FontWeight.Bold
                 ),
                 padding = 8.dp,
-                backgroundGradient = Gradient.solid(readableOn(cardData.background.startColor))
+                backgroundColor = readableOn(cardData.background)
             ) {
                 onCTA()
             }

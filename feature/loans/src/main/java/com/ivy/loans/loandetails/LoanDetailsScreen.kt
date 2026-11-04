@@ -63,7 +63,6 @@ import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.MediumBlack
 import com.ivy.design.system.colors.MediumWhite
@@ -438,7 +437,7 @@ private fun LoanInfoCard(
                     modifier = Modifier
                         .padding(end = 16.dp, top = 12.dp)
                         .opensScreen(loan.color.value.toComposeColor()),
-                    backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
+                    backgroundColor = loan.color.value.toComposeColor(),
                     iconTint = contrastColor,
                     text = selectedLoanAccount.name.value,
                     iconStart = getCustomIconIdS(
@@ -601,7 +600,7 @@ private fun LoanInfoCard(
                 .padding(horizontal = 16.dp)
                 .align(Alignment.CenterHorizontally),
             text = stringResource(R.string.add_record),
-            backgroundGradient = Gradient.solid(contrastColor),
+            backgroundColor = contrastColor,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = readableOn(contrastColor),
                 fontWeight = FontWeight.Bold
@@ -661,7 +660,7 @@ private fun LoanRecordItem(
                 if (account != null) {
                     IvyButton(
                         modifier = Modifier.opensScreen(MaterialTheme.colorScheme.surface),
-                        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
+                        backgroundColor = MaterialTheme.colorScheme.surface,
                         iconTint = MaterialTheme.colorScheme.onSurface,
                         text = account.name.value,
                         iconStart = getCustomIconIdS(
@@ -691,7 +690,7 @@ private fun LoanRecordItem(
 
                     IvyButton(
                         modifier = Modifier.padding(start = 8.dp),
-                        backgroundGradient = Gradient.solid(loan.color.value.toComposeColor()),
+                        backgroundColor = loan.color.value.toComposeColor(),
                         iconTint = textIconColor,
                         text = stringResource(R.string.interest),
                         iconStart = getCustomIconIdS(
@@ -794,7 +793,7 @@ private fun InitialRecordItem(
     ) {
         IvyButton(
             modifier = Modifier.padding(16.dp),
-            backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.surface),
+            backgroundColor = MaterialTheme.colorScheme.surface,
             text = stringResource(id = R.string.initial_loan_record),
             iconTint = MaterialTheme.colorScheme.onSurface,
             iconStart = getCustomIconIdS(

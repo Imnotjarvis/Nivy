@@ -65,9 +65,8 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.design.system.colors.ColorMode
-import com.ivy.design.system.colors.GradientGreen
-import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
+import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.IvyLight
 import com.ivy.design.system.colors.Orange
@@ -79,13 +78,12 @@ import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.BalanceRowMini
-import com.ivy.wallet.ui.theme.components.CircleButtonFilledGradient
+import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.components.CloseButton
 import com.ivy.wallet.ui.theme.components.ItemIconM
 import com.ivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.design.system.colors.readableOn
-import com.ivy.design.system.colors.gradientExpenses
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.design.system.colors.toComposeColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
@@ -336,18 +334,18 @@ private fun Header(
             if (percentExpanded > 0f) {
                 Spacer(Modifier.width(12.dp))
 
-                val backgroundGradient = if (transactionType == TransactionType.EXPENSE) {
-                    gradientExpenses()
+                val backgroundColor = if (transactionType == TransactionType.EXPENSE) {
+                    MaterialTheme.colorScheme.onSurface
                 } else {
-                    GradientGreen
+                    Green
                 }
-                CircleButtonFilledGradient(
+                CircleButtonFilled(
                     modifier = Modifier
                         .alpha(percentExpanded)
                         .size(com.ivy.design.utils.lerp(1, 40, percentExpanded).dp),
-                    iconPadding = 4.dp,
+                    clickAreaPadding = 4.dp,
                     icon = R.drawable.ic_plus,
-                    backgroundGradient = backgroundGradient,
+                    backgroundColor = backgroundColor,
                     tint = if (transactionType == TransactionType.EXPENSE) {
                         MaterialTheme.colorScheme.surface
                     } else {

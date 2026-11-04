@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.ui.R
-import com.ivy.design.system.colors.GradientGreen
+import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.IvyDividerLine
 import com.ivy.design.system.shapes.PillShape
@@ -98,7 +98,7 @@ private fun ProgressBar(
                 modifier = Modifier
                     .weight(progressPercent.toFloat())
                     .height(32.dp)
-                    .background(GradientGreen.asHorizontalBrush(), PillShape),
+                    .background(Green, PillShape),
             )
         }
 

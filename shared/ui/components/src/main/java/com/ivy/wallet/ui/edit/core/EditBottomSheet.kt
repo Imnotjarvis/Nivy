@@ -64,7 +64,6 @@ import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.utils.rememberSwipeListenerState
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.GreenLight
@@ -390,7 +389,7 @@ private fun TransferRowMini(
         IvyButton(
             text = fromAccount?.name?.value ?: "Null",
             iconStart = R.drawable.ic_accounts,
-            backgroundGradient = Gradient.solid(fromColor),
+            backgroundColor = fromColor,
             iconTint = fromContrastColor,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = fromContrastColor,
@@ -411,7 +410,7 @@ private fun TransferRowMini(
         IvyButton(
             text = toAccount?.name?.value ?: "Null",
             iconStart = R.drawable.ic_accounts,
-            backgroundGradient = Gradient.solid(toColor),
+            backgroundColor = toColor,
             iconTint = toContrastColor,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = toContrastColor,

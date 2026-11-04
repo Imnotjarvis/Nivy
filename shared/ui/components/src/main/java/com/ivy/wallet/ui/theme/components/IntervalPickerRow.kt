@@ -31,8 +31,7 @@ import com.ivy.wallet.utils.capitalizeLocal
 import com.ivy.wallet.utils.isNotNullOrBlank
 import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.readableTint
 import com.ivy.design.system.colors.White
 import androidx.compose.material3.MaterialTheme
@@ -63,20 +62,14 @@ fun IntervalPickerRow(
         IvyNumberTextField(
             modifier = Modifier
                 .background(
-                    brush = if (validInput) {
-                        GradientIvy.asHorizontalBrush()
-                    } else {
-                        Gradient
-                            .solid(MaterialTheme.colorScheme.surfaceVariant)
-                            .asHorizontalBrush()
-                    },
+                    color = if (validInput) Ivy else MaterialTheme.colorScheme.surfaceVariant,
                     shape = PillShape
                 )
                 .padding(vertical = 12.dp),
             value = interNTextFieldValue,
             // Readable on the fill, also where minimal colors turn it into the text color.
             textColor = if (validInput) {
-                readableTint(GradientIvy.startColor, White)
+                readableTint(Ivy, White)
             } else {
                 MaterialTheme.colorScheme.onSurface
             },

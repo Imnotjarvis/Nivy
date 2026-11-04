@@ -60,7 +60,6 @@ import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
 import com.ivy.wallet.domain.data.SortOrder
-import com.ivy.design.system.colors.GradientGreen
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.GreenDark
 import com.ivy.design.system.colors.GreenLight
@@ -90,6 +89,7 @@ import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberTitleLarge
 import androidx.compose.material3.VerticalDivider
 import com.ivy.wallet.ui.theme.components.SelectableOptionRow
+import com.ivy.design.system.colors.Ivy
 
 @Composable
 fun BoxWithConstraintsScope.CategoriesScreen() {
@@ -614,7 +614,7 @@ fun BoxWithConstraintsScope.SortModal(
                     SortOrder.ALPHABETICAL -> R.drawable.ic_sort_by_alpha_24
                 },
                 selected = it == sortOrder,
-                selectedFill = GradientGreen,
+                selectedFill = Green,
             ) {
                 sortOrder = it
                 applyChange()

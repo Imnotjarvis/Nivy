@@ -22,7 +22,7 @@ import com.ivy.wallet.utils.format
 import com.ivy.navigation.CSVScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
@@ -148,7 +148,7 @@ internal fun ImportResultUI(
                 .padding(horizontal = 16.dp),
             text = stringResource(R.string.finish),
             textColor = White,
-            backgroundGradient = GradientIvy,
+            backgroundColor = Ivy,
             hasNext = true,
             enabled = true
         ) {

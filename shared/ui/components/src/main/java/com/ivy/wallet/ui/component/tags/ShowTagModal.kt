@@ -35,7 +35,6 @@ import com.ivy.design.utils.thenIf
 import com.ivy.wallet.ui.SearchInput
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.selectEndTextFieldValue
-import com.ivy.design.system.colors.Gradient
 import com.ivy.wallet.ui.theme.components.IvyBorderButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.design.system.colors.readableOn
@@ -284,7 +283,7 @@ private fun ExistingTag(
             IvyCircleButton(
                 modifier = Modifier.size(32.dp),
                 icon = R.drawable.ic_remove,
-                backgroundGradient = Gradient.solid(deselectBtnBackground),
+                backgroundColor = deselectBtnBackground,
                 tint = readableOn(deselectBtnBackground),
                 contentDescription = stringResource(R.string.remove),
             ) {
@@ -310,7 +309,7 @@ private fun AddNewTagButton(
     IvyBorderButton(
         modifier = modifier,
         text = stringResource(R.string.add_new),
-        backgroundGradient = Gradient.solid(MaterialTheme.colorScheme.inverseSurface),
+        backgroundColor = MaterialTheme.colorScheme.inverseSurface,
         iconStart = R.drawable.ic_plus,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

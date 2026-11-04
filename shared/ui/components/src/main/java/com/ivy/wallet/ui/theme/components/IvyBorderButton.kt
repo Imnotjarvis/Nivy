@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -23,7 +22,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
@@ -35,7 +33,7 @@ fun IvyBorderButton(
         color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.Bold
     ),
-    backgroundGradient: Gradient = Gradient.solid(MaterialTheme.colorScheme.inverseSurface),
+    backgroundColor: Color = MaterialTheme.colorScheme.inverseSurface,
     @DrawableRes iconStart: Int? = null,
     @DrawableRes iconEnd: Int? = null,
     iconTint: Color = MaterialTheme.colorScheme.onSurface,
@@ -50,11 +48,7 @@ fun IvyBorderButton(
             .clip(PillShape)
             .border(
                 width = 2.dp,
-                brush = if (enabled) {
-                    backgroundGradient.asHorizontalBrush()
-                } else {
-                    SolidColor(MaterialTheme.colorScheme.onSurfaceVariant)
-                },
+                color = if (enabled) backgroundColor else MaterialTheme.colorScheme.onSurfaceVariant,
                 shape = PillShape
             )
             .clickable(onClick = onClick, enabled = enabled),
