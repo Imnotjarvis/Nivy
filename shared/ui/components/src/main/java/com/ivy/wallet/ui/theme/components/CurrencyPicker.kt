@@ -353,6 +353,8 @@ private fun CurrencyItemCard(
 ) {
     Spacer(Modifier.height(12.dp))
 
+    // Readable on the fill, also where minimal colors turn it into the text color.
+    val selectedContent = readableTint(Ivy, White)
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -373,7 +375,7 @@ private fun CurrencyItemCard(
         Text(
             text = currency.code,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = if (selected) White else MaterialTheme.colorScheme.onSurface,
+                color = if (selected) selectedContent else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -383,7 +385,7 @@ private fun CurrencyItemCard(
         Text(
             text = currency.name.take(20),
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = if (selected) White else MaterialTheme.colorScheme.onSurface,
+                color = if (selected) selectedContent else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
         )

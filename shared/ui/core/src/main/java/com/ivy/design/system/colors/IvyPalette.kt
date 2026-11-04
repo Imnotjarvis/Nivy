@@ -86,9 +86,6 @@ object Palette {
     val RedDark = Color(0xFF801919)
     val Red2Dark = Color(0xFF802030)
     val Red3Dark = Color(0xFF802653)
-
-    // A vivid purple used by the loans screen, distinct from Purple (the brand color).
-    val Violet = Color(0xFFA020F0)
 }
 
 // The hues as drawn.
@@ -144,4 +141,3 @@ val Orange3Dark: Color get() = Palette.Orange3Dark.shown()
 val RedDark: Color get() = Palette.RedDark.shown()
 val Red2Dark: Color get() = Palette.Red2Dark.shown()
 val Red3Dark: Color get() = Palette.Red3Dark.shown()
-val Violet: Color get() = Palette.Violet.shown()
