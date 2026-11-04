@@ -103,7 +103,8 @@ private fun SearchUi(
                 emptyStateTitle = emptyStateTitle,
                 emptyStateText = emptyStateText,
                 dateDividerMarginTop = 16.dp,
-                shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions
+                shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions,
+                compact = uiState.compactTransactions,
             )
 
             item {

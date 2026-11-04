@@ -159,7 +159,8 @@ class ReportViewModel @Inject constructor(
             upcomingIncome = upcomingIncome,
             upcomingTransactions = upcomingTransactions,
             allTags = allTags,
-            showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions()
+            showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions(),
+            compactTransactions = features.compactTransactionsMode.asEnabledState(),
         )
     }
 

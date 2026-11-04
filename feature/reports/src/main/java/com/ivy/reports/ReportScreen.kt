@@ -265,6 +265,7 @@ private fun BoxWithConstraintsScope.UI(
                 emptyStateTitle = emptyStateTitle,
                 emptyStateText = emptyStateText,
                 shouldShowAccountSpecificColorInTransactions = state.showAccountColorsInTransactions,
+                compact = state.compactTransactions,
                 onSkipTransaction = {
                     onEventHandler.invoke(ReportScreenEvent.SkipTransaction(transaction = it))
                 },

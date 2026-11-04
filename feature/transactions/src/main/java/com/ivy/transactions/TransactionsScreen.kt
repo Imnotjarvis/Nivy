@@ -147,6 +147,7 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
 
         history = uiState.history,
         shouldShowAccountSpecificColorInTransactions = uiState.showAccountColorsInTransactions,
+        compactTransactions = uiState.compactTransactions,
 
         upcoming = uiState.upcoming,
         upcomingExpanded = uiState.upcomingExpanded,
@@ -269,6 +270,7 @@ private fun BoxWithConstraintsScope.UI(
     onPayOrGet: (Transaction) -> Unit = {},
     onSkipTransaction: (Transaction) -> Unit = {},
     onSkipAllTransactions: (List<Transaction>) -> Unit = {},
+    compactTransactions: Boolean = false,
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
     val periodState = LocalPeriodState.current
@@ -442,7 +444,8 @@ private fun BoxWithConstraintsScope.UI(
                 },
                 emptyStateTitle = emptyStateTitle,
                 emptyStateText = emptyStateText,
-                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions
+                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
+                compact = compactTransactions,
             )
         }
     }

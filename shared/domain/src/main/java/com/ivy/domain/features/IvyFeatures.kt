@@ -78,6 +78,14 @@ class IvyFeatures @Inject constructor() : Features {
         defaultValue = false
     )
 
+    override val compactTransactionsMode = BoolFeature(
+        key = "compact_transaction_ui",
+        group = FeatureGroup.Other,
+        name = "Compact transactions",
+        description = "Show transactions as compact rows: about three times as many fit on the screen",
+        defaultValue = false
+    )
+
     override val allFeatures: List<BoolFeature>
         get() = listOf(
             sortCategoriesAscending,
@@ -87,7 +95,8 @@ class IvyFeatures @Inject constructor() : Features {
             showCategorySearchBar,
             hideTotalBalance,
             standardKeypadLayout,
-            showAccountColorsInTransactions
+            showAccountColorsInTransactions,
+            compactTransactionsMode
             /* will be uncommented when this functionality
              * will be available across the application in up-coming PRs
             showDecimalNumber

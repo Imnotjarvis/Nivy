@@ -61,7 +61,8 @@ class SearchViewModel @Inject constructor(
             baseCurrency = baseCurrency.value,
             accounts = accounts.value,
             categories = categories.value,
-            shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions()
+            shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions(),
+            compactTransactions = features.compactTransactionsMode.asEnabledState(),
         )
     }
 

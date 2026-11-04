@@ -58,7 +58,9 @@ fun LazyListScope.transactions(
     setUpcomingExpanded: (Boolean) -> Unit,
     setOverdueExpanded: (Boolean) -> Unit,
     onSkipTransaction: (Transaction) -> Unit = {},
-    onSkipAllTransactions: (List<Transaction>) -> Unit = {}
+    onSkipAllTransactions: (List<Transaction>) -> Unit = {},
+    // The history as compact rows; upcoming and overdue keep their cards, with Pay and Skip.
+    compact: Boolean = false,
 ) {
     upcomingSection(
         baseData = baseData,
@@ -86,7 +88,8 @@ fun LazyListScope.transactions(
         history = history,
         shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
         dateDividerMarginTop = dateDividerMarginTop,
-        onPayOrGet = onPayOrGet
+        onPayOrGet = onPayOrGet,
+        compact = compact,
     )
 
     if (upcoming?.trns.isNullOrEmpty() && overdue?.trns.isNullOrEmpty() && history.isEmpty()) {
@@ -244,7 +247,8 @@ private fun LazyListScope.historySection(
     shouldShowAccountSpecificColorInTransactions: Boolean,
     dateDividerMarginTop: Dp? = null,
 
-    onPayOrGet: (Transaction) -> Unit
+    onPayOrGet: (Transaction) -> Unit,
+    compact: Boolean,
 ) {
     if (history.isNotEmpty()) {
         items(
@@ -260,18 +264,26 @@ private fun LazyListScope.historySection(
                 is TransactionHistoryEntry -> {
                     val nav = navigation()
 
-                    TransactionCard(
-                        baseData = baseData,
-
-                        transaction = it.transaction,
-                        tags = it.tags,
-                        shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
-                        onPayOrGet = onPayOrGet
-                    ) { trn ->
-                        onTransactionClick(
-                            nav = nav,
-                            transaction = trn
+                    if (compact) {
+                        CompactTransactionRow(
+                            baseData = baseData,
+                            transaction = it.transaction,
+                            onClick = { trn -> onTransactionClick(nav = nav, transaction = trn) },
                         )
+                    } else {
+                        TransactionCard(
+                            baseData = baseData,
+
+                            transaction = it.transaction,
+                            tags = it.tags,
+                            shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
+                            onPayOrGet = onPayOrGet
+                        ) { trn ->
+                            onTransactionClick(
+                                nav = nav,
+                                transaction = trn
+                            )
+                        }
                     }
                 }
 
