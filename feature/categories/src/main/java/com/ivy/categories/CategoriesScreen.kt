@@ -81,6 +81,7 @@ import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.categoryColor
 import com.ivy.design.system.colors.findContrastTextColor
+import com.ivy.design.system.colors.readableTint
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
@@ -654,7 +655,9 @@ private fun SelectTypeButton(
     ) {
         Spacer(Modifier.width(16.dp))
 
-        val textColor = if (selected) textSelectedColor else MaterialTheme.colorScheme.onSurface
+        // Readable on the selected fill, also where minimal colors turn it into the text color.
+        val selectedContent = readableTint(selectedGradient.startColor, textSelectedColor)
+        val textColor = if (selected) selectedContent else MaterialTheme.colorScheme.onSurface
 
         IvyIcon(
             icon = icon,
@@ -679,13 +682,13 @@ private fun SelectTypeButton(
 
             IvyIcon(
                 icon = R.drawable.ic_check,
-                tint = textSelectedColor
+                tint = selectedContent
             )
 
             Text(
                 text = stringResource(R.string.selected_text),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = textSelectedColor,
+                    color = selectedContent,
                     fontWeight = FontWeight.SemiBold
                 )
             )

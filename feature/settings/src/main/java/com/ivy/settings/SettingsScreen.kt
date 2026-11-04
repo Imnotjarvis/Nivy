@@ -69,6 +69,7 @@ import androidx.compose.ui.res.painterResource
 import com.ivy.navigation.rememberOnBack
 import kotlin.math.roundToInt
 import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.readableTint
 
 @ExperimentalFoundationApi
 @Composable
@@ -784,6 +785,8 @@ private fun SettingsPrimaryButton(
     description: String? = null,
     onClick: () -> Unit
 ) {
+    // Readable on the button, also where minimal colors turn it into the text color.
+    val content = readableTint(backgroundGradient.startColor, textColor)
     SettingsButtonRow(
         backgroundGradient = backgroundGradient,
         onClick = onClick
@@ -794,7 +797,7 @@ private fun SettingsPrimaryButton(
             modifier = Modifier.size(48.dp).padding(iconPadding),
             painter = painterResource(id = icon),
             contentDescription = null,
-            tint = textColor
+            tint = content
         )
 
         Spacer(Modifier.width(8.dp))
@@ -807,7 +810,7 @@ private fun SettingsPrimaryButton(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = textColor,
+                    color = content,
                     fontWeight = FontWeight.Bold
                 )
             )
