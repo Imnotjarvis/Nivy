@@ -51,6 +51,7 @@ import com.ivy.design.system.colors.GradientIvy
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.readableTint
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
@@ -284,7 +285,8 @@ private fun MonthButton(
             ),
         text = text,
         style = MaterialTheme.typography.bodyLarge.copy(
-            color = if (selected) White else Gray,
+            // Readable on the fill, also where minimal colors turn it into the text color.
+            color = if (selected) readableTint(background.startColor, White) else Gray,
             fontWeight = FontWeight.Bold
         )
     )

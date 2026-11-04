@@ -7,7 +7,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,7 +49,6 @@ import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.ui.theme.components.BalanceRow
-import com.ivy.wallet.ui.theme.components.BalanceRowMini
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
@@ -68,13 +65,8 @@ internal fun HomeHeader(
     expanded: Boolean,
     name: String,
     period: TimePeriod,
-    currency: String,
-    balance: Double,
     onShowMonthModal: () -> Unit,
-    onBalanceClick: () -> Unit,
     onSelectNextMonth: () -> Unit,
-    hideBalance: Boolean,
-    onHiddenBalanceClick: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
 ) {
     Column {
@@ -92,13 +84,8 @@ internal fun HomeHeader(
             percentExpanded = percentExpanded,
             name = name,
             period = period,
-            currency = currency,
-            balance = balance,
-            hideBalance = hideBalance,
 
             onShowMonthModal = onShowMonthModal,
-            onBalanceClick = onBalanceClick,
-            onHiddenBalanceClick = onHiddenBalanceClick,
             onSelectNextMonth = onSelectNextMonth,
             onSelectPreviousMonth = onSelectPreviousMonth,
         )
@@ -119,73 +106,41 @@ private fun HeaderStickyRow(
     percentExpanded: Float,
     name: String,
     period: TimePeriod,
-    currency: String,
-    balance: Double,
     onShowMonthModal: () -> Unit,
-    onBalanceClick: () -> Unit,
     onSelectNextMonth: () -> Unit,
-    hideBalance: Boolean,
-    onHiddenBalanceClick: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
 ) {
+    // The greeting fades out as the header collapses; the balance stays in the page, below it.
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
             // As tall as the more-menu button at its end (a 32 dp icon in 8 dp of padding), which
-            // sits on its own at the same top: everything centers on that button. The two-line
-            // balance may stick out a little.
+            // sits on its own at the same top: everything centers on that button.
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
     ) {
-        Box(
+        Text(
             modifier = Modifier
                 .weight(1f)
-                .wrapContentHeight(unbounded = true),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            Text(
-                modifier = Modifier
-                    .alpha(percentExpanded)
-                    .testTag("home_greeting_text"),
-                text = if (name.isNotNullOrBlank()) {
-                    stringResource(
-                        R.string.hi_name,
-                        name,
-                    )
-                } else {
-                    stringResource(R.string.hi)
-                },
-                style = MaterialTheme.typography.titleLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.ExtraBold
-                ),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-            )
-
-            // Balance mini row
-            if (percentExpanded < 1f) {
-                BalanceRowMini(
-                    modifier = Modifier
-                        .alpha(alpha = 1f - percentExpanded)
-                        .opensScreen(MaterialTheme.colorScheme.surface)
-                        .clickableNoIndication(rememberInteractionSource()) {
-                            if (hideBalance) {
-                                onHiddenBalanceClick()
-                            } else {
-                                onBalanceClick()
-                            }
-                        },
-                    currency = currency,
-                    balance = balance,
-                    shortenBigNumbers = true,
-                    hiddenMode = hideBalance,
-                    doubleRowDisplay = true,
+                .alpha(percentExpanded)
+                .testTag("home_greeting_text"),
+            text = if (name.isNotNullOrBlank()) {
+                stringResource(
+                    R.string.hi_name,
+                    name,
                 )
-            }
-        }
+            } else {
+                stringResource(R.string.hi)
+            },
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
+            ),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
 
         IvyOutlinedButton(
             modifier = Modifier.horizontalSwipeListener(

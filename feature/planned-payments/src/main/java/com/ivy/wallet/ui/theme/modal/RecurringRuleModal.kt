@@ -48,6 +48,7 @@ import com.ivy.wallet.utils.formatLocal
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Gradient
 import com.ivy.design.system.colors.GradientIvy
+import com.ivy.design.system.colors.readableTint
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.White
 import com.ivy.ui.time.LocalTimeProvider
@@ -225,7 +226,8 @@ private fun RowScope.TimesSelectorButton(
             .padding(vertical = 8.dp),
         text = label,
         style = MaterialTheme.typography.bodyLarge.copy(
-            color = if (selected) White else Gray,
+            // Readable on the fill, also where minimal colors turn it into the text color.
+            color = if (selected) readableTint(GradientIvy.startColor, White) else Gray,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
         )
