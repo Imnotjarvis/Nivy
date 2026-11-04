@@ -44,7 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
-import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -124,7 +125,7 @@ private fun TrendsUi(
                 label = stringResource(R.string.income),
                 amount = selected.income,
                 currency = currency,
-                amountColor = Palette.Green,
+                amountColor = incomeGreen(MaterialTheme.colorScheme.surfaceVariant),
             )
             Spacer(Modifier.width(12.dp))
             MonthCard(
@@ -132,7 +133,7 @@ private fun TrendsUi(
                 label = stringResource(R.string.expenses),
                 amount = selected.expense,
                 currency = currency,
-                amountColor = Palette.Red,
+                amountColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant),
             )
         }
 
@@ -140,9 +141,10 @@ private fun TrendsUi(
         ChartPanel(
             title = stringResource(R.string.income_vs_expenses),
             legend = {
-                LegendDot(color = Palette.Green, label = stringResource(R.string.income))
+                val panel = MaterialTheme.colorScheme.surfaceVariant
+                LegendDot(color = incomeGreen(panel), label = stringResource(R.string.income))
                 Spacer(Modifier.width(12.dp))
-                LegendDot(color = Palette.Red, label = stringResource(R.string.expenses))
+                LegendDot(color = expenseRed(panel), label = stringResource(R.string.expenses))
             },
         ) {
             IncomeExpenseBars(months = state.months, selectedIndex = state.selectedIndex, onSelect = onSelect)
@@ -262,6 +264,8 @@ private fun IncomeExpenseBars(
     onSelect: (Int) -> Unit,
 ) {
     val highlight = MaterialTheme.colorScheme.surface
+    val incomeColor = incomeGreen(MaterialTheme.colorScheme.surfaceVariant)
+    val expenseColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
     val max = months.maxOf { maxOf(it.income, it.expense) }.takeIf { it > 0 } ?: 1.0
     Canvas(
         modifier = Modifier
@@ -288,13 +292,13 @@ private fun IncomeExpenseBars(
             val expenseHeight = (month.expense / max).toFloat() * chartHeight
             // Green and red as on Home's cards, also in minimal colors.
             drawRoundRect(
-                Palette.Green,
+                incomeColor,
                 topLeft = Offset(left, size.height - incomeHeight),
                 size = Size(barWidth, incomeHeight),
                 cornerRadius = radius,
             )
             drawRoundRect(
-                Palette.Red,
+                expenseColor,
                 topLeft = Offset(left + barWidth + BarGap.toPx(), size.height - expenseHeight),
                 size = Size(barWidth, expenseHeight),
                 cornerRadius = radius,

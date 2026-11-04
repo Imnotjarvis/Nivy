@@ -82,7 +82,8 @@ import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.categoryColor
 import com.ivy.design.system.colors.findContrastTextColor
 import com.ivy.design.system.colors.readableTint
-import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.ModalTitle
@@ -432,7 +433,7 @@ fun AddedSpent(
         LabelAmount(
             textColor = textColor,
             // Green and red as on Home's cards, also in minimal colors.
-            amountColor = Palette.Red,
+            amountColor = expenseRed(MaterialTheme.colorScheme.surface),
             label = stringResource(R.string.month_expenses),
             amount = monthlyExpenses,
             currency = currency,
@@ -465,7 +466,7 @@ fun AddedSpent(
 
         LabelAmount(
             textColor = textColor,
-            amountColor = Palette.Green,
+            amountColor = incomeGreen(MaterialTheme.colorScheme.surface),
             label = stringResource(R.string.month_income),
             amount = monthlyIncome,
             currency = currency,

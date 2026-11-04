@@ -75,7 +75,8 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.accountColor
-import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 
 @Composable
 fun BoxWithConstraintsScope.AccountsTab() {
@@ -313,8 +314,8 @@ private fun AccountCard(
                 expensesLabel = stringResource(R.string.month_expenses),
                 expenses = accountData.monthlyExpenses,
                 // Green and red as on Home's cards, also in minimal colors.
-                incomeColor = Palette.Green,
-                expensesColor = Palette.Red,
+                incomeColor = incomeGreen(MaterialTheme.colorScheme.surface),
+                expensesColor = expenseRed(MaterialTheme.colorScheme.surface),
             )
 
             Spacer(Modifier.height(12.dp))

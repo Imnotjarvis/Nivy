@@ -96,7 +96,8 @@ import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
 import com.ivy.design.system.colors.accountColor
-import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @Composable
@@ -606,9 +607,9 @@ fun TypeAmountCurrency(
             TransactionType.INCOME -> {
                 AmountTypeStyle(
                     icon = R.drawable.ic_income,
-                    gradient = Gradient.solid(Palette.Green),
+                    gradient = Gradient.solid(incomeGreen(MaterialTheme.colorScheme.surfaceVariant)),
                     iconTint = White,
-                    textColor = Palette.Green
+                    textColor = incomeGreen(MaterialTheme.colorScheme.surfaceVariant)
                 )
             }
 
@@ -628,9 +629,9 @@ fun TypeAmountCurrency(
                         // Overdue Expense: a warning, red also in minimal colors.
                         AmountTypeStyle(
                             icon = R.drawable.ic_overdue,
-                            gradient = Gradient.solid(Palette.Red),
+                            gradient = Gradient.solid(expenseRed(MaterialTheme.colorScheme.surfaceVariant)),
                             iconTint = White,
-                            textColor = Palette.Red
+                            textColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
 
@@ -638,9 +639,9 @@ fun TypeAmountCurrency(
                         // Normal Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
-                            gradient = Gradient.solid(Palette.Red),
+                            gradient = Gradient.solid(expenseRed(MaterialTheme.colorScheme.surfaceVariant)),
                             iconTint = White,
-                            textColor = Palette.Red
+                            textColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
                 }

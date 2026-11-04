@@ -45,7 +45,6 @@ import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.navigation
 import com.ivy.navigation.opensScreen
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Green
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
@@ -57,7 +56,8 @@ import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
-import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.colors.incomeGreen
+import com.ivy.design.system.colors.expenseRed
 import com.ivy.design.system.typography.numberTitleLarge
 
 @ExperimentalAnimationApi
@@ -260,6 +260,7 @@ fun CashFlowInfo(
         )
 
         val cashflow = monthlyIncome - monthlyExpenses
+        val page = MaterialTheme.colorScheme.background
         if (cashflow != 0.0 && !hideBalance) {
             Spacer(Modifier.height(12.dp))
 
@@ -275,7 +276,7 @@ fun CashFlowInfo(
                 ),
                 style = MaterialTheme.typography.numberBodyLarge.copy(
                     // Green when it grows, red when it shrinks, also in minimal colors.
-                    color = if (cashflow < 0) Palette.Red else Palette.Green,
+                    color = if (cashflow < 0) expenseRed(page) else incomeGreen(page),
                     fontWeight = FontWeight.Bold
                 ),
             )
@@ -305,7 +306,7 @@ private fun IncomeExpenses(
 
         HeaderCard(
             icon = R.drawable.ic_income,
-            amountColor = Palette.Green,
+            amountColor = incomeGreen(MaterialTheme.colorScheme.surfaceVariant),
             label = stringResource(R.string.income),
             currency = currency,
             amount = monthlyIncome,
@@ -327,7 +328,7 @@ private fun IncomeExpenses(
 
         HeaderCard(
             icon = R.drawable.ic_expense,
-            amountColor = Palette.Red,
+            amountColor = expenseRed(MaterialTheme.colorScheme.surfaceVariant),
             label = stringResource(R.string.expenses),
             currency = currency,
             amount = monthlyExpenses.absoluteValue,
