@@ -405,7 +405,6 @@ private fun AccountHeader(
             balance = accountData.balance,
 
             balanceFontSize = 30.sp,
-            currencyFontSize = 30.sp,
 
             currencyUpfront = false
         )

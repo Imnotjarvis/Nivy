@@ -668,7 +668,6 @@ private fun Amount(
     ) {
         val percentCollapsed = 1f - percentExpanded
         val balanceFontSize = lerp(40, 30, percentCollapsed)
-        val currencyFontSize = lerp(30, 18, percentCollapsed)
 
         Spacer(Modifier.width(32.dp))
 
@@ -690,10 +689,7 @@ private fun Amount(
                 currency = currency,
                 balance = amount,
 
-                spacerCurrency = 8.dp,
-
                 balanceFontSize = balanceFontSize.sp,
-                currencyFontSize = currencyFontSize.sp,
 
                 currencyUpfront = false
             )

@@ -564,7 +564,6 @@ private fun CategoryHeader(
             balance = categoryData.monthlyBalance,
 
             balanceFontSize = 30.sp,
-            currencyFontSize = 30.sp,
 
             currencyUpfront = false,
             balanceAmountPrefix = balancePrefixValue

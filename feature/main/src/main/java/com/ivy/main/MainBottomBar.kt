@@ -6,7 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -62,17 +62,16 @@ import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import com.ivy.design.system.colors.gradientExpenses
-import com.ivy.design.system.colors.pureBlur
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
+import com.ivy.design.system.colors.pureBlur
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import com.ivy.design.system.shapes.PillShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 val FAB_BUTTON_SIZE = 56.dp
-private val TabSize = 48.dp
 
 // The bar's buttons and their expand animation share one state.
 @Suppress("LongMethod")
@@ -87,8 +86,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
     onAddPlannedPayment: () -> Unit,
 
     showAddAccountModal: () -> Unit,
-    onOpenBudgets: () -> Unit,
-    onOpenSettings: () -> Unit,
 ) {
     val screenSize = LocalScreenSize.current
 
@@ -119,8 +116,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
-    // Along the bottom edge: Budgets, Home, the + button (raised over the gap), Accounts and
-    // Settings.
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,18 +125,9 @@ internal fun BoxWithConstraintsScope.BottomBar(
             .navigationBarsPadding()
             .clickableNoIndication(rememberInteractionSource()) {
                 // consume click
-            }
-            .padding(vertical = 2.dp),
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Tab(
-            icon = R.drawable.home_more_menu_budgets,
-            name = stringResource(R.string.budgets),
-            selected = false,
-            selectedColor = MaterialTheme.colorScheme.onSurface,
-            onClick = onOpenBudgets,
-        )
-
         Tab(
             icon = R.drawable.ic_home,
             name = stringResource(R.string.home),
@@ -161,14 +147,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
         ) {
             selectTab(MainTab.ACCOUNTS)
         }
-
-        Tab(
-            icon = R.drawable.home_more_menu_settings,
-            name = stringResource(R.string.settings),
-            selected = false,
-            selectedColor = MaterialTheme.colorScheme.onSurface,
-            onClick = onOpenSettings,
-        )
     }
 
     if (expandedBackgroundOffset < screenHeightDp) {
@@ -634,8 +612,6 @@ private fun AddTransferButton(
     )
 }
 
-// An icon only in an equal share of the bar, its name read out by screen readers; the selected
-// one on a tinted circle.
 @Composable
 private fun RowScope.Tab(
     @DrawableRes icon: Int,
@@ -644,25 +620,30 @@ private fun RowScope.Tab(
     selectedColor: Color,
     onClick: () -> Unit,
 ) {
-    Box(
-        modifier = Modifier.weight(1f),
-        contentAlignment = Alignment.Center
+    Row(
+        modifier = Modifier
+            .weight(1f)
+            .clip(CircleShape)
+            .clickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 16.dp)
+            .testTag(name.lowercase()),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(TabSize)
-                .clip(PillShape)
-                .thenIf(selected) {
-                    background(selectedColor.copy(alpha = 0.15f))
-                }
-                .clickable(onClick = onClick)
-                .testTag(name.lowercase()),
-            contentAlignment = Alignment.Center
-        ) {
-            IvyIcon(
-                icon = icon,
-                tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface,
-                contentDescription = name
+        IvyIcon(
+            icon = icon,
+            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
+        )
+
+        if (selected) {
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = selectedColor,
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
     }
