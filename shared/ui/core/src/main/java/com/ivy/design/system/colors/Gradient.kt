@@ -17,10 +17,6 @@ import androidx.compose.ui.unit.dp
 @ReadOnlyComposable
 fun pureBlur() = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
 
-@Composable
-@ReadOnlyComposable
-fun mediumBlur() = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f)
-
 // Fades content into the background at the top or bottom edge.
 fun Modifier.gradientCutBackgroundTop(
     pure: Color,

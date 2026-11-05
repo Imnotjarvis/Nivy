@@ -1,7 +1,5 @@
 package com.ivy.wallet.ui.theme.components
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,7 +52,6 @@ import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.White
 import com.ivy.design.system.colors.readableTint
-import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -80,10 +77,8 @@ fun CurrencyPicker(
         latestOnKeyboardShown(keyboardShown)
     }
 
-    val keyboardShownInsetDp by animateDpAsState(
-        targetValue = keyboardHeight(),
-        animationSpec = tween(DURATION_MODAL_ANIM)
-    )
+    // Follows the keyboard as it opens and closes.
+    val keyboardShownInsetDp = keyboardHeight()
 
     Column(
         modifier = modifier

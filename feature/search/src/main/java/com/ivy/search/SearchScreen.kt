@@ -1,7 +1,5 @@
 package com.ivy.search
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +28,6 @@ import com.ivy.design.utils.selectEndTextFieldValue
 import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
@@ -110,10 +107,8 @@ private fun SearchUi(
             )
 
             item {
-                val keyboardShownInsetDp by animateDpAsState(
-                    targetValue = keyboardHeight(),
-                    animationSpec = tween(DURATION_MODAL_ANIM)
-                )
+                // Follows the keyboard as it opens and closes.
+                val keyboardShownInsetDp = keyboardHeight()
 
                 Spacer(Modifier.height(keyboardShownInsetDp))
                 // add keyboard height margin at bototm so the list can scroll to bottom

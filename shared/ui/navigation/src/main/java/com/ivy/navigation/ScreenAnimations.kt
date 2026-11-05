@@ -6,10 +6,8 @@ import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -19,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import com.ivy.design.system.motion.AppearRiseFraction
+import com.ivy.design.system.motion.CoveredDimAlpha
+import com.ivy.design.system.motion.appearTween
 
 /**
  * The current screen. A screen opening rises a little from below as it fades in, over the one it
@@ -59,7 +60,7 @@ internal fun AnimatedScreens(
 @Composable
 private fun AnimatedVisibilityScope.screenProgress(animation: ScreenAnimation?): State<Float> =
     transition.animateFloat(
-        transitionSpec = { if (animation == null) snap() else tween(DurationMillis, easing = FastOutSlowInEasing) },
+        transitionSpec = { if (animation == null) snap() else appearTween() },
         label = "screen",
     ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
 
@@ -76,13 +77,13 @@ private fun Modifier.screenAnimation(
     val onTop = (animation == ScreenAnimation.Opening) == entering
     return if (onTop) {
         touches.graphicsLayer {
-            translationY = (1f - progress.value) * RiseFraction * size.height
+            translationY = (1f - progress.value) * AppearRiseFraction * size.height
             alpha = progress.value
         }
     } else {
         touches.drawWithContent {
             drawContent()
-            drawRect(Color.Black, alpha = DimAlpha * (1f - progress.value))
+            drawRect(Color.Black, alpha = CoveredDimAlpha * (1f - progress.value))
         }
     }
 }
@@ -94,12 +95,3 @@ private fun Modifier.blockTouches() = pointerInput(Unit) {
         }
     }
 }
-
-// About a third of a second, starting quickly and settling gently.
-private const val DurationMillis = 300
-
-// How far below its place an opening screen starts: a tenth of its height.
-private const val RiseFraction = 0.1f
-
-// How dark the screen underneath gets: Material's scrim.
-private const val DimAlpha = 0.32f
