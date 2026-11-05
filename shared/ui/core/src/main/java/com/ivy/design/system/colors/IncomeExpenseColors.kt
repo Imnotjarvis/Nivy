@@ -2,6 +2,7 @@ package com.ivy.design.system.colors
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 // Palette's green and red read at 2:1 and 3:1 on light backgrounds, short of the 4.5:1 text
@@ -22,4 +23,5 @@ fun expenseRed(background: Color): Color = if (isDarkColor(background)) Palette.
  * gave 3.4:1.
  */
 @Composable
+@ReadOnlyComposable
 fun deleteRed(): Color = expenseRed(MaterialTheme.colorScheme.surface)
