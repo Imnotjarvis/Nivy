@@ -81,8 +81,10 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
     modifier: Modifier = Modifier,
     onPeriodSelected: (TimePeriod) -> Unit
 ) {
-    var period by remember(modal) {
-        mutableStateOf(modal?.period)
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
+    var period by remember(shown) {
+        mutableStateOf(shown?.period)
     }
 
     val periodState = LocalPeriodState.current
@@ -90,7 +92,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
 
     IvyModal(
         modifier = modifier,
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         scrollState = modalScrollState,

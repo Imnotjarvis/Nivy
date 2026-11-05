@@ -52,6 +52,7 @@ import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import com.ivy.design.system.colors.dynamicContrast
 import com.ivy.wallet.ui.theme.modal.ChooseIconModal
 import com.ivy.wallet.ui.theme.modal.IvyModal
+import com.ivy.wallet.ui.theme.modal.dialogData
 import com.ivy.wallet.ui.theme.modal.ModalAddSave
 import com.ivy.wallet.ui.theme.modal.ModalTitle
 import java.util.UUID
@@ -71,29 +72,31 @@ fun BoxWithConstraintsScope.CategoryModal(
     modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
-    val initialCategory = modal?.category
-    var nameTextFieldValue by remember(modal) {
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
+    val initialCategory = shown?.category
+    var nameTextFieldValue by remember(shown) {
         mutableStateOf(selectEndTextFieldValue(initialCategory?.name?.value))
     }
-    var color by remember(modal) {
+    var color by remember(shown) {
         mutableStateOf(initialCategory?.color?.let { Color(it.value) } ?: Palette.Ivy)
     }
-    var icon by remember(modal) {
+    var icon by remember(shown) {
         mutableStateOf(initialCategory?.icon)
     }
 
-    var chooseIconModalVisible by remember(modal) {
+    var chooseIconModalVisible by remember(shown) {
         mutableStateOf(false)
     }
 
     IvyModal(
         modifier = modifier,
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         primaryAction = {
             ModalAddSave(
-                item = modal?.category,
+                item = shown?.category,
                 enabled = nameTextFieldValue.text.isNotNullOrBlank()
             ) {
                 if (initialCategory != null) {
@@ -125,7 +128,7 @@ fun BoxWithConstraintsScope.CategoryModal(
         Spacer(Modifier.height(32.dp))
 
         ModalTitle(
-            text = if (modal?.category != null) {
+            text = if (shown?.category != null) {
                 stringResource(R.string.edit_category)
             } else {
                 stringResource(
@@ -142,7 +145,7 @@ fun BoxWithConstraintsScope.CategoryModal(
             color = color,
             icon = icon?.id,
 
-            autoFocusKeyboard = modal?.autoFocusKeyboard ?: true,
+            autoFocusKeyboard = shown?.autoFocusKeyboard ?: true,
 
             nameTextFieldValue = nameTextFieldValue,
             setNameTextFieldValue = { nameTextFieldValue = it },

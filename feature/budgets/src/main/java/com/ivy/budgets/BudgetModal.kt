@@ -43,6 +43,7 @@ import com.ivy.design.system.colors.Purple1Dark
 import com.ivy.design.system.colors.Red3Light
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.IvyModal
+import com.ivy.wallet.ui.theme.modal.dialogData
 import com.ivy.wallet.ui.theme.modal.ModalAddSave
 import com.ivy.wallet.ui.theme.modal.ModalAmountSection
 import com.ivy.wallet.ui.theme.modal.ModalDelete
@@ -80,32 +81,34 @@ internal fun BoxWithConstraintsScope.BudgetModal(
     onDelete: (Budget) -> Unit,
     dismiss: () -> Unit
 ) {
-    val initialBudget = modal?.budget
-    var nameTextFieldValue by remember(modal) {
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
+    val initialBudget = shown?.budget
+    var nameTextFieldValue by remember(shown) {
         mutableStateOf(selectEndTextFieldValue(initialBudget?.name?.value))
     }
-    var amount by remember(modal) {
+    var amount by remember(shown) {
         mutableDoubleStateOf(initialBudget?.amount?.value ?: 0.0)
     }
-    var categoryIds by remember(modal) {
-        mutableStateOf(modal?.budget?.categories ?: emptyList())
+    var categoryIds by remember(shown) {
+        mutableStateOf(shown?.budget?.categories ?: emptyList())
     }
-    var accountIds by remember(modal) {
-        mutableStateOf(modal?.budget?.accounts ?: emptyList())
+    var accountIds by remember(shown) {
+        mutableStateOf(shown?.budget?.accounts ?: emptyList())
     }
 
-    var amountModalVisible by remember(modal) { mutableStateOf(false) }
-    var deleteModalVisible by remember(modal) { mutableStateOf(false) }
+    var amountModalVisible by remember(shown) { mutableStateOf(false) }
+    var deleteModalVisible by remember(shown) { mutableStateOf(false) }
 
     IvyModal(
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         primaryAction = {
             val name = NotBlankTrimmedString.from(nameTextFieldValue.text).getOrNull()
             val positiveAmount = PositiveDouble.from(amount).getOrNull()
             ModalAddSave(
-                item = modal?.budget,
+                item = shown?.budget,
                 enabled = name != null && positiveAmount != null
             ) {
                 if (name == null || positiveAmount == null) return@ModalAddSave
@@ -132,7 +135,7 @@ internal fun BoxWithConstraintsScope.BudgetModal(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ModalTitle(
-                text = if (modal?.budget != null) {
+                text = if (shown?.budget != null) {
                     stringResource(
                         R.string.edit_budget
                     )
@@ -156,7 +159,7 @@ internal fun BoxWithConstraintsScope.BudgetModal(
 
         ModalNameInput(
             hint = stringResource(R.string.budget_name),
-            autoFocusKeyboard = modal?.autoFocusKeyboard ?: true,
+            autoFocusKeyboard = shown?.autoFocusKeyboard ?: true,
             textFieldValue = nameTextFieldValue,
             setTextFieldValue = {
                 nameTextFieldValue = it
@@ -166,7 +169,7 @@ internal fun BoxWithConstraintsScope.BudgetModal(
         Spacer(Modifier.height(24.dp))
 
         CategoriesRow(
-            categories = modal?.categories ?: emptyList(),
+            categories = shown?.categories ?: emptyList(),
             budgetCategoryIds = categoryIds.toImmutableList(),
             onSetBudgetCategoryIds = {
                 categoryIds = it
@@ -176,7 +179,7 @@ internal fun BoxWithConstraintsScope.BudgetModal(
         Spacer(Modifier.height(24.dp))
 
         AccountsRow(
-            accounts = modal?.accounts ?: emptyList(),
+            accounts = shown?.accounts ?: emptyList(),
             budgetAccountIds = accountIds.toImmutableList(),
             onSetBudgetAccountIds = {
                 accountIds = it
@@ -187,7 +190,7 @@ internal fun BoxWithConstraintsScope.BudgetModal(
 
         ModalAmountSection(
             label = stringResource(R.string.budget_amount_uppercase),
-            currency = modal?.baseCurrency ?: "",
+            currency = shown?.baseCurrency ?: "",
             amount = amount,
             amountPaddingTop = 24.dp,
             amountPaddingBottom = 0.dp
@@ -196,13 +199,13 @@ internal fun BoxWithConstraintsScope.BudgetModal(
         }
     }
 
-    val amountModalId = remember(modal, amount) {
+    val amountModalId = remember(shown, amount) {
         UUID.randomUUID()
     }
     AmountModal(
         id = amountModalId,
         visible = amountModalVisible,
-        currency = modal?.baseCurrency ?: "",
+        currency = shown?.baseCurrency ?: "",
         initialAmount = amount,
         dismiss = { amountModalVisible = false }
     ) {

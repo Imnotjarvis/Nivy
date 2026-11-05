@@ -86,45 +86,47 @@ fun BoxWithConstraintsScope.LoanRecordModal(
     accounts: List<Account> = emptyList(),
     onCreateAccount: (CreateAccountData) -> Unit = {},
 ) {
-    val initialRecord = modal?.loanRecord
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
+    val initialRecord = shown?.loanRecord
 
-    var noteTextFieldValue by remember(modal?.id) {
+    var noteTextFieldValue by remember(shown?.id) {
         mutableStateOf(selectEndTextFieldValue(initialRecord?.note?.value))
     }
-    var currencyCode by remember(modal?.id) {
-        mutableStateOf(modal?.baseCurrency ?: "")
+    var currencyCode by remember(shown?.id) {
+        mutableStateOf(shown?.baseCurrency ?: "")
     }
-    var amount by remember(modal?.id) {
-        mutableDoubleStateOf(modal?.loanRecord?.amount?.value ?: 0.0)
+    var amount by remember(shown?.id) {
+        mutableDoubleStateOf(shown?.loanRecord?.amount?.value ?: 0.0)
     }
-    var selectedAcc by remember(modal?.id) {
-        mutableStateOf(modal?.selectedAccount)
+    var selectedAcc by remember(shown?.id) {
+        mutableStateOf(shown?.selectedAccount)
     }
-    var createLoanRecordTrans by remember(modal?.id) {
-        mutableStateOf(modal?.createLoanRecordTransaction ?: false)
+    var createLoanRecordTrans by remember(shown?.id) {
+        mutableStateOf(shown?.createLoanRecordTransaction ?: false)
     }
-    var loanInterest by remember(modal?.id) {
-        mutableStateOf(modal?.isLoanInterest ?: false)
+    var loanInterest by remember(shown?.id) {
+        mutableStateOf(shown?.isLoanInterest ?: false)
     }
-    var reCalculate by remember(modal?.id) {
+    var reCalculate by remember(shown?.id) {
         mutableStateOf(false)
     }
-    var reCalculateVisible by remember(modal?.id) {
-        mutableStateOf(modal?.loanAccountCurrencyCode != null && modal.loanAccountCurrencyCode != modal.baseCurrency)
+    var reCalculateVisible by remember(shown?.id) {
+        mutableStateOf(shown?.loanAccountCurrencyCode != null && shown.loanAccountCurrencyCode != shown.baseCurrency)
     }
-    var loanRecordType by remember(modal?.id) {
-        mutableStateOf(modal?.loanRecord?.type ?: LoanRecordType.DECREASE)
+    var loanRecordType by remember(shown?.id) {
+        mutableStateOf(shown?.loanRecord?.type ?: LoanRecordType.DECREASE)
     }
 
-    var dateTime = modal?.loanRecord?.dateTime ?: dateTime
+    var dateTime = shown?.loanRecord?.dateTime ?: dateTime
     var amountModalVisible by remember { mutableStateOf(false) }
-    var deleteModalVisible by remember(modal?.id) { mutableStateOf(false) }
+    var deleteModalVisible by remember(shown?.id) { mutableStateOf(false) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
     var accountChangeConformationModal by remember { mutableStateOf(false) }
 
     IvyModal(
         modifier = modifier,
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = true,
@@ -135,8 +137,8 @@ fun BoxWithConstraintsScope.LoanRecordModal(
                 // enabled = amount > 0 && ((createLoanRecordTrans && selectedAcc != null) || !createLoanRecordTrans)
             ) {
                 accountChangeConformationModal =
-                    initialRecord != null && modal.selectedAccount != null &&
-                            modal.baseCurrency != currencyCode && currencyCode != modal.loanAccountCurrencyCode
+                    initialRecord != null && shown.selectedAccount != null &&
+                            shown.baseCurrency != currencyCode && currencyCode != shown.loanAccountCurrencyCode
 
                 if (!accountChangeConformationModal) {
                     save(
@@ -159,7 +161,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         }
     ) {
         LaunchedEffect(Unit) {
-            if (modal?.loanRecord == null) {
+            if (shown?.loanRecord == null) {
                 amountModalVisible = true
             }
         }
@@ -230,7 +232,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
                 currencyCode = it.asset.code
 
                 reCalculateVisible =
-                    initialRecord?.convertedAmount != null && selectedAcc != null && currencyCode == modal.baseCurrency
+                    initialRecord?.convertedAmount != null && selectedAcc != null && currencyCode == shown.baseCurrency
                 // Unchecks the Recalculate Option if Recalculate Checkbox is not visible
                 reCalculate = !reCalculateVisible
 
@@ -312,7 +314,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         }
     }
 
-    val amountModalId = remember(modal, amount) {
+    val amountModalId = remember(shown, amount) {
         UUID.randomUUID()
     }
     AmountModal(
@@ -355,7 +357,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         buttonText = stringResource(R.string.confirm),
         iconStart = R.drawable.ic_agreed,
         dismiss = {
-            selectedAcc = modal?.selectedAccount ?: selectedAcc
+            selectedAcc = shown?.selectedAccount ?: selectedAcc
             accountChangeConformationModal = false
         }
     ) {

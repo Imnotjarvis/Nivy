@@ -102,7 +102,7 @@ fun BoxScope.IvyModal(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .graphicsLayer {
                 translationY = (1f - progress.value) * AppearRiseFraction * size.height
@@ -113,7 +113,7 @@ fun BoxScope.IvyModal(
         var actionsRowHeight by remember { mutableIntStateOf(0) }
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .statusBarsPadding()
@@ -158,6 +158,19 @@ fun BoxScope.IvyModal(
         )
     }
 }
+
+/**
+ * A dialog's [data] as it shows it: the last that wasn't null. A dialog closed by clearing its data
+ * keeps showing it while it fades out, instead of emptying as it goes.
+ */
+@Composable
+fun <T : Any> dialogData(data: T?): T? {
+    val kept = remember { Kept(data) }
+    if (data != null) kept.value = data
+    return kept.value
+}
+
+private class Kept<T : Any>(var value: T?)
 
 @Composable
 private fun ModalBackHandling(
