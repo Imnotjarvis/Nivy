@@ -94,46 +94,48 @@ fun BoxWithConstraintsScope.LoanModal(
     onPerformCalculations: () -> Unit = {},
     dismiss: () -> Unit,
 ) {
-    val loan = modal?.loan
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
+    val loan = shown?.loan
     val timeConverter = LocalTimeConverter.current
 
-    var nameTextFieldValue by remember(modal?.id) {
+    var nameTextFieldValue by remember(shown?.id) {
         mutableStateOf(selectEndTextFieldValue(loan?.name?.value))
     }
-    var dateTime = modal?.loan?.dateTime ?: with(timeConverter) {
+    var dateTime = shown?.loan?.dateTime ?: with(timeConverter) {
         dateTime.toLocalDateTime()
     }
-    var type by remember(modal?.id) {
-        mutableStateOf(modal?.loan?.type ?: LoanType.BORROW)
+    var type by remember(shown?.id) {
+        mutableStateOf(shown?.loan?.type ?: LoanType.BORROW)
     }
-    var amount by remember(modal?.id) {
-        mutableDoubleStateOf(modal?.loan?.amount?.value ?: 0.0)
+    var amount by remember(shown?.id) {
+        mutableDoubleStateOf(shown?.loan?.amount?.value ?: 0.0)
     }
-    var color by remember(modal?.id) {
+    var color by remember(shown?.id) {
         mutableStateOf(loan?.color?.let { Color(it.value) } ?: Palette.Ivy)
     }
-    var icon by remember(modal?.id) {
+    var icon by remember(shown?.id) {
         mutableStateOf(loan?.icon?.id)
     }
-    var noteTextFieldValue by remember(modal?.id) {
+    var noteTextFieldValue by remember(shown?.id) {
         mutableStateOf(selectEndTextFieldValue(loan?.note?.value))
     }
-    var currencyCode by remember(modal?.id) {
-        mutableStateOf(modal?.baseCurrency ?: "")
+    var currencyCode by remember(shown?.id) {
+        mutableStateOf(shown?.baseCurrency ?: "")
     }
 
-    var selectedAcc by remember(modal?.id) {
-        mutableStateOf(modal?.selectedAccount)
+    var selectedAcc by remember(shown?.id) {
+        mutableStateOf(shown?.selectedAccount)
     }
 
-    var createLoanTrans by remember(modal?.id) {
-        mutableStateOf(modal?.createLoanTransaction ?: false)
+    var createLoanTrans by remember(shown?.id) {
+        mutableStateOf(shown?.createLoanTransaction ?: false)
     }
 
     var accountChangeModal by remember { mutableStateOf(false) }
     var amountModalVisible by remember { mutableStateOf(false) }
     var currencyModalVisible by remember { mutableStateOf(false) }
-    var chooseIconModalVisible by remember(modal?.id) {
+    var chooseIconModalVisible by remember(shown?.id) {
         mutableStateOf(false)
     }
 
@@ -141,18 +143,18 @@ fun BoxWithConstraintsScope.LoanModal(
 
     IvyModal(
         modifier = modifier,
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         shiftIfKeyboardShown = false,
         primaryAction = {
             ModalAddSave(
-                item = modal?.loan,
+                item = shown?.loan,
                 enabled = nameTextFieldValue.text.isNotNullOrBlank() && amount > 0 && selectedAcc != null
             ) {
                 accountChangeModal =
-                    loan != null && modal.selectedAccount != null &&
-                    currencyCode != modal.selectedAccount.asset.code
+                    loan != null && shown.selectedAccount != null &&
+                    currencyCode != shown.selectedAccount.asset.code
 
                 if (!accountChangeModal) {
                     save(
@@ -176,7 +178,7 @@ fun BoxWithConstraintsScope.LoanModal(
         }
     ) {
         LaunchedEffect(Unit) {
-            if (modal?.autoOpenAmountModal == true) {
+            if (shown?.autoOpenAmountModal == true) {
                 amountModalVisible = true
             }
         }
@@ -184,7 +186,7 @@ fun BoxWithConstraintsScope.LoanModal(
         Spacer(Modifier.height(32.dp))
 
         ModalTitle(
-            text = if (modal?.loan != null) stringResource(R.string.edit_loan) else stringResource(R.string.new_loan),
+            text = if (shown?.loan != null) stringResource(R.string.edit_loan) else stringResource(R.string.new_loan),
         )
 
         Spacer(Modifier.height(24.dp))
@@ -195,7 +197,7 @@ fun BoxWithConstraintsScope.LoanModal(
             color = color,
             icon = icon,
 
-            autoFocusKeyboard = modal?.autoFocusKeyboard ?: true,
+            autoFocusKeyboard = shown?.autoFocusKeyboard ?: true,
 
             nameTextFieldValue = nameTextFieldValue,
             setNameTextFieldValue = { nameTextFieldValue = it },
@@ -303,7 +305,7 @@ fun BoxWithConstraintsScope.LoanModal(
         }
     }
 
-    val amountModalId = remember(modal, amount) {
+    val amountModalId = remember(shown, amount) {
         UUID.randomUUID()
     }
     AmountModal(
@@ -350,7 +352,7 @@ fun BoxWithConstraintsScope.LoanModal(
         buttonText = stringResource(R.string.confirm),
         iconStart = R.drawable.ic_agreed,
         dismiss = {
-            selectedAcc = modal?.selectedAccount ?: selectedAcc
+            selectedAcc = shown?.selectedAccount ?: selectedAcc
             accountChangeModal = false
         }
     ) {

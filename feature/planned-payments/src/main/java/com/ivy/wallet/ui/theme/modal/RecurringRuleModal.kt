@@ -71,24 +71,26 @@ internal fun BoxWithConstraintsScope.RecurringRuleModal(
     dismiss: () -> Unit,
     onRuleChanged: (LocalDateTime, oneTime: Boolean, Int?, IntervalType?) -> Unit,
 ) {
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
     val timeProvider = LocalTimeProvider.current
-    var startDate by remember(modal) {
-        mutableStateOf(modal?.initialStartDate ?: timeProvider.localNow())
+    var startDate by remember(shown) {
+        mutableStateOf(shown?.initialStartDate ?: timeProvider.localNow())
     }
-    var oneTime by remember(modal) {
-        mutableStateOf(modal?.initialOneTime ?: false)
+    var oneTime by remember(shown) {
+        mutableStateOf(shown?.initialOneTime ?: false)
     }
-    var intervalN by remember(modal) {
-        mutableIntStateOf(modal?.initialIntervalN ?: 1)
+    var intervalN by remember(shown) {
+        mutableIntStateOf(shown?.initialIntervalN ?: 1)
     }
-    var intervalType by remember(modal) {
-        mutableStateOf(modal?.initialIntervalType ?: IntervalType.MONTH)
+    var intervalType by remember(shown) {
+        mutableStateOf(shown?.initialIntervalType ?: IntervalType.MONTH)
     }
 
     val modalScrollState = rememberScrollState()
 
     IvyModal(
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         scrollState = modalScrollState,

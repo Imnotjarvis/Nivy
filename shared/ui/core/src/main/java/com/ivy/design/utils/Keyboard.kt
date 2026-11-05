@@ -5,6 +5,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -25,7 +26,7 @@ fun View.hideKeyboard() {
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
-// Both read the window's IME inset, which Compose keeps current: the caller recomposes as the
+// These read the window's insets, which Compose keeps current: the caller recomposes as the
 // keyboard opens and closes, with nothing to register or remove.
 
 /** Whether the on-screen keyboard is showing. */
@@ -35,3 +36,12 @@ fun isKeyboardVisible(): Boolean = WindowInsets.ime.getBottom(LocalDensity.curre
 /** The on-screen keyboard's height, 0.dp while it is closed. */
 @Composable
 fun keyboardHeight(): Dp = with(LocalDensity.current) { WindowInsets.ime.getBottom(this).toDp() }
+
+/**
+ * The part of the navigation bar the keyboard leaves uncovered: all of it while the keyboard is
+ * closed, none once it's open. The bottom padding of a bar that rises with the keyboard.
+ */
+@Composable
+fun uncoveredNavigationBar(): Dp = with(LocalDensity.current) {
+    (WindowInsets.navigationBars.getBottom(this) - WindowInsets.ime.getBottom(this)).coerceAtLeast(0).toDp()
+}

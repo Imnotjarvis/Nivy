@@ -33,14 +33,16 @@ internal fun BoxWithConstraintsScope.BufferModal(
     dismiss: () -> Unit,
     onBufferChanged: (Double) -> Unit
 ) {
-    var newBufferAmount by remember(modal) {
-        mutableDoubleStateOf(modal?.buffer ?: 0.0)
+    // Closing clears the data: the dialog keeps showing the last while it fades out.
+    val shown = dialogData(modal)
+    var newBufferAmount by remember(shown) {
+        mutableDoubleStateOf(shown?.buffer ?: 0.0)
     }
 
     var amountModalVisible by remember { mutableStateOf(false) }
 
     IvyModal(
-        id = modal?.id,
+        id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,
         primaryAction = {
@@ -55,8 +57,8 @@ internal fun BoxWithConstraintsScope.BufferModal(
         BufferBattery(
             modifier = Modifier.padding(horizontal = 16.dp),
             buffer = newBufferAmount,
-            balance = modal?.balance ?: 0.0,
-            currency = modal?.currency ?: "",
+            balance = shown?.balance ?: 0.0,
+            currency = shown?.currency ?: "",
             backgroundNotFilled = MaterialTheme.colorScheme.surfaceVariant,
         )
 
@@ -64,20 +66,20 @@ internal fun BoxWithConstraintsScope.BufferModal(
 
         ModalAmountSection(
             label = stringResource(R.string.edit_savings_goal),
-            currency = modal?.currency ?: "",
+            currency = shown?.currency ?: "",
             amount = newBufferAmount
         ) {
             amountModalVisible = true
         }
     }
 
-    val amountModalId = remember(modal, newBufferAmount) {
+    val amountModalId = remember(shown, newBufferAmount) {
         UUID.randomUUID()
     }
     AmountModal(
         id = amountModalId,
         visible = amountModalVisible,
-        currency = modal?.currency ?: "",
+        currency = shown?.currency ?: "",
         initialAmount = newBufferAmount,
         dismiss = { amountModalVisible = false }
     ) {

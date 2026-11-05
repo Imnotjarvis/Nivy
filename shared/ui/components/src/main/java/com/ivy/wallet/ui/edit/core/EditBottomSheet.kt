@@ -1,8 +1,6 @@
 package com.ivy.wallet.ui.edit.core
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,6 +46,7 @@ import com.ivy.design.utils.LocalScreenSize
 import com.ivy.wallet.IvyWalletPreview
 import com.ivy.design.utils.isKeyboardVisible
 import com.ivy.design.utils.keyboardHeight
+import com.ivy.design.utils.uncoveredNavigationBar
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.consumeClicks
 import com.ivy.design.utils.densityScope
@@ -55,7 +54,6 @@ import com.ivy.wallet.ui.previewAccount
 import com.ivy.wallet.utils.format
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.design.utils.lerp
-import com.ivy.design.utils.navigationBarInsets
 import com.ivy.wallet.utils.springBounce
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.utils.verticalSwipeListener
@@ -76,7 +74,6 @@ import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.design.system.colors.readableOn
-import com.ivy.wallet.ui.theme.modal.DURATION_MODAL_ANIM
 import com.ivy.wallet.ui.theme.modal.ModalSave
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.edit.AmountModal
@@ -114,16 +111,9 @@ fun BoxWithConstraintsScope.EditBottomSheet(
 ) {
     val rootView = LocalView.current
     val keyboardShown = isKeyboardVisible()
-    val keyboardShownInsetDp by animateDpAsState(
-        targetValue = keyboardHeight(),
-        animationSpec = tween(DURATION_MODAL_ANIM)
-    )
-    val navBarPadding by animateDpAsState(
-        targetValue = densityScope {
-            if (keyboardShown) 0.dp else navigationBarInsets().bottom.toDp()
-        },
-        animationSpec = tween(DURATION_MODAL_ANIM)
-    )
+    // Both follow the keyboard as it opens and closes, and the bar above it with it.
+    val keyboardShownInsetDp = keyboardHeight()
+    val navBarPadding = uncoveredNavigationBar()
 
     var bottomBarHeight by remember { mutableIntStateOf(0) }
 
