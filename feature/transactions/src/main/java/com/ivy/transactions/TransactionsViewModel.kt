@@ -701,6 +701,7 @@ class TransactionsViewModel @Inject constructor(
             )
         }
         return InvestmentData(
+            chart = valueChart(account, firstValue = values.lastOrNull()?.value),
             invested = balance - (gain ?: 0.0) - (cash ?: 0.0),
             gain = gain,
             cash = cash,
@@ -710,6 +711,29 @@ class TransactionsViewModel @Inject constructor(
             values = values.toImmutableList(),
             valuesExpanded = valuesExpanded.value,
         )
+    }
+
+    // The value and the money invested at the end of each of the last months, as the balance has them
+    // then: from the month of the first value, before which there's no value to show.
+    private suspend fun valueChart(account: Account, firstValue: AccountValue?): ImmutableList<ValuePoint> {
+        val startDay = periodState.startDayOfMonth
+        val current = TimePeriod.currentMonth(startDayOfMonth = startDay, timeProvider = timeProvider)
+        val month = current.month
+        val year = current.year
+        if (firstValue == null || month == null || year == null) return persistentListOf()
+        val now = timeProvider.utcNow()
+        return (ChartMonths - 1 downTo 0).mapNotNull { monthsAgo ->
+            val period = month.incrementMonthPeriod(-monthsAgo.toLong(), year)
+            val end = minOf(period.toRange(startDay, timeConverter, timeProvider).toCloseTimeRange().to, now)
+            if (end < firstValue.time) return@mapNotNull null
+            val output = calcAccBalanceAct(CalcAccBalanceAct.Input(account = account, range = ClosedTimeRange.to(end)))
+            val value = output.balance.toDouble()
+            ValuePoint(
+                month = period.month,
+                value = value,
+                invested = value - (output.gain?.toDouble() ?: 0.0) - (output.cash?.toDouble() ?: 0.0),
+            )
+        }.toImmutableList()
     }
 
     private fun saveValue(screen: TransactionsScreen, value: AccountValue) {
@@ -820,3 +844,5 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 }
+
+private const val ChartMonths = 12

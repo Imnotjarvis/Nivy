@@ -1,5 +1,12 @@
 package com.ivy.reports.trends
 
+import com.ivy.base.model.AccountType
+import com.ivy.data.model.Account
+import com.ivy.data.model.AccountValue
+import com.ivy.data.model.AccountValueId
+import com.ivy.data.model.primitive.ColorInt
+import com.ivy.data.model.primitive.NonNegativeDouble
+import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
@@ -122,6 +129,45 @@ class MonthSumsTest {
     }
 
     private fun range(from: String, to: String) = ClosedTimeRange(Instant.parse(from), Instant.parse(to))
+
+    @Test
+    fun `an investment account counts at its value from the month it was entered`() {
+        // given: 1,000 into the portfolio in October, valued at 1,100 in November, 200 more after
+        val portfolio = Account(
+            id = AccountId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe("Portfolio"),
+            asset = Eur,
+            color = ColorInt(0),
+            icon = null,
+            includeInBalance = true,
+            type = AccountType.INVESTMENT,
+            archived = false,
+            orderNum = 0.0,
+        )
+        val value = AccountValue(
+            id = AccountValueId(UUID.randomUUID()),
+            account = portfolio.id,
+            time = Instant.parse("2026-11-05T18:00:00Z"),
+            value = NonNegativeDouble.unsafe(1_100.0),
+            cash = null,
+        )
+
+        // when
+        val sums = monthSums(
+            transactions = listOf(
+                transfer(bank, portfolio.id, 1_000.0, "2026-10-10T10:00:00Z"),
+                transfer(bank, portfolio.id, 200.0, "2026-11-10T10:00:00Z"),
+            ),
+            accounts = included + portfolio.id,
+            months = listOf(october, november),
+            now = Instant.parse("2026-11-15T00:00:00Z"),
+            values = mapOf(portfolio to listOf(value)),
+        )
+
+        // then: October holds what went in; November the value, its 100 gain and the 200 since,
+        // less the 1,200 the bank sent
+        sums.map { it.netWorth[Eur] } shouldBe listOf(0.0, 100.0)
+    }
 
     private fun income(account: AccountId, amount: Double, time: String): Transaction = Income(
         id = TransactionId(UUID.randomUUID()),

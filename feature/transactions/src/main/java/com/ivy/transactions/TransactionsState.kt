@@ -6,10 +6,12 @@ import com.ivy.data.model.AccountValue
 import com.ivy.data.model.Category
 import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Transaction
+import com.ivy.wallet.data.model.Month
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Immutable
 data class TransactionsState(
@@ -53,6 +55,8 @@ data class TransactionsState(
  * @property gain how much more (or less) it's worth; null before a value was entered.
  * @property cash the money put in that isn't invested, when the last value has its cash.
  * @property values the values entered, the latest first.
+ * @property chart the value and the money invested at the end of each of the last months, from the
+ * one of the first value; the current month's now.
  */
 @Immutable
 data class InvestmentData(
@@ -62,6 +66,15 @@ data class InvestmentData(
     val transfersIn: Int,
     val values: ImmutableList<ValueEntry>,
     val valuesExpanded: Boolean,
+    val chart: ImmutableList<ValuePoint> = persistentListOf(),
+)
+
+/** A [month]'s value and the money invested at its end. */
+@Immutable
+data class ValuePoint(
+    val month: Month?,
+    val value: Double,
+    val invested: Double,
 )
 
 /** A [value] entered, with the money invested by then: put in, less the value's cash. */

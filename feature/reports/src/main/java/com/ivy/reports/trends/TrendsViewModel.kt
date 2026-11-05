@@ -14,6 +14,8 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.NonZeroDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
+import com.ivy.base.model.AccountType
+import com.ivy.data.repository.AccountValueRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
@@ -52,13 +54,14 @@ sealed interface TrendsEvent {
 
 /**
  * Income, expenses and net worth of the last months, counting the accounts included in the
- * balance, as the home screen does.
+ * balance, as the home screen does: investment accounts at their value.
  */
 @Stable
 @HiltViewModel
 class TrendsViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
+    private val accountValueRepository: AccountValueRepository,
     private val currencyRepository: CurrencyRepository,
     private val exchangeUseCase: ExchangeUseCase,
     private val appPreferences: AppPreferences,
@@ -101,10 +104,13 @@ class TrendsViewModel @Inject constructor(
             val ranges = periods.map {
                 it.toRange(startDay, timeConverter, timeProvider).toCloseTimeRange()
             }
-            val accounts = accountRepository.findAll().filter { it.includeInBalance }.map { it.id }.toSet()
+            val included = accountRepository.findAll().filter { it.includeInBalance }
+            val accounts = included.map { it.id }.toSet()
+            val values = included.filter { it.type == AccountType.INVESTMENT }
+                .associateWith { accountValueRepository.findByAccount(it.id) }
             val transactions = transactionRepository.findAll()
             val sums = withContext(Dispatchers.Default) {
-                monthSums(transactions, accounts, ranges, now = timeProvider.utcNow())
+                monthSums(transactions, accounts, ranges, now = timeProvider.utcNow(), values = values)
             }
 
             months = periods.zip(sums) { period, month ->

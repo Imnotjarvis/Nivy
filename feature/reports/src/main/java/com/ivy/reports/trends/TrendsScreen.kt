@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -14,12 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import com.ivy.design.system.shapes.AppCornerRadius
-import com.ivy.design.system.shapes.PillShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,6 +46,8 @@ import com.ivy.design.system.colors.expenseRed
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
+import com.ivy.wallet.ui.component.ChartPanel
+import com.ivy.wallet.ui.component.LegendDot
 import com.ivy.wallet.ui.theme.components.BackButtonType
 import com.ivy.wallet.ui.theme.components.BalanceRow
 import com.ivy.wallet.ui.theme.components.IvyIcon
@@ -205,51 +204,6 @@ private fun RowScope.MonthCard(
             Spacer(Modifier.width(20.dp))
             AmountCurrencyB1(amount = amount, currency = currency, textColor = amountColor, shortenBigNumbers = true)
         }
-    }
-}
-
-@Composable
-private fun ChartPanel(
-    title: String,
-    legend: @Composable RowScope.() -> Unit,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge)
-            .padding(horizontal = 16.dp, vertical = 20.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.ExtraBold
-                ),
-            )
-            Spacer(Modifier.weight(1f))
-            legend()
-        }
-        Spacer(Modifier.height(16.dp))
-        content()
-    }
-}
-
-@Composable
-private fun LegendDot(color: Color, label: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Spacer(
-            Modifier
-                .size(8.dp)
-                .background(color, PillShape)
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(text = label, style = MaterialTheme.typography.labelMedium.copy(color = Gray))
     }
 }
 

@@ -1,6 +1,8 @@
 package com.ivy.reports.trends
 
+import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
+import com.ivy.data.model.AccountValue
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
@@ -13,19 +15,25 @@ import java.time.Instant
 internal data class MonthSums(
     val income: Map<AssetCode, Double>,
     val expense: Map<AssetCode, Double>,
-    // What the accounts hold at the month's end, or now for the current month.
+    // What the accounts hold at the month's end, or now for the current month; an investment
+    // account at its value.
     val netWorth: Map<AssetCode, Double>,
 )
 
 /**
  * Sums the paid [transactions] of the [accounts] for each of the [months]. Transfers aren't income
  * or expenses; they count only in the net worth, as money moving between accounts.
+ *
+ * @param values the values entered for the investment accounts among the [accounts], oldest first.
+ * An account counts in the net worth at its value, as its balance does: the money put in, and what
+ * the last value up to then gained on it.
  */
 internal fun monthSums(
     transactions: List<Transaction>,
     accounts: Set<AccountId>,
     months: List<ClosedTimeRange>,
     now: Instant,
+    values: Map<Account, List<AccountValue>> = emptyMap(),
 ): List<MonthSums> {
     val paid = transactions.filter { it.settled }
     return months.map { range ->
@@ -40,11 +48,25 @@ internal fun monthSums(
                 .filter { it.account in accounts }
                 .map { it.value.asset to it.value.amount.value }
                 .sumByAsset(),
-            netWorth = paid.filter { !it.time.isAfter(end) }
-                .flatMap { it.balanceChanges(accounts) }
-                .sumByAsset(),
+            netWorth = (
+                paid.filter { !it.time.isAfter(end) }.flatMap { it.balanceChanges(accounts) } +
+                    values.mapNotNull { (account, accountValues) -> paid.gain(account, accountValues, end) }
+                ).sumByAsset(),
         )
     }
+}
+
+/** What the last of an investment [account]'s [values] up to [end] gained on the money put in by then. */
+private fun List<Transaction>.gain(
+    account: Account,
+    values: List<AccountValue>,
+    end: Instant,
+): Pair<AssetCode, Double>? {
+    val last = values.lastOrNull { !it.time.isAfter(end) } ?: return null
+    val putIn = filter { !it.time.isAfter(last.time) }
+        .flatMap { it.balanceChanges(setOf(account.id)) }
+        .sumOf { it.second }
+    return account.asset to last.total - putIn
 }
 
 /** How the transaction changes the balances of the [accounts]. */

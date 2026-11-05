@@ -443,6 +443,12 @@ private fun BoxWithConstraintsScope.UI(
                         RoundedTopJoin(itemColor)
 
                         Column {
+                            // With two months or more there's a line to draw.
+                            if (investment.chart.size > 1) {
+                                Spacer(Modifier.height(24.dp))
+                                ValueChart(points = investment.chart)
+                            }
+
                             SectionDivider(
                                 expanded = investment.valuesExpanded,
                                 title = stringResource(R.string.value_updates),
