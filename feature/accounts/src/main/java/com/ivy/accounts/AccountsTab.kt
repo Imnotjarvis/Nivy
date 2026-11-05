@@ -14,6 +14,7 @@ import com.ivy.wallet.ui.displayName
 import com.ivy.wallet.ui.iconName
 import com.ivy.wallet.ui.theme.components.ListItem
 import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.formatGainPercent
 import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -305,16 +306,36 @@ private fun AccountCard(
         if (!compactModeEnabled) {
             Spacer(Modifier.height(12.dp))
 
-            IncomeExpensesRow(
-                currency = currency,
-                incomeLabel = stringResource(R.string.month_income),
-                income = accountData.monthlyIncome,
-                expensesLabel = stringResource(R.string.month_expenses),
-                expenses = accountData.monthlyExpenses,
-                // Green and red as on Home's cards, also in minimal colors.
-                incomeColor = incomeGreen(MaterialTheme.colorScheme.surface),
-                expensesColor = expenseRed(MaterialTheme.colorScheme.surface),
-            )
+            val gain = accountData.gain
+            if (gain != null) {
+                // An investment account with a value: what was invested, and what it made.
+                val invested = accountData.balance - gain - (accountData.cash ?: 0.0)
+                IncomeExpensesRow(
+                    currency = currency,
+                    incomeLabel = stringResource(R.string.invested),
+                    income = invested,
+                    expensesLabel = formatGainPercent(gain, invested)
+                        ?.let { stringResource(R.string.gain_percent, it) }
+                        ?: stringResource(R.string.gain),
+                    expenses = gain,
+                    expensesColor = if (gain < 0) {
+                        expenseRed(MaterialTheme.colorScheme.surface)
+                    } else {
+                        incomeGreen(MaterialTheme.colorScheme.surface)
+                    },
+                )
+            } else {
+                IncomeExpensesRow(
+                    currency = currency,
+                    incomeLabel = stringResource(R.string.month_income),
+                    income = accountData.monthlyIncome,
+                    expensesLabel = stringResource(R.string.month_expenses),
+                    expenses = accountData.monthlyExpenses,
+                    // Green and red as on Home's cards, also in minimal colors.
+                    incomeColor = incomeGreen(MaterialTheme.colorScheme.surface),
+                    expensesColor = expenseRed(MaterialTheme.colorScheme.surface),
+                )
+            }
 
             Spacer(Modifier.height(12.dp))
         }

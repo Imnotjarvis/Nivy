@@ -2,6 +2,7 @@ package com.ivy.transactions
 
 import androidx.compose.runtime.Immutable
 import com.ivy.data.model.Account
+import com.ivy.data.model.AccountValue
 import com.ivy.data.model.Category
 import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Transaction
@@ -42,4 +43,30 @@ data class TransactionsState(
     val choosePeriodModal: ChoosePeriodModalData?,
     val showAccountColorsInTransactions: Boolean,
     val compactTransactions: Boolean = false,
+    // An investment account's money in, gain and values; null for other accounts and categories.
+    val investment: InvestmentData? = null,
+)
+
+/**
+ * @property invested the money put in and invested: what the account's transactions add up to,
+ * less its [cash].
+ * @property gain how much more (or less) it's worth; null before a value was entered.
+ * @property cash the money put in that isn't invested, when the last value has its cash.
+ * @property values the values entered, the latest first.
+ */
+@Immutable
+data class InvestmentData(
+    val invested: Double,
+    val gain: Double?,
+    val cash: Double?,
+    val transfersIn: Int,
+    val values: ImmutableList<ValueEntry>,
+    val valuesExpanded: Boolean,
+)
+
+/** A [value] entered, with the money invested by then: put in, less the value's cash. */
+@Immutable
+data class ValueEntry(
+    val value: AccountValue,
+    val invested: Double,
 )

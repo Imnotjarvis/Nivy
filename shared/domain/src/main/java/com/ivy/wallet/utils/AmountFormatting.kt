@@ -60,6 +60,12 @@ fun localGroupingSeparator(): String {
 // Display Formatting
 fun Double.format(digits: Int) = "%.${digits}f".format(this)
 
+/** [gain] as a share of [invested], signed, to one decimal: +6.2%; null when nothing is invested. */
+fun formatGainPercent(gain: Double, invested: Double): String? =
+    if (invested > 0) (gain / invested * Percent).let { (if (it > 0) "+" else "") + it.format(1) + "%" } else null
+
+private const val Percent = 100
+
 fun Double.format(currencyCode: String): String {
     return this.format(IvyCurrency.fromCode(currencyCode))
 }

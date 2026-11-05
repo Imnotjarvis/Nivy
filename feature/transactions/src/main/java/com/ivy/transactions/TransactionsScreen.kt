@@ -55,6 +55,14 @@ import com.ivy.wallet.data.DueSection
 import com.ivy.wallet.data.model.Month
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.ui.component.IncomeExpensesCards
+import androidx.compose.foundation.lazy.items
+import com.ivy.data.model.AccountValue
+import com.ivy.design.system.colors.Ivy
+import com.ivy.ui.time.TimeFormatter
+import com.ivy.wallet.ui.component.InvestmentCards
+import com.ivy.wallet.ui.component.transaction.SectionDivider
+import com.ivy.wallet.ui.theme.modal.edit.AccountValueModal
+import com.ivy.wallet.ui.theme.modal.edit.AccountValueModalData
 import com.ivy.wallet.ui.component.ItemStatisticToolbar
 import com.ivy.wallet.ui.component.transaction.transactions
 import com.ivy.wallet.ui.previewAccount
@@ -214,7 +222,17 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
         onChoosePeriodModal = {
             viewModel.onEvent(TransactionsEvent.OnChoosePeriodModalData(it))
         },
-        choosePeriodModal = uiState.choosePeriodModal
+        choosePeriodModal = uiState.choosePeriodModal,
+        investment = uiState.investment,
+        setValuesExpanded = {
+            viewModel.onEvent(TransactionsEvent.SetValuesExpanded(it))
+        },
+        onSaveValue = {
+            viewModel.onEvent(TransactionsEvent.SaveValue(screen, it))
+        },
+        onDeleteValue = {
+            viewModel.onEvent(TransactionsEvent.DeleteValue(screen, it))
+        },
     )
 }
 
@@ -274,6 +292,10 @@ private fun BoxWithConstraintsScope.UI(
     onSkipAllTransactions: (List<Transaction>) -> Unit = {},
     compactTransactions: Boolean = false,
     creditCards: ImmutableList<CreditCard> = persistentListOf(),
+    investment: InvestmentData? = null,
+    setValuesExpanded: (Boolean) -> Unit = {},
+    onSaveValue: (AccountValue) -> Unit = {},
+    onDeleteValue: (AccountValue) -> Unit = {},
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
     val periodState = LocalPeriodState.current
@@ -283,6 +305,13 @@ private fun BoxWithConstraintsScope.UI(
 
     var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
     var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
+    var valueModalData: AccountValueModalData? by remember { mutableStateOf(null) }
+    // An investment account's value is entered, rather than adjusted by a transaction.
+    val updateValue: (() -> Unit)? = account?.takeIf { investment != null }?.let { investmentAccount ->
+        {
+            valueModalData = AccountValueModalData(value = null, account = investmentAccount.id, currency = currency)
+        }
+    }
 
     val swipeListenerState = rememberSwipeListenerState()
     Column(
@@ -305,6 +334,8 @@ private fun BoxWithConstraintsScope.UI(
         val listState = rememberScrollPositionListState(
             key = "item_stats_lazy_column"
         )
+        val valuesShown = investment?.values?.isNotEmpty() == true
+        val surface = MaterialTheme.colorScheme.surface
         val density = LocalDensity.current
 
         val timeProvider = LocalTimeProvider.current
@@ -345,6 +376,8 @@ private fun BoxWithConstraintsScope.UI(
                     balance = balance,
                     balanceBaseCurrency = balanceBaseCurrency,
                     treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense,
+                    investment = investment,
+                    onUpdateValue = updateValue,
 
                     onDelete = {
                         onDeleteModal1Visible(true)
@@ -372,6 +405,7 @@ private fun BoxWithConstraintsScope.UI(
 
                     onBalanceClick = {
                         when {
+                            updateValue != null -> updateValue()
                             account != null -> {
                                 accountModalData = AccountModalData(
                                     account = account,
@@ -403,9 +437,43 @@ private fun BoxWithConstraintsScope.UI(
                 )
             }
 
+            if (investment != null && account != null && valuesShown) {
+                item(key = "values_section") {
+                    Box {
+                        RoundedTopJoin(itemColor)
+
+                        Column {
+                            SectionDivider(
+                                expanded = investment.valuesExpanded,
+                                title = stringResource(R.string.value_updates),
+                                titleColor = Ivy,
+                                baseCurrency = baseCurrency,
+                                income = 0.0,
+                                expenses = 0.0,
+                                showIncomeExpenseRow = false,
+                                setExpanded = setValuesExpanded,
+                            )
+                        }
+                    }
+                }
+                if (investment.valuesExpanded) {
+                    items(investment.values, key = { it.value.id.value }) { entry ->
+                        Spacer(Modifier.height(12.dp))
+                        ValueEntryRow(entry = entry, currency = currency) {
+                            valueModalData = AccountValueModalData(
+                                value = entry.value,
+                                account = account.id,
+                                currency = currency,
+                            )
+                        }
+                    }
+                }
+            }
+
             choosePeriodModal(
                 period = period,
-                itemColor = itemColor,
+                // After the values the surface has started: no header color behind its corners.
+                itemColor = if (valuesShown) surface else itemColor,
                 initWithTransactions = initWithTransactions,
                 onPreviousMonth = onPreviousMonth,
                 onNextMonth = onNextMonth,
@@ -498,6 +566,28 @@ private fun BoxWithConstraintsScope.UI(
     ) {
         onSetPeriod(it)
     }
+
+    AccountValueModal(
+        modal = valueModalData,
+        onSave = onSaveValue,
+        onDelete = onDeleteValue,
+        dismiss = {
+            valueModalData = null
+        }
+    )
+}
+
+// Rounded corners top effect: the list's surface starts under the header, its corners over the
+// header's color.
+@Composable
+private fun RoundedTopJoin(itemColor: Color) {
+    Spacer(
+        Modifier
+            .height(32.dp)
+            .fillMaxWidth()
+            .background(itemColor) // itemColor is displayed below the clip
+            .background(MaterialTheme.colorScheme.surface, ShapeTop)
+    )
 }
 
 private fun LazyListScope.choosePeriodModal(
@@ -509,15 +599,8 @@ private fun LazyListScope.choosePeriodModal(
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
     item {
-        // Rounded corners top effect
         Box {
-            Spacer(
-                Modifier
-                    .height(32.dp)
-                    .fillMaxWidth()
-                    .background(itemColor) // itemColor is displayed below the clip
-                    .background(MaterialTheme.colorScheme.surface, ShapeTop)
-            )
+            RoundedTopJoin(itemColor)
 
             PeriodSelector(
                 modifier = Modifier.padding(top = 16.dp),
@@ -628,6 +711,8 @@ private fun Header(
     showCategoryModal: () -> Unit,
     showAccountModal: () -> Unit,
     treatTransfersAsIncomeExpense: Boolean = false,
+    investment: InvestmentData? = null,
+    onUpdateValue: (() -> Unit)? = null,
 ) {
     val contrastColor = readableOn(itemColor)
 
@@ -701,51 +786,88 @@ private fun Header(
             )
         }
 
+        investment?.values?.firstOrNull()?.let { latest ->
+            Text(
+                modifier = Modifier.padding(start = 32.dp),
+                text = stringResource(
+                    R.string.last_value_update,
+                    with(LocalTimeFormatter.current) {
+                        latest.value.time.formatLocal(TimeFormatter.Style.DateOnly(includeWeekDay = true))
+                    }
+                ),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = itemColor.dynamicContrast(),
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+
         Spacer(Modifier.height(20.dp))
 
         val nav = navigation()
-        IncomeExpensesCards(
-            history = history,
-            currency = currency,
-            income = income,
-            expenses = expenses,
-
-            hasAddButtons = true,
-
-            itemColor = itemColor,
-            incomeHeaderCardClicked = {
-                if (account != null) {
+        if (investment != null && account != null && onUpdateValue != null) {
+            InvestmentCards(
+                currency = currency,
+                invested = investment.invested,
+                gain = investment.gain,
+                cash = investment.cash,
+                transfersIn = investment.transfersIn,
+                itemColor = itemColor,
+                onAddTransfer = {
                     nav.navigateTo(
-                        PieChartStatisticScreen(
-                            type = TransactionType.INCOME,
-                            accountList = persistentListOf(account.id.value),
-                            filterExcluded = false,
-                            treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
+                        EditTransactionScreen(
+                            initialTransactionId = null,
+                            type = TransactionType.TRANSFER,
+                            toAccountId = account.id.value,
                         )
                     )
-                }
-            },
-            expenseHeaderCardClicked = {
-                if (account != null) {
-                    nav.navigateTo(
-                        PieChartStatisticScreen(
-                            type = TransactionType.EXPENSE,
-                            accountList = persistentListOf(account.id.value),
-                            filterExcluded = false,
-                            treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
-                        )
-                    )
-                }
-            }
-        ) { trnType ->
-            nav.navigateTo(
-                EditTransactionScreen(
-                    initialTransactionId = null,
-                    type = trnType,
-                    accountId = account?.id?.value,
-                    categoryId = category?.id?.value
-                )
+                },
+                onUpdateValue = onUpdateValue,
             )
+        } else {
+            IncomeExpensesCards(
+                history = history,
+                currency = currency,
+                income = income,
+                expenses = expenses,
+
+                hasAddButtons = true,
+
+                itemColor = itemColor,
+                incomeHeaderCardClicked = {
+                    if (account != null) {
+                        nav.navigateTo(
+                            PieChartStatisticScreen(
+                                type = TransactionType.INCOME,
+                                accountList = persistentListOf(account.id.value),
+                                filterExcluded = false,
+                                treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
+                            )
+                        )
+                    }
+                },
+                expenseHeaderCardClicked = {
+                    if (account != null) {
+                        nav.navigateTo(
+                            PieChartStatisticScreen(
+                                type = TransactionType.EXPENSE,
+                                accountList = persistentListOf(account.id.value),
+                                filterExcluded = false,
+                                treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
+                            )
+                        )
+                    }
+                }
+            ) { trnType ->
+                nav.navigateTo(
+                    EditTransactionScreen(
+                        initialTransactionId = null,
+                        type = trnType,
+                        accountId = account?.id?.value,
+                        categoryId = category?.id?.value
+                    )
+                )
+            }
         }
 
         Spacer(Modifier.height(20.dp))

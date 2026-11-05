@@ -31,6 +31,24 @@ class IvyRoomDatabaseMigrationTest {
     )
 
     @Test
+    fun migrate136to137_AccountValues() {
+        helper.createDatabase(TestDb, 136).close()
+
+        // A new table: Room adds it, and checks the schema.
+        val newDb = helper.runMigrationsAndValidate(TestDb, 137, true)
+
+        newDb.execSQL(
+            "INSERT INTO account_values (accountId, time, value, id) " +
+                "VALUES ('${UUID.randomUUID()}', 1761933600000, 8940.0, '${UUID.randomUUID()}')"
+        )
+        newDb.query("SELECT value FROM account_values").use {
+            it.moveToFirst()
+            it.getDouble(0) shouldBe 8940.0
+        }
+        newDb.close()
+    }
+
+    @Test
     fun migrate135to136_CreditCards() {
         val card = UUID.randomUUID().toString()
         val bank = UUID.randomUUID().toString()

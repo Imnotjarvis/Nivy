@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import com.ivy.data.db.entity.AccountEntity
 import com.ivy.data.db.entity.BudgetEntity
 import com.ivy.data.db.entity.CategoryEntity
+import com.ivy.data.db.entity.AccountValueEntity
 import com.ivy.data.db.entity.CreditCardEntity
 import com.ivy.data.db.entity.LoanEntity
 import com.ivy.data.db.entity.LoanRecordEntity
@@ -43,6 +44,8 @@ data class IvyWalletCompleteData(
     val tagAssociations: List<TagAssociationEntity> = emptyList(),
     @SerialName("creditCards")
     val creditCards: List<CreditCardEntity> = emptyList(),
+    @SerialName("accountValues")
+    val accountValues: List<AccountValueEntity> = emptyList(),
 )
 
 /**

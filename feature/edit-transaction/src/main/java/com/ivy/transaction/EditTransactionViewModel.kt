@@ -563,10 +563,14 @@ class EditTransactionViewModel @Inject constructor(
     }
 
     private suspend fun newDraft(screen: EditTransactionScreen, accounts: List<Account>): TransactionDraft {
-        val accountId = defaultAccountId(screen = screen, accounts = accounts)
+        val accountId = defaultAccountId(
+            screen = screen,
+            accounts = accounts.filter { it.id.value != screen.toAccountId }.ifEmpty { accounts },
+        )
         val card = accounts.find { it.id.value == accountId }?.let { defaultCreditCard(it, screen.type) }
         return TransactionDraft(
             accountId = accountId,
+            toAccountId = screen.toAccountId,
             categoryId = screen.categoryId,
             type = screen.type,
             amount = 0.0,

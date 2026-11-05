@@ -11,6 +11,7 @@ import androidx.room.migration.AutoMigrationSpec
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.BudgetDao
 import com.ivy.data.db.dao.read.CategoryDao
+import com.ivy.data.db.dao.read.AccountValueDao
 import com.ivy.data.db.dao.read.CreditCardDao
 import com.ivy.data.db.dao.read.ExchangeRatesDao
 import com.ivy.data.db.dao.read.LoanDao
@@ -22,6 +23,7 @@ import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
+import com.ivy.data.db.dao.write.WriteAccountValueDao
 import com.ivy.data.db.dao.write.WriteCreditCardDao
 import com.ivy.data.db.dao.write.WriteExchangeRatesDao
 import com.ivy.data.db.dao.write.WriteLoanDao
@@ -33,6 +35,7 @@ import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.db.entity.AccountEntity
 import com.ivy.data.db.entity.BudgetEntity
 import com.ivy.data.db.entity.CategoryEntity
+import com.ivy.data.db.entity.AccountValueEntity
 import com.ivy.data.db.entity.CreditCardEntity
 import com.ivy.data.db.entity.ExchangeRateEntity
 import com.ivy.data.db.entity.LoanEntity
@@ -74,7 +77,7 @@ import com.ivy.data.db.migration.Migration135to136_CreditCards
         AccountEntity::class, TransactionEntity::class, CategoryEntity::class,
         PlannedPaymentRuleEntity::class, ExchangeRateEntity::class, BudgetEntity::class,
         LoanEntity::class, LoanRecordEntity::class, TagEntity::class, TagAssociationEntity::class,
-        CreditCardEntity::class,
+        CreditCardEntity::class, AccountValueEntity::class,
     ],
     autoMigrations = [
         AutoMigration(
@@ -88,8 +91,10 @@ import com.ivy.data.db.migration.Migration135to136_CreditCards
         AutoMigration(from = 133, to = 134),
         // 135: credit card statement closing day; the months a transaction's charge was moved.
         AutoMigration(from = 134, to = 135),
+        // 137: the values entered for investment accounts.
+        AutoMigration(from = 136, to = 137),
     ],
-    version = 136,
+    version = 137,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)
@@ -105,6 +110,7 @@ abstract class IvyRoomDatabase : RoomDatabase() {
     abstract val tagDao: TagDao
     abstract val tagAssociationDao: TagAssociationDao
     abstract val creditCardDao: CreditCardDao
+    abstract val accountValueDao: AccountValueDao
 
     abstract val writeAccountDao: WriteAccountDao
     abstract val writeTransactionDao: WriteTransactionDao
@@ -117,6 +123,7 @@ abstract class IvyRoomDatabase : RoomDatabase() {
     abstract val writeTagDao: WriteTagDao
     abstract val writeTagAssociationDao: WriteTagAssociationDao
     abstract val writeCreditCardDao: WriteCreditCardDao
+    abstract val writeAccountValueDao: WriteAccountValueDao
 
     companion object {
         const val DB_NAME = "ivywallet.db"

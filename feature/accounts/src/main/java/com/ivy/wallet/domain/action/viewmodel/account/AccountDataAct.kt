@@ -36,11 +36,12 @@ class AccountDataAct @Inject constructor(
         acc: com.ivy.data.model.Account,
         input: Input,
     ): com.ivy.wallet.data.model.AccountData {
-        val balance = calcAccBalanceAct(
+        val output = calcAccBalanceAct(
             CalcAccBalanceAct.Input(
                 account = acc
             )
-        ).balance
+        )
+        val balance = output.balance
 
         val balanceBaseCurrency = if (acc.asset.code != input.baseCurrency) {
             exchangeAct(
@@ -73,6 +74,8 @@ class AccountDataAct @Inject constructor(
             monthlyIncome = incomeExpensePair.income.toDouble(),
             monthlyExpenses = incomeExpensePair.expense.toDouble(),
             creditCards = creditCards,
+            gain = output.gain?.toDouble(),
+            cash = output.cash?.toDouble(),
         )
     }
 

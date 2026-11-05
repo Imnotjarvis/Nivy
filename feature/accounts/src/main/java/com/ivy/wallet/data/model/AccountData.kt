@@ -8,6 +8,9 @@ import kotlinx.collections.immutable.ImmutableList
 
 /**
  * @property creditCards the account's credit cards, with what each owes.
+ * @property gain for an investment account with a value entered, how much its value is above (or
+ * below) the money put in, which is [balance] less it.
+ * @property cash of that money, what isn't invested, when the last value has its cash.
  */
 @Immutable
 data class AccountData(
@@ -17,6 +20,8 @@ data class AccountData(
     val monthlyExpenses: Double,
     val monthlyIncome: Double,
     val creditCards: ImmutableList<CreditCardUse>,
+    val gain: Double? = null,
+    val cash: Double? = null,
 ) : Reorderable {
     override fun getItemOrderNum() = account.orderNum
 
