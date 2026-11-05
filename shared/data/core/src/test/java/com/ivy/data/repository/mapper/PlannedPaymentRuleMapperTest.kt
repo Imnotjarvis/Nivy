@@ -4,6 +4,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.db.entity.PlannedPaymentRuleEntity
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.CreditCardId
 import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
@@ -42,6 +43,17 @@ class PlannedPaymentRuleMapperTest {
         // then
         rule.interval shouldBe null
         with(mapper) { rule.toEntity() } shouldBe entity.copy(intervalN = null, intervalType = null)
+    }
+
+    @Test
+    fun `a planned expense keeps the card it's paid with`() {
+        val card = UUID.randomUUID()
+        val entity = RecurringEntity.copy(creditCardId = card)
+
+        val rule = with(mapper) { entity.toDomain() }.shouldBeRight()
+
+        rule.creditCard shouldBe CreditCardId(card)
+        with(mapper) { rule.toEntity() } shouldBe entity
     }
 
     @Test
@@ -92,6 +104,7 @@ class PlannedPaymentRuleMapperTest {
                 n = PositiveInt.unsafe(1),
                 type = IntervalType.MONTH,
             ),
+            creditCard = null,
         )
     }
 }

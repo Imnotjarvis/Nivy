@@ -3,6 +3,7 @@ package com.ivy.planned.edit
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.base.model.IntervalType
 import com.ivy.wallet.ui.theme.modal.RecurringRuleModalData
 import com.ivy.wallet.ui.theme.modal.edit.AccountModalData
@@ -24,6 +25,9 @@ data class EditPlannedScreenState(
     val categories: ImmutableList<Category>,
     val accounts: ImmutableList<Account>,
     val account: Account?,
+    // The account's credit cards a planned expense can be paid with, and the one it's paid with.
+    val creditCards: ImmutableList<CreditCard>,
+    val creditCard: CreditCard?,
     val category: Category?,
     val amount: Double,
     val categoryModalVisible: Boolean,

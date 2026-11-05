@@ -7,6 +7,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.PositiveValue
@@ -121,6 +122,7 @@ class TransactionMapperTest {
                 loanRecordId = LoanRecordId,
                 purchaseDateTime = null,
                 chargeShift = -1,
+                creditCard = CreditCardId,
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -152,6 +154,7 @@ class TransactionMapperTest {
             loanId = LoanId,
             loanRecordId = LoanRecordId,
             chargeShift = -1,
+            creditCardId = CreditCardId.value,
             isSynced = true,
             isDeleted = false,
             id = TransactionId.value
@@ -352,6 +355,7 @@ class TransactionMapperTest {
             dateTime = InstantNow.takeIf { settled },
             dueDate = InstantNow.takeIf { !settled },
             chargeShift = 2,
+            creditCardId = CreditCardId.value,
         )
         mockkAccounts(account = EUR)
 
@@ -373,6 +377,7 @@ class TransactionMapperTest {
                 loanRecordId = LoanRecordId,
                 purchaseDateTime = null,
                 chargeShift = 2,
+                creditCard = CreditCardId,
             ),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(100.0),
@@ -682,6 +687,7 @@ class TransactionMapperTest {
         val LoanId = UUID.randomUUID()
         val LoanRecordId = UUID.randomUUID()
         val TransactionId = TransactionId(UUID.randomUUID())
+        val CreditCardId = CreditCardId(UUID.randomUUID())
         val InstantNow = Instant.now()
 
         val ValidIncome = TransactionEntity(

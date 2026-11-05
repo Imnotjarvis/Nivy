@@ -11,6 +11,7 @@ import androidx.room.migration.AutoMigrationSpec
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.BudgetDao
 import com.ivy.data.db.dao.read.CategoryDao
+import com.ivy.data.db.dao.read.CreditCardDao
 import com.ivy.data.db.dao.read.ExchangeRatesDao
 import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.db.dao.read.LoanRecordDao
@@ -21,6 +22,7 @@ import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
+import com.ivy.data.db.dao.write.WriteCreditCardDao
 import com.ivy.data.db.dao.write.WriteExchangeRatesDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.db.dao.write.WriteLoanRecordDao
@@ -31,6 +33,7 @@ import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.db.entity.AccountEntity
 import com.ivy.data.db.entity.BudgetEntity
 import com.ivy.data.db.entity.CategoryEntity
+import com.ivy.data.db.entity.CreditCardEntity
 import com.ivy.data.db.entity.ExchangeRateEntity
 import com.ivy.data.db.entity.LoanEntity
 import com.ivy.data.db.entity.LoanRecordEntity
@@ -64,12 +67,14 @@ import com.ivy.data.db.migration.Migration128to129_DeleteIsDeleted
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
 import com.ivy.data.db.migration.Migration130to131_DropUsers
 import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
+import com.ivy.data.db.migration.Migration135to136_CreditCards
 
 @Database(
     entities = [
         AccountEntity::class, TransactionEntity::class, CategoryEntity::class,
         PlannedPaymentRuleEntity::class, ExchangeRateEntity::class, BudgetEntity::class,
-        LoanEntity::class, LoanRecordEntity::class, TagEntity::class, TagAssociationEntity::class
+        LoanEntity::class, LoanRecordEntity::class, TagEntity::class, TagAssociationEntity::class,
+        CreditCardEntity::class,
     ],
     autoMigrations = [
         AutoMigration(
@@ -84,7 +89,7 @@ import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
         // 135: credit card statement closing day; the months a transaction's charge was moved.
         AutoMigration(from = 134, to = 135),
     ],
-    version = 135,
+    version = 136,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)
@@ -99,6 +104,7 @@ abstract class IvyRoomDatabase : RoomDatabase() {
     abstract val loanRecordDao: LoanRecordDao
     abstract val tagDao: TagDao
     abstract val tagAssociationDao: TagAssociationDao
+    abstract val creditCardDao: CreditCardDao
 
     abstract val writeAccountDao: WriteAccountDao
     abstract val writeTransactionDao: WriteTransactionDao
@@ -110,6 +116,7 @@ abstract class IvyRoomDatabase : RoomDatabase() {
     abstract val writeLoanRecordDao: WriteLoanRecordDao
     abstract val writeTagDao: WriteTagDao
     abstract val writeTagAssociationDao: WriteTagAssociationDao
+    abstract val writeCreditCardDao: WriteCreditCardDao
 
     companion object {
         const val DB_NAME = "ivywallet.db"
@@ -140,7 +147,8 @@ abstract class IvyRoomDatabase : RoomDatabase() {
             Migration128to129_DeleteIsDeleted(),
             Migration129to130_LoanIncludeNote(),
             Migration130to131_DropUsers(),
-            Migration131to132_DeleteSoftDeleted()
+            Migration131to132_DeleteSoftDeleted(),
+            Migration135to136_CreditCards(),
         )
 
         @Suppress("SpreadOperator")

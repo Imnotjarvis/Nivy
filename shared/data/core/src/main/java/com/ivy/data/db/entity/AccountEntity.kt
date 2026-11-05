@@ -33,14 +33,6 @@ data class AccountEntity(
     @SerialName("archived")
     @ColumnInfo(defaultValue = "0")
     val archived: Boolean = false,
-    // Only for credit cards: the limit, the day of the month purchases are charged and the day
-    // the statement closes (null for the month's last day).
-    @SerialName("creditLimit")
-    val creditLimit: Double? = null,
-    @SerialName("chargeDay")
-    val chargeDay: Int? = null,
-    @SerialName("statementClosingDay")
-    val statementClosingDay: Int? = null,
 
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")

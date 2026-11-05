@@ -67,6 +67,8 @@ class BackupDataUseCaseAndroidTest {
             tagAssociationReader = db.tagAssociationDao,
             tagsWriter = db.writeTagDao,
             tagAssociationWriter = db.writeTagAssociationDao,
+            creditCardDao = db.creditCardDao,
+            creditCardWriter = db.writeCreditCardDao,
             transaction = DatabaseTransaction(db),
         )
     }

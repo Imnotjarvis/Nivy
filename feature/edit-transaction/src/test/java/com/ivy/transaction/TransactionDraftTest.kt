@@ -5,6 +5,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.TransactionId
@@ -28,19 +29,19 @@ class TransactionDraftTest {
 
     private val bank = account("Bank", Eur)
     private val dollars = account("Dollars", Usd)
-    private val card = account("Card", Eur).copy(type = AccountType.CREDIT_CARD, chargeDay = 5)
 
     private val mapper = TransactionMapper(
         mockk<AccountRepository> {
-            listOf(bank, dollars, card).forEach { coEvery { findById(it.id) } returns it }
+            listOf(bank, dollars).forEach { coEvery { findById(it.id) } returns it }
         }
     )
 
     @Test
-    fun `a credit card expense opens on the day it was bought, with its charge move`() {
+    fun `a credit card expense opens on the day it was bought, with its card and charge move`() {
         val bought = Instant.parse("2026-11-15T12:00:00Z")
-        val expense = expense(card, 30.0, time = Instant.parse("2026-12-05T12:00:00Z")).copy(
-            metadata = Metadata.copy(purchaseDateTime = bought, chargeShift = 1),
+        val card = CreditCardId(UUID.randomUUID())
+        val expense = expense(bank, 30.0, time = Instant.parse("2026-12-05T12:00:00Z")).copy(
+            metadata = Metadata.copy(purchaseDateTime = bought, chargeShift = 1, creditCard = card),
         )
 
         val draft = expense.toDraft()
@@ -48,6 +49,7 @@ class TransactionDraftTest {
         draft.dateTime shouldBe bought
         draft.dueDate shouldBe null
         draft.chargeShift shouldBe 1
+        draft.creditCardId shouldBe card.value
     }
 
     @Test
@@ -103,9 +105,11 @@ class TransactionDraftTest {
             toValue = PositiveValue(PositiveDouble.unsafe(110.0), Usd),
         )
         val expense = expense(bank, 30.0, time = Instant.parse("2026-11-15T12:00:00Z"))
+        val cardExpense = expense.copy(metadata = Metadata.copy(creditCard = CreditCardId(UUID.randomUUID())))
 
         transfer.toDraft().toDomain(mapper) shouldBe transfer
         expense.toDraft().toDomain(mapper) shouldBe expense
+        cardExpense.toDraft().toDomain(mapper) shouldBe cardExpense
     }
 
     @Test
@@ -153,9 +157,6 @@ class TransactionDraftTest {
             includeInBalance = true,
             type = AccountType.BANK,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
     }

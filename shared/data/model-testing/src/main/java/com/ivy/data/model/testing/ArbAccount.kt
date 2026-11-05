@@ -29,9 +29,6 @@ fun Arb.Companion.account(
         includeInBalance = includeInBalance.getOrElse { Arb.boolean().bind() },
         type = AccountType.OTHER,
         archived = false,
-        creditLimit = null,
-        chargeDay = null,
-        statementClosingDay = null,
         orderNum = orderNum.getOrElse { Arb.double().bind() },
     )
 }

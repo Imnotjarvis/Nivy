@@ -105,6 +105,8 @@ class PlannedPaymentsGenerator @Inject constructor(
             loanId = null,
             loanRecordId = null,
             purchaseDateTime = null,
+            // Paid with the rule's card, it counts when the card charges it.
+            creditCard = rule.creditCard,
         )
         transactionRepository.save(
             if (rule.type == TransactionType.INCOME) {

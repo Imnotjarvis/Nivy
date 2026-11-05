@@ -27,6 +27,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.Account
+import com.ivy.data.model.AccountId
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
@@ -46,6 +48,7 @@ import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Palette
 import com.ivy.wallet.ui.theme.components.IvyCheckboxWithText
+import com.ivy.wallet.ui.theme.components.IvyOutlinedButtonFillMaxWidth
 import com.ivy.wallet.ui.theme.modal.ChooseIconModal
 import com.ivy.wallet.ui.theme.modal.CurrencyModal
 import com.ivy.wallet.ui.theme.modal.IvyModal
@@ -57,18 +60,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import com.ivy.base.model.AccountType
-import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.wallet.ui.theme.components.ListItem
-import com.ivy.wallet.ui.theme.modal.ChooseStartDateOfMonthModal
-import com.ivy.wallet.utils.format
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
+/**
+ * @property creditCards the account's credit cards, edited with it; null where the dialog doesn't
+ * show them.
+ */
 data class AccountModalData(
     val account: Account?,
     val baseCurrency: String,
     val balance: Double,
+    val creditCards: List<CreditCard>? = emptyList(),
     val adjustBalanceMode: Boolean = false,
     val forceNonZeroBalance: Boolean = false,
     val autoFocusKeyboard: Boolean = true,
@@ -81,7 +86,7 @@ data class AccountModalData(
 fun BoxWithConstraintsScope.AccountModal(
     modal: AccountModalData?,
     onCreateAccount: (CreateAccountData) -> Unit,
-    onEditAccount: (Account, balance: Double) -> Unit,
+    onEditAccount: (Account, balance: Double, creditCards: List<CreditCard>?) -> Unit,
     modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
@@ -109,15 +114,18 @@ fun BoxWithConstraintsScope.AccountModal(
     var typeSettings by remember(shown) {
         mutableStateOf(AccountTypeSettings.of(account))
     }
+    var creditCards by remember(shown) {
+        mutableStateOf(shown?.creditCards)
+    }
+    // A new account's cards are given its id once it's created.
+    val accountId = remember(shown) { account?.id ?: AccountId(UUID.randomUUID()) }
+    var creditCardModalData: CreditCardModalData? by remember(shown) { mutableStateOf(null) }
 
     var amountModalVisible by remember { mutableStateOf(false) }
     var currencyModalVisible by remember { mutableStateOf(false) }
     var chooseIconModalVisible by remember(shown) {
         mutableStateOf(false)
     }
-    var chargeDayModalVisible by remember(shown) { mutableStateOf(false) }
-    var closingDayModalVisible by remember(shown) { mutableStateOf(false) }
-    var creditLimitModalVisible by remember(shown) { mutableStateOf(false) }
 
     val forceNonZeroBalance = shown?.forceNonZeroBalance ?: false
 
@@ -130,8 +138,7 @@ fun BoxWithConstraintsScope.AccountModal(
         primaryAction = {
             ModalAddSave(
                 item = shown?.account,
-                enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0) &&
-                    typeSettings.complete()
+                enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0)
             ) {
                 save(
                     account = account,
@@ -142,6 +149,7 @@ fun BoxWithConstraintsScope.AccountModal(
                     amount = amount,
                     includeInBalance = includeInBalance,
                     typeSettings = typeSettings,
+                    creditCards = creditCards,
 
                     onCreateAccount = onCreateAccount,
                     onEditAccount = onEditAccount,
@@ -196,12 +204,22 @@ fun BoxWithConstraintsScope.AccountModal(
 
         AccountTypeSection(
             settings = typeSettings,
-            currencyCode = currencyCode,
             onSelectType = { typeSettings = typeSettings.copy(type = it) },
-            onChargeDayClick = { chargeDayModalVisible = true },
-            onClosingDayClick = { closingDayModalVisible = true },
-            onCreditLimitClick = { creditLimitModalVisible = true },
         )
+
+        creditCards?.let { cards ->
+            Spacer(modifier = Modifier.height(32.dp))
+
+            CreditCardsSection(
+                cards = cards,
+                onCardClick = {
+                    creditCardModalData = CreditCardModalData(card = it, account = accountId, currency = currencyCode)
+                },
+                onAddCard = {
+                    creditCardModalData = CreditCardModalData(card = null, account = accountId, currency = currencyCode)
+                },
+            )
+        }
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -272,6 +290,7 @@ fun BoxWithConstraintsScope.AccountModal(
                 amount = newAmount,
                 includeInBalance = includeInBalance,
                 typeSettings = typeSettings,
+                creditCards = creditCards,
 
                 onCreateAccount = onCreateAccount,
                 onEditAccount = onEditAccount,
@@ -289,37 +308,19 @@ fun BoxWithConstraintsScope.AccountModal(
         currencyCode = it
     }
 
-    ChooseStartDateOfMonthModal(
-        visible = chargeDayModalVisible,
-        selectedStartDateOfMonth = typeSettings.chargeDay ?: 0,
-        title = stringResource(R.string.charge_day),
-        dismiss = { chargeDayModalVisible = false },
-    ) {
-        typeSettings = typeSettings.copy(chargeDay = it)
-    }
-
-    ChooseStartDateOfMonthModal(
-        visible = closingDayModalVisible,
-        selectedStartDateOfMonth = typeSettings.statementClosingDay ?: LastDayOfMonth,
-        title = stringResource(R.string.statement_closes),
-        dismiss = { closingDayModalVisible = false },
-    ) {
-        // The 31st closes every month on its last day, which null already means.
-        typeSettings = typeSettings.copy(statementClosingDay = it.takeIf { day -> day < LastDayOfMonth })
-    }
-
-    val creditLimitModalId = remember(shown, typeSettings.creditLimit) {
-        UUID.randomUUID()
-    }
-    AmountModal(
-        id = creditLimitModalId,
-        visible = creditLimitModalVisible,
-        currency = currencyCode,
-        initialAmount = typeSettings.creditLimit,
-        dismiss = { creditLimitModalVisible = false }
-    ) {
-        typeSettings = typeSettings.copy(creditLimit = it.takeIf { limit -> limit > 0 })
-    }
+    CreditCardModal(
+        modal = creditCardModalData,
+        onSave = { card ->
+            val cards = creditCards.orEmpty()
+            creditCards = if (cards.any { it.id == card.id }) {
+                cards.map { if (it.id == card.id) card else it }
+            } else {
+                cards + card
+            }
+        },
+        onDelete = { card -> creditCards = creditCards.orEmpty().filterNot { it.id == card.id } },
+        dismiss = { creditCardModalData = null },
+    )
 
     ChooseIconModal(
         visible = chooseIconModalVisible,
@@ -340,9 +341,10 @@ private fun save(
     amount: Double,
     includeInBalance: Boolean,
     typeSettings: AccountTypeSettings,
+    creditCards: List<CreditCard>?,
 
     onCreateAccount: (CreateAccountData) -> Unit,
-    onEditAccount: (Account, balance: Double) -> Unit,
+    onEditAccount: (Account, balance: Double, creditCards: List<CreditCard>?) -> Unit,
     dismiss: () -> Unit
 ) {
     if (account != null) {
@@ -358,11 +360,9 @@ private fun save(
                     color = ColorInt(color.toArgb()),
                     type = typeSettings.type,
                     archived = typeSettings.archived,
-                    creditLimit = typeSettings.creditLimitIfCard()?.let(PositiveDouble::from)?.getOrNull(),
-                    chargeDay = typeSettings.chargeDayIfCard(),
-                    statementClosingDay = typeSettings.closingDayIfCard(),
                 ),
-                amount
+                amount,
+                creditCards,
             )
         }
     } else {
@@ -375,9 +375,7 @@ private fun save(
                 balance = amount,
                 includeBalance = includeInBalance,
                 type = typeSettings.type,
-                creditLimit = typeSettings.creditLimitIfCard(),
-                chargeDay = typeSettings.chargeDayIfCard(),
-                statementClosingDay = typeSettings.closingDayIfCard(),
+                creditCards = creditCards.orEmpty(),
             )
         )
     }
@@ -385,30 +383,15 @@ private fun save(
     dismiss()
 }
 
-/**
- * The type fields of the dialog; the card's limit, charge day and closing day are kept only for a
- * credit card.
- */
+/** The type fields of the dialog. */
 private data class AccountTypeSettings(
     val type: AccountType,
     val archived: Boolean,
-    val creditLimit: Double?,
-    val chargeDay: Int?,
-    val statementClosingDay: Int?,
 ) {
-    // A credit card needs its charge day to date its purchases.
-    fun complete(): Boolean = type != AccountType.CREDIT_CARD || chargeDay != null
-    fun creditLimitIfCard(): Double? = creditLimit.takeIf { type == AccountType.CREDIT_CARD }
-    fun chargeDayIfCard(): Int? = chargeDay.takeIf { type == AccountType.CREDIT_CARD }
-    fun closingDayIfCard(): Int? = statementClosingDay.takeIf { type == AccountType.CREDIT_CARD }
-
     companion object {
         fun of(account: Account?) = AccountTypeSettings(
             type = account?.type ?: AccountType.OTHER,
             archived = account?.archived ?: false,
-            creditLimit = account?.creditLimit?.value,
-            chargeDay = account?.chargeDay,
-            statementClosingDay = account?.statementClosingDay,
         )
     }
 }
@@ -416,11 +399,7 @@ private data class AccountTypeSettings(
 @Composable
 private fun AccountTypeSection(
     settings: AccountTypeSettings,
-    currencyCode: String,
     onSelectType: (AccountType) -> Unit,
-    onChargeDayClick: () -> Unit,
-    onClosingDayClick: () -> Unit,
-    onCreditLimitClick: () -> Unit,
 ) {
     Text(
         modifier = Modifier.padding(start = 32.dp),
@@ -455,42 +434,49 @@ private fun AccountTypeSection(
             Spacer(Modifier.width(24.dp))
         }
     }
+}
 
-    if (settings.type == AccountType.CREDIT_CARD) {
-        Spacer(Modifier.height(16.dp))
+/** The account's credit cards, each opening its dialog, and a button to add one. */
+@Composable
+private fun CreditCardsSection(
+    cards: List<CreditCard>,
+    onCardClick: (CreditCard) -> Unit,
+    onAddCard: () -> Unit,
+) {
+    Text(
+        modifier = Modifier.padding(start = 32.dp),
+        text = stringResource(R.string.credit_cards),
+        style = MaterialTheme.typography.titleLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
+    )
 
+    Spacer(Modifier.height(16.dp))
+
+    cards.forEach { card ->
         AccountSettingRow(
-            label = stringResource(R.string.statement_closes),
-            value = settings.statementClosingDay?.let { stringResource(R.string.day_of_month, it.toString()) }
-                ?: stringResource(R.string.last_day_of_month),
-            testTag = "account_modal_closing_day",
-            onClick = onClosingDayClick,
+            label = card.name.value,
+            value = stringResource(R.string.charged_on_day, card.chargeDay.toString()),
+            testTag = "account_modal_credit_card",
+            onClick = { onCardClick(card) },
         )
 
         Spacer(Modifier.height(12.dp))
-
-        AccountSettingRow(
-            label = stringResource(R.string.charge_day),
-            value = settings.chargeDay?.let { stringResource(R.string.day_of_month, it.toString()) }
-                ?: stringResource(R.string.charge_day_not_set),
-            testTag = "account_modal_charge_day",
-            onClick = onChargeDayClick,
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        AccountSettingRow(
-            label = stringResource(R.string.credit_limit),
-            value = settings.creditLimit?.let { "${it.format(currencyCode)} $currencyCode" }
-                ?: stringResource(R.string.credit_limit_not_set),
-            testTag = "account_modal_credit_limit",
-            onClick = onCreditLimitClick,
-        )
     }
+
+    IvyOutlinedButtonFillMaxWidth(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .testTag("account_modal_add_credit_card"),
+        text = stringResource(R.string.add_credit_card),
+        iconStart = R.drawable.ic_plus,
+        onClick = onAddCard,
+    )
 }
 
 @Composable
-private fun AccountSettingRow(
+internal fun AccountSettingRow(
     label: String,
     value: String,
     testTag: String,
@@ -585,10 +571,8 @@ private fun Preview() {
                 balance = 0.0
             ),
             onCreateAccount = { },
-            onEditAccount = { _, _ -> }
+            onEditAccount = { _, _, _ -> }
         ) {
         }
     }
 }
-
-private const val LastDayOfMonth = 31

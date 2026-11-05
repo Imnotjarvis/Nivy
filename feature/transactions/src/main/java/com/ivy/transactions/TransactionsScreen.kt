@@ -41,6 +41,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
 import com.ivy.design.system.colors.isLight
@@ -135,6 +136,7 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
         accounts = uiState.accounts,
 
         account = uiState.account,
+        creditCards = uiState.creditCards,
         category = uiState.category,
 
         balance = uiState.balance,
@@ -185,8 +187,8 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
         onEditCategory = {
             viewModel.onEvent(TransactionsEvent.EditCategory(it))
         },
-        onEditAccount = { acc, newBalance ->
-            viewModel.onEvent(TransactionsEvent.EditAccount(screen, acc, newBalance))
+        onEditAccount = { acc, newBalance, creditCards ->
+            viewModel.onEvent(TransactionsEvent.EditAccount(screen, acc, newBalance, creditCards))
         },
         onPayOrGet = { transaction ->
             viewModel.onEvent(TransactionsEvent.PayOrGet(screen, transaction))
@@ -228,6 +230,7 @@ private fun BoxWithConstraintsScope.UI(
 
     account: Account?,
     category: Category?,
+    creditCards: ImmutableList<CreditCard> = persistentListOf(),
 
     updateAccountNameConfirmation: (String) -> Unit,
     enableDeletionButton: Boolean,
@@ -247,7 +250,7 @@ private fun BoxWithConstraintsScope.UI(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onSetPeriod: (TimePeriod) -> Unit,
-    onEditAccount: (Account, Double) -> Unit,
+    onEditAccount: (Account, Double, List<CreditCard>?) -> Unit,
     onEditCategory: (Category) -> Unit,
     onDelete: () -> Unit,
     deleteModal1Visible: Boolean,
@@ -351,6 +354,7 @@ private fun BoxWithConstraintsScope.UI(
                             account != null -> {
                                 accountModalData = AccountModalData(
                                     account = account,
+                                    creditCards = creditCards,
                                     baseCurrency = currency,
                                     balance = balance,
                                     autoFocusKeyboard = false
@@ -371,6 +375,7 @@ private fun BoxWithConstraintsScope.UI(
                             account != null -> {
                                 accountModalData = AccountModalData(
                                     account = account,
+                                    creditCards = creditCards,
                                     baseCurrency = currency,
                                     balance = balance,
                                     adjustBalanceMode = true,
@@ -388,6 +393,7 @@ private fun BoxWithConstraintsScope.UI(
                     showAccountModal = {
                         accountModalData = AccountModalData(
                             account = account,
+                            creditCards = creditCards,
                             baseCurrency = currency,
                             balance = balance,
                             adjustBalanceMode = false,
@@ -869,7 +875,7 @@ private fun BoxWithConstraintsScope.Preview_empty() {
             onPreviousMonth = {},
             onNextMonth = {},
             onDelete = {},
-            onEditAccount = { _, _ -> },
+            onEditAccount = { _, _, _ -> },
             onEditCategory = {},
             updateAccountNameConfirmation = {},
             enableDeletionButton = true,
@@ -912,7 +918,7 @@ private fun BoxWithConstraintsScope.Preview_crypto() {
             onPreviousMonth = {},
             onNextMonth = {},
             onDelete = {},
-            onEditAccount = { _, _ -> },
+            onEditAccount = { _, _, _ -> },
             onEditCategory = {},
             updateAccountNameConfirmation = {},
             enableDeletionButton = true,
@@ -952,7 +958,7 @@ private fun BoxWithConstraintsScope.Preview_empty_upcoming(isDark: Boolean = fal
             onPreviousMonth = {},
             onNextMonth = {},
             onDelete = {},
-            onEditAccount = { _, _ -> },
+            onEditAccount = { _, _, _ -> },
             onEditCategory = {},
             upcoming = persistentListOf(
                 previewTransaction(

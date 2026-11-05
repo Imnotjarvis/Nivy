@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.Toaster
+import com.ivy.base.model.AccountType
 import com.ivy.base.model.TransactionType
 import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeConverter
@@ -19,6 +20,7 @@ import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
@@ -31,6 +33,7 @@ import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
@@ -112,6 +115,7 @@ class EditTransactionViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
     private val creditCardChargeUseCase: CreditCardChargeUseCase,
+    private val creditCardRepository: CreditCardRepository,
 ) : ComposeViewModel<EditTransactionViewState, EditTransactionViewEvent>() {
 
     private var transactionType by mutableStateOf(TransactionType.EXPENSE)
@@ -122,6 +126,8 @@ class EditTransactionViewModel @Inject constructor(
     private var dateTime by mutableStateOf<Instant?>(null)
     private var dueDate by mutableStateOf<Instant?>(null)
     private var chargeShift by mutableIntStateOf(0)
+    private var allCreditCards by mutableStateOf<List<CreditCard>>(emptyList())
+    private var creditCard by mutableStateOf<CreditCard?>(null)
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var tags by mutableStateOf<ImmutableList<Tag>>(persistentListOf())
@@ -164,21 +170,13 @@ class EditTransactionViewModel @Inject constructor(
             }
 
             categories = sortCategories()
+            allCreditCards = creditCardRepository.findAll()
 
             reset()
 
             loadedTransaction = screen.initialTransactionId?.let {
                 transactionRepo.findById(TransactionId(it))?.toDraft()
-            } ?: TransactionDraft(
-                accountId = defaultAccountId(
-                    screen = screen,
-                    accounts = getAccounts.pickable().ifEmpty { getAccounts }
-                ),
-                categoryId = screen.categoryId,
-                type = screen.type,
-                amount = 0.0,
-                toAmount = 0.0
-            )
+            } ?: newDraft(screen, getAccounts.pickable().ifEmpty { getAccounts })
 
             accounts = getAccounts.pickable(
                 listOf(
@@ -205,6 +203,8 @@ class EditTransactionViewModel @Inject constructor(
             description = description,
             dateTime = dateTime,
             dueDate = dueDate,
+            creditCards = accountCreditCards(),
+            creditCard = creditCard,
             chargeDate = chargeDate(),
             canMoveChargeEarlier = canMoveChargeEarlier(),
             accounts = accounts,
@@ -222,15 +222,23 @@ class EditTransactionViewModel @Inject constructor(
         )
     }
 
+    /** The cards of the account an expense can be paid with. */
+    private fun accountCreditCards(): ImmutableList<CreditCard> =
+        if (transactionType == TransactionType.EXPENSE) {
+            allCreditCards.filter { it.account == account?.id }.toImmutableList()
+        } else {
+            persistentListOf()
+        }
+
     /** When the card charges the expense, if it's paid with a credit card and not planned. */
     private fun chargeDate(): LocalDateTime? {
         if (transactionType != TransactionType.EXPENSE || dueDate != null) return null
-        return account?.chargeDateTime(purchase(), chargeShift)
+        return creditCard?.chargeDateTime(purchase(), chargeShift)
     }
 
     private fun canMoveChargeEarlier(): Boolean {
-        val account = account ?: return false
-        return chargeShift > account.minChargeShift(purchase())
+        val card = creditCard ?: return false
+        return chargeShift > card.minChargeShift(purchase())
     }
 
     private fun purchase(): LocalDateTime = with(timeConverter) {
@@ -265,6 +273,7 @@ class EditTransactionViewModel @Inject constructor(
             is EditTransactionViewEvent.OnChangeDate -> handleChangeDate()
             is EditTransactionViewEvent.OnChangeTime -> handleChangeTime()
             is EditTransactionViewEvent.OnMoveCharge -> onMoveCharge(event.months)
+            is EditTransactionViewEvent.OnCreditCardChanged -> onCreditCardChanged(event.creditCard)
             is EditTransactionViewEvent.OnSetTransactionType ->
                 onSetTransactionType(event.newTransactionType)
 
@@ -319,6 +328,7 @@ class EditTransactionViewModel @Inject constructor(
         description = transaction.description
         dueDate = transaction.dueDate
         chargeShift = transaction.chargeShift
+        creditCard = allCreditCards.find { it.id.value == transaction.creditCardId }
         paidHistory = transaction.paidFor
         val selectedAccount = accountRepository.findById(AccountId(transaction.accountId))!!
         account = selectedAccount
@@ -426,8 +436,13 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun onAccountChanged(newAccount: Account) {
         viewModelScope.launch {
+            // The card the account's new expenses are paid with; another account's card can't be.
+            creditCard = defaultCreditCard(newAccount, transactionType)
+            chargeShift = 0
             loadedTransaction = loadedTransaction().copy(
-                accountId = newAccount.id.value
+                accountId = newAccount.id.value,
+                creditCardId = creditCard?.id?.value,
+                chargeShift = 0,
             )
             account = newAccount
 
@@ -511,7 +526,7 @@ class EditTransactionViewModel @Inject constructor(
     // The move is kept when the purchase date changes; a move earlier than the purchase allows
     // counts as the earliest one.
     private fun onMoveCharge(months: Int) {
-        val earliest = account?.minChargeShift(purchase()) ?: return
+        val earliest = creditCard?.minChargeShift(purchase()) ?: return
         chargeShift = (chargeShift.coerceAtLeast(earliest) + months).coerceAtLeast(earliest)
         loadedTransaction = loadedTransaction().copy(chargeShift = chargeShift)
 
@@ -519,12 +534,47 @@ class EditTransactionViewModel @Inject constructor(
     }
 
     private fun onSetTransactionType(newTransactionType: TransactionType) {
+        // Only an expense is paid with a card.
+        creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+        chargeShift = 0
         loadedTransaction = loadedTransaction().copy(
-            type = newTransactionType
+            type = newTransactionType,
+            creditCardId = creditCard?.id?.value,
+            chargeShift = 0,
         )
         transactionType = newTransactionType
         saveIfEditMode()
     }
+
+    // A move counts from a card's usual charge date, so another card starts without one.
+    private fun onCreditCardChanged(newCreditCard: CreditCard?) {
+        creditCard = newCreditCard
+        chargeShift = 0
+        loadedTransaction = loadedTransaction().copy(
+            creditCardId = newCreditCard?.id?.value,
+            chargeShift = 0,
+        )
+
+        saveIfEditMode()
+    }
+
+    private suspend fun newDraft(screen: EditTransactionScreen, accounts: List<Account>): TransactionDraft {
+        val accountId = defaultAccountId(screen = screen, accounts = accounts)
+        val card = accounts.find { it.id.value == accountId }?.let { defaultCreditCard(it, screen.type) }
+        return TransactionDraft(
+            accountId = accountId,
+            categoryId = screen.categoryId,
+            type = screen.type,
+            amount = 0.0,
+            toAmount = 0.0,
+            creditCardId = card?.id?.value,
+        )
+    }
+
+    /** What a new expense on [account] is paid with: a credit card account's own card. */
+    private fun defaultCreditCard(account: Account, type: TransactionType): CreditCard? =
+        allCreditCards.firstOrNull { it.account == account.id }
+            ?.takeIf { type == TransactionType.EXPENSE && account.type == AccountType.CREDIT_CARD }
 
     private fun onPayPlannedPayment() {
         viewModelScope.launch {
@@ -635,6 +685,7 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             accountCreator.createAccount(data) {
                 accounts = accountsAct().pickable(listOf(account?.id, toAccount?.id)).toImmutableList()
+                allCreditCards = creditCardRepository.findAll()
             }
         }
     }

@@ -2,11 +2,12 @@ package com.ivy.wallet.data.model
 
 import androidx.compose.runtime.Immutable
 import com.ivy.data.model.Account
+import com.ivy.data.model.CreditCard
 import com.ivy.wallet.domain.data.Reorderable
+import kotlinx.collections.immutable.ImmutableList
 
 /**
- * @property creditUsed for a credit card: what it owes, the purchases it hasn't charged yet
- * included; null for other accounts.
+ * @property creditCards the account's credit cards, with what each owes.
  */
 @Immutable
 data class AccountData(
@@ -15,7 +16,7 @@ data class AccountData(
     val balanceBaseCurrency: Double?,
     val monthlyExpenses: Double,
     val monthlyIncome: Double,
-    val creditUsed: Double?,
+    val creditCards: ImmutableList<CreditCardUse>,
 ) : Reorderable {
     override fun getItemOrderNum() = account.orderNum
 
@@ -25,3 +26,10 @@ data class AccountData(
         )
     )
 }
+
+/** What a credit [card] owes: the purchases it hasn't charged yet, in its account's currency. */
+@Immutable
+data class CreditCardUse(
+    val card: CreditCard,
+    val used: Double,
+)

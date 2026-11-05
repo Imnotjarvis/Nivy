@@ -2,6 +2,7 @@ package com.ivy.transactions
 
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Transaction
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.navigation.TransactionsScreen
@@ -23,7 +24,8 @@ sealed interface TransactionsEvent {
     data class EditAccount(
         val screen: TransactionsScreen,
         val account: Account,
-        val newBalance: Double
+        val newBalance: Double,
+        val creditCards: List<CreditCard>?,
     ) : TransactionsEvent
 
     data class PayOrGet(

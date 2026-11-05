@@ -14,7 +14,9 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.CategoryId
+import com.ivy.base.model.AccountType
 import com.ivy.base.model.IntervalType
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
@@ -25,6 +27,7 @@ import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.model.primitive.PositiveInt
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.planned.PlannedPaymentsGenerator
@@ -63,6 +66,7 @@ class EditPlannedViewModel @Inject constructor(
     private val accountsAct: AccountsAct,
     private val transactionRepository: TransactionRepository,
     private val timeConverter: TimeConverter,
+    private val creditCardRepository: CreditCardRepository,
 ) : ComposeViewModel<EditPlannedScreenState, EditPlannedScreenEvent>() {
 
     private val saveMutex = Mutex()
@@ -75,6 +79,8 @@ class EditPlannedViewModel @Inject constructor(
     private var initialTitle by mutableStateOf<String?>(null)
     private var description by mutableStateOf<String?>(null)
     private var account by mutableStateOf<Account?>(null)
+    private var allCreditCards by mutableStateOf<List<CreditCard>>(emptyList())
+    private var creditCard by mutableStateOf<CreditCard?>(null)
     private var category by mutableStateOf<Category?>(null)
     private var amount by mutableDoubleStateOf(0.0)
     private var currency by mutableStateOf("")
@@ -104,6 +110,8 @@ class EditPlannedViewModel @Inject constructor(
             intervalN = intervalN,
             oneTime = oneTime,
             account = account,
+            creditCards = accountCreditCards(),
+            creditCard = creditCard,
             category = category,
             amount = amount,
             initialTitle = initialTitle,
@@ -133,6 +141,7 @@ class EditPlannedViewModel @Inject constructor(
             is EditPlannedScreenEvent.OnCreateAccount -> createAccount(event.data)
             is EditPlannedScreenEvent.OnCreateCategory -> createCategory(event.data)
             is EditPlannedScreenEvent.OnAccountChanged -> updateAccount(event.newAccount)
+            is EditPlannedScreenEvent.OnCreditCardChanged -> updateCreditCard(event.creditCard)
             is EditPlannedScreenEvent.OnAmountChanged -> updateAmount(event.newAmount)
             is EditPlannedScreenEvent.OnTitleChanged -> updateTitle(event.newTitle)
             is EditPlannedScreenEvent.OnRuleChanged ->
@@ -177,6 +186,7 @@ class EditPlannedViewModel @Inject constructor(
                 return@launch
             }
             categories = categoryRepository.findAll().toImmutableList()
+            allCreditCards = creditCardRepository.findAll()
 
             reset()
 
@@ -204,6 +214,7 @@ class EditPlannedViewModel @Inject constructor(
         intervalN = rule.interval?.n?.value
         intervalType = rule.interval?.type
         account = accountRepository.findById(rule.account)
+        creditCard = allCreditCards.find { it.id == rule.creditCard }
         category = rule.category?.let { categoryRepository.findById(it) }
         amount = rule.amount.value
 
@@ -220,6 +231,7 @@ class EditPlannedViewModel @Inject constructor(
         intervalN = null
         intervalType = null
         account = accounts.find { it.id.value == screen.accountId } ?: accounts.first()
+        creditCard = account?.let { defaultCreditCard(it, transactionType) }
         category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
         amount = screen.amount ?: 0.0
 
@@ -270,16 +282,39 @@ class EditPlannedViewModel @Inject constructor(
 
     private fun updateAccount(newAccount: Account) {
         this@EditPlannedViewModel.account = newAccount
+        // Another account's card can't pay it.
+        creditCard = defaultCreditCard(newAccount, transactionType)
         updateCurrency(account = newAccount)
+
+        saveIfEditMode()
+    }
+
+    private fun updateCreditCard(newCreditCard: CreditCard?) {
+        creditCard = newCreditCard
 
         saveIfEditMode()
     }
 
     private fun updateTransactionType(newTransactionType: TransactionType) {
         this@EditPlannedViewModel.transactionType = newTransactionType
+        // Only an expense is paid with a card.
+        creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
 
         saveIfEditMode()
     }
+
+    /** The cards of the account a planned expense can be paid with. */
+    private fun accountCreditCards(): ImmutableList<CreditCard> =
+        if (transactionType == TransactionType.EXPENSE) {
+            allCreditCards.filter { it.account == account?.id }.toImmutableList()
+        } else {
+            persistentListOf()
+        }
+
+    /** What a new expense on [account] is paid with: a credit card account's own card. */
+    private fun defaultCreditCard(account: Account, type: TransactionType): CreditCard? =
+        allCreditCards.firstOrNull { it.account == account.id }
+            ?.takeIf { type == TransactionType.EXPENSE && account.type == AccountType.CREDIT_CARD }
 
     private fun saveIfEditMode() {
         if (editMode) {
@@ -325,6 +360,7 @@ class EditPlannedViewModel @Inject constructor(
                     type = ensureNotNull(intervalType) { "No interval type" },
                 )
             },
+            creditCard = creditCard?.id,
         )
     }.getOrNull()
 
@@ -361,6 +397,7 @@ class EditPlannedViewModel @Inject constructor(
         viewModelScope.launch {
             accountCreator.createAccount(data) {
                 accounts = accountsAct().pickable(listOf(account?.id)).toImmutableList()
+                allCreditCards = creditCardRepository.findAll()
             }
         }
     }

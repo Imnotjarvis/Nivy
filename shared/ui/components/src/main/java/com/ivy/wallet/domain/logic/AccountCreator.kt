@@ -5,12 +5,13 @@ import arrow.core.raise.either
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.CreditCardRepository
 import com.ivy.wallet.domain.action.account.AdjustAccBalanceAct
 import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.domain.logic.model.CreateAccountData
@@ -22,6 +23,7 @@ class AccountCreator @Inject constructor(
     private val adjustAccBalanceAct: AdjustAccBalanceAct,
     private val accountDao: AccountDao,
     private val accountRepository: AccountRepository,
+    private val creditCardRepository: CreditCardRepository,
 ) {
 
     suspend fun createAccount(
@@ -39,13 +41,14 @@ class AccountCreator @Inject constructor(
                     includeInBalance = data.includeBalance,
                     type = data.type,
                     archived = false,
-                    creditLimit = data.creditLimit?.let(PositiveDouble::from)?.getOrNull(),
-                    chargeDay = data.chargeDay,
-                    statementClosingDay = data.statementClosingDay,
                     orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
                 )
             }.getOrNull() ?: return@ioThread
             accountRepository.save(account)
+            creditCardRepository.saveAccountCards(
+                accountId = account.id,
+                cards = data.creditCards.map { it.copy(account = account.id) },
+            )
 
             adjustAccBalanceAct(
                 account = account,
@@ -57,13 +60,16 @@ class AccountCreator @Inject constructor(
         onRefreshUI()
     }
 
+    /** Saves the [account], and its [creditCards] unless they're null. */
     suspend fun editAccount(
         account: Account,
         newBalance: Double,
+        creditCards: List<CreditCard>?,
         onRefreshUI: suspend () -> Unit
     ) {
         ioThread {
             accountRepository.save(account)
+            creditCards?.let { creditCardRepository.saveAccountCards(account.id, it) }
             adjustAccBalanceAct(account = account, newBalance = newBalance)
         }
 

@@ -3,6 +3,7 @@ package com.ivy.planned.edit
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.base.model.IntervalType
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
@@ -24,6 +25,7 @@ sealed interface EditPlannedScreenEvent {
     data class OnDescriptionChanged(val newDescription: String?) : EditPlannedScreenEvent
     data class OnCategoryChanged(val newCategory: Category?) : EditPlannedScreenEvent
     data class OnAccountChanged(val newAccount: Account) : EditPlannedScreenEvent
+    data class OnCreditCardChanged(val creditCard: CreditCard?) : EditPlannedScreenEvent
     data class OnSetTransactionType(val newTransactionType: TransactionType) :
         EditPlannedScreenEvent
 

@@ -11,6 +11,7 @@ import com.ivy.data.db.migration.Migration126to127_LoanRecordType
 import com.ivy.data.db.migration.Migration129to130_LoanIncludeNote
 import com.ivy.data.db.migration.Migration130to131_DropUsers
 import com.ivy.data.db.migration.Migration131to132_DeleteSoftDeleted
+import com.ivy.data.db.migration.Migration135to136_CreditCards
 import com.ivy.base.model.LoanType
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -28,6 +29,86 @@ class IvyRoomDatabaseMigrationTest {
         listOf(IvyRoomDatabase.DeleteSEMigration()),
         FrameworkSQLiteOpenHelperFactory()
     )
+
+    @Test
+    fun migrate135to136_CreditCards() {
+        val card = UUID.randomUUID().toString()
+        val bank = UUID.randomUUID().toString()
+        helper.createDatabase(TestDb, 135).apply {
+            execSQL(
+                """
+                INSERT INTO accounts (name, color, orderNum, includeInBalance, type, archived,
+                creditLimit, chargeDay, statementClosingDay, isSynced, isDeleted, id)
+                VALUES ('Visa', 0, 0.0, 1, 'CREDIT_CARD', 0, 1500.0, 15, 25, 0, 0, ?)
+                """.trimIndent(),
+                arrayOf<Any>(card)
+            )
+            execSQL(
+                """
+                INSERT INTO accounts (name, color, orderNum, includeInBalance, type, archived,
+                isSynced, isDeleted, id)
+                VALUES ('Bank', 0, 1.0, 1, 'BANK', 0, 0, 0, ?)
+                """.trimIndent(),
+                arrayOf<Any>(bank)
+            )
+            listOf(
+                Triple("Card expense", card, "EXPENSE"),
+                Triple("Card refund", card, "INCOME"),
+                Triple("Bank expense", bank, "EXPENSE"),
+            ).forEach { (title, account, type) ->
+                execSQL(
+                    """
+                    INSERT INTO transactions (accountId, type, amount, title, isSynced, isDeleted, id)
+                    VALUES (?, ?, 10.0, ?, 0, 0, ?)
+                    """.trimIndent(),
+                    arrayOf<Any>(account, type, title, UUID.randomUUID().toString())
+                )
+            }
+            execSQL(
+                """
+                INSERT INTO planned_payment_rules (oneTime, type, accountId, amount, isSynced, isDeleted, id)
+                VALUES (1, 'EXPENSE', ?, 12.0, 0, 0, ?)
+                """.trimIndent(),
+                arrayOf<Any>(card, UUID.randomUUID().toString())
+            )
+            close()
+        }
+
+        // The accounts table is checked too: it no longer has the card columns.
+        val newDb = helper.runMigrationsAndValidate(
+            TestDb,
+            136,
+            true,
+            Migration135to136_CreditCards()
+        )
+
+        // The card account's settings are its card, under its id.
+        newDb.query(
+            "SELECT accountId, name, chargeDay, statementClosingDay, creditLimit, id FROM credit_cards"
+        ).use {
+            it.count shouldBe 1
+            it.moveToFirst()
+            it.getString(0) shouldBe card
+            it.getString(1) shouldBe "Visa"
+            it.getInt(2) shouldBe 15
+            it.getInt(3) shouldBe 25
+            it.getDouble(4) shouldBe 1500.0
+            it.getString(5) shouldBe card
+        }
+        // Its expenses and planned expenses are paid with it; nothing else is.
+        newDb.query("SELECT title, creditCardId FROM transactions").use {
+            buildMap { while (it.moveToNext()) put(it.getString(0), it.getString(1)) } shouldBe
+                mapOf("Card expense" to card, "Card refund" to null, "Bank expense" to null)
+        }
+        newDb.query("SELECT creditCardId FROM planned_payment_rules").use {
+            it.moveToFirst()
+            it.getString(0) shouldBe card
+        }
+        newDb.query("SELECT name FROM accounts ORDER BY orderNum").use {
+            buildList { while (it.moveToNext()) add(it.getString(0)) } shouldBe listOf("Visa", "Bank")
+        }
+        newDb.close()
+    }
 
     @Test
     fun migrate131to132_DeleteSoftDeleted() {

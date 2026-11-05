@@ -8,6 +8,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.PositiveValue
@@ -38,6 +39,7 @@ class TransactionMapper @Inject constructor(
             loanRecordId = loanRecordId,
             purchaseDateTime = purchaseDateTime,
             chargeShift = chargeShift,
+            creditCard = creditCardId?.let(::CreditCardId),
         )
 
         val settled = dateTime != null
@@ -163,6 +165,7 @@ class TransactionMapper @Inject constructor(
             loanRecordId = metadata.loanRecordId,
             purchaseDateTime = metadata.purchaseDateTime,
             chargeShift = metadata.chargeShift,
+            creditCardId = metadata.creditCard?.value,
             isSynced = true,
             isDeleted = false,
             id = id.value

@@ -32,7 +32,7 @@ import com.ivy.ui.R
 // reads, the same everywhere.
 
 /**
- * One option of a two-option switch, such as a loan's "Borrow" or "Lend": its label in a pill,
+ * One option of a switch between a few, such as a loan's "Borrow" or "Lend": its label in a pill,
  * filled with the brand color when selected.
  */
 @Composable

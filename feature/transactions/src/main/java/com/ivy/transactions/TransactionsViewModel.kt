@@ -13,6 +13,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
@@ -25,6 +26,7 @@ import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.design.system.colors.RedLight
@@ -86,6 +88,7 @@ class TransactionsViewModel @Inject constructor(
     private val exchangeAct: ExchangeAct,
     private val transactionRepository: TransactionRepository,
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
+    private val creditCardRepository: CreditCardRepository,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
@@ -119,6 +122,7 @@ class TransactionsViewModel @Inject constructor(
         mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
 
     private val account = mutableStateOf<Account?>(null)
+    private val creditCards = mutableStateOf<ImmutableList<CreditCard>>(persistentListOf())
     private val category = mutableStateOf<Category?>(null)
     private val initWithTransactions = mutableStateOf(false)
     private val treatTransfersAsIncomeExpense = mutableStateOf(false)
@@ -137,6 +141,7 @@ class TransactionsViewModel @Inject constructor(
             categories = categories.value,
             accounts = accounts.value,
             account = account.value,
+            creditCards = creditCards.value,
             category = category.value,
             balance = balance.doubleValue,
             balanceBaseCurrency = balanceBaseCurrency.value,
@@ -173,7 +178,8 @@ class TransactionsViewModel @Inject constructor(
             is TransactionsEvent.EditAccount -> editAccount(
                 event.screen,
                 event.account,
-                event.newBalance
+                event.newBalance,
+                event.creditCards,
             )
 
             is TransactionsEvent.EditCategory -> editCategory(event.updatedCategory)
@@ -203,6 +209,7 @@ class TransactionsViewModel @Inject constructor(
         val initialAccount = accountRepository.findById(AccountId(accountId))
             ?: error("account not found")
         account.value = initialAccount
+        creditCards.value = creditCardRepository.findByAccount(initialAccount.id).toImmutableList()
         val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         currency.value = initialAccount.asset.code
@@ -607,6 +614,7 @@ class TransactionsViewModel @Inject constructor(
         ioThread {
             transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
             plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+            creditCardRepository.deleteAllByAccountId(accountId = AccountId(accountId))
             accountRepository.deleteById(AccountId(accountId))
 
             nav.back()
@@ -641,9 +649,10 @@ class TransactionsViewModel @Inject constructor(
         screen: TransactionsScreen,
         account: Account,
         newBalance: Double,
+        creditCards: List<CreditCard>?,
     ) {
         viewModelScope.launch {
-            accountCreator.editAccount(account, newBalance) {
+            accountCreator.editAccount(account, newBalance, creditCards) {
                 start(
                     screen = screen,
                     timePeriod = period.value,
