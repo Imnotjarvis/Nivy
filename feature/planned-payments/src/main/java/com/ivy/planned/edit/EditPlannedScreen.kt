@@ -89,6 +89,8 @@ private fun BoxWithConstraintsScope.UI(
         )
     }
     val titleFocus = remember { FocusRequester() }
+    // How high the amount panel covers the screen: the card list stays clear of it.
+    var bottomSheetHeight by remember { mutableStateOf(0.dp) }
 
     Column(
         modifier = Modifier
@@ -165,6 +167,7 @@ private fun BoxWithConstraintsScope.UI(
                 cards = state.creditCards,
                 selected = state.creditCard,
                 onSelect = { onEvent(EditPlannedScreenEvent.OnCreditCardChanged(it)) },
+                coveredBottom = { bottomSheetHeight },
             )
         }
 
@@ -203,6 +206,7 @@ private fun BoxWithConstraintsScope.UI(
     }
 
     EditBottomSheet(
+        onHeightChanged = { bottomSheetHeight = it },
         initialTransactionId = screen.plannedPaymentRuleId,
         type = state.transactionType,
         accounts = state.accounts,

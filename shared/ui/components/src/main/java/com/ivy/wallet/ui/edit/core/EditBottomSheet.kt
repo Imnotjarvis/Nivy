@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -33,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -108,6 +111,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     modifier: Modifier = Modifier, // Modifier comes after other parameters
     convertedAmount: Double? = null,
     convertedAmountCurrencyCode: String? = null,
+    onHeightChanged: (Dp) -> Unit = {},
 ) {
     val rootView = LocalView.current
     val keyboardShown = isKeyboardVisible()
@@ -142,12 +146,18 @@ fun BoxWithConstraintsScope.EditBottomSheet(
         }
     }
 
+    // How high the sheet reaches above the navigation bar, for what should stay clear of it.
+    val density = LocalDensity.current
+    val navigationBar = WindowInsets.navigationBars.getBottom(density)
     Column(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
             .statusBarsPadding()
             .padding(top = 24.dp)
+            .onSizeChanged {
+                onHeightChanged(with(density) { (it.height - navigationBar).coerceAtLeast(0).toDp() })
+            }
             .border(
                 width = 2.dp,
                 color = MaterialTheme.colorScheme.surfaceVariant,
