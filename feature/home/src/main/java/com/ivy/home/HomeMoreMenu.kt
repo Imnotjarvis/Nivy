@@ -2,7 +2,6 @@ package com.ivy.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -30,10 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -49,10 +44,7 @@ import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.colorLerp
-import com.ivy.design.utils.lerp
-import com.ivy.design.utils.navigationBarInset
 import com.ivy.design.utils.rememberInteractionSource
-import com.ivy.wallet.utils.springBounce
 import com.ivy.design.utils.statusBarInset
 import com.ivy.design.utils.toDensityPx
 import com.ivy.navigation.BudgetScreen
@@ -76,7 +68,24 @@ import java.util.UUID
 import kotlin.math.roundToInt
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
+import com.ivy.design.system.motion.AppearRiseFraction
+import com.ivy.design.system.motion.CoveredDimAlpha
+import com.ivy.design.system.motion.appearTween
+import com.ivy.design.system.shapes.AppCornerRadius
+import com.ivy.design.utils.consumeClicks
 
+/**
+ * Home's menu under the arrow at its top end: a panel that drops down from the top, as tall as its
+ * content, over Home, which dims. Like a dialog, it comes and goes in a fifth of a second, dropping
+ * a little as it fades in. The arrow stays where it is and turns to point up: the menu closes from
+ * where it opened, as from the dim and Back.
+ */
 @Composable
 fun BoxWithConstraintsScope.MoreMenu(
     expanded: Boolean,
@@ -93,68 +102,39 @@ fun BoxWithConstraintsScope.MoreMenu(
 ) {
     val screenSize = LocalScreenSize.current
 
-    val percentExpanded by animateFloatAsState(
+    val progress = animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
-        animationSpec = springBounce(),
-        label = ""
+        animationSpec = appearTween(),
+        label = "more_menu",
     )
-    val iconRotation by animateFloatAsState(
-        targetValue = if (expanded) -180f else 0f,
-        animationSpec = springBounce(),
-        label = ""
-    )
+    val shown by remember { derivedStateOf { progress.value > 0f } }
 
-    val buttonSizePx = 40.dp.toDensityPx()
+    val xButton = screenSize.width - 24.dp.toDensityPx() - 40.dp.toDensityPx()
+    val yButton = 20.dp.toDensityPx() + statusBarInset()
 
-    val xBase = screenSize.width - 24.dp.toDensityPx()
-    val yBaseCollapsed = 20.dp.toDensityPx() + statusBarInset()
-    val yBaseExpanded = screenSize.height - 48.dp.toDensityPx() - navigationBarInset()
-
-    val yButton = lerp(
-        start = yBaseCollapsed,
-        end = yBaseExpanded - buttonSizePx,
-        fraction = percentExpanded
-    )
-
-    // Background
-    val colorMedium = MaterialTheme.colorScheme.surfaceVariant
-    if (percentExpanded > 0.01f) {
-        Canvas(
-            modifier = modifier
+    if (shown) {
+        // The dim and the panel read the animated value while drawing, not in composition.
+        Spacer(
+            modifier = Modifier
                 .fillMaxSize()
-                .clickableNoIndication(rememberInteractionSource()) {
-                    // do nothing
+                .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * progress.value) }
+                // No ripple: on the dim it would wash over the whole screen as the menu closes.
+                .clickable(interactionSource = null, indication = null, enabled = expanded) {
+                    setExpanded(false)
                 }
                 .zIndex(500f)
-        ) {
-            val radiusCollapsed = buttonSizePx / 2f
-            val radiusExpanded = screenSize.height * 1.5f
-            val radius = lerp(radiusCollapsed, radiusExpanded, percentExpanded)
+        )
 
-            val yBackground = lerp(
-                start = yBaseCollapsed + radius,
-                end = yBaseExpanded,
-                fraction = percentExpanded
-            )
-
-            drawCircle(
-                color = colorMedium,
-                center = Offset(
-                    x = xBase - buttonSizePx / 2f,
-                    y = yBackground
-                ),
-                radius = radius
-            )
-        }
-    }
-
-    if (percentExpanded > 0.01f) {
         Column(
             modifier = modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    translationY = -(1f - progress.value) * AppearRiseFraction * screenSize.height
+                    alpha = progress.value
+                }
+                .background(MaterialTheme.colorScheme.surfaceVariant, ShapeBottom)
+                .consumeClicks(rememberInteractionSource())
                 .statusBarsPadding()
-                .navigationBarsPadding()
-                .fillMaxSize()
-                .alpha(percentExpanded)
                 .verticalScroll(rememberScrollState())
                 .zIndex(510f)
         ) {
@@ -186,27 +166,29 @@ fun BoxWithConstraintsScope.MoreMenu(
                 val placeable = measurable.measure(constraints)
 
                 layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = xBase.roundToInt() - buttonSizePx.roundToInt(),
-                        y = yButton.roundToInt()
-                    )
+                    placeable.place(x = xButton.roundToInt(), y = yButton.roundToInt())
                 }
             }
-            .rotate(iconRotation)
-            .thenIf(expanded) {
+            .graphicsLayer { rotationZ = -180f * progress.value }
+            // Over the panel also while it fades out.
+            .thenIf(shown) {
                 zIndex(520f)
             }
             .testTag("home_more_menu_arrow"),
         backgroundColor = colorLerp(
             MaterialTheme.colorScheme.surfaceVariant,
             MaterialTheme.colorScheme.surface,
-            percentExpanded
+            progress.value
         ),
         icon = R.drawable.ic_expandarrow
     ) {
         setExpanded(!expanded)
     }
 }
+
+/** A panel from the top rounds only its bottom corners, on the app's radius. */
+private val ShapeBottom: Shape
+    get() = RoundedCornerShape(bottomStart = AppCornerRadius.value, bottomEnd = AppCornerRadius.value)
 
 @Composable
 private fun ColumnScope.Content(
@@ -218,13 +200,20 @@ private fun ColumnScope.Content(
     onSwitchTheme: () -> Unit,
     onBufferClick: () -> Unit,
 ) {
-    Spacer(Modifier.height(24.dp))
-
     val nav = navigation()
-    SearchButton {
-        nav.navigateTo(
-            screen = SearchScreen
-        )
+    // Where Home's header row is, beside the arrow: as tall as it, so that both center alike, and
+    // ending where Home's month button does.
+    Box(
+        modifier = Modifier
+            .padding(top = 20.dp, start = 16.dp, end = 76.dp)
+            .height(48.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        SearchButton {
+            nav.navigateTo(
+                screen = SearchScreen
+            )
+        }
     }
 
     Spacer(Modifier.height(16.dp))
@@ -243,7 +232,7 @@ private fun ColumnScope.Content(
         onBufferClick = onBufferClick
     )
 
-    Spacer(Modifier.weight(1f))
+    Spacer(Modifier.height(24.dp))
 }
 
 @Composable
@@ -253,7 +242,6 @@ private fun SearchButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
             .clip(PillShape)
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, Gray, PillShape)
