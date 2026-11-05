@@ -2,6 +2,7 @@ package com.ivy.ui.time.impl
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -145,13 +146,18 @@ class AndroidDateTimePicker @Inject constructor(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         ) {
-            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            // The dialog lays its content out in a Box, which ignores ColumnScope's align: the
+            // clock is centered across the dialog's width instead.
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 TimePicker(
                     modifier = Modifier.padding(16.dp),
                     state = pickerState,
                     colors = TimePickerDefaults.colors(
                         selectorColor = MaterialTheme.colorScheme.primary,
-                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary
+                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary,
+                        // The default is the color for primaryContainer, which in minimal colors
+                        // is the primary's own: the hour would vanish on it.
+                        timeSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
                     )
                 )
             }
