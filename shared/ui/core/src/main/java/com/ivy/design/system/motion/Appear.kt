@@ -13,7 +13,7 @@ fun <T> appearTween(): TweenSpec<T> = tween(AppearDurationMillis, easing = FastO
 /** How far below its place a screen or dialog starts: a tenth of the screen's height. */
 const val AppearRiseFraction = 0.1f
 
-/** How dark what a screen or dialog covers gets: Material's scrim. */
-const val CoveredDimAlpha = 0.32f
+/** How dark what a screen or dialog covers gets: Android's dim behind dialogs. */
+const val CoveredDimAlpha = 0.6f
 
 private const val AppearDurationMillis = 300
