@@ -1,5 +1,8 @@
 package com.ivy.design.system.colors
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 // Palette's green and red read at 2:1 and 3:1 on light backgrounds, short of the 4.5:1 text
@@ -13,3 +16,12 @@ fun incomeGreen(background: Color): Color = if (isDarkColor(background)) Palette
 
 /** Expenses' red, for amounts and marks on [background]. */
 fun expenseRed(background: Color): Color = if (isDarkColor(background)) Palette.Red else RedOnLight
+
+/**
+ * The red of what deletes: expenses' red on the theme's surface, so that a theme has one red. On a
+ * light theme the darker red also gives a delete button's white icon 5.5:1, where the bright one
+ * gave 3.4:1.
+ */
+@Composable
+@ReadOnlyComposable
+fun deleteRed(): Color = expenseRed(MaterialTheme.colorScheme.surface)
