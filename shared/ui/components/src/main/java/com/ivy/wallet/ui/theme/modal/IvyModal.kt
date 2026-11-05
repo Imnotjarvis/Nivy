@@ -91,7 +91,10 @@ fun BoxScope.IvyModal(
             .fillMaxSize()
             .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * progress.value) }
             .testTag("modal_outside_blur")
+            // No ripple: on the dim it would wash over the whole screen as the dialog closes.
             .clickable(
+                interactionSource = null,
+                indication = null,
                 onClick = {
                     hideKeyboard(rootView)
                     dismiss()
