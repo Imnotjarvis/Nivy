@@ -184,7 +184,7 @@ private fun BoxWithConstraintsScope.UI(
         )
 
         if (state.creditCards.isNotEmpty()) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
             CardChoice(
                 cards = state.creditCards,

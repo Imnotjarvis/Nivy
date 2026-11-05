@@ -1,29 +1,47 @@
 package com.ivy.wallet.ui.theme.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.CreditCard
-import com.ivy.design.system.colors.Gray
+import com.ivy.design.system.motion.appearTween
+import com.ivy.design.utils.LocalScreenSize
 import com.ivy.ui.R
 import kotlinx.collections.immutable.ImmutableList
 
 /**
  * The card an expense is paid with: "Debit", from its account, or one of the account's credit
- * [cards], which charges it later.
+ * [cards], which charges it later. A row like the date's, showing the choice; tapped, it opens
+ * the list to choose from, which closes once one is chosen.
  */
 @Composable
 fun CardChoice(
@@ -32,42 +50,82 @@ fun CardChoice(
     onSelect: (CreditCard?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.testTag("card_choice")) {
-        Text(
-            modifier = Modifier.padding(start = 32.dp),
-            text = stringResource(R.string.card_choice),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = Gray,
-                fontWeight = FontWeight.Bold
-            )
-        )
+    var expanded by remember { mutableStateOf(false) }
+    val debit = stringResource(R.string.card_choice_debit)
+    val bringIntoView = remember { BringIntoViewRequester() }
+    val screenHeight = LocalScreenSize.current.height.toFloat()
+    LaunchedEffect(expanded) {
+        // The editors' amount panel covers their lower part: opened, the row rises to the top of the
+        // screen with the list under it, which asking to see a screen's height from it does.
+        if (expanded) bringIntoView.bringIntoView(Rect(0f, 0f, 1f, screenHeight))
+    }
 
-        Spacer(Modifier.height(8.dp))
-
-        // Up to three a line, the lines as even as they can be; each shares its line's width.
-        val options = cards.size + 1
-        val lines = (options + MaxPerLine - 1) / MaxPerLine
-        FlowRow(
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+            .animateContentSize(appearTween())
+            .bringIntoViewRequester(bringIntoView)
+            .testTag("card_choice")
+    ) {
+        Row(
             modifier = Modifier
-                .padding(horizontal = 24.dp)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            maxItemsInEachRow = (options + lines - 1) / lines,
+                .clickable { expanded = !expanded }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            SegmentedButton(
-                label = stringResource(R.string.card_choice_debit),
-                selected = selected == null,
-            ) {
-                onSelect(null)
-            }
+            Spacer(Modifier.width(16.dp))
 
-            cards.forEach { card ->
-                SegmentedButton(
-                    label = card.name.value,
-                    selected = selected?.id == card.id,
+            // The card icon is drawn smaller than the date's calendar: the same box keeps them aligned.
+            IvyIcon(
+                modifier = Modifier
+                    .size(IconSize)
+                    .padding(4.dp),
+                icon = R.drawable.ic_vue_money_card
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(R.string.card_choice),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(Modifier.width(24.dp))
+
+            Text(
+                modifier = Modifier.weight(1f),
+                text = selected?.name?.value ?: debit,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.End
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            IvyIcon(
+                modifier = Modifier.rotate(if (expanded) HalfTurn else 0f),
+                icon = R.drawable.ic_expandarrow
+            )
+
+            Spacer(Modifier.width(16.dp))
+        }
+
+        if (expanded) {
+            (listOf(null) + cards).forEach { card ->
+                CardOption(
+                    name = card?.name?.value ?: debit,
+                    selected = card?.id == selected?.id,
                 ) {
+                    expanded = false
                     onSelect(card)
                 }
             }
@@ -75,4 +133,39 @@ fun CardChoice(
     }
 }
 
-private const val MaxPerLine = 3
+@Composable
+private fun CardOption(
+    name: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Under the label, past the icon.
+        Spacer(Modifier.width(16.dp + IconSize + 8.dp))
+
+        Text(
+            modifier = Modifier.weight(1f),
+            text = name,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium
+            ),
+        )
+
+        // The same height for every option, the chosen one marked.
+        Box(Modifier.size(IconSize)) {
+            if (selected) IvyIcon(icon = R.drawable.ic_check)
+        }
+
+        Spacer(Modifier.width(16.dp))
+    }
+}
+
+private val IconSize = 32.dp
+private const val HalfTurn = 180f
