@@ -124,7 +124,7 @@ private fun BoxWithConstraintsScope.UI(
             },
             suggestions = emptySet(), // DO NOT display title suggestions for "Planned Payments"
             onTitleChanged = { onEvent(EditPlannedScreenEvent.OnTitleChanged(it)) },
-            onNext = {
+            onDone = {
                 when {
                     shouldFocusRecurring(
                         state.startDate,

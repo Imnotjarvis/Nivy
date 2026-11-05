@@ -45,7 +45,7 @@ fun ColumnScope.Title(
     onTitleChanged: (String?) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState? = null,
-    onNext: () -> Unit,
+    onDone: () -> Unit,
 ) {
     IvyTitleTextField(
         modifier = modifier
@@ -62,12 +62,12 @@ fun ColumnScope.Title(
         keyboardOptions = KeyboardOptions(
             autoCorrectEnabled = true,
             keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Next,
+            imeAction = ImeAction.Done,
             capitalization = KeyboardCapitalization.Sentences
         ),
         keyboardActions = KeyboardActions(
-            onNext = {
-                onNext()
+            onDone = {
+                onDone()
             }
         )
     ) {

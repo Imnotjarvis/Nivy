@@ -39,6 +39,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -292,6 +293,7 @@ private fun BoxWithConstraintsScope.UI(
         )
     }
     val titleFocus = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
     // This is to scroll the column to the customExchangeCard composable when it is shown
@@ -340,17 +342,8 @@ private fun BoxWithConstraintsScope.UI(
             scrollState = scrollState,
 
             onTitleChanged = onTitleChange,
-            onNext = {
-                when {
-                    shouldFocusAmount(amount = amount) -> {
-                        amountModalShown = true
-                    }
-
-                    else -> {
-                        onSave(true)
-                    }
-                }
-            }
+            // Enter confirms the title: the keyboard closes, and the rest is still to fill in.
+            onDone = { focusManager.clearFocus() }
         )
 
         if (loanData.loanCaption != null) {
