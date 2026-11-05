@@ -340,17 +340,6 @@ private fun BoxWithConstraintsScope.UI(
             scrollState = scrollState,
 
             onTitleChanged = onTitleChange,
-            onNext = {
-                when {
-                    shouldFocusAmount(amount = amount) -> {
-                        amountModalShown = true
-                    }
-
-                    else -> {
-                        onSave(true)
-                    }
-                }
-            }
         )
 
         if (loanData.loanCaption != null) {

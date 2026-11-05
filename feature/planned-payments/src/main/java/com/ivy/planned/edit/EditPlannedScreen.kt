@@ -124,31 +124,6 @@ private fun BoxWithConstraintsScope.UI(
             },
             suggestions = emptySet(), // DO NOT display title suggestions for "Planned Payments"
             onTitleChanged = { onEvent(EditPlannedScreenEvent.OnTitleChanged(it)) },
-            onNext = {
-                when {
-                    shouldFocusRecurring(
-                        state.startDate,
-                        state.intervalN,
-                        state.intervalType,
-                        state.oneTime
-                    ) -> {
-                        onEvent(
-                            EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
-                                RecurringRuleModalData(
-                                    initialStartDate = state.startDate,
-                                    initialIntervalN = state.intervalN,
-                                    initialIntervalType = state.intervalType,
-                                    initialOneTime = state.oneTime
-                                )
-                            )
-                        )
-                    }
-
-                    else -> {
-                        onEvent(EditPlannedScreenEvent.OnSave())
-                    }
-                }
-            }
         )
 
         if (state.transactionType != TransactionType.TRANSFER) {
