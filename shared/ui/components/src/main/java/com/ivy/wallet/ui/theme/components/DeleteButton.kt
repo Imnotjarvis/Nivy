@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.theme.components
 
+import com.ivy.design.system.colors.deleteRed
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,7 +9,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ivy.ui.R
 import com.ivy.design.system.colors.White
-import com.ivy.design.system.colors.Palette
 
 @Composable
 fun DeleteButton(
@@ -21,7 +21,7 @@ fun DeleteButton(
             .testTag("delete_button"),
         backgroundPadding = 6.dp,
         icon = R.drawable.ic_delete,
-        backgroundColor = Palette.Red,
+        backgroundColor = deleteRed(),
         enabled = true,
         tint = White,
         contentDescription = stringResource(R.string.delete),

@@ -1,13 +1,23 @@
 package com.ivy.main
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import com.ivy.design.system.motion.AppearRiseFraction
+import com.ivy.design.system.motion.CoveredDimAlpha
+import com.ivy.design.system.motion.appearTween
+import com.ivy.design.system.shapes.ShapeTop
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,14 +37,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ivy.design.utils.LocalScreenSize
 import com.ivy.design.utils.thenIf
 import com.ivy.wallet.data.model.MainTab
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.design.utils.densityScope
 import com.ivy.design.utils.lerp
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.wallet.utils.springBounceFast
@@ -86,11 +94,13 @@ internal fun BoxWithConstraintsScope.BottomBar(
         expanded = false
     }
 
-    val screenHeightDp = densityScope { screenSize.height.toDp() }
-    val expandedBackgroundOffset by animateDpAsState(
-        targetValue = if (expanded) 0.dp else screenHeightDp,
-        animationSpec = springBounceFast()
+    // Like a dialog: the panel rises a little as it fades in over the screen, which dims.
+    val appeared = animateFloatAsState(
+        targetValue = if (expanded) 1f else 0f,
+        animationSpec = appearTween(),
+        label = "add_menu",
     )
+    val shown by remember { derivedStateOf { appeared.value > 0f } }
 
     val fabRotation by animateFloatAsState(
         targetValue = if (expanded) 45f else 0f,
@@ -126,13 +136,29 @@ internal fun BoxWithConstraintsScope.BottomBar(
         },
     )
 
-    if (expandedBackgroundOffset < screenHeightDp) {
+    if (shown) {
+        // The animated values are read while drawing, not in composition.
         Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                // The lambda form reads the animated offset in the layout phase, not in composition.
-                .offset { IntOffset(x = 0, y = expandedBackgroundOffset.roundToPx()) }
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * appeared.value) }
+                // No ripple: on the dim it would wash over the whole screen as the menu closes.
+                .clickable(interactionSource = null, indication = null, enabled = expanded) {
+                    expanded = false
+                }
+                .zIndex(100f)
+        )
+        // Half the screen, under the buttons, its top corners on the app's corner radius.
+        Spacer(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .fillMaxHeight(PanelHeightFraction)
+                .graphicsLayer {
+                    translationY = (1f - appeared.value) * AppearRiseFraction * screenSize.height
+                    alpha = appeared.value
+                }
+                .background(MaterialTheme.colorScheme.surface, ShapeTop)
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing
                 }
@@ -571,3 +597,6 @@ private fun AddTransferButton(
             }
     )
 }
+
+// How much of the screen the panel behind the add buttons covers, from the bottom.
+private const val PanelHeightFraction = 0.5f

@@ -1,5 +1,6 @@
 package com.ivy.settings
 
+import com.ivy.design.system.colors.deleteRed
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -67,7 +68,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import com.ivy.navigation.rememberOnBack
 import kotlin.math.roundToInt
-import com.ivy.design.system.colors.Palette
 import com.ivy.design.system.colors.readableTint
 
 @ExperimentalFoundationApi
@@ -396,7 +396,7 @@ private fun BoxWithConstraintsScope.UI(
         item {
             SettingsSectionDivider(
                 text = stringResource(R.string.danger_zone),
-                color = Palette.Red
+                color = deleteRed()
             )
 
             Spacer(Modifier.height(16.dp))
@@ -404,7 +404,7 @@ private fun BoxWithConstraintsScope.UI(
             SettingsPrimaryButton(
                 icon = R.drawable.ic_delete,
                 text = stringResource(R.string.delete_all_user_data),
-                backgroundColor = Palette.Red
+                backgroundColor = deleteRed()
             ) {
                 deleteAllDataModalVisible = true
             }

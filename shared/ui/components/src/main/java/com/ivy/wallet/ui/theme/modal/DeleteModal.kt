@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.theme.modal
 
+import com.ivy.design.system.colors.deleteRed
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +28,6 @@ import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyNameTextField
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.colors.Palette
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -62,7 +62,7 @@ fun BoxWithConstraintsScope.DeleteModal(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = Palette.Red,
+                color = deleteRed(),
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -122,7 +122,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
             modifier = Modifier.padding(horizontal = 32.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
-                color = Palette.Red,
+                color = deleteRed(),
                 fontWeight = FontWeight.ExtraBold
             )
         )

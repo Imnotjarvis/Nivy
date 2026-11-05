@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.theme.modal
 
+import com.ivy.design.system.colors.deleteRed
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,7 +19,6 @@ import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyCircleButton
 import com.ivy.wallet.ui.theme.components.IvyOutlinedButton
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.colors.Palette
 
 @Composable
 internal fun ModalDynamicPrimaryAction(
@@ -152,7 +152,7 @@ fun ModalNegativeButton(
 ) {
     IvyButton(
         text = text,
-        backgroundColor = Palette.Red,
+        backgroundColor = deleteRed(),
         iconStart = iconStart,
         onClick = onClick,
         enabled = enabled
@@ -189,7 +189,7 @@ fun ModalDelete(
             .size(40.dp)
             .testTag(testTag),
         icon = R.drawable.ic_delete,
-        backgroundColor = Palette.Red,
+        backgroundColor = deleteRed(),
         enabled = enabled,
         tint = White,
         contentDescription = stringResource(R.string.delete),
