@@ -1,17 +1,16 @@
 package com.ivy.wallet.ui.theme.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -45,15 +44,18 @@ fun CardChoice(
 
         Spacer(Modifier.height(8.dp))
 
-        Row(
+        // Up to three a line, the lines as even as they can be; each shares its line's width.
+        val options = cards.size + 1
+        val lines = (options + MaxPerLine - 1) / MaxPerLine
+        FlowRow(
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge),
-            verticalAlignment = Alignment.CenterVertically
+                .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            maxItemsInEachRow = (options + lines - 1) / lines,
         ) {
-            Spacer(Modifier.width(8.dp))
-
             SegmentedButton(
                 label = stringResource(R.string.card_choice_debit),
                 selected = selected == null,
@@ -62,8 +64,6 @@ fun CardChoice(
             }
 
             cards.forEach { card ->
-                Spacer(Modifier.width(8.dp))
-
                 SegmentedButton(
                     label = card.name.value,
                     selected = selected?.id == card.id,
@@ -71,8 +71,8 @@ fun CardChoice(
                     onSelect(card)
                 }
             }
-
-            Spacer(Modifier.width(8.dp))
         }
     }
 }
+
+private const val MaxPerLine = 3
