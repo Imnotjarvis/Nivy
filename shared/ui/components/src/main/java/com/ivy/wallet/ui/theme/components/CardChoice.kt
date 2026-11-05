@@ -20,21 +20,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.CreditCard
 import com.ivy.design.system.motion.appearTween
-import com.ivy.design.utils.LocalScreenSize
 import com.ivy.ui.R
 import kotlinx.collections.immutable.ImmutableList
 
@@ -42,6 +46,9 @@ import kotlinx.collections.immutable.ImmutableList
  * The card an expense is paid with: "Debit", from its account, or one of the account's credit
  * [cards], which charges it later. A row like the date's, showing the choice; tapped, it opens
  * the list to choose from, which closes once one is chosen.
+ *
+ * @param coveredBottom how high something covers the bottom of the screen, like the editors'
+ * amount panel, read as the list opens: the list stays clear of it.
  */
 @Composable
 fun CardChoice(
@@ -49,16 +56,10 @@ fun CardChoice(
     selected: CreditCard?,
     onSelect: (CreditCard?) -> Unit,
     modifier: Modifier = Modifier,
+    coveredBottom: () -> Dp = { 0.dp },
 ) {
     var expanded by remember { mutableStateOf(false) }
     val debit = stringResource(R.string.card_choice_debit)
-    val bringIntoView = remember { BringIntoViewRequester() }
-    val screenHeight = LocalScreenSize.current.height.toFloat()
-    LaunchedEffect(expanded) {
-        // The editors' amount panel covers their lower part: opened, the row rises to the top of the
-        // screen with the list under it, which asking to see a screen's height from it does.
-        if (expanded) bringIntoView.bringIntoView(Rect(0f, 0f, 1f, screenHeight))
-    }
 
     Column(
         modifier = modifier
@@ -67,7 +68,6 @@ fun CardChoice(
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .animateContentSize(appearTween())
-            .bringIntoViewRequester(bringIntoView)
             .testTag("card_choice")
     ) {
         Row(
@@ -120,16 +120,45 @@ fun CardChoice(
         }
 
         if (expanded) {
-            (listOf(null) + cards).forEach { card ->
-                CardOption(
-                    name = card?.name?.value ?: debit,
-                    selected = card?.id == selected?.id,
-                ) {
-                    expanded = false
-                    onSelect(card)
+            CardOptions(coveredBottom = coveredBottom) {
+                (listOf(null) + cards).forEach { card ->
+                    CardOption(
+                        name = card?.name?.value ?: debit,
+                        selected = card?.id == selected?.id,
+                    ) {
+                        expanded = false
+                        onSelect(card)
+                    }
                 }
             }
         }
+    }
+}
+
+// Opened, the options move into view only as far as the last one needs to clear [coveredBottom],
+// with the room between the editors' rows: not at all when it already does.
+@Composable
+private fun CardOptions(
+    coveredBottom: () -> Dp,
+    content: @Composable () -> Unit,
+) {
+    val bringIntoView = remember { BringIntoViewRequester() }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val density = LocalDensity.current
+    val covered by rememberUpdatedState(coveredBottom)
+    LaunchedEffect(size) {
+        if (size.height > 0) {
+            val bottom = with(density) { (covered() + Clearance).toPx() }
+            bringIntoView.bringIntoView(Rect(0f, 0f, size.width.toFloat(), size.height + bottom))
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .bringIntoViewRequester(bringIntoView)
+            .onSizeChanged { size = it }
+    ) {
+        content()
     }
 }
 
@@ -168,4 +197,5 @@ private fun CardOption(
 }
 
 private val IconSize = 32.dp
+private val Clearance = 12.dp
 private const val HalfTurn = 180f

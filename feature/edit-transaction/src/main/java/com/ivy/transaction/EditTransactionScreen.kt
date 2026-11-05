@@ -272,6 +272,8 @@ private fun BoxWithConstraintsScope.UI(
     var amountModalShown by remember { mutableStateOf(false) }
     var exchangeRateAmountModalShown by remember { mutableStateOf(false) }
     var accountChangeModal by remember { mutableStateOf(false) }
+    // How high the amount panel covers the screen: the card list stays clear of it.
+    var bottomSheetHeight by remember { mutableStateOf(0.dp) }
     val waitModalVisible by remember(backgroundProcessing) {
         mutableStateOf(backgroundProcessing)
     }
@@ -408,6 +410,7 @@ private fun BoxWithConstraintsScope.UI(
                 cards = creditCards,
                 selected = creditCard,
                 onSelect = onCreditCardChange,
+                coveredBottom = { bottomSheetHeight },
             )
         }
 
@@ -473,6 +476,7 @@ private fun BoxWithConstraintsScope.UI(
     }
 
     EditBottomSheet(
+        onHeightChanged = { bottomSheetHeight = it },
         initialTransactionId = screen.initialTransactionId,
         type = transactionType,
         accounts = accounts,
