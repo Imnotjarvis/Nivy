@@ -77,7 +77,7 @@ import com.ivy.wallet.ui.edit.core.Title
 import com.ivy.wallet.ui.edit.core.Toolbar
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
 import com.ivy.wallet.ui.theme.components.ChangeTransactionTypeModal
-import com.ivy.wallet.ui.theme.components.PaidWith
+import com.ivy.wallet.ui.theme.components.CardChoice
 import com.ivy.wallet.ui.theme.components.CustomExchangeRateCard
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.ModalAdd
@@ -415,7 +415,7 @@ private fun BoxWithConstraintsScope.UI(
         if (creditCards.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
 
-            PaidWith(
+            CardChoice(
                 cards = creditCards,
                 selected = creditCard,
                 onSelect = onCreditCardChange,

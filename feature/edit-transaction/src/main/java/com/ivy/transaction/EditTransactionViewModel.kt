@@ -436,13 +436,15 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun onAccountChanged(newAccount: Account) {
         viewModelScope.launch {
-            // The card the account's new expenses are paid with; another account's card can't be.
-            creditCard = defaultCreditCard(newAccount, transactionType)
-            chargeShift = 0
+            // Another account's card can't pay it: the one its new expenses start on instead.
+            if (newAccount.id != account?.id) {
+                creditCard = defaultCreditCard(newAccount, transactionType)
+                chargeShift = 0
+            }
             loadedTransaction = loadedTransaction().copy(
                 accountId = newAccount.id.value,
                 creditCardId = creditCard?.id?.value,
-                chargeShift = 0,
+                chargeShift = chargeShift,
             )
             account = newAccount
 
@@ -535,12 +537,14 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun onSetTransactionType(newTransactionType: TransactionType) {
         // Only an expense is paid with a card.
-        creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
-        chargeShift = 0
+        if (newTransactionType != transactionType) {
+            creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+            chargeShift = 0
+        }
         loadedTransaction = loadedTransaction().copy(
             type = newTransactionType,
             creditCardId = creditCard?.id?.value,
-            chargeShift = 0,
+            chargeShift = chargeShift,
         )
         transactionType = newTransactionType
         saveIfEditMode()

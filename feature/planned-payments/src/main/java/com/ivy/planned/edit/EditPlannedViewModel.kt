@@ -281,9 +281,9 @@ class EditPlannedViewModel @Inject constructor(
     }
 
     private fun updateAccount(newAccount: Account) {
+        // Another account's card can't pay it: the one its new expenses start on instead.
+        if (newAccount.id != account?.id) creditCard = defaultCreditCard(newAccount, transactionType)
         this@EditPlannedViewModel.account = newAccount
-        // Another account's card can't pay it.
-        creditCard = defaultCreditCard(newAccount, transactionType)
         updateCurrency(account = newAccount)
 
         saveIfEditMode()
@@ -296,9 +296,11 @@ class EditPlannedViewModel @Inject constructor(
     }
 
     private fun updateTransactionType(newTransactionType: TransactionType) {
-        this@EditPlannedViewModel.transactionType = newTransactionType
         // Only an expense is paid with a card.
-        creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+        if (newTransactionType != transactionType) {
+            creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+        }
+        this@EditPlannedViewModel.transactionType = newTransactionType
 
         saveIfEditMode()
     }

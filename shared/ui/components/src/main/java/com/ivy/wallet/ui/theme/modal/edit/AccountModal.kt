@@ -112,10 +112,7 @@ fun BoxWithConstraintsScope.AccountModal(
         mutableStateOf(account?.includeInBalance ?: true)
     }
     var typeSettings by remember(shown) {
-        mutableStateOf(AccountTypeSettings.of(account))
-    }
-    var creditCards by remember(shown) {
-        mutableStateOf(shown?.creditCards)
+        mutableStateOf(AccountTypeSettings.of(account, shown?.creditCards))
     }
     // A new account's cards are given its id once it's created.
     val accountId = remember(shown) { account?.id ?: AccountId(UUID.randomUUID()) }
@@ -149,7 +146,6 @@ fun BoxWithConstraintsScope.AccountModal(
                     amount = amount,
                     includeInBalance = includeInBalance,
                     typeSettings = typeSettings,
-                    creditCards = creditCards,
 
                     onCreateAccount = onCreateAccount,
                     onEditAccount = onEditAccount,
@@ -207,7 +203,7 @@ fun BoxWithConstraintsScope.AccountModal(
             onSelectType = { typeSettings = typeSettings.copy(type = it) },
         )
 
-        creditCards?.let { cards ->
+        typeSettings.creditCards?.let { cards ->
             Spacer(modifier = Modifier.height(32.dp))
 
             CreditCardsSection(
@@ -290,7 +286,6 @@ fun BoxWithConstraintsScope.AccountModal(
                 amount = newAmount,
                 includeInBalance = includeInBalance,
                 typeSettings = typeSettings,
-                creditCards = creditCards,
 
                 onCreateAccount = onCreateAccount,
                 onEditAccount = onEditAccount,
@@ -310,15 +305,8 @@ fun BoxWithConstraintsScope.AccountModal(
 
     CreditCardModal(
         modal = creditCardModalData,
-        onSave = { card ->
-            val cards = creditCards.orEmpty()
-            creditCards = if (cards.any { it.id == card.id }) {
-                cards.map { if (it.id == card.id) card else it }
-            } else {
-                cards + card
-            }
-        },
-        onDelete = { card -> creditCards = creditCards.orEmpty().filterNot { it.id == card.id } },
+        onSave = { typeSettings = typeSettings.withCreditCard(it) },
+        onDelete = { typeSettings = typeSettings.withoutCreditCard(it) },
         dismiss = { creditCardModalData = null },
     )
 
@@ -341,7 +329,6 @@ private fun save(
     amount: Double,
     includeInBalance: Boolean,
     typeSettings: AccountTypeSettings,
-    creditCards: List<CreditCard>?,
 
     onCreateAccount: (CreateAccountData) -> Unit,
     onEditAccount: (Account, balance: Double, creditCards: List<CreditCard>?) -> Unit,
@@ -362,7 +349,7 @@ private fun save(
                     archived = typeSettings.archived,
                 ),
                 amount,
-                creditCards,
+                typeSettings.creditCards,
             )
         }
     } else {
@@ -375,7 +362,7 @@ private fun save(
                 balance = amount,
                 includeBalance = includeInBalance,
                 type = typeSettings.type,
-                creditCards = creditCards.orEmpty(),
+                creditCards = typeSettings.creditCards.orEmpty(),
             )
         )
     }
@@ -383,15 +370,32 @@ private fun save(
     dismiss()
 }
 
-/** The type fields of the dialog. */
+/** The type fields of the dialog, and the account's credit cards: null where it doesn't show them. */
 private data class AccountTypeSettings(
     val type: AccountType,
     val archived: Boolean,
+    val creditCards: List<CreditCard>?,
 ) {
+    /** With [card] added, or in place of the card it edits. */
+    fun withCreditCard(card: CreditCard): AccountTypeSettings {
+        val cards = creditCards.orEmpty()
+        return copy(
+            creditCards = if (cards.any { it.id == card.id }) {
+                cards.map { if (it.id == card.id) card else it }
+            } else {
+                cards + card
+            }
+        )
+    }
+
+    fun withoutCreditCard(card: CreditCard): AccountTypeSettings =
+        copy(creditCards = creditCards.orEmpty().filterNot { it.id == card.id })
+
     companion object {
-        fun of(account: Account?) = AccountTypeSettings(
+        fun of(account: Account?, creditCards: List<CreditCard>?) = AccountTypeSettings(
             type = account?.type ?: AccountType.OTHER,
             archived = account?.archived ?: false,
+            creditCards = creditCards,
         )
     }
 }

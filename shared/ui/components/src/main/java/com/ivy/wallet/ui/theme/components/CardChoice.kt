@@ -23,20 +23,20 @@ import com.ivy.ui.R
 import kotlinx.collections.immutable.ImmutableList
 
 /**
- * What an expense is paid with: from its account ("Debit"), or with one of the account's credit
+ * The card an expense is paid with: "Debit", from its account, or one of the account's credit
  * [cards], which charges it later.
  */
 @Composable
-fun PaidWith(
+fun CardChoice(
     cards: ImmutableList<CreditCard>,
     selected: CreditCard?,
     onSelect: (CreditCard?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.testTag("paid_with")) {
+    Column(modifier = modifier.testTag("card_choice")) {
         Text(
             modifier = Modifier.padding(start = 32.dp),
-            text = stringResource(R.string.paid_with),
+            text = stringResource(R.string.card_choice),
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = Gray,
                 fontWeight = FontWeight.Bold
@@ -55,7 +55,7 @@ fun PaidWith(
             Spacer(Modifier.width(8.dp))
 
             SegmentedButton(
-                label = stringResource(R.string.paid_with_debit),
+                label = stringResource(R.string.card_choice_debit),
                 selected = selected == null,
             ) {
                 onSelect(null)

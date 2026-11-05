@@ -48,6 +48,7 @@ fun BoxWithConstraintsScope.CreditCardModal(
     modal: CreditCardModalData?,
     onSave: (CreditCard) -> Unit,
     onDelete: (CreditCard) -> Unit,
+    modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
     // Closing clears the data: the dialog keeps showing the last while it fades out.
@@ -66,6 +67,7 @@ fun BoxWithConstraintsScope.CreditCardModal(
     var creditLimitModalVisible by remember(shown) { mutableStateOf(false) }
 
     IvyModal(
+        modifier = modifier,
         id = shown?.id,
         visible = modal != null,
         dismiss = dismiss,

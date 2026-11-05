@@ -350,8 +350,8 @@
     <string name="edit_credit_card">Edit credit card</string>
     <string name="credit_card_name">Card name</string>
     <string name="charged_on_day">Charged on day %1$s</string>
-    <string name="paid_with">Paid with</string>
-    <string name="paid_with_debit">Debit</string>
+    <string name="card_choice">Card</string>
+    <string name="card_choice_debit">Debit</string>
     <string name="archive_account">Archive (hide from lists)</string>
     <string name="archived">Archived</string>
     <string name="show_archived_accounts">Show archived (%1$s)</string>

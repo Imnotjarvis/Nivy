@@ -38,7 +38,7 @@ import com.ivy.wallet.ui.edit.core.Title
 import com.ivy.wallet.ui.edit.core.Toolbar
 import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.ChangeTransactionTypeModal
-import com.ivy.wallet.ui.theme.components.PaidWith
+import com.ivy.wallet.ui.theme.components.CardChoice
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.RecurringRuleModal
@@ -186,7 +186,7 @@ private fun BoxWithConstraintsScope.UI(
         if (state.creditCards.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
 
-            PaidWith(
+            CardChoice(
                 cards = state.creditCards,
                 selected = state.creditCard,
                 onSelect = { onEvent(EditPlannedScreenEvent.OnCreditCardChanged(it)) },

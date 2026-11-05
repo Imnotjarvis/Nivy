@@ -230,7 +230,6 @@ private fun BoxWithConstraintsScope.UI(
 
     account: Account?,
     category: Category?,
-    creditCards: ImmutableList<CreditCard> = persistentListOf(),
 
     updateAccountNameConfirmation: (String) -> Unit,
     enableDeletionButton: Boolean,
@@ -274,6 +273,7 @@ private fun BoxWithConstraintsScope.UI(
     onSkipTransaction: (Transaction) -> Unit = {},
     onSkipAllTransactions: (List<Transaction>) -> Unit = {},
     compactTransactions: Boolean = false,
+    creditCards: ImmutableList<CreditCard> = persistentListOf(),
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
     val periodState = LocalPeriodState.current

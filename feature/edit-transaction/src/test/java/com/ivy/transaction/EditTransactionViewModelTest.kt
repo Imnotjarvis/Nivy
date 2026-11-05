@@ -305,6 +305,18 @@ class EditTransactionViewModelTest {
     }
 
     @Test
+    fun `choosing the same account or type again keeps the card`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(visa))
+        viewModel.onEvent(EditTransactionViewEvent.OnAccountChanged(bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnSetTransactionType(TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        saved().metadata.creditCard shouldBe visa.id
+    }
+
+    @Test
     fun `income isn't paid with a card`() {
         viewModel.start(newTransaction(TransactionType.EXPENSE, amexAccount))
         viewModel.onEvent(EditTransactionViewEvent.OnSetTransactionType(TransactionType.INCOME))
