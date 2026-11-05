@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.datastore)
     implementation(libs.bundles.opencsv)
 
+    testImplementation(projects.shared.data.coreTesting)
     testImplementation(projects.shared.data.modelTesting)
 
     androidTestImplementation(libs.bundles.integration.testing)
