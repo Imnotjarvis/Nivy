@@ -39,6 +39,8 @@ import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.ui.component.transaction.TransactionsDividerLine
 import com.ivy.wallet.ui.component.transaction.transactions
 import com.ivy.navigation.IvyPreview
+import com.ivy.navigation.SearchScreen
+import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
 import com.ivy.ui.rememberScrollPositionListState
@@ -89,6 +91,8 @@ fun BoxWithConstraintsScope.HomeUi(
     }
 
     val baseCurrency = uiState.baseData.baseCurrency
+    val pullToSearch = rememberPullToSearch()
+    val nav = navigation()
 
     Column(
         modifier = modifier
@@ -115,7 +119,12 @@ fun BoxWithConstraintsScope.HomeUi(
             }
         )
 
+        HomeSearchBar(pull = pullToSearch) {
+            nav.navigateTo(SearchScreen)
+        }
+
         HomeLazyColumn(
+            modifier = Modifier.nestedScroll(pullToSearch),
             hideBalance = uiState.hideBalance,
             hideIncome = uiState.hideIncome,
             onSetExpand = {

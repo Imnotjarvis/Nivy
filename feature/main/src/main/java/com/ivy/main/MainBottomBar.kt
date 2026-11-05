@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import com.ivy.design.system.motion.AppearRiseFraction
 import com.ivy.design.system.motion.CoveredDimAlpha
 import com.ivy.design.system.motion.appearTween
 import com.ivy.design.system.shapes.ShapeTop
@@ -81,8 +80,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
 
     showAddAccountModal: () -> Unit,
 ) {
-    val screenSize = LocalScreenSize.current
-
     var expanded by remember { mutableStateOf(false) }
 
     val modalId = remember { UUID.randomUUID() }
@@ -94,7 +91,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
         expanded = false
     }
 
-    // Like a dialog: the panel rises a little as it fades in over the screen, which dims.
+    // At a dialog's speed: the panel comes up from the bottom edge over the screen, which dims.
     val appeared = animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
         animationSpec = appearTween(),
@@ -148,16 +145,15 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 }
                 .zIndex(100f)
         )
-        // Half the screen, under the buttons, its top corners on the app's corner radius.
+        // Half the screen, under the buttons, its top corners on the app's corner radius. Solid all
+        // the way, coming up from behind the bottom edge: a panel fading in let the screen's colors
+        // show through it.
         Spacer(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .fillMaxHeight(PanelHeightFraction)
-                .graphicsLayer {
-                    translationY = (1f - appeared.value) * AppearRiseFraction * screenSize.height
-                    alpha = appeared.value
-                }
+                .graphicsLayer { translationY = (1f - appeared.value) * size.height }
                 .background(MaterialTheme.colorScheme.surface, ShapeTop)
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing
