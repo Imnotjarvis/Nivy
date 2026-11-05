@@ -1,6 +1,7 @@
 package com.ivy.transactions
 
 import com.ivy.data.model.Account
+import com.ivy.data.model.AccountValue
 import com.ivy.data.model.Category
 import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Transaction
@@ -10,6 +11,9 @@ import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 
 sealed interface TransactionsEvent {
     data class SetUpcomingExpanded(val expanded: Boolean) : TransactionsEvent
+    data class SetValuesExpanded(val expanded: Boolean) : TransactionsEvent
+    data class SaveValue(val screen: TransactionsScreen, val value: AccountValue) : TransactionsEvent
+    data class DeleteValue(val screen: TransactionsScreen, val value: AccountValue) : TransactionsEvent
     data class SetOverdueExpanded(val expanded: Boolean) : TransactionsEvent
 
     data class SetPeriod(

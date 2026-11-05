@@ -23,6 +23,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.wallet.utils.format
+import com.ivy.wallet.utils.formatGainPercent
 import com.ivy.ui.R
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.data.TransactionHistoryEntry
@@ -64,12 +65,15 @@ fun IncomeExpensesCards(
         HeaderCard(
             title = stringResource(R.string.income_uppercase),
             currencyCode = currency,
-            amount = income,
-            transactionCount = history
+            amount = income.format(currency),
+            amountTone = Tone.Up,
+            count = history
                 .filterIsInstance<TransactionHistoryEntry>()
-                .count { it.transaction is Income },
+                .count { it.transaction is Income }
+                .toString(),
+            countLabel = stringResource(R.string.transactions),
             addButtonText = if (hasAddButtons) stringResource(R.string.add_income) else null,
-            isIncome = true,
+            greenButton = true,
 
             itemColor = itemColor,
             onHeaderCardClicked = { incomeHeaderCardClicked() }
@@ -82,12 +86,15 @@ fun IncomeExpensesCards(
         HeaderCard(
             title = stringResource(R.string.expenses_uppercase),
             currencyCode = currency,
-            amount = expenses,
-            transactionCount = history
+            amount = expenses.format(currency),
+            amountTone = Tone.Down,
+            count = history
                 .filterIsInstance<TransactionHistoryEntry>()
-                .count { it.transaction is Expense },
+                .count { it.transaction is Expense }
+                .toString(),
+            countLabel = stringResource(R.string.transactions),
             addButtonText = if (hasAddButtons) stringResource(R.string.add_expense) else null,
-            isIncome = false,
+            greenButton = false,
 
             itemColor = itemColor,
             onHeaderCardClicked = { expenseHeaderCardClicked() }
@@ -99,19 +106,86 @@ fun IncomeExpensesCards(
     }
 }
 
+/**
+ * An investment account's cards: the money put in, with a button to transfer more, and the gain on
+ * it, or a dash before a value was entered, with a button to enter one.
+ */
 @Composable
-@Suppress("ParameterNaming")
+fun InvestmentCards(
+    currency: String,
+    invested: Double,
+    gain: Double?,
+    transfersIn: Int,
+    itemColor: Color,
+    onAddTransfer: () -> Unit,
+    onUpdateValue: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(16.dp))
+
+        HeaderCard(
+            title = stringResource(R.string.invested),
+            currencyCode = currency,
+            amount = invested.format(currency),
+            amountTone = null,
+            count = transfersIn.toString(),
+            countLabel = stringResource(R.string.transfers_in),
+            addButtonText = stringResource(R.string.add_transfer),
+            greenButton = true,
+            itemColor = itemColor,
+            onAddClick = onAddTransfer,
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        val tone = gain?.let { if (it < 0) Tone.Down else Tone.Up }
+        HeaderCard(
+            title = stringResource(R.string.gain),
+            currencyCode = currency,
+            amount = gain?.let { (if (it > 0) "+" else "") + it.format(currency) } ?: NoValue,
+            amountTone = tone,
+            count = gain?.let { formatGainPercent(it, invested) } ?: NoValue,
+            countTone = tone,
+            countLabel = stringResource(R.string.investment_return),
+            addButtonText = stringResource(R.string.update_value),
+            greenButton = false,
+            itemColor = itemColor,
+            onAddClick = onUpdateValue,
+        )
+
+        Spacer(Modifier.width(16.dp))
+    }
+}
+
+/** Money in or gained, drawn green; money out or lost, red. */
+private enum class Tone { Up, Down }
+
+private const val NoValue = "–"
+
+/**
+ * @param amountTone, countTone what the amount and the count are: green, red, or with no tone
+ * (null) in the card's text color.
+ */
+@Composable
+@Suppress("ParameterNaming", "LongParameterList")
 private fun RowScope.HeaderCard(
     title: String,
     currencyCode: String,
-    amount: Double,
-    transactionCount: Int,
+    amount: String,
+    amountTone: Tone?,
+    count: String,
+    countLabel: String,
 
-    isIncome: Boolean,
+    greenButton: Boolean,
     addButtonText: String?,
 
     itemColor: Color,
 
+    countTone: Tone? = null,
     onHeaderCardClicked: () -> Unit = {},
     onAddClick: () -> Unit
 ) {
@@ -145,12 +219,17 @@ private fun RowScope.HeaderCard(
 
         Spacer(Modifier.height(12.dp))
 
+        // Green and red as on Home's cards, also in minimal colors.
+        fun Tone?.color() = when (this) {
+            Tone.Up -> incomeGreen(backgroundColor)
+            Tone.Down -> expenseRed(backgroundColor)
+            null -> contrastColor
+        }
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = amount.format(currencyCode),
+            text = amount,
             style = MaterialTheme.typography.numberTitleLarge.copy(
-                // Green and red as on Home's cards, also in minimal colors.
-                color = if (isIncome) incomeGreen(backgroundColor) else expenseRed(backgroundColor),
+                color = amountTone.color(),
                 fontWeight = FontWeight.ExtraBold
             )
         )
@@ -167,15 +246,15 @@ private fun RowScope.HeaderCard(
 
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = transactionCount.toString(),
+            text = count,
             style = MaterialTheme.typography.numberTitleLarge.copy(
-                color = contrastColor,
+                color = countTone.color(),
                 fontWeight = FontWeight.ExtraBold
             )
         )
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = stringResource(R.string.transactions),
+            text = countLabel,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.Normal
@@ -185,7 +264,7 @@ private fun RowScope.HeaderCard(
         Spacer(Modifier.height(24.dp))
 
         if (addButtonText != null) {
-            val addButtonBackground = if (isIncome) Green else contrastColor
+            val addButtonBackground = if (greenButton) Green else contrastColor
             IvyButton(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -5,6 +5,7 @@ import com.ivy.data.db.IvyRoomDatabase
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.BudgetDao
 import com.ivy.data.db.dao.read.CategoryDao
+import com.ivy.data.db.dao.read.AccountValueDao
 import com.ivy.data.db.dao.read.CreditCardDao
 import com.ivy.data.db.dao.read.ExchangeRatesDao
 import com.ivy.data.db.dao.read.LoanDao
@@ -16,6 +17,7 @@ import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
+import com.ivy.data.db.dao.write.WriteAccountValueDao
 import com.ivy.data.db.dao.write.WriteCreditCardDao
 import com.ivy.data.db.dao.write.WriteExchangeRatesDao
 import com.ivy.data.db.dao.write.WriteLoanDao
@@ -96,6 +98,11 @@ object RoomDbModule {
     }
 
     @Provides
+    fun provideAccountValueDao(db: IvyRoomDatabase): AccountValueDao {
+        return db.accountValueDao
+    }
+
+    @Provides
     fun provideExchangeRatesDao(
         roomDatabase: IvyRoomDatabase
     ): ExchangeRatesDao {
@@ -155,5 +162,10 @@ object RoomDbModule {
     @Provides
     fun provideWriteCreditCardDao(db: IvyRoomDatabase): WriteCreditCardDao {
         return db.writeCreditCardDao
+    }
+
+    @Provides
+    fun provideWriteAccountValueDao(db: IvyRoomDatabase): WriteAccountValueDao {
+        return db.writeAccountValueDao
     }
 }

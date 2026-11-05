@@ -28,7 +28,9 @@ data class EditTransactionScreen(
     val type: TransactionType,
     // extras
     val accountId: UUID? = null,
-    val categoryId: UUID? = null
+    val categoryId: UUID? = null,
+    // A new transfer's destination: the money comes from another account.
+    val toAccountId: UUID? = null,
 ) : Screen {
     override val isLegacy: Boolean
         get() = true

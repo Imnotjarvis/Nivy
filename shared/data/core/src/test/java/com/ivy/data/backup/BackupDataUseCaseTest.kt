@@ -8,6 +8,7 @@ import com.ivy.data.db.DatabaseTransaction
 import com.ivy.data.db.dao.fake.FakeAccountDao
 import com.ivy.data.db.dao.fake.FakeBudgetDao
 import com.ivy.data.db.dao.fake.FakeCategoryDao
+import com.ivy.data.db.dao.fake.FakeAccountValueDao
 import com.ivy.data.db.dao.fake.FakeCreditCardDao
 import com.ivy.data.db.dao.fake.FakeLoanDao
 import com.ivy.data.db.dao.fake.FakeLoanRecordDao
@@ -18,6 +19,7 @@ import com.ivy.data.db.dao.fake.FakeTagAssociationDao
 import com.ivy.data.db.dao.fake.FakeTagDao
 import com.ivy.data.db.dao.fake.FakeTransactionDao
 import com.ivy.data.db.entity.AccountEntity
+import com.ivy.data.db.entity.AccountValueEntity
 import com.ivy.data.db.entity.CreditCardEntity
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.testResource
@@ -28,6 +30,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import org.junit.Test
+import java.time.Instant
 import java.util.UUID
 
 class BackupDataUseCaseTest {
@@ -50,6 +53,7 @@ class BackupDataUseCaseTest {
         tagDao: FakeTagDao = FakeTagDao(),
         tagAssociationDao: FakeTagAssociationDao = FakeTagAssociationDao(),
         creditCardDao: FakeCreditCardDao = FakeCreditCardDao(),
+        accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
     ): BackupDataUseCase {
         return BackupDataUseCase(
             accountDao = accountDao,
@@ -79,6 +83,8 @@ class BackupDataUseCaseTest {
             tagAssociationWriter = tagAssociationDao,
             creditCardDao = creditCardDao,
             creditCardWriter = creditCardDao,
+            accountValueDao = accountValueDao,
+            accountValueWriter = accountValueDao,
             transaction = FakeDatabaseTransaction(),
         )
     }
@@ -219,6 +225,30 @@ class BackupDataUseCaseTest {
         // then: the existing account keeps its currency, and the backup's arrives beside it
         accountDao.findAll().associate { it.id to it.currency } shouldBe
             mapOf(existingCash.id to "EUR", backupCash.id to "USD")
+    }
+
+    @Test
+    fun `a backup keeps the values entered for investment accounts`() = runTest {
+        // given
+        val accountDao = FakeAccountDao()
+        val accountValueDao = FakeAccountValueDao()
+        val portfolio = AccountEntity(name = "Portfolio", color = 1)
+        val value = AccountValueEntity(
+            accountId = portfolio.id,
+            time = Instant.parse("2026-10-31T18:00:00Z"),
+            value = 8_940.0,
+            id = UUID.randomUUID(),
+        )
+        accountDao.save(portfolio)
+        accountValueDao.save(value)
+        val backup = newBackupDataUseCase(accountDao, accountValueDao = accountValueDao).generateJsonBackup()
+
+        // when
+        val restoredValues = FakeAccountValueDao()
+        newBackupDataUseCase(accountValueDao = restoredValues).importJson(backup)
+
+        // then
+        restoredValues.findAll() shouldBe listOf(value)
     }
 
     @Test

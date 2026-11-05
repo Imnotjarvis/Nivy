@@ -10,7 +10,9 @@ import arrow.core.toOption
 import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.base.model.AccountType
 import com.ivy.data.model.Account
+import com.ivy.data.model.AccountValue
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CreditCard
@@ -25,6 +27,7 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.AccountValueRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
@@ -53,7 +56,9 @@ import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.logic.CategoryCreator
+import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
+import com.ivy.wallet.domain.pure.transaction.AccountValueFunctions
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -89,6 +94,7 @@ class TransactionsViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val creditCardRepository: CreditCardRepository,
+    private val accountValueRepository: AccountValueRepository,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
@@ -131,6 +137,8 @@ class TransactionsViewModel @Inject constructor(
     private val skipAllModalVisible = mutableStateOf(false)
     private val deleteModal1Visible = mutableStateOf(false)
     private val choosePeriodModal = mutableStateOf<ChoosePeriodModalData?>(null)
+    private val investment = mutableStateOf<InvestmentData?>(null)
+    private val valuesExpanded = mutableStateOf(true)
 
     @Composable
     override fun uiState(): TransactionsState {
@@ -164,6 +172,7 @@ class TransactionsViewModel @Inject constructor(
             choosePeriodModal = choosePeriodModal.value,
             showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions(),
             compactTransactions = features.compactTransactionsMode.asEnabledState(),
+            investment = investment.value?.copy(valuesExpanded = valuesExpanded.value),
         )
     }
 
@@ -199,6 +208,9 @@ class TransactionsViewModel @Inject constructor(
 
             is TransactionsEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
             is TransactionsEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
+            is TransactionsEvent.SetValuesExpanded -> valuesExpanded.value = event.expanded
+            is TransactionsEvent.SaveValue -> saveValue(event.screen, event.value)
+            is TransactionsEvent.DeleteValue -> deleteValue(event.screen, event.value)
             is TransactionsEvent.SetSkipAllModalVisible -> setSkipAllModalVisible(event.visible)
             is TransactionsEvent.OnDeleteModal1Visible -> setDeleteModal1Visible(event.delete)
             is TransactionsEvent.OnChoosePeriodModalData -> setChoosePeriodModalData(event.data)
@@ -214,12 +226,18 @@ class TransactionsViewModel @Inject constructor(
 
         currency.value = initialAccount.asset.code
 
-        val balanceValue = calcAccBalanceAct(
+        val balanceOutput = calcAccBalanceAct(
             CalcAccBalanceAct.Input(
                 account = initialAccount
             )
-        ).balance.toDouble()
+        )
+        val balanceValue = balanceOutput.balance.toDouble()
         balance.doubleValue = balanceValue
+        investment.value = if (initialAccount.type == AccountType.INVESTMENT) {
+            investmentData(initialAccount, balanceValue, balanceOutput.gain?.toDouble())
+        } else {
+            null
+        }
         if (baseCurrency.value != currency.value) {
             balanceBaseCurrency.value = exchangeAct(
                 ExchangeAct.Input(
@@ -547,6 +565,7 @@ class TransactionsViewModel @Inject constructor(
     private fun reset() {
         account.value = null
         category.value = null
+        investment.value = null
     }
 
     private fun setUpcomingExpanded(expanded: Boolean) {
@@ -615,6 +634,7 @@ class TransactionsViewModel @Inject constructor(
             transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
             plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
             creditCardRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+            accountValueRepository.deleteAllByAccountId(accountId = AccountId(accountId))
             accountRepository.deleteById(AccountId(accountId))
 
             nav.back()
@@ -659,6 +679,44 @@ class TransactionsViewModel @Inject constructor(
                     reset = false
                 )
             }
+        }
+    }
+
+    // What [account]'s transactions put in, at each value entered too, and the transfers into it.
+    private suspend fun investmentData(account: Account, balance: Double, gain: Double?): InvestmentData {
+        val transactions = accTrnsAct(
+            AccTrnsAct.Input(accountId = account.id.value, range = ClosedTimeRange.allTimeIvy(timeProvider))
+        )
+        val values = accountValueRepository.findByAccount(account.id).reversed().map { value ->
+            ValueEntry(
+                value = value,
+                invested = transactions.filter { it.time <= value.time }
+                    .sumOf { AccountValueFunctions.balance(it, account.id.value) }
+                    .toDouble(),
+            )
+        }
+        return InvestmentData(
+            invested = balance - (gain ?: 0.0),
+            gain = gain,
+            transfersIn = transactions.count {
+                it is Transfer && it.toAccount == account.id && it.fromAccount != account.id
+            },
+            values = values.toImmutableList(),
+            valuesExpanded = valuesExpanded.value,
+        )
+    }
+
+    private fun saveValue(screen: TransactionsScreen, value: AccountValue) {
+        viewModelScope.launch {
+            accountValueRepository.save(value)
+            start(screen = screen, timePeriod = period.value, reset = false)
+        }
+    }
+
+    private fun deleteValue(screen: TransactionsScreen, value: AccountValue) {
+        viewModelScope.launch {
+            accountValueRepository.deleteById(value.id)
+            start(screen = screen, timePeriod = period.value, reset = false)
         }
     }
 
