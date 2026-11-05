@@ -1,11 +1,10 @@
 package com.ivy.domain.usecase.creditcard
 
-import com.ivy.base.model.AccountType
 import com.ivy.base.time.TimeConverter
-import com.ivy.data.model.Account
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Transaction
-import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.CreditCardRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -17,20 +16,21 @@ import javax.inject.Inject
  * count in that month's balance, budgets and reports. The purchase date stays in the metadata.
  */
 class CreditCardChargeUseCase @Inject constructor(
-    private val accountRepository: AccountRepository,
+    private val creditCardRepository: CreditCardRepository,
     private val timeConverter: TimeConverter,
 ) {
     /**
-     * The [transaction] as it's saved: a paid expense on a credit card with a charge day moves to
-     * its charge date, moved as the user did. Anything else stays as it is.
+     * The [transaction] as it's saved: a paid expense on a credit card moves to its charge date,
+     * moved as the user did. Anything else stays as it is.
      */
     suspend fun dated(transaction: Transaction): Transaction {
         if (transaction !is Expense || !transaction.settled) return transaction
-        val account = accountRepository.findById(transaction.account) ?: return transaction
+        val card = transaction.metadata.creditCard?.let { creditCardRepository.findById(it) }
+            ?: return transaction
         val purchase = transaction.metadata.purchaseDateTime ?: transaction.time
         val charge = with(timeConverter) {
-            account.chargeDateTime(purchase.toLocalDateTime(), transaction.metadata.chargeShift)?.toUTC()
-        } ?: return transaction
+            card.chargeDateTime(purchase.toLocalDateTime(), transaction.metadata.chargeShift).toUTC()
+        }
         return transaction.copy(
             time = charge,
             metadata = transaction.metadata.copy(purchaseDateTime = purchase),
@@ -39,29 +39,26 @@ class CreditCardChargeUseCase @Inject constructor(
 }
 
 /**
- * When the card charges a purchase made at [purchase], at the same time of day; null when the
- * account isn't a credit card with a charge day. The purchase goes in the statement that closes
- * next (on its closing day, or the month's last day), and the card charges it on the first charge
- * day after that. [shift] moves the charge by months, like when the bank closed the statement on
- * another day, but never to the purchase's day or before it.
+ * When the card charges a purchase made at [purchase], at the same time of day. The purchase goes
+ * in the statement that closes next (on its closing day, or the month's last day), and the card
+ * charges it on the first charge day after that. [shift] moves the charge by months, like when the
+ * bank closed the statement on another day, but never to the purchase's day or before it.
  */
-fun Account.chargeDateTime(purchase: LocalDateTime, shift: Int = 0): LocalDateTime? {
-    val day = chargeDay?.takeIf { type == AccountType.CREDIT_CARD } ?: return null
-    val month = usualChargeMonth(purchase.toLocalDate(), day)
+fun CreditCard.chargeDateTime(purchase: LocalDateTime, shift: Int = 0): LocalDateTime {
+    val month = usualChargeMonth(purchase.toLocalDate())
         .plusMonths(shift.coerceAtLeast(minChargeShift(purchase)).toLong())
-    return month.atDayOrLast(day).atTime(purchase.toLocalTime())
+    return month.atDayOrLast(chargeDay).atTime(purchase.toLocalTime())
 }
 
 /** How far [chargeDateTime] can move the charge of [purchase] earlier: 0 or fewer months. */
-fun Account.minChargeShift(purchase: LocalDateTime): Int {
-    val day = chargeDay?.takeIf { type == AccountType.CREDIT_CARD } ?: return 0
+fun CreditCard.minChargeShift(purchase: LocalDateTime): Int {
     val date = purchase.toLocalDate()
-    val earliest = YearMonth.from(date.next(day, orSameDay = false))
-    return -earliest.until(usualChargeMonth(date, day), ChronoUnit.MONTHS).toInt()
+    val earliest = YearMonth.from(date.next(chargeDay, orSameDay = false))
+    return -earliest.until(usualChargeMonth(date), ChronoUnit.MONTHS).toInt()
 }
 
 // The month the card charges a purchase made on [date], unless the user moved it.
-private fun Account.usualChargeMonth(date: LocalDate, chargeDay: Int): YearMonth {
+private fun CreditCard.usualChargeMonth(date: LocalDate): YearMonth {
     val closing = date.next(statementClosingDay ?: LastDayOfMonth, orSameDay = true)
     return YearMonth.from(closing.next(chargeDay, orSameDay = false))
 }

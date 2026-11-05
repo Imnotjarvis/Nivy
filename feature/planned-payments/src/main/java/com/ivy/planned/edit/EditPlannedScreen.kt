@@ -38,6 +38,7 @@ import com.ivy.wallet.ui.edit.core.Title
 import com.ivy.wallet.ui.edit.core.Toolbar
 import com.ivy.design.system.colors.Orange
 import com.ivy.wallet.ui.theme.components.ChangeTransactionTypeModal
+import com.ivy.wallet.ui.theme.components.CardChoice
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.ModalSet
 import com.ivy.wallet.ui.theme.modal.RecurringRuleModal
@@ -181,6 +182,16 @@ private fun BoxWithConstraintsScope.UI(
                 )
             }
         )
+
+        if (state.creditCards.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+
+            CardChoice(
+                cards = state.creditCards,
+                selected = state.creditCard,
+                onSelect = { onEvent(EditPlannedScreenEvent.OnCreditCardChanged(it)) },
+            )
+        }
 
         Spacer(Modifier.height(12.dp))
 
@@ -327,7 +338,7 @@ private fun BoxWithConstraintsScope.UI(
     AccountModal(
         modal = state.accountModalData,
         onCreateAccount = { onEvent(EditPlannedScreenEvent.OnCreateAccount(it)) },
-        onEditAccount = { _, _ -> },
+        onEditAccount = { _, _, _ -> },
         dismiss = {
             onEvent(EditPlannedScreenEvent.OnAccountModalDataChanged(null))
         }
@@ -437,6 +448,8 @@ private fun Preview() {
                 description = null,
                 category = null,
                 account = previewAccount("phyre", color = Orange, currency = "BGN"),
+                creditCards = persistentListOf(),
+                creditCard = null,
                 amount = 0.0,
                 transactionType = TransactionType.INCOME,
                 categories = persistentListOf(),

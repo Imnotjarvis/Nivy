@@ -81,6 +81,10 @@ data class TransactionEntity(
     @SerialName("chargeShift")
     @ColumnInfo(defaultValue = "0")
     val chargeShift: Int = 0,
+    // The credit card an expense is paid with; null when it's paid from the account.
+    @SerialName("creditCardId")
+    @Serializable(with = KSerializerUUID::class)
+    val creditCardId: UUID? = null,
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")
     val isSynced: Boolean = false,

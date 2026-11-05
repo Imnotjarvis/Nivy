@@ -91,9 +91,6 @@ class AccountRepositoryTest {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 1.0,
         )
     }
@@ -177,9 +174,6 @@ class AccountRepositoryTest {
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                creditLimit = null,
-                chargeDay = null,
-                statementClosingDay = null,
                 orderNum = 1.0,
             ),
             Account(
@@ -191,9 +185,6 @@ class AccountRepositoryTest {
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                creditLimit = null,
-                chargeDay = null,
-                statementClosingDay = null,
                 orderNum = 2.0,
             )
         )
@@ -243,9 +234,6 @@ class AccountRepositoryTest {
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                creditLimit = null,
-                chargeDay = null,
-                statementClosingDay = null,
                 orderNum = 1.0,
             )
         )
@@ -289,9 +277,6 @@ class AccountRepositoryTest {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 1.0,
         )
 
@@ -332,9 +317,6 @@ class AccountRepositoryTest {
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                creditLimit = null,
-                chargeDay = null,
-                statementClosingDay = null,
                 orderNum = 1.0,
             ),
             Account(
@@ -346,9 +328,6 @@ class AccountRepositoryTest {
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                creditLimit = null,
-                chargeDay = null,
-                statementClosingDay = null,
                 orderNum = 2.0,
             )
         )

@@ -19,6 +19,7 @@ value class PlannedPaymentRuleId(override val value: UUID) : UniqueId
  * @property type [TransactionType.INCOME] or [TransactionType.EXPENSE].
  * @property amount in the currency of [account].
  * @property interval null for a one-time payment.
+ * @property creditCard the card an expense is paid with; null when it's paid from [account].
  */
 data class PlannedPaymentRule(
     override val id: PlannedPaymentRuleId,
@@ -30,6 +31,7 @@ data class PlannedPaymentRule(
     val description: NotBlankTrimmedString?,
     val startDate: Instant,
     val interval: PlannedPaymentInterval?,
+    val creditCard: CreditCardId?,
 ) : Identifiable<PlannedPaymentRuleId>
 
 data class PlannedPaymentInterval(

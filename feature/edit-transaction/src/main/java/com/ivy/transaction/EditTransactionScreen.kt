@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.design.system.colors.Orange
@@ -76,6 +77,7 @@ import com.ivy.wallet.ui.edit.core.Title
 import com.ivy.wallet.ui.edit.core.Toolbar
 import com.ivy.wallet.ui.theme.components.AddPrimaryAttributeButton
 import com.ivy.wallet.ui.theme.components.ChangeTransactionTypeModal
+import com.ivy.wallet.ui.theme.components.CardChoice
 import com.ivy.wallet.ui.theme.components.CustomExchangeRateCard
 import com.ivy.wallet.ui.theme.modal.DeleteModal
 import com.ivy.wallet.ui.theme.modal.ModalAdd
@@ -126,6 +128,9 @@ fun BoxWithConstraintsScope.EditTransactionScreen(screen: EditTransactionScreen)
         account = uiState.account,
         toAccount = uiState.toAccount,
         dueDate = uiState.dueDate,
+        creditCards = uiState.creditCards,
+        creditCard = uiState.creditCard,
+        onCreditCardChange = { viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(it)) },
         chargeDate = uiState.chargeDate,
         canMoveChargeEarlier = uiState.canMoveChargeEarlier,
         onMoveCharge = { viewModel.onEvent(EditTransactionViewEvent.OnMoveCharge(it)) },
@@ -247,6 +252,9 @@ private fun BoxWithConstraintsScope.UI(
     onExchangeRateChange: (Double?) -> Unit = { },
     onTagOperation: (EditTransactionViewEvent.TagEvent) -> Unit = {},
     loanData: EditTransactionDisplayLoan = EditTransactionDisplayLoan(),
+    creditCards: ImmutableList<CreditCard> = persistentListOf(),
+    creditCard: CreditCard? = null,
+    onCreditCardChange: (CreditCard?) -> Unit = {},
     chargeDate: LocalDateTime? = null,
     canMoveChargeEarlier: Boolean = false,
     onMoveCharge: (months: Int) -> Unit = {},
@@ -403,6 +411,16 @@ private fun BoxWithConstraintsScope.UI(
             onEditDate = onSetDate,
             onEditTime = onSetTime,
         )
+
+        if (creditCards.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+
+            CardChoice(
+                cards = creditCards,
+                selected = creditCard,
+                onSelect = onCreditCardChange,
+            )
+        }
 
         if (chargeDate != null) {
             Spacer(Modifier.height(8.dp))
@@ -573,7 +591,7 @@ private fun BoxWithConstraintsScope.UI(
     AccountModal(
         modal = accountModalData,
         onCreateAccount = onCreateAccount,
-        onEditAccount = { _, _ -> },
+        onEditAccount = { _, _, _ -> },
         dismiss = {
             accountModalData = null
         }

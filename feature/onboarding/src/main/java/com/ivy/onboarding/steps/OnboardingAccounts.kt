@@ -131,6 +131,8 @@ internal fun BoxWithConstraintsScope.OnboardingAccounts(
                             account = it.account,
                             baseCurrency = baseCurrency,
                             balance = it.balance,
+                            // Cards come later, from the account's screen.
+                            creditCards = null,
                             autoFocusKeyboard = false
                         )
                     }
@@ -163,7 +165,8 @@ internal fun BoxWithConstraintsScope.OnboardingAccounts(
                         accountModalData = AccountModalData(
                             account = null,
                             baseCurrency = baseCurrency,
-                            balance = 0.0
+                            balance = 0.0,
+                            creditCards = null,
                         )
                     }
                 )
@@ -199,7 +202,7 @@ internal fun BoxWithConstraintsScope.OnboardingAccounts(
     AccountModal(
         modal = accountModalData,
         onCreateAccount = onCreateAccount,
-        onEditAccount = onEditAccount,
+        onEditAccount = { account, balance, _ -> onEditAccount(account, balance) },
         dismiss = {
             accountModalData = null
         }

@@ -8,6 +8,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.data.db.entity.PlannedPaymentRuleEntity
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
 import com.ivy.data.model.PlannedPaymentRuleId
@@ -38,6 +39,7 @@ class PlannedPaymentRuleMapper @Inject constructor() {
                     type = ensureNotNull(intervalType) { "Planned payment $id has no interval type" },
                 )
             },
+            creditCard = creditCardId?.let(::CreditCardId),
         )
     }
 
@@ -52,6 +54,7 @@ class PlannedPaymentRuleMapper @Inject constructor() {
         categoryId = category?.value,
         title = title?.value,
         description = description?.value,
+        creditCardId = creditCard?.value,
         id = id.value,
     )
 }

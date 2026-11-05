@@ -14,6 +14,7 @@ import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.ivy.data.preferences.LegacySettingsMigration
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.ExchangeRatesRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
@@ -29,6 +30,7 @@ class DeleteAllDataUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val categoryRepository: CategoryRepository,
     private val tagRepository: TagRepository,
+    private val creditCardRepository: CreditCardRepository,
     private val exchangeRatesRepository: ExchangeRatesRepository,
     private val db: IvyRoomDatabase,
     private val writePlannedPaymentRuleDao: WritePlannedPaymentRuleDao,
@@ -43,6 +45,7 @@ class DeleteAllDataUseCase @Inject constructor(
             transactionRepository.deleteAll()
             categoryRepository.deleteAll()
             tagRepository.deleteAll()
+            creditCardRepository.deleteAll()
             exchangeRatesRepository.deleteAll()
             writePlannedPaymentRuleDao.deleteAll()
             writeBudgetDao.deleteAll()

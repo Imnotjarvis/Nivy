@@ -1,9 +1,9 @@
 package com.ivy.domain.usecase.creditcard
 
-import com.ivy.base.model.AccountType
 import com.ivy.base.time.impl.TestTimeConverter
-import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
+import com.ivy.data.model.CreditCard
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.Income
 import com.ivy.data.model.PositiveValue
@@ -11,10 +11,9 @@ import com.ivy.data.model.Transaction
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.TransactionMetadata
 import com.ivy.data.model.primitive.AssetCode
-import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
-import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.CreditCardRepository
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -25,10 +24,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class CreditCardChargeUseCaseTest {
-    private val accountRepository = mockk<AccountRepository>()
+    private val creditCardRepository = mockk<CreditCardRepository>()
 
     private val useCase = CreditCardChargeUseCase(
-        accountRepository = accountRepository,
+        creditCardRepository = creditCardRepository,
         timeConverter = TestTimeConverter(),
     )
 
@@ -48,12 +47,6 @@ class CreditCardChargeUseCaseTest {
     fun `a charge day past the month's end falls on its last day`() {
         card(chargeDay = 31).chargeDateTime(LocalDateTime.of(2026, 1, 20, 12, 0)) shouldBe
             LocalDateTime.of(2026, 2, 28, 12, 0)
-    }
-
-    @Test
-    fun `an account that isn't a credit card has no charge date`() {
-        card(chargeDay = 15).copy(type = AccountType.BANK)
-            .chargeDateTime(LocalDateTime.of(2026, 10, 3, 18, 30)) shouldBe null
     }
 
     @Test
@@ -102,7 +95,7 @@ class CreditCardChargeUseCaseTest {
     @Test
     fun `an expense on a credit card moves to its charge date and keeps its purchase date`() = runTest {
         val card = card(chargeDay = 15)
-        coEvery { accountRepository.findById(card.id) } returns card
+        coEvery { creditCardRepository.findById(card.id) } returns card
         val purchase = Instant.parse("2026-10-03T18:30:00Z")
 
         val dated = useCase.dated(expense(card.id, time = purchase))
@@ -114,7 +107,7 @@ class CreditCardChargeUseCaseTest {
     @Test
     fun `dating an expense again counts from its purchase date`() = runTest {
         val card = card(chargeDay = 15)
-        coEvery { accountRepository.findById(card.id) } returns card
+        coEvery { creditCardRepository.findById(card.id) } returns card
         val purchase = Instant.parse("2026-10-03T18:30:00Z")
 
         val datedTwice = useCase.dated(useCase.dated(expense(card.id, time = purchase)))
@@ -126,7 +119,7 @@ class CreditCardChargeUseCaseTest {
     @Test
     fun `an expense whose charge was moved is dated on the moved charge date`() = runTest {
         val card = card(chargeDay = 15)
-        coEvery { accountRepository.findById(card.id) } returns card
+        coEvery { creditCardRepository.findById(card.id) } returns card
         val expense = expense(card.id, time = Instant.parse("2026-10-03T18:30:00Z"))
 
         val dated = useCase.dated(expense.copy(metadata = expense.metadata.copy(chargeShift = 1)))
@@ -137,16 +130,16 @@ class CreditCardChargeUseCaseTest {
     @Test
     fun `a planned expense on a credit card stays on its due date`() = runTest {
         val card = card(chargeDay = 15)
-        coEvery { accountRepository.findById(card.id) } returns card
+        coEvery { creditCardRepository.findById(card.id) } returns card
         val planned = expense(card.id, time = Instant.parse("2026-10-03T18:30:00Z"), settled = false)
 
         useCase.dated(planned) shouldBe planned
     }
 
     @Test
-    fun `income on a credit card stays on its date`() = runTest {
+    fun `income stays on its date`() = runTest {
         val card = card(chargeDay = 15)
-        coEvery { accountRepository.findById(card.id) } returns card
+        coEvery { creditCardRepository.findById(card.id) } returns card
         val refund: Transaction = Income(
             id = TransactionId(UUID.randomUUID()),
             title = null,
@@ -154,61 +147,64 @@ class CreditCardChargeUseCaseTest {
             category = null,
             time = Instant.parse("2026-10-03T18:30:00Z"),
             settled = true,
-            metadata = metadata(),
+            metadata = metadata(card.id),
             tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(10.0), Eur),
-            account = card.id,
+            account = Bank,
         )
 
         useCase.dated(refund) shouldBe refund
     }
 
     @Test
-    fun `an expense on another account stays on its date`() = runTest {
-        val bank = card(chargeDay = 15).copy(type = AccountType.BANK)
-        coEvery { accountRepository.findById(bank.id) } returns bank
-        val expense = expense(bank.id, time = Instant.parse("2026-10-03T18:30:00Z"))
+    fun `an expense paid from the account stays on its date`() = runTest {
+        val expense = expense(card = null, time = Instant.parse("2026-10-03T18:30:00Z"))
 
         useCase.dated(expense) shouldBe expense
     }
 
-    private fun card(chargeDay: Int, statementClosingDay: Int? = null) = Account(
-        id = AccountId(UUID.randomUUID()),
-        name = NotBlankTrimmedString.unsafe("Card"),
-        asset = Eur,
-        color = ColorInt(0),
-        icon = null,
-        includeInBalance = true,
-        type = AccountType.CREDIT_CARD,
-        archived = false,
-        creditLimit = PositiveDouble.unsafe(1500.0),
+    @Test
+    fun `an expense whose card is gone stays on its date`() = runTest {
+        val card = card(chargeDay = 15)
+        coEvery { creditCardRepository.findById(card.id) } returns null
+        val expense = expense(card.id, time = Instant.parse("2026-10-03T18:30:00Z"))
+
+        useCase.dated(expense) shouldBe expense
+    }
+
+    private fun card(chargeDay: Int, statementClosingDay: Int? = null) = CreditCard(
+        id = CreditCardId(UUID.randomUUID()),
+        account = Bank,
+        name = NotBlankTrimmedString.unsafe("Visa"),
         chargeDay = chargeDay,
         statementClosingDay = statementClosingDay,
-        orderNum = 0.0,
+        creditLimit = PositiveDouble.unsafe(1500.0),
     )
 
-    private fun expense(account: AccountId, time: Instant, settled: Boolean = true) = Expense(
+    private fun expense(card: CreditCardId?, time: Instant, settled: Boolean = true) = Expense(
         id = TransactionId(UUID.randomUUID()),
         title = null,
         description = null,
         category = null,
         time = time,
         settled = settled,
-        metadata = metadata(),
+        metadata = metadata(card),
         tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(42.0), Eur),
-        account = account,
+        account = Bank,
     )
 
-    private fun metadata() = TransactionMetadata(
+    private fun metadata(card: CreditCardId?) = TransactionMetadata(
         recurringRuleId = null,
         paidForDateTime = null,
         loanId = null,
         loanRecordId = null,
         purchaseDateTime = null,
+        creditCard = card,
     )
 
     private companion object {
         val Eur = AssetCode.unsafe("EUR")
+        val Bank = AccountId(UUID.randomUUID())
     }
 }

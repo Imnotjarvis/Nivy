@@ -51,9 +51,6 @@ fun previewAccount(
     includeInBalance = includeInBalance,
     type = AccountType.OTHER,
     archived = false,
-    creditLimit = null,
-    chargeDay = null,
-    statementClosingDay = null,
     orderNum = 0.0,
 )
 
@@ -118,6 +115,7 @@ fun previewPlannedPaymentRule(
     interval = interval?.let { (n, intervalType) ->
         PlannedPaymentInterval(n = PositiveInt.unsafe(n), type = intervalType)
     },
+    creditCard = null,
 )
 
 /**

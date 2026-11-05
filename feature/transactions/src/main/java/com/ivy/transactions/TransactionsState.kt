@@ -3,6 +3,7 @@ package com.ivy.transactions
 import androidx.compose.runtime.Immutable
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Transaction
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.domain.data.TransactionHistoryItem
@@ -17,6 +18,8 @@ data class TransactionsState(
     val categories: ImmutableList<Category>,
     val accounts: ImmutableList<Account>,
     val account: Account?,
+    // The account's credit cards, which its dialog edits.
+    val creditCards: ImmutableList<CreditCard>,
     val category: Category?,
     val balance: Double,
     val balanceBaseCurrency: Double?,

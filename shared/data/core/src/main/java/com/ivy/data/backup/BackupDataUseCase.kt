@@ -12,6 +12,7 @@ import com.ivy.data.db.DatabaseTransaction
 import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.BudgetDao
 import com.ivy.data.db.dao.read.CategoryDao
+import com.ivy.data.db.dao.read.CreditCardDao
 import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.db.dao.read.LoanRecordDao
 import com.ivy.data.db.dao.read.PlannedPaymentRuleDao
@@ -21,6 +22,7 @@ import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WriteAccountDao
 import com.ivy.data.db.dao.write.WriteBudgetDao
 import com.ivy.data.db.dao.write.WriteCategoryDao
+import com.ivy.data.db.dao.write.WriteCreditCardDao
 import com.ivy.data.db.dao.write.WriteLoanDao
 import com.ivy.data.db.dao.write.WriteLoanRecordDao
 import com.ivy.data.db.dao.write.WritePlannedPaymentRuleDao
@@ -80,6 +82,8 @@ class BackupDataUseCase @Inject constructor(
     private val tagAssociationReader: TagAssociationDao,
     private val tagsWriter: WriteTagDao,
     private val tagAssociationWriter: WriteTagAssociationDao,
+    private val creditCardDao: CreditCardDao,
+    private val creditCardWriter: WriteCreditCardDao,
     private val transaction: DatabaseTransaction,
 ) {
     suspend fun exportToFile(
@@ -127,6 +131,7 @@ class BackupDataUseCase @Inject constructor(
             val sharedPrefs = async { getSharedPrefsData() }
             val tags = async { tagsReader.findAll() }
             val tagAssociations = async { tagAssociationReader.findAll() }
+            val creditCards = async { creditCardDao.findAll() }
 
             val completeData = IvyWalletCompleteData(
                 accounts = accounts.await(),
@@ -139,7 +144,8 @@ class BackupDataUseCase @Inject constructor(
                 transactions = transactions.await(),
                 sharedPrefs = sharedPrefs.await(),
                 tags = tags.await(),
-                tagAssociations = tagAssociations.await()
+                tagAssociations = tagAssociations.await(),
+                creditCards = creditCards.await(),
             )
 
             json.encodeToString(completeData)
@@ -225,6 +231,7 @@ class BackupDataUseCase @Inject constructor(
         // their backups still carry those rows. They stay out: nothing should come back to life.
         val completeData = json.decodeFromString<IvyWalletCompleteData>(modifiedJsonString)
             .withoutSoftDeletedRows()
+            .withLegacyCards(json.decodeFromString<LegacyCardAccounts>(modifiedJsonString).accounts)
 
         onProgress(ImportProgress.PARSED)
         insertDataToDb(completeData = completeData, onProgress = onProgress)
@@ -282,6 +289,7 @@ class BackupDataUseCase @Inject constructor(
             tagsWriter.save(completeData.tags)
             tagAssociationWriter.save(completeData.tagAssociations)
             plannedPaymentRuleWriter.saveMany(completeData.plannedPaymentRules)
+            creditCardWriter.saveMany(completeData.creditCards)
             onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }

@@ -6,6 +6,7 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.PlannedPaymentInterval
 import com.ivy.data.model.PlannedPaymentRule
@@ -88,6 +89,15 @@ class PlannedPaymentsGeneratorTest {
         unpaidDates().size shouldBe 72
     }
 
+    @Test
+    fun `a planned expense paid with a card is planned on that card`() = runTest {
+        val card = CreditCardId(UUID.randomUUID())
+
+        generator.generate(monthlyFrom(date(2026, 1, 1)).copy(creditCard = card))
+
+        stored.map { it.metadata.creditCard }.toSet() shouldBe setOf(card)
+    }
+
     private fun pay(due: Instant) {
         val index = stored.indexOfFirst { it.time == due && !it.settled }
         val unpaid = stored[index] as Expense
@@ -113,6 +123,7 @@ class PlannedPaymentsGeneratorTest {
         description = null,
         startDate = start,
         interval = PlannedPaymentInterval(PositiveInt.unsafe(1), type),
+        creditCard = null,
     )
 
     private companion object {
@@ -125,9 +136,6 @@ class PlannedPaymentsGeneratorTest {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 

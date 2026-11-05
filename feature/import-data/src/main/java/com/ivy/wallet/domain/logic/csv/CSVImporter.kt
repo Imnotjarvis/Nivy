@@ -460,9 +460,6 @@ class CSVImporter @Inject constructor(
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                creditLimit = null,
-                chargeDay = null,
-                statementClosingDay = null,
                 orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull() ?: return null

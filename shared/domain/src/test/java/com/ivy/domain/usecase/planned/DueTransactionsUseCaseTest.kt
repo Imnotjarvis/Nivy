@@ -173,6 +173,7 @@ class DueTransactionsUseCaseTest {
             description = null,
             startDate = DueTime,
             interval = interval,
+            creditCard = null,
         )
     }
 }

@@ -198,7 +198,7 @@ class OnboardingViewModel @Inject constructor(
 
     // --------------------- Accounts ---------------------------------------------------------------
     private suspend fun editAccount(account: Account, newBalance: Double) {
-        accountCreator.editAccount(account, newBalance) {
+        accountCreator.editAccount(account, newBalance, creditCards = null) {
             _accounts.value = accountsWithBalance()
         }
     }

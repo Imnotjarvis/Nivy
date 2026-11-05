@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.Category
+import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
 import com.ivy.wallet.data.EditTransactionDisplayLoan
@@ -24,7 +25,11 @@ data class EditTransactionViewState(
     val description: String?,
     val dateTime: Instant?,
     val dueDate: Instant?,
-    // When the credit card charges this expense; null when it isn't one.
+    // The credit cards of the expense's account, one of which it can be paid with; none otherwise.
+    val creditCards: ImmutableList<CreditCard>,
+    // The card it's paid with; null when it's paid from the account.
+    val creditCard: CreditCard?,
+    // When the credit card charges this expense; null when it isn't paid with one.
     val chargeDate: LocalDateTime?,
     // Whether the charge can move a month earlier without falling on or before the purchase.
     val canMoveChargeEarlier: Boolean,
@@ -53,6 +58,7 @@ sealed interface EditTransactionViewEvent {
     data object OnChangeDate : EditTransactionViewEvent
     data object OnChangeTime : EditTransactionViewEvent
     data class OnMoveCharge(val months: Int) : EditTransactionViewEvent
+    data class OnCreditCardChanged(val creditCard: CreditCard?) : EditTransactionViewEvent
     data class OnSetTransactionType(val newTransactionType: TransactionType) :
         EditTransactionViewEvent
 

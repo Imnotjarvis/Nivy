@@ -268,13 +268,13 @@ private fun AccountCard(
             onBalanceClick = onBalanceClick
         )
 
-        if (accountData.creditUsed != null) {
+        // One line per credit card, so that the label and the amounts share a baseline: the
+        // label in the text font, the amounts in the number font.
+        accountData.creditCards.forEach { (card, usedAmount) ->
             Spacer(Modifier.height(12.dp))
 
-            // One line of text, so that the label and the amounts share a baseline: the label in
-            // the text font, the amounts in the number font.
-            val used = accountData.creditUsed.format(currency)
-            val amounts = account.creditLimit?.let {
+            val used = usedAmount.format(currency)
+            val amounts = card.creditLimit?.let {
                 stringResource(R.string.credit_used_of_limit, used, it.value.format(currency), currency)
             } ?: "$used $currency"
             Text(
@@ -283,7 +283,7 @@ private fun AccountCard(
                     .padding(horizontal = 20.dp)
                     .testTag("account_credit_used"),
                 text = buildAnnotatedString {
-                    append(stringResource(R.string.credit_used))
+                    append(stringResource(R.string.credit_card_used, card.name.value))
                     append("  ")
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(amounts)
@@ -295,11 +295,11 @@ private fun AccountCard(
                     fontWeight = FontWeight.ExtraBold
                 )
             )
+        }
 
-            if (compactModeEnabled) {
-                // Nothing follows it in compact mode: it would sit on the card's border.
-                Spacer(Modifier.height(12.dp))
-            }
+        if (compactModeEnabled && accountData.creditCards.isNotEmpty()) {
+            // Nothing follows them in compact mode: they would sit on the card's border.
+            Spacer(Modifier.height(12.dp))
         }
 
         if (!compactModeEnabled) {
@@ -478,9 +478,6 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -493,9 +490,6 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -508,9 +502,6 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -523,9 +514,6 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
         val accounts = persistentListOf(
@@ -535,7 +523,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = null,
                 monthlyExpenses = 920.0,
                 monthlyIncome = 3045.0,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
             AccountData(
                 account = acc2,
@@ -543,7 +531,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = null,
                 monthlyExpenses = 1350.50,
                 monthlyIncome = 8000.48,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
             AccountData(
                 account = acc3,
@@ -551,7 +539,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = 1979.64,
                 monthlyExpenses = 750.0,
                 monthlyIncome = 1000.30,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
             AccountData(
                 account = acc4,
@@ -559,7 +547,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = null,
                 monthlyExpenses = 340.0,
                 monthlyIncome = 400.0,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
         )
         val state = AccountsState(
@@ -595,9 +583,6 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -610,9 +595,6 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -625,9 +607,6 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
 
@@ -640,9 +619,6 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             includeInBalance = true,
             type = AccountType.OTHER,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
         val accounts = persistentListOf(
@@ -652,7 +628,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = null,
                 monthlyExpenses = 920.0,
                 monthlyIncome = 3045.0,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
             AccountData(
                 account = acc2,
@@ -660,7 +636,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = null,
                 monthlyExpenses = 1350.50,
                 monthlyIncome = 8000.48,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
             AccountData(
                 account = acc3,
@@ -668,7 +644,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = 1979.64,
                 monthlyExpenses = 750.0,
                 monthlyIncome = 1000.30,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
             AccountData(
                 account = acc4,
@@ -676,7 +652,7 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
                 balanceBaseCurrency = null,
                 monthlyExpenses = 340.0,
                 monthlyIncome = 400.0,
-                creditUsed = null
+                creditCards = persistentListOf()
             ),
         )
         val state = AccountsState(

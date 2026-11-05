@@ -47,9 +47,6 @@ class StarterData @Inject constructor(
                     includeInBalance = true,
                     type = AccountType.OTHER,
                     archived = false,
-                    creditLimit = null,
-                    chargeDay = null,
-                    statementClosingDay = null,
                     orderNum = index.toDouble(),
                 )
             }.getOrNull()?.let { accountRepository.save(it) }

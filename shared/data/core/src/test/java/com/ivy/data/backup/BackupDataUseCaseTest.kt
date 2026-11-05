@@ -8,6 +8,7 @@ import com.ivy.data.db.DatabaseTransaction
 import com.ivy.data.db.dao.fake.FakeAccountDao
 import com.ivy.data.db.dao.fake.FakeBudgetDao
 import com.ivy.data.db.dao.fake.FakeCategoryDao
+import com.ivy.data.db.dao.fake.FakeCreditCardDao
 import com.ivy.data.db.dao.fake.FakeLoanDao
 import com.ivy.data.db.dao.fake.FakeLoanRecordDao
 import com.ivy.data.db.dao.fake.FakePlannedPaymentDao
@@ -17,6 +18,7 @@ import com.ivy.data.db.dao.fake.FakeTagAssociationDao
 import com.ivy.data.db.dao.fake.FakeTagDao
 import com.ivy.data.db.dao.fake.FakeTransactionDao
 import com.ivy.data.db.entity.AccountEntity
+import com.ivy.data.db.entity.CreditCardEntity
 import com.ivy.data.db.entity.TransactionEntity
 import com.ivy.data.testResource
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -26,6 +28,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import org.junit.Test
+import java.util.UUID
 
 class BackupDataUseCaseTest {
     private val json = KotlinxSerializationModule.provideJson()
@@ -45,7 +48,8 @@ class BackupDataUseCaseTest {
         loanDao: FakeLoanDao = FakeLoanDao(),
         loanRecordDao: FakeLoanRecordDao = FakeLoanRecordDao(),
         tagDao: FakeTagDao = FakeTagDao(),
-        tagAssociationDao: FakeTagAssociationDao = FakeTagAssociationDao()
+        tagAssociationDao: FakeTagAssociationDao = FakeTagAssociationDao(),
+        creditCardDao: FakeCreditCardDao = FakeCreditCardDao(),
     ): BackupDataUseCase {
         return BackupDataUseCase(
             accountDao = accountDao,
@@ -73,6 +77,8 @@ class BackupDataUseCaseTest {
             tagsWriter = tagDao,
             tagAssociationReader = tagAssociationDao,
             tagAssociationWriter = tagAssociationDao,
+            creditCardDao = creditCardDao,
+            creditCardWriter = creditCardDao,
             transaction = FakeDatabaseTransaction(),
         )
     }
@@ -213,6 +219,90 @@ class BackupDataUseCaseTest {
         // then: the existing account keeps its currency, and the backup's arrives beside it
         accountDao.findAll().associate { it.id to it.currency } shouldBe
             mapOf(existingCash.id to "EUR", backupCash.id to "USD")
+    }
+
+    @Test
+    fun `a backup keeps the credit cards and what's paid with them`() = runTest {
+        // given: a bank account with a card, and an expense paid with it
+        val accountDao = FakeAccountDao()
+        val transactionDao = FakeTransactionDao()
+        val creditCardDao = FakeCreditCardDao()
+        val bank = AccountEntity(name = "Bank", color = 1)
+        val visa = CreditCardEntity(
+            accountId = bank.id,
+            name = "Visa",
+            chargeDay = 15,
+            statementClosingDay = 25,
+            creditLimit = 1500.0,
+            id = UUID.randomUUID(),
+        )
+        accountDao.save(bank)
+        creditCardDao.save(visa)
+        transactionDao.save(
+            TransactionEntity(accountId = bank.id, type = TransactionType.EXPENSE, amount = 5.0, creditCardId = visa.id)
+        )
+        val backup = newBackupDataUseCase(accountDao, transactionDao = transactionDao, creditCardDao = creditCardDao)
+            .generateJsonBackup()
+
+        // when
+        val restoredTransactions = FakeTransactionDao()
+        val restoredCards = FakeCreditCardDao()
+        newBackupDataUseCase(transactionDao = restoredTransactions, creditCardDao = restoredCards)
+            .importJson(backup)
+
+        // then
+        restoredCards.findAll() shouldBe listOf(visa)
+        restoredTransactions.findAll().map { it.creditCardId } shouldBe listOf(visa.id)
+    }
+
+    @Test
+    fun `a backup from before cards had their own table brings back its card accounts' cards`() = runTest {
+        // given: a credit card account with its card settings, as backups had them, and a bank
+        val card = UUID.randomUUID()
+        val bank = UUID.randomUUID()
+        val backup = """
+            {
+              "accounts": [
+                {"name": "Visa", "color": 1, "type": "CREDIT_CARD", "creditLimit": 1500.0,
+                 "chargeDay": 15, "statementClosingDay": 25, "id": "$card"},
+                {"name": "Bank", "color": 2, "type": "BANK", "chargeDay": 3, "id": "$bank"}
+              ],
+              "transactions": [
+                {"accountId": "$card", "type": "EXPENSE", "amount": 10.0},
+                {"accountId": "$card", "type": "INCOME", "amount": 3.0},
+                {"accountId": "$bank", "type": "EXPENSE", "amount": 7.0}
+              ],
+              "plannedPaymentRules": [
+                {"startDate": 0, "intervalN": 1, "intervalType": "MONTH", "oneTime": false,
+                 "type": "EXPENSE", "accountId": "$card", "amount": 12.0}
+              ]
+            }
+        """.trimIndent()
+        val transactionDao = FakeTransactionDao()
+        val plannedPaymentDao = FakePlannedPaymentDao()
+        val creditCardDao = FakeCreditCardDao()
+
+        // when
+        newBackupDataUseCase(
+            transactionDao = transactionDao,
+            plannedPaymentDao = plannedPaymentDao,
+            creditCardDao = creditCardDao,
+        ).importJson(backup)
+
+        // then: the card account's card, under its id; its expenses are paid with it, nothing else
+        creditCardDao.findAll() shouldBe listOf(
+            CreditCardEntity(
+                accountId = card,
+                name = "Visa",
+                chargeDay = 15,
+                statementClosingDay = 25,
+                creditLimit = 1500.0,
+                id = card,
+            )
+        )
+        transactionDao.findAll().associate { it.amount to it.creditCardId } shouldBe
+            mapOf(10.0 to card, 3.0 to null, 7.0 to null)
+        plannedPaymentDao.findAll().map { it.creditCardId } shouldBe listOf(card)
     }
 
     @Suppress("DEPRECATION") // the test is about the obsolete field

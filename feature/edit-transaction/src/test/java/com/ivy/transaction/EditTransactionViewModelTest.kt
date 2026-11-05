@@ -12,7 +12,10 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
+import com.ivy.data.model.CreditCard
+import com.ivy.data.model.CreditCardId
 import com.ivy.data.model.Expense
+import com.ivy.data.model.Income
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.TransactionId
@@ -26,6 +29,7 @@ import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
@@ -73,6 +77,9 @@ class EditTransactionViewModelTest {
     private val bank = account("Bank", Eur)
     private val wallet = account("Wallet", Eur)
     private val dollars = account("Dollars", Usd)
+    private val amexAccount = account("Amex", Eur).copy(type = AccountType.CREDIT_CARD)
+    private val visa = card("Visa", bank)
+    private val amex = card("Amex", amexAccount)
     private val food = Category(
         id = CategoryId(UUID.randomUUID()),
         name = NotBlankTrimmedString.unsafe("Food"),
@@ -82,7 +89,11 @@ class EditTransactionViewModelTest {
     )
 
     private val accountRepository = mockk<AccountRepository> {
-        listOf(bank, wallet, dollars).forEach { coEvery { findById(it.id) } returns it }
+        listOf(bank, wallet, dollars, amexAccount).forEach { coEvery { findById(it.id) } returns it }
+    }
+    private val creditCardRepository = mockk<CreditCardRepository> {
+        coEvery { findAll() } returns listOf(amex, visa)
+        listOf(visa, amex).forEach { coEvery { findById(it.id) } returns it }
     }
     private val transactionRepo = mockk<TransactionRepository>(relaxUnitFun = true)
     private val nav = mockk<Navigation>(relaxed = true)
@@ -102,7 +113,7 @@ class EditTransactionViewModelTest {
         every { any<Context>().refreshWidget(any()) } just Runs
 
         val accountsAct = mockk<AccountsAct>()
-        coEvery { accountsAct() } returns persistentListOf(bank, wallet, dollars)
+        coEvery { accountsAct() } returns persistentListOf(bank, wallet, dollars, amexAccount)
         val timeConverter = TestTimeConverter()
         viewModel = EditTransactionViewModel(
             context = mockk(relaxed = true),
@@ -142,7 +153,8 @@ class EditTransactionViewModelTest {
             timeConverter = timeConverter,
             timeProvider = FixedTime,
             dateTimePicker = mockk(relaxed = true),
-            creditCardChargeUseCase = CreditCardChargeUseCase(accountRepository, timeConverter),
+            creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, timeConverter),
+            creditCardRepository = creditCardRepository,
         )
     }
 
@@ -243,6 +255,79 @@ class EditTransactionViewModelTest {
         verify(exactly = 0) { nav.back() }
     }
 
+    @Test
+    fun `an expense paid with a card counts on the day the card charges it`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(visa))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val expense = saved().shouldBeInstanceOf<Expense>()
+        expense.account shouldBe bank.id
+        expense.metadata.creditCard shouldBe visa.id
+        expense.metadata.purchaseDateTime shouldBe FixedTime.utcNow()
+        // Bought on November 15th, in the statement that closes on the 30th, charged on December 15th.
+        expense.time shouldBe Instant.parse("2026-12-15T12:00:00Z")
+    }
+
+    @Test
+    fun `an expense on an account with a card is paid from the account unless the card is chosen`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val expense = saved().shouldBeInstanceOf<Expense>()
+        expense.metadata.creditCard shouldBe null
+        expense.time shouldBe FixedTime.utcNow()
+    }
+
+    @Test
+    fun `a new expense on a credit card account is paid with its card`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, amexAccount))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        saved().metadata.creditCard shouldBe amex.id
+    }
+
+    @Test
+    fun `another account doesn't take the card of the one it replaces`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(visa))
+        viewModel.onEvent(EditTransactionViewEvent.OnAccountChanged(wallet))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val expense = saved().shouldBeInstanceOf<Expense>()
+        expense.account shouldBe wallet.id
+        expense.metadata.creditCard shouldBe null
+        expense.time shouldBe FixedTime.utcNow()
+    }
+
+    @Test
+    fun `choosing the same account or type again keeps the card`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(visa))
+        viewModel.onEvent(EditTransactionViewEvent.OnAccountChanged(bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnSetTransactionType(TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        saved().metadata.creditCard shouldBe visa.id
+    }
+
+    @Test
+    fun `income isn't paid with a card`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, amexAccount))
+        viewModel.onEvent(EditTransactionViewEvent.OnSetTransactionType(TransactionType.INCOME))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val income = saved().shouldBeInstanceOf<Income>()
+        income.metadata.creditCard shouldBe null
+        income.time shouldBe FixedTime.utcNow()
+    }
+
     private fun newTransaction(type: TransactionType, account: Account) = EditTransactionScreen(
         initialTransactionId = null,
         type = type,
@@ -273,6 +358,15 @@ class EditTransactionViewModelTest {
             override fun localTimeNow(): LocalTime = now.toLocalTime()
         }
 
+        fun card(name: String, account: Account) = CreditCard(
+            id = CreditCardId(UUID.randomUUID()),
+            account = account.id,
+            name = NotBlankTrimmedString.unsafe(name),
+            chargeDay = 15,
+            statementClosingDay = null,
+            creditLimit = null,
+        )
+
         fun account(name: String, asset: AssetCode) = Account(
             id = AccountId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe(name),
@@ -282,9 +376,6 @@ class EditTransactionViewModelTest {
             includeInBalance = true,
             type = AccountType.BANK,
             archived = false,
-            creditLimit = null,
-            chargeDay = null,
-            statementClosingDay = null,
             orderNum = 0.0,
         )
     }

@@ -9,7 +9,6 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.repository.CurrencyRepository
 import javax.inject.Inject
 
@@ -27,9 +26,6 @@ class AccountMapper @Inject constructor(
             includeInBalance = includeInBalance,
             type = type,
             archived = archived,
-            creditLimit = creditLimit?.let(PositiveDouble::from)?.getOrNull(),
-            chargeDay = chargeDay?.takeIf { it in 1..MaxDayOfMonth },
-            statementClosingDay = statementClosingDay?.takeIf { it in 1 until MaxDayOfMonth },
             orderNum = orderNum,
         )
     }
@@ -44,13 +40,8 @@ class AccountMapper @Inject constructor(
             includeInBalance = includeInBalance,
             type = type,
             archived = archived,
-            creditLimit = creditLimit?.value,
-            chargeDay = chargeDay,
-            statementClosingDay = statementClosingDay,
             id = id.value,
             isSynced = true, // TODO: Delete this
         )
     }
 }
-
-private const val MaxDayOfMonth = 31
