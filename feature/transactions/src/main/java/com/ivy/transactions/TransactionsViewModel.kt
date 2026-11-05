@@ -234,7 +234,7 @@ class TransactionsViewModel @Inject constructor(
         val balanceValue = balanceOutput.balance.toDouble()
         balance.doubleValue = balanceValue
         investment.value = if (initialAccount.type == AccountType.INVESTMENT) {
-            investmentData(initialAccount, balanceValue, balanceOutput.gain?.toDouble())
+            investmentData(initialAccount, balanceValue, balanceOutput.gain?.toDouble(), balanceOutput.cash?.toDouble())
         } else {
             null
         }
@@ -682,8 +682,13 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    // What [account]'s transactions put in, at each value entered too, and the transfers into it.
-    private suspend fun investmentData(account: Account, balance: Double, gain: Double?): InvestmentData {
+    // What [account]'s transactions put in and invested, at each value entered too, and the transfers into it.
+    private suspend fun investmentData(
+        account: Account,
+        balance: Double,
+        gain: Double?,
+        cash: Double?,
+    ): InvestmentData {
         val transactions = accTrnsAct(
             AccTrnsAct.Input(accountId = account.id.value, range = ClosedTimeRange.allTimeIvy(timeProvider))
         )
@@ -692,12 +697,13 @@ class TransactionsViewModel @Inject constructor(
                 value = value,
                 invested = transactions.filter { it.time <= value.time }
                     .sumOf { AccountValueFunctions.balance(it, account.id.value) }
-                    .toDouble(),
+                    .toDouble() - (value.cash?.value ?: 0.0),
             )
         }
         return InvestmentData(
-            invested = balance - (gain ?: 0.0),
+            invested = balance - (gain ?: 0.0) - (cash ?: 0.0),
             gain = gain,
+            cash = cash,
             transfersIn = transactions.count {
                 it is Transfer && it.toAccount == account.id && it.fromAccount != account.id
             },

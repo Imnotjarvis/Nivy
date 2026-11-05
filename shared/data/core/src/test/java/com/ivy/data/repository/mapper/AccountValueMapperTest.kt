@@ -24,9 +24,18 @@ class AccountValueMapperTest {
     }
 
     @Test
-    fun `a negative value isn't valid`() {
+    fun `a value without cash maps both ways`() {
+        with(mapper) {
+            Entity.copy(cash = null).toDomain().shouldBeRight() shouldBe Value.copy(cash = null)
+            Value.copy(cash = null).toEntity() shouldBe Entity.copy(cash = null)
+        }
+    }
+
+    @Test
+    fun `a negative value or cash isn't valid`() {
         with(mapper) {
             Entity.copy(value = -1.0).toDomain().shouldBeLeft()
+            Entity.copy(cash = -1.0).toDomain().shouldBeLeft()
         }
     }
 
@@ -38,7 +47,8 @@ class AccountValueMapperTest {
         val Entity = AccountValueEntity(
             accountId = AccountUuid,
             time = Time,
-            value = 8_940.0,
+            value = 330.0,
+            cash = 700.0,
             id = ValueUuid,
         )
 
@@ -46,7 +56,8 @@ class AccountValueMapperTest {
             id = AccountValueId(ValueUuid),
             account = AccountId(AccountUuid),
             time = Time,
-            value = NonNegativeDouble.unsafe(8_940.0),
+            value = NonNegativeDouble.unsafe(330.0),
+            cash = NonNegativeDouble.unsafe(700.0),
         )
     }
 }

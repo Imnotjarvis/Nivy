@@ -64,6 +64,64 @@ class CalcAccBalanceActTest {
     }
 
     @Test
+    fun `the cash entered with a value counts at its amount, gaining nothing`() = runTest {
+        // given: 1,000 in, of which 300 bought what's now worth 330, and 700 left as cash
+        transactions(transferIn(1_000.0, day = 1))
+        values(value(330.0, day = 5, cash = 700.0))
+
+        // when
+        val output = act(CalcAccBalanceAct.Input(Investment))
+
+        // then
+        output.balance.toDouble() shouldBe 1_030.0
+        output.gain?.toDouble() shouldBe 30.0
+        output.cash?.toDouble() shouldBe 700.0
+    }
+
+    @Test
+    fun `money moved in after a value with cash waits as cash`() = runTest {
+        // given
+        transactions(transferIn(1_000.0, day = 1), transferIn(300.0, day = 10))
+        values(value(330.0, day = 5, cash = 700.0))
+
+        // when
+        val output = act(CalcAccBalanceAct.Input(Investment))
+
+        // then
+        output.balance.toDouble() shouldBe 1_330.0
+        output.gain?.toDouble() shouldBe 30.0
+        output.cash?.toDouble() shouldBe 1_000.0
+    }
+
+    @Test
+    fun `money taken out beyond the cash comes from the investments`() = runTest {
+        // given
+        transactions(transferIn(1_000.0, day = 1), transferOut(900.0, day = 10))
+        values(value(330.0, day = 5, cash = 700.0))
+
+        // when
+        val output = act(CalcAccBalanceAct.Input(Investment))
+
+        // then
+        output.balance.toDouble() shouldBe 130.0
+        output.cash?.toDouble() shouldBe 0.0
+    }
+
+    @Test
+    fun `without cash in the last value all the money in is invested`() = runTest {
+        // given
+        transactions(transferIn(1_000.0, day = 1), transferIn(100.0, day = 10))
+        values(value(1_050.0, day = 5))
+
+        // when
+        val output = act(CalcAccBalanceAct.Input(Investment))
+
+        // then
+        output.balance.toDouble() shouldBe 1_150.0
+        output.cash shouldBe null
+    }
+
+    @Test
     fun `without a value the balance is what the transactions add up to`() = runTest {
         // given
         transactions(transferIn(1_000.0, day = 1))
@@ -99,11 +157,12 @@ class CalcAccBalanceActTest {
         coEvery { accountValueRepository.findByAccount(Investment.id) } returns values.toList()
     }
 
-    private fun value(amount: Double, day: Long) = AccountValue(
+    private fun value(amount: Double, day: Long, cash: Double? = null) = AccountValue(
         id = AccountValueId(UUID.randomUUID()),
         account = Investment.id,
         time = day(day),
         value = NonNegativeDouble.unsafe(amount),
+        cash = cash?.let(NonNegativeDouble::unsafe),
     )
 
     private fun transferIn(amount: Double, day: Long) = transfer(amount, day, from = Main, to = Investment.id)

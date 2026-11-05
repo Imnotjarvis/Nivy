@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 137,
-    "identityHash": "df6c597a7c01bbe9c30ff7d330ae2310",
+    "identityHash": "d2a64ea978539cc4c4ae5f727aea4a7a",
     "entities": [
       {
         "tableName": "accounts",
@@ -822,7 +822,7 @@
       },
       {
         "tableName": "account_values",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` TEXT NOT NULL, `time` INTEGER NOT NULL, `value` REAL NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` TEXT NOT NULL, `time` INTEGER NOT NULL, `value` REAL NOT NULL, `cash` REAL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "accountId",
@@ -843,6 +843,11 @@
             "notNull": true
           },
           {
+            "fieldPath": "cash",
+            "columnName": "cash",
+            "affinity": "REAL"
+          },
+          {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "TEXT",
@@ -859,7 +864,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'df6c597a7c01bbe9c30ff7d330ae2310')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd2a64ea978539cc4c4ae5f727aea4a7a')"
     ]
   }
 }

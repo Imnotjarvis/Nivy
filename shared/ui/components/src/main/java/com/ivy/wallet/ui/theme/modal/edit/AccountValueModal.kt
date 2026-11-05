@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.AccountValue
 import com.ivy.data.model.AccountValueId
 import com.ivy.data.model.primitive.NonNegativeDouble
+import com.ivy.design.system.colors.Gray
 import com.ivy.domain.RootScreen
 import com.ivy.ui.R
 import com.ivy.ui.time.TimeFormatter
@@ -45,7 +50,10 @@ data class AccountValueModalData(
     val id: UUID = UUID.randomUUID(),
 )
 
-/** What an investment account is worth on a day; one entered before deletes too. */
+/**
+ * What an investment account is worth on a day: its investments, and the cash in it that isn't
+ * invested, if any. One entered before deletes too.
+ */
 @Composable
 fun BoxWithConstraintsScope.AccountValueModal(
     modal: AccountValueModalData?,
@@ -64,6 +72,8 @@ fun BoxWithConstraintsScope.AccountValueModal(
     val enteredOn = existing?.time?.let { with(timeConverter) { it.toLocalDate() } }
 
     var amount by remember(shown) { mutableStateOf(existing?.value?.value) }
+    var cash by remember(shown) { mutableStateOf(existing?.cash?.value) }
+    var cashModalVisible by remember(shown) { mutableStateOf(false) }
     var date by remember(shown) { mutableStateOf(enteredOn ?: today) }
     // A new value starts on the keypad, like a new transaction.
     var amountModalVisible by remember(shown) { mutableStateOf(shown != null && existing == null) }
@@ -91,6 +101,7 @@ fun BoxWithConstraintsScope.AccountValueModal(
                         account = shown.account,
                         time = time,
                         value = NonNegativeDouble.unsafe(value),
+                        cash = cash?.let(NonNegativeDouble::unsafe),
                     )
                 )
                 dismiss()
@@ -119,10 +130,19 @@ fun BoxWithConstraintsScope.AccountValueModal(
         Spacer(Modifier.height(24.dp))
 
         AccountSettingRow(
-            label = stringResource(R.string.value),
+            label = stringResource(R.string.investments),
             value = amount?.let { "${it.format(currency)} $currency" } ?: "",
             testTag = "account_value_amount",
             onClick = { amountModalVisible = true },
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        AccountSettingRow(
+            label = stringResource(R.string.cash),
+            value = cash?.let { "${it.format(currency)} $currency" } ?: stringResource(R.string.cash_not_set),
+            testTag = "account_value_cash",
+            onClick = { cashModalVisible = true },
         )
 
         Spacer(Modifier.height(12.dp))
@@ -139,6 +159,14 @@ fun BoxWithConstraintsScope.AccountValueModal(
             onClick = { (context as RootScreen).pickDate(initialDate = date, maxDate = today) { date = it } },
         )
 
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            text = stringResource(R.string.investments_and_cash_hint),
+            style = MaterialTheme.typography.bodyMedium.copy(color = Gray, fontWeight = FontWeight.SemiBold)
+        )
+
         Spacer(Modifier.height(24.dp))
     }
 
@@ -151,5 +179,17 @@ fun BoxWithConstraintsScope.AccountValueModal(
         dismiss = { amountModalVisible = false }
     ) {
         amount = it
+    }
+
+    val cashModalId = remember(shown) { UUID.randomUUID() }
+    AmountModal(
+        id = cashModalId,
+        visible = cashModalVisible,
+        currency = currency,
+        initialAmount = cash,
+        dismiss = { cashModalVisible = false }
+    ) {
+        // Zero is kept: none is uninvested now, and money moved in later waits as cash.
+        cash = it
     }
 }

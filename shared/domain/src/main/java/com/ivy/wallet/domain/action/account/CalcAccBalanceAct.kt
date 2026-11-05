@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * An account's balance: what its transactions add up to. An investment account's is its value
- * instead, once one was entered: the last value, with the money moved in or out since then.
+ * instead, once one was entered: the last value with its cash, and the money moved in or out since.
  */
 class CalcAccBalanceAct @Inject constructor(
     private val accTrnsAct: AccTrnsAct,
@@ -32,17 +32,19 @@ class CalcAccBalanceAct @Inject constructor(
             )
         )
         val balance = balanceOf(accTrns, input.account)
-        val gain = if (input.account.type == AccountType.INVESTMENT) {
-            accountValueRepository.findByAccount(input.account.id)
-                .lastOrNull { it.time <= range.to }
-                ?.let { last ->
-                    last.value.value.toBigDecimal() -
-                        balanceOf(accTrns.filter { it.time <= last.time }, input.account)
-                }
+        val last = if (input.account.type == AccountType.INVESTMENT) {
+            accountValueRepository.findByAccount(input.account.id).lastOrNull { it.time <= range.to }
         } else {
             null
         }
-        Output(account = input.account, balance = balance + (gain ?: BigDecimal.ZERO), gain = gain)
+        if (last == null) return@withContext Output(account = input.account, balance = balance)
+
+        val putInThen = balanceOf(accTrns.filter { it.time <= last.time }, input.account)
+        val gain = last.total.toBigDecimal() - putInThen
+        // Money moved in since waits as cash, until it's invested; money taken out comes from the
+        // cash, and from the investments once it's spent.
+        val cash = last.cash?.let { (it.value.toBigDecimal() + balance - putInThen).max(BigDecimal.ZERO) }
+        Output(account = input.account, balance = balance + gain, gain = gain, cash = cash)
     }
 
     private fun balanceOf(transactions: List<Transaction>, account: Account): BigDecimal =
@@ -60,12 +62,14 @@ class CalcAccBalanceAct @Inject constructor(
 
     /**
      * @property gain for an investment account with a value entered, how much more (or less,
-     * negative) it's worth than the money put in: [balance] is that money and this gain.
+     * negative) it's worth than the money put in, which is [balance] less it.
+     * @property cash of that money, what isn't invested, when the last value has its cash.
      */
     @Suppress("DataClassDefaultValues")
     data class Output(
         val account: Account,
         val balance: BigDecimal,
         val gain: BigDecimal? = null,
+        val cash: BigDecimal? = null,
     )
 }

@@ -236,7 +236,8 @@ class BackupDataUseCaseTest {
         val value = AccountValueEntity(
             accountId = portfolio.id,
             time = Instant.parse("2026-10-31T18:00:00Z"),
-            value = 8_940.0,
+            value = 330.0,
+            cash = 700.0,
             id = UUID.randomUUID(),
         )
         accountDao.save(portfolio)

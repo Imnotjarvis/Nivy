@@ -16,6 +16,7 @@ class AccountValueMapper @Inject constructor() {
             account = AccountId(accountId),
             time = time,
             value = NonNegativeDouble.from(value).bind(),
+            cash = cash?.let { NonNegativeDouble.from(it).bind() },
         )
     }
 
@@ -23,6 +24,7 @@ class AccountValueMapper @Inject constructor() {
         accountId = account.value,
         time = time,
         value = value.value,
+        cash = cash?.value,
         id = id.value,
     )
 }

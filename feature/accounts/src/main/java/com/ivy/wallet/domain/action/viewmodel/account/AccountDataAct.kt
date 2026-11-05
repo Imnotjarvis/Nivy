@@ -75,6 +75,7 @@ class AccountDataAct @Inject constructor(
             monthlyExpenses = incomeExpensePair.expense.toDouble(),
             creditCards = creditCards,
             gain = output.gain?.toDouble(),
+            cash = output.cash?.toDouble(),
         )
     }
 

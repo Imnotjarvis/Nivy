@@ -107,14 +107,16 @@ fun IncomeExpensesCards(
 }
 
 /**
- * An investment account's cards: the money put in, with a button to transfer more, and the gain on
- * it, or a dash before a value was entered, with a button to enter one.
+ * An investment account's cards: the money invested, with the cash beside it (or the transfers in,
+ * when its cash isn't entered) and a button to transfer more; and the gain on it, or a dash before a
+ * value was entered, with a button to enter one.
  */
 @Composable
 fun InvestmentCards(
     currency: String,
     invested: Double,
     gain: Double?,
+    cash: Double?,
     transfersIn: Int,
     itemColor: Color,
     onAddTransfer: () -> Unit,
@@ -132,8 +134,8 @@ fun InvestmentCards(
             currencyCode = currency,
             amount = invested.format(currency),
             amountTone = null,
-            count = transfersIn.toString(),
-            countLabel = stringResource(R.string.transfers_in),
+            count = cash?.format(currency) ?: transfersIn.toString(),
+            countLabel = stringResource(if (cash != null) R.string.not_invested else R.string.transfers_in),
             addButtonText = stringResource(R.string.add_transfer),
             greenButton = true,
             itemColor = itemColor,

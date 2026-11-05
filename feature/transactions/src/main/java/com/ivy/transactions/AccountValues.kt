@@ -28,7 +28,10 @@ import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.formatGainPercent
 
-/** A value entered: its day and the money put in by then, its amount and the gain on that money. */
+/**
+ * A value entered: its day, the money invested by then and its cash, if entered; what the
+ * investments were worth and the gain on the money invested.
+ */
 @Composable
 internal fun ValueEntryRow(
     entry: ValueEntry,
@@ -63,6 +66,12 @@ internal fun ValueEntryRow(
                 text = stringResource(R.string.invested_amount, "${entry.invested.format(currency)} $currency"),
                 style = MaterialTheme.typography.bodySmall.copy(color = Gray, fontWeight = FontWeight.SemiBold)
             )
+            entry.value.cash?.let {
+                Text(
+                    text = stringResource(R.string.cash_amount, "${it.value.format(currency)} $currency"),
+                    style = MaterialTheme.typography.bodySmall.copy(color = Gray, fontWeight = FontWeight.SemiBold)
+                )
+            }
         }
 
         Spacer(Modifier.width(12.dp))

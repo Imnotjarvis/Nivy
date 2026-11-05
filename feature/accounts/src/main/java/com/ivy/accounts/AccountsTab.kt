@@ -308,8 +308,8 @@ private fun AccountCard(
 
             val gain = accountData.gain
             if (gain != null) {
-                // An investment account with a value: what went in, and what it made.
-                val invested = accountData.balance - gain
+                // An investment account with a value: what was invested, and what it made.
+                val invested = accountData.balance - gain - (accountData.cash ?: 0.0)
                 IncomeExpensesRow(
                     currency = currency,
                     incomeLabel = stringResource(R.string.invested),

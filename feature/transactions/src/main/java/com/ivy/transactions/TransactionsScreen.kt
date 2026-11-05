@@ -810,6 +810,7 @@ private fun Header(
                 currency = currency,
                 invested = investment.invested,
                 gain = investment.gain,
+                cash = investment.cash,
                 transfersIn = investment.transfersIn,
                 itemColor = itemColor,
                 onAddTransfer = {
