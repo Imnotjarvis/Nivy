@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +46,8 @@ fun ColumnScope.Title(
     onTitleChanged: (String?) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState? = null,
-    onDone: () -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     IvyTitleTextField(
         modifier = modifier
             .padding(horizontal = 32.dp)
@@ -65,9 +66,10 @@ fun ColumnScope.Title(
             imeAction = ImeAction.Done,
             capitalization = KeyboardCapitalization.Sentences
         ),
+        // Enter confirms the title: the keyboard closes, and the rest is still to fill in.
         keyboardActions = KeyboardActions(
             onDone = {
-                onDone()
+                focusManager.clearFocus()
             }
         )
     ) {
@@ -143,8 +145,7 @@ private fun PreviewTitleWithSuggestions() {
                     "Club 35"
                 ),
                 onTitleChanged = {}
-            ) {
-            }
+            )
         }
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -122,15 +121,13 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
                 .padding(horizontal = 24.dp),
             value = titleTextFieldValue,
             hint = stringResource(R.string.enter_tag_name),
+            // Enter confirms the name and closes the keyboard, as the field does by default.
             keyboardOptions = KeyboardOptions(
                 autoCorrectEnabled = true,
                 keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next,
+                imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.Sentences
             ),
-            keyboardActions = KeyboardActions(
-                onNext = {}
-            )
         ) {
             titleTextFieldValue = it
             filename = it.text
