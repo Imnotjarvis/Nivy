@@ -33,19 +33,39 @@ check() {
     echo "ok   [$name] $step"
 }
 
-# The bounds "x1 y1 x2 y2" of the first element on screen showing this text, in any case (system
-# dialogs show their buttons in capitals), as UI Automator sees the screen. Waits up to 30
-# seconds for it. The last screen UI Automator could read is left in $OUT/screen.xml.
+# The first element in this screen dump showing exactly this text, in any case (system dialogs
+# show their buttons in capitals).
+node_with_text() {
+    grep -io "<node [^>]*text=\"$2\"[^>]*>" <<< "$1" | head -1
+}
+
+# The bounds "x1 y1 x2 y2" of an element.
+bounds() {
+    sed -E 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/' <<< "$1"
+}
+
+# The bounds of the first element on screen showing this text, as UI Automator sees the screen.
+# Waits up to 30 seconds for it. Another app's "isn't responding" dialog (a freshly booted
+# emulator's launcher can stall) is told to wait; the app's own would be a failure, and stays.
+# The last screen UI Automator could read is left in $OUT/screen.xml.
 find_text() {
-    local text=$1 start=$SECONDS screen node
+    local text=$1 start=$SECONDS screen node x1 y1 x2 y2
     while (( SECONDS - start < 30 )); do
         screen=$(adb shell "rm -f /sdcard/smoke-ui.xml; uiautomator dump /sdcard/smoke-ui.xml >/dev/null 2>&1; cat /sdcard/smoke-ui.xml 2>/dev/null")
         if [[ "$screen" == *"<hierarchy"* ]]; then
             printf '%s\n' "$screen" > "$OUT/screen.xml"
-            node=$(grep -io "<node [^>]*text=\"$text\"[^>]*>" <<< "$screen" | head -1)
+            node=$(node_with_text "$screen" "$text")
             if [ -n "$node" ]; then
-                sed -E 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/' <<< "$node"
+                bounds "$node"
                 return 0
+            fi
+            if grep -qE 'text="[^"]*isn.t responding"' <<< "$screen" \
+                && ! grep -qiE 'text="Nivy[^"]*isn.t responding"' <<< "$screen"; then
+                node=$(node_with_text "$screen" "Wait")
+                if [ -n "$node" ] && read -r x1 y1 x2 y2 < <(bounds "$node"); then
+                    echo "Another app isn't responding: waiting for it" >&2
+                    adb shell input tap $(( (x1 + x2) / 2 )) $(( (y1 + y2) / 2 ))
+                fi
             fi
         fi
         sleep 1
