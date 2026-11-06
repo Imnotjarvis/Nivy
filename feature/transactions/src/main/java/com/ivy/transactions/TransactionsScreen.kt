@@ -332,7 +332,8 @@ private fun BoxWithConstraintsScope.UI(
             }
     ) {
         val listState = rememberScrollPositionListState(
-            key = "item_stats_lazy_column"
+            key = "item_stats_lazy_column",
+            screen = screen
         )
         val valuesShown = investment?.values?.isNotEmpty() == true
         val surface = MaterialTheme.colorScheme.surface

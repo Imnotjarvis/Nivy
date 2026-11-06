@@ -128,22 +128,10 @@ fun BoxWithConstraintsScope.PieChartStatisticScreen(
 
     UI(
         state = uiState,
-        lazyState = rememberChartListState(screen),
+        lazyState = rememberScrollPositionListState(key = "item_pie_chart_lazy_column", screen = screen),
         onEvent = viewModel::onEvent
     )
 }
-
-/**
- * The chart's list, where this opening of the chart was left. Opened anew, a chart, the same one
- * or another, starts at its top; uncovered, by going back from a transaction it opened, it's the
- * same screen on the back stack again, and returns there.
- */
-@Composable
-internal fun rememberChartListState(screen: PieChartStatisticScreen): LazyListState =
-    rememberScrollPositionListState(
-        key = "item_pie_chart_lazy_column",
-        params = System.identityHashCode(screen).toString(),
-    )
 
 @ExperimentalFoundationApi
 @Composable
