@@ -149,7 +149,10 @@ fun BoxWithConstraintsScope.HomeUi(
             overdue = uiState.overdue,
 
             stats = uiState.stats,
+            statsLoaded = uiState.statsLoaded,
+            balanceLoaded = uiState.balanceLoaded,
             history = uiState.history,
+            historyLoaded = uiState.historyLoaded,
 
             customerJourneyCards = uiState.customerJourneyCards,
             shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions,
@@ -212,8 +215,11 @@ fun HomeLazyColumn(
     upcoming: DueSection,
     overdue: DueSection,
     balance: BigDecimal,
+    balanceLoaded: Boolean,
     stats: IncomeExpensePair,
+    statsLoaded: Boolean,
     history: ImmutableList<TransactionHistoryItem>,
+    historyLoaded: Boolean,
 
     customerJourneyCards: ImmutableList<CustomerJourneyCardModel>,
 
@@ -280,7 +286,9 @@ fun HomeLazyColumn(
                 onBalanceClick = onBalanceClick,
                 onHiddenBalanceClick = onHiddenBalanceClick,
                 hideIncome = hideIncome,
-                onHiddenIncomeClick = onHiddenIncomeClick
+                onHiddenIncomeClick = onHiddenIncomeClick,
+                balanceLoaded = balanceLoaded,
+                statsLoaded = statsLoaded,
             )
         }
         item {
@@ -296,21 +304,26 @@ fun HomeLazyColumn(
             )
         }
 
-        transactions(
-            baseData = baseData,
-            upcoming = upcoming,
-            setUpcomingExpanded = setUpcomingExpanded,
-            overdue = overdue,
-            setOverdueExpanded = setOverdueExpanded,
-            history = history,
-            onPayOrGet = onPayOrGet,
-            emptyStateTitle = emptyStateTitle,
-            emptyStateText = emptyStateText,
-            shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
-            onSkipTransaction = onSkipTransaction,
-            onSkipAllTransactions = onSkipAllTransactions,
-            compact = compactTransactions,
-        )
+        // Nothing until the month's transactions are loaded, rather than "No transactions" while
+        // they are; then they fade in.
+        if (historyLoaded) {
+            transactions(
+                baseData = baseData,
+                upcoming = upcoming,
+                setUpcomingExpanded = setUpcomingExpanded,
+                overdue = overdue,
+                setOverdueExpanded = setOverdueExpanded,
+                history = history,
+                onPayOrGet = onPayOrGet,
+                emptyStateTitle = emptyStateTitle,
+                emptyStateText = emptyStateText,
+                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
+                onSkipTransaction = onSkipTransaction,
+                onSkipAllTransactions = onSkipAllTransactions,
+                compact = compactTransactions,
+                fadeIn = true,
+            )
+        }
     }
 }
 
@@ -330,9 +343,12 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
                     categories = persistentListOf()
                 ),
                 balance = BigDecimal.ZERO,
+                balanceLoaded = true,
                 customerJourneyCards = persistentListOf(),
                 history = persistentListOf(),
+                historyLoaded = true,
                 stats = IncomeExpensePair.zero(),
+                statsLoaded = true,
                 upcoming = DueSection(
                     trns = persistentListOf(),
                     stats = IncomeExpensePair.zero(),

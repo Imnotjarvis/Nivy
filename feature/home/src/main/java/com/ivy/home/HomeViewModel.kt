@@ -30,10 +30,10 @@ import com.ivy.wallet.data.DueSection
 import com.ivy.wallet.data.model.MainTab
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toUTCCloseTimeRange
-import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
+import com.ivy.base.threading.DispatchersProvider
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.LoadTimer
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -52,6 +52,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -81,7 +82,8 @@ class HomeViewModel @Inject constructor(
     private val startDayOfMonthAct: StartDayOfMonthAct,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
-    private val features: Features
+    private val features: Features,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<HomeState, HomeEvent>() {
     private var currentTheme by mutableStateOf(Theme.AUTO)
     private var name by mutableStateOf("")
@@ -98,7 +100,9 @@ class HomeViewModel @Inject constructor(
     // Once the month's transactions are listed for the first time: Home is fully drawn.
     private var historyLoaded by mutableStateOf(false)
     private var stats by mutableStateOf(IncomeExpensePair.zero())
+    private var statsLoaded by mutableStateOf(false)
     private var balance by mutableStateOf(BigDecimal.ZERO)
+    private var balanceLoaded by mutableStateOf(false)
     private var upcoming by mutableStateOf(
         DueSection(
             trns = persistentListOf(),
@@ -133,7 +137,9 @@ class HomeViewModel @Inject constructor(
             history = history,
             historyLoaded = historyLoaded,
             stats = stats,
+            statsLoaded = statsLoaded,
             balance = balance,
+            balanceLoaded = balanceLoaded,
             upcoming = upcoming,
             overdue = overdue,
             customerJourneyCards = customerJourneyCards,
@@ -209,11 +215,14 @@ class HomeViewModel @Inject constructor(
         ).toUTCCloseTimeRange()
 
         val withAccounts = timer.step("accounts") { loadAppBaseData(settings to timeRange) }
-        val currencyAndRange = loadIncomeExpenseBalance(withAccounts, timer)
-        timer.step("transactions") { loadTrnHistory(currencyAndRange) }
-        historyLoaded = true
-        timer.step("planned") { loadDueTrns(currencyAndRange) }
+        val currencyAndRange = settings.baseCurrency to timeRange
+        // First what shows above the transactions, so that nothing comes in over them and pushes
+        // them down; then the transactions; last the balance, which reads every transaction there is.
         timer.step("cards") { loadCustomerJourney() }
+        timer.step("planned") { loadDueTrns(currencyAndRange) }
+        timer.step("month totals") { loadMonthTotals(withAccounts) }
+        timer.step("transactions") { loadTrnHistory(currencyAndRange) }
+        timer.step("balance") { loadBalance(settings.baseCurrency) }
         timer.done()
     }
 
@@ -233,37 +242,24 @@ class HomeViewModel @Inject constructor(
         return Triple(settings, timeRange, accounts)
     }
 
-    private suspend fun loadIncomeExpenseBalance(
-        input: Triple<AppSettings, ClosedTimeRange, List<Account>>,
-        timer: LoadTimer,
-    ): Pair<String, ClosedTimeRange> {
+    private suspend fun loadMonthTotals(input: Triple<AppSettings, ClosedTimeRange, List<Account>>) {
         val (settings, timeRange, accounts) = input
-
-        val incomeExpense = timer.step("month totals") {
-            calcIncomeExpenseAct(
-                CalcIncomeExpenseAct.Input(
-                    baseCurrency = settings.baseCurrency,
-                    accounts = accounts,
-                    range = timeRange
-                )
+        stats = calcIncomeExpenseAct(
+            CalcIncomeExpenseAct.Input(
+                baseCurrency = settings.baseCurrency,
+                accounts = accounts,
+                range = timeRange
             )
-        }
-
-        val balanceAmount = timer.step("balance") {
-            calcWalletBalanceAct(
-                CalcWalletBalanceAct.Input(baseCurrency = settings.baseCurrency)
-            )
-        }
-
-        balance = balanceAmount
-        stats = incomeExpense
-
-        return settings.baseCurrency to timeRange
+        )
+        statsLoaded = true
     }
 
-    private suspend fun loadTrnHistory(
-        input: Pair<String, ClosedTimeRange>
-    ): Pair<String, ClosedTimeRange> {
+    private suspend fun loadBalance(baseCurrency: String) {
+        balance = calcWalletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = baseCurrency))
+        balanceLoaded = true
+    }
+
+    private suspend fun loadTrnHistory(input: Pair<String, ClosedTimeRange>) {
         val (baseCurrency, timeRange) = input
 
         history = historyWithDateDivsAct(
@@ -272,8 +268,7 @@ class HomeViewModel @Inject constructor(
                 baseCurrency = baseCurrency
             )
         )
-
-        return baseCurrency to timeRange
+        historyLoaded = true
     }
 
     private suspend fun loadDueTrns(input: Pair<String, ClosedTimeRange>) {
@@ -294,7 +289,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadCustomerJourney() {
-        customerJourneyCards = ioThread {
+        customerJourneyCards = withContext(dispatchers.io) {
             customerJourneyLogic.loadCards().toImmutableList()
         }
     }
