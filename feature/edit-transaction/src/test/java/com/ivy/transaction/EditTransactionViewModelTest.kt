@@ -228,23 +228,7 @@ class EditTransactionViewModelTest {
 
     @Test
     fun `an edited transaction is saved over the original as it changes`() {
-        val original = Expense(
-            id = TransactionId(UUID.randomUUID()),
-            title = NotBlankTrimmedString.unsafe("Lunch"),
-            description = null,
-            category = food.id,
-            time = Instant.parse("2026-11-10T12:00:00Z"),
-            settled = true,
-            metadata = TransactionMetadata(
-                recurringRuleId = null,
-                paidForDateTime = null,
-                loanRecordId = null,
-                purchaseDateTime = null,
-            ),
-            tags = emptyList(),
-            value = PositiveValue(PositiveDouble.unsafe(25.0), Eur),
-            account = wallet.id,
-        )
+        val original = lunch()
         coEvery { transactionRepo.findById(original.id) } returns original
 
         viewModel.start(EditTransactionScreen(initialTransactionId = original.id.value, type = TransactionType.EXPENSE))
@@ -252,6 +236,44 @@ class EditTransactionViewModelTest {
 
         saved() shouldBe original.copy(value = PositiveValue(PositiveDouble.unsafe(30.0), Eur))
         // Still open: each change is saved as it's made.
+        verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `a save that fails says so, and the screen stays open with what was entered`() {
+        coEvery { transactionRepo.save(any()) } throws IllegalStateException("disk full")
+
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        coVerify { toaster.show(R.string.msg_transaction_not_saved, any()) }
+        verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `a transaction that isn't a valid one any more isn't closed as if saved`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        // Its account is gone, deleted meanwhile.
+        coEvery { accountRepository.findById(wallet.id) } returns null
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        coVerify(exactly = 0) { transactionRepo.save(any()) }
+        coVerify { toaster.show(R.string.msg_transaction_not_saved, any()) }
+        verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `a duplicate that fails says so, and the screen stays on the original`() {
+        val original = lunch()
+        coEvery { transactionRepo.findById(original.id) } returns original
+        coEvery { transactionRepo.save(any()) } throws IllegalStateException("disk full")
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = original.id.value, type = TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.Duplicate)
+
+        coVerify { toaster.show(R.string.msg_transaction_not_saved, any()) }
         verify(exactly = 0) { nav.back() }
     }
 
@@ -336,6 +358,24 @@ class EditTransactionViewModelTest {
 
     private fun PositiveValue.to(currency: AssetCode, rate: Double) = Some(
         PositiveValue(PositiveDouble.unsafe(amount.value * if (asset == currency) 1.0 else rate), currency)
+    )
+
+    private fun lunch() = Expense(
+        id = TransactionId(UUID.randomUUID()),
+        title = NotBlankTrimmedString.unsafe("Lunch"),
+        description = null,
+        category = food.id,
+        time = Instant.parse("2026-11-10T12:00:00Z"),
+        settled = true,
+        metadata = TransactionMetadata(
+            recurringRuleId = null,
+            paidForDateTime = null,
+            loanRecordId = null,
+            purchaseDateTime = null,
+        ),
+        tags = emptyList(),
+        value = PositiveValue(PositiveDouble.unsafe(25.0), Eur),
+        account = wallet.id,
     )
 
     private fun saved(): Transaction {

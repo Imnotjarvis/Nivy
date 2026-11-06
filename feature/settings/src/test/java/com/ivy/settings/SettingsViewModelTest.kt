@@ -2,7 +2,9 @@ package com.ivy.settings
 
 import arrow.core.None
 import arrow.core.Some
+import arrow.core.left
 import arrow.core.right
+import com.ivy.base.Toaster
 import com.ivy.data.model.Budget
 import com.ivy.data.model.BudgetId
 import com.ivy.data.model.PositiveValue
@@ -14,6 +16,7 @@ import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.ivy.ui.R
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -37,6 +40,7 @@ class SettingsViewModelTest {
     private val syncExchangeRates = mockk<SyncExchangeRatesUseCase> {
         coEvery { sync(any()) } returns Unit.right()
     }
+    private val toaster = mockk<Toaster>(relaxed = true)
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -58,7 +62,7 @@ class SettingsViewModelTest {
             exportCsvUseCase = mockk(relaxed = true),
             context = mockk(relaxed = true),
             timeProvider = mockk(relaxed = true),
-            toaster = mockk(relaxed = true),
+            toaster = toaster,
             dateFormatState = mockk(relaxed = true),
         )
     }
@@ -112,6 +116,16 @@ class SettingsViewModelTest {
 
         coVerify(timeout = Timeout) { syncExchangeRates.sync(Eur) }
         coVerify(exactly = 0) { budgetRepository.saveMany(any()) }
+    }
+
+    @Test
+    fun `rates that can't be downloaded for the new currency are reported`() {
+        coEvery { budgetRepository.findAll() } returns emptyList()
+        coEvery { syncExchangeRates.sync(Usd) } returns "No connection".left()
+
+        viewModel.onEvent(SettingsEvent.SetCurrency("USD"))
+
+        coVerify(timeout = Timeout) { toaster.show(R.string.msg_exchange_rates_not_downloaded, any()) }
     }
 
     private fun budget(amount: Double) = Budget(
