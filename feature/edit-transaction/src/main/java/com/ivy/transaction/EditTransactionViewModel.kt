@@ -714,8 +714,11 @@ class EditTransactionViewModel @Inject constructor(
 
     private var closingSave: Job? = null
 
+    @Suppress("MagicNumber")
     private suspend fun saveInternal(closeScreen: Boolean) {
         val saved = trySaving {
+            // TEMPORARY, for the pull request's screenshots: an amount of 52 fails to save.
+            check(amount != 52.0) { "Temporary failure for the screenshots" }
             loadedTransaction = loadedTransaction().copy(
                 accountId = account?.id?.value ?: error("no accountId"),
                 toAccountId = toAccount?.id?.value,
