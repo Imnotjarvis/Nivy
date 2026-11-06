@@ -2,6 +2,7 @@ package com.ivy.loans.loandetails
 
 import com.ivy.data.model.Account
 import com.ivy.data.model.Loan
+import com.ivy.loans.LoanProgress
 import com.ivy.loans.loan.data.DisplayLoanRecord
 import com.ivy.wallet.ui.theme.modal.LoanModalData
 import com.ivy.wallet.ui.theme.modal.LoanRecordModalData
@@ -12,9 +13,7 @@ data class LoanDetailsScreenState(
     val baseCurrency: String,
     val loan: Loan?,
     val displayLoanRecords: ImmutableList<DisplayLoanRecord>,
-    val loanTotalAmount: Double,
-    val amountPaid: Double,
-    val loanAmountPaid: Double,
+    val progress: LoanProgress,
     val accounts: ImmutableList<Account>,
     val selectedLoanAccount: Account?,
     val createLoanTransaction: Boolean,

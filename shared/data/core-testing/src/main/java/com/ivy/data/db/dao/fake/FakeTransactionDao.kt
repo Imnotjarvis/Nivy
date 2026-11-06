@@ -1,6 +1,7 @@
 package com.ivy.data.db.dao.fake
 
 import com.ivy.base.model.TransactionType
+import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.db.dao.read.TransactionDao
 import com.ivy.data.db.dao.write.WriteTransactionDao
 import com.ivy.data.db.entity.TransactionEntity
@@ -8,8 +9,14 @@ import org.jetbrains.annotations.VisibleForTesting
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * @param accounts the accounts there are, which the balance looks in as the database's query
+ * does: none unless given.
+ */
 @VisibleForTesting
-class FakeTransactionDao : TransactionDao, WriteTransactionDao {
+class FakeTransactionDao(
+    private val accounts: AccountDao = FakeAccountDao(),
+) : TransactionDao, WriteTransactionDao {
     private val items = mutableListOf<TransactionEntity>()
 
     override suspend fun findAll(): List<TransactionEntity> {
@@ -103,21 +110,22 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         }.sortedByDescending { it.dateTime }
     }
 
-    // As the query does, but taking every account the transactions name to be there: the fake has none.
+    // As the query does; BalanceCases holds the cases both must pass.
     override suspend fun balance(
         accountId: UUID,
         startDate: Instant,
         endDate: Instant
     ): Double {
+        val there = accounts.findAll().map { it.id }.toSet()
         fun TransactionEntity.counts(): Boolean =
             dateTime?.let { isBetween(it, startDate, endDate) } == true && amount.isPositiveAndFinite()
 
         val out = items
             .filter { it.accountId == accountId && it.counts() }
-            .filter { it.type != TransactionType.TRANSFER || it.toAccountId != null && it.toAccountId != accountId }
+            .filter { it.type != TransactionType.TRANSFER || it.toAccountId != accountId && it.toAccountId in there }
             .sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
         val received = items
-            .filter { it.toAccountId == accountId && it.counts() }
+            .filter { it.toAccountId == accountId && it.counts() && it.accountId in there }
             .filter { !(it.type == TransactionType.TRANSFER && it.accountId == accountId) }
             .sumOf {
                 when (it.type) {

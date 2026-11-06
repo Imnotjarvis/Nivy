@@ -16,6 +16,9 @@ import javax.inject.Inject
 /**
  * Converts between currencies with the stored rates, which are relative to the base currency.
  * A conversion between two other currencies goes through the base currency.
+ *
+ * Without a rate it converts nothing, and every total leaves that amount out (counts it as 0),
+ * as the older ExchangeAct's totals do: no total adds amounts in different currencies.
  */
 class ExchangeUseCase @Inject constructor(
     private val exchangeRatesRepository: ExchangeRatesRepository,

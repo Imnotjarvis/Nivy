@@ -151,7 +151,7 @@ class BackupDataUseCaseTest {
     private inner class Wallet {
         private val accounts = FakeAccountDao()
         private val categories = FakeCategoryDao()
-        private val transactions = FakeTransactionDao()
+        private val transactions = FakeTransactionDao(accounts)
         private val plannedPayments = FakePlannedPaymentDao()
         private val budgets = FakeBudgetDao()
         private val loans = FakeLoanDao()

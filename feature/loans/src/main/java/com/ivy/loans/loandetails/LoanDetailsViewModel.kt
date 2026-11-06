@@ -3,11 +3,9 @@ package com.ivy.loans.loandetails
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
-import com.ivy.base.model.LoanRecordType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
@@ -24,7 +22,9 @@ import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.ivy.wallet.domain.logic.AccountCreator
 import com.ivy.wallet.utils.computationThread
 import com.ivy.wallet.utils.ioThread
+import com.ivy.loans.LoanProgress
 import com.ivy.loans.loan.data.DisplayLoanRecord
+import com.ivy.loans.progress
 import com.ivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.ivy.loans.loandetails.events.LoanDetailsScreenEvent
 import com.ivy.loans.loandetails.events.LoanModalEvent
@@ -68,10 +68,8 @@ class LoanDetailsViewModel @Inject constructor(
     private val loan = mutableStateOf<Loan?>(null)
     private val displayLoanRecords =
         mutableStateOf<ImmutableList<DisplayLoanRecord>>(persistentListOf())
-    private val loanTotalAmount = mutableDoubleStateOf(0.0)
-    private val amountPaid = mutableDoubleStateOf(0.0)
+    private val progress = mutableStateOf(LoanProgress.None)
     private val accounts = mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private val loanInterestAmountPaid = mutableDoubleStateOf(0.0)
     private val selectedLoanAccount = mutableStateOf<Account?>(null)
     private val createLoanTransaction = mutableStateOf(false)
     private var defaultCurrencyCode = ""
@@ -92,9 +90,7 @@ class LoanDetailsViewModel @Inject constructor(
             baseCurrency = baseCurrency.value,
             loan = loan.value,
             displayLoanRecords = displayLoanRecords.value,
-            loanTotalAmount = loanTotalAmount.doubleValue,
-            amountPaid = amountPaid.doubleValue,
-            loanAmountPaid = loanInterestAmountPaid.doubleValue,
+            progress = progress.value,
             accounts = accounts.value,
             selectedLoanAccount = selectedLoanAccount.value,
             createLoanTransaction = createLoanTransaction.value,
@@ -289,42 +285,8 @@ class LoanDetailsViewModel @Inject constructor(
                     }.toImmutableList()
             }
 
-            computationThread {
-                // Using a local variable to calculate the amount and then reassigning to
-                // the State variable to reduce the amount of compose re-draws
-                var amtPaid = 0.0
-                var loanInterestAmtPaid = 0.0
-                displayLoanRecords.value.forEach {
-                    // We do not want to calculate records that increase loan.
-                    if (it.loanRecord.type == LoanRecordType.INCREASE) {
-                        return@forEach
-                    }
-                    val convertedAmount = (it.loanRecord.convertedAmount ?: it.loanRecord.amount).value
-                    if (!it.loanRecord.interest) {
-                        amtPaid += convertedAmount
-                    } else {
-                        loanInterestAmtPaid += convertedAmount
-                    }
-                }
-
-                amountPaid.doubleValue = amtPaid
-                loanInterestAmountPaid.doubleValue = loanInterestAmtPaid
-            }
-
-            computationThread {
-                // Calculate total amount of loan borrowed or lent.
-                // That is initial amount + each record that increased the loan.
-                val totalAmount =
-                    displayLoanRecords.value.fold(loan.value?.amount?.value ?: 0.0) { value, record ->
-                        if (record.loanRecord.type == LoanRecordType.INCREASE) {
-                            val convertedAmount =
-                                (record.loanRecord.convertedAmount ?: record.loanRecord.amount).value
-                            value + convertedAmount
-                        } else {
-                            value
-                        }
-                    }
-                loanTotalAmount.doubleValue = totalAmount
+            progress.value = computationThread {
+                loan.value?.progress(displayLoanRecords.value.map { it.loanRecord }) ?: LoanProgress.None
             }
 
             createLoanTransaction.value =
