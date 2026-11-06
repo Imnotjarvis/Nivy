@@ -19,7 +19,8 @@ dependencies {
     testImplementation(projects.shared.data.modelTesting)
 
     androidTestImplementation(libs.bundles.integration.testing)
-    // The live exchange-rate test builds the real HTTP client from shared:data:core
+    // The exchange-rate test reads a recorded response through Ktor's mock engine, not the network
     androidTestImplementation(libs.bundles.ktor)
+    androidTestImplementation(libs.ktor.client.mock)
     androidTestImplementation(libs.mockk.android)
 }
