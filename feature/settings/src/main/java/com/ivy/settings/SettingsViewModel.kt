@@ -192,6 +192,7 @@ class SettingsViewModel @Inject constructor(
                 appPreferences.setBaseCurrency(newCurrency)
                 AssetCode.from(newCurrency).onRight {
                     syncExchangeRatesUseCase.sync(it)
+                        .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
                 }
             }
         }

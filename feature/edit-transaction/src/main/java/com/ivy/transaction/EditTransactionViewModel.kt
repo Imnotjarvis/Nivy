@@ -73,6 +73,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -614,9 +615,9 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun duplicate() {
         viewModelScope.launch {
-            ioThread {
+            val saved = trySaving {
                 val id = UUID.randomUUID()
-                loadedTransaction()
+                val copy = loadedTransaction()
                     .copy(
                         id = id,
                         dateTime = timeProvider.utcNow(),
@@ -628,18 +629,18 @@ class EditTransactionViewModel @Inject constructor(
                         loanRecordId = null,
                     )
                     .toDomain(transactionMapper)
-                    ?.let {
-                        transactionRepo.save(creditCardChargeUseCase.dated(it))
-                    }
+                    ?: return@trySaving false
+                transactionRepo.save(creditCardChargeUseCase.dated(copy))
 
                 tagRepository.findByIds(transactionAssociatedTags).forEach {
                     associateTagToTransaction(it, id)
                 }
 
                 context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
+                true
             }
 
-            closeScreen()
+            if (saved) closeScreen()
         }
     }
 
@@ -714,47 +715,64 @@ class EditTransactionViewModel @Inject constructor(
     private var closingSave: Job? = null
 
     private suspend fun saveInternal(closeScreen: Boolean) {
-        try {
-            ioThread {
-                loadedTransaction = loadedTransaction().copy(
-                    accountId = account?.id?.value ?: error("no accountId"),
-                    toAccountId = toAccount?.id?.value,
-                    toAmount = customExchangeRateState.convertedAmount ?: amount,
-                    title = title?.trim(),
-                    description = description?.trim(),
-                    amount = amount,
-                    type = transactionType,
-                    dueDate = dueDate,
-                    paidFor = paidHistory,
-                    dateTime = when {
-                        loadedTransaction().dateTime == null &&
-                                dueDate == null -> {
-                            timeProvider.utcNow()
-                        }
-
-                        else -> loadedTransaction().dateTime
-                    },
-                    categoryId = category?.id?.value,
-                )
-
-                loadedTransaction().toDomain(transactionMapper)?.let {
-                    if (it.metadata.loanId != null) {
-                        backgroundProcessingStarted = true
-                        loanTransactionsUseCase.updateFromTransaction(it)
-                        backgroundProcessingStarted = false
+        val saved = trySaving {
+            loadedTransaction = loadedTransaction().copy(
+                accountId = account?.id?.value ?: error("no accountId"),
+                toAccountId = toAccount?.id?.value,
+                toAmount = customExchangeRateState.convertedAmount ?: amount,
+                title = title?.trim(),
+                description = description?.trim(),
+                amount = amount,
+                type = transactionType,
+                dueDate = dueDate,
+                paidFor = paidHistory,
+                dateTime = when {
+                    loadedTransaction().dateTime == null &&
+                            dueDate == null -> {
+                        timeProvider.utcNow()
                     }
-                    transactionRepo.save(creditCardChargeUseCase.dated(it))
+
+                    else -> loadedTransaction().dateTime
+                },
+                categoryId = category?.id?.value,
+            )
+
+            val transaction = loadedTransaction().toDomain(transactionMapper) ?: return@trySaving false
+            if (transaction.metadata.loanId != null) {
+                backgroundProcessingStarted = true
+                try {
+                    loanTransactionsUseCase.updateFromTransaction(transaction)
+                } finally {
+                    backgroundProcessingStarted = false
                 }
-
-                context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
             }
+            transactionRepo.save(creditCardChargeUseCase.dated(transaction))
 
-            if (closeScreen) {
-                closeScreen()
-            }
+            context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
+            true
+        }
+
+        if (saved && closeScreen) {
+            closeScreen()
+        }
+    }
+
+    /**
+     * Runs [save] in the background; it returns false when it can't save. Then, or when it fails,
+     * the screen says so and stays open with what was entered, instead of closing as if saved.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun trySaving(save: suspend () -> Boolean): Boolean {
+        val saved = try {
+            ioThread { save() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Timber.e(e)
+            false
         }
+        if (!saved) toaster.show(R.string.msg_transaction_not_saved)
+        return saved
     }
 
     @JvmName("setHasChangesMethod")

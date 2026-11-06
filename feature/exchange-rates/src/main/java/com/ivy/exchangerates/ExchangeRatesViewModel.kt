@@ -20,6 +20,7 @@ import com.ivy.data.repository.ExchangeRatesRepository
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.exchangerates.data.RateUi
 import com.ivy.ui.ComposeViewModel
+import com.ivy.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -50,6 +51,7 @@ class ExchangeRatesViewModel @Inject constructor(
             baseCurrency = currencyRepo.getBaseCurrency().also {
                 viewModelScope.launch {
                     syncExchangeRatesUseCase.sync(it)
+                        .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
                 }
             }
         }
@@ -98,7 +100,10 @@ class ExchangeRatesViewModel @Inject constructor(
                 )
             }.onRight {
                 // Sync to fetch the real rate
-                baseCurrency?.let { syncExchangeRatesUseCase.sync(it) }
+                baseCurrency?.let { base ->
+                    syncExchangeRatesUseCase.sync(base)
+                        .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
+                }
             }.onLeft { toaster.show(it) }
         }
     }
