@@ -23,4 +23,8 @@ android {
 
 dependencies {
     androidTestImplementation(libs.bundles.integration.testing)
+    // hilt-work asks for WorkManager 2.3.4, which crashes as it starts on Android 12 and newer (a
+    // PendingIntent without FLAG_IMMUTABLE). The app gets a current WorkManager, but a module's
+    // test APK got that one, and its process crashed before the first test: none ever ran.
+    androidTestImplementation(libs.androidx.work)
 }
