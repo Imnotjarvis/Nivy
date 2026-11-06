@@ -7,6 +7,7 @@ import com.ivy.base.time.impl.TestTimeConverter
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
+import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.navigation.Navigation
 import com.ivy.ui.testing.ComposeViewModelTest
 import com.ivy.ui.testing.runTest
@@ -22,6 +23,7 @@ import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CompletableDeferred
@@ -41,6 +43,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
 
     // The balance reads every transaction there is: it comes when this completes.
     private val balance = CompletableDeferred<BigDecimal>()
+    private val syncExchangeRates = mockk<SyncExchangeRatesUseCase>(relaxed = true)
 
     private val viewModel = HomeViewModel(
         periodState = PeriodState(FixedTime),
@@ -80,6 +83,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),
+        syncExchangeRatesUseCase = syncExchangeRates,
         dispatchers = TestDispatchersProvider,
     )
 
@@ -102,6 +106,26 @@ class HomeViewModelTest : ComposeViewModelTest() {
             balance shouldBe BigDecimal("1234.50")
             balanceLoaded shouldBe true
         }
+    }
+
+    @Test
+    fun `the exchange rates don't sync while Home is loading`() {
+        viewModel.runTest {
+            balanceLoaded shouldBe false
+        }
+
+        coVerify(exactly = 0) { syncExchangeRates.syncIfDue(any()) }
+    }
+
+    @Test
+    fun `the exchange rates sync, if due, once Home has loaded`() {
+        balance.complete(BigDecimal("1234.50"))
+
+        viewModel.runTest {
+            balanceLoaded shouldBe true
+        }
+
+        coVerify(exactly = 1) { syncExchangeRates.syncIfDue(AssetCode.unsafe("EUR")) }
     }
 
     private companion object {

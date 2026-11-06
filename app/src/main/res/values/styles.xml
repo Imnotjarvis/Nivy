@@ -8,4 +8,13 @@
         <item name="android:colorControlActivated">@color/ivy</item>
     </style>
 
+    <!-- While the app starts: its icon, as on the launcher, on the screens' background, until the
+         first screen is chosen (RootActivity), instead of a blank frame. -->
+    <style name="Theme.Nivy.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+
 </resources>

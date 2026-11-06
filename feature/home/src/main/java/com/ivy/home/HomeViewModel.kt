@@ -19,6 +19,7 @@ import com.ivy.data.preferences.AppSettings
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
@@ -83,6 +84,7 @@ class HomeViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
+    private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<HomeState, HomeEvent>() {
     private var currentTheme by mutableStateOf(Theme.AUTO)
@@ -224,6 +226,10 @@ class HomeViewModel @Inject constructor(
         timer.step("transactions") { loadTrnHistory(currencyAndRange) }
         timer.step("balance") { loadBalance(settings.baseCurrency) }
         timer.done()
+        // Once all Home shows has loaded, which the download and the rates it rewrites would slow.
+        viewModelScope.launch(dispatchers.io) {
+            syncExchangeRatesUseCase.syncIfDue(currencyRepository.getBaseCurrency())
+        }
     }
 
     private suspend fun loadAppBaseData(

@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivy.IvyNavGraph
 import com.ivy.base.model.Theme
@@ -98,8 +99,12 @@ class RootActivity : AppCompatActivity(), RootScreen {
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // The icon stays until the first screen is chosen, which reads the settings first: until
+        // then the window had nothing to draw.
+        splashScreen.setKeepOnScreenCondition { navigation.currentScreen == null }
         setupApp()
         setupBackHandling()
         setContent {

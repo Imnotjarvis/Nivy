@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.ivy.base.model.DateDisplayFormat
 import com.ivy.base.model.Theme
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -105,6 +107,20 @@ class AppPreferences @Inject constructor(
     suspend fun isCardDismissed(cardId: String): Boolean = get(cardDismissedKey(cardId), false)
     suspend fun setCardDismissed(cardId: String) = set(cardDismissedKey(cardId), true)
 
+    /** When the exchange rates were last downloaded for [baseCurrency], or null if they never were. */
+    suspend fun exchangeRatesSyncedAt(baseCurrency: String): Instant? {
+        val prefs = dataStore.data.first()
+        if (prefs[ExchangeRatesSyncedFor] != baseCurrency) return null
+        return prefs[ExchangeRatesSyncedAt]?.let(Instant::ofEpochMilli)
+    }
+
+    suspend fun setExchangeRatesSynced(baseCurrency: String, at: Instant) {
+        dataStore.edit {
+            it[ExchangeRatesSyncedFor] = baseCurrency
+            it[ExchangeRatesSyncedAt] = at.toEpochMilli()
+        }
+    }
+
     private suspend fun <T> get(key: Preferences.Key<T>, default: T): T =
         dataStore.data.first()[key] ?: default
 
@@ -128,6 +144,8 @@ class AppPreferences @Inject constructor(
         private val HideIncome = booleanPreferencesKey("hide_income")
         private val TransfersAsIncomeExpense = booleanPreferencesKey("transfers_as_inc_exp")
         private val CategorySortOrder = intPreferencesKey("categorySortOrder")
+        private val ExchangeRatesSyncedFor = stringPreferencesKey("exchange_rates_synced_for")
+        private val ExchangeRatesSyncedAt = longPreferencesKey("exchange_rates_synced_at")
         private const val CardDismissedSuffix = "_cj_dismissed"
 
         // The settings that used to live in the database's settings table.

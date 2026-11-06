@@ -176,6 +176,7 @@ dependencies {
     implementation(libs.bundles.activity)
     implementation(libs.datastore)
     implementation(libs.androidx.biometrics)
+    implementation(libs.androidx.splashscreen)
 
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
