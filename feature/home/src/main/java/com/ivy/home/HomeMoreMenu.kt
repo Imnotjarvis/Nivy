@@ -2,7 +2,6 @@ package com.ivy.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
@@ -69,7 +68,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import com.ivy.design.system.motion.AppearRiseFraction
 import com.ivy.design.system.motion.CoveredDimAlpha
+import androidx.compose.ui.graphics.drawOutline
 import com.ivy.design.system.motion.appearTween
 import com.ivy.design.system.shapes.AppCornerRadius
 import com.ivy.design.utils.consumeClicks
@@ -78,9 +79,11 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 
 /**
- * Home's menu under the arrow at its top end: a panel that comes down from the top edge, as tall as
- * its content, over Home, which dims, in the dialogs' fifth of a second. The arrow stays where it is
- * and turns to point up: the menu closes from where it opened, as from the dim and Back.
+ * Home's menu under the arrow at its top end: a panel from the top, as tall as its content, over
+ * Home, which dims. Like a dialog, it comes and goes in a fifth of a second, dropping a little as it
+ * comes in: solid first, then its content fades in on it, so that Home never shows through it. The
+ * arrow stays where it is and turns to point up: the menu closes from where it opened, as from the
+ * dim and Back.
  */
 @Composable
 fun BoxWithConstraintsScope.MoreMenu(
@@ -124,16 +127,27 @@ fun BoxWithConstraintsScope.MoreMenu(
                 .zIndex(500f)
         )
 
+        val panelColor = MaterialTheme.colorScheme.surfaceVariant
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                // Solid all the way, coming down from behind the top edge: a panel fading in let
-                // Home's colors show through it.
-                .graphicsLayer { translationY = -(1f - progress.value) * size.height }
-                .background(MaterialTheme.colorScheme.surfaceVariant, ShapeBottom)
+                // Drops a little as it comes in, as dialogs rise. The panel turns solid in its first
+                // frames and only then does its content fade in on it: fading in together, Home's
+                // colors showed through both, as a flash.
+                .graphicsLayer {
+                    translationY = -(1f - progress.value) * AppearRiseFraction * screenSize.height
+                }
+                .drawBehind {
+                    drawOutline(
+                        outline = ShapeBottom.createOutline(size, layoutDirection, this),
+                        color = panelColor,
+                        alpha = (progress.value / SolidAt).coerceIn(0f, 1f),
+                    )
+                }
                 .consumeClicks(rememberInteractionSource())
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
+                .graphicsLayer { alpha = ((progress.value - SolidAt) / (1f - SolidAt)).coerceIn(0f, 1f) }
                 .zIndex(510f)
         ) {
             val modalId = remember {
@@ -192,6 +206,10 @@ fun BoxWithConstraintsScope.MoreMenu(
         setExpanded(!expanded)
     }
 }
+
+// How far into its coming the panel is solid, before its content fades in on it: a quarter, about
+// 50 ms.
+private const val SolidAt = 0.25f
 
 /** A panel from the top rounds only its bottom corners, on the app's radius. */
 private val ShapeBottom: Shape
