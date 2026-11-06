@@ -274,15 +274,18 @@ private fun TransactionButtons(
 
         val clickAreaWidth = screenSize.width / 3
 
+        // Out of the + button, as the other buttons come: rising to its place as it fades in.
         IvyOutlinedButton(
             modifier = Modifier
                 .layout { measurable, constraints ->
-                    val placealbe = measurable.measure(constraints)
-                    layout(placealbe.width, placealbe.height) {
-                        placealbe.place(
-                            x = screenSize.width / 2 - placealbe.width / 2,
-                            y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height -
-                                FAB_BUTTON_SIZE.roundToPx()
+                    val placeable = measurable.measure(constraints)
+                    val shownY = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placeable.height -
+                        FAB_BUTTON_SIZE.roundToPx()
+                    val y = lerp(fabStartY, shownY.toFloat(), buttonsShownPercent)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(
+                            x = screenSize.width / 2 - placeable.width / 2,
+                            y = y.roundToInt()
                         )
                     }
                 }
