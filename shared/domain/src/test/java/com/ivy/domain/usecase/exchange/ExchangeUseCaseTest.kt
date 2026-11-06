@@ -3,6 +3,7 @@ package com.ivy.domain.usecase.exchange
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import com.ivy.base.TestDispatchersProvider
 import com.ivy.data.model.ExchangeRate
 import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.Value
@@ -24,7 +25,7 @@ class ExchangeUseCaseTest {
     private val currencyRepository = mockk<CurrencyRepository> {
         coEvery { getBaseCurrency() } returns BGN
     }
-    private val useCase = ExchangeUseCase(exchangeRatesRepository, currencyRepository)
+    private val useCase = ExchangeUseCase(exchangeRatesRepository, currencyRepository, TestDispatchersProvider)
 
     init {
         // 1 BGN = 0.51 EUR = 0.55 USD; there's no rate for GBP

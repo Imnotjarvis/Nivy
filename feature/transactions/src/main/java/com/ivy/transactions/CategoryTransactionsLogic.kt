@@ -10,10 +10,10 @@ import com.ivy.data.model.getFromAccount
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.usecase.transaction.TransactionAmountsUseCase
+import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.wallet.data.model.FromToTimeRange
 import com.ivy.wallet.data.model.filterOverdue
 import com.ivy.wallet.data.model.filterUpcoming
-import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import java.util.UUID
 import javax.inject.Inject
@@ -24,7 +24,7 @@ class CategoryTransactionsLogic @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val currencyRepository: CurrencyRepository,
     private val transactionAmountsUseCase: TransactionAmountsUseCase,
-    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
+    private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
     private val timeProvider: TimeProvider,
 ) {
     suspend fun calculateCategoryBalance(
@@ -174,11 +174,9 @@ class CategoryTransactionsLogic @Inject constructor(
 
     /** The history only shows what already happened. */
     private suspend fun withDateDividers(transactions: List<Transaction>): List<TransactionHistoryItem> =
-        trnsWithDateDivsAct(
-            TrnsWithDateDivsAct.Input(
-                baseCurrency = currencyRepository.getBaseCurrency().code,
-                transactions = transactions.filter { it.settled }
-            )
+        transactionsWithDateDividersUseCase.withDateDividers(
+            baseCurrency = currencyRepository.getBaseCurrency().code,
+            transactions = transactions.filter { it.settled }
         )
 
     private suspend fun total(transactions: List<Transaction>): Double =

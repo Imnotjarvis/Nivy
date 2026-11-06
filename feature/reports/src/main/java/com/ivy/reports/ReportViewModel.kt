@@ -25,7 +25,9 @@ import com.ivy.data.model.TransactionId
 import com.ivy.data.model.Transfer
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.temp.migration.getTransactionType
@@ -33,7 +35,10 @@ import com.ivy.data.temp.migration.getValue
 import com.ivy.domain.RootScreen
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.csv.ExportCsvUseCase
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
+import com.ivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
+import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.utils.getISOFormattedDateTime
 import com.ivy.wallet.utils.scopedIOThread
@@ -41,11 +46,6 @@ import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.wallet.utils.uiThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
-import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
@@ -73,12 +73,12 @@ class ReportViewModel @Inject constructor(
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val transactionRepository: TransactionRepository,
     private val periodState: PeriodState,
-    private val exchangeAct: ExchangeAct,
-    private val accountsAct: AccountsAct,
+    private val exchangeUseCase: ExchangeUseCase,
+    private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
-    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
-    private val calcTrnsIncomeExpenseAct: CalcTrnsIncomeExpenseAct,
-    private val baseCurrencyAct: BaseCurrencyAct,
+    private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
+    private val transactionsIncomeExpenseUseCase: TransactionsIncomeExpenseUseCase,
+    private val currencyRepository: CurrencyRepository,
     private val tagRepository: TagRepository,
     private val exportCsvUseCase: ExportCsvUseCase,
     private val timeProvider: TimeProvider,
@@ -205,8 +205,8 @@ class ReportViewModel @Inject constructor(
 
     private fun start() {
         viewModelScope.launch(Dispatchers.IO) {
-            baseCurrency = baseCurrencyAct()
-            accounts = accountsAct()
+            baseCurrency = currencyRepository.getBaseCurrency().code
+            accounts = accountRepository.findAll().toImmutableList()
             categories =
                 (listOf(unSpecifiedCategory) + categoryRepository.findAll()).toImmutableList()
             allTags = tagRepository.findAll().toImmutableList()
@@ -228,7 +228,7 @@ class ReportViewModel @Inject constructor(
                     history = persistentListOf(),
                     upcomingTransactions = persistentListOf(),
                     overdueTransactions = persistentListOf(),
-                    accounts = accountsAct(),
+                    accounts = accountRepository.findAll().toImmutableList(),
                     reportFilter = null,
                     accountIdFilters = persistentListOf(),
                     transactions = persistentListOf(),
@@ -255,20 +255,16 @@ class ReportViewModel @Inject constructor(
                 .sortedByDescending { it.time }
 
             val historyWithDateDividers = scope.async {
-                trnsWithDateDivsAct(
-                    TrnsWithDateDivsAct.Input(
-                        baseCurrency = baseCurrency,
-                        transactions = tempHistory
-                    )
+                transactionsWithDateDividersUseCase.withDateDividers(
+                    baseCurrency = baseCurrency,
+                    transactions = tempHistory
                 )
             }
 
-            historyIncomeExpense = calcTrnsIncomeExpenseAct(
-                CalcTrnsIncomeExpenseAct.Input(
-                    transactions = tempHistory,
-                    accounts = tempAccounts,
-                    baseCurrency = baseCurrency
-                )
+            historyIncomeExpense = transactionsIncomeExpenseUseCase.incomeExpense(
+                transactions = tempHistory,
+                accounts = tempAccounts,
+                baseCurrency = baseCurrency
             )
 
             val tempIncome = historyIncomeExpense.income.toDouble() +
@@ -289,12 +285,10 @@ class ReportViewModel @Inject constructor(
                 .sortedBy { it.time }
                 .toImmutableList()
 
-            val upcomingIncomeExpense = calcTrnsIncomeExpenseAct(
-                CalcTrnsIncomeExpenseAct.Input(
-                    transactions = upcomingTransactionsList,
-                    accounts = tempAccounts,
-                    baseCurrency = baseCurrency
-                )
+            val upcomingIncomeExpense = transactionsIncomeExpenseUseCase.incomeExpense(
+                transactions = upcomingTransactionsList,
+                accounts = tempAccounts,
+                baseCurrency = baseCurrency
             )
             // Overdue
             val overdue = transactionsList.filter {
@@ -302,12 +296,10 @@ class ReportViewModel @Inject constructor(
             }.sortedByDescending {
                 it.time
             }.toImmutableList()
-            val overdueIncomeExpense = calcTrnsIncomeExpenseAct(
-                CalcTrnsIncomeExpenseAct.Input(
-                    transactions = overdue,
-                    accounts = tempAccounts,
-                    baseCurrency = baseCurrency
-                )
+            val overdueIncomeExpense = transactionsIncomeExpenseUseCase.incomeExpense(
+                transactions = overdue,
+                accounts = tempAccounts,
+                baseCurrency = baseCurrency
             )
 
             setReportValues(
@@ -319,7 +311,7 @@ class ReportViewModel @Inject constructor(
                 upcomingTransactions = upcomingTransactionsList,
                 overdueTransactions = overdue,
                 // All of them: the filter lists every account to pick from.
-                accounts = accountsAct(),
+                accounts = accountRepository.findAll().toImmutableList(),
                 reportFilter = reportFilter,
                 accountIdFilters = accountFilterIdList.await().toImmutableList(),
                 transactions = settledTransactions,
@@ -441,14 +433,12 @@ class ReportViewModel @Inject constructor(
                 // Filter by Amount
                 // !NOTE: Amount must be converted to baseCurrency amount
 
-                val trnAmountBaseCurrency = exchangeAct(
-                    ExchangeAct.Input(
-                        data = ExchangeData(
-                            baseCurrency = baseCurrency,
-                            fromCurrency = trnCurrency(it, accounts, baseCurrency),
-                        ),
-                        amount = it.getValue()
-                    )
+                val trnAmountBaseCurrency = exchangeUseCase.exchange(
+                    data = ExchangeData(
+                        baseCurrency = baseCurrency,
+                        fromCurrency = trnCurrency(it, accounts, baseCurrency),
+                    ),
+                    amount = it.getValue()
                 ).orZero().toDouble()
 
                 (filter.minAmount == null || trnAmountBaseCurrency >= filter.minAmount) &&

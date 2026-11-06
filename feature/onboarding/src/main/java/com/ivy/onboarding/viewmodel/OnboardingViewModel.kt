@@ -10,6 +10,8 @@ import com.ivy.data.db.dao.read.AccountDao
 import com.ivy.data.model.Account
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
+import com.ivy.data.repository.AccountRepository
+import com.ivy.domain.usecase.account.AccountBalanceUseCase
 import com.ivy.domain.usecase.data.DeleteAllDataUseCase
 import com.ivy.onboarding.StarterData
 import com.ivy.ui.ComposeViewModel
@@ -24,8 +26,6 @@ import com.ivy.navigation.OnboardingScreen
 import com.ivy.onboarding.OnboardingDetailState
 import com.ivy.onboarding.OnboardingEvent
 import com.ivy.onboarding.OnboardingState
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
 import com.ivy.wallet.domain.data.IvyCurrency
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.logic.model.CreateAccountData
@@ -46,12 +46,12 @@ class OnboardingViewModel @Inject constructor(
     private val nav: Navigation,
     private val accountDao: AccountDao,
     private val appPreferences: AppPreferences,
-    private val calcAccBalanceAct: CalcAccBalanceAct,
+    private val accountBalanceUseCase: AccountBalanceUseCase,
     private val categoryCreator: CategoryCreator,
     private val categoryRepository: CategoryRepository,
     private val accountCreator: AccountCreator,
 
-    private val accountsAct: AccountsAct,
+    private val accountRepository: AccountRepository,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
 
     // Only OnboardingRouter stuff
@@ -210,11 +210,11 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun accountsWithBalance(): ImmutableList<AccountBalance> = ioThread {
-        accountsAct()
+        accountRepository.findAll()
             .map {
                 AccountBalance(
                     account = it,
-                    balance = calcAccBalanceAct(CalcAccBalanceAct.Input(account = it)).balance.toDouble()
+                    balance = accountBalanceUseCase.balance(account = it).balance.toDouble()
                 )
             }.toImmutableList()
     }

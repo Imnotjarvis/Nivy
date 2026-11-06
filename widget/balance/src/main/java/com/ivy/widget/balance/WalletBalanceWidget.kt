@@ -23,14 +23,14 @@ import com.ivy.base.model.TransactionType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.AppStarter
+import com.ivy.domain.usecase.wallet.WalletBalanceUseCase
+import com.ivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.wallet.utils.shortenAmount
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
-import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import com.ivy.widget.WidgetBase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
@@ -113,16 +113,16 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     lateinit var appStarter: AppStarter
 
     @Inject
-    lateinit var walletBalanceAct: CalcWalletBalanceAct
+    lateinit var walletBalanceUseCase: WalletBalanceUseCase
 
     @Inject
     lateinit var currencyRepository: CurrencyRepository
 
     @Inject
-    lateinit var accountsAct: AccountsAct
+    lateinit var accountRepository: AccountRepository
 
     @Inject
-    lateinit var calcIncomeExpenseAct: CalcIncomeExpenseAct
+    lateinit var walletIncomeExpenseUseCase: WalletIncomeExpenseUseCase
 
     @Inject
     lateinit var appPreferences: AppPreferences
@@ -146,23 +146,20 @@ class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
         coroutineScope.launch {
             val appLocked = appPreferences.isAppLockEnabled()
             val currency = currencyRepository.getBaseCurrency().code
-            val balance = walletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = currency))
-            val accounts = accountsAct()
+            val balance = walletBalanceUseCase.balance(baseCurrency = currency)
+            val accounts = accountRepository.findAll()
             // This month with the user's start day: not the month the app happens to show, nor
             // the default start day a process started for the widget alone would have.
             val startDayOfMonth = appPreferences.startDayOfMonth()
             val period = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
-            val incomeExpense = calcIncomeExpenseAct(
-                CalcIncomeExpenseAct.Input(
-                    baseCurrency = currency,
-                    accounts = accounts,
-                    range = period.toRange(
-                        startDateOfMonth = startDayOfMonth,
-                        timeConverter = timeConverter,
-                        timeProvider = timeProvider,
-
-                        ).toCloseTimeRange()
-                )
+            val incomeExpense = walletIncomeExpenseUseCase.incomeExpense(
+                baseCurrency = currency,
+                accounts = accounts,
+                range = period.toRange(
+                    startDateOfMonth = startDayOfMonth,
+                    timeConverter = timeConverter,
+                    timeProvider = timeProvider,
+                ).toCloseTimeRange()
             )
 
             GlanceAppWidgetManager(context).getGlanceIds(WalletBalanceWidget::class.java)

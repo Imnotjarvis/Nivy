@@ -11,17 +11,17 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.category.CategoryIncomeExpenseUseCase
+import com.ivy.domain.usecase.transaction.TransactionsInRangeUseCase
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.wallet.utils.ioThread
 import com.ivy.ui.ComposeViewModel
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.category.CategoryIncomeWithAccountFiltersAct
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.transaction.TrnsWithRangeAndAccFiltersAct
 import com.ivy.wallet.domain.data.SortOrder
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
@@ -44,10 +44,10 @@ class CategoriesViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val periodState: PeriodState,
     private val appPreferences: AppPreferences,
-    private val baseCurrencyAct: BaseCurrencyAct,
-    private val accountsAct: AccountsAct,
-    private val trnsWithRangeAndAccFiltersAct: TrnsWithRangeAndAccFiltersAct,
-    private val categoryIncomeWithAccountFiltersAct: CategoryIncomeWithAccountFiltersAct,
+    private val currencyRepository: CurrencyRepository,
+    private val accountRepository: AccountRepository,
+    private val transactionsInRangeUseCase: TransactionsInRangeUseCase,
+    private val categoryIncomeExpenseUseCase: CategoryIncomeExpenseUseCase,
     private val features: Features,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
@@ -124,14 +124,12 @@ class CategoriesViewModel @Inject constructor(
                 timeProvider
             ) // this must be monthly
 
-            allAccounts = accountsAct()
-            baseCurrency.value = baseCurrencyAct()
+            allAccounts = accountRepository.findAll()
+            baseCurrency.value = currencyRepository.getBaseCurrency().code
 
-            transactions = trnsWithRangeAndAccFiltersAct(
-                TrnsWithRangeAndAccFiltersAct.Input(
-                    range = range.toCloseTimeRange(),
-                    accountIdFilterSet = allAccounts.map { it.id.value }.toHashSet()
-                )
+            transactions = transactionsInRangeUseCase.transactions(
+                range = range.toCloseTimeRange(),
+                accountIdFilterSet = allAccounts.map { it.id.value }.toHashSet()
             )
 
             val sortOrder = SortOrder.from(
@@ -145,13 +143,11 @@ class CategoriesViewModel @Inject constructor(
     private suspend fun loadCategories() {
         com.ivy.wallet.utils.scopedIOThread { scope ->
             val categories = categoryRepository.findAll().mapAsync(scope) {
-                val catIncomeExpense = categoryIncomeWithAccountFiltersAct(
-                    CategoryIncomeWithAccountFiltersAct.Input(
-                        transactions = transactions,
-                        accountFilterList = allAccounts,
-                        category = it,
-                        baseCurrency = baseCurrency.value
-                    )
+                val catIncomeExpense = categoryIncomeExpenseUseCase.incomeExpense(
+                    transactions = transactions,
+                    accountFilterList = allAccounts,
+                    category = it,
+                    baseCurrency = baseCurrency.value
                 )
 
                 CategoryData(

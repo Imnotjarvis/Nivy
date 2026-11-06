@@ -32,8 +32,7 @@ import com.ivy.wallet.utils.uiThread
 import com.ivy.navigation.Navigation
 import com.ivy.navigation.OnboardingScreen
 import com.ivy.ui.ComposeViewModel
-import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
-import com.ivy.wallet.domain.action.global.UpdateStartDayOfMonthAct
+import com.ivy.wallet.domain.usecase.StartDayOfMonthUseCase
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -54,8 +53,7 @@ class SettingsViewModel @Inject constructor(
     private val nav: Navigation,
     private val appPreferences: AppPreferences,
     private val backupDataUseCase: BackupDataUseCase,
-    private val startDayOfMonthAct: StartDayOfMonthAct,
-    private val updateStartDayOfMonthAct: UpdateStartDayOfMonthAct,
+    private val startDayOfMonthUseCase: StartDayOfMonthUseCase,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val budgetRepository: BudgetRepository,
     private val exchangeUseCase: ExchangeUseCase,
@@ -143,7 +141,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun initializeStartDateOfMonth() {
-        startDateOfMonth.intValue = startDayOfMonthAct()
+        startDateOfMonth.intValue = startDayOfMonthUseCase.startDay()
     }
 
     override fun onEvent(event: SettingsEvent) {
@@ -325,7 +323,7 @@ class SettingsViewModel @Inject constructor(
 
     private fun setStartDateOfMonth(startDate: Int) {
         viewModelScope.launch {
-            updateStartDayOfMonthAct(startDate).onRight {
+            startDayOfMonthUseCase.setStartDay(startDate).onRight {
                 startDateOfMonth.intValue = it
             }
         }

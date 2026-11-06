@@ -39,7 +39,6 @@ import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import com.ivy.wallet.utils.computationThread
 import com.ivy.wallet.utils.ioThread
@@ -112,8 +111,7 @@ class EditTransactionViewModelTest {
         mockkStatic("com.ivy.base.WidgetRefreshKt")
         every { any<Context>().refreshWidget(any()) } just Runs
 
-        val accountsAct = mockk<AccountsAct>()
-        coEvery { accountsAct() } returns persistentListOf(bank, wallet, dollars, amexAccount)
+        coEvery { accountRepository.findAll() } returns persistentListOf(bank, wallet, dollars, amexAccount)
         val timeConverter = TestTimeConverter()
         viewModel = EditTransactionViewModel(
             context = mockk(relaxed = true),
@@ -136,7 +134,6 @@ class EditTransactionViewModelTest {
                 coEvery { suggest(any(), any(), any()) } returns emptySet()
             },
             loanTransactionsUseCase = mockk(relaxed = true),
-            accountsAct = accountsAct,
             categoryRepository = mockk<CategoryRepository> {
                 coEvery { findAll() } returns listOf(food)
                 coEvery { findById(food.id) } returns food

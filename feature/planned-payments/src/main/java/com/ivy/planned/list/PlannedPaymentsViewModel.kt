@@ -11,13 +11,13 @@ import androidx.lifecycle.viewModelScope
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
 import com.ivy.data.model.PlannedPaymentRule
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.domain.usecase.planned.PlannedPaymentAmountsUseCase
 import com.ivy.ui.ComposeViewModel
 import com.ivy.data.model.Category
 import com.ivy.data.repository.CategoryRepository
-import com.ivy.wallet.domain.action.account.AccountsAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -32,7 +32,7 @@ class PlannedPaymentsViewModel @Inject constructor(
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val plannedPaymentAmountsUseCase: PlannedPaymentAmountsUseCase,
     private val categoriesRepository: CategoryRepository,
-    private val accountsAct: AccountsAct
+    private val accountRepository: AccountRepository
 ) : ComposeViewModel<PlannedPaymentsScreenState, PlannedPaymentsScreenEvent>() {
 
     private var currency by mutableStateOf("")
@@ -87,7 +87,7 @@ class PlannedPaymentsViewModel @Inject constructor(
             currency = baseCurrency.code
 
             categories = categoriesRepository.findAll().toImmutableList()
-            accounts = accountsAct()
+            accounts = accountRepository.findAll().toImmutableList()
 
             val oneTime = plannedPaymentRuleRepository.findAllByOneTime(oneTime = true)
             oneTimePlannedPayment = oneTime.toImmutableList()

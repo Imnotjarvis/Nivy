@@ -30,11 +30,18 @@ import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.AccountValueRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CreditCardRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.PlannedPaymentRuleRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.account.AccountBalanceUseCase
+import com.ivy.domain.usecase.account.AccountIncomeExpenseUseCase
+import com.ivy.domain.usecase.account.AccountTransactionsUseCase
+import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
+import com.ivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
+import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toCloseTimeRange
@@ -46,14 +53,6 @@ import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.account.AccTrnsAct
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.account.CalcAccBalanceAct
-import com.ivy.wallet.domain.action.account.CalcAccIncomeExpenseAct
-import com.ivy.wallet.domain.action.exchange.ExchangeAct
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.transaction.CalcTrnsIncomeExpenseAct
-import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
@@ -83,14 +82,13 @@ class TransactionsViewModel @Inject constructor(
     private val accountCreator: AccountCreator,
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val appPreferences: AppPreferences,
-    private val accountsAct: AccountsAct,
-    private val accTrnsAct: AccTrnsAct,
-    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
-    private val baseCurrencyAct: BaseCurrencyAct,
-    private val calcAccBalanceAct: CalcAccBalanceAct,
-    private val calcAccIncomeExpenseAct: CalcAccIncomeExpenseAct,
-    private val calcTrnsIncomeExpenseAct: CalcTrnsIncomeExpenseAct,
-    private val exchangeAct: ExchangeAct,
+    private val accountTransactionsUseCase: AccountTransactionsUseCase,
+    private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
+    private val currencyRepository: CurrencyRepository,
+    private val accountBalanceUseCase: AccountBalanceUseCase,
+    private val accountIncomeExpenseUseCase: AccountIncomeExpenseUseCase,
+    private val transactionsIncomeExpenseUseCase: TransactionsIncomeExpenseUseCase,
+    private val exchangeUseCase: ExchangeUseCase,
     private val transactionRepository: TransactionRepository,
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val creditCardRepository: CreditCardRepository,
@@ -226,10 +224,8 @@ class TransactionsViewModel @Inject constructor(
 
         currency.value = initialAccount.asset.code
 
-        val balanceOutput = calcAccBalanceAct(
-            CalcAccBalanceAct.Input(
-                account = initialAccount
-            )
+        val balanceOutput = accountBalanceUseCase.balance(
+            account = initialAccount
         )
         val balanceValue = balanceOutput.balance.toDouble()
         balance.doubleValue = balanceValue
@@ -239,40 +235,32 @@ class TransactionsViewModel @Inject constructor(
             null
         }
         if (baseCurrency.value != currency.value) {
-            balanceBaseCurrency.value = exchangeAct(
-                ExchangeAct.Input(
-                    data = ExchangeData(
-                        baseCurrency = baseCurrency.value,
-                        fromCurrency = currency.value.toOption()
-                    ),
-                    amount = balanceValue.toBigDecimal()
-                )
+            balanceBaseCurrency.value = exchangeUseCase.exchange(
+                data = ExchangeData(
+                    baseCurrency = baseCurrency.value,
+                    fromCurrency = currency.value.toOption()
+                ),
+                amount = balanceValue.toBigDecimal()
             ).getOrNull()?.toDouble()
         }
 
         val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
-        val incomeExpensePair = calcAccIncomeExpenseAct(
-            CalcAccIncomeExpenseAct.Input(
-                account = initialAccount,
-                range = range.toCloseTimeRange(),
-                includeTransfersInCalc = includeTransfersInCalc
-            )
+        val incomeExpensePair = accountIncomeExpenseUseCase.incomeExpense(
+            account = initialAccount,
+            range = range.toCloseTimeRange(),
+            includeTransfersInCalc = includeTransfersInCalc
         ).incomeExpensePair
         income.doubleValue = incomeExpensePair.income.toDouble()
         expenses.doubleValue = incomeExpensePair.expense.toDouble()
 
-        val accountTransactions = accTrnsAct(
-            AccTrnsAct.Input(
-                accountId = initialAccount.id.value,
-                range = range.toCloseTimeRange()
-            )
+        val accountTransactions = accountTransactionsUseCase.transactions(
+            accountId = initialAccount.id.value,
+            range = range.toCloseTimeRange()
         )
-        history.value = trnsWithDateDivsAct(
-            TrnsWithDateDivsAct.Input(
-                baseCurrency = baseCurrency.value,
-                transactions = accountTransactions.filter { it.settled }
-            )
+        history.value = transactionsWithDateDividersUseCase.withDateDividers(
+            baseCurrency = baseCurrency.value,
+            transactions = accountTransactions.filter { it.settled }
         ).toImmutableList()
 
         // Upcoming
@@ -513,13 +501,11 @@ class TransactionsViewModel @Inject constructor(
             accountFilterSet = accountFilterSet,
         )
         balance.doubleValue = income.doubleValue - expenses.doubleValue
-        history.value = trnsWithDateDivsAct(
-            TrnsWithDateDivsAct.Input(
-                baseCurrency = baseCurrency.value,
-                transactions = trans.filter {
-                    it.settled && (accountFilterSet.isEmpty() || it.getFromAccount().value in accountFilterSet)
-                }
-            )
+        history.value = transactionsWithDateDividersUseCase.withDateDividers(
+            baseCurrency = baseCurrency.value,
+            transactions = trans.filter {
+                it.settled && (accountFilterSet.isEmpty() || it.getFromAccount().value in accountFilterSet)
+            }
         ).toImmutableList()
     }
 
@@ -543,22 +529,18 @@ class TransactionsViewModel @Inject constructor(
                     )
         }
 
-        val historyIncomeExpense = calcTrnsIncomeExpenseAct(
-            CalcTrnsIncomeExpenseAct.Input(
-                transactions = trans,
-                accounts = accountFilterList.mapNotNull { accID -> accounts.value.find { it.id.value == accID } },
-                baseCurrency = baseCurrency.value
-            )
+        val historyIncomeExpense = transactionsIncomeExpenseUseCase.incomeExpense(
+            transactions = trans,
+            accounts = accountFilterList.mapNotNull { accID -> accounts.value.find { it.id.value == accID } },
+            baseCurrency = baseCurrency.value
         )
 
         income.doubleValue = historyIncomeExpense.transferIncome.toDouble()
         expenses.doubleValue = historyIncomeExpense.transferExpense.toDouble()
         balance.doubleValue = income.doubleValue - expenses.doubleValue
-        history.value = trnsWithDateDivsAct(
-            TrnsWithDateDivsAct.Input(
-                baseCurrency = baseCurrency.value,
-                transactions = transactions.filter { it.settled }
-            )
+        history.value = transactionsWithDateDividersUseCase.withDateDividers(
+            baseCurrency = baseCurrency.value,
+            transactions = transactions.filter { it.settled }
         ).toImmutableList()
     }
 
@@ -689,8 +671,9 @@ class TransactionsViewModel @Inject constructor(
         gain: Double?,
         cash: Double?,
     ): InvestmentData {
-        val transactions = accTrnsAct(
-            AccTrnsAct.Input(accountId = account.id.value, range = ClosedTimeRange.allTimeIvy(timeProvider))
+        val transactions = accountTransactionsUseCase.transactions(
+            accountId = account.id.value,
+            range = ClosedTimeRange.allTimeIvy(timeProvider)
         )
         val values = accountValueRepository.findByAccount(account.id).reversed().map { value ->
             ValueEntry(
@@ -726,7 +709,7 @@ class TransactionsViewModel @Inject constructor(
             val period = month.incrementMonthPeriod(-monthsAgo.toLong(), year)
             val end = minOf(period.toRange(startDay, timeConverter, timeProvider).toCloseTimeRange().to, now)
             if (end < firstValue.time) return@mapNotNull null
-            val output = calcAccBalanceAct(CalcAccBalanceAct.Input(account = account, range = ClosedTimeRange.to(end)))
+            val output = accountBalanceUseCase.balance(account = account, range = ClosedTimeRange.to(end))
             val value = output.balance.toDouble()
             ValuePoint(
                 month = period.month,
@@ -792,12 +775,12 @@ class TransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             period.value = timePeriod ?: periodState.selected
 
-            val baseCurrencyValue = baseCurrencyAct()
+            val baseCurrencyValue = currencyRepository.getBaseCurrency().code
             baseCurrency.value = baseCurrencyValue
             currency.value = baseCurrency.value
 
             categories.value = categoryRepository.findAll().toImmutableList()
-            accounts.value = accountsAct()
+            accounts.value = accountRepository.findAll().toImmutableList()
             initWithTransactions.value = false
             treatTransfersAsIncomeExpense.value = appPreferences.transfersAsIncomeExpense()
 
