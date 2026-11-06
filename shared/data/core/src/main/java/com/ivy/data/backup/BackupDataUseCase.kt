@@ -43,6 +43,8 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 import java.util.UUID
 import javax.inject.Inject
 
@@ -167,19 +169,27 @@ class BackupDataUseCase @Inject constructor(
             appPreferences.transfersAsIncomeExpense().toString(),
     )
 
+    // Whatever fails is the result's error, shown to the user.
+    @Suppress("TooGenericExceptionCaught")
     suspend fun importBackupFile(
         backupFileUri: Uri,
         onProgress: suspend (progressPercent: Double) -> Unit
     ): ImportResult = withContext(dispatchersProvider.io) {
+        // A zip with the JSON inside, or the JSON itself: what fails to unzip is read as the JSON.
+        fun readAsJson(): String? = fileSystem.read(backupFileUri, Charsets.UTF_16).getOrNull()
+
         return@withContext try {
-            // A zip with the JSON inside, or the JSON itself.
             val jsonString = try {
                 extractAndReadBackupZip(backupFileUri, onProgress)
-            } catch (e: Exception) {
-                fileSystem.read(backupFileUri, Charsets.UTF_16).getOrNull()
+            } catch (ignored: IOException) {
+                readAsJson()
+            } catch (ignored: IllegalStateException) {
+                readAsJson()
             } ?: ""
 
             importJson(jsonString, onProgress)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             // The database is as it was: the import's writes are one transaction.
             Timber.e(e, "Import failed")

@@ -9,19 +9,14 @@ const val SAMPLE_SIZE = 20
 fun <T, M> List<CSVRow>.parseStatus(
     mapping: ColumnMapping<M>,
     parse: (String, M) -> T?
-): MappingStatus = tryStatus {
-    val parsed = this.mapNotNull {
-        parse(it.values[mapping.index], mapping.metadata)
+): MappingStatus {
+    // A row shorter than the mapped column has no value there, as the import reads it.
+    val parsed = this.mapNotNull { row ->
+        row.values.getOrNull(mapping.index)?.let { parse(it, mapping.metadata) }
     }
 
-    MappingStatus(
+    return MappingStatus(
         sampleValues = parsed.map { it.toString() },
         success = parsed.isNotEmpty()
     )
-}
-
-private fun tryStatus(block: () -> MappingStatus): MappingStatus = try {
-    block()
-} catch (e: Exception) {
-    MappingStatus(sampleValues = emptyList(), success = false)
 }

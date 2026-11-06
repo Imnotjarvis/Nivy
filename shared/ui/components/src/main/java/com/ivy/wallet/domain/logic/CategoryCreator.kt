@@ -1,5 +1,6 @@
 package com.ivy.wallet.domain.logic
 
+import android.database.sqlite.SQLiteException
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
 import com.ivy.data.model.Category
@@ -44,7 +45,7 @@ class CategoryCreator @Inject constructor(
             }
 
             newCategory?.let { onRefreshUI(it) }
-        } catch (e: Exception) {
+        } catch (e: SQLiteException) {
             Timber.e(e)
         }
     }
@@ -61,7 +62,7 @@ class CategoryCreator @Inject constructor(
             }
 
             onRefreshUI(updatedCategory)
-        } catch (e: Exception) {
+        } catch (e: SQLiteException) {
             Timber.e(e)
         }
     }

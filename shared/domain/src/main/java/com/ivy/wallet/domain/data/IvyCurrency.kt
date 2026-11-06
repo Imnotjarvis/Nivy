@@ -208,7 +208,8 @@ data class IvyCurrency(
                 IvyCurrency(
                     fiatCurrency = fiat
                 )
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                // Not an ISO 4217 code the device knows.
                 Timber.e(e)
                 null
             }

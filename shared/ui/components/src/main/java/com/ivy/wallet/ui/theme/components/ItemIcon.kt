@@ -194,37 +194,30 @@ fun getCustomIconId(
         else -> IconStyle.UNKNOWN
     }
 
+    // getIdentifier gives 0 for a name it doesn't know.
     return iconName?.let {
-        try {
-            val iconNameNormalized = iconName
-                .replace(" ", "")
-                .trim()
-                .toLowerCaseLocal()
+        val iconNameNormalized = iconName
+            .replace(" ", "")
+            .trim()
+            .toLowerCaseLocal()
 
-            val itemId = context.resources.getIdentifier(
-                "ic_custom_${iconNameNormalized}_$size",
-                "drawable",
-                context.packageName
-            ).takeIf { it != 0 }
+        val itemId = context.resources.getIdentifier(
+            "ic_custom_${iconNameNormalized}_$size",
+            "drawable",
+            context.packageName
+        ).takeIf { it != 0 }
 
-            itemId?.let { nonNullId ->
-                IconInfo(
-                    iconId = nonNullId,
-                    style = iconStyle,
-                    newFormat = false
-                )
-            } ?: fallbackToNewIconFormat(
-                context = context,
-                iconName = iconName,
-                iconStyle = iconStyle
+        itemId?.let { nonNullId ->
+            IconInfo(
+                iconId = nonNullId,
+                style = iconStyle,
+                newFormat = false
             )
-        } catch (e: Exception) {
-            fallbackToNewIconFormat(
-                context = context,
-                iconName = iconName,
-                iconStyle = iconStyle
-            )
-        }
+        } ?: fallbackToNewIconFormat(
+            context = context,
+            iconName = iconName,
+            iconStyle = iconStyle
+        )
     }
 }
 
@@ -247,27 +240,23 @@ fun fallbackToNewIconFormat(
     iconName: String?,
 ): IconInfo? {
     return iconName?.let {
-        try {
-            val iconNameNormalized = iconName
-                .replace(" ", "")
-                .trim()
-                .toLowerCaseLocal()
+        val iconNameNormalized = iconName
+            .replace(" ", "")
+            .trim()
+            .toLowerCaseLocal()
 
-            val iconId = context.resources.getIdentifier(
-                iconNameNormalized,
-                "drawable",
-                context.packageName
-            ).takeIf { it != 0 }
+        val iconId = context.resources.getIdentifier(
+            iconNameNormalized,
+            "drawable",
+            context.packageName
+        ).takeIf { it != 0 }
 
-            iconId?.let { nonNullId ->
-                IconInfo(
-                    iconId = nonNullId,
-                    style = iconStyle,
-                    newFormat = true
-                )
-            }
-        } catch (e: Exception) {
-            null
+        iconId?.let { nonNullId ->
+            IconInfo(
+                iconId = nonNullId,
+                style = iconStyle,
+                newFormat = true
+            )
         }
     }
 }

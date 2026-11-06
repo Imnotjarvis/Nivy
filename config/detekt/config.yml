@@ -259,8 +259,9 @@ exceptions:
     active: true
     ignoreLabeled: false
   SwallowedException:
-    active: false
+    active: true
     ignoredExceptionTypes:
+      - 'DateTimeException'
       - 'InterruptedException'
       - 'MalformedURLException'
       - 'NumberFormatException'
@@ -286,7 +287,7 @@ exceptions:
   ThrowingNewInstanceOfSameException:
     active: true
   TooGenericExceptionCaught:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**']
     exceptionNames:
       - 'ArrayIndexOutOfBoundsException'

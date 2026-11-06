@@ -246,7 +246,9 @@ class SettingsViewModel @Inject constructor(
         ) { fileUri ->
             viewModelScope.launch(Dispatchers.IO) {
                 progressState.value = true
-                // The file provider can refuse the write, or the disk be full.
+                // The file provider can refuse the write, or the disk be full: whatever fails is
+                // shown as the export having failed.
+                @Suppress("TooGenericExceptionCaught")
                 val exported = try {
                     backupDataUseCase.exportToFile(zipFileUri = fileUri)
                     true

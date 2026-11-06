@@ -68,7 +68,7 @@ class DoubleApproxAssertionTest {
         val approxTheSame = try {
             a shouldBeApprox b
             true
-        } catch (e: AssertionError) {
+        } catch (expected: AssertionError) {
             false
         }
 
