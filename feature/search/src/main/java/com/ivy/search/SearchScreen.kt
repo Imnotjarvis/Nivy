@@ -80,31 +80,35 @@ private fun SearchUi(
         val emptyStateTitle = stringResource(R.string.no_transactions)
         val emptyStateText = stringResource(
             R.string.no_transactions_for_query,
-            searchQueryTextFieldValue.text
+            uiState.searchQuery
         )
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = listState
 
         ) {
-            transactions(
-                baseData = AppBaseData(
-                    baseCurrency = uiState.baseCurrency,
-                    accounts = uiState.accounts,
-                    categories = uiState.categories
-                ),
-                upcoming = null,
-                setUpcomingExpanded = { },
-                overdue = null,
-                setOverdueExpanded = { },
-                history = uiState.transactions,
-                onPayOrGet = { },
-                emptyStateTitle = emptyStateTitle,
-                emptyStateText = emptyStateText,
-                dateDividerMarginTop = 16.dp,
-                shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions,
-                compact = uiState.compactTransactions,
-            )
+            // Nothing until something is typed and searched for: then its results, or that none
+            // were found.
+            if (uiState.searchQuery.isNotBlank()) {
+                transactions(
+                    baseData = AppBaseData(
+                        baseCurrency = uiState.baseCurrency,
+                        accounts = uiState.accounts,
+                        categories = uiState.categories
+                    ),
+                    upcoming = null,
+                    setUpcomingExpanded = { },
+                    overdue = null,
+                    setOverdueExpanded = { },
+                    history = uiState.transactions,
+                    onPayOrGet = { },
+                    emptyStateTitle = emptyStateTitle,
+                    emptyStateText = emptyStateText,
+                    dateDividerMarginTop = 16.dp,
+                    shouldShowAccountSpecificColorInTransactions = uiState.shouldShowAccountSpecificColorInTransactions,
+                    compact = uiState.compactTransactions,
+                )
+            }
 
             item {
                 // Follows the keyboard as it opens and closes.

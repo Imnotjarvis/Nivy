@@ -3,6 +3,7 @@ package com.ivy.wallet.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -46,33 +47,45 @@ fun SearchInput(
         IvyIcon(icon = R.drawable.ic_search, modifier = Modifier.weight(1f))
 
         val searchFocus = remember { FocusRequester() }
-        IvyBasicTextField(
-            modifier = Modifier
-                .weight(5f)
-                .padding(vertical = 12.dp)
-                .focusRequester(searchFocus),
-            value = searchQueryTextFieldValue,
-            hint = hint,
-            onValueChanged = {
-                onSetSearchQueryTextField(it)
+        // The clear icon shows at the end of the text's place, so that the lens and the text stay
+        // where they are once it does.
+        Box(
+            modifier = Modifier.weight(5f),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            IvyBasicTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = if (showClearIcon) ClearIconWidth else 0.dp)
+                    .padding(vertical = 12.dp)
+                    .focusRequester(searchFocus),
+                value = searchQueryTextFieldValue,
+                hint = hint,
+                onValueChanged = {
+                    onSetSearchQueryTextField(it)
+                }
+            )
+
+            if (showClearIcon) {
+                // No taller than the text, so that the bar keeps its height once it shows.
+                IvyIcon(
+                    modifier = Modifier
+                        .clickable {
+                            onSetSearchQueryTextField(selectEndTextFieldValue(""))
+                        }
+                        .padding(horizontal = 12.dp),
+                    icon = R.drawable.ic_outline_clear_24
+                )
             }
-        )
+        }
 
         if (focus) {
             LaunchedEffect(Unit) {
                 searchFocus.requestFocus()
             }
         }
-
-        if (showClearIcon) {
-            IvyIcon(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        onSetSearchQueryTextField(selectEndTextFieldValue(""))
-                    },
-                icon = R.drawable.ic_outline_clear_24
-            )
-        }
     }
 }
+
+// The clear icon's width, with the room on its sides to tap it.
+private val ClearIconWidth = 48.dp

@@ -6,6 +6,7 @@ import com.ivy.wallet.domain.data.TransactionHistoryItem
 import kotlinx.collections.immutable.ImmutableList
 
 data class SearchState(
+    // What [transactions] were found for; blank, none are, as nothing is listed before a query.
     val searchQuery: String,
     val transactions: ImmutableList<TransactionHistoryItem>,
     val baseCurrency: String,
