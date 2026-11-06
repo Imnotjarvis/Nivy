@@ -91,6 +91,7 @@ compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-activity = { module = "androidx.activity:activity-compose", version = "1.13.0" }
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version = "2.11.0" }
 compose-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 glance = { module = "androidx.glance:glance", version.ref = "glance" }
 glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 
@@ -210,7 +211,9 @@ compose = [
     "compose-ui",
     "compose-activity",
     "compose-viewmodel",
-    "compose-tooling",
+    # Previews' annotations; their tooling (ui-tooling) is debug-only, as it brings an exported
+    # PreviewActivity into the app.
+    "compose-tooling-preview",
     "compose-runtime-livedate-temp",
 ]
 activity = [
