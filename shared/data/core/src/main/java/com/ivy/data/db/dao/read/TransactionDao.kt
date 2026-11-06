@@ -89,6 +89,50 @@ interface TransactionDao {
         endDate: Instant
     ): List<TransactionEntity>
 
+    /**
+     * What [accountId]'s transactions dated from [startDate] to [endDate] add up to, summed here rather
+     * than read one by one: its incomes in, its expenses and its transfers to other accounts out, the
+     * transfers from other accounts in at what it received. As the transactions are counted when read
+     * (TransactionMapper, AccountValueFunctions.balance), what can't be read as one counts for nothing:
+     * an amount that isn't positive and finite, a transfer to itself or between accounts not there.
+     * A row with a receiving account that isn't a transfer counts there too, as it always has.
+     */
+    @Query(
+        """
+        SELECT
+            IFNULL((
+                SELECT SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE -t.amount END)
+                FROM transactions t
+                WHERE t.accountId = :accountId
+                    AND t.dateTime >= :startDate AND t.dateTime <= :endDate
+                    AND t.amount > 0 AND t.amount < 9e999
+                    AND (t.type != 'TRANSFER'
+                        OR (t.toAccountId != :accountId AND t.toAccountId IN (SELECT id FROM accounts)))
+            ), 0)
+            + IFNULL((
+                SELECT SUM(
+                    CASE
+                        WHEN t.type = 'TRANSFER' THEN
+                            CASE WHEN t.toAmount > 0 AND t.toAmount < 9e999 THEN t.toAmount ELSE t.amount END
+                        WHEN t.type = 'INCOME' THEN t.amount
+                        ELSE -t.amount
+                    END
+                )
+                FROM transactions t
+                WHERE t.toAccountId = :accountId
+                    AND t.dateTime >= :startDate AND t.dateTime <= :endDate
+                    AND t.amount > 0 AND t.amount < 9e999
+                    AND t.accountId IN (SELECT id FROM accounts)
+                    AND NOT (t.type = 'TRANSFER' AND t.accountId = :accountId)
+            ), 0)
+        """
+    )
+    suspend fun balance(
+        accountId: UUID,
+        startDate: Instant,
+        endDate: Instant,
+    ): Double
+
     @Query(
         "SELECT * FROM transactions WHERE dueDate >= :startDate AND dueDate <= :endDate ORDER BY dueDate ASC"
     )
