@@ -1,5 +1,6 @@
 package com.ivy.wallet.ui.component.transaction
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,7 @@ import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.colors.Palette
+import com.ivy.design.system.motion.appearTween
 
 // With this many transactions or fewer, the list gets a taller spacer at the end so it can scroll.
 private const val FewTransactions = 5
@@ -60,6 +62,8 @@ fun LazyListScope.transactions(
     onSkipAllTransactions: (List<Transaction>) -> Unit = {},
     // The history as compact rows; upcoming and overdue keep their cards, with Pay and Skip.
     compact: Boolean = false,
+    // Items fade in as they're added: for a list that fills in after its screen shows.
+    fadeIn: Boolean = false,
 ) {
     upcomingSection(
         baseData = baseData,
@@ -67,7 +71,8 @@ fun LazyListScope.transactions(
         shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
         onPayOrGet = onPayOrGet,
         onSkipTransaction = onSkipTransaction,
-        setExpanded = setUpcomingExpanded
+        setExpanded = setUpcomingExpanded,
+        fadeIn = fadeIn,
     )
 
     overdueSection(
@@ -78,7 +83,8 @@ fun LazyListScope.transactions(
         onSkipTransaction = onSkipTransaction,
         onSkipAllTransactions = onSkipAllTransactions,
         shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
-        setExpanded = setOverdueExpanded
+        setExpanded = setOverdueExpanded,
+        fadeIn = fadeIn,
     )
 
     historySection(
@@ -89,14 +95,17 @@ fun LazyListScope.transactions(
         dateDividerMarginTop = dateDividerMarginTop,
         onPayOrGet = onPayOrGet,
         compact = compact,
+        fadeIn = fadeIn,
     )
 
     if (upcoming?.trns.isNullOrEmpty() && overdue?.trns.isNullOrEmpty() && history.isEmpty()) {
         item {
-            NoTransactionsEmptyState(
-                emptyStateTitle = emptyStateTitle,
-                emptyStateText = emptyStateText
-            )
+            FadingIn(fadeIn) {
+                NoTransactionsEmptyState(
+                    emptyStateTitle = emptyStateTitle,
+                    emptyStateText = emptyStateText
+                )
+            }
         }
     }
 
@@ -115,7 +124,8 @@ private fun LazyListScope.upcomingSection(
     shouldShowAccountSpecificColorInTransactions: Boolean,
     onPayOrGet: (Transaction) -> Unit,
     onSkipTransaction: (Transaction) -> Unit,
-    setExpanded: (Boolean) -> Unit
+    setExpanded: (Boolean) -> Unit,
+    fadeIn: Boolean,
 ) {
     if (upcoming == null) return // guard
 
@@ -123,15 +133,17 @@ private fun LazyListScope.upcomingSection(
         item(
             key = "upcoming_section"
         ) {
-            SectionDivider(
-                expanded = upcoming.expanded,
-                setExpanded = setExpanded,
-                title = stringResource(R.string.upcoming),
-                titleColor = Orange,
-                baseCurrency = baseData.baseCurrency,
-                income = upcoming.stats.income.toDouble(),
-                expenses = upcoming.stats.expense.abs().toDouble()
-            )
+            FadingIn(fadeIn) {
+                SectionDivider(
+                    expanded = upcoming.expanded,
+                    setExpanded = setExpanded,
+                    title = stringResource(R.string.upcoming),
+                    titleColor = Orange,
+                    baseCurrency = baseData.baseCurrency,
+                    income = upcoming.stats.income.toDouble(),
+                    expenses = upcoming.stats.expense.abs().toDouble()
+                )
+            }
         }
 
         if (upcoming.expanded) {
@@ -141,7 +153,8 @@ private fun LazyListScope.upcomingSection(
                 transactions = upcoming.trns,
                 shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
                 onPayOrGet = onPayOrGet,
-                onSkipTransaction = onSkipTransaction
+                onSkipTransaction = onSkipTransaction,
+                fadeIn = fadeIn,
             )
         }
     }
@@ -155,7 +168,8 @@ private fun LazyListScope.overdueSection(
     onPayOrGet: (Transaction) -> Unit,
     onSkipTransaction: (Transaction) -> Unit,
     onSkipAllTransactions: (List<Transaction>) -> Unit,
-    setExpanded: (Boolean) -> Unit
+    setExpanded: (Boolean) -> Unit,
+    fadeIn: Boolean,
 ) {
     if (overdue == null) return
 
@@ -163,31 +177,35 @@ private fun LazyListScope.overdueSection(
         item(
             key = "overdue_section"
         ) {
-            SectionDivider(
-                expanded = overdue.expanded,
-                setExpanded = setExpanded,
-                title = stringResource(R.string.overdue),
-                titleColor = Palette.Red,
-                baseCurrency = baseData.baseCurrency,
-                income = overdue.stats.income.toDouble(),
-                expenses = overdue.stats.expense.abs().toDouble()
-            )
+            FadingIn(fadeIn) {
+                SectionDivider(
+                    expanded = overdue.expanded,
+                    setExpanded = setExpanded,
+                    title = stringResource(R.string.overdue),
+                    titleColor = Palette.Red,
+                    baseCurrency = baseData.baseCurrency,
+                    income = overdue.stats.income.toDouble(),
+                    expenses = overdue.stats.expense.abs().toDouble()
+                )
+            }
         }
 
         if (overdue.expanded) {
             item {
-                val isLightTheme = MaterialTheme.colorScheme.surface == White
-                IvyButton(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    text = stringResource(R.string.skip_all),
-                    wrapContentMode = false,
-                    backgroundColor = if (isLightTheme) White else Black,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = if (isLightTheme) Black else White,
-                        fontWeight = FontWeight.Bold
-                    )
-                ) {
-                    onSkipAllTransactions(overdue.trns)
+                FadingIn(fadeIn) {
+                    val isLightTheme = MaterialTheme.colorScheme.surface == White
+                    IvyButton(
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        text = stringResource(R.string.skip_all),
+                        wrapContentMode = false,
+                        backgroundColor = if (isLightTheme) White else Black,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = if (isLightTheme) Black else White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        onSkipAllTransactions(overdue.trns)
+                    }
                 }
             }
 
@@ -197,7 +215,8 @@ private fun LazyListScope.overdueSection(
                 transactions = overdue.trns,
                 shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
                 onPayOrGet = onPayOrGet,
-                onSkipTransaction = onSkipTransaction
+                onSkipTransaction = onSkipTransaction,
+                fadeIn = fadeIn,
             )
         }
     }
@@ -210,24 +229,27 @@ private fun LazyListScope.trnItems(
     shouldShowAccountSpecificColorInTransactions: Boolean,
     onPayOrGet: (Transaction) -> Unit,
     onSkipTransaction: (Transaction) -> Unit,
+    fadeIn: Boolean,
 ) {
     items(
         items = transactions,
         key = { it.id.value }
     ) {
         val nav = navigation()
-        TransactionCard(
-            baseData = baseData,
+        FadingIn(fadeIn) {
+            TransactionCard(
+                baseData = baseData,
 
-            transaction = it,
-            shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
-            onPayOrGet = onPayOrGet,
-            onSkipTransaction = onSkipTransaction
-        ) { trn ->
-            onTransactionClick(
-                nav = nav,
-                transaction = trn
-            )
+                transaction = it,
+                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
+                onPayOrGet = onPayOrGet,
+                onSkipTransaction = onSkipTransaction
+            ) { trn ->
+                onTransactionClick(
+                    nav = nav,
+                    transaction = trn
+                )
+            }
         }
     }
 }
@@ -241,6 +263,7 @@ private fun LazyListScope.historySection(
 
     onPayOrGet: (Transaction) -> Unit,
     compact: Boolean,
+    fadeIn: Boolean,
 ) {
     if (history.isNotEmpty()) {
         items(
@@ -252,45 +275,62 @@ private fun LazyListScope.historySection(
                 }
             }
         ) {
-            when (it) {
-                is TransactionHistoryEntry -> {
-                    val nav = navigation()
+            FadingIn(fadeIn) {
+                when (it) {
+                    is TransactionHistoryEntry -> {
+                        val nav = navigation()
 
-                    if (compact) {
-                        CompactTransactionRow(
-                            baseData = baseData,
-                            transaction = it.transaction,
-                            onClick = { trn -> onTransactionClick(nav = nav, transaction = trn) },
-                        )
-                    } else {
-                        TransactionCard(
-                            baseData = baseData,
-
-                            transaction = it.transaction,
-                            tags = it.tags,
-                            shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
-                            onPayOrGet = onPayOrGet
-                        ) { trn ->
-                            onTransactionClick(
-                                nav = nav,
-                                transaction = trn
+                        if (compact) {
+                            CompactTransactionRow(
+                                baseData = baseData,
+                                transaction = it.transaction,
+                                onClick = { trn -> onTransactionClick(nav = nav, transaction = trn) },
                             )
+                        } else {
+                            TransactionCard(
+                                baseData = baseData,
+
+                                transaction = it.transaction,
+                                tags = it.tags,
+                                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
+                                onPayOrGet = onPayOrGet
+                            ) { trn ->
+                                onTransactionClick(
+                                    nav = nav,
+                                    transaction = trn
+                                )
+                            }
                         }
                     }
-                }
 
-                is TransactionHistoryDateDivider -> {
-                    HistoryDateDivider(
-                        date = it.date,
-                        spacerTop = dateDividerMarginTop
-                            ?: if (it == history.firstOrNull()) 24.dp else 32.dp,
-                        baseCurrency = baseData.baseCurrency,
-                        income = it.income,
-                        expenses = it.expenses
-                    )
+                    is TransactionHistoryDateDivider -> {
+                        HistoryDateDivider(
+                            date = it.date,
+                            spacerTop = dateDividerMarginTop
+                                ?: if (it == history.firstOrNull()) 24.dp else 32.dp,
+                            baseCurrency = baseData.baseCurrency,
+                            income = it.income,
+                            expenses = it.expenses
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+/**
+ * [content], fading in as its item is added when [fadeIn]: rows that come in after the list shows
+ * appear softly. Without placement or fade-out animations, other changes stay as they were.
+ */
+@Composable
+private fun LazyItemScope.FadingIn(fadeIn: Boolean, content: @Composable () -> Unit) {
+    if (fadeIn) {
+        Box(Modifier.animateItem(fadeInSpec = appearTween(), placementSpec = null, fadeOutSpec = null)) {
+            content()
+        }
+    } else {
+        content()
     }
 }
 

@@ -1,5 +1,8 @@
 package com.ivy.accounts
 
+import com.ivy.design.system.motion.appearTween
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.animation.core.animateFloatAsState
 import com.ivy.base.model.AccountType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -95,6 +98,8 @@ private fun BoxWithConstraintsScope.UI(
     onEvent: (AccountsEvent) -> Unit = {}
 ) {
     val nav = navigation()
+    // Until the accounts are loaded, the totals keep their place, empty; then they fade in.
+    val totalsShown = animateFloatAsState(if (state.loaded) 1f else 0f, appearTween(), label = "totals")
     var listState = rememberLazyListState()
     if (!state.accountsData.isEmpty()) {
         listState = rememberScrollPositionListState(key = "accounts_lazy_column")
@@ -135,7 +140,7 @@ private fun BoxWithConstraintsScope.UI(
                 Spacer(Modifier.width(24.dp))
             }
             if (!state.hideTotalBalance) {
-                Column {
+                Column(Modifier.graphicsLayer { alpha = totalsShown.value }) {
                     Spacer(Modifier.height(16.dp))
                     IncomeExpensesRow(
                         currency = state.baseCurrency,
@@ -157,12 +162,22 @@ private fun BoxWithConstraintsScope.UI(
             }
         }
         items(state.shownAccountsData, key = { it.account.id.value }) {
-            Spacer(Modifier.height(16.dp))
-            AccountCard(
-                baseCurrency = state.baseCurrency,
-                accountData = it,
-                compactModeEnabled = state.compactAccountsModeEnabled,
-                onBalanceClick = {
+            // Fading in as they're added: when loaded, or shown by a filter.
+            Column(Modifier.animateItem(fadeInSpec = appearTween(), placementSpec = null, fadeOutSpec = null)) {
+                Spacer(Modifier.height(16.dp))
+                AccountCard(
+                    baseCurrency = state.baseCurrency,
+                    accountData = it,
+                    compactModeEnabled = state.compactAccountsModeEnabled,
+                    onBalanceClick = {
+                        nav.navigateTo(
+                            TransactionsScreen(
+                                accountId = it.account.id.value,
+                                categoryId = null
+                            )
+                        )
+                    }
+                ) {
                     nav.navigateTo(
                         TransactionsScreen(
                             accountId = it.account.id.value,
@@ -170,13 +185,6 @@ private fun BoxWithConstraintsScope.UI(
                         )
                     )
                 }
-            ) {
-                nav.navigateTo(
-                    TransactionsScreen(
-                        accountId = it.account.id.value,
-                        categoryId = null
-                    )
-                )
             }
         }
 
@@ -585,7 +593,8 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             totalBalanceWithoutExcludedText = "BGN 25.54",
             reorderVisible = false,
             compactAccountsModeEnabled = false,
-            hideTotalBalance = false
+            hideTotalBalance = false,
+            loaded = true,
         )
         UI(state = state)
     }
@@ -690,7 +699,8 @@ private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
             totalBalanceWithoutExcludedText = "BGN 25.54",
             reorderVisible = false,
             compactAccountsModeEnabled = true,
-            hideTotalBalance = false
+            hideTotalBalance = false,
+            loaded = true,
         )
         UI(state = state)
     }

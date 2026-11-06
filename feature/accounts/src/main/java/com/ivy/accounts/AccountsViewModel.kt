@@ -27,7 +27,6 @@ import com.ivy.ui.LoadTimer
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.viewmodel.account.AccountDataAct
-import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
@@ -44,7 +43,6 @@ class AccountsViewModel @Inject constructor(
     private val context: Context,
     private val periodState: PeriodState,
     private val appPreferences: AppPreferences,
-    private val calcWalletBalanceAct: CalcWalletBalanceAct,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val accountDataAct: AccountDataAct,
     private val accountRepository: AccountRepository,
@@ -62,6 +60,7 @@ class AccountsViewModel @Inject constructor(
     private var reorderVisible by mutableStateOf(false)
     private var typeFilter by mutableStateOf<AccountType?>(null)
     private var showArchived by mutableStateOf(false)
+    private var loaded by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
@@ -106,7 +105,8 @@ class AccountsViewModel @Inject constructor(
             totalBalanceWithoutExcludedText = totalBalanceWithoutExcludedText,
             reorderVisible = reorderVisible,
             compactAccountsModeEnabled = getCompactAccountsMode(),
-            hideTotalBalance = getHideTotalBalance()
+            hideTotalBalance = getHideTotalBalance(),
+            loaded = loaded,
         )
     }
 
@@ -171,18 +171,8 @@ class AccountsViewModel @Inject constructor(
             )
         }
 
-        val (totalBalanceWithExcludedAccounts, totalBalanceWithoutExcludedAccounts) = timer.step("totals") {
-            calcWalletBalanceAct(
-                CalcWalletBalanceAct.Input(
-                    baseCurrency = baseCurrencyCode,
-                    withExcluded = true
-                )
-            ).toDouble() to calcWalletBalanceAct(
-                CalcWalletBalanceAct.Input(
-                    baseCurrency = baseCurrencyCode
-                )
-            ).toDouble()
-        }
+        val totalBalanceWithExcludedAccounts = accountsDataList.totalIn(baseCurrencyCode, withExcluded = true)
+        val totalBalanceWithoutExcludedAccounts = accountsDataList.totalIn(baseCurrencyCode, withExcluded = false)
 
         baseCurrency = baseCurrencyCode
         accountsData = accountsDataList
@@ -202,6 +192,7 @@ class AccountsViewModel @Inject constructor(
                 baseCurrencyCode
             )
         )
+        loaded = true
         timer.done()
     }
 

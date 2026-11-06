@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
+import androidx.compose.ui.graphics.graphicsLayer
+import com.ivy.design.system.motion.appearTween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -182,13 +185,20 @@ fun CashFlowInfo(
     onHiddenIncomeClick: () -> Unit,
     onBalanceClick: () -> Unit,
     onHiddenBalanceClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    balanceLoaded: Boolean = true,
+    statsLoaded: Boolean = true,
 ) {
+    // Until loaded, the balance and the month's amounts keep their place, empty; then they fade in.
+    val balanceShown = animateFloatAsState(if (balanceLoaded) 1f else 0f, appearTween(), label = "balance")
+    val statsShown = animateFloatAsState(if (statsLoaded) 1f else 0f, appearTween(), label = "stats")
+
     Column(
         modifier = modifier,
     ) {
         BalanceRow(
             modifier = Modifier
+                .graphicsLayer { alpha = balanceShown.value }
                 .padding(horizontal = 20.dp)
                 .clickableNoIndication(rememberInteractionSource()) {
                     if (hideBalance) {
@@ -211,7 +221,8 @@ fun CashFlowInfo(
             monthlyIncome = monthlyIncome,
             monthlyExpenses = monthlyExpenses,
             hideIncome = hideIncome,
-            onHiddenIncomeClick = onHiddenIncomeClick
+            onHiddenIncomeClick = onHiddenIncomeClick,
+            amountsShown = statsShown,
         )
 
         val cashflow = monthlyIncome - monthlyExpenses
@@ -220,9 +231,11 @@ fun CashFlowInfo(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                modifier = Modifier.padding(
-                    start = 24.dp,
-                ),
+                modifier = Modifier
+                    .graphicsLayer { alpha = statsShown.value }
+                    .padding(
+                        start = 24.dp,
+                    ),
                 text = stringResource(
                     R.string.cashflow,
                     (if (cashflow > 0) "+" else ""),
@@ -250,6 +263,7 @@ private fun IncomeExpenses(
     monthlyExpenses: Double,
     hideIncome: Boolean,
     onHiddenIncomeClick: () -> Unit,
+    amountsShown: State<Float>,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -266,7 +280,8 @@ private fun IncomeExpenses(
             currency = currency,
             amount = monthlyIncome,
             hidden = hideIncome,
-            testTag = "home_card_income"
+            testTag = "home_card_income",
+            amountShown = amountsShown,
         ) {
             if (hideIncome) {
                 onHiddenIncomeClick()
@@ -288,6 +303,7 @@ private fun IncomeExpenses(
             currency = currency,
             amount = monthlyExpenses.absoluteValue,
             testTag = "home_card_expense",
+            amountShown = amountsShown,
         ) {
             nav.navigateTo(
                 PieChartStatisticScreen(
@@ -308,6 +324,7 @@ private fun RowScope.HeaderCard(
     currency: String,
     amount: Double,
     testTag: String,
+    amountShown: State<Float>,
     hidden: Boolean = false,
     onClick: () -> Unit,
 ) {
@@ -350,7 +367,8 @@ private fun RowScope.HeaderCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
+                .align(Alignment.CenterHorizontally)
+                .graphicsLayer { alpha = amountShown.value },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(Modifier.width(20.dp))

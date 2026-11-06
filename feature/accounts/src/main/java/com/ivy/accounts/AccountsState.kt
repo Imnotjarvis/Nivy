@@ -23,4 +23,6 @@ data class AccountsState(
     val reorderVisible: Boolean,
     val compactAccountsModeEnabled: Boolean,
     val hideTotalBalance: Boolean,
+    // Whether the accounts were loaded yet: until then, the totals show nothing.
+    val loaded: Boolean = false,
 )
