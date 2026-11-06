@@ -6,8 +6,8 @@
 #   device  the R8-minified demo APK and the emulator job (startup crashes, R8 rules, Room, Hilt)
 #   lint    Android Lint
 # A push that only changes docs runs nothing. Branch pushes skip the device work when they only
-# change code or resources of features a fresh install never opens (everything but onboarding)
-# or widgets, or unit tests.
+# change code or resources of features the smoke test doesn't open (everything but onboarding,
+# the main screen with Home, and the transaction editor) or widgets, or unit tests.
 # Pushes to claude/experimental-* branches (long refactors that push often) run only checks and
 # the build, which then also compiles the unit tests; a manual run on the branch runs everything.
 # Tags, pushes to the default branch, nightly and manual runs always run everything.
@@ -26,7 +26,7 @@ device_relevant() {
         echo "$changed" \
             | grep -vE '(^|/)src/test/|\.md$|^docs/|^LICENSE$|^config/detekt/' \
             | grep -vE '^(feature|widget)/[^/]+/src/main/(java|kotlin|res)/'
-        echo "$changed" | grep -E '^feature/onboarding/src/main/'
+        echo "$changed" | grep -E '^feature/(onboarding|main|home|edit-transaction)/src/main/'
     } | grep . | sort -u
 }
 
