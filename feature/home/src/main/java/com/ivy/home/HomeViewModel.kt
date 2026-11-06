@@ -35,6 +35,7 @@ import com.ivy.navigation.BalanceScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
+import com.ivy.ui.LoadTimer
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
 import com.ivy.wallet.domain.action.transaction.HistoryWithDateDivsAct
@@ -93,6 +94,9 @@ class HomeViewModel @Inject constructor(
         )
     )
     private var history by mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
+
+    // Once the month's transactions are listed for the first time: Home is fully drawn.
+    private var historyLoaded by mutableStateOf(false)
     private var stats by mutableStateOf(IncomeExpensePair.zero())
     private var balance by mutableStateOf(BigDecimal.ZERO)
     private var upcoming by mutableStateOf(
@@ -127,6 +131,7 @@ class HomeViewModel @Inject constructor(
             period = period,
             baseData = baseData,
             history = history,
+            historyLoaded = historyLoaded,
             stats = stats,
             balance = balance,
             upcoming = upcoming,
@@ -175,13 +180,16 @@ class HomeViewModel @Inject constructor(
     private suspend fun reload(
         timePeriod: TimePeriod = periodState.selected
     ) {
-        val stored = appPreferences.settings()
-        val settings = AppSettings(
-            theme = stored?.theme ?: themeState.theme,
-            baseCurrency = currencyRepository.getBaseCurrency().code,
-            bufferAmount = stored?.bufferAmount ?: 0.0,
-            name = stored?.name.orEmpty(),
-        )
+        val timer = LoadTimer("Home")
+        val settings = timer.step("settings") {
+            val stored = appPreferences.settings()
+            AppSettings(
+                theme = stored?.theme ?: themeState.theme,
+                baseCurrency = currencyRepository.getBaseCurrency().code,
+                bufferAmount = stored?.bufferAmount ?: 0.0,
+                name = stored?.name.orEmpty(),
+            )
+        }
         val hideBalance = appPreferences.hideCurrentBalance()
         val hideIncome = appPreferences.hideIncome()
 
@@ -200,11 +208,13 @@ class HomeViewModel @Inject constructor(
             timeProvider = timeProvider
         ).toUTCCloseTimeRange()
 
-        val withAccounts = loadAppBaseData(settings to timeRange)
-        val currencyAndRange = loadIncomeExpenseBalance(withAccounts)
-        loadTrnHistory(currencyAndRange)
-        loadDueTrns(currencyAndRange)
-        loadCustomerJourney()
+        val withAccounts = timer.step("accounts") { loadAppBaseData(settings to timeRange) }
+        val currencyAndRange = loadIncomeExpenseBalance(withAccounts, timer)
+        timer.step("transactions") { loadTrnHistory(currencyAndRange) }
+        historyLoaded = true
+        timer.step("planned") { loadDueTrns(currencyAndRange) }
+        timer.step("cards") { loadCustomerJourney() }
+        timer.done()
     }
 
     private suspend fun loadAppBaseData(
@@ -224,21 +234,26 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadIncomeExpenseBalance(
-        input: Triple<AppSettings, ClosedTimeRange, List<Account>>
+        input: Triple<AppSettings, ClosedTimeRange, List<Account>>,
+        timer: LoadTimer,
     ): Pair<String, ClosedTimeRange> {
         val (settings, timeRange, accounts) = input
 
-        val incomeExpense = calcIncomeExpenseAct(
-            CalcIncomeExpenseAct.Input(
-                baseCurrency = settings.baseCurrency,
-                accounts = accounts,
-                range = timeRange
+        val incomeExpense = timer.step("month totals") {
+            calcIncomeExpenseAct(
+                CalcIncomeExpenseAct.Input(
+                    baseCurrency = settings.baseCurrency,
+                    accounts = accounts,
+                    range = timeRange
+                )
             )
-        )
+        }
 
-        val balanceAmount = calcWalletBalanceAct(
-            CalcWalletBalanceAct.Input(baseCurrency = settings.baseCurrency)
-        )
+        val balanceAmount = timer.step("balance") {
+            calcWalletBalanceAct(
+                CalcWalletBalanceAct.Input(baseCurrency = settings.baseCurrency)
+            )
+        }
 
         balance = balanceAmount
         stats = incomeExpense
