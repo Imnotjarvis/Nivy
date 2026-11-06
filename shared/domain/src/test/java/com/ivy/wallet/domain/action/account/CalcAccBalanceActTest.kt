@@ -18,6 +18,8 @@ import com.ivy.data.model.primitive.NonNegativeDouble
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.repository.AccountValueRepository
+import com.ivy.data.repository.TransactionRepository
+import com.ivy.wallet.domain.pure.transaction.AccountValueFunctions
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,11 +31,11 @@ import java.time.Instant
 import java.util.UUID
 
 class CalcAccBalanceActTest {
-    private val accTrnsAct = mockk<AccTrnsAct>()
+    private val transactionRepository = mockk<TransactionRepository>()
     private val accountValueRepository = mockk<AccountValueRepository>()
     private val timeProvider = mockk<TimeProvider> { every { utcNow() } returns Now }
 
-    private val act = CalcAccBalanceAct(accTrnsAct, accountValueRepository, timeProvider)
+    private val act = CalcAccBalanceAct(transactionRepository, accountValueRepository, timeProvider)
 
     @Test
     fun `an investment account is worth its last value, with the money moved in since`() = runTest {
@@ -136,6 +138,18 @@ class CalcAccBalanceActTest {
     }
 
     @Test
+    fun `transactions dated after now don't count yet`() = runTest {
+        // given: an expense charged later, after now (day 31)
+        transactions(transferIn(1_000.0, day = 1), expense(40.0, day = 40))
+
+        // when
+        val output = act(CalcAccBalanceAct.Input(Investment.copy(type = AccountType.BANK)))
+
+        // then
+        output.balance.toDouble() shouldBe 1_000.0
+    }
+
+    @Test
     fun `other accounts don't look for values`() = runTest {
         // given
         transactions(transferIn(1_000.0, day = 1), expense(40.0, day = 2))
@@ -149,8 +163,16 @@ class CalcAccBalanceActTest {
         coVerify(exactly = 0) { accountValueRepository.findByAccount(any()) }
     }
 
+    // The database sums the transactions dated in the range asked, as they're counted one by one.
     private fun transactions(vararg transactions: Transaction) {
-        coEvery { accTrnsAct(any()) } returns transactions.toList()
+        coEvery { transactionRepository.balance(any(), any(), any()) } answers {
+            // AccountId, a value class, comes as the UUID it wraps.
+            val account = firstArg<UUID>()
+            val (from, to) = secondArg<Instant>() to thirdArg<Instant>()
+            transactions.filter { it.time in from..to }
+                .sumOf { AccountValueFunctions.balance(it, account) }
+                .toDouble()
+        }
     }
 
     private fun values(vararg values: AccountValue) {

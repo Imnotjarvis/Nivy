@@ -77,6 +77,19 @@ class TransactionRepository @Inject constructor(
         }
     )
 
+    /**
+     * What [accountId]'s transactions dated from [startDate] to [endDate] add up to, as if read with
+     * [findAllByAccountAndBetween] and [findAllToAccountAndBetween] and added up, but summed by the
+     * database: an account's history can run to thousands of transactions.
+     */
+    suspend fun balance(
+        accountId: AccountId,
+        startDate: Instant,
+        endDate: Instant
+    ): Double = withContext(dispatchersProvider.io) {
+        transactionDao.balance(accountId = accountId.value, startDate = startDate, endDate = endDate)
+    }
+
     suspend fun findAllDueToBetween(
         startDate: Instant,
         endDate: Instant

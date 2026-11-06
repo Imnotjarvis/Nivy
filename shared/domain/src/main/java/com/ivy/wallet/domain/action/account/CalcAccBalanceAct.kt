@@ -1,15 +1,13 @@
 package com.ivy.wallet.domain.action.account
 
-import arrow.core.nonEmptyListOf
 import com.ivy.base.model.AccountType
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Account
-import com.ivy.data.model.Transaction
 import com.ivy.data.repository.AccountValueRepository
-import com.ivy.wallet.domain.pure.transaction.AccountValueFunctions
+import com.ivy.data.repository.TransactionRepository
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
-import com.ivy.wallet.domain.pure.transaction.foldTransactions
 import java.math.BigDecimal
+import java.time.Instant
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,19 +17,13 @@ import kotlinx.coroutines.withContext
  * instead, once one was entered: the last value with its cash, and the money moved in or out since.
  */
 class CalcAccBalanceAct @Inject constructor(
-    private val accTrnsAct: AccTrnsAct,
+    private val transactionRepository: TransactionRepository,
     private val accountValueRepository: AccountValueRepository,
     private val timeProvider: TimeProvider,
 ) {
     suspend operator fun invoke(input: Input): Output = withContext(Dispatchers.IO) {
         val range = input.range ?: ClosedTimeRange.allTimeIvy(timeProvider)
-        val accTrns = accTrnsAct(
-            AccTrnsAct.Input(
-                accountId = input.account.id.value,
-                range = range
-            )
-        )
-        val balance = balanceOf(accTrns, input.account)
+        val balance = balanceOf(input.account, range.from, range.to)
         val last = if (input.account.type == AccountType.INVESTMENT) {
             accountValueRepository.findByAccount(input.account.id).lastOrNull { it.time <= range.to }
         } else {
@@ -39,7 +31,7 @@ class CalcAccBalanceAct @Inject constructor(
         }
         if (last == null) return@withContext Output(account = input.account, balance = balance)
 
-        val putInThen = balanceOf(accTrns.filter { it.time <= last.time }, input.account)
+        val putInThen = balanceOf(input.account, range.from, last.time)
         val gain = last.total.toBigDecimal() - putInThen
         // Money moved in since waits as cash, until it's invested; money taken out comes from the
         // cash, and from the investments once it's spent.
@@ -47,12 +39,9 @@ class CalcAccBalanceAct @Inject constructor(
         Output(account = input.account, balance = balance + gain, gain = gain, cash = cash)
     }
 
-    private fun balanceOf(transactions: List<Transaction>, account: Account): BigDecimal =
-        foldTransactions(
-            transactions = transactions,
-            arg = account.id.value,
-            valueFunctions = nonEmptyListOf(AccountValueFunctions::balance)
-        ).head
+    // What the account's transactions from [from] to [to] add up to, summed by the database.
+    private suspend fun balanceOf(account: Account, from: Instant, to: Instant): BigDecimal =
+        transactionRepository.balance(accountId = account.id, startDate = from, endDate = to).toBigDecimal()
 
     @Suppress("DataClassDefaultValues")
     data class Input(

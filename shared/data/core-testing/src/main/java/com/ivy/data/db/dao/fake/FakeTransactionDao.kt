@@ -103,6 +103,35 @@ class FakeTransactionDao : TransactionDao, WriteTransactionDao {
         }.sortedByDescending { it.dateTime }
     }
 
+    // As the query does, but taking every account the transactions name to be there: the fake has none.
+    override suspend fun balance(
+        accountId: UUID,
+        startDate: Instant,
+        endDate: Instant
+    ): Double {
+        fun TransactionEntity.counts(): Boolean =
+            dateTime?.let { isBetween(it, startDate, endDate) } == true && amount.isPositiveAndFinite()
+
+        val out = items
+            .filter { it.accountId == accountId && it.counts() }
+            .filter { it.type != TransactionType.TRANSFER || it.toAccountId != null && it.toAccountId != accountId }
+            .sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
+        val received = items
+            .filter { it.toAccountId == accountId && it.counts() }
+            .filter { !(it.type == TransactionType.TRANSFER && it.accountId == accountId) }
+            .sumOf {
+                when (it.type) {
+                    TransactionType.TRANSFER -> it.toAmount?.takeIf { amount -> amount.isPositiveAndFinite() }
+                        ?: it.amount
+                    TransactionType.INCOME -> it.amount
+                    TransactionType.EXPENSE -> -it.amount
+                }
+            }
+        return out + received
+    }
+
+    private fun Double.isPositiveAndFinite(): Boolean = this > 0 && isFinite()
+
     override suspend fun findAllDueToBetween(
         startDate: Instant,
         endDate: Instant
