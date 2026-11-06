@@ -502,7 +502,6 @@ jobs:
           # The instrumented tests run even when the smoke test fails, whose result comes last.
           script: |
             scripts/smokeTestApks.sh apks/app-debug.apk apks/app-demo.apk; echo $? > build/smoke-exit-code
-            scripts/measureColdStart.sh || true
             ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
             scripts/checkInstrumentedTestsRan.sh shared/data/core shared/domain
             exit "$(cat build/smoke-exit-code)"
