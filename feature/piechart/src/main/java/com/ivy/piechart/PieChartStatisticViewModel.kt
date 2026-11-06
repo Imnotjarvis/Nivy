@@ -13,6 +13,7 @@ import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.Category
 import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.TimePeriod
@@ -21,11 +22,10 @@ import com.ivy.navigation.PieChartStatisticScreen
 import com.ivy.navigation.BudgetPage
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.wallet.data.AppBaseData
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
-import com.ivy.piechart.action.PieChartAct
+import com.ivy.piechart.usecase.PieChartUseCase
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,13 +42,13 @@ import javax.inject.Inject
 class PieChartStatisticViewModel @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val periodState: PeriodState,
-    private val pieChartAct: PieChartAct,
+    private val pieChartUseCase: PieChartUseCase,
     private val appPreferences: AppPreferences,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
-    private val accountsAct: AccountsAct,
+    private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
-    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
+    private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
     private val features: Features,
 ) : ComposeViewModel<PieChartStatisticState, PieChartStatisticEvent>() {
 
@@ -162,23 +162,21 @@ class PieChartStatisticViewModel @Inject constructor(
         val treatTransferAsIncExp = appPreferences.transfersAsIncomeExpense() &&
             accountIdFilterList.isNotEmpty() && treatTransfersAsIncomeExpense
 
-        val pieChartActOutput = ioThread {
-            pieChartAct(
-                PieChartAct.Input(
-                    baseCurrency = baseCurrency,
-                    range = range,
-                    type = type,
-                    accountIdFilterList = accountIdFilterList,
-                    treatTransferAsIncExp = treatTransferAsIncExp,
-                    existingTransactions = transactions,
-                    onlyExisting = budgetPage != null,
-                )
+        val pieChartData = ioThread {
+            pieChartUseCase.pieChart(
+                baseCurrency = baseCurrency,
+                range = range,
+                type = type,
+                accountIdFilterList = accountIdFilterList,
+                treatTransferAsIncExp = treatTransferAsIncExp,
+                existingTransactions = transactions,
+                onlyExisting = budgetPage != null,
             )
         }
         if (budgetPage != null) loadBudgetTransactions(baseCurrency, transactions)
 
-        val totalAmountValue = pieChartActOutput.totalAmount
-        val categoryAmountsValue = pieChartActOutput.categoryAmounts
+        val totalAmountValue = pieChartData.totalAmount
+        val categoryAmountsValue = pieChartData.categoryAmounts
 
         period = periodValue
         totalAmount = totalAmountValue
@@ -190,11 +188,12 @@ class PieChartStatisticViewModel @Inject constructor(
     private suspend fun loadBudgetTransactions(baseCurrency: String, transactions: List<Transaction>) {
         baseData = AppBaseData(
             baseCurrency = baseCurrency,
-            accounts = accountsAct().toImmutableList(),
+            accounts = accountRepository.findAll().toImmutableList(),
             categories = categoryRepository.findAll().toImmutableList(),
         )
-        history = trnsWithDateDivsAct(
-            TrnsWithDateDivsAct.Input(baseCurrency = baseCurrency, transactions = transactions)
+        history = transactionsWithDateDividersUseCase.withDateDividers(
+            baseCurrency = baseCurrency,
+            transactions = transactions
         ).toImmutableList()
     }
 

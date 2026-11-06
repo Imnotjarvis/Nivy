@@ -58,7 +58,6 @@ import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.R
 import com.ivy.ui.time.impl.DateTimePicker
-import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.logic.SmartTitleSuggestionsLogic
@@ -104,7 +103,6 @@ class EditTransactionViewModel @Inject constructor(
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val smartTitleSuggestionsLogic: SmartTitleSuggestionsLogic,
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
-    private val accountsAct: AccountsAct,
     private val categoryRepository: CategoryRepository,
     private val accountRepository: AccountRepository,
     private val transactionRepo: TransactionRepository,
@@ -164,7 +162,7 @@ class EditTransactionViewModel @Inject constructor(
 
             val tagList = async { getAllTags() }
 
-            val getAccounts = accountsAct()
+            val getAccounts = accountRepository.findAll()
             if (getAccounts.isEmpty()) {
                 closeScreen()
                 return@launch
@@ -693,7 +691,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct().pickable(listOf(account?.id, toAccount?.id)).toImmutableList()
+                accounts = accountRepository.findAll().pickable(listOf(account?.id, toAccount?.id)).toImmutableList()
                 allCreditCards = creditCardRepository.findAll()
             }
         }

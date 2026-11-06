@@ -4,18 +4,19 @@ import com.ivy.base.TestDispatchersProvider
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Expense
 import com.ivy.data.model.PositiveValue
+import com.ivy.data.model.Transaction
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.TransactionMetadata
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
+import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.ui.testing.ComposeViewModelTest
 import com.ivy.ui.testing.runTest
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -36,18 +37,20 @@ class SearchViewModelTest : ComposeViewModelTest() {
     private val transactionRepository = mockk<TransactionRepository> {
         coEvery { findAll() } returns listOf(coffee, rent)
     }
-    private val searched = slot<TrnsWithDateDivsAct.Input>()
+    private val searched = slot<List<Transaction>>()
 
     // What the screen lists for what's found, whatever it is.
     private val results = listOf(TransactionHistoryDateDivider(LocalDate.of(2023, 11, 1), 0.0, 0.0))
 
     private val viewModel = SearchViewModel(
-        trnsWithDateDivsAct = mockk<TrnsWithDateDivsAct> {
-            coEvery { this@mockk(capture(searched)) } returns results
+        transactionsWithDateDividersUseCase = mockk<TransactionsWithDateDividersUseCase> {
+            coEvery { withDateDividers(any(), capture(searched)) } returns results
         },
-        accountsAct = mockk<AccountsAct> { coEvery { this@mockk() } returns persistentListOf() },
+        accountRepository = mockk<AccountRepository> { coEvery { findAll() } returns persistentListOf() },
         categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns emptyList() },
-        baseCurrencyAct = mockk<BaseCurrencyAct> { coEvery { this@mockk() } returns "EUR" },
+        currencyRepository = mockk<CurrencyRepository> {
+            coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR")
+        },
         transactionRepository = transactionRepository,
         features = mockk(relaxed = true),
         dispatchers = TestDispatchersProvider,
@@ -67,7 +70,7 @@ class SearchViewModelTest : ComposeViewModelTest() {
             searchQuery shouldBe "coffee"
             transactions shouldBe results
         }
-        searched.captured.transactions shouldBe listOf(coffee)
+        searched.captured shouldBe listOf(coffee)
     }
 
     @Test

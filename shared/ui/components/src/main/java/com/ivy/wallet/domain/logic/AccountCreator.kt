@@ -12,7 +12,7 @@ import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CreditCardRepository
-import com.ivy.wallet.domain.action.account.AdjustAccBalanceAct
+import com.ivy.domain.usecase.account.AdjustAccountBalanceUseCase
 import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.pure.util.nextOrderNum
@@ -20,7 +20,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 class AccountCreator @Inject constructor(
-    private val adjustAccBalanceAct: AdjustAccBalanceAct,
+    private val adjustAccountBalanceUseCase: AdjustAccountBalanceUseCase,
     private val accountDao: AccountDao,
     private val accountRepository: AccountRepository,
     private val creditCardRepository: CreditCardRepository,
@@ -50,7 +50,7 @@ class AccountCreator @Inject constructor(
                 cards = data.creditCards.map { it.copy(account = account.id) },
             )
 
-            adjustAccBalanceAct(
+            adjustAccountBalanceUseCase.adjust(
                 account = account,
                 currentBalance = 0.0,
                 newBalance = data.balance
@@ -70,7 +70,7 @@ class AccountCreator @Inject constructor(
         ioThread {
             accountRepository.save(account)
             creditCards?.let { creditCardRepository.saveAccountCards(account.id, it) }
-            adjustAccBalanceAct(account = account, newBalance = newBalance)
+            adjustAccountBalanceUseCase.adjust(account = account, newBalance = newBalance)
         }
 
         onRefreshUI()

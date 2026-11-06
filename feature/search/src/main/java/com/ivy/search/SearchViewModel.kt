@@ -10,13 +10,13 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.ui.ComposeViewModel
 import com.ivy.data.model.Category
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.features.Features
+import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.wallet.utils.getDefaultFIATCurrency
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -30,10 +30,10 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
-    private val accountsAct: AccountsAct,
+    private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
+    private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
-    private val baseCurrencyAct: BaseCurrencyAct,
+    private val currencyRepository: CurrencyRepository,
     private val transactionRepository: TransactionRepository,
     private val features: Features,
     private val dispatchers: DispatchersProvider,
@@ -93,11 +93,9 @@ class SearchViewModel @Inject constructor(
                             transaction.title.matchesQuery(normalizedQuery) ||
                                     transaction.description.matchesQuery(normalizedQuery)
                         }
-                    trnsWithDateDivsAct(
-                        TrnsWithDateDivsAct.Input(
-                            baseCurrency = baseCurrencyAct(),
-                            transactions = filteredTransactions
-                        )
+                    transactionsWithDateDividersUseCase.withDateDividers(
+                        baseCurrency = currencyRepository.getBaseCurrency().code,
+                        transactions = filteredTransactions
                     ).toImmutableList()
                 }
             }
@@ -105,8 +103,8 @@ class SearchViewModel @Inject constructor(
             transactions.value = queryResult
             // Together with its results, so the screen tells what they were found for.
             searchQuery.value = query
-            baseCurrency.value = baseCurrencyAct()
-            accounts.value = accountsAct()
+            baseCurrency.value = currencyRepository.getBaseCurrency().code
+            accounts.value = accountRepository.findAll().toImmutableList()
             categories.value = categoryRepository.findAll().toImmutableList()
         }
     }

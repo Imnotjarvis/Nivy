@@ -24,6 +24,7 @@ import com.ivy.data.model.primitive.NonZeroDouble
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.LoanRepository
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
@@ -36,7 +37,6 @@ import com.ivy.loans.loan.data.DisplayLoan
 import com.ivy.loans.progress
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
-import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateLoanData
 import com.ivy.wallet.ui.theme.modal.LoanModalData
@@ -62,7 +62,7 @@ class LoanViewModel @Inject constructor(
     private val accountCreator: AccountCreator,
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val exchangeUseCase: ExchangeUseCase,
-    private val accountsAct: AccountsAct,
+    private val accountRepository: AccountRepository,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker
@@ -224,7 +224,7 @@ class LoanViewModel @Inject constructor(
     }
 
     private suspend fun initialiseAccounts() {
-        val accountsList = accountsAct().pickable().toImmutableList()
+        val accountsList = accountRepository.findAll().pickable().toImmutableList()
         accounts = accountsList
         selectedAccount = defaultAccountId(accountsList)
         selectedAccount?.let {
@@ -314,7 +314,7 @@ class LoanViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct().pickable().toImmutableList()
+                accounts = accountRepository.findAll().pickable().toImmutableList()
             }
         }
     }

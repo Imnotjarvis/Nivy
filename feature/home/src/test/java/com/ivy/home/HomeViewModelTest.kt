@@ -8,16 +8,18 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.ivy.domain.usecase.wallet.WalletBalanceUseCase
+import com.ivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
+import com.ivy.home.usecase.HistoryWithDateDividersUseCase
+import com.ivy.home.usecase.OverdueTransactions
+import com.ivy.home.usecase.OverdueTransactionsUseCase
+import com.ivy.home.usecase.UpcomingTransactions
+import com.ivy.home.usecase.UpcomingTransactionsUseCase
 import com.ivy.navigation.Navigation
 import com.ivy.ui.testing.ComposeViewModelTest
 import com.ivy.ui.testing.runTest
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.ThemeState
-import com.ivy.wallet.domain.action.transaction.HistoryWithDateDivsAct
-import com.ivy.wallet.domain.action.viewmodel.home.OverdueAct
-import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
-import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
-import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import com.ivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
@@ -52,12 +54,14 @@ class HomeViewModelTest : ComposeViewModelTest() {
         nav = Navigation(),
         dueTransactionsUseCase = mockk(relaxed = true),
         customerJourneyLogic = mockk { coEvery { loadCards() } returns emptyList() },
-        historyWithDateDivsAct = mockk<HistoryWithDateDivsAct> {
-            coEvery { this@mockk(any()) } returns monthsTransactions
+        historyWithDateDividersUseCase = mockk<HistoryWithDateDividersUseCase> {
+            coEvery { history(any(), any()) } returns monthsTransactions
         },
-        calcIncomeExpenseAct = mockk<CalcIncomeExpenseAct> { coEvery { this@mockk(any()) } returns monthsTotals },
-        calcWalletBalanceAct = mockk<CalcWalletBalanceAct> {
-            coEvery { this@mockk(any()) } coAnswers { balance.await() }
+        walletIncomeExpenseUseCase = mockk<WalletIncomeExpenseUseCase> {
+            coEvery { incomeExpense(any(), any(), any()) } returns monthsTotals
+        },
+        walletBalanceUseCase = mockk<WalletBalanceUseCase> {
+            coEvery { balance(any(), any(), any(), any()) } coAnswers { balance.await() }
         },
         appPreferences = mockk<AppPreferences>(relaxed = true) {
             coEvery { settings() } returns AppSettings(
@@ -70,16 +74,16 @@ class HomeViewModelTest : ComposeViewModelTest() {
             coEvery { hideIncome() } returns false
         },
         currencyRepository = mockk { coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR") },
-        accountsAct = mockk { coEvery { this@mockk() } returns persistentListOf() },
+        accountRepository = mockk { coEvery { findAll() } returns persistentListOf() },
         categoryRepository = mockk { coEvery { findAll() } returns emptyList() },
-        upcomingAct = mockk<UpcomingAct> {
-            coEvery { this@mockk(any()) } returns UpcomingAct.Output(IncomeExpensePair.zero(), emptyList())
+        upcomingTransactionsUseCase = mockk<UpcomingTransactionsUseCase> {
+            coEvery { upcoming(any(), any()) } returns UpcomingTransactions(IncomeExpensePair.zero(), emptyList())
         },
-        overdueAct = mockk<OverdueAct> {
-            coEvery { this@mockk(any()) } returns OverdueAct.Output(IncomeExpensePair.zero(), emptyList())
+        overdueTransactionsUseCase = mockk<OverdueTransactionsUseCase> {
+            coEvery { overdue(any(), any()) } returns OverdueTransactions(IncomeExpensePair.zero(), emptyList())
         },
         transactionDao = mockk(relaxed = true),
-        startDayOfMonthAct = mockk { coEvery { this@mockk() } returns 1 },
+        startDayOfMonthUseCase = mockk { coEvery { startDay() } returns 1 },
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),

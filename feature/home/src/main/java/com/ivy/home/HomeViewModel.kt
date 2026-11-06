@@ -16,13 +16,19 @@ import com.ivy.data.model.Account
 import com.ivy.data.model.Transaction
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.preferences.AppSettings
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
+import com.ivy.domain.usecase.wallet.WalletBalanceUseCase
+import com.ivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.home.customerjourney.CustomerJourneyCardsProvider
+import com.ivy.home.usecase.HistoryWithDateDividersUseCase
+import com.ivy.home.usecase.OverdueTransactionsUseCase
+import com.ivy.home.usecase.UpcomingTransactionsUseCase
 import com.ivy.wallet.MainScreenState
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.ThemeState
@@ -37,16 +43,10 @@ import com.ivy.navigation.Navigation
 import com.ivy.base.threading.DispatchersProvider
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.LoadTimer
-import com.ivy.wallet.domain.action.account.AccountsAct
-import com.ivy.wallet.domain.action.global.StartDayOfMonthAct
-import com.ivy.wallet.domain.action.transaction.HistoryWithDateDivsAct
-import com.ivy.wallet.domain.action.viewmodel.home.OverdueAct
-import com.ivy.wallet.domain.action.viewmodel.home.UpcomingAct
-import com.ivy.wallet.domain.action.wallet.CalcIncomeExpenseAct
-import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
+import com.ivy.wallet.domain.usecase.StartDayOfMonthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -70,17 +70,17 @@ class HomeViewModel @Inject constructor(
     private val nav: Navigation,
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val customerJourneyLogic: CustomerJourneyCardsProvider,
-    private val historyWithDateDivsAct: HistoryWithDateDivsAct,
-    private val calcIncomeExpenseAct: CalcIncomeExpenseAct,
-    private val calcWalletBalanceAct: CalcWalletBalanceAct,
+    private val historyWithDateDividersUseCase: HistoryWithDateDividersUseCase,
+    private val walletIncomeExpenseUseCase: WalletIncomeExpenseUseCase,
+    private val walletBalanceUseCase: WalletBalanceUseCase,
     private val appPreferences: AppPreferences,
     private val currencyRepository: CurrencyRepository,
-    private val accountsAct: AccountsAct,
+    private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
-    private val upcomingAct: UpcomingAct,
-    private val overdueAct: OverdueAct,
+    private val upcomingTransactionsUseCase: UpcomingTransactionsUseCase,
+    private val overdueTransactionsUseCase: OverdueTransactionsUseCase,
     private val transactionDao: TransactionDao,
-    private val startDayOfMonthAct: StartDayOfMonthAct,
+    private val startDayOfMonthUseCase: StartDayOfMonthUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
@@ -180,7 +180,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun start() {
-        val startDay = startDayOfMonthAct()
+        val startDay = startDayOfMonthUseCase.startDay()
         reload(periodState.initSelected(startDayOfMonth = startDay))
     }
 
@@ -236,7 +236,7 @@ class HomeViewModel @Inject constructor(
         input: Pair<AppSettings, ClosedTimeRange>
     ): Triple<AppSettings, ClosedTimeRange, List<Account>> {
         val (settings, timeRange) = input
-        val accounts = accountsAct()
+        val accounts = accountRepository.findAll()
         val categories = categoryRepository.findAll()
 
         baseData = AppBaseData(
@@ -250,43 +250,39 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun loadMonthTotals(input: Triple<AppSettings, ClosedTimeRange, List<Account>>) {
         val (settings, timeRange, accounts) = input
-        stats = calcIncomeExpenseAct(
-            CalcIncomeExpenseAct.Input(
-                baseCurrency = settings.baseCurrency,
-                accounts = accounts,
-                range = timeRange
-            )
+        stats = walletIncomeExpenseUseCase.incomeExpense(
+            baseCurrency = settings.baseCurrency,
+            accounts = accounts,
+            range = timeRange
         )
         statsLoaded = true
     }
 
     private suspend fun loadBalance(baseCurrency: String) {
-        balance = calcWalletBalanceAct(CalcWalletBalanceAct.Input(baseCurrency = baseCurrency))
+        balance = walletBalanceUseCase.balance(baseCurrency = baseCurrency)
         balanceLoaded = true
     }
 
     private suspend fun loadTrnHistory(input: Pair<String, ClosedTimeRange>) {
         val (baseCurrency, timeRange) = input
 
-        history = historyWithDateDivsAct(
-            HistoryWithDateDivsAct.Input(
-                range = timeRange,
-                baseCurrency = baseCurrency
-            )
+        history = historyWithDateDividersUseCase.history(
+            range = timeRange,
+            baseCurrency = baseCurrency
         )
         historyLoaded = true
     }
 
     private suspend fun loadDueTrns(input: Pair<String, ClosedTimeRange>) {
         val (baseCurrency, timeRange) = input
-        val upcomingResult = upcomingAct(UpcomingAct.Input(baseCurrency = baseCurrency, range = timeRange))
+        val upcomingResult = upcomingTransactionsUseCase.upcoming(baseCurrency = baseCurrency, range = timeRange)
         upcoming = DueSection(
             trns = upcomingResult.upcomingTrns.toImmutableList(),
             stats = upcomingResult.upcoming,
             expanded = upcoming.expanded
         )
 
-        val overdueResult = overdueAct(OverdueAct.Input(baseCurrency = baseCurrency, toRange = timeRange.to))
+        val overdueResult = overdueTransactionsUseCase.overdue(baseCurrency = baseCurrency, toRange = timeRange.to)
         overdue = DueSection(
             trns = overdueResult.overdueTrns.toImmutableList(),
             stats = overdueResult.overdue,

@@ -10,13 +10,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
+import com.ivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.ivy.wallet.PeriodState
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.utils.ioThread
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.wallet.CalcWalletBalanceAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +26,8 @@ import javax.inject.Inject
 class BalanceViewModel @Inject constructor(
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val periodState: PeriodState,
-    private val baseCurrencyAct: BaseCurrencyAct,
-    private val calcWalletBalanceAct: CalcWalletBalanceAct,
+    private val currencyRepository: CurrencyRepository,
+    private val walletBalanceUseCase: WalletBalanceUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
 ) : ComposeViewModel<BalanceState, BalanceEvent>() {
@@ -65,12 +65,10 @@ class BalanceViewModel @Inject constructor(
         timePeriod: TimePeriod = periodState.selected
     ) {
         viewModelScope.launch {
-            baseCurrencyCode = baseCurrencyAct()
+            baseCurrencyCode = currencyRepository.getBaseCurrency().code
             period = timePeriod
 
-            currentBalance = calcWalletBalanceAct(
-                CalcWalletBalanceAct.Input(baseCurrencyCode)
-            ).toDouble()
+            currentBalance = walletBalanceUseCase.balance(baseCurrencyCode).toDouble()
 
             plannedPaymentsAmount = ioThread {
                 // What's due from the start of the current month to the end of the selected one:

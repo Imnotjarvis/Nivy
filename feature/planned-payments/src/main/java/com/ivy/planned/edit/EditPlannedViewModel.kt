@@ -35,7 +35,6 @@ import com.ivy.wallet.domain.logic.AccountCreator
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
-import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
@@ -63,7 +62,6 @@ class EditPlannedViewModel @Inject constructor(
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
-    private val accountsAct: AccountsAct,
     private val transactionRepository: TransactionRepository,
     private val timeConverter: TimeConverter,
     private val creditCardRepository: CreditCardRepository,
@@ -180,7 +178,7 @@ class EditPlannedViewModel @Inject constructor(
             transactionType = screen.type
             editMode = screen.plannedPaymentRuleId != null
 
-            val accounts = accountsAct()
+            val accounts = accountRepository.findAll()
             if (accounts.isEmpty()) {
                 nav.back()
                 return@launch
@@ -398,7 +396,7 @@ class EditPlannedViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts = accountsAct().pickable(listOf(account?.id)).toImmutableList()
+                accounts = accountRepository.findAll().pickable(listOf(account?.id)).toImmutableList()
                 allCreditCards = creditCardRepository.findAll()
             }
         }

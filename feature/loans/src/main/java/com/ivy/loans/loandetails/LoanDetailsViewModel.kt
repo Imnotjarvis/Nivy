@@ -15,6 +15,7 @@ import com.ivy.data.model.LoanRecord
 import com.ivy.data.model.LoanRecordId
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.LoanRepository
 import com.ivy.data.repository.TransactionRepository
@@ -33,7 +34,6 @@ import com.ivy.navigation.LoanDetailsScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
-import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateLoanRecordData
 import com.ivy.wallet.domain.logic.model.EditLoanRecordData
@@ -58,7 +58,7 @@ class LoanDetailsViewModel @Inject constructor(
     private val accountCreator: AccountCreator,
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val nav: Navigation,
-    private val accountsAct: AccountsAct,
+    private val accountRepository: AccountRepository,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
@@ -246,7 +246,7 @@ class LoanDetailsViewModel @Inject constructor(
                 baseCurrency.value = it
             }
 
-            accounts.value = accountsAct()
+            accounts.value = accountRepository.findAll().toImmutableList()
 
             loan.value = loanRepository.findById(LoanId(loanId))
 
@@ -465,7 +465,7 @@ class LoanDetailsViewModel @Inject constructor(
     private fun createAccount(data: CreateAccountData) {
         viewModelScope.launch {
             accountCreator.createAccount(data) {
-                accounts.value = accountsAct()
+                accounts.value = accountRepository.findAll().toImmutableList()
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.ivy.accounts.usecase.AccountDataUseCase
 import com.ivy.base.model.AccountType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
@@ -16,6 +17,7 @@ import com.ivy.data.DataObserver
 import com.ivy.data.DataWriteEvent
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
+import com.ivy.data.repository.CurrencyRepository
 import com.ivy.domain.features.Features
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.AccountData
@@ -25,8 +27,6 @@ import com.ivy.wallet.utils.ioThread
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.LoadTimer
 import com.ivy.ui.R
-import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
-import com.ivy.wallet.domain.action.viewmodel.account.AccountDataAct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
@@ -43,8 +43,8 @@ class AccountsViewModel @Inject constructor(
     private val context: Context,
     private val periodState: PeriodState,
     private val appPreferences: AppPreferences,
-    private val baseCurrencyAct: BaseCurrencyAct,
-    private val accountDataAct: AccountDataAct,
+    private val currencyRepository: CurrencyRepository,
+    private val accountDataUseCase: AccountDataUseCase,
     private val accountRepository: AccountRepository,
     private val dataObserver: DataObserver,
     private val features: Features,
@@ -155,19 +155,17 @@ class AccountsViewModel @Inject constructor(
         val range = period.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         val timer = LoadTimer("Accounts")
-        val baseCurrencyCode = baseCurrencyAct()
+        val baseCurrencyCode = currencyRepository.getBaseCurrency().code
         val accounts = timer.step("accounts") { accountRepository.findAll().toImmutableList() }
 
         val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
         val accountsDataList = timer.step("balances") {
-            accountDataAct(
-                AccountDataAct.Input(
-                    accounts = accounts,
-                    range = range.toCloseTimeRange(),
-                    baseCurrency = baseCurrencyCode,
-                    includeTransfersInCalc = includeTransfersInCalc
-                )
+            accountDataUseCase.accountsData(
+                accounts = accounts,
+                range = range.toCloseTimeRange(),
+                baseCurrency = baseCurrencyCode,
+                includeTransfersInCalc = includeTransfersInCalc
             )
         }
 
