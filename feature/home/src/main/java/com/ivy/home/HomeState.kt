@@ -20,6 +20,8 @@ data class HomeState(
     val baseData: AppBaseData,
 
     val history: ImmutableList<TransactionHistoryItem>,
+    // Whether the month's transactions were listed yet: until then, [history] is only empty.
+    val historyLoaded: Boolean = false,
     val stats: IncomeExpensePair,
 
     val balance: BigDecimal,

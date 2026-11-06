@@ -23,6 +23,7 @@ import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.ioThread
 import com.ivy.ui.ComposeViewModel
+import com.ivy.ui.LoadTimer
 import com.ivy.ui.R
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.viewmodel.account.AccountDataAct
@@ -153,32 +154,35 @@ class AccountsViewModel @Inject constructor(
         ) // this must be monthly
         val range = period.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
+        val timer = LoadTimer("Accounts")
         val baseCurrencyCode = baseCurrencyAct()
-        val accounts = accountRepository.findAll().toImmutableList()
+        val accounts = timer.step("accounts") { accountRepository.findAll().toImmutableList() }
 
         val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
-        val accountsDataList = accountDataAct(
-            AccountDataAct.Input(
-                accounts = accounts,
-                range = range.toCloseTimeRange(),
-                baseCurrency = baseCurrencyCode,
-                includeTransfersInCalc = includeTransfersInCalc
+        val accountsDataList = timer.step("balances") {
+            accountDataAct(
+                AccountDataAct.Input(
+                    accounts = accounts,
+                    range = range.toCloseTimeRange(),
+                    baseCurrency = baseCurrencyCode,
+                    includeTransfersInCalc = includeTransfersInCalc
+                )
             )
-        )
+        }
 
-        val totalBalanceWithExcludedAccounts = calcWalletBalanceAct(
-            CalcWalletBalanceAct.Input(
-                baseCurrency = baseCurrencyCode,
-                withExcluded = true
-            )
-        ).toDouble()
-
-        val totalBalanceWithoutExcludedAccounts = calcWalletBalanceAct(
-            CalcWalletBalanceAct.Input(
-                baseCurrency = baseCurrencyCode
-            )
-        ).toDouble()
+        val (totalBalanceWithExcludedAccounts, totalBalanceWithoutExcludedAccounts) = timer.step("totals") {
+            calcWalletBalanceAct(
+                CalcWalletBalanceAct.Input(
+                    baseCurrency = baseCurrencyCode,
+                    withExcluded = true
+                )
+            ).toDouble() to calcWalletBalanceAct(
+                CalcWalletBalanceAct.Input(
+                    baseCurrency = baseCurrencyCode
+                )
+            ).toDouble()
+        }
 
         baseCurrency = baseCurrencyCode
         accountsData = accountsDataList
@@ -198,6 +202,7 @@ class AccountsViewModel @Inject constructor(
                 baseCurrencyCode
             )
         )
+        timer.done()
     }
 
     private fun reorderModalVisible(visible: Boolean) {

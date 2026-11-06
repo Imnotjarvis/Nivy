@@ -1,5 +1,6 @@
 package com.ivy.home
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
@@ -61,6 +62,8 @@ import java.math.BigDecimal
 fun BoxWithConstraintsScope.HomeTab() {
     val viewModel: HomeViewModel = screenScopedViewModel()
     val uiState = viewModel.uiState()
+    // Logcat's "Fully drawn" time: from launch to the month's transactions on screen.
+    ReportDrawnWhen { uiState.historyLoaded }
 
     HomeUi(uiState, viewModel::onEvent)
 }
