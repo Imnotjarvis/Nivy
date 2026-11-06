@@ -486,20 +486,25 @@ jobs:
           done
           exit 1
 
-      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install.
+      # A fresh AVD, cold-booted (-no-snapshot), so every run starts from a clean install. A phone's
+      # screen: the default AVD's, 320 by 640 dp, is smaller than any phone, and onboarding's
+      # buttons were below its fold.
       - name: Smoke test and instrumented tests on an emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ env.EMULATOR_API }}
           arch: x86_64
           target: ${{ steps.image.outputs.tag }}
+          profile: pixel_6
           disk-size: 3072M
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
+          # The instrumented tests run even when the smoke test fails, whose result comes last.
           script: |
-            scripts/smokeTestApks.sh apks/app-debug.apk apks/app-demo.apk
+            scripts/smokeTestApks.sh apks/app-debug.apk apks/app-demo.apk; echo $? > build/smoke-exit-code
             ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
             scripts/checkInstrumentedTestsRan.sh shared/data/core shared/domain
+            exit "$(cat build/smoke-exit-code)"
 
       - uses: actions/upload-artifact@v7
         if: always()
