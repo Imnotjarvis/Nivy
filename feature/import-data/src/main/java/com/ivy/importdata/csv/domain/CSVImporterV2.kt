@@ -295,13 +295,9 @@ class CSVImporterV2 @Inject constructor(
         baseCurrency: String,
         currencyCode: String?
     ): String {
-        return try {
-            if (currencyCode != null && currencyCode.isNotBlank()) {
-                IvyCurrency.fromCode(currencyCode)?.code ?: baseCurrency
-            } else {
-                baseCurrency
-            }
-        } catch (e: Exception) {
+        return if (currencyCode != null && currencyCode.isNotBlank()) {
+            IvyCurrency.fromCode(currencyCode)?.code ?: baseCurrency
+        } else {
             baseCurrency
         }
     }

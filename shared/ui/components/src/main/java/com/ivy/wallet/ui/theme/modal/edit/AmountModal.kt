@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivy.domain.di.FeaturesEntryPoint
 import com.ivy.wallet.IvyWalletPreview
-import com.ivy.wallet.utils.amountToDouble
 import com.ivy.wallet.utils.amountToDoubleOrNull
 import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.formatInputAmount
@@ -55,7 +54,6 @@ import com.ivy.wallet.ui.theme.modal.IvyModal
 import com.ivy.wallet.ui.theme.modal.ModalPositiveButton
 import com.ivy.wallet.ui.theme.modal.ModalPreviewActionRowHeight
 import dagger.hilt.android.EntryPointAccessors
-import timber.log.Timber
 import java.util.UUID
 import kotlin.math.truncate
 import androidx.compose.material3.MaterialTheme
@@ -119,11 +117,10 @@ fun BoxWithConstraintsScope.AmountModal(
                 text = stringResource(R.string.enter),
                 iconStart = R.drawable.ic_check
             ) {
-                try {
-                    onAmountChanged(amount.amountToDouble())
+                // An amount that isn't a number yet ("." alone, say) keeps the dialog open.
+                amount.amountToDoubleOrNull()?.let {
+                    onAmountChanged(it)
                     dismiss()
-                } catch (e: Exception) {
-                    Timber.e(e)
                 }
             }
         },

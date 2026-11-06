@@ -33,7 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.nio.charset.Charset
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -425,11 +424,9 @@ class CSVViewModel @Inject constructor(
             }?.toImmutableList()
         }
 
-    private fun importCSV(uri: Uri, normalizeCSV: Boolean): Unit = try {
+    private fun importCSV(uri: Uri, normalizeCSV: Boolean) {
         csv = processFile(uri, normalizeCSV = normalizeCSV)?.toImmutableList()
         columns = csv?.firstOrNull()
-    } catch (e: Exception) {
-        Timber.e(e)
     }
 
     private fun processFile(
@@ -441,8 +438,9 @@ class CSVViewModel @Inject constructor(
             fileReader.read(uri, charset).getOrNull()
                 ?.let { parseCSV(it, normalizeCSV) }
                 ?.takeIf { it.isNotEmpty() }
-        } catch (e: Exception) {
-            // A file that doesn't parse as UTF-8 gets a second try as UTF-16.
+        } catch (ignored: Exception) {
+            // Whatever the user's file makes the reader throw, a UTF-8 read gets a second try as
+            // UTF-16, and that one failing means there's no file to show.
             if (charset != Charsets.UTF_16) processFile(uri, normalizeCSV, charset = Charsets.UTF_16) else null
         }
     }

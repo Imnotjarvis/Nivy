@@ -241,7 +241,8 @@ private fun calculate(expression: String): Double? {
         }
         val modifiedExpression = if (expression.startsWith("-")) "0$expression" else expression
         Keval.eval(modifiedExpression.normalizeExpression())
-    } catch (e: Exception) {
+    } catch (ignored: Exception) {
+        // The expression being typed, in a library's evaluator: whatever it throws, no result yet.
         null
     }
 }

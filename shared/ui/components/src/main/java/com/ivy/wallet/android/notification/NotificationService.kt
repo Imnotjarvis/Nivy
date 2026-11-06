@@ -47,7 +47,8 @@ class NotificationService @Inject constructor(
 
             notificationManager.createNotificationChannel(channel)
             notificationManager.notify(notificationId, notification.build())
-        } catch (e: Exception) {
+        } catch (e: SecurityException) {
+            // Some devices refuse to post without the notification permission.
             Timber.e(e)
         }
     }

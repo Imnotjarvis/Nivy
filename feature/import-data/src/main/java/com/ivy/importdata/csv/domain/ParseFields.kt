@@ -232,23 +232,19 @@ fun parseDescription(
     metadata: Unit
 ): String? = notBlankTrimmedString(value)
 
+/** The row's value in the mapped column; "" when the row is shorter. */
 fun <M> CSVRow.extractValue(
     mapping: ColumnMapping<M>
-): String {
-    return try {
-        values[mapping.index]
-    } catch (e: Exception) {
-        ""
-    }
-}
+): String = values.getOrElse(mapping.index) { "" }
 
 // region Util
 private fun notBlankTrimmedString(value: String): String? =
     value.trim().takeIf { it.isNotBlank() }
 
+// A value the parser can't read, whatever it throws, is no value: the import goes on without it.
 private fun <T> tryParse(block: () -> T): T? = try {
     block()
-} catch (e: Exception) {
+} catch (ignored: Exception) {
     null
 }
 // endregion

@@ -17,6 +17,8 @@ class FileSystem @Inject constructor(
     @ApplicationContext
     private val appContext: Context
 ) {
+    // Whatever fails, the caller gets a Failure rather than an exception.
+    @Suppress("TooGenericExceptionCaught")
     fun writeToFile(uri: Uri, content: String): Either<Failure, Unit> = try {
         val contentResolver = appContext.contentResolver
 
@@ -34,6 +36,8 @@ class FileSystem @Inject constructor(
         Either.Left(Failure.IO(e))
     }
 
+    // Whatever fails, the caller gets a Failure rather than an exception.
+    @Suppress("TooGenericExceptionCaught")
     fun read(
         uri: Uri,
         charset: Charset = Charsets.UTF_8
