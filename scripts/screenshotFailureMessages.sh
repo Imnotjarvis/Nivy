@@ -83,9 +83,10 @@ if open_settings; then
     tap_text "Exchange rates" && shots exchange-rates
 fi
 
-# A new expense of 52.
+# A new expense of 52, after the category it then asks for (skipped).
 launch -a ivy.wallet.intent.action.add_transaction --es add_transaction_type_extra EXPENSE
-tap_text "5" && tap_text "2" && tap_text "Enter" && sleep 1 && tap_text "Add" && shots save
+tap_text "5" && tap_text "2" && tap_text "Enter" && sleep 1 && tap_text "Skip" && sleep 1 \
+    && tap_text "Add" && shots save
 
 adb shell cmd connectivity airplane-mode disable
 exit 0
