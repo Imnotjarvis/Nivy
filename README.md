@@ -21,7 +21,7 @@ buildSrc/     Gradle convention plugins
 gradle/       version catalog and wrapper
 config/       detekt rules
 scripts/      CI helper scripts
-docs/         plans for the changes made to the original code
+docs/         notes: releasing, the database, the backup format, conventions
 .github/      CI, CodeQL and dependency workflows, Dependabot
 ```
 
@@ -30,3 +30,27 @@ docs/         plans for the changes made to the original code
 ```bash
 ./gradlew :app:assembleDebug
 ```
+
+Two more builds: `./gradlew :app:assembleDemo` is the R8-minified build signed with the committed
+debug key, and `./gradlew :app:assembleRelease` is signed with your own key
+([docs/release.md](docs/release.md)).
+
+## Checks
+
+```bash
+./gradlew testDebugUnitTest
+./gradlew :detekt :assertModuleGraph --no-configuration-cache
+./gradlew :app:lintDebug
+```
+
+The instrumented tests need a device or an emulator:
+`./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest`.
+CI runs all of these, and the top of [.github/workflows/build.yml](.github/workflows/build.yml)
+says what runs when.
+
+## Notes
+
+- [Releasing](docs/release.md): versions, signing, publishing a release.
+- [The database](docs/database.md): changing the schema, migrations and their tests.
+- [The backup format](docs/backup-format.md): what a backup holds and how it imports.
+- [Conventions](docs/conventions.md): where code goes, one rule per number, errors, tests.
