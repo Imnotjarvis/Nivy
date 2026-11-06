@@ -17,7 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,8 +40,8 @@ import com.ivy.design.system.typography.numberLabelMedium
 
 /**
  * How much of a budget is spent: a bar filling in one calm color while within it, and red only once
- * it's exceeded, so that exceeded budgets stand out. [trailing], at its end, gets the color that
- * reads on what's under it.
+ * it's exceeded, so that exceeded budgets stand out. Its content, [trailing] at its end too, reads
+ * on what's under it, as [readableOnFill] draws it.
  */
 @Composable
 fun BudgetBattery(
@@ -53,16 +57,9 @@ fun BudgetBattery(
     val percentSpent = expenses / budget
 
     val fill = if (percentSpent > 1.0) expenseRed(backgroundNotFilled) else Ivy
-    val onFill = readableOn(fill)
-    // The texts sit at the start, on the fill once it reaches past them.
-    val textColor = if (percentSpent <= TextCoveredAt) MaterialTheme.colorScheme.onSurface else onFill
-    val captionTextColor = if (percentSpent <= TextCoveredAt) {
-        MaterialTheme.colorScheme.inverseSurface
-    } else {
-        onFill
-    }
-    // The trailing content sits at the end, on the fill only once it fills the bar to there.
-    val trailingTint = if (percentSpent >= EndCoveredAt) onFill else MaterialTheme.colorScheme.onSurface
+    // For the background: readableOnFill redraws what the fill covers.
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val captionTextColor = MaterialTheme.colorScheme.inverseSurface
 
     Row(
         modifier = modifier
@@ -82,6 +79,7 @@ fun BudgetBattery(
                     onClick?.invoke()
                 }
             }
+            .readableOnFill(fraction = percentSpent, fill = fill)
             .padding(vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -131,16 +129,34 @@ fun BudgetBattery(
         if (trailing != null) {
             Spacer(Modifier.weight(1f))
 
-            trailing(trailingTint)
+            trailing(textColor)
 
             Spacer(Modifier.width(8.dp))
         }
     }
 }
 
-// How far a bar fills before its texts, at its start, are on the fill; and before its end is.
-private const val TextCoveredAt = 0.30
-private const val EndCoveredAt = 0.9
+/**
+ * Draws the content over the first [fraction] of the width, where a bar's [fill] covers it, in
+ * the color that reads on the fill; the rest keeps its own colors, those for the bar's background.
+ * A text the fill's edge cuts through reads on both sides of it.
+ */
+internal fun Modifier.readableOnFill(fraction: Double, fill: Color): Modifier {
+    val onFill = readableOn(fill)
+    val covered = fraction.coerceIn(0.0, 1.0).toFloat()
+    return this
+        // A layer of its own, so that the recoloring reaches the content alone.
+        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+        .drawWithContent {
+            drawContent()
+            // Keeps the content's shapes, in onFill.
+            drawRect(
+                color = onFill,
+                size = size.copy(width = size.width * covered),
+                blendMode = BlendMode.SrcIn,
+            )
+        }
+}
 
 @Preview
 @Composable
