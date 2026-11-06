@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.ivy.base.threading.DispatchersProvider
 import com.ivy.data.model.Account
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.ui.ComposeViewModel
@@ -13,7 +14,6 @@ import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.domain.features.Features
 import com.ivy.wallet.utils.getDefaultFIATCurrency
-import com.ivy.wallet.utils.ioThread
 import com.ivy.wallet.domain.action.account.AccountsAct
 import com.ivy.wallet.domain.action.settings.BaseCurrencyAct
 import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
@@ -24,6 +24,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Stable
@@ -34,7 +35,8 @@ class SearchViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val baseCurrencyAct: BaseCurrencyAct,
     private val transactionRepository: TransactionRepository,
-    private val features: Features
+    private val features: Features,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<SearchState, SearchEvent>() {
 
     private val transactions =
@@ -75,28 +77,34 @@ class SearchViewModel @Inject constructor(
     private var searchJob: Job? = null
 
     private fun search(query: String) {
-        searchQuery.value = query
         val normalizedQuery = query.lowercase().trim()
 
         // Each keystroke searches again: stop the previous search, so that its results, which
         // may arrive later, can't replace the newer ones.
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            val queryResult = ioThread {
-                val filteredTransactions = transactionRepository.findAll()
-                    .filter { transaction ->
-                        transaction.title.matchesQuery(normalizedQuery) ||
-                                transaction.description.matchesQuery(normalizedQuery)
-                    }
-                trnsWithDateDivsAct(
-                    TrnsWithDateDivsAct.Input(
-                        baseCurrency = baseCurrencyAct(),
-                        transactions = filteredTransactions
-                    )
-                ).toImmutableList()
+            // Nothing is listed until something is typed.
+            val queryResult = if (normalizedQuery.isEmpty()) {
+                persistentListOf()
+            } else {
+                withContext(dispatchers.io) {
+                    val filteredTransactions = transactionRepository.findAll()
+                        .filter { transaction ->
+                            transaction.title.matchesQuery(normalizedQuery) ||
+                                    transaction.description.matchesQuery(normalizedQuery)
+                        }
+                    trnsWithDateDivsAct(
+                        TrnsWithDateDivsAct.Input(
+                            baseCurrency = baseCurrencyAct(),
+                            transactions = filteredTransactions
+                        )
+                    ).toImmutableList()
+                }
             }
 
             transactions.value = queryResult
+            // Together with its results, so the screen tells what they were found for.
+            searchQuery.value = query
             baseCurrency.value = baseCurrencyAct()
             accounts.value = accountsAct()
             categories.value = categoryRepository.findAll().toImmutableList()
