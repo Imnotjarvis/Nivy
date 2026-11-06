@@ -51,13 +51,17 @@ class PieChartAct @Inject constructor(
 
     suspend operator fun invoke(input: Input): Output = withContext(Dispatchers.IO) {
         val accountsUsed = usableAccounts(input.accountIdFilterList)
-        val transactions = input.existingTransactions.ifEmpty {
-            trnsWithRangeAndAccFiltersAct(
-                TrnsWithRangeAndAccFiltersAct.Input(
-                    range = input.range.toCloseTimeRange(),
-                    accountIdFilterSet = accountsUsed.map { it.id.value }.toHashSet()
+        val transactions = if (input.onlyExisting) {
+            input.existingTransactions
+        } else {
+            input.existingTransactions.ifEmpty {
+                trnsWithRangeAndAccFiltersAct(
+                    TrnsWithRangeAndAccFiltersAct.Input(
+                        range = input.range.toCloseTimeRange(),
+                        accountIdFilterSet = accountsUsed.map { it.id.value }.toHashSet()
+                    )
                 )
-            )
+            }
         }
 
         val incomeExpenseTransfer = calcTrnsIncomeExpenseAct(
@@ -102,7 +106,7 @@ class PieChartAct @Inject constructor(
     ): List<CategoryAmount> {
         // null stands for transactions without a category
         val allCategories = categoryRepository.findAll().plus(null)
-        val addAssociatedTransactions = input.existingTransactions.isNotEmpty()
+        val addAssociatedTransactions = input.existingTransactions.isNotEmpty() || input.onlyExisting
 
         return allCategories.map { category ->
             val categoryTransactions = if (addAssociatedTransactions) {
@@ -199,6 +203,8 @@ class PieChartAct @Inject constructor(
         val treatTransferAsIncExp: Boolean = false,
         val showAccountTransfersCategory: Boolean = treatTransferAsIncExp,
         val existingTransactions: List<Transaction> = emptyList(),
+        // Only [existingTransactions], even none, as on a budget's page: no others of the range.
+        val onlyExisting: Boolean = false,
     )
 
     data class Output(val totalAmount: Double, val categoryAmounts: ImmutableList<CategoryAmount>)

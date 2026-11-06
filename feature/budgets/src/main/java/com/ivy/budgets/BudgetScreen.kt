@@ -1,5 +1,40 @@
 package com.ivy.budgets
 
+import java.time.Instant
+import kotlinx.collections.immutable.persistentListOf
+import com.ivy.wallet.data.model.TimePeriod
+import com.ivy.wallet.data.model.Month
+import com.ivy.wallet.data.model.FromToTimeRange
+import com.ivy.wallet.IvyWalletPreview
+import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.data.model.primitive.NotBlankTrimmedString
+import com.ivy.data.model.CategoryId
+import com.ivy.data.model.BudgetId
+import com.ivy.base.model.Theme
+import java.util.UUID
+import kotlinx.collections.immutable.toImmutableList
+import com.ivy.wallet.ui.theme.modal.edit.AmountModal
+import com.ivy.wallet.ui.theme.modal.DeleteModal
+import com.ivy.wallet.LocalPeriodState
+import com.ivy.ui.time.LocalTimeProvider
+import com.ivy.ui.time.LocalTimeConverter
+import com.ivy.navigation.PieChartStatisticScreen
+import com.ivy.navigation.BudgetPage
+import com.ivy.design.system.shapes.PillShape
+import com.ivy.design.system.colors.deleteRed
+import com.ivy.data.model.Budget
+import com.ivy.base.model.TransactionType
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
+import androidx.annotation.DrawableRes
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -27,7 +62,6 @@ import com.ivy.budgets.model.DisplayBudget
 import com.ivy.wallet.ui.theme.wallet.PeriodSelector
 import com.ivy.wallet.ui.theme.components.BudgetBattery
 import com.ivy.design.utils.clickableNoIndication
-import com.ivy.wallet.utils.format
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
@@ -39,7 +73,6 @@ import com.ivy.wallet.ui.theme.components.ReorderButton
 import com.ivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import androidx.compose.material3.MaterialTheme
-import com.ivy.design.system.typography.numberLabelMedium
 
 @Composable
 fun BoxWithConstraintsScope.BudgetScreen() {
@@ -57,6 +90,16 @@ private fun BoxWithConstraintsScope.UI(
     state: BudgetScreenState,
     onEvent: (BudgetScreenEvent) -> Unit = {}
 ) {
+    val nav = navigation()
+    var deletingBudget by remember { mutableStateOf<Budget?>(null) }
+    var savingsGoalModalVisible by remember { mutableStateOf(false) }
+    val month = state.period?.toDisplayLong(
+        startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
+        timeProvider = LocalTimeProvider.current,
+        timeConverter = LocalTimeConverter.current,
+        timeFormatter = LocalTimeFormatter.current,
+    ).orEmpty()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -67,10 +110,6 @@ private fun BoxWithConstraintsScope.UI(
 
         Toolbar(
             timeRange = state.timeRange,
-            totalRemainingBudgetText = state.totalRemainingBudgetText,
-            baseCurrency = state.baseCurrency,
-            appBudgetMax = state.appBudgetMax,
-            categoryBudgetsTotal = state.categoryBudgetsTotal,
             setReorderModalVisible = {
                 onEvent(BudgetScreenEvent.OnReorderModalVisible(it))
             }
@@ -88,26 +127,37 @@ private fun BoxWithConstraintsScope.UI(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(24.dp))
+
+        SavingsGoalItem(
+            savings = state.savings,
+            currency = state.baseCurrency,
+        ) {
+            savingsGoalModalVisible = true
+        }
 
         for (item in state.budgets) {
             Spacer(Modifier.height(24.dp))
 
             BudgetItem(
                 displayBudget = item,
-                baseCurrency = state.baseCurrency
-            ) {
-                onEvent(
-                    BudgetScreenEvent.OnBudgetModalData(
-                        BudgetModalData(
-                            budget = item.budget,
-                            baseCurrency = state.baseCurrency,
-                            categories = state.categories,
-                            accounts = state.accounts.pickable(item.budget.accounts),
-                            autoFocusKeyboard = false
+                baseCurrency = state.baseCurrency,
+                onEdit = {
+                    onEvent(
+                        BudgetScreenEvent.OnBudgetModalData(
+                            BudgetModalData(
+                                budget = item.budget,
+                                baseCurrency = state.baseCurrency,
+                                categories = state.categories,
+                                accounts = state.accounts.pickable(item.budget.accounts),
+                                autoFocusKeyboard = false
+                            )
                         )
                     )
-                )
+                },
+                onDelete = { deletingBudget = item.budget },
+            ) {
+                nav.navigateTo(budgetPage(item, month))
             }
         }
 
@@ -125,7 +175,6 @@ private fun BoxWithConstraintsScope.UI(
         Spacer(Modifier.height(150.dp)) // scroll hack
     }
 
-    val nav = navigation()
     BudgetBottomBar(
         onAdd = {
             onEvent(
@@ -165,6 +214,30 @@ private fun BoxWithConstraintsScope.UI(
         )
     }
 
+    DeleteModal(
+        visible = deletingBudget != null,
+        title = stringResource(R.string.confirm_deletion),
+        description = stringResource(
+            R.string.confirm_budget_deletion_warning,
+            deletingBudget?.name?.value.orEmpty()
+        ),
+        dismiss = { deletingBudget = null }
+    ) {
+        deletingBudget?.let { onEvent(BudgetScreenEvent.OnDeleteBudget(it)) }
+        deletingBudget = null
+    }
+
+    val savingsGoalModalId = remember { UUID.randomUUID() }
+    AmountModal(
+        id = savingsGoalModalId,
+        visible = savingsGoalModalVisible,
+        currency = state.baseCurrency,
+        initialAmount = state.savings.goal.takeIf { it > 0 },
+        dismiss = { savingsGoalModalVisible = false }
+    ) {
+        onEvent(BudgetScreenEvent.OnSetSavingsGoal(it))
+    }
+
     BudgetModal(
         modal = state.budgetModalData,
         onCreate = { name, amount, categories, accounts ->
@@ -181,10 +254,6 @@ private fun BoxWithConstraintsScope.UI(
 @Composable
 private fun Toolbar(
     timeRange: com.ivy.wallet.data.model.FromToTimeRange?,
-    totalRemainingBudgetText: String?,
-    baseCurrency: String,
-    appBudgetMax: Double,
-    categoryBudgetsTotal: Double,
     setReorderModalVisible: (Boolean) -> Unit
 ) {
     Row(
@@ -215,59 +284,6 @@ private fun Toolbar(
                     )
                 )
             }
-
-            if (categoryBudgetsTotal > 0 || appBudgetMax > 0) {
-                Spacer(Modifier.height(4.dp))
-
-                val categoryBudgetText = if (categoryBudgetsTotal > 0) {
-                    stringResource(
-                        R.string.for_categories,
-                        categoryBudgetsTotal.format(baseCurrency),
-                        baseCurrency
-                    )
-                } else {
-                    ""
-                }
-
-                val appBudgetMaxText = if (appBudgetMax > 0) {
-                    stringResource(
-                        R.string.app_budget,
-                        appBudgetMax.format(baseCurrency),
-                        baseCurrency
-                    )
-                } else {
-                    ""
-                }
-
-                val hasBothBudgetTypes =
-                    categoryBudgetText.isNotBlank() && appBudgetMaxText.isNotBlank()
-                Text(
-                    modifier = Modifier.testTag("budgets_info_text"),
-                    text = if (hasBothBudgetTypes) {
-                        stringResource(
-                            R.string.budget_info_both,
-                            categoryBudgetText,
-                            appBudgetMaxText
-                        )
-                    } else {
-                        stringResource(R.string.budget_info, categoryBudgetText, appBudgetMaxText)
-                    },
-                    style = MaterialTheme.typography.numberLabelMedium.copy(
-                        color = Gray,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                )
-
-                if (totalRemainingBudgetText != null) {
-                    Text(
-                        text = totalRemainingBudgetText,
-                        style = MaterialTheme.typography.numberLabelMedium.copy(
-                            color = Gray,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    )
-                }
-            }
         }
 
         ReorderButton {
@@ -283,6 +299,8 @@ private fun Toolbar(
 private fun BudgetItem(
     displayBudget: DisplayBudget,
     baseCurrency: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
     onClick: () -> Unit
 ) {
     Row(
@@ -333,11 +351,85 @@ private fun BudgetItem(
         currency = baseCurrency,
         expenses = displayBudget.spentAmount,
         budget = displayBudget.budget.amount.value,
-        backgroundNotFilled = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        onClick()
+        backgroundNotFilled = MaterialTheme.colorScheme.surfaceVariant,
+        onClick = onClick,
+        trailing = { tint -> BudgetMenu(tint = tint, onEdit = onEdit, onDelete = onDelete) },
+    )
+}
+
+/** The budget's ⋮: Edit and Delete, in [tint], which reads on the bar under it. */
+@Composable
+private fun BudgetMenu(
+    tint: Color,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IvyIcon(
+            modifier = Modifier
+                .clip(PillShape)
+                .clickable { expanded = true }
+                .padding(4.dp)
+                .testTag("budget_menu"),
+            icon = R.drawable.ic_more_vertical,
+            tint = tint,
+            contentDescription = stringResource(R.string.more_options),
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            shape = MaterialTheme.shapes.medium,
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            BudgetMenuItem(
+                icon = R.drawable.ic_edit,
+                text = stringResource(R.string.edit),
+                color = MaterialTheme.colorScheme.onSurface,
+            ) {
+                expanded = false
+                onEdit()
+            }
+            BudgetMenuItem(
+                icon = R.drawable.ic_delete,
+                text = stringResource(R.string.delete),
+                color = deleteRed(),
+            ) {
+                expanded = false
+                onDelete()
+            }
+        }
     }
 }
+
+@Composable
+private fun BudgetMenuItem(
+    @DrawableRes icon: Int,
+    text: String,
+    color: Color,
+    onClick: () -> Unit,
+) {
+    DropdownMenuItem(
+        text = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge.copy(color = color, fontWeight = FontWeight.SemiBold)
+            )
+        },
+        leadingIcon = { IvyIcon(icon = icon, tint = color) },
+        onClick = onClick,
+    )
+}
+
+/** The budget's page: the pie chart of its expenses in [month], listed under it. */
+private fun budgetPage(item: DisplayBudget, month: String) = PieChartStatisticScreen(
+    type = TransactionType.EXPENSE,
+    // The budget's own accounts: the chart then counts all its expenses, as the budget does.
+    accountList = item.expenses.map { it.account.value }.distinct().toImmutableList(),
+    transactions = item.expenses,
+    budgetPage = BudgetPage(name = item.budget.name.value, month = month),
+)
 
 @Composable
 private fun NoBudgetsEmptyState(
@@ -381,3 +473,43 @@ private fun NoBudgetsEmptyState(
         Spacer(Modifier.height(96.dp))
     }
 }
+
+/** For screenshot testing: a month with a savings goal, budgets within their amounts and one over. */
+@Composable
+fun BudgetScreenUiTest(isDark: Boolean) {
+    IvyWalletPreview(if (isDark) Theme.DARK else Theme.LIGHT) {
+        UI(
+            state = BudgetScreenState(
+                baseCurrency = "EUR",
+                budgets = persistentListOf(
+                    sampleBudget("Groceries", amount = 400.0, spent = 318.4, categories = 1),
+                    sampleBudget("Eating out", amount = 150.0, spent = 172.5, categories = 1),
+                    sampleBudget("Everything", amount = 2000.0, spent = 1240.0, categories = 0),
+                    sampleBudget("Transport", amount = 120.0, spent = 30.0, categories = 2),
+                ),
+                categories = persistentListOf(),
+                accounts = persistentListOf(),
+                savings = SavingsGoal(goal = 500.0, saved = 320.0),
+                timeRange = FromToTimeRange(
+                    from = Instant.parse("2023-11-01T00:00:00Z"),
+                    to = Instant.parse("2023-11-30T23:59:59Z"),
+                ),
+                period = TimePeriod(month = Month.fromMonthValue(11), year = 2023),
+                reorderModalVisible = false,
+                budgetModalData = null,
+            )
+        )
+    }
+}
+
+private fun sampleBudget(name: String, amount: Double, spent: Double, categories: Int) = DisplayBudget(
+    budget = Budget(
+        id = BudgetId(UUID.randomUUID()),
+        name = NotBlankTrimmedString.unsafe(name),
+        amount = PositiveDouble.unsafe(amount),
+        categories = List(categories) { CategoryId(UUID.randomUUID()) },
+        accounts = emptyList(),
+        orderNum = 0.0,
+    ),
+    spentAmount = spent,
+)

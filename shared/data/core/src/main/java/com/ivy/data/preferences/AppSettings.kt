@@ -7,7 +7,7 @@ data class AppSettings(
     val theme: Theme,
     // ISO code of the currency balances are shown in
     val baseCurrency: String,
-    // the amount the user wants to keep aside; the home screen shows what's left above it
+    // the monthly savings goal: Budgets compares it with what each month saved
     val bufferAmount: Double,
     val name: String,
 )

@@ -26,16 +26,19 @@ import com.ivy.design.utils.thenIf
 import com.ivy.wallet.IvyWalletComponentPreview
 import com.ivy.wallet.utils.format
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
-import com.ivy.design.system.colors.Orange
-import com.ivy.design.system.colors.White
+import com.ivy.design.system.colors.expenseRed
+import com.ivy.design.system.colors.readableOn
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
 import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberLabelMedium
-import com.ivy.design.system.colors.Palette
 
+/**
+ * How much of a budget is spent: a bar filling in one calm color while within it, and red only once
+ * it's exceeded, so that exceeded budgets stand out. [trailing], at its end, gets the color that
+ * reads on what's under it.
+ */
 @Composable
 fun BudgetBattery(
     currency: String,
@@ -44,41 +47,22 @@ fun BudgetBattery(
     modifier: Modifier = Modifier,
     backgroundNotFilled: Color = MaterialTheme.colorScheme.surface,
     onClick: (() -> Unit)? = null,
+    trailing: (@Composable (tint: Color) -> Unit)? = null,
 ) {
     if (budget == 0.0) return
     val percentSpent = expenses / budget
 
-    val textColor = when {
-        percentSpent <= 0.30 -> {
-            MaterialTheme.colorScheme.onSurface
-        }
-
-        percentSpent <= 0.50 -> {
-            White
-        }
-
-        percentSpent <= 0.75 -> {
-            White
-        }
-
-        else -> White
+    val fill = if (percentSpent > 1.0) expenseRed(backgroundNotFilled) else Ivy
+    val onFill = readableOn(fill)
+    // The texts sit at the start, on the fill once it reaches past them.
+    val textColor = if (percentSpent <= TextCoveredAt) MaterialTheme.colorScheme.onSurface else onFill
+    val captionTextColor = if (percentSpent <= TextCoveredAt) {
+        MaterialTheme.colorScheme.inverseSurface
+    } else {
+        onFill
     }
-
-    val captionTextColor = when {
-        percentSpent <= 0.30 -> {
-            MaterialTheme.colorScheme.inverseSurface
-        }
-
-        percentSpent <= 0.50 -> {
-            White
-        }
-
-        percentSpent <= 0.75 -> {
-            White
-        }
-
-        else -> White
-    }
+    // The trailing content sits at the end, on the fill only once it fills the bar to there.
+    val trailingTint = if (percentSpent >= EndCoveredAt) onFill else MaterialTheme.colorScheme.onSurface
 
     Row(
         modifier = modifier
@@ -87,21 +71,7 @@ fun BudgetBattery(
             .background(backgroundNotFilled)
             .drawBehind {
                 drawRect(
-                    color = when {
-                        percentSpent <= 0.25 -> {
-                            Green
-                        }
-
-                        percentSpent <= 0.50 -> {
-                            Ivy
-                        }
-
-                        percentSpent <= 0.75 -> {
-                            Orange
-                        }
-
-                        else -> Palette.Red
-                    },
+                    color = fill,
                     size = size.copy(
                         width = (size.width * percentSpent).toFloat()
                     )
@@ -157,8 +127,20 @@ fun BudgetBattery(
                 )
             )
         }
+
+        if (trailing != null) {
+            Spacer(Modifier.weight(1f))
+
+            trailing(trailingTint)
+
+            Spacer(Modifier.width(8.dp))
+        }
     }
 }
+
+// How far a bar fills before its texts, at its start, are on the fill; and before its end is.
+private const val TextCoveredAt = 0.30
+private const val EndCoveredAt = 0.9
 
 @Preview
 @Composable

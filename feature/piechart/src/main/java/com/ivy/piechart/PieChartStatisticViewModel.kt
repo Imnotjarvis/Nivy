@@ -18,6 +18,13 @@ import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.utils.ioThread
 import com.ivy.navigation.PieChartStatisticScreen
+import com.ivy.navigation.BudgetPage
+import com.ivy.data.repository.CategoryRepository
+import com.ivy.domain.features.Features
+import com.ivy.wallet.data.AppBaseData
+import com.ivy.wallet.domain.action.account.AccountsAct
+import com.ivy.wallet.domain.action.transaction.TrnsWithDateDivsAct
+import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.piechart.action.PieChartAct
 import com.ivy.ui.ComposeViewModel
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
@@ -39,6 +46,10 @@ class PieChartStatisticViewModel @Inject constructor(
     private val appPreferences: AppPreferences,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
+    private val accountsAct: AccountsAct,
+    private val categoryRepository: CategoryRepository,
+    private val trnsWithDateDivsAct: TrnsWithDateDivsAct,
+    private val features: Features,
 ) : ComposeViewModel<PieChartStatisticState, PieChartStatisticEvent>() {
 
     private var treatTransfersAsIncomeExpense by mutableStateOf(false)
@@ -53,6 +64,9 @@ class PieChartStatisticViewModel @Inject constructor(
     private var filterExcluded by mutableStateOf(false)
     private var transactions by mutableStateOf<ImmutableList<Transaction>>(persistentListOf())
     private var choosePeriodModal by mutableStateOf<ChoosePeriodModalData?>(null)
+    private var budgetPage by mutableStateOf<BudgetPage?>(null)
+    private var history by mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
+    private var baseData by mutableStateOf(AppBaseData("", persistentListOf(), persistentListOf()))
 
     @Composable
     override fun uiState(): PieChartStatisticState {
@@ -67,7 +81,12 @@ class PieChartStatisticViewModel @Inject constructor(
             showCloseButtonOnly = showCloseButtonOnly,
             filterExcluded = filterExcluded,
             transactions = transactions,
-            choosePeriodModal = choosePeriodModal
+            choosePeriodModal = choosePeriodModal,
+            budgetPage = budgetPage,
+            history = history,
+            baseData = baseData,
+            compactTransactions = features.compactTransactionsMode.asEnabledState(),
+            showAccountColors = features.showAccountColorsInTransactions.asEnabledState(),
         )
     }
 
@@ -88,6 +107,7 @@ class PieChartStatisticViewModel @Inject constructor(
         screen: PieChartStatisticScreen
     ) {
         viewModelScope.launch(Dispatchers.Default) {
+            budgetPage = screen.budgetPage
             startInternally(
                 period = periodState.selected,
                 type = screen.type,
@@ -126,7 +146,7 @@ class PieChartStatisticViewModel @Inject constructor(
         accountIdFilterList = accountIdFilterListValue
         filterExcluded = filterExcludedValue
         transactions = transactionsValue
-        showCloseButtonOnly = transactionsValue.isNotEmpty()
+        showCloseButtonOnly = transactionsValue.isNotEmpty() || budgetPage != null
         baseCurrency = baseCurrencyValue
     }
 
@@ -151,9 +171,11 @@ class PieChartStatisticViewModel @Inject constructor(
                     accountIdFilterList = accountIdFilterList,
                     treatTransferAsIncExp = treatTransferAsIncExp,
                     existingTransactions = transactions,
+                    onlyExisting = budgetPage != null,
                 )
             )
         }
+        if (budgetPage != null) loadBudgetTransactions(baseCurrency, transactions)
 
         val totalAmountValue = pieChartActOutput.totalAmount
         val categoryAmountsValue = pieChartActOutput.categoryAmounts
@@ -162,6 +184,18 @@ class PieChartStatisticViewModel @Inject constructor(
         totalAmount = totalAmountValue
         categoryAmounts = categoryAmountsValue
         selectedCategory = null
+    }
+
+    // A budget's page lists its transactions under the chart, as Home lists its own.
+    private suspend fun loadBudgetTransactions(baseCurrency: String, transactions: List<Transaction>) {
+        baseData = AppBaseData(
+            baseCurrency = baseCurrency,
+            accounts = accountsAct().toImmutableList(),
+            categories = categoryRepository.findAll().toImmutableList(),
+        )
+        history = trnsWithDateDivsAct(
+            TrnsWithDateDivsAct.Input(baseCurrency = baseCurrency, transactions = transactions)
+        ).toImmutableList()
     }
 
     private suspend fun onSetPeriod(periodValue: TimePeriod) {

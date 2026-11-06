@@ -55,10 +55,8 @@ import com.ivy.navigation.SearchScreen
 import com.ivy.navigation.SettingsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.wallet.ui.theme.components.BufferBattery
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
-import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
@@ -88,15 +86,10 @@ import androidx.compose.ui.semantics.semantics
 @Composable
 fun BoxWithConstraintsScope.MoreMenu(
     expanded: Boolean,
-
-    balance: Double,
-    buffer: Double,
-    currency: String,
     theme: Theme,
 
     setExpanded: (Boolean) -> Unit,
     onSwitchTheme: () -> Unit,
-    onBufferClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val screenSize = LocalScreenSize.current
@@ -164,10 +157,6 @@ fun BoxWithConstraintsScope.MoreMenu(
             Content(
                 theme = theme,
                 onSwitchTheme = onSwitchTheme,
-                balance = balance,
-                buffer = buffer,
-                currency = currency,
-                onBufferClick = onBufferClick,
             )
         }
     }
@@ -217,13 +206,8 @@ private val ShapeBottom: Shape
 
 @Composable
 private fun ColumnScope.Content(
-    balance: Double,
-    buffer: Double,
-    currency: String,
     theme: Theme,
-
     onSwitchTheme: () -> Unit,
-    onBufferClick: () -> Unit,
 ) {
     // The title beside the arrow, where Home's header row is: as tall as the arrow, so that both
     // center alike.
@@ -249,65 +233,7 @@ private fun ColumnScope.Content(
         onSwitchTheme = onSwitchTheme
     )
 
-    Spacer(Modifier.height(40.dp))
-
-    Buffer(
-        buffer = buffer,
-        currency = currency,
-        balance = balance,
-        onBufferClick = onBufferClick
-    )
-
     Spacer(Modifier.height(24.dp))
-}
-
-@Composable
-private fun ColumnScope.Buffer(
-    buffer: Double,
-    currency: String,
-    balance: Double,
-    onBufferClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickableNoIndication(rememberInteractionSource()) {
-                onBufferClick()
-            }
-            .testTag("savings_goal_row"),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(24.dp))
-
-        Text(
-            text = stringResource(R.string.savings_goal),
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.weight(1f))
-
-        AmountCurrencyB1(
-            amount = buffer,
-            currency = currency,
-            amountFontWeight = FontWeight.ExtraBold
-        )
-
-        Spacer(Modifier.width(32.dp))
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BufferBattery(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        buffer = buffer,
-        currency = currency,
-        balance = balance,
-    ) {
-        onBufferClick()
-    }
 }
 
 @Composable
@@ -479,14 +405,10 @@ private fun BoxWithConstraintsScope.Preview_Expanded() {
     IvyPreview {
         MoreMenu(
             expanded = true,
-            balance = 7523.43,
-            buffer = 5000.0,
-            currency = "BGN",
             theme = Theme.LIGHT,
             setExpanded = {
             },
             onSwitchTheme = {},
-            onBufferClick = {},
         )
     }
 }
@@ -499,15 +421,11 @@ private fun BoxWithConstraintsScope.Preview() {
 
         MoreMenu(
             expanded = expanded,
-            balance = 7523.43,
-            buffer = 5000.0,
-            currency = "BGN",
             theme = Theme.LIGHT,
             setExpanded = {
                 expanded = it
             },
             onSwitchTheme = {},
-            onBufferClick = {},
         )
     }
 }

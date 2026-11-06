@@ -26,7 +26,6 @@ import com.ivy.wallet.MainScreenState
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.ThemeState
 import com.ivy.wallet.data.AppBaseData
-import com.ivy.wallet.data.BufferInfo
 import com.ivy.wallet.data.DueSection
 import com.ivy.wallet.data.model.MainTab
 import com.ivy.wallet.data.model.TimePeriod
@@ -96,12 +95,6 @@ class HomeViewModel @Inject constructor(
     private var history by mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
     private var stats by mutableStateOf(IncomeExpensePair.zero())
     private var balance by mutableStateOf(BigDecimal.ZERO)
-    private var buffer by mutableStateOf(
-        BufferInfo(
-            amount = BigDecimal.ZERO,
-            bufferDiff = BigDecimal.ZERO,
-        )
-    )
     private var upcoming by mutableStateOf(
         DueSection(
             trns = persistentListOf(),
@@ -136,7 +129,6 @@ class HomeViewModel @Inject constructor(
             history = history,
             stats = stats,
             balance = balance,
-            buffer = buffer,
             upcoming = upcoming,
             overdue = overdue,
             customerJourneyCards = customerJourneyCards,
@@ -167,7 +159,6 @@ class HomeViewModel @Inject constructor(
                 HomeEvent.SelectPreviousMonth -> onSelectPreviousMonth()
                 is HomeEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
                 is HomeEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
-                is HomeEvent.SetBuffer -> setBuffer(event.buffer)
                 HomeEvent.SwitchTheme -> switchTheme()
                 is HomeEvent.DismissCustomerJourneyCard -> dismissCustomerJourneyCard(event.card)
                 is HomeEvent.SetExpanded -> setExpanded(event.expanded)
@@ -210,8 +201,7 @@ class HomeViewModel @Inject constructor(
         ).toUTCCloseTimeRange()
 
         val withAccounts = loadAppBaseData(settings to timeRange)
-        val withBalance = loadIncomeExpenseBalance(withAccounts)
-        val currencyAndRange = loadBuffer(withBalance)
+        val currencyAndRange = loadIncomeExpenseBalance(withAccounts)
         loadTrnHistory(currencyAndRange)
         loadDueTrns(currencyAndRange)
         loadCustomerJourney()
@@ -235,7 +225,7 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun loadIncomeExpenseBalance(
         input: Triple<AppSettings, ClosedTimeRange, List<Account>>
-    ): Triple<AppSettings, ClosedTimeRange, BigDecimal> {
+    ): Pair<String, ClosedTimeRange> {
         val (settings, timeRange, accounts) = input
 
         val incomeExpense = calcIncomeExpenseAct(
@@ -252,17 +242,6 @@ class HomeViewModel @Inject constructor(
 
         balance = balanceAmount
         stats = incomeExpense
-
-        return Triple(settings, timeRange, balanceAmount)
-    }
-
-    private suspend fun loadBuffer(
-        input: Triple<AppSettings, ClosedTimeRange, BigDecimal>
-    ): Pair<String, ClosedTimeRange> {
-        val (settings, timeRange, balance) = input
-
-        val bufferAmount = settings.bufferAmount.toBigDecimal()
-        buffer = BufferInfo(amount = bufferAmount, bufferDiff = balance - bufferAmount)
 
         return settings.baseCurrency to timeRange
     }
@@ -348,13 +327,6 @@ class HomeViewModel @Inject constructor(
             appPreferences.setTheme(theme)
             themeState.switchTheme(theme)
             currentTheme = theme
-        }
-    }
-
-    private fun setBuffer(newBuffer: Double) {
-        viewModelScope.launch {
-            appPreferences.setBufferAmount(newBuffer)
-            buffer = buffer.copy(amount = newBuffer.toBigDecimal())
         }
     }
 

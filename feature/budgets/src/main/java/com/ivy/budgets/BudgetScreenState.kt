@@ -14,11 +14,13 @@ data class BudgetScreenState(
     val budgets: ImmutableList<DisplayBudget>,
     val categories: ImmutableList<Category>,
     val accounts: ImmutableList<Account>,
-    val categoryBudgetsTotal: Double,
-    val appBudgetMax: Double,
-    val totalRemainingBudgetText: String?,
+    val savings: SavingsGoal,
     val timeRange: FromToTimeRange?,
     val period: TimePeriod?,
     val reorderModalVisible: Boolean,
     val budgetModalData: BudgetModalData?
 )
+
+/** The monthly savings goal, [goal] (none when 0), and what the month [saved] so far. */
+@Immutable
+data class SavingsGoal(val goal: Double, val saved: Double)

@@ -53,11 +53,18 @@ data class PieChartStatisticScreen(
     val filterExcluded: Boolean = true,
     val accountList: ImmutableList<UUID> = persistentListOf(),
     val transactions: ImmutableList<Transaction> = persistentListOf(),
-    val treatTransfersAsIncomeExpense: Boolean = false
+    val treatTransfersAsIncomeExpense: Boolean = false,
+    val budgetPage: BudgetPage? = null,
 ) : Screen {
     override val isLegacy: Boolean
         get() = true
 }
+
+/**
+ * The pie chart as a budget's page: headed by the budget's [name] and [month], charting only the
+ * screen's transactions, even none, and listing them under the chart.
+ */
+data class BudgetPage(val name: String, val month: String)
 
 data class EditPlannedScreen(
     val plannedPaymentRuleId: UUID?,
