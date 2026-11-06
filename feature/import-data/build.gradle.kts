@@ -16,4 +16,6 @@ dependencies {
     implementation(projects.shared.ui.components)
 
     implementation(libs.bundles.opencsv)
+
+    testImplementation(projects.shared.ui.testing)
 }

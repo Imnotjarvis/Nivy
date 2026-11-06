@@ -8,14 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ivy.data.backup.CSVRow
 import com.ivy.data.backup.ImportResult
 import com.ivy.importdata.csv.Spacer8
 import com.ivy.wallet.utils.format
@@ -45,100 +49,105 @@ internal fun ImportResultUI(
     onTryAgain: (() -> Unit)? = null,
     onFinish: () -> Unit,
 ) {
+    val nav = navigation()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
     ) {
-        Spacer(Modifier.height(16.dp))
-
-        val nav = navigation()
-        val onBack = rememberOnBack()
-        BackButton(
-            modifier = Modifier.padding(start = 20.dp)
+        // Above the buttons, scrolling when the rows not imported don't fit.
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
         ) {
-            onBack()
-        }
+            Spacer(Modifier.height(16.dp))
 
-        Spacer(Modifier.height(24.dp))
+            val onBack = rememberOnBack()
+            BackButton(
+                modifier = Modifier.padding(start = 20.dp)
+            ) {
+                onBack()
+            }
 
-        val importSuccess = result.transactionsImported > 0 &&
-                result.transactionsImported > result.rowsFound / 2
-        Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
-            text = if (importSuccess) stringResource(R.string.success) else stringResource(R.string.failure),
-            style = MaterialTheme.typography.headlineMedium.copy(
-                color = if (importSuccess) MaterialTheme.colorScheme.onSurface else Palette.Red,
-                fontWeight = FontWeight.Black
-            )
-        )
-        result.error?.let { error ->
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(24.dp))
+
+            val importSuccess = result.transactionsImported > 0 &&
+                    result.transactionsImported > result.rowsFound / 2
             Text(
                 modifier = Modifier.padding(horizontal = 32.dp),
-                text = error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Palette.Red,
+                text = if (importSuccess) stringResource(R.string.success) else stringResource(R.string.failure),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = if (importSuccess) MaterialTheme.colorScheme.onSurface else Palette.Red,
+                    fontWeight = FontWeight.Black
+                )
             )
-        }
-
-        Spacer(Modifier.height(32.dp))
-
-        val successPercent = if (result.rowsFound > 0) {
-            (result.transactionsImported / result.rowsFound.toDouble()) * 100
-        } else {
-            0.0
-        }
-
-        SuccessSectionUI(
-            result = result,
-            successPercent = successPercent,
-        )
-
-        IvyDividerLine(
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-
-        FailedSectionUI(
-            result = result,
-            successPercent = successPercent,
-        )
-
-        // TODO: Implement "See failed imports"
-
-        if (!isManualCsvImport) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                text = stringResource(R.string.csv_import_failed),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .padding(horizontal = 16.dp),
-                onClick = {
-                    nav.navigateTo(CSVScreen(launchedFromOnboarding = launchedFromOnboarding))
-                }
-            ) {
+            result.error?.let { error ->
+                Spacer(Modifier.height(8.dp))
                 Text(
-                    text = stringResource(id = R.string.manual_csv_import),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    text = error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Palette.Red,
                 )
             }
-        }
 
-        Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(32.dp))
+
+            val successPercent = if (result.rowsFound > 0) {
+                (result.transactionsImported / result.rowsFound.toDouble()) * 100
+            } else {
+                0.0
+            }
+
+            SuccessSectionUI(
+                result = result,
+                successPercent = successPercent,
+            )
+
+            IvyDividerLine(
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+
+            FailedSectionUI(
+                result = result,
+                successPercent = successPercent,
+            )
+
+            if (!isManualCsvImport) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    text = stringResource(R.string.csv_import_failed),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .padding(horizontal = 16.dp),
+                    onClick = {
+                        nav.navigateTo(CSVScreen(launchedFromOnboarding = launchedFromOnboarding))
+                    }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.manual_csv_import),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+        }
 
         Spacer8()
 
@@ -273,8 +282,37 @@ private fun FailedSectionUI(
                 fontWeight = FontWeight.Bold
             )
         )
+
+        FailedRows(rows = result.failedRows)
     }
 }
+
+/** The first rows that weren't imported, by their row in the file, so they can be found there. */
+@Composable
+private fun FailedRows(rows: List<CSVRow>) {
+    if (rows.isEmpty()) return
+    Spacer(Modifier.height(12.dp))
+    rows.take(FailedRowsShown).forEach { row ->
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp, vertical = 2.dp),
+            text = stringResource(R.string.csv_failed_row, row.index, row.content.joinToString(", ")),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+    if (rows.size > FailedRowsShown) {
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp, vertical = 2.dp),
+            text = stringResource(R.string.csv_more_failed_rows, rows.size - FailedRowsShown),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Gray,
+        )
+    }
+}
+
+private const val FailedRowsShown = 5
 
 @Preview(device = "id:pixel_3", showBackground = true, showSystemUi = true)
 @Composable

@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.annotation.DrawableRes
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.navigation.CSVScreen
 import com.ivy.navigation.navigation
 import com.ivy.onboarding.components.OnboardingToolbar
@@ -44,10 +43,8 @@ internal fun BoxWithConstraintsScope.ImportFrom(
     launchedFromOnboarding: Boolean,
 
     onSkip: () -> Unit = {},
-    onImportFrom: (ImportType) -> Unit = {},
+    onNivyBackup: () -> Unit = {},
 ) {
-    val importTypes = ImportType.values()
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -102,10 +99,11 @@ internal fun BoxWithConstraintsScope.ImportFrom(
             Spacer(Modifier.height(24.dp))
         }
 
-        items(importTypes, key = { it.name }) {
+        item {
             ImportOption(
-                importType = it,
-                onImportFrom = onImportFrom
+                icon = R.drawable.ivywallet_logo,
+                name = stringResource(R.string.nivy_backup),
+                onClick = onNivyBackup
             )
         }
 
@@ -122,8 +120,9 @@ internal fun BoxWithConstraintsScope.ImportFrom(
 
 @Composable
 private fun ImportOption(
-    importType: ImportType,
-    onImportFrom: (ImportType) -> Unit,
+    @DrawableRes icon: Int,
+    name: String,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -131,9 +130,7 @@ private fun ImportOption(
             .padding(horizontal = 16.dp)
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.large)
-            .clickable {
-                onImportFrom(importType)
-            }
+            .clickable(onClick = onClick)
             .padding(vertical = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -141,13 +138,13 @@ private fun ImportOption(
 
         IvyIcon(
             modifier = Modifier.size(32.dp),
-            icon = importType.logo(),
+            icon = icon,
             tint = Color.Unspecified
         )
 
         Text(
             modifier = Modifier.padding(start = 16.dp, end = 32.dp),
-            text = importType.listName(),
+            text = name,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold

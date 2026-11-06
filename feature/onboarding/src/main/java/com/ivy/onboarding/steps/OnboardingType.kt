@@ -59,7 +59,7 @@ internal fun OnboardingType(
 
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = stringResource(R.string.import_csv_file),
+            text = stringResource(R.string.import_data),
             style = MaterialTheme.typography.headlineMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Black
@@ -70,7 +70,7 @@ internal fun OnboardingType(
 
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = stringResource(R.string.from_ivy_or_another_app),
+            text = stringResource(R.string.from_nivy_backup_or_csv),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Bold
@@ -96,7 +96,7 @@ internal fun OnboardingType(
 
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = stringResource(R.string.importing_another_time_warning),
+            text = stringResource(R.string.importing_may_take_a_while),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
