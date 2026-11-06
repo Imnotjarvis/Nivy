@@ -9,9 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import com.ivy.design.system.motion.AppearRiseFraction
 import com.ivy.design.system.motion.CoveredDimAlpha
-import com.ivy.design.system.motion.appearTween
 import com.ivy.design.system.shapes.ShapeTop
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -81,8 +79,6 @@ internal fun BoxWithConstraintsScope.BottomBar(
 
     showAddAccountModal: () -> Unit,
 ) {
-    val screenSize = LocalScreenSize.current
-
     var expanded by remember { mutableStateOf(false) }
 
     val modalId = remember { UUID.randomUUID() }
@@ -94,10 +90,11 @@ internal fun BoxWithConstraintsScope.BottomBar(
         expanded = false
     }
 
-    // Like a dialog: the panel rises a little as it fades in over the screen, which dims.
+    // The panel comes up from the bottom edge over the screen, which dims, on the buttons' spring:
+    // the buttons, the panel and the dim come and go together.
     val appeared = animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
-        animationSpec = appearTween(),
+        animationSpec = springBounceFast(),
         label = "add_menu",
     )
     val shown by remember { derivedStateOf { appeared.value > 0f } }
@@ -107,10 +104,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
         animationSpec = springBounceFast()
     )
 
-    val buttonsShownPercent by animateFloatAsState(
-        targetValue = if (expanded) 1f else 0f,
-        animationSpec = springBounceFast()
-    )
+    val buttonsShownPercent by appeared
 
     TabsBottomBar(
         contentAlpha = 1f - buttonsShownPercent,
@@ -141,23 +135,22 @@ internal fun BoxWithConstraintsScope.BottomBar(
         Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * appeared.value) }
+                .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * appeared.value.coerceIn(0f, 1f)) }
                 // No ripple: on the dim it would wash over the whole screen as the menu closes.
                 .clickable(interactionSource = null, indication = null, enabled = expanded) {
                     expanded = false
                 }
                 .zIndex(100f)
         )
-        // Half the screen, under the buttons, its top corners on the app's corner radius.
+        // Half the screen, under the buttons, its top corners on the app's corner radius. Solid all
+        // the way, coming up from behind the bottom edge: a panel fading in let the screen's colors
+        // show through it. The spring's overshoot would lift it off the edge: it stops there.
         Spacer(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .fillMaxHeight(PanelHeightFraction)
-                .graphicsLayer {
-                    translationY = (1f - appeared.value) * AppearRiseFraction * screenSize.height
-                    alpha = appeared.value
-                }
+                .graphicsLayer { translationY = (1f - appeared.value).coerceAtLeast(0f) * size.height }
                 .background(MaterialTheme.colorScheme.surface, ShapeTop)
                 .clickableNoIndication(rememberInteractionSource()) {
                     // consume click, do nothing
@@ -281,15 +274,18 @@ private fun TransactionButtons(
 
         val clickAreaWidth = screenSize.width / 3
 
+        // Out of the + button, as the other buttons come: rising to its place as it fades in.
         IvyOutlinedButton(
             modifier = Modifier
                 .layout { measurable, constraints ->
-                    val placealbe = measurable.measure(constraints)
-                    layout(placealbe.width, placealbe.height) {
-                        placealbe.place(
-                            x = screenSize.width / 2 - placealbe.width / 2,
-                            y = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placealbe.height -
-                                FAB_BUTTON_SIZE.roundToPx()
+                    val placeable = measurable.measure(constraints)
+                    val shownY = buttonCenterY.roundToInt() - 48.dp.roundToPx() - placeable.height -
+                        FAB_BUTTON_SIZE.roundToPx()
+                    val y = lerp(fabStartY, shownY.toFloat(), buttonsShownPercent)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(
+                            x = screenSize.width / 2 - placeable.width / 2,
+                            y = y.roundToInt()
                         )
                     }
                 }

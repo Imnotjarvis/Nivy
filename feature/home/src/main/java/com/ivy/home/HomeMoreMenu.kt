@@ -2,8 +2,6 @@ package com.ivy.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
@@ -28,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -58,15 +55,12 @@ import com.ivy.navigation.SearchScreen
 import com.ivy.navigation.SettingsScreen
 import com.ivy.navigation.navigation
 import com.ivy.ui.R
-import com.ivy.design.system.colors.Gray
 import com.ivy.wallet.ui.theme.components.BufferBattery
 import com.ivy.wallet.ui.theme.components.CircleButtonFilled
-import com.ivy.wallet.ui.theme.components.IvyIcon
 import com.ivy.wallet.ui.theme.modal.AddModalBackHandling
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import java.util.UUID
 import kotlin.math.roundToInt
-import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,15 +70,20 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import com.ivy.design.system.motion.AppearRiseFraction
 import com.ivy.design.system.motion.CoveredDimAlpha
+import androidx.compose.ui.graphics.drawOutline
 import com.ivy.design.system.motion.appearTween
 import com.ivy.design.system.shapes.AppCornerRadius
 import com.ivy.design.utils.consumeClicks
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 
 /**
- * Home's menu under the arrow at its top end: a panel that drops down from the top, as tall as its
- * content, over Home, which dims. Like a dialog, it comes and goes in a fifth of a second, dropping
- * a little as it fades in. The arrow stays where it is and turns to point up: the menu closes from
- * where it opened, as from the dim and Back.
+ * Home's menu under the arrow at its top end: a panel from the top, as tall as its content, over
+ * Home, which dims. Like a dialog, it comes and goes in a fifth of a second, dropping a little as it
+ * comes in: solid first, then its content fades in on it, so that Home never shows through it. The
+ * arrow stays where it is and turns to point up: the menu closes from where it opened, as from the
+ * dim and Back.
  */
 @Composable
 fun BoxWithConstraintsScope.MoreMenu(
@@ -109,6 +108,9 @@ fun BoxWithConstraintsScope.MoreMenu(
     )
     val shown by remember { derivedStateOf { progress.value > 0f } }
 
+    val nav = navigation()
+    val searchLabel = stringResource(R.string.search_transactions)
+
     val xButton = screenSize.width - 24.dp.toDensityPx() - 40.dp.toDensityPx()
     val yButton = 20.dp.toDensityPx() + statusBarInset()
 
@@ -125,17 +127,27 @@ fun BoxWithConstraintsScope.MoreMenu(
                 .zIndex(500f)
         )
 
+        val panelColor = MaterialTheme.colorScheme.surfaceVariant
         Column(
             modifier = modifier
                 .fillMaxWidth()
+                // Drops a little as it comes in, as dialogs rise. The panel turns solid in its first
+                // frames and only then does its content fade in on it: fading in together, Home's
+                // colors showed through both, as a flash.
                 .graphicsLayer {
                     translationY = -(1f - progress.value) * AppearRiseFraction * screenSize.height
-                    alpha = progress.value
                 }
-                .background(MaterialTheme.colorScheme.surfaceVariant, ShapeBottom)
+                .drawBehind {
+                    drawOutline(
+                        outline = ShapeBottom.createOutline(size, layoutDirection, this),
+                        color = panelColor,
+                        alpha = (progress.value / SolidAt).coerceIn(0f, 1f),
+                    )
+                }
                 .consumeClicks(rememberInteractionSource())
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
+                .graphicsLayer { alpha = ((progress.value - SolidAt) / (1f - SolidAt)).coerceIn(0f, 1f) }
                 .zIndex(510f)
         ) {
             val modalId = remember {
@@ -170,9 +182,18 @@ fun BoxWithConstraintsScope.MoreMenu(
                 }
             }
             .graphicsLayer { rotationZ = -180f * progress.value }
-            // Over the panel also while it fades out.
+            // Over the panel also while it leaves.
             .thenIf(shown) {
                 zIndex(520f)
+            }
+            // Search is on Home, pulled down from the list's top: screen readers also reach it here.
+            .semantics {
+                customActions = listOf(
+                    CustomAccessibilityAction(searchLabel) {
+                        nav.navigateTo(SearchScreen)
+                        true
+                    }
+                )
             }
             .testTag("home_more_menu_arrow"),
         backgroundColor = colorLerp(
@@ -185,6 +206,10 @@ fun BoxWithConstraintsScope.MoreMenu(
         setExpanded(!expanded)
     }
 }
+
+// How far into its coming the panel is solid, before its content fades in on it: a quarter, about
+// 50 ms.
+private const val SolidAt = 0.25f
 
 /** A panel from the top rounds only its bottom corners, on the app's radius. */
 private val ShapeBottom: Shape
@@ -200,23 +225,24 @@ private fun ColumnScope.Content(
     onSwitchTheme: () -> Unit,
     onBufferClick: () -> Unit,
 ) {
-    val nav = navigation()
-    // Where Home's header row is, beside the arrow: as tall as it, so that both center alike, and
-    // ending where Home's month button does.
+    // The title beside the arrow, where Home's header row is: as tall as the arrow, so that both
+    // center alike.
     Box(
         modifier = Modifier
-            .padding(top = 20.dp, start = 16.dp, end = 76.dp)
+            .padding(top = 20.dp, start = 24.dp)
             .height(48.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
-        SearchButton {
-            nav.navigateTo(
-                screen = SearchScreen
+        Text(
+            text = stringResource(R.string.quick_access),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
             )
-        }
+        )
     }
 
-    Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(8.dp))
 
     QuickAccess(
         theme = theme,
@@ -233,42 +259,6 @@ private fun ColumnScope.Content(
     )
 
     Spacer(Modifier.height(24.dp))
-}
-
-@Composable
-private fun SearchButton(
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(PillShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, Gray, PillShape)
-            .clickable {
-                onClick()
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(12.dp))
-
-        IvyIcon(icon = R.drawable.ic_search)
-
-        Spacer(Modifier.width(12.dp))
-
-        Text(
-            modifier = Modifier.padding(
-                vertical = 12.dp,
-            ),
-            text = stringResource(R.string.search_transactions),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
-
-        Spacer(Modifier.width(16.dp))
-    }
 }
 
 @Composable
@@ -327,17 +317,6 @@ private fun QuickAccess(
 ) {
     Column {
         val nav = navigation()
-
-        Text(
-            modifier = Modifier.padding(start = 24.dp),
-            text = stringResource(R.string.quick_access),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        Spacer(Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
