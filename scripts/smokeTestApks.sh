@@ -1,10 +1,13 @@
 #!/bin/bash
-# Installs each APK on the connected device/emulator as a fresh install, launches it and
-# fails if the app process dies or anything lands in the crash log. After the plain launch it
-# opens the app the way app shortcuts do (straight on the add-transaction screen) and presses
-# back twice, which goes through the OnBackPressedDispatcher: Android 16 no longer calls
-# Activity.onBackPressed() for apps targeting it.
-# Screenshots of each launched APK go to build/smoke/ for a visual check.
+# Installs each APK on the connected device/emulator as a fresh install and goes through it as a
+# new user does: from the welcome screen through every onboarding step (Continue offline, Start
+# fresh, the currency, skipping accounts and categories, which adds the starter ones) to Home,
+# allowing the notifications Home asks for. Then it opens the app the way app shortcuts do
+# (straight on the add-transaction screen) and presses back twice, which goes through the
+# OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed() for apps targeting
+# it. It fails if the app process dies, anything lands in the crash log, or a screen it waits for
+# doesn't show.
+# Screenshots of each step go to build/smoke/ for a visual check.
 # Usage: scripts/smokeTestApks.sh path/to/app-debug.apk [more.apk ...]
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -30,6 +33,41 @@ check() {
     echo "ok   [$name] $step"
 }
 
+# The bounds "x1 y1 x2 y2" of the first element on screen showing exactly this text, as UI
+# Automator sees the screen, waiting up to 30 seconds for it.
+find_text() {
+    local text=$1 start=$SECONDS node
+    while (( SECONDS - start < 30 )); do
+        node=$(adb shell uiautomator dump /sdcard/smoke-ui.xml >/dev/null 2>&1 \
+            && adb exec-out cat /sdcard/smoke-ui.xml | grep -o "<node [^>]*text=\"$text\"[^>]*>" | head -1)
+        if [ -n "$node" ]; then
+            sed -E 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/' <<< "$node"
+            return 0
+        fi
+        sleep 1
+    done
+    return 1
+}
+
+# Waits for the screen showing $3, screenshots it as $OUT/<apk>-$2.png and checks the app, then
+# taps the element showing $4, when given.
+step() {
+    local name=$1 step=$2 shows=$3 tap=${4:-} x1 y1 x2 y2
+    if ! find_text "$shows" >/dev/null; then
+        adb exec-out screencap -p > "$OUT/$name-$step.png"
+        echo "FAIL [$name] $step: no \"$shows\" on screen"
+        return 1
+    fi
+    adb exec-out screencap -p > "$OUT/$name-$step.png"
+    check "$name" "$step" || return 1
+    [ -z "$tap" ] && return 0
+    if ! read -r x1 y1 x2 y2 < <(find_text "$tap"); then
+        echo "FAIL [$name] $step: no \"$tap\" to tap"
+        return 1
+    fi
+    adb shell input tap $(( (x1 + x2) / 2 )) $(( (y1 + y2) / 2 ))
+}
+
 for apk in "$@"; do
     name=$(basename "$apk" .apk)
     echo "== $name"
@@ -42,14 +80,20 @@ for apk in "$@"; do
 
     adb logcat -c
     adb shell am start -W -n "$PACKAGE/$ACTIVITY"
-    sleep 15
-    adb exec-out screencap -p > "$OUT/$name.png"
-    check "$name" launch || { fail=1; continue; }
+    # Each step waits for a text only its screen shows: accounts and categories both have Skip.
+    step "$name" 1-welcome "Continue offline" "Continue offline" \
+        && step "$name" 2-start "Start fresh" "Start fresh" \
+        && step "$name" 3-currency "Set currency" "Set" \
+        && step "$name" 4-accounts "Add accounts" "Skip" \
+        && step "$name" 5-categories "Add categories" "Skip" \
+        && step "$name" 6-notifications "Allow" "Allow" \
+        && step "$name" 7-home "Home" \
+        || { fail=1; continue; }
 
     adb shell am start -W -n "$PACKAGE/$ACTIVITY" -a "$ADD_TRANSACTION_ACTION" \
         --es add_transaction_type_extra EXPENSE
     sleep 5
-    adb exec-out screencap -p > "$OUT/$name-add-transaction.png"
+    adb exec-out screencap -p > "$OUT/$name-8-add-transaction.png"
     check "$name" "add-transaction launch" || { fail=1; continue; }
 
     adb shell input keyevent KEYCODE_BACK
