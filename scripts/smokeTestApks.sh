@@ -33,16 +33,20 @@ check() {
     echo "ok   [$name] $step"
 }
 
-# The bounds "x1 y1 x2 y2" of the first element on screen showing exactly this text, as UI
-# Automator sees the screen, waiting up to 30 seconds for it.
+# The bounds "x1 y1 x2 y2" of the first element on screen showing this text, in any case (system
+# dialogs show their buttons in capitals), as UI Automator sees the screen. Waits up to 30
+# seconds for it. The last screen UI Automator could read is left in $OUT/screen.xml.
 find_text() {
-    local text=$1 start=$SECONDS node
+    local text=$1 start=$SECONDS screen node
     while (( SECONDS - start < 30 )); do
-        node=$(adb shell uiautomator dump /sdcard/smoke-ui.xml >/dev/null 2>&1 \
-            && adb exec-out cat /sdcard/smoke-ui.xml | grep -o "<node [^>]*text=\"$text\"[^>]*>" | head -1)
-        if [ -n "$node" ]; then
-            sed -E 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/' <<< "$node"
-            return 0
+        screen=$(adb shell "rm -f /sdcard/smoke-ui.xml; uiautomator dump /sdcard/smoke-ui.xml >/dev/null 2>&1; cat /sdcard/smoke-ui.xml 2>/dev/null")
+        if [[ "$screen" == *"<hierarchy"* ]]; then
+            printf '%s\n' "$screen" > "$OUT/screen.xml"
+            node=$(grep -io "<node [^>]*text=\"$text\"[^>]*>" <<< "$screen" | head -1)
+            if [ -n "$node" ]; then
+                sed -E 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/' <<< "$node"
+                return 0
+            fi
         fi
         sleep 1
     done
@@ -50,11 +54,13 @@ find_text() {
 }
 
 # Waits for the screen showing $3, screenshots it as $OUT/<apk>-$2.png and checks the app, then
-# taps the element showing $4, when given.
+# taps the element showing $4, when given. When the screen doesn't come, what UI Automator saw
+# of it is kept beside its screenshot.
 step() {
     local name=$1 step=$2 shows=$3 tap=${4:-} x1 y1 x2 y2
     if ! find_text "$shows" >/dev/null; then
         adb exec-out screencap -p > "$OUT/$name-$step.png"
+        cp "$OUT/screen.xml" "$OUT/$name-$step.xml" 2>/dev/null
         echo "FAIL [$name] $step: no \"$shows\" on screen"
         return 1
     fi

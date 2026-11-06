@@ -15,7 +15,7 @@ for module in "$@"; do
         echo "::error::$module: no instrumented test ran"
         fail=1
     else
-        echo "$module: $tests instrumented tests ran"
+        echo "$module: instrumented tests run: $tests"
     fi
 done
 
