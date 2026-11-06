@@ -292,7 +292,8 @@ private fun LazyListScope.historySection(
 
                                 transaction = it.transaction,
                                 tags = it.tags,
-                                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions,
+                                shouldShowAccountSpecificColorInTransactions =
+                                    shouldShowAccountSpecificColorInTransactions,
                                 onPayOrGet = onPayOrGet
                             ) { trn ->
                                 onTransactionClick(

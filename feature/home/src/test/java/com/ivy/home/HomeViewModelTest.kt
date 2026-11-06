@@ -53,7 +53,9 @@ class HomeViewModelTest : ComposeViewModelTest() {
             coEvery { this@mockk(any()) } returns monthsTransactions
         },
         calcIncomeExpenseAct = mockk<CalcIncomeExpenseAct> { coEvery { this@mockk(any()) } returns monthsTotals },
-        calcWalletBalanceAct = mockk<CalcWalletBalanceAct> { coEvery { this@mockk(any()) } coAnswers { balance.await() } },
+        calcWalletBalanceAct = mockk<CalcWalletBalanceAct> {
+            coEvery { this@mockk(any()) } coAnswers { balance.await() }
+        },
         appPreferences = mockk<AppPreferences>(relaxed = true) {
             coEvery { settings() } returns AppSettings(
                 theme = Theme.LIGHT,
