@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
-import com.ivy.base.model.processByType
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.data.model.pickable
@@ -34,6 +33,7 @@ import com.ivy.wallet.utils.format
 import com.ivy.wallet.utils.getDefaultFIATCurrency
 import com.ivy.wallet.utils.ioThread
 import com.ivy.loans.loan.data.DisplayLoan
+import com.ivy.loans.progress
 import com.ivy.ui.ComposeViewModel
 import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.action.account.AccountsAct
@@ -180,16 +180,11 @@ class LoanViewModel @Inject constructor(
             allLoans = ioThread {
                 loanRepository.findAll()
                     .map { loan ->
-                        val (amountPaid, loanTotalAmount) = calculateAmountPaidAndTotalAmount(loan)
-                        val percentPaid = if (loanTotalAmount != 0.0) {
-                            amountPaid / loanTotalAmount
-                        } else {
-                            0.0
-                        }
+                        val progress = loan.progress(loanRepository.findRecordsByLoanId(loan.id))
                         val currCode = findCurrencyCode(accounts, loan.account?.value)
 
                         // The totals are shown in the base currency; each loan is in its account's.
-                        val remaining = inBaseCurrency(loanTotalAmount - amountPaid, currCode)
+                        val remaining = inBaseCurrency(progress.left, currCode)
                         when (loan.type) {
                             LoanType.BORROW -> totalOweAmount += remaining
                             LoanType.LEND -> totalOwedAmount += remaining
@@ -197,19 +192,13 @@ class LoanViewModel @Inject constructor(
 
                         DisplayLoan(
                             loan = loan,
-                            loanTotalAmount = loanTotalAmount,
-                            amountPaid = amountPaid,
+                            loanTotalAmount = progress.total,
+                            amountPaid = progress.paid,
                             currencyCode = currCode,
-                            formattedDisplayText = "${amountPaid.format(currCode)} $currCode / ${
-                                loanTotalAmount.format(
-                                    currCode
-                                )
-                            } $currCode (${
-                                percentPaid.times(
-                                    Percent
-                                ).format(2)
-                            }%)",
-                            percentPaid = percentPaid
+                            formattedDisplayText = "${progress.paid.format(currCode)} $currCode / " +
+                                "${progress.total.format(currCode)} $currCode " +
+                                "(${progress.percentPaid.times(Percent).format(2)}%)",
+                            percentPaid = progress.percentPaid
                         )
                     }.toImmutableList()
             }
@@ -357,25 +346,6 @@ class LoanViewModel @Inject constructor(
         return accountId?.let {
             accounts.find { account -> account.id.value == it }?.asset?.code
         } ?: defaultCurrencyCode
-    }
-
-    /**
-     *  Calculates the total amount paid and the total loan amount including any changes made to the loan.
-     *  @return A Pair containing the total amount paid and the total loan amount.
-     */
-    private suspend fun calculateAmountPaidAndTotalAmount(loan: Loan): Pair<Double, Double> {
-        val loanRecords = loanRepository.findRecordsByLoanId(loan.id)
-        val (amountPaid, loanTotalAmount) = loanRecords.fold(0.0 to loan.amount.value) { value, loanRecord ->
-            val (currentAmountPaid, currentLoanTotalAmount) = value
-            if (loanRecord.interest) return@fold value
-            val convertedAmount = (loanRecord.convertedAmount ?: loanRecord.amount).value
-
-            loanRecord.type.processByType(
-                decreaseAction = { currentAmountPaid + convertedAmount to currentLoanTotalAmount },
-                increaseAction = { currentAmountPaid to currentLoanTotalAmount + convertedAmount }
-            )
-        }
-        return amountPaid to loanTotalAmount
     }
 
     private fun updatePaidOffLoanVisibility() {

@@ -28,8 +28,7 @@ class TransactionAmountsUseCase @Inject constructor(
             }
         }
 
-    /** Without a rate, the amount counts unconverted, as it always has. */
+    /** Without a rate, the amount is left out (counts as 0), as in every other total. */
     private suspend fun amountIn(value: PositiveValue, currency: AssetCode): Double =
-        exchangeUseCase.convert(value, to = currency).getOrNull()?.amount?.value
-            ?: value.amount.value
+        exchangeUseCase.convert(value, to = currency).getOrNull()?.amount?.value ?: 0.0
 }

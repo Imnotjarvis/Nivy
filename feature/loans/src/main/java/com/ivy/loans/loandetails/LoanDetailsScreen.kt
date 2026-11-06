@@ -50,6 +50,7 @@ import com.ivy.wallet.ui.previewLoanRecord
 import com.ivy.wallet.utils.format
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.design.utils.StatusBarDarkText
+import com.ivy.loans.LoanProgress
 import com.ivy.loans.loan.data.DisplayLoanRecord
 import com.ivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.ivy.loans.loandetails.events.LoanDetailsScreenEvent
@@ -129,9 +130,7 @@ private fun BoxWithConstraintsScope.UI(
                     Header(
                         loan = state.loan,
                         baseCurrency = state.baseCurrency,
-                        loanTotalAmount = state.loanTotalAmount,
-                        amountPaid = state.amountPaid,
-                        loanAmountPaid = state.loanAmountPaid,
+                        progress = state.progress,
                         itemColor = itemColor,
                         selectedLoanAccount = state.selectedLoanAccount,
                         onAmountClick = {
@@ -263,13 +262,11 @@ private fun BoxWithConstraintsScope.UI(
 private fun Header(
     loan: Loan,
     baseCurrency: String,
-    loanTotalAmount: Double,
-    amountPaid: Double,
+    progress: LoanProgress,
     itemColor: Color,
     onAmountClick: () -> Unit,
     onEditLoan: () -> Unit,
     onDeleteLoan: () -> Unit,
-    loanAmountPaid: Double = 0.0,
     selectedLoanAccount: Account? = null,
     onAddRecord: () -> Unit
 ) {
@@ -307,7 +304,7 @@ private fun Header(
                 },
             textColor = contrastColor,
             currency = baseCurrency,
-            balance = loanTotalAmount,
+            balance = progress.total,
         )
 
         Spacer(Modifier.height(20.dp))
@@ -315,9 +312,7 @@ private fun Header(
         LoanInfoCard(
             loan = loan,
             baseCurrency = baseCurrency,
-            amountPaid = amountPaid,
-            loanAmountPaid = loanAmountPaid,
-            loanTotalAmount = loanTotalAmount,
+            progress = progress,
             selectedLoanAccount = selectedLoanAccount,
             onAddRecord = onAddRecord
         )
@@ -393,9 +388,7 @@ private fun LoanItem(
 private fun LoanInfoCard(
     loan: Loan,
     baseCurrency: String,
-    loanTotalAmount: Double,
-    amountPaid: Double,
-    loanAmountPaid: Double = 0.0,
+    progress: LoanProgress,
     selectedLoanAccount: Account? = null,
 
     onAddRecord: () -> Unit
@@ -407,9 +400,6 @@ private fun LoanInfoCard(
     }
 
     val contrastColor = readableOn(backgroundColor)
-    val percentPaid = amountPaid / loanTotalAmount
-    val loanPercentPaid = loanAmountPaid / loanTotalAmount
-    val leftToPay = loanTotalAmount - amountPaid
     val nav = navigation()
 
     Column(
@@ -467,7 +457,7 @@ private fun LoanInfoCard(
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .testTag("amount_paid"),
-            text = "${amountPaid.format(baseCurrency)} / ${loanTotalAmount.format(baseCurrency)}",
+            text = "${progress.paid.format(baseCurrency)} / ${progress.total.format(baseCurrency)}",
             style = MaterialTheme.typography.numberTitleLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
@@ -492,7 +482,7 @@ private fun LoanInfoCard(
         ) {
             Text(
                 modifier = Modifier.testTag("percent_paid"),
-                text = "${percentPaid.times(100).format(2)}%",
+                text = "${progress.percentPaid.times(100).format(2)}%",
                 style = MaterialTheme.typography.numberTitleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
@@ -505,7 +495,7 @@ private fun LoanInfoCard(
                 modifier = Modifier.testTag("left_to_pay"),
                 text = stringResource(
                     R.string.left_to_pay,
-                    leftToPay.format(baseCurrency),
+                    progress.left.format(baseCurrency),
                     baseCurrency
                 ),
                 style = MaterialTheme.typography.numberBodyLarge.copy(
@@ -523,10 +513,10 @@ private fun LoanInfoCard(
                 .height(24.dp)
                 .padding(horizontal = 24.dp),
             notFilledColor = MaterialTheme.colorScheme.surface,
-            percent = percentPaid
+            percent = progress.percentPaid
         )
 
-        if (loanAmountPaid != 0.0) {
+        if (progress.interestPaid != 0.0) {
             HorizontalDivider(
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 16.dp)
@@ -554,7 +544,7 @@ private fun LoanInfoCard(
             ) {
                 Text(
                     modifier = Modifier.testTag("loan_interest_percent_paid"),
-                    text = "${loanPercentPaid.times(100).format(2)}%",
+                    text = "${progress.interestPercentPaid.times(100).format(2)}%",
                     style = MaterialTheme.typography.numberTitleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold
@@ -567,7 +557,7 @@ private fun LoanInfoCard(
                     modifier = Modifier.testTag("interest_paid"),
                     text = stringResource(
                         R.string.interest_paid,
-                        loanAmountPaid.format(baseCurrency),
+                        progress.interestPaid.format(baseCurrency),
                         baseCurrency
                     ),
                     style = MaterialTheme.typography.numberBodyLarge.copy(
@@ -585,7 +575,7 @@ private fun LoanInfoCard(
                     .height(24.dp)
                     .padding(horizontal = 24.dp),
                 notFilledColor = MaterialTheme.colorScheme.surface,
-                percent = loanPercentPaid
+                percent = progress.interestPercentPaid
             )
         }
 
@@ -897,9 +887,7 @@ private fun Preview_Empty() {
                     dateTime = LocalDateTime.now(),
                 ),
                 displayLoanRecords = persistentListOf(),
-                amountPaid = 3821.00,
-                loanTotalAmount = 4023.54,
-                loanAmountPaid = 100.0,
+                progress = LoanProgress(total = 4023.54, paid = 3821.00, interestPaid = 100.0),
                 accounts = persistentListOf(),
                 selectedLoanAccount = null,
                 createLoanTransaction = false,
@@ -955,9 +943,7 @@ private fun Preview_Records(theme: Theme = Theme.LIGHT) {
                         )
                     ),
                 ),
-                loanTotalAmount = 4023.54,
-                amountPaid = 3821.00,
-                loanAmountPaid = 100.0,
+                progress = LoanProgress(total = 4023.54, paid = 3821.00, interestPaid = 100.0),
                 accounts = persistentListOf(),
                 selectedLoanAccount = null,
                 createLoanTransaction = false,

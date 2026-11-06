@@ -42,12 +42,21 @@ class TransactionAmountsUseCaseTest {
     }
 
     @Test
-    fun `without a rate the amount counts unconverted`() = runTest {
+    fun `without a rate the amount is left out`() = runTest {
         // when
-        val total = useCase.total(listOf(expense(7.0, Bgn)), Usd)
+        val total = useCase.total(listOf(expense(7.0, Bgn), income(5.0, Usd)), Usd)
 
         // then
-        total shouldBe 7.0
+        total shouldBe 5.0
+    }
+
+    @Test
+    fun `without a rate the amount is left out of the balance too`() = runTest {
+        // when
+        val balance = useCase.balance(listOf(income(100.0, Usd), expense(7.0, Bgn)), Usd)
+
+        // then
+        balance shouldBe 100.0
     }
 
     @Test

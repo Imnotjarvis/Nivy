@@ -31,11 +31,14 @@ class PlannedPaymentAmountsUseCase @Inject constructor(
             }
         }
 
-    /** Without the account or a rate, the amount counts unconverted, as it always has. */
+    /**
+     * Without a rate, the amount is left out (counts as 0), as in every other total. Without its
+     * account, it's taken to be in [currency], as it always has.
+     */
     private suspend fun amountIn(rule: PlannedPaymentRule, currency: AssetCode): Double {
         val asset = accountRepository.findById(rule.account)?.asset ?: return rule.amount.value
         return exchangeUseCase.convert(PositiveValue(rule.amount, asset), to = currency)
-            .getOrNull()?.amount?.value ?: rule.amount.value
+            .getOrNull()?.amount?.value ?: 0.0
     }
 
     private companion object {
