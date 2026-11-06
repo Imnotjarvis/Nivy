@@ -42,11 +42,30 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
-        <!-- It fixes HiltWorker injection for newer WorkManager versions -->
+        <!-- Libraries start themselves through androidx.startup; only ProfileInstaller does here.
+             It installs the libraries' baseline profiles on installs that don't come from Play,
+             which otherwise run without them. WorkManager mustn't start itself: the app configures
+             it for HiltWorker (IvyAndroidApp). OkHttp's would build its platform on the main thread
+             at every launch; it builds it itself on the first request. Emoji and process-lifecycle
+             setup serve nothing the app uses. All of these stay off as before. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove" />
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                tools:node="remove" />
+            <meta-data
+                android:name="okhttp3.internal.platform.PlatformInitializer"
+                tools:node="remove" />
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                tools:node="remove" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                tools:node="remove" />
+        </provider>
 
         <receiver
             android:name="com.ivy.widget.transaction.AddTransactionWidget"

@@ -173,6 +173,7 @@ dependencies {
     implementation(libs.bundles.kotlin.android)
     implementation(libs.bundles.arrow)
     implementation(libs.bundles.compose)
+    debugImplementation(libs.compose.tooling)
     implementation(libs.bundles.activity)
     implementation(libs.datastore)
     implementation(libs.androidx.biometrics)
@@ -186,6 +187,8 @@ dependencies {
 
     implementation(libs.timber)
     implementation(libs.androidx.work)
+
+    testImplementation(libs.bundles.testing)
 
     lintChecks(libs.slack.lint.compose)
 }

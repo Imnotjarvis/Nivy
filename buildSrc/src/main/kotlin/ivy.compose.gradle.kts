@@ -28,6 +28,7 @@ composeCompiler {
 
 dependencies {
     implementation(libs.bundles.compose)
+    debugImplementation(libs.compose.tooling)
 
     lintChecks(libs.slack.lint.compose)
 }

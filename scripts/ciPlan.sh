@@ -4,7 +4,7 @@
 #   run     checks and build (false only for maintenance actions and idle nightlies)
 #   test    unit and screenshot tests
 #   device  the R8-minified demo APK and the emulator job (startup crashes, R8 rules, Room, Hilt)
-#   lint    Android Lint
+#   lint    Android Lint, on branch pushes too, so that its errors show before a change is merged
 # A push that only changes docs runs nothing. Branch pushes skip the device work when they only
 # change code or resources of features the smoke test doesn't open (everything but onboarding,
 # the main screen with Home, and the transaction editor) or widgets, or unit tests.
@@ -58,7 +58,6 @@ case "$EVENT" in
             test=false device=false lint=false
             reason="experimental branch push: checks and build only (a manual run runs everything)"
         else
-            lint=false
             if [ "$changed" = everything ]; then
                 reason="branch push: previous commit unknown (new branch?), so device tests run"
             else

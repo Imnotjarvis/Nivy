@@ -94,6 +94,13 @@ step() {
     adb shell input tap $(( (x1 + x2) / 2 )) $(( (y1 + y2) / 2 ))
 }
 
+# A freshly booted emulator's launcher can stall, and its "isn't responding" dialog then takes the
+# taps meant for the app (run 364: "Continue offline" never went through). Without error dialogs,
+# Android closes a stalled app instead. The app's own crash or stall still fails: check() finds
+# its crash log, or its process gone.
+adb shell settings put global hide_error_dialogs 1
+echo "error dialogs hidden: $(adb shell settings get global hide_error_dialogs | tr -d '\r')"
+
 for apk in "$@"; do
     name=$(basename "$apk" .apk)
     echo "== $name"
