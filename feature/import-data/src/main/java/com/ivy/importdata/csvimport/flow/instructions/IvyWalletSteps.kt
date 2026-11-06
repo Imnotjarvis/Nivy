@@ -22,14 +22,7 @@ internal fun IvyWalletSteps(
         """.trimIndent()
     )
 
-    Spacer(Modifier.height(12.dp))
-
-    VideoArticleRow(
-        videoUrl = null,
-        articleUrl = null
-    )
-
-    Spacer(Modifier.height(24.dp))
+    Spacer(Modifier.height(36.dp))
 
     UploadFileStep(
         stepNumber = 2,

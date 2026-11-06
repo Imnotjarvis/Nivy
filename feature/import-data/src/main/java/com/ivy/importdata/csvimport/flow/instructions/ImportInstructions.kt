@@ -1,11 +1,8 @@
 package com.ivy.importdata.csvimport.flow.instructions
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,8 +26,6 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ivy.importdata.csvimport.flow.ImportSteps
-import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.onboarding.components.OnboardingToolbar
 import com.ivy.ui.R
 import com.ivy.design.system.colors.Ivy
@@ -49,7 +43,6 @@ import com.ivy.navigation.rememberOnBack
 @Composable
 internal fun BoxWithConstraintsScope.ImportInstructions(
     hasSkip: Boolean,
-    importType: ImportType,
 
     onSkip: () -> Unit,
     onUploadClick: () -> Unit,
@@ -95,9 +88,7 @@ internal fun BoxWithConstraintsScope.ImportInstructions(
 
             Spacer(Modifier.height(24.dp))
 
-            App(
-                importType = importType
-            )
+            App()
 
             Spacer(Modifier.height(24.dp))
 
@@ -118,7 +109,7 @@ internal fun BoxWithConstraintsScope.ImportInstructions(
                 )
             )
 
-            importType.ImportSteps(onUploadClick = onUploadClick)
+            IvyWalletSteps(onUploadClick = onUploadClick)
         }
 
         item {
@@ -133,129 +124,10 @@ internal fun BoxWithConstraintsScope.ImportInstructions(
 }
 
 @Composable
-internal fun VideoArticleRow(
-    videoUrl: String?,
-    articleUrl: String?
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val rootScreen = com.ivy.wallet.rootScreen()
-
-        Spacer(Modifier.width(16.dp))
-
-        if (videoUrl != null) {
-            VideoButton(
-                modifier = Modifier.weight(1f)
-            ) {
-                rootScreen.openUrlInBrowser(videoUrl)
-            }
-        }
-
-        if (videoUrl != null && articleUrl != null) {
-            Spacer(Modifier.width(8.dp))
-        }
-
-        if (articleUrl != null) {
-            ArticleButton(
-                modifier = Modifier.weight(1f)
-            ) {
-                rootScreen.openUrlInBrowser(articleUrl)
-            }
-        }
-
-        Spacer(Modifier.width(16.dp))
-    }
-}
-
-@Composable
-fun VideoButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    InstructionButton(
-        modifier = modifier,
-        icon = R.drawable.ic_import_video,
-        caption = stringResource(R.string.how_to),
-        text = stringResource(R.string.video)
-    ) {
-        onClick()
-    }
-}
-
-@Composable
-fun ArticleButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    InstructionButton(
-        modifier = modifier,
-        icon = R.drawable.ic_import_web,
-        caption = stringResource(R.string.how_to),
-        text = stringResource(R.string.article)
-    ) {
-        onClick()
-    }
-}
-
-@Composable
-fun InstructionButton(
-    @DrawableRes icon: Int?,
-    caption: String,
-    text: String,
-    modifier: Modifier = Modifier,
-
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.large)
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(16.dp))
-
-        if (icon != null) {
-            IvyIcon(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surface, PillShape),
-                icon = icon,
-                tint = Color.Unspecified
-            )
-        }
-
-        Spacer(Modifier.width(if (icon != null) 24.dp else 12.dp))
-
-        Column {
-            Text(
-                text = caption,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = Gray,
-                    fontWeight = Bold
-                )
-            )
-
-            Spacer(Modifier.height(2.dp))
-
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = Bold
-                )
-            )
-        }
-    }
-}
-
-@Composable
 internal fun UploadFileStep(
     stepNumber: Int,
-    text: String = stringResource(R.string.upload_csv_file),
-    btnTitle: String = text,
+    text: String,
+    btnTitle: String,
     onUploadClick: () -> Unit
 ) {
     StepTitle(
@@ -330,9 +202,7 @@ internal fun StepTitle(
 }
 
 @Composable
-private fun App(
-    importType: ImportType
-) {
+private fun App() {
     Row(
         modifier = Modifier.padding(horizontal = 32.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -340,14 +210,14 @@ private fun App(
         IvyIcon(
             modifier = Modifier
                 .size(48.dp),
-            icon = importType.logo(),
+            icon = R.drawable.ivywallet_logo,
             tint = Color.Unspecified
         )
 
         Spacer(Modifier.width(16.dp))
 
         Text(
-            text = importType.appName(),
+            text = stringResource(R.string.nivy),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = Bold
@@ -363,7 +233,6 @@ private fun Preview() {
     com.ivy.wallet.IvyWalletPreview {
         ImportInstructions(
             hasSkip = true,
-            importType = ImportType.MONEY_MANAGER,
             onSkip = {}
         ) {
         }

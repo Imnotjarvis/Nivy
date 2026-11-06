@@ -12,20 +12,17 @@ import com.ivy.importdata.csvimport.flow.ImportFrom
 import com.ivy.importdata.csvimport.flow.ImportProcessing
 import com.ivy.importdata.csvimport.flow.ImportResultUI
 import com.ivy.importdata.csvimport.flow.instructions.ImportInstructions
-import com.ivy.wallet.domain.logic.csv.model.ImportType
 import com.ivy.navigation.ImportScreen
 import com.ivy.onboarding.viewmodel.OnboardingViewModel
 import com.ivy.data.backup.ImportResult
 import androidx.activity.compose.BackHandler
 
-@OptIn(ExperimentalStdlibApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun BoxWithConstraintsScope.ImportCSVScreen(screen: ImportScreen) {
     val viewModel: ImportViewModel = viewModel()
 
     val importStep by viewModel.importStep.observeAsState(ImportStep.IMPORT_FROM)
-    val importType by viewModel.importType.observeAsState()
     val importProgressPercent by viewModel.importProgressPercent.observeAsState(0)
     val importResult by viewModel.importResult.observeAsState()
 
@@ -40,11 +37,10 @@ fun BoxWithConstraintsScope.ImportCSVScreen(screen: ImportScreen) {
     UI(
         screen = screen,
         importStep = importStep,
-        importType = importType,
         importProgressPercent = importProgressPercent,
         importResult = importResult,
 
-        onChooseImportType = viewModel::setImportType,
+        onChooseNivyBackup = viewModel::chooseNivyBackup,
         onUploadCSVFile = { viewModel.uploadFile(context) },
         onSkip = {
             viewModel.skip(
@@ -67,11 +63,10 @@ private fun BoxWithConstraintsScope.UI(
     screen: ImportScreen,
 
     importStep: ImportStep,
-    importType: ImportType?,
     importProgressPercent: Int,
     importResult: ImportResult?,
 
-    onChooseImportType: (ImportType) -> Unit = {},
+    onChooseNivyBackup: () -> Unit = {},
     onUploadCSVFile: () -> Unit = {},
     onSkip: () -> Unit = {},
     onFinish: () -> Unit = {},
@@ -82,14 +77,13 @@ private fun BoxWithConstraintsScope.UI(
                 hasSkip = screen.launchedFromOnboarding,
                 launchedFromOnboarding = screen.launchedFromOnboarding,
                 onSkip = onSkip,
-                onImportFrom = onChooseImportType
+                onNivyBackup = onChooseNivyBackup
             )
         }
 
         ImportStep.INSTRUCTIONS -> {
             ImportInstructions(
                 hasSkip = screen.launchedFromOnboarding,
-                importType = importType!!,
                 onSkip = onSkip,
                 onUploadClick = onUploadCSVFile
             )
@@ -120,7 +114,6 @@ private fun Preview() {
         UI(
             screen = ImportScreen(launchedFromOnboarding = true),
             importStep = ImportStep.IMPORT_FROM,
-            importType = null,
             importProgressPercent = 0,
             importResult = null
         )
