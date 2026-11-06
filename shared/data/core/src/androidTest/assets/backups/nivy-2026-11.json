@@ -1,0 +1,380 @@
+{
+  "accounts": [
+    {
+      "name": "Bank",
+      "currency": "EUR",
+      "color": -11751600,
+      "icon": "bank",
+      "orderNum": 0.0,
+      "includeInBalance": true,
+      "type": "BANK",
+      "id": "aaaaaaaa-0000-4000-8000-000000000001"
+    },
+    {
+      "name": "Cash",
+      "color": -16777216,
+      "orderNum": 1.0,
+      "includeInBalance": true,
+      "type": "CASH",
+      "id": "aaaaaaaa-0000-4000-8000-000000000002"
+    },
+    {
+      "name": "Amex",
+      "currency": "EUR",
+      "color": -14575885,
+      "icon": "card",
+      "orderNum": 2.0,
+      "includeInBalance": true,
+      "type": "CREDIT_CARD",
+      "id": "aaaaaaaa-0000-4000-8000-000000000003"
+    },
+    {
+      "name": "Dollars",
+      "currency": "USD",
+      "color": -6543440,
+      "icon": "wallet",
+      "orderNum": 3.0,
+      "includeInBalance": true,
+      "type": "BANK",
+      "id": "aaaaaaaa-0000-4000-8000-000000000004"
+    },
+    {
+      "name": "Brokerage",
+      "currency": "EUR",
+      "color": -26624,
+      "icon": "chart",
+      "orderNum": 4.0,
+      "includeInBalance": true,
+      "type": "INVESTMENT",
+      "id": "aaaaaaaa-0000-4000-8000-000000000005"
+    },
+    {
+      "name": "Old savings",
+      "currency": "EUR",
+      "color": -6381922,
+      "orderNum": 5.0,
+      "includeInBalance": false,
+      "type": "SAVINGS",
+      "archived": true,
+      "id": "aaaaaaaa-0000-4000-8000-000000000006"
+    }
+  ],
+  "creditCards": [
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000003",
+      "name": "Amex Gold",
+      "chargeDay": 15,
+      "statementClosingDay": 30,
+      "creditLimit": 2000.0,
+      "id": "c0c0c0c0-0000-4000-8000-000000000001"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "name": "Visa",
+      "chargeDay": 5,
+      "statementClosingDay": null,
+      "creditLimit": null,
+      "id": "c0c0c0c0-0000-4000-8000-000000000002"
+    }
+  ],
+  "accountValues": [
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000005",
+      "time": 1793959200000,
+      "value": 1000.0,
+      "cash": 1000.0,
+      "id": "a1a1a1a1-0000-4000-8000-000000000001"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000005",
+      "time": 1796054400000,
+      "value": 1032.5,
+      "id": "a1a1a1a1-0000-4000-8000-000000000002"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Food",
+      "color": -26624,
+      "icon": "groceries",
+      "orderNum": 0.0,
+      "id": "cccccccc-0000-4000-8000-000000000001"
+    },
+    {
+      "name": "Rent",
+      "color": -14575885,
+      "icon": "house",
+      "orderNum": 1.0,
+      "id": "cccccccc-0000-4000-8000-000000000002"
+    },
+    {
+      "name": "Salary",
+      "color": -11751600,
+      "orderNum": 2.0,
+      "id": "cccccccc-0000-4000-8000-000000000003"
+    },
+    {
+      "name": "Travel",
+      "color": -6543440,
+      "icon": "plane",
+      "orderNum": 3.0,
+      "id": "cccccccc-0000-4000-8000-000000000004"
+    }
+  ],
+  "transactions": [
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "INCOME",
+      "amount": 2500.0,
+      "title": "Salary",
+      "description": "November, net",
+      "dateTime": 1793523600000,
+      "categoryId": "cccccccc-0000-4000-8000-000000000003",
+      "id": "eeeeeeee-0000-4000-8000-000000000001"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "EXPENSE",
+      "amount": 60.0,
+      "title": "Groceries",
+      "dateTime": 1793880000000,
+      "categoryId": "cccccccc-0000-4000-8000-000000000001",
+      "purchaseDateTime": 1793206800000,
+      "creditCardId": "c0c0c0c0-0000-4000-8000-000000000002",
+      "id": "eeeeeeee-0000-4000-8000-000000000002"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000003",
+      "type": "EXPENSE",
+      "amount": 120.0,
+      "title": "Train tickets",
+      "dateTime": 1797336000000,
+      "categoryId": "cccccccc-0000-4000-8000-000000000004",
+      "purchaseDateTime": 1793649600000,
+      "chargeShift": 1,
+      "creditCardId": "c0c0c0c0-0000-4000-8000-000000000001",
+      "id": "eeeeeeee-0000-4000-8000-000000000003"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000002",
+      "type": "EXPENSE",
+      "amount": 12.5,
+      "title": "Lunch",
+      "description": "With the team",
+      "dateTime": 1793709000000,
+      "categoryId": "cccccccc-0000-4000-8000-000000000001",
+      "id": "eeeeeeee-0000-4000-8000-000000000004"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "TRANSFER",
+      "amount": 100.0,
+      "toAccountId": "aaaaaaaa-0000-4000-8000-000000000004",
+      "toAmount": 108.0,
+      "title": "To dollars",
+      "dateTime": 1793786400000,
+      "id": "eeeeeeee-0000-4000-8000-000000000005"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000002",
+      "type": "EXPENSE",
+      "amount": 50.0,
+      "title": "Car",
+      "dateTime": 1793901600000,
+      "loanId": "1a1a1a1a-0000-4000-8000-000000000001",
+      "loanRecordId": "d0d0d0d0-0000-4000-8000-000000000001",
+      "id": "eeeeeeee-0000-4000-8000-000000000006"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "TRANSFER",
+      "amount": 200.0,
+      "toAccountId": "aaaaaaaa-0000-4000-8000-000000000003",
+      "toAmount": 200.0,
+      "title": "Card payment",
+      "dateTime": 1793955600000,
+      "id": "eeeeeeee-0000-4000-8000-000000000007"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "TRANSFER",
+      "amount": 1000.0,
+      "toAccountId": "aaaaaaaa-0000-4000-8000-000000000005",
+      "toAmount": 1000.0,
+      "dateTime": 1793959200000,
+      "id": "eeeeeeee-0000-4000-8000-000000000008"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "EXPENSE",
+      "amount": 800.0,
+      "title": "Rent",
+      "dateTime": 1793520000000,
+      "categoryId": "cccccccc-0000-4000-8000-000000000002",
+      "recurringRuleId": "9a9a9a9a-0000-4000-8000-000000000001",
+      "paidForDateTime": 1793520000000,
+      "id": "eeeeeeee-0000-4000-8000-000000000009"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "type": "EXPENSE",
+      "amount": 800.0,
+      "title": "Rent",
+      "categoryId": "cccccccc-0000-4000-8000-000000000002",
+      "dueDate": 1796112000000,
+      "recurringRuleId": "9a9a9a9a-0000-4000-8000-000000000001",
+      "id": "eeeeeeee-0000-4000-8000-000000000010"
+    },
+    {
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000006",
+      "type": "INCOME",
+      "amount": 500.0,
+      "title": "Interest",
+      "dateTime": 1748768400000,
+      "id": "eeeeeeee-0000-4000-8000-000000000011"
+    }
+  ],
+  "plannedPaymentRules": [
+    {
+      "startDate": 1793520000000,
+      "intervalN": 1,
+      "intervalType": "MONTH",
+      "oneTime": false,
+      "type": "EXPENSE",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "amount": 800.0,
+      "categoryId": "cccccccc-0000-4000-8000-000000000002",
+      "title": "Rent",
+      "description": "Flat",
+      "id": "9a9a9a9a-0000-4000-8000-000000000001"
+    },
+    {
+      "startDate": 1795161600000,
+      "intervalN": 1,
+      "intervalType": "MONTH",
+      "oneTime": false,
+      "type": "EXPENSE",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000003",
+      "amount": 12.99,
+      "title": "Streaming",
+      "creditCardId": "c0c0c0c0-0000-4000-8000-000000000001",
+      "id": "9a9a9a9a-0000-4000-8000-000000000002"
+    }
+  ],
+  "budgets": [
+    {
+      "name": "Food",
+      "amount": 300.0,
+      "categoryIdsSerialized": "cccccccc-0000-4000-8000-000000000001",
+      "accountIdsSerialized": "aaaaaaaa-0000-4000-8000-000000000001,aaaaaaaa-0000-4000-8000-000000000002",
+      "orderId": 0.0,
+      "id": "b0b0b0b0-0000-4000-8000-000000000001"
+    },
+    {
+      "name": "Everything",
+      "amount": 2000.0,
+      "categoryIdsSerialized": null,
+      "accountIdsSerialized": null,
+      "orderId": 1.0,
+      "id": "b0b0b0b0-0000-4000-8000-000000000002"
+    }
+  ],
+  "loans": [
+    {
+      "name": "Car",
+      "amount": 1000.0,
+      "type": "BORROW",
+      "color": -14575885,
+      "icon": "car",
+      "orderNum": 0.0,
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000002",
+      "note": "From Ana",
+      "dateTime": 1790812800000,
+      "id": "1a1a1a1a-0000-4000-8000-000000000001"
+    },
+    {
+      "name": "Ben",
+      "amount": 200.0,
+      "type": "LEND",
+      "color": -26624,
+      "orderNum": 1.0,
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "dateTime": 1789430400000,
+      "id": "1a1a1a1a-0000-4000-8000-000000000002"
+    }
+  ],
+  "loanRecords": [
+    {
+      "loanId": "1a1a1a1a-0000-4000-8000-000000000001",
+      "amount": 50.0,
+      "note": "November",
+      "dateTime": 1793901600000,
+      "interest": false,
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000002",
+      "loanRecordType": "DECREASE",
+      "id": "d0d0d0d0-0000-4000-8000-000000000001"
+    },
+    {
+      "loanId": "1a1a1a1a-0000-4000-8000-000000000002",
+      "amount": 50.0,
+      "dateTime": 1792497600000,
+      "interest": true,
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000004",
+      "convertedAmount": 54.0,
+      "loanRecordType": "INCREASE",
+      "id": "d0d0d0d0-0000-4000-8000-000000000002"
+    }
+  ],
+  "tags": [
+    {
+      "id": "7a7a7a7a-0000-4000-8000-000000000001",
+      "name": "Work",
+      "description": "Paid by work",
+      "color": -26624,
+      "icon": null,
+      "orderNum": 0.0,
+      "creationTime": 1790848800000,
+      "isDeleted": false,
+      "lastSyncTime": 0
+    },
+    {
+      "id": "7a7a7a7a-0000-4000-8000-000000000002",
+      "name": "Trip",
+      "description": null,
+      "color": -6543440,
+      "icon": "plane",
+      "orderNum": 1.0,
+      "creationTime": 1790935200000,
+      "isDeleted": false,
+      "lastSyncTime": 0
+    }
+  ],
+  "tagAssociations": [
+    {
+      "tagId": "7a7a7a7a-0000-4000-8000-000000000001",
+      "associatedId": "eeeeeeee-0000-4000-8000-000000000004",
+      "lastSyncTime": 0,
+      "isDeleted": false
+    },
+    {
+      "tagId": "7a7a7a7a-0000-4000-8000-000000000002",
+      "associatedId": "eeeeeeee-0000-4000-8000-000000000003",
+      "lastSyncTime": 0,
+      "isDeleted": false
+    }
+  ],
+  "settings": [
+    {
+      "theme": "DARK",
+      "currency": "EUR",
+      "bufferAmount": 150.0,
+      "name": "Ana"
+    }
+  ],
+  "sharedPrefs": {
+    "show_notifications": "false",
+    "hide_current_balance": "true",
+    "transfers_as_inc_exp": "true",
+    "lock_app": "true"
+  }
+}

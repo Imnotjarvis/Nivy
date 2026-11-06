@@ -22,12 +22,15 @@ import com.ivy.data.db.entity.AccountEntity
 import com.ivy.data.db.entity.AccountValueEntity
 import com.ivy.data.db.entity.CreditCardEntity
 import com.ivy.data.db.entity.TransactionEntity
+import com.ivy.data.preferences.AppSettings
 import com.ivy.data.testResource
+import com.ivy.base.model.Theme
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.junit.Test
 import java.time.Instant
@@ -121,6 +124,85 @@ class BackupDataUseCaseTest {
     @Test
     fun `backup compatibility with 450 (150)`() = runTest {
         backupTestCase("450-150")
+    }
+
+    @Test
+    fun `a Nivy backup comes back whole, and so does the backup made of it`() = runTest {
+        // given: a backup written by hand, with every kind of row a Nivy backup carries
+        val file = testResource("backups/nivy-2026-11.json").readText()
+        val inFile = json.decodeFromString<IvyWalletCompleteData>(file).tables()
+
+        // when
+        val restored = Wallet()
+        restored.backup.importJson(file)
+
+        // then: every row, field for field
+        restored.tables() shouldBe inFile
+        restored.shouldHaveTheBackupsSettingsAndBalances()
+
+        // The backup the app makes of it restores the same.
+        val again = Wallet()
+        again.backup.importJson(restored.backup.generateJsonBackup())
+        again.tables() shouldBe inFile
+        again.shouldHaveTheBackupsSettingsAndBalances()
+    }
+
+    /** A wallet on fakes: the backup use case, and what the wallet holds. */
+    private inner class Wallet {
+        private val accounts = FakeAccountDao()
+        private val categories = FakeCategoryDao()
+        private val transactions = FakeTransactionDao()
+        private val plannedPayments = FakePlannedPaymentDao()
+        private val budgets = FakeBudgetDao()
+        private val loans = FakeLoanDao()
+        private val loanRecords = FakeLoanRecordDao()
+        private val tags = FakeTagDao()
+        private val tagAssociations = FakeTagAssociationDao()
+        private val creditCards = FakeCreditCardDao()
+        private val accountValues = FakeAccountValueDao()
+        val preferences = AppPreferences(InMemoryPreferencesDataStore())
+        val backup = newBackupDataUseCase(
+            accountDao = accounts,
+            categoryDao = categories,
+            transactionDao = transactions,
+            plannedPaymentDao = plannedPayments,
+            budgetDao = budgets,
+            appPreferences = preferences,
+            loanDao = loans,
+            loanRecordDao = loanRecords,
+            tagDao = tags,
+            tagAssociationDao = tagAssociations,
+            creditCardDao = creditCards,
+            accountValueDao = accountValues,
+        )
+
+        suspend fun tables() = IvyWalletCompleteData(
+            accounts = accounts.findAll(),
+            budgets = budgets.findAll(),
+            categories = categories.findAll(),
+            loanRecords = loanRecords.findAll(),
+            loans = loans.findAll(),
+            plannedPaymentRules = plannedPayments.findAll(),
+            transactions = transactions.findAll(),
+            tags = tags.findAll(),
+            tagAssociations = tagAssociations.findAll(),
+            creditCards = creditCards.findAll(),
+            accountValues = accountValues.findAll(),
+        ).tables()
+
+        suspend fun balance(account: String) =
+            transactions.balance(UUID.fromString(account), Instant.EPOCH, Instant.parse("3000-01-01T00:00:00Z"))
+    }
+
+    private suspend fun Wallet.shouldHaveTheBackupsSettingsAndBalances() {
+        preferences.settings() shouldBe
+            AppSettings(theme = Theme.DARK, baseCurrency = "EUR", bufferAmount = 150.0, name = "Ana")
+        preferences.showNotifications() shouldBe false
+        preferences.hideCurrentBalance() shouldBe true
+        preferences.transfersAsIncomeExpense() shouldBe true
+        // The file says the lock is on: it's never taken from a file.
+        preferences.isAppLockEnabled() shouldBe false
+        NivyBackupBalances.forEach { (account, expected) -> balance(account) shouldBe expected }
     }
 
     @Test
@@ -368,3 +450,32 @@ class BackupDataUseCaseTest {
         result.transactionsImported shouldBe 1
     }
 }
+
+/** The rows, each table in a fixed order. Settings are checked on their own. */
+private fun IvyWalletCompleteData.tables() = IvyWalletCompleteData(
+    accounts = accounts.sortedBy { it.id },
+    budgets = budgets.sortedBy { it.id },
+    categories = categories.sortedBy { it.id },
+    loanRecords = loanRecords.sortedBy { it.id },
+    loans = loans.sortedBy { it.id },
+    plannedPaymentRules = plannedPaymentRules.sortedBy { it.id },
+    transactions = transactions.sortedBy { it.id },
+    tags = tags.sortedBy { it.id },
+    tagAssociations = tagAssociations.sortedBy { "${it.tagId} ${it.associatedId}" },
+    creditCards = creditCards.sortedBy { it.id },
+    accountValues = accountValues.sortedBy { it.id },
+)
+
+/**
+ * The balances of backups/nivy-2026-11.json's accounts, worked out by hand: the bank has the
+ * salary, less the groceries, three transfers out and the paid rent (the rent still due counts
+ * for nothing); the card has the card payment less the tickets.
+ */
+private val NivyBackupBalances = mapOf(
+    "aaaaaaaa-0000-4000-8000-000000000001" to 340.0, // Bank: 2500 - 60 - 100 - 200 - 1000 - 800
+    "aaaaaaaa-0000-4000-8000-000000000002" to -62.5, // Cash: -12.5 - 50
+    "aaaaaaaa-0000-4000-8000-000000000003" to 80.0, // Amex: 200 - 120
+    "aaaaaaaa-0000-4000-8000-000000000004" to 108.0, // Dollars: the 100 sent arrive as 108
+    "aaaaaaaa-0000-4000-8000-000000000005" to 1000.0, // Brokerage
+    "aaaaaaaa-0000-4000-8000-000000000006" to 500.0, // Old savings, archived
+)

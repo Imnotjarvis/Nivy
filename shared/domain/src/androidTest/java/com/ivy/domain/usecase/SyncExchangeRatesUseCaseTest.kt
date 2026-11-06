@@ -9,17 +9,27 @@ import com.ivy.base.TestDispatchersProvider
 import com.ivy.base.di.KotlinxSerializationModule
 import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.data.db.IvyRoomDatabase
-import com.ivy.data.di.KtorClientModule
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.remote.impl.RemoteExchangeRatesDataSourceImpl
 import com.ivy.data.repository.ExchangeRatesRepository
 import com.ivy.data.repository.mapper.ExchangeRateMapper
 import com.ivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.matchers.collections.shouldNotBeEmpty
-import io.kotest.matchers.doubles.shouldBeGreaterThan
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -29,27 +39,47 @@ import org.junit.runner.RunWith
 import java.io.File
 import java.util.UUID
 
+/**
+ * The download, the conversion to the base currency and the saving, against a recorded response
+ * served by Ktor's mock engine: the test doesn't depend on the exchange-rate servers being up.
+ */
 @RunWith(AndroidJUnit4::class)
 class SyncExchangeRatesUseCaseTest {
     private lateinit var useCase: SyncExchangeRatesUseCase
-    private lateinit var repository: ExchangeRatesRepository
     private lateinit var appPreferences: AppPreferences
     private lateinit var db: IvyRoomDatabase
+
+    /** The URLs asked for, in order. */
+    private val requests = mutableListOf<String>()
+
+    /** The URLs that answer with an error. */
+    private val down = mutableSetOf<String>()
 
     @Before
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, IvyRoomDatabase::class.java).build()
+        val json = KotlinxSerializationModule.provideJson()
+        val client = HttpClient(
+            MockEngine { request ->
+                // As written in RemoteExchangeRatesDataSourceImpl, should the "@" come encoded.
+                val url = request.url.toString().replace("%40", "@")
+                requests += url
+                if (url in down) {
+                    respondError(HttpStatusCode.ServiceUnavailable)
+                } else {
+                    respond(EurRates, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                }
+            }
+        ) {
+            install(ContentNegotiation) { json(json) }
+        }
 
-        repository = ExchangeRatesRepository(
+        val repository = ExchangeRatesRepository(
             exchangeRatesDao = db.exchangeRatesDao,
             writeExchangeRatesDao = db.writeExchangeRatesDao,
             mapper = ExchangeRateMapper(),
-            remoteExchangeRatesDataSource = RemoteExchangeRatesDataSourceImpl(
-                ktorClient = {
-                    KtorClientModule.provideKtorClient(KotlinxSerializationModule.provideJson())
-                },
-            ),
+            remoteExchangeRatesDataSource = RemoteExchangeRatesDataSourceImpl(ktorClient = { client }),
             dispatchers = TestDispatchersProvider,
         )
 
@@ -68,21 +98,77 @@ class SyncExchangeRatesUseCaseTest {
     }
 
     @Test
-    fun syncsExchangeRates(): Unit = runBlocking {
+    fun syncsExchangeRatesInTheBaseCurrency(): Unit = runBlocking {
+        // when
+        val res = useCase.sync(AssetCode.USD)
+
+        // then: the euro rates, converted to the dollar
+        res.shouldBeRight()
+        val saved = db.exchangeRatesDao.findAll().first()
+        saved.map { it.baseCurrency }.toSet() shouldBe setOf("USD")
+        val rates = saved.associate { it.currency to it.rate }
+        rates["EUR"] shouldBe 1 / EurToUsd
+        rates["GBP"] shouldBe 0.8512 / EurToUsd
+        rates["BGN"] shouldBe 1.95583 / EurToUsd
+        rates["USD"] shouldBe 1.0
+        requests shouldBe listOf(Urls.first())
+        // Remembered, so that the next launches within a day don't download them again.
+        appPreferences.exchangeRatesSyncedAt("USD").shouldNotBeNull()
+    }
+
+    @Test
+    fun aServerThatIsDownIsSkippedForTheNext(): Unit = runBlocking {
         // given
-        val exchangeRatesDao = db.exchangeRatesDao
+        down += Urls.first()
 
         // when
         val res = useCase.sync(AssetCode.USD)
 
         // then
         res.shouldBeRight()
-        val savedRates = exchangeRatesDao.findAll().first()
-        savedRates.shouldNotBeEmpty()
-        println("Saved ${savedRates.size} exchange rates")
-        val eurRate = savedRates.firstOrNull { it.currency == "EUR" }?.rate
-        eurRate.shouldNotBeNull() shouldBeGreaterThan 0.0
-        // Remembered, so that the next launches within a day don't download them again.
-        appPreferences.exchangeRatesSyncedAt("USD").shouldNotBeNull()
+        requests shouldBe Urls.take(2)
+        db.exchangeRatesDao.findAll().first().associate { it.currency to it.rate }["EUR"] shouldBe 1 / EurToUsd
+    }
+
+    @Test
+    fun withNoServerUpNothingIsSavedOrRemembered(): Unit = runBlocking {
+        // given
+        down += Urls
+
+        // when
+        val res = useCase.sync(AssetCode.USD)
+
+        // then: tried every server, and the next launch tries again
+        res.shouldBeLeft()
+        requests shouldBe Urls
+        db.exchangeRatesDao.findAll().first().shouldBeEmpty()
+        appPreferences.exchangeRatesSyncedAt("USD").shouldBeNull()
+    }
+
+    private companion object {
+        const val EurToUsd = 1.0842
+
+        /** The servers asked, in order (RemoteExchangeRatesDataSourceImpl). */
+        val Urls = listOf(
+            "https://currency-api.pages.dev/v1/currencies/eur.json",
+            "https://currency-api.pages.dev/v1/currencies/eur.min.json",
+            "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.min.json",
+            "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json",
+        )
+
+        /** A response as the servers send it, cut to a few currencies (one of them a crypto token). */
+        val EurRates = """
+            {
+                "date": "2026-11-05",
+                "eur": {
+                    "1inch": 4.8613,
+                    "bgn": 1.95583,
+                    "btc": 0.0000115,
+                    "eur": 1,
+                    "gbp": 0.8512,
+                    "usd": $EurToUsd
+                }
+            }
+        """.trimIndent()
     }
 }
