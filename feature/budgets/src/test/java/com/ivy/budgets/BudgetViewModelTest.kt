@@ -20,7 +20,9 @@ import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.model.primitive.ColorInt
 import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.model.primitive.PositiveDouble
+import com.ivy.base.model.Theme
 import com.ivy.data.preferences.AppPreferences
+import com.ivy.data.preferences.AppSettings
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.BudgetRepository
 import com.ivy.data.repository.CategoryRepository
@@ -31,7 +33,6 @@ import com.ivy.ui.testing.ComposeViewModelTest
 import com.ivy.ui.testing.runTest
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.Month
-import com.ivy.wallet.utils.format
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -50,13 +51,16 @@ class BudgetViewModelTest : ComposeViewModelTest() {
     private val bank = account("Bank")
     private val card = account("Card")
     private val dollars = account("Dollars", Usd)
+    private val offBalance = account("Savings box", includeInBalance = false)
 
     private val groceries = CategoryId(UUID.randomUUID())
     private val rent = CategoryId(UUID.randomUUID())
 
     private val budgetRepository = mockk<BudgetRepository>(relaxUnitFun = true)
+    private val appPreferences = mockk<AppPreferences>(relaxUnitFun = true)
     private var budgets = listOf<Budget>()
     private var transactions = listOf<Transaction>()
+    private var savingsGoal = 0.0
 
     private lateinit var viewModel: BudgetViewModel
 
@@ -70,13 +74,17 @@ class BudgetViewModelTest : ComposeViewModelTest() {
                 transactions.filter { it.time in from..to }
             }
         }
+        coEvery { appPreferences.startDayOfMonth() } returns 1
+        coEvery { appPreferences.settings() } answers {
+            AppSettings(theme = Theme.AUTO, baseCurrency = "EUR", bufferAmount = savingsGoal, name = "")
+        }
         viewModel = BudgetViewModel(
-            appPreferences = mockk<AppPreferences> { coEvery { startDayOfMonth() } returns 1 },
+            appPreferences = appPreferences,
             budgetRepository = budgetRepository,
             periodState = mockk<PeriodState>(relaxed = true),
             categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns emptyList() },
             accountRepository = mockk<AccountRepository> {
-                coEvery { findAll() } returns listOf(bank, card, dollars)
+                coEvery { findAll() } returns listOf(bank, card, dollars, offBalance)
             },
             currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
             transactionRepository = transactionRepository,
@@ -147,28 +155,52 @@ class BudgetViewModelTest : ComposeViewModelTest() {
     }
 
     @Test
-    fun `remaining budget is what category budgets have left`() {
-        budgets = listOf(
-            budget("Groceries", amount = 100.0, categories = listOf(groceries)),
-            budget("Total", amount = 1000.0),
-        )
-        transactions = listOf(expense(bank, 30.0, "2026-11-03T10:00:00Z", groceries))
+    fun `a budget lists the expenses it counts`() {
+        val groceriesExpense = expense(bank, 30.0, "2026-11-03T10:00:00Z", groceries)
+        budgets = listOf(budget("Groceries", categories = listOf(groceries)))
+        transactions = listOf(groceriesExpense, expense(bank, 500.0, "2026-11-01T10:00:00Z", rent))
 
         viewModel.runTest(context = paparazzi.context) {
-            categoryBudgetsTotal shouldBe 100.0
-            appBudgetMax shouldBe 1000.0
-            totalRemainingBudgetText shouldBe "Total Remaining Budget: ${70.0.format("EUR")} EUR"
+            budgets.single().expenses shouldBe listOf(groceriesExpense)
         }
     }
 
     @Test
-    fun `an exceeded category budget says by how much`() {
-        budgets = listOf(budget("Groceries", amount = 100.0, categories = listOf(groceries)))
-        transactions = listOf(expense(bank, 130.0, "2026-11-03T10:00:00Z", groceries))
+    fun `the month saved its income less its expenses, transfers aside`() {
+        savingsGoal = 500.0
+        transactions = listOf(
+            income(bank, 1000.0, "2026-11-01T10:00:00Z"),
+            expense(card, 300.0, "2026-11-03T10:00:00Z"),
+            expense(dollars, 100.0, "2026-11-04T10:00:00Z"),
+            transfer(bank, card, 200.0, "2026-11-02T10:00:00Z"),
+        )
 
         viewModel.runTest(context = paparazzi.context) {
-            totalRemainingBudgetText shouldBe "Budget exceeded by ${30.0.format("EUR")} EUR"
+            savings shouldBe SavingsGoal(goal = 500.0, saved = 650.0)
         }
+    }
+
+    @Test
+    fun `savings leave out accounts outside the balance and unpaid transactions`() {
+        transactions = listOf(
+            income(offBalance, 1000.0, "2026-11-01T10:00:00Z"),
+            expense(bank, 40.0, "2026-11-03T10:00:00Z"),
+            expense(bank, 60.0, "2026-11-05T10:00:00Z", settled = false),
+        )
+
+        viewModel.runTest(context = paparazzi.context) {
+            savings.saved shouldBe -40.0
+        }
+    }
+
+    @Test
+    fun `setting the savings goal stores it`() {
+        viewModel.runTest(
+            events = listOf(BudgetScreenEvent.OnSetSavingsGoal(300.0)),
+            context = paparazzi.context,
+        ) {}
+
+        coVerify { appPreferences.setBufferAmount(300.0) }
     }
 
     @Test
@@ -238,13 +270,14 @@ class BudgetViewModelTest : ComposeViewModelTest() {
         amount: Double,
         time: String,
         category: CategoryId? = null,
+        settled: Boolean = true,
     ) = Expense(
         id = TransactionId(UUID.randomUUID()),
         title = null,
         description = null,
         category = category,
         time = Instant.parse(time),
-        settled = true,
+        settled = settled,
         metadata = Metadata,
         tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
@@ -300,13 +333,13 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             override fun localTimeNow(): LocalTime = now.toLocalTime()
         }
 
-        fun account(name: String, asset: AssetCode = Eur) = Account(
+        fun account(name: String, asset: AssetCode = Eur, includeInBalance: Boolean = true) = Account(
             id = AccountId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe(name),
             asset = asset,
             color = ColorInt(0),
             icon = null,
-            includeInBalance = true,
+            includeInBalance = includeInBalance,
             type = AccountType.BANK,
             archived = false,
             orderNum = 0.0,

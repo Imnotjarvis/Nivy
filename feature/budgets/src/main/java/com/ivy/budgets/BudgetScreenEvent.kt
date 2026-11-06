@@ -21,4 +21,5 @@ sealed interface BudgetScreenEvent {
     data class OnBudgetModalData(val budgetModalData: BudgetModalData?) : BudgetScreenEvent
     data object OnPreviousMonth : BudgetScreenEvent
     data object OnNextMonth : BudgetScreenEvent
+    data class OnSetSavingsGoal(val amount: Double) : BudgetScreenEvent
 }

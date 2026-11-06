@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import com.ivy.base.model.Theme
 import com.ivy.home.customerjourney.CustomerJourneyCardModel
 import com.ivy.wallet.data.AppBaseData
-import com.ivy.wallet.data.BufferInfo
 import com.ivy.wallet.data.DueSection
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.domain.data.TransactionHistoryItem
@@ -24,8 +23,6 @@ data class HomeState(
     val stats: IncomeExpensePair,
 
     val balance: BigDecimal,
-
-    val buffer: BufferInfo,
 
     val upcoming: DueSection,
     val overdue: DueSection,

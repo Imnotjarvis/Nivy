@@ -3,9 +3,7 @@ package com.ivy.budgets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
@@ -17,6 +15,8 @@ import com.ivy.data.model.BudgetId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Expense
+import com.ivy.data.model.Income
+import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.getFromAccount
 import com.ivy.data.model.primitive.AssetCode
@@ -33,9 +33,7 @@ import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.FromToTimeRange
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toCloseTimeRange
-import com.ivy.wallet.utils.format
 import com.ivy.ui.ComposeViewModel
-import com.ivy.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -44,7 +42,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.math.abs
 
 @Stable
 @HiltViewModel
@@ -67,9 +64,7 @@ class BudgetViewModel @Inject constructor(
     private val budgets = mutableStateOf<ImmutableList<DisplayBudget>>(persistentListOf())
     private val categories = mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private val accounts = mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private val categoryBudgetsTotal = mutableDoubleStateOf(0.0)
-    private val appBudgetMax = mutableDoubleStateOf(0.0)
-    private val totalRemainingBudget = mutableDoubleStateOf(0.0)
+    private val savings = mutableStateOf(SavingsGoal(goal = 0.0, saved = 0.0))
     private val reorderModalVisible = mutableStateOf(false)
     private val budgetModalData = mutableStateOf<BudgetModalData?>(null)
 
@@ -87,28 +82,12 @@ class BudgetViewModel @Inject constructor(
             categories = categories.value,
             accounts = accounts.value,
             budgets = budgets.value,
-            categoryBudgetsTotal = categoryBudgetsTotal.doubleValue,
-            appBudgetMax = appBudgetMax.doubleValue,
-            totalRemainingBudgetText = getTotalRemainingBudgetText(),
+            savings = savings.value,
             timeRange = timeRange.value,
             period = period.value,
             reorderModalVisible = reorderModalVisible.value,
             budgetModalData = budgetModalData.value
         )
-    }
-
-    @Composable
-    private fun getTotalRemainingBudgetText(): String? {
-        val budgetExceeded = totalRemainingBudget.doubleValue < 0
-        return when {
-            categoryBudgetsTotal.doubleValue > 0 -> stringResource(
-                if (budgetExceeded) R.string.budget_exceeded_info else R.string.total_budget_info,
-                abs(totalRemainingBudget.doubleValue).format(baseCurrency.value),
-                baseCurrency.value
-            )
-
-            else -> null
-        }
     }
 
     override fun onEvent(event: BudgetScreenEvent) {
@@ -140,6 +119,8 @@ class BudgetViewModel @Inject constructor(
             is BudgetScreenEvent.OnPreviousMonth -> selectMonth(increment = -1)
 
             is BudgetScreenEvent.OnNextMonth -> selectMonth(increment = 1)
+
+            is BudgetScreenEvent.OnSetSavingsGoal -> setSavingsGoal(event.amount)
         }
     }
 
@@ -158,29 +139,19 @@ class BudgetViewModel @Inject constructor(
             val timeRange = selectedPeriod.toRange(startDateOfMonth = startDateOfMonth, timeConverter, timeProvider)
             val budgets = budgetRepository.findAll()
 
-            appBudgetMax.doubleValue = budgets
-                .filter { it.categories.isEmpty() }
-                .maxOfOrNull { it.amount.value } ?: 0.0
-
-            categoryBudgetsTotal.doubleValue = budgets
-                .filter { it.categories.isNotEmpty() }
-                .sumOf { it.amount.value }
-
             val range = timeRange.toCloseTimeRange()
             val transactions = transactionRepository.findAllBetween(range.from, range.to)
             this@BudgetViewModel.budgets.value = budgets.map {
+                val expenses = budgetExpenses(budget = it, transactions = transactions)
                 DisplayBudget(
                     budget = it,
-                    spentAmount = calculateSpentAmount(
-                        budget = it,
-                        transactions = transactions,
-                        baseCurrency = baseCurrency
-                    )
+                    spentAmount = expenses.sumOf { expense -> inBaseCurrency(expense.value, baseCurrency) },
+                    expenses = expenses.toImmutableList(),
                 )
             }.toImmutableList()
-            totalRemainingBudget.doubleValue = calculateTotalRemainingBudget(
-                budgets = this@BudgetViewModel.budgets.value,
-                categoryBudgetsTotal = categoryBudgetsTotal.doubleValue
+            savings.value = SavingsGoal(
+                goal = appPreferences.settings()?.bufferAmount ?: 0.0,
+                saved = calculateSaved(transactions = transactions, baseCurrency = baseCurrency),
             )
             this@BudgetViewModel.baseCurrency.value = baseCurrency.code
             this@BudgetViewModel.timeRange.value = timeRange
@@ -195,19 +166,36 @@ class BudgetViewModel @Inject constructor(
         start()
     }
 
-    /** Sums the budget's expenses in the base currency. Income and transfers don't count. */
-    private suspend fun calculateSpentAmount(
-        budget: Budget,
-        transactions: List<Transaction>,
-        baseCurrency: AssetCode,
-    ): Double {
-        return transactions
+    /** The budget's expenses: of its accounts and categories, all of them when it has none. */
+    private fun budgetExpenses(budget: Budget, transactions: List<Transaction>): List<Expense> =
+        transactions
             .filterIsInstance<Expense>()
             .filter { budget.accounts.isEmpty() || it.getFromAccount() in budget.accounts }
             .filter { budget.categories.isEmpty() || it.category in budget.categories }
-            .sumOf {
-                exchangeUseCase.convert(it.value, to = baseCurrency).getOrNull()?.amount?.value ?: 0.0
+
+    /**
+     * What the month kept, as Home's income and expenses count it: income less expenses, paid ones
+     * only, of the accounts in the balance. Moving money between accounts changes nothing.
+     */
+    private suspend fun calculateSaved(transactions: List<Transaction>, baseCurrency: AssetCode): Double {
+        val counted = accounts.value.filter { it.includeInBalance }.map { it.id }.toSet()
+        return transactions.filter { it.settled }.sumOf {
+            when {
+                it is Income && it.account in counted -> inBaseCurrency(it.value, baseCurrency)
+                it is Expense && it.account in counted -> -inBaseCurrency(it.value, baseCurrency)
+                else -> 0.0
             }
+        }
+    }
+
+    private suspend fun inBaseCurrency(value: PositiveValue, baseCurrency: AssetCode): Double =
+        exchangeUseCase.convert(value, to = baseCurrency).getOrNull()?.amount?.value ?: 0.0
+
+    private fun setSavingsGoal(amount: Double) {
+        viewModelScope.launch {
+            appPreferences.setBufferAmount(amount)
+            start()
+        }
     }
 
     private fun createBudget(
@@ -255,13 +243,4 @@ class BudgetViewModel @Inject constructor(
             start()
         }
     }
-}
-
-fun calculateTotalRemainingBudget(
-    budgets: ImmutableList<DisplayBudget>,
-    categoryBudgetsTotal: Double
-): Double {
-    return categoryBudgetsTotal - budgets
-        .filter { it.budget.categories.isNotEmpty() }
-        .sumOf { it.spentAmount }
 }

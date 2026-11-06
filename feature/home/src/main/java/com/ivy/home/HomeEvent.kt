@@ -15,8 +15,6 @@ sealed interface HomeEvent {
 
     data object SwitchTheme : HomeEvent
 
-    data class SetBuffer(val buffer: Double) : HomeEvent
-
     data class SetPeriod(val period: TimePeriod) : HomeEvent
 
     data class PayOrGetPlanned(val transaction: Transaction) : HomeEvent

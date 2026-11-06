@@ -32,7 +32,6 @@ import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.LocalMainScreenState
 import com.ivy.wallet.LocalPeriodState
 import com.ivy.wallet.data.AppBaseData
-import com.ivy.wallet.data.BufferInfo
 import com.ivy.wallet.data.DueSection
 import com.ivy.wallet.data.model.Month
 import com.ivy.wallet.data.model.TimePeriod
@@ -49,8 +48,6 @@ import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.pure.data.IncomeExpensePair
-import com.ivy.wallet.ui.theme.modal.BufferModal
-import com.ivy.wallet.ui.theme.modal.BufferModalData
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.ivy.wallet.ui.theme.modal.DeleteModal
@@ -79,7 +76,6 @@ fun BoxWithConstraintsScope.HomeUi(
 ) {
     val mainScreenState = LocalMainScreenState.current
 
-    var bufferModalData: BufferModalData? by remember { mutableStateOf(null) }
     var choosePeriodModal: ChoosePeriodModalData? by remember {
         mutableStateOf(null)
     }
@@ -170,28 +166,10 @@ fun BoxWithConstraintsScope.HomeUi(
     MoreMenu(
         expanded = moreMenuExpanded,
         theme = uiState.theme,
-        balance = uiState.balance.toDouble(),
-        currency = baseCurrency,
-        buffer = uiState.buffer.amount.toDouble(),
         onSwitchTheme = {
             onEvent(HomeEvent.SwitchTheme)
         },
         setExpanded = setMoreMenuExpanded,
-        onBufferClick = {
-            bufferModalData = BufferModalData(
-                balance = uiState.balance.toDouble(),
-                currency = baseCurrency,
-                buffer = uiState.buffer.amount.toDouble()
-            )
-        }
-    )
-
-    BufferModal(
-        modal = bufferModalData,
-        dismiss = {
-            bufferModalData = null
-        },
-        onBufferChanged = { onEvent(HomeEvent.SetBuffer(it)) }
     )
 
     ChoosePeriodModal(
@@ -349,10 +327,6 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
                     categories = persistentListOf()
                 ),
                 balance = BigDecimal.ZERO,
-                buffer = BufferInfo(
-                    amount = BigDecimal.ZERO,
-                    bufferDiff = BigDecimal.ZERO,
-                ),
                 customerJourneyCards = persistentListOf(),
                 history = persistentListOf(),
                 stats = IncomeExpensePair.zero(),

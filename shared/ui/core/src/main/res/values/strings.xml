@@ -16,12 +16,6 @@
     <string name="no_budgets">No budgets</string>
     <string name="no_budgets_text">You don\'t have any budgets set.\nTap the "+ Add budget" to add one.</string>
     <string name="budgets">Budgets</string>
-    <string name="for_categories">%1$s %2$s for categories</string>
-    <string name="app_budget">%1$s %2$s app budget</string>
-    <string name="budget_info_both">Budget info: %1$s / %2$s</string>
-    <string name="budget_info">Budget info: %1$s%2$s</string>
-    <string name="total_budget_info">Total Remaining Budget: %1$s %2$s</string>
-    <string name="budget_exceeded_info">Budget exceeded by %1$s %2$s</string>
     <string name="add_category">Add category</string>
     <string name="add_manual_exchange_rate">Add rate</string>
     <string name="expenses">Expenses</string>
@@ -86,6 +80,13 @@
     <string name="cashflow">Cashflow: %1$s%2$s %3$s</string>
     <string name="search_transactions">Search transactions…</string>
     <string name="savings_goal">Savings goal</string>
+    <string name="savings_goal_monthly">Every month</string>
+    <string name="set_savings_goal">Set how much to save each month</string>
+    <string name="left_to_save">Left to save</string>
+    <string name="savings_goal_reached">Goal reached</string>
+    <string name="spent_more_than_earned">Spent more than earned</string>
+    <string name="budget_no_expenses">Nothing spent in this budget in %1$s.</string>
+    <string name="more_options">More options</string>
     <string name="quick_access">Quick access</string>
     <string name="settings">Settings</string>
     <string name="light_mode">Light mode</string>
@@ -231,7 +232,6 @@
     <string name="export_to_csv">Export to CSV</string>
     <string name="left_to_spend">Left to spend</string>
     <string name="budget_exceeded_by">Budget exceeded by</string>
-    <string name="buffer_exceeded_by">Buffer exceeded by</string>
     <string name="set_transaction_type">Choose transaction type</string>
     <string name="transfer">Transfer</string>
     <string name="selected_text">Selected</string>
