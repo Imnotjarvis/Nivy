@@ -22,12 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivy.design.system.colors.Gray
 import com.ivy.design.system.colors.incomeGreen
-import com.ivy.design.system.colors.readableOn
 import com.ivy.design.system.typography.numberLabelMedium
 import com.ivy.design.utils.clickableNoIndication
 import com.ivy.design.utils.rememberInteractionSource
 import com.ivy.ui.R
 import com.ivy.wallet.ui.theme.components.IvyIcon
+import com.ivy.wallet.ui.theme.components.readableOnFill
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
 import com.ivy.wallet.utils.format
@@ -107,8 +107,8 @@ private fun SavingsBar(
     val background = MaterialTheme.colorScheme.surfaceVariant
     val fraction = if (savings.goal > 0) (savings.saved / savings.goal).coerceIn(0.0, 1.0) else 0.0
     val fill = incomeGreen(background)
-    // The texts sit at the start, on the fill once it reaches past them.
-    val onBar = if (fraction <= TextCoveredAt) MaterialTheme.colorScheme.onSurface else readableOn(fill)
+    // For the background: readableOnFill redraws what the fill covers.
+    val onBar = MaterialTheme.colorScheme.onSurface
 
     Row(
         modifier = modifier
@@ -119,6 +119,7 @@ private fun SavingsBar(
                 drawRect(color = fill, size = size.copy(width = (size.width * fraction).toFloat()))
             }
             .clickable { onClick() }
+            .readableOnFill(fraction = fraction, fill = fill)
             .padding(vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -181,6 +182,3 @@ private fun SavingsBar(
         }
     }
 }
-
-// How far the bar fills before its texts, at its start, are on the fill.
-private const val TextCoveredAt = 0.30

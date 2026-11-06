@@ -20,6 +20,8 @@ import com.ivy.data.model.Account
 import com.ivy.base.model.Theme
 import com.ivy.base.model.AccountType
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.ivy.wallet.ui.component.transaction.transactions
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -126,6 +128,7 @@ fun BoxWithConstraintsScope.PieChartStatisticScreen(
 
     UI(
         state = uiState,
+        lazyState = rememberScrollPositionListState(key = "item_pie_chart_lazy_column", screen = screen),
         onEvent = viewModel::onEvent
     )
 }
@@ -134,12 +137,10 @@ fun BoxWithConstraintsScope.PieChartStatisticScreen(
 @Composable
 private fun BoxWithConstraintsScope.UI(
     state: PieChartStatisticState,
+    lazyState: LazyListState = rememberLazyListState(),
     onEvent: (PieChartStatisticEvent) -> Unit = {}
 ) {
     val nav = navigation()
-    val lazyState = rememberScrollPositionListState(
-        key = "item_pie_chart_lazy_column"
-    )
     // Recomposes when this flips, not on every scrolled item.
     val expanded by remember { derivedStateOf { lazyState.firstVisibleItemIndex < 1 } }
     val percentExpanded by animateFloatAsState(

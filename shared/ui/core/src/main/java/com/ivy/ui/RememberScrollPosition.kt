@@ -51,3 +51,13 @@ fun rememberScrollPositionListState(
     }
     return scrollState
 }
+
+/**
+ * The scroll position of this opening of [screen], the screen as the back stack holds it. Opened
+ * anew, the same screen or another, the list starts at its top; uncovered, by going back to it,
+ * it's this same screen again, and the list returns to where it was left.
+ * @param key value for comparing screen
+ */
+@Composable
+fun rememberScrollPositionListState(key: String, screen: Any): LazyListState =
+    rememberScrollPositionListState(key = key, params = System.identityHashCode(screen).toString())
