@@ -13,7 +13,7 @@ import org.junit.Test
 
 class SyncExchangeRatesOfflineTest {
     private val repository = mockk<ExchangeRatesRepository>(relaxed = true)
-    private val useCase = SyncExchangeRatesUseCase(repository)
+    private val useCase = SyncExchangeRatesUseCase(repository, mockk(relaxed = true), mockk(relaxed = true))
 
     @Test
     fun `sync - network failure leaves stored rates untouched`() = runTest {

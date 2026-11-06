@@ -247,7 +247,6 @@
     <string name="budget_name">Budget name</string>
     <string name="budget_amount_uppercase">Budget amount</string>
     <string name="confirm_budget_deletion_warning">Are you sure you want to delete the "%1$s" budget?</string>
-    <string name="edit_savings_goal">Edit Savings goal</string>
     <string name="choose_icon">Select an icon</string>
     <string name="choose_month">Choose month</string>
     <string name="or_custom_range">or custom range</string>

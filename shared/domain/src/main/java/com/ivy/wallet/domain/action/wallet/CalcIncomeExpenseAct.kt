@@ -14,7 +14,6 @@ import com.ivy.wallet.domain.pure.transaction.foldTransactions
 import com.ivy.wallet.domain.pure.util.orZero
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 class CalcIncomeExpenseAct @Inject constructor(
@@ -29,7 +28,6 @@ class CalcIncomeExpenseAct @Inject constructor(
                     range = input.range
                 )
             )
-            Timber.i("acc: $acc, trns = ${trns.size}")
             val stats = foldTransactions(
                 transactions = trns,
                 valueFunctions = nonEmptyListOf(
@@ -38,7 +36,6 @@ class CalcIncomeExpenseAct @Inject constructor(
                 ),
                 arg = acc.id.value
             )
-            Timber.i("acc_stats: $acc - $stats")
             stats.map {
                 exchangeAct(
                     ExchangeAct.Input(

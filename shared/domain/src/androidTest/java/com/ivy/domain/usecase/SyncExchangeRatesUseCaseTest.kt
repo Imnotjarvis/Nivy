@@ -1,14 +1,17 @@
 package com.ivy.domain.usecase
 
 import android.content.Context
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ivy.base.TestDispatchersProvider
 import com.ivy.base.di.KotlinxSerializationModule
+import com.ivy.base.time.impl.DeviceTimeProvider
 import com.ivy.data.db.IvyRoomDatabase
 import com.ivy.data.di.KtorClientModule
 import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.remote.impl.RemoteExchangeRatesDataSourceImpl
 import com.ivy.data.repository.ExchangeRatesRepository
 import com.ivy.data.repository.mapper.ExchangeRateMapper
@@ -23,11 +26,14 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class SyncExchangeRatesUseCaseTest {
     private lateinit var useCase: SyncExchangeRatesUseCase
     private lateinit var repository: ExchangeRatesRepository
+    private lateinit var appPreferences: AppPreferences
     private lateinit var db: IvyRoomDatabase
 
     @Before
@@ -47,7 +53,13 @@ class SyncExchangeRatesUseCaseTest {
             dispatchers = TestDispatchersProvider,
         )
 
-        useCase = SyncExchangeRatesUseCase(repository)
+        // A store of its own, so the test leaves the app's settings alone.
+        appPreferences = AppPreferences(
+            PreferenceDataStoreFactory.create {
+                File(context.cacheDir, "sync-exchange-rates-test-${UUID.randomUUID()}.preferences_pb")
+            }
+        )
+        useCase = SyncExchangeRatesUseCase(repository, appPreferences, DeviceTimeProvider())
     }
 
     @After
@@ -70,5 +82,7 @@ class SyncExchangeRatesUseCaseTest {
         println("Saved ${savedRates.size} exchange rates")
         val eurRate = savedRates.firstOrNull { it.currency == "EUR" }?.rate
         eurRate.shouldNotBeNull() shouldBeGreaterThan 0.0
+        // Remembered, so that the next launches within a day don't download them again.
+        appPreferences.exchangeRatesSyncedAt("USD").shouldNotBeNull()
     }
 }

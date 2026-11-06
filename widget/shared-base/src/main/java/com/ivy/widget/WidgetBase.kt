@@ -4,32 +4,18 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import timber.log.Timber
 
 object WidgetBase {
+    /**
+     * Asks the home screen's [widget]s to redraw. Nothing when none is placed: the app asks on
+     * every launch, and the balance widget computes the whole balance on each update.
+     */
     fun <T> updateBroadcast(context: Context, widget: Class<T>) {
-        Timber.d("update()")
+        val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(ComponentName(context, widget))
+        if (ids == null || ids.isEmpty()) return
         val intent = Intent(context, widget)
-        intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        intent.putExtra(
-            AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            getAppWidgetIds(
-                context = context,
-                appWidgetManager = appWidgetManager,
-                widget = widget
-            )
-        )
+            .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         context.sendBroadcast(intent)
-    }
-
-    private fun <T> getAppWidgetIds(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        widget: Class<T>
-    ): IntArray? {
-        val ivyWidgetComponent =
-            ComponentName(context, widget)
-        return appWidgetManager.getAppWidgetIds(ivyWidgetComponent)
     }
 }
