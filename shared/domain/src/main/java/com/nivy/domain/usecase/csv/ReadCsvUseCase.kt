@@ -10,13 +10,14 @@ import javax.inject.Inject
 /**
  * The one CSV reader of the app. Parses per RFC 4180 (quotes are the only escaping, so
  * backslashes in the data survive), accepts every line and row, and undoes the formula guard
- * [ExportCsvUseCase] adds, so an export of the app re-imports unchanged.
+ * [ExportCsvUseCase] adds, so an export of the app re-imports unchanged. Values are separated by
+ * [separator]: a comma, or a semicolon in spreadsheets that write decimals with a comma.
  */
 class ReadCsvUseCase @Inject constructor() {
 
-    fun readCsv(csv: String, skipLines: Int = 0): List<List<String>> {
+    fun readCsv(csv: String, skipLines: Int = 0, separator: Char = ','): List<List<String>> {
         val csvReader = CSVReaderBuilder(StringReader(csv))
-            .withCSVParser(RFC4180ParserBuilder().build())
+            .withCSVParser(RFC4180ParserBuilder().withSeparator(separator).build())
             .withSkipLines(skipLines)
             .withLineValidator(object : LineValidator {
                 override fun isValid(line: String?): Boolean {

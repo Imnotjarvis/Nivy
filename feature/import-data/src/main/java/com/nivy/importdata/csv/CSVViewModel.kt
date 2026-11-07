@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.importdata.csv.domain.CSVImporterV2
 import com.nivy.importdata.csv.domain.SAMPLE_SIZE
 import com.nivy.importdata.csv.domain.parseAccount
@@ -29,7 +30,6 @@ import com.nivy.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,7 +37,8 @@ import java.nio.charset.Charset
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
-// A CSV that splits into fewer columns than this was read with the wrong separator.
+// A CSV that splits into fewer columns than this was read with the wrong separator: it's read again
+// with semicolons, which spreadsheets use where decimals are written with a comma ("12,50").
 private const val MinColumns = 3
 
 private const val Percent = 100
@@ -48,6 +49,7 @@ class CSVViewModel @Inject constructor(
     private val readCsv: ReadCsvUseCase,
     private val csvImporter: CSVImporterV2,
     private val nav: Navigation,
+    private val dispatchers: DispatchersProvider,
 ) : ViewModel() {
 
     private var columns by mutableStateOf<CSVRow?>(null)
@@ -215,7 +217,7 @@ class CSVViewModel @Inject constructor(
             account,
             accountCurrency,
         ) {
-            val result = withContext(Dispatchers.Default) {
+            val result = withContext(dispatchers.default) {
                 if (sampleCSV != null) {
                     ImportantFields(
                         amount = amount,
@@ -249,7 +251,7 @@ class CSVViewModel @Inject constructor(
             toAccountCurrency,
             toAmount,
         ) {
-            val result = withContext(Dispatchers.Default) {
+            val result = withContext(dispatchers.default) {
                 if (sampleCSV != null) {
                     TransferFields(
                         toAccount = toAccount,
@@ -279,7 +281,7 @@ class CSVViewModel @Inject constructor(
             title,
             description,
         ) {
-            val result = withContext(Dispatchers.Default) {
+            val result = withContext(dispatchers.default) {
                 if (sampleCSV != null) {
                     OptionalFields(
                         category = category,
@@ -414,53 +416,46 @@ class CSVViewModel @Inject constructor(
 
     // region Import CSV
     private suspend fun handleFilePicked(event: CSVEvent.FilePicked): Unit =
-        withContext(Dispatchers.IO) {
-            importCSV(uri = event.uri, normalizeCSV = false)
+        withContext(dispatchers.io) {
+            importCSV(uri = event.uri, semicolons = false)
             if (columns?.values?.size?.let { it < MinColumns } == true) {
-                importCSV(uri = event.uri, normalizeCSV = true)
+                importCSV(uri = event.uri, semicolons = true)
             }
             csv = csv?.map { row ->
                 row.copy(values = row.values.map { it.trim() })
             }?.toImmutableList()
         }
 
-    private fun importCSV(uri: Uri, normalizeCSV: Boolean) {
-        csv = processFile(uri, normalizeCSV = normalizeCSV)?.toImmutableList()
+    private fun importCSV(uri: Uri, semicolons: Boolean) {
+        csv = processFile(uri, semicolons = semicolons)?.toImmutableList()
         columns = csv?.firstOrNull()
     }
 
     private fun processFile(
         uri: Uri,
-        normalizeCSV: Boolean = false,
+        semicolons: Boolean = false,
         charset: Charset = Charsets.UTF_8
     ): List<CSVRow>? {
         return try {
             fileReader.read(uri, charset).getOrNull()
-                ?.let { parseCSV(it, normalizeCSV) }
+                ?.let { parseCSV(it, semicolons) }
                 ?.takeIf { it.isNotEmpty() }
         } catch (ignored: Exception) {
             // Whatever the user's file makes the reader throw, a UTF-8 read gets a second try as
             // UTF-16, and that one failing means there's no file to show.
-            if (charset != Charsets.UTF_16) processFile(uri, normalizeCSV, charset = Charsets.UTF_16) else null
+            if (charset != Charsets.UTF_16) processFile(uri, semicolons, charset = Charsets.UTF_16) else null
         }
     }
 
-    private fun parseCSV(csv: String, normalizeCSV: Boolean): List<CSVRow> {
-        val finalCSV = if (normalizeCSV) {
-            csv.replace(",", " ")
-                .replace(";", ",")
-        } else {
-            csv
-        }
-        return readCsv.readCsv(finalCSV).map(::CSVRow)
-    }
+    private fun parseCSV(csv: String, semicolons: Boolean): List<CSVRow> =
+        readCsv.readCsv(csv, separator = if (semicolons) ';' else ',').map(::CSVRow)
     // endregion
 
     private suspend fun handleContinue() {
         val csv = this.csv ?: return
         val emptyStatus = MappingStatus(emptyList(), false)
 
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             val result = csvImporter.import(
                 csv = csv,
                 importantFields = ImportantFields(
@@ -492,7 +487,7 @@ class CSVViewModel @Inject constructor(
                     descriptionStatus = emptyStatus,
                 ),
                 onProgress = { progressPercent ->
-                    com.nivy.wallet.utils.uiThread {
+                    withContext(dispatchers.main) {
                         uiState = UIState.Processing(
                             (progressPercent * Percent).roundToInt()
                         )
