@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import com.nivy.wallet.NivyComponentPreview
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Nivy
@@ -40,7 +41,7 @@ fun NivyCircleButton(
                 color = fill,
                 shape = PillShape
             )
-            .clickable(onClick = onClick, enabled = enabled)
+            .clickable(onClick = onClick, enabled = enabled, role = Role.Button)
             .padding(all = backgroundPadding),
         icon = icon,
         tint = readableTint(fill, tint),

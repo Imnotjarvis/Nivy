@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
 import com.nivy.domain.di.FeaturesEntryPoint
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.utils.amountToDoubleOrNull
@@ -108,7 +109,8 @@ fun BoxWithConstraintsScope.AmountModal(
                     .testTag("btn_calculator")
                     .padding(all = 4.dp),
                 icon = R.drawable.ic_custom_calculator_m,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
+                contentDescription = stringResource(R.string.calculator),
             )
 
             Spacer(Modifier.width(16.dp))
@@ -422,7 +424,8 @@ internal fun AmountKeyboard(
                 .padding(all = 24.dp)
                 .testTag("key_del"),
             icon = R.drawable.ic_backspace,
-            tint = Red
+            tint = Red,
+            contentDescription = stringResource(R.string.backspace),
         )
 
         fourthRowExtra?.invoke(this)
@@ -484,6 +487,7 @@ private fun circleButtonModifier(
         .size(size)
         .clip(PillShape)
         .clickable(
+            role = Role.Button,
             onClick = onClick
         )
         .background(MaterialTheme.colorScheme.surface, PillShape)

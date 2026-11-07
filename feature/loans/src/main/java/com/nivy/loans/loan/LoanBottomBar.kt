@@ -47,7 +47,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
         },
     )
 
-    BottomBarFab(backgroundColor = Nivy) {
+    BottomBarFab(backgroundColor = Nivy, contentDescription = stringResource(R.string.new_loan)) {
         onAdd()
     }
 }

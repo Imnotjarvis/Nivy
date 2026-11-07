@@ -159,6 +159,7 @@
     <string name="enter_account_balance">Enter account balance</string>
     <string name="choose_currency">Select currency</string>
     <string name="calculator">Calculator</string>
+    <string name="backspace">Backspace</string>
     <string name="calculator_empty_expression">Calculation (+−÷×=)</string>
     <string name="edit_category">Edit category</string>
     <string name="create_category">Create category</string>

@@ -235,6 +235,11 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 Green
             }
         },
+        contentDescription = when (tab) {
+            // It opens the add menu, and as an x closes it.
+            MainTab.HOME -> stringResource(if (expanded) R.string.close else R.string.add)
+            MainTab.ACCOUNTS -> stringResource(R.string.add_account)
+        },
     ) {
         when (tab) {
             MainTab.HOME -> {
