@@ -1,6 +1,7 @@
 package com.nivy.ui.testing
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.withCompositionLocals
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -28,29 +29,46 @@ open class ComposeViewModelTest {
  * [ComposeViewModelTest]'s `paparazzi.context`
  * @param verify assert what's the expected state after all the events
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 fun <UiState, UiEvent> ComposeViewModel<UiState, UiEvent>.runTest(
     events: List<UiEvent> = emptyList(),
     context: Context? = null,
     verify: UiState.() -> Unit
+) = runComposeTest(
+    present = { uiState() },
+    actions = { events.forEach(::onEvent) },
+    context = context,
+    verify = verify,
+)
+
+/**
+ * The same simulation for state that comes from any composable function, such as the uiState() of
+ * a view model that isn't a [ComposeViewModel].
+ * @param present produces the state
+ * @param actions what happens in your simulation, such as the view model's events
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <UiState> runComposeTest(
+    present: @Composable () -> UiState,
+    actions: () -> Unit = {},
+    context: Context? = null,
+    verify: UiState.() -> Unit,
 ) {
     try {
         Dispatchers.setMain(Dispatchers.Unconfined)
-        val viewModel = this
         kotlinx.coroutines.test.runTest {
             moleculeFlow(mode = RecompositionMode.Immediate) {
                 if (context == null) {
-                    viewModel.uiState()
+                    present()
                 } else {
                     withCompositionLocals(
                         LocalContext provides context,
                         LocalConfiguration provides context.resources.configuration,
                     ) {
-                        viewModel.uiState()
+                        present()
                     }
                 }
             }.test {
-                events.onEach(viewModel::onEvent)
+                actions()
                 verify(expectMostRecentItem())
                 cancel()
             }
