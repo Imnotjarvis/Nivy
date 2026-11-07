@@ -1,12 +1,17 @@
 package com.nivy.reports
 
+import android.content.Context
+import android.net.Uri
 import arrow.core.Some
+import arrow.core.left
 import com.nivy.base.TestDispatchersProvider
+import com.nivy.base.Toaster
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.resource.ResourceProvider
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.file.FileSystem
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
@@ -30,9 +35,12 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.RootScreen
+import com.nivy.domain.usecase.csv.ExportCsvUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
+import com.nivy.ui.R
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.Month
@@ -41,9 +49,12 @@ import com.nivy.wallet.domain.pure.exchange.ExchangeData
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Test
+import java.io.IOException
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -82,6 +93,9 @@ class ReportViewModelTest {
         }
     }
 
+    private val exportCsvUseCase = mockk<ExportCsvUseCase>()
+    private val toaster = mockk<Toaster>(relaxed = true)
+
     private val viewModel = ReportViewModel(
         dueTransactionsUseCase = mockk(relaxed = true),
         transactionRepository = mockk<TransactionRepository> {
@@ -108,12 +122,13 @@ class ReportViewModelTest {
                 }
             }
         },
-        exportCsvUseCase = mockk(relaxed = true),
+        exportCsvUseCase = exportCsvUseCase,
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),
         resourceProvider = mockk<ResourceProvider> { every { getString(any()) } returns "Unspecified" },
         dispatchers = TestDispatchersProvider,
+        toaster = toaster,
     )
 
     /** The report's own "Unspecified" category, for transactions without one. */
@@ -150,6 +165,23 @@ class ReportViewModelTest {
 
     private fun report(vararg events: ReportScreenEvent, verify: ReportScreenState.() -> Unit) =
         viewModel.runTest(events = events.toList(), verify = verify)
+
+    @Test
+    fun `an export that can't write its file says so, and shares nothing`() {
+        val file = mockk<Uri>()
+        val screen = mockk<RootScreenContext>(relaxed = true) {
+            every { createNewFile(any(), any()) } answers { secondArg<(Uri) -> Unit>().invoke(file) }
+        }
+        coEvery { exportCsvUseCase.exportToFile(file, any()) } returns FileSystem.Failure.IO(IOException()).left()
+
+        report(ReportScreenEvent.OnFilter(filter()), ReportScreenEvent.OnExport(screen)) {}
+
+        coVerify { toaster.show(R.string.msg_export_failed, any()) }
+        verify(exactly = 0) { screen.shareCSVFile(any()) }
+    }
+
+    /** The activity, which Reports is given as a Context and uses as the RootScreen. */
+    private abstract class RootScreenContext : Context(), RootScreen
 
     @Test
     fun `a report lists what was paid in the period, and adds it up`() {

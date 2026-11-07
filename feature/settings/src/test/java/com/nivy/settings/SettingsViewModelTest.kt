@@ -1,5 +1,6 @@
 package com.nivy.settings
 
+import android.net.Uri
 import arrow.core.None
 import arrow.core.Some
 import arrow.core.left
@@ -12,16 +13,21 @@ import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
+import com.nivy.data.file.FileSystem
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.domain.RootScreen
+import com.nivy.domain.usecase.csv.ExportCsvUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.nivy.ui.R
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -30,6 +36,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.io.IOException
 import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -42,6 +49,7 @@ class SettingsViewModelTest {
         coEvery { sync(any()) } returns Unit.right()
     }
     private val toaster = mockk<Toaster>(relaxed = true)
+    private val exportCsvUseCase = mockk<ExportCsvUseCase>()
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -59,7 +67,7 @@ class SettingsViewModelTest {
             syncExchangeRatesUseCase = syncExchangeRates,
             budgetRepository = budgetRepository,
             exchangeUseCase = exchangeUseCase,
-            exportCsvUseCase = mockk(relaxed = true),
+            exportCsvUseCase = exportCsvUseCase,
             context = mockk(relaxed = true),
             timeProvider = mockk(relaxed = true),
             toaster = toaster,
@@ -133,6 +141,20 @@ class SettingsViewModelTest {
         viewModel.onEvent(SettingsEvent.SetCurrency("USD"))
 
         coVerify(timeout = Timeout) { toaster.show(R.string.msg_exchange_rates_not_downloaded, any()) }
+    }
+
+    @Test
+    fun `a CSV export that can't write its file says so, and shares nothing`() {
+        val file = mockk<Uri>()
+        val rootScreen = mockk<RootScreen>(relaxed = true) {
+            every { createNewFile(any(), any()) } answers { secondArg<(Uri) -> Unit>().invoke(file) }
+        }
+        coEvery { exportCsvUseCase.exportToFile(file, any()) } returns FileSystem.Failure.IO(IOException()).left()
+
+        viewModel.onEvent(SettingsEvent.ExportToCsv(rootScreen))
+
+        coVerify(timeout = Timeout) { toaster.show(R.string.msg_export_failed, any()) }
+        verify(exactly = 0) { rootScreen.shareCSVFile(any()) }
     }
 
     private fun budget(amount: Double) = Budget(

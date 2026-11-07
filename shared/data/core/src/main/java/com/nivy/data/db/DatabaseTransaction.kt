@@ -1,6 +1,10 @@
 package com.nivy.data.db
 
 import androidx.room.withTransaction
+import com.nivy.data.DataObserver
+import com.nivy.data.DataWriteEvent
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -14,6 +18,17 @@ import javax.inject.Inject
  */
 open class DatabaseTransaction @Inject constructor(
     private val db: NivyRoomDatabase,
+    private val dataObserver: DataObserver,
 ) {
-    open suspend fun <R> run(block: suspend () -> R): R = db.withTransaction(block)
+    /**
+     * Runs [block] in one transaction. Cut short, by a failure or a cancellation, none of its
+     * writes stay, and the repositories' memos, which they updated, read the database again.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    open suspend fun <R> run(block: suspend () -> R): R = try {
+        db.withTransaction(block)
+    } catch (e: Throwable) {
+        withContext(NonCancellable) { dataObserver.post(DataWriteEvent.AllDataChange) }
+        throw e
+    }
 }

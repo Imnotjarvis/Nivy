@@ -81,7 +81,7 @@ class BackupDataUseCaseAndroidTest {
             accountValueWriter = db.writeAccountValueDao,
             exchangeRatesDao = db.exchangeRatesDao,
             exchangeRatesWriter = db.writeExchangeRatesDao,
-            transaction = DatabaseTransaction(db),
+            transaction = DatabaseTransaction(db, DataObserver()),
         )
     }
 
