@@ -73,6 +73,13 @@ launch() {
     sleep 3
 }
 
+# The expense opened from Home, in the editor: only an existing transaction has Duplicate. Nothing
+# else is tapped unless it's there, so a missed tap can't act on another screen.
+open_lunch() {
+    launch
+    tap_text "Lunch" && find_node content-desc "Duplicate" > /dev/null
+}
+
 # A new expense: the amount panel opens at once, then the category it asks for, then the title.
 launch -a ivy.wallet.intent.action.add_transaction --es add_transaction_type_extra EXPENSE
 shot new-amount
@@ -81,9 +88,13 @@ tap_text "4" && tap_text "2" && tap_text "Enter" && shot new-category-asked \
     && type_text "Lunch" && adb shell input keyevent KEYCODE_ENTER && shot new-filled \
     && tap_text "Add" && sleep 2 && shot home-with-lunch
 
-# The expense again, and its dialogs one by one.
+# Home's planned payment card covers the list's last rows: dismissed, the expense shows above the
+# bottom bar.
 launch
-if tap_text "Lunch"; then
+tap_desc "Dismiss" && shot home-card-dismissed
+
+# The expense again, and its dialogs one by one.
+if open_lunch; then
     shot edit-opened
     tap_text "Add description" && shot description-dialog \
         && type_text "Weekly shop" && tap_text "Add" && shot description-added
@@ -105,13 +116,12 @@ if tap_text "Lunch"; then
 fi
 
 # A duplicate of it, then the original deleted.
-launch
-if tap_text "Lunch"; then
+if open_lunch; then
     shot transfer-opened
     tap_desc "Duplicate" && sleep 2 && shot home-with-duplicate
 fi
-launch
-if tap_text "Lunch"; then
+if open_lunch; then
+    shot delete-opened
     tap_desc "Delete" && tap_text "Delete" && sleep 2 && shot home-after-delete
 fi
 
