@@ -37,7 +37,7 @@
 #   record-screenshots    re-records the screenshot tests' reference images, commits them and
 #                         starts a "build" run on the new commit
 #
-# Artifacts are kept for 3 days and the signed APK for 30; an older APK can be rebuilt from its
+# Artifacts are kept for 3 days and the signed APK for 1; an older APK can be rebuilt from its
 # commit.
 #
 # Signed APKs: push a tag such as v2026.11.01, or run the workflow by hand with "release". The
@@ -696,7 +696,7 @@ jobs:
 
   # Keeps the signed APK: the file the demo job built and checked and the device job ran on the
   # emulator, under its version's name. Nothing is published; it's this run's artifact, kept for
-  # 30 days, to download and install.
+  # a day, to download and install.
   release:
     if: startsWith(github.ref, 'refs/tags/v') || inputs.action == 'release'
     needs: [plan, checks, build, test, demo, device]
@@ -722,7 +722,7 @@ jobs:
           {
             echo "## $apk"
             echo "Tested on the emulator, from onboarding to Home. Download it from this run's"
-            echo "**Nivy-$VERSION** artifact (a zip; it's kept 30 days), unzip it on the phone and open"
+            echo "**Nivy-$VERSION** artifact (a zip; it's kept for a day), unzip it on the phone and open"
             echo "the APK. Android asks once to allow installing from the files app."
             echo ""
             echo "- SHA-256: \`$SHA256\`"
@@ -737,7 +737,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: Nivy-${{ needs.demo.outputs.version }}
-          retention-days: 30
+          retention-days: 1
           # An APK is already compressed.
           compression-level: 0
           path: Nivy-*.apk

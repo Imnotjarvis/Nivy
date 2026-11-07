@@ -47,7 +47,7 @@ and leaves it to download.
 
    The `demo` job builds the APK with the release key and checks the key, the `device` job installs
    that file on the emulator and goes through onboarding to Home, and the `release` job keeps it
-   as the run's `Nivy-<version>` artifact for 30 days. The run summary gives its SHA-256.
+   as the run's `Nivy-<version>` artifact for a day. The run summary gives its SHA-256.
 4. On the phone, open the run on GitHub, download the artifact (a zip), unzip it in the files app
    and open the APK. Android asks once to allow installing from the files app.
 
