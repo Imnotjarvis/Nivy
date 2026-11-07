@@ -50,7 +50,7 @@ internal class EditorTags(
     fun onEvent(event: TagEvent) {
         when (event) {
             is TagEvent.SaveTag -> create(event.name)
-            is TagEvent.OnTagSelect -> associate(event.selectedTag, transactionId)
+            is TagEvent.OnTagSelect -> associate(event.selectedTag)
             is TagEvent.OnTagDeSelect -> removeAssociation(event.selectedTag)
             is TagEvent.OnTagSearch -> search(event.query)
             is TagEvent.OnTagDelete -> delete(event.selectedTag)
@@ -58,9 +58,11 @@ internal class EditorTags(
         }
     }
 
-    /** Links the transaction's tags to its copy [copy] too. */
+    /** Links the transaction's tags to its copy [copy] too, before it returns. */
     suspend fun copyTo(copy: UUID) {
-        transactionTags.findByIds(associated).forEach { associate(it) { copy } }
+        transactionTags.findByIds(associated).forEach {
+            transactionTags.associateTag(AssociationId(copy), it)
+        }
     }
 
     private fun create(name: String) {
@@ -71,9 +73,9 @@ internal class EditorTags(
         }
     }
 
-    private fun associate(tag: Tag, transaction: () -> UUID) {
+    private fun associate(tag: Tag) {
         scope.launch(io) {
-            val associatedId = AssociationId(transaction())
+            val associatedId = AssociationId(transactionId())
             associated = transactionTags.associateTag(associatedId, tag)
         }
     }

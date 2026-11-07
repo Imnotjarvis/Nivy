@@ -144,7 +144,7 @@ class EditorTagsTest {
     }
 
     @Test
-    fun `a copy of the transaction gets its tags`() = runTest {
+    fun `a copy of the transaction has its tags once the copying is done`() = runTest {
         // given
         val copy = UUID.randomUUID()
         coEvery { transactionTags.associatedTagIds(AssociationId(transaction)) } returns persistentListOf(holiday.id)
@@ -155,7 +155,6 @@ class EditorTagsTest {
 
         // when
         tags.copyTo(copy)
-        advanceUntilIdle()
 
         // then
         coVerify(exactly = 1) { transactionTags.associateTag(AssociationId(copy), holiday) }
