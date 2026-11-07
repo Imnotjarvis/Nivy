@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.base.model.Theme
 import com.nivy.design.system.shapes.AppCornerRadius
@@ -62,6 +63,7 @@ fun BoxWithConstraintsScope.SettingsScreen() {
             viewModel.onEvent(SettingsEvent.SwitchTheme)
         },
         lockApp = uiState.lockApp,
+        lockDelay = uiState.lockDelay,
         showNotifications = uiState.showNotifications,
         hideCurrentBalance = uiState.hideCurrentBalance,
         hideIncome = uiState.hideIncome,
@@ -84,6 +86,9 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         },
         onSetLockApp = {
             viewModel.onEvent(SettingsEvent.SetLockApp(it))
+        },
+        onSetLockDelay = {
+            viewModel.onEvent(SettingsEvent.SetLockDelay(it))
         },
         onSetShowNotifications = {
             viewModel.onEvent(SettingsEvent.SetShowNotifications(it))
@@ -125,6 +130,7 @@ private fun BoxWithConstraintsScope.UI(
     lockApp: Boolean,
     nameLocalAccount: String?,
     onSetCurrency: (String) -> Unit,
+    lockDelay: AppLockDelay = AppLockDelay.Default,
     startDateOfMonth: Int = 1,
     dateFormat: DateDisplayFormat = DateDisplayFormat.Default,
     showNotifications: Boolean = true,
@@ -136,6 +142,7 @@ private fun BoxWithConstraintsScope.UI(
     onBackupData: () -> Unit = {},
     onExportToCSV: () -> Unit = {},
     onSetLockApp: (Boolean) -> Unit = {},
+    onSetLockDelay: (AppLockDelay) -> Unit = {},
     onSetShowNotifications: (Boolean) -> Unit = {},
     onSetTreatTransfersAsIncExp: (Boolean) -> Unit = {},
     onSetHideCurrentBalance: (Boolean) -> Unit = {},
@@ -150,6 +157,7 @@ private fun BoxWithConstraintsScope.UI(
     var nameModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
     var chooseDateFormatVisible by remember { mutableStateOf(false) }
+    var chooseLockDelayVisible by remember { mutableStateOf(false) }
     var chooseCornerRadiusVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
@@ -287,6 +295,18 @@ private fun BoxWithConstraintsScope.UI(
                 icon = R.drawable.ic_custom_fingerprint_m
             )
 
+            if (lockApp) {
+                Spacer(Modifier.height(12.dp))
+
+                SettingsValueRow(
+                    icon = R.drawable.ic_vue_main_timer,
+                    label = stringResource(R.string.lock_after_leaving),
+                    value = lockDelay.label()
+                ) {
+                    chooseLockDelayVisible = true
+                }
+            }
+
             Spacer(Modifier.height(12.dp))
 
             AppSwitch(
@@ -423,6 +443,13 @@ private fun BoxWithConstraintsScope.UI(
         selected = dateFormat,
         dismiss = { chooseDateFormatVisible = false },
         onSelect = onSetDateFormat,
+    )
+
+    ChooseLockDelayModal(
+        visible = chooseLockDelayVisible,
+        selected = lockDelay,
+        dismiss = { chooseLockDelayVisible = false },
+        onSelect = onSetLockDelay,
     )
 
     ChooseCornerRadiusModal(

@@ -4,6 +4,7 @@ import arrow.core.None
 import arrow.core.Some
 import arrow.core.left
 import arrow.core.right
+import com.nivy.base.model.AppLockDelay
 import com.nivy.base.Toaster
 import com.nivy.data.model.Budget
 import com.nivy.data.model.BudgetId
@@ -93,6 +94,13 @@ class SettingsViewModelTest {
             )
             appPreferences.setBaseCurrency("USD")
         }
+    }
+
+    @Test
+    fun `choosing how soon the app locks saves it`() {
+        viewModel.onEvent(SettingsEvent.SetLockDelay(AppLockDelay.FIVE_MINUTES))
+
+        coVerify { appPreferences.setAppLockDelay(AppLockDelay.FIVE_MINUTES) }
     }
 
     @Test

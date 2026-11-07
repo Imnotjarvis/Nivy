@@ -1,11 +1,19 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Base application theme. While the lock is on, Android hides the app in the recent-apps
+         view and, before Android 13, draws its card from these colors instead (from Android 13,
+         RootActivity sets them): the screens' background, light or dark with the phone, with the
+         bars in the same color, so the card is one plain color. A transparent bar would keep the
+         starting theme's color. The screens still draw under the bars: the app sets them
+         transparent as it starts (edge to edge). -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:colorPrimary">@color/nivy</item>
         <item name="android:colorPrimaryDark">@color/nivy</item>
         <item name="android:colorAccent">@color/nivy</item>
         <item name="android:colorControlActivated">@color/nivy</item>
+        <item name="android:colorBackground">@color/splash_background</item>
+        <item name="android:statusBarColor">@color/splash_background</item>
+        <item name="android:navigationBarColor">@color/splash_background</item>
     </style>
 
     <!-- While the app starts: its icon on the screens' background, light or dark with the phone,

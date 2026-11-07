@@ -21,9 +21,11 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -61,6 +63,7 @@ import javax.inject.Inject
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.app.ActivityManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.nivy.data.preferences.AppPreferences
@@ -126,6 +129,13 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 if (navigation.currentScreen == MainScreen) askForNotificationPermission()
             }
 
+            val appLockOn by viewModel.appLockOn.collectAsState()
+            LaunchedEffect(appLockOn) {
+                // With the lock on, the recent-apps view shows a plain card instead of the app's
+                // last screen (see showsAppInRecents).
+                showsAppInRecents(!appLockOn)
+            }
+
             val appLocked by viewModel.appLocked.collectAsState()
             when (appLocked) {
                 null -> { // display nothing
@@ -173,6 +183,9 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 dark = isDarkTheme(themeState.theme, isSystemInDarkTheme),
                 isTrueBlack = themeState.theme == Theme.AMOLED_DARK
             ) {
+                val background = MaterialTheme.colorScheme.background
+                LaunchedEffect(background) { recentsCard(background.toArgb()) }
+
                 dateTimePicker.Content()
             }
         }
@@ -277,8 +290,12 @@ class RootActivity : AppCompatActivity(), RootScreen {
         openFileLauncher.launch(Unit)
     }
 
+    // From Android 13, showsAppInRecents keeps the recent-apps view from showing the app. Before,
+    // the window is made secure as it loses the focus, which can come after Android has taken its
+    // picture for the recent-apps view.
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) return
         if (viewModel.isAppLockEnabled() && !hasFocus) {
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_SECURE,
@@ -289,18 +306,38 @@ class RootActivity : AppCompatActivity(), RootScreen {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (viewModel.isAppLockEnabled()) {
-            viewModel.checkUserInactiveTimeStatus()
-        }
+    // Whether the recent-apps view may show the app's last screen. When it may not, Android draws
+    // its card from the app's colors instead (recentsCard), so a locked app shows nothing there.
+    private fun showsAppInRecents(shows: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) setRecentsScreenshotEnabled(shows)
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (viewModel.isAppLockEnabled()) {
-            viewModel.startUserInactiveTimeCounter()
-        }
+    // That card: the screens' background in the app's own theme (light, dark or Amoled, whatever
+    // the phone's), with its bars in the same color. Android takes a transparent bar color as no
+    // color and keeps the starting theme's, a band of the system's own color. Before Android 13,
+    // the window theme gives these colors.
+    private fun recentsCard(background: Int) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        setTaskDescription(
+            ActivityManager.TaskDescription.Builder()
+                .setBackgroundColor(background)
+                .setStatusBarColor(background)
+                .setNavigationBarColor(background)
+                .build()
+        )
+    }
+
+    // Stopped and started, not paused and resumed: a dialog, the notification shade or the unlock's
+    // own prompt over the app aren't leaving it.
+    override fun onStart() {
+        super.onStart()
+        viewModel.onAppShown()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // A rotation or a theme change recreates the activity: that's not leaving the app either.
+        if (!isChangingConfigurations) viewModel.onAppHidden()
     }
 
     private fun authenticateWithOSBiometricsModal(

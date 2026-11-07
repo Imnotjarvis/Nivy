@@ -3,6 +3,7 @@ package com.nivy.wallet
 import android.content.Context
 import android.content.Intent
 import androidx.biometric.BiometricPrompt
+import com.nivy.base.model.AppLockDelay
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.domain.features.Features
@@ -17,9 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -28,7 +27,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RootViewModelTest {
@@ -43,8 +41,10 @@ class RootViewModelTest {
     }
 
     private val appLockSetting = MutableStateFlow(true)
+    private val lockDelaySetting = MutableStateFlow(AppLockDelay.ONE_MINUTE)
     private val appPreferences = mockk<AppPreferences>(relaxed = true) {
         every { appLockEnabled } returns appLockSetting
+        every { appLockDelay } returns lockDelaySetting
         every { dateFormat } returns emptyFlow()
         every { cornerRadius } returns emptyFlow()
         every { minimalColors } returns emptyFlow()
@@ -54,6 +54,9 @@ class RootViewModelTest {
         coEvery { startDayOfMonth() } returns 1
     }
     private val nav = Navigation()
+
+    private var now = 0L
+    private val clock = mockk<ElapsedClock> { every { millis() } answers { now } }
 
     // A launch from the launcher: its extras hold no transaction type to add.
     private val intent = mockk<Intent>(relaxed = true)
@@ -78,15 +81,20 @@ class RootViewModelTest {
         dateFormatState = mockk(relaxed = true),
         features = mockk<Features> { every { allFeatures } returns emptyList() },
         dispatchers = dispatchers,
+        clock = clock,
         appContext = mockk<Context>(relaxed = true),
     )
 
     private fun startedViewModel() = viewModel().also { it.start(systemDarkMode = false, intent = intent) }
 
-    /** The app in the background for [seconds], on the virtual clock. */
-    private fun TestScope.away(seconds: Int) {
-        advanceTimeBy(seconds.seconds)
-        runCurrent()
+    /**
+     * The app off the screen for [seconds], then back. Nothing of it runs meanwhile, as Android
+     * freezes the apps it moves to the background: only the clock moves.
+     */
+    private fun RootViewModel.away(seconds: Int) {
+        onAppHidden()
+        now += seconds * 1_000L
+        onAppShown()
     }
 
     @Test
@@ -177,29 +185,16 @@ class RootViewModelTest {
         viewModel.unlockApp()
 
         // when
-        viewModel.startUserInactiveTimeCounter()
-        away(seconds = 59)
+        viewModel.away(seconds = 59)
 
         // then
         viewModel.isAppLocked() shouldBe false
-        away(seconds = 1)
-        viewModel.isAppLocked() shouldBe true
-    }
-
-    @Test
-    fun `coming back within the minute keeps the app unlocked`() = runTest(dispatcher) {
-        // given
-        val viewModel = startedViewModel()
-        viewModel.unlockApp()
-        viewModel.startUserInactiveTimeCounter()
-        away(seconds = 30)
 
         // when
-        viewModel.checkUserInactiveTimeStatus()
-        away(seconds = 60)
+        viewModel.away(seconds = 60)
 
         // then
-        viewModel.isAppLocked() shouldBe false
+        viewModel.isAppLocked() shouldBe true
     }
 
     @Test
@@ -207,18 +202,13 @@ class RootViewModelTest {
         // given
         val viewModel = startedViewModel()
         viewModel.unlockApp()
-        viewModel.startUserInactiveTimeCounter()
-        away(seconds = 50)
-        viewModel.checkUserInactiveTimeStatus()
 
         // when
-        viewModel.startUserInactiveTimeCounter()
-        away(seconds = 59)
+        viewModel.away(seconds = 50)
+        viewModel.away(seconds = 50)
 
         // then
         viewModel.isAppLocked() shouldBe false
-        away(seconds = 1)
-        viewModel.isAppLocked() shouldBe true
     }
 
     @Test
@@ -226,14 +216,110 @@ class RootViewModelTest {
         // given
         val viewModel = startedViewModel()
         viewModel.unlockApp()
-        viewModel.startUserInactiveTimeCounter()
-        away(seconds = 60)
-        viewModel.checkUserInactiveTimeStatus()
+        viewModel.away(seconds = 60)
         viewModel.unlockApp()
 
         // when
-        viewModel.startUserInactiveTimeCounter()
-        away(seconds = 59)
+        viewModel.away(seconds = 59)
+
+        // then
+        viewModel.isAppLocked() shouldBe false
+    }
+
+    @Test
+    fun `set to lock immediately, the app locks as it leaves the screen`() = runTest(dispatcher) {
+        // given
+        lockDelaySetting.value = AppLockDelay.IMMEDIATELY
+        val viewModel = startedViewModel()
+        viewModel.unlockApp()
+
+        // when
+        viewModel.onAppHidden()
+
+        // then
+        viewModel.isAppLocked() shouldBe true
+    }
+
+    @Test
+    fun `set to five minutes, the app locks after five minutes away, not a second earlier`() = runTest(dispatcher) {
+        // given
+        lockDelaySetting.value = AppLockDelay.FIVE_MINUTES
+        val viewModel = startedViewModel()
+        viewModel.unlockApp()
+
+        // when
+        viewModel.away(seconds = 299)
+
+        // then
+        viewModel.isAppLocked() shouldBe false
+
+        // when
+        viewModel.away(seconds = 300)
+
+        // then
+        viewModel.isAppLocked() shouldBe true
+    }
+
+    @Test
+    fun `the delay follows the setting while the app runs`() = runTest(dispatcher) {
+        // given
+        val viewModel = startedViewModel()
+        viewModel.unlockApp()
+
+        // when
+        lockDelaySetting.value = AppLockDelay.FIVE_MINUTES
+        viewModel.away(seconds = 120)
+
+        // then
+        viewModel.isAppLocked() shouldBe false
+    }
+
+    @Test
+    fun `a file picker the app opened isn't leaving it, until the app is back`() = runTest(dispatcher) {
+        // given
+        lockDelaySetting.value = AppLockDelay.IMMEDIATELY
+        val viewModel = startedViewModel()
+        viewModel.unlockApp()
+
+        // when
+        viewModel.awaitFile {}
+        viewModel.onAppHidden()
+
+        // then
+        viewModel.isAppLocked() shouldBe false
+
+        // when
+        viewModel.onAppShown()
+        viewModel.onAppHidden()
+
+        // then
+        viewModel.isAppLocked() shouldBe true
+    }
+
+    @Test
+    fun `time away while locked doesn't lock the app again once unlocked`() = runTest(dispatcher) {
+        // given: locked, and its unlock shows the phone's PIN screen, which hides the app
+        val viewModel = startedViewModel()
+        viewModel.onAppHidden()
+        now += 120_000
+
+        // when
+        viewModel.unlockApp()
+        viewModel.onAppShown()
+
+        // then
+        viewModel.isAppLocked() shouldBe false
+    }
+
+    @Test
+    fun `with the lock off, time away doesn't lock the app`() = runTest(dispatcher) {
+        // given
+        appLockSetting.value = false
+        lockDelaySetting.value = AppLockDelay.IMMEDIATELY
+        val viewModel = startedViewModel()
+
+        // when
+        viewModel.away(seconds = 600)
 
         // then
         viewModel.isAppLocked() shouldBe false

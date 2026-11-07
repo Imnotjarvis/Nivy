@@ -8,6 +8,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.Theme
 import com.nivy.base.model.next
 import com.nivy.base.Toaster
@@ -36,6 +37,7 @@ import com.nivy.wallet.domain.usecase.StartDayOfMonthUseCase
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,6 +70,7 @@ class SettingsViewModel @Inject constructor(
     private val name = mutableStateOf("")
     private val currentTheme = mutableStateOf<Theme>(Theme.AUTO)
     private val lockApp = mutableStateOf(false)
+    private val lockDelay = mutableStateOf(AppLockDelay.Default)
     private val showNotifications = mutableStateOf(true)
     private val hideCurrentBalance = mutableStateOf(false)
     private val hideIncome = mutableStateOf(false)
@@ -86,6 +89,7 @@ class SettingsViewModel @Inject constructor(
             name = name.value,
             currentTheme = currentTheme.value,
             lockApp = lockApp.value,
+            lockDelay = lockDelay.value,
             showNotifications = showNotifications.value,
             hideCurrentBalance = hideCurrentBalance.value,
             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
@@ -122,6 +126,7 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun initializeLockApp() {
         lockApp.value = appPreferences.isAppLockEnabled()
+        lockDelay.value = appPreferences.appLockDelay.first()
     }
 
     private suspend fun initializeShowNotifications() {
@@ -152,6 +157,7 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.BackupData -> exportToZip(event.rootScreen)
             SettingsEvent.SwitchTheme -> switchTheme()
             is SettingsEvent.SetLockApp -> setLockApp(event.lockApp)
+            is SettingsEvent.SetLockDelay -> setLockDelay(event.delay)
             is SettingsEvent.SetShowNotifications -> setShowNotifications(event.showNotifications)
             is SettingsEvent.SetHideCurrentBalance -> setHideCurrentBalance(
                 event.hideCurrentBalance
@@ -286,6 +292,14 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             appPreferences.setAppLockEnabled(lock)
             context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
+        }
+    }
+
+    private fun setLockDelay(delay: AppLockDelay) {
+        lockDelay.value = delay
+
+        viewModelScope.launch {
+            appPreferences.setAppLockDelay(delay)
         }
     }
 
