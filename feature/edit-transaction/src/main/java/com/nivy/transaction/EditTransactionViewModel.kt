@@ -16,11 +16,8 @@ import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
 import com.nivy.data.model.CreditCard
 import com.nivy.data.model.CategoryId
-import com.nivy.data.model.Tag
-import com.nivy.data.model.TagId
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.pickable
-import com.nivy.data.model.primitive.AssociationId
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
@@ -37,23 +34,16 @@ import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.MainScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.ComposeViewModel
-import com.nivy.wallet.domain.data.CustomExchangeRateState
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -85,7 +75,6 @@ class EditTransactionViewModel @Inject constructor(
 
     private var transactionType by mutableStateOf(TransactionType.EXPENSE)
     private var initialTitle by mutableStateOf<String?>(null)
-    private var titleSuggestions by mutableStateOf(persistentSetOf<String>())
     private var currency by mutableStateOf("")
     private var description by mutableStateOf<String?>(null)
     private var dateTime by mutableStateOf<Instant?>(null)
@@ -95,8 +84,6 @@ class EditTransactionViewModel @Inject constructor(
     private var creditCard by mutableStateOf<CreditCard?>(null)
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
-    private var tags by mutableStateOf<ImmutableList<Tag>>(persistentListOf())
-    private var transactionAssociatedTags by mutableStateOf<ImmutableList<TagId>>(persistentListOf())
     private var account by mutableStateOf<Account?>(null)
     private var toAccount by mutableStateOf<Account?>(null)
     private var category by mutableStateOf<Category?>(null)
@@ -110,21 +97,25 @@ class EditTransactionViewModel @Inject constructor(
     // used to indicate the background updating of loan/loanRecord data
     private var backgroundProcessingStarted by mutableStateOf(false)
 
-    private var customExchangeRateState by mutableStateOf(CustomExchangeRateState())
-
     private var loadedTransaction: TransactionDraft? = null
     private var editMode = false
 
     private var title: String? = null
-    private lateinit var baseUserCurrency: String
-    private var tagSearchJob: Job? = null
-    private val tagSearchDebounceTimeInMills: Long = 500
+
+    private val tags = EditorTags(
+        transactionTags = transactionTags,
+        scope = viewModelScope,
+        transactionId = { loadedTransaction().id },
+        afterTagAdd = { saveIfEditMode() },
+    )
+    private val titleSuggestions = TitleSuggestions(smartTitleSuggestionsLogic, features, viewModelScope)
+    private val rateCard = RateCard(transferExchangeRate)
 
     fun start(screen: EditTransactionScreen) {
         viewModelScope.launch {
             editMode = screen.initialTransactionId != null
 
-            baseUserCurrency = transferExchangeRate.baseCurrency()
+            rateCard.loadBaseCurrency()
 
             val tagList = async { transactionTags.getAllTags() }
 
@@ -150,8 +141,7 @@ class EditTransactionViewModel @Inject constructor(
                 )
             ).toImmutableList()
 
-            tags = tagList.await()
-            transactionAssociatedTags = transactionTags.associatedTagIds(AssociationId(loadedTransaction().id))
+            tags.show(all = tagList.await(), transaction = loadedTransaction().id)
             display(loadedTransaction!!)
         }
     }
@@ -161,7 +151,7 @@ class EditTransactionViewModel @Inject constructor(
         return EditTransactionViewState(
             transactionType = transactionType,
             initialTitle = initialTitle,
-            titleSuggestions = getTitleSuggestions(),
+            titleSuggestions = titleSuggestions.shown(),
             currency = currency,
             description = description,
             dateTime = dateTime,
@@ -179,23 +169,14 @@ class EditTransactionViewModel @Inject constructor(
             hasChanges = hasChanges,
             displayLoanHelper = displayLoanHelper,
             backgroundProcessingStarted = backgroundProcessingStarted,
-            customExchangeRateState = customExchangeRateState,
-            tags = tags,
-            transactionAssociatedTags = transactionAssociatedTags
+            customExchangeRateState = rateCard.state,
+            tags = tags.all,
+            transactionAssociatedTags = tags.associated
         )
     }
 
     private fun purchase(): LocalDateTime = with(timeConverter) {
         (dateTime ?: timeProvider.utcNow()).toLocalDateTime()
-    }
-
-    @Composable
-    private fun getTitleSuggestions(): ImmutableSet<String> {
-        return if (features.showTitleSuggestions.asEnabledState()) {
-            titleSuggestions
-        } else {
-            persistentSetOf()
-        }
     }
 
     @Suppress("CyclomaticComplexMethod")
@@ -226,18 +207,7 @@ class EditTransactionViewModel @Inject constructor(
             is EditTransactionViewEvent.Save -> save(event.closeScreen)
             is EditTransactionViewEvent.SetHasChanges -> setHasChanges(event.hasChangesValue)
             is EditTransactionViewEvent.UpdateExchangeRate -> updateExchangeRate(event.exRate)
-            is EditTransactionViewEvent.TagEvent -> handleTagEvent(event)
-        }
-    }
-
-    private fun handleTagEvent(event: EditTransactionViewEvent.TagEvent) {
-        when (event) {
-            is EditTransactionViewEvent.TagEvent.SaveTag -> onTagSaved(event.name)
-            is EditTransactionViewEvent.TagEvent.OnTagSelect -> associateTagToTransaction(event.selectedTag)
-            is EditTransactionViewEvent.TagEvent.OnTagDeSelect -> removeTagAssociation(event.selectedTag)
-            is EditTransactionViewEvent.TagEvent.OnTagSearch -> searchTag(event.query)
-            is EditTransactionViewEvent.TagEvent.OnTagDelete -> deleteTag(event.selectedTag)
-            is EditTransactionViewEvent.TagEvent.OnTagEdit -> updateTagInformation(event.newTag)
+            is EditTransactionViewEvent.TagEvent -> tags.onEvent(event)
         }
     }
 
@@ -264,7 +234,7 @@ class EditTransactionViewModel @Inject constructor(
 
         updateCurrency(account = selectedAccount)
 
-        customExchangeRateState = displayedExchangeRateState(transaction, accounts, account, currency)
+        rateCard.show(transaction, accounts, account, currency)
 
         displayLoanHelper = transactionLoanDisplay.getDisplayLoanHelper(trans = transaction)
     }
@@ -448,11 +418,7 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             val saved = transactionSaving.trySaving {
                 val id = UUID.randomUUID()
-                transactionSaving.saveCopy(loadedTransaction(), id) {
-                    transactionTags.findByIds(transactionAssociatedTags).forEach {
-                        associateTagToTransaction(it, id)
-                    }
-                }
+                transactionSaving.saveCopy(loadedTransaction(), id) { tags.copyTo(id) }
             }
 
             if (saved) closeScreen()
@@ -481,20 +447,8 @@ class EditTransactionViewModel @Inject constructor(
         updateTitleSuggestions()
     }
 
-    private var titleSuggestionsJob: Job? = null
-
     private fun updateTitleSuggestions(title: String? = loadedTransaction().title) {
-        // Each keystroke asks again: an older, slower lookup must not overwrite a newer one.
-        titleSuggestionsJob?.cancel()
-        titleSuggestionsJob = viewModelScope.launch {
-            titleSuggestions = ioThread {
-                smartTitleSuggestionsLogic.suggest(
-                    title = title,
-                    categoryId = category?.id?.value,
-                    accountId = account?.id?.value
-                )
-            }.toPersistentSet()
-        }
+        titleSuggestions.update(title = title, categoryId = category?.id?.value, accountId = account?.id?.value)
     }
 
     private fun editCategory(updatedCategory: Category) {
@@ -521,7 +475,7 @@ class EditTransactionViewModel @Inject constructor(
             account = account,
             toAccount = toAccount,
             amount = amount,
-            customExchangeRateState = customExchangeRateState,
+            customExchangeRateState = rateCard.state,
         )
         if (!valid) {
             return
@@ -542,7 +496,7 @@ class EditTransactionViewModel @Inject constructor(
             loadedTransaction = loadedTransaction().copy(
                 accountId = account?.id?.value ?: error("no accountId"),
                 toAccountId = toAccount?.id?.value,
-                toAmount = customExchangeRateState.convertedAmount ?: amount,
+                toAmount = rateCard.state.convertedAmount ?: amount,
                 title = title?.trim(),
                 description = description?.trim(),
                 amount = amount,
@@ -611,22 +565,17 @@ class EditTransactionViewModel @Inject constructor(
         resetRate: Boolean = false
     ) {
         computationThread {
-            val customTransferExchangeRateState = transferExchangeRate.exchangeRateState(
-                customExchangeRateState = customExchangeRateState,
-                toAcc = toAccountValue ?: toAccount,
-                fromAcc = fromAccount ?: account,
-                baseUserCurrency = { baseUserCurrency },
+            val shown = rateCard.update(
+                from = fromAccount ?: account,
+                to = toAccountValue ?: toAccount,
+                amount = { amt ?: amount },
                 exchangeRate = exchangeRate,
                 resetRate = resetRate,
-            ) { amt ?: amount }
-            if (customTransferExchangeRateState == null) {
-                customExchangeRateState = CustomExchangeRateState()
-                return@computationThread
-            }
-
-            customExchangeRateState = customTransferExchangeRateState
-            uiThread {
-                saveIfEditMode()
+            )
+            if (shown) {
+                uiThread {
+                    saveIfEditMode()
+                }
             }
         }
     }
@@ -636,57 +585,6 @@ class EditTransactionViewModel @Inject constructor(
             hasChanges = true
 
             save(closeScreen)
-        }
-    }
-
-    private fun onTagSaved(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            transactionTags.saveTag(name)?.let { this@EditTransactionViewModel.tags = it }
-
-            saveIfEditMode()
-        }
-    }
-
-    private fun associateTagToTransaction(selectedTag: Tag) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val associatedId = AssociationId(loadedTransaction().id)
-            transactionAssociatedTags = transactionTags.associateTag(associatedId, selectedTag)
-        }
-    }
-
-    private fun associateTagToTransaction(selectedTag: Tag, id: UUID) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val associatedId = AssociationId(id)
-            transactionAssociatedTags = transactionTags.associateTag(associatedId, selectedTag)
-        }
-    }
-
-    private fun removeTagAssociation(selectedTag: Tag) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val associatedId = AssociationId(loadedTransaction().id)
-            transactionAssociatedTags = transactionTags.removeTagAssociation(associatedId, selectedTag)
-        }
-    }
-
-    private fun searchTag(query: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            tagSearchJob?.cancelAndJoin()
-            delay(tagSearchDebounceTimeInMills) // Debounce effect
-            tagSearchJob = launch(Dispatchers.IO) {
-                tags = transactionTags.searchTags(query)
-            }
-        }
-    }
-
-    private fun deleteTag(selectedTag: Tag) {
-        viewModelScope.launch(Dispatchers.IO) {
-            tags = transactionTags.deleteTag(selectedTag)
-        }
-    }
-
-    private fun updateTagInformation(newTag: Tag) {
-        viewModelScope.launch(Dispatchers.IO) {
-            tags = transactionTags.updateTag(newTag)
         }
     }
 }
