@@ -26,6 +26,13 @@ interface WriteCreditCardDao {
         deleteCreditCardRow(id)
     }
 
+    /** Deletes the [removed] cards, as [deleteById] does, and saves [cards]: all of it, or none. */
+    @Transaction
+    suspend fun replaceCards(removed: List<UUID>, cards: List<CreditCardEntity>) {
+        removed.forEach { deleteById(it) }
+        saveMany(cards)
+    }
+
     @Query(
         "UPDATE transactions SET creditCardId = NULL, purchaseDateTime = NULL, chargeShift = 0 " +
             "WHERE creditCardId = :id"
