@@ -28,6 +28,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import java.time.Instant
 import java.util.Locale
@@ -49,6 +50,7 @@ class LoanTransactionsUseCase @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
+    private val creditCardChargeUseCase: CreditCardChargeUseCase,
 ) {
     /**
      * Creates or updates the loan's transaction when [create] is true and the loan has an
@@ -238,6 +240,9 @@ class LoanTransactionsUseCase @Inject constructor(
         val id = existing?.id ?: TransactionId(UUID.randomUUID())
         val category = existing?.category ?: loanCategory()
         val value = PositiveValue(amount = amount, asset = asset)
+        // An expense paid with a card stays so, charged on the card's day: [time] is its purchase.
+        val card = existing?.metadata?.takeIf { !income && it.creditCard != null }
+        val withCard = metadata.copy(creditCard = card?.creditCard, chargeShift = card?.chargeShift ?: 0)
         val transaction = if (income) {
             Income(
                 id = id,
@@ -246,7 +251,7 @@ class LoanTransactionsUseCase @Inject constructor(
                 category = category,
                 time = time,
                 settled = true,
-                metadata = metadata,
+                metadata = withCard,
                 tags = existing?.tags ?: emptyList(),
                 value = value,
                 account = account,
@@ -259,13 +264,13 @@ class LoanTransactionsUseCase @Inject constructor(
                 category = category,
                 time = time,
                 settled = true,
-                metadata = metadata,
+                metadata = withCard,
                 tags = existing?.tags ?: emptyList(),
                 value = value,
                 account = account,
             )
         }
-        transactionRepository.save(transaction)
+        transactionRepository.save(creditCardChargeUseCase.dated(transaction))
     }
 
     private fun loanMetadata(loan: LoanId, record: LoanRecordId?) = TransactionMetadata(

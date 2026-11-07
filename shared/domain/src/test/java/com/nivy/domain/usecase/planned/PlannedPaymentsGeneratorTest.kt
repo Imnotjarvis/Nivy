@@ -50,7 +50,7 @@ class PlannedPaymentsGeneratorTest {
 
     @Test
     fun `monthly dates keep the start date's day after a short month`() = runTest {
-        generator.generate(monthlyFrom(date(2026, 1, 31)))
+        generator.generate(monthlyFrom(date(2026, 1, 31)), previous = null)
 
         unpaidDates().take(4) shouldBe listOf(
             date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31), date(2026, 4, 30)
@@ -61,22 +61,64 @@ class PlannedPaymentsGeneratorTest {
     fun `an edit brings back neither a skipped nor a paid occurrence`() = runTest {
         // given: January skipped (deleted), February paid
         val rule = monthlyFrom(date(2026, 1, 1))
-        generator.generate(rule)
+        generator.generate(rule, previous = null)
         stored.removeAll { it.time == date(2026, 1, 1) }
         pay(date(2026, 2, 1))
 
         // when: the rule is edited, which regenerates it
-        generator.generate(rule)
+        generator.generate(rule, previous = rule)
 
         // then
         unpaidDates().first() shouldBe date(2026, 3, 1)
     }
 
     @Test
+    fun `an edit doesn't bring back an occurrence skipped after the last paid one`() = runTest {
+        // given: January paid, February skipped
+        val rule = monthlyFrom(date(2026, 1, 1))
+        generator.generate(rule, previous = null)
+        pay(date(2026, 1, 1))
+        stored.removeAll { it.time == date(2026, 2, 1) }
+
+        // when: its amount is changed
+        generator.generate(rule.copy(amount = PositiveDouble.unsafe(12.0)), previous = rule)
+
+        // then
+        unpaidDates().take(2) shouldBe listOf(date(2026, 3, 1), date(2026, 4, 1))
+    }
+
+    @Test
+    fun `an edit doesn't bring back an occurrence skipped ahead of unpaid ones`() = runTest {
+        // given: March skipped, January and February still to pay
+        val rule = monthlyFrom(date(2026, 1, 1))
+        generator.generate(rule, previous = null)
+        stored.removeAll { it.time == date(2026, 3, 1) }
+
+        // when
+        generator.generate(rule.copy(amount = PositiveDouble.unsafe(12.0)), previous = rule)
+
+        // then
+        unpaidDates().take(3) shouldBe listOf(date(2026, 1, 1), date(2026, 2, 1), date(2026, 4, 1))
+    }
+
+    @Test
+    fun `moved to an earlier start, a rule plans its new first occurrence`() = runTest {
+        // given: a rule from February, nothing paid yet
+        val rule = monthlyFrom(date(2026, 2, 1))
+        generator.generate(rule, previous = null)
+
+        // when: it starts in January instead
+        generator.generate(rule.copy(startDate = date(2026, 1, 1)), previous = rule)
+
+        // then
+        unpaidDates().first() shouldBe date(2026, 1, 1)
+    }
+
+    @Test
     fun `topping up adds occurrences after the latest one only`() = runTest {
         // given: a daily rule whose 72 occurrences were all handled, the first one skipped
         val rule = dailyFrom(date(2026, 1, 1))
-        generator.generate(rule)
+        generator.generate(rule, previous = null)
         val first = stored.minOf { it.time }
         stored.removeAll { it.time == first }
         stored.map { it.time }.forEach(::pay)
@@ -93,7 +135,7 @@ class PlannedPaymentsGeneratorTest {
     fun `a planned expense paid with a card is planned on that card`() = runTest {
         val card = CreditCardId(UUID.randomUUID())
 
-        generator.generate(monthlyFrom(date(2026, 1, 1)).copy(creditCard = card))
+        generator.generate(monthlyFrom(date(2026, 1, 1)).copy(creditCard = card), previous = null)
 
         stored.map { it.metadata.creditCard }.toSet() shouldBe setOf(card)
     }

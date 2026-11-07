@@ -26,11 +26,14 @@ class PlannedPaymentsGenerator @Inject constructor(
 ) {
     /**
      * Replaces the rule's unpaid transactions: one for a one-time rule, and for a recurring one,
-     * up to [GeneratedInstancesLimit] within three years. Occurrences already handled stay as they
-     * are: the paid ones, and those before the first unpaid one up to the last paid one, which
-     * were paid or skipped (a skip deletes its transaction).
+     * up to [GeneratedInstancesLimit] within three years. The occurrences already handled stay as
+     * they are: the paid ones, and the skipped ones (a skip deletes its transaction).
+     *
+     * On the dates of [previous], the rule as it was, an occurrence gone from before the latest
+     * one was skipped. On new dates, or for a new rule, those up to the last paid one count as
+     * handled, until the first unpaid one.
      */
-    suspend fun generate(rule: PlannedPaymentRule) {
+    suspend fun generate(rule: PlannedPaymentRule, previous: PlannedPaymentRule?) {
         val existing = transactionRepository.findAllByRecurringRuleId(recurringRuleId = rule.id.value)
         transactionRepository.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId = rule.id.value)
         val asset = accountRepository.findById(rule.account)?.asset ?: return
@@ -43,11 +46,18 @@ class PlannedPaymentsGenerator @Inject constructor(
         }
 
         val lastPaid = paidDates.maxOrNull()
-        val firstUnpaid = existing.filterNot { it.settled }.minOfOrNull { it.time }
+        val unpaidDates = existing.filterNot { it.settled }.mapTo(HashSet()) { it.time }
+        val firstUnpaid = unpaidDates.minOrNull()
+        val latest = existing.maxOfOrNull { it.dueDate() }
+        val sameDates = previous != null && previous.startDate == rule.startDate && previous.interval == interval
         saveOccurrences(rule, interval, asset, limit = GeneratedInstancesLimit) { date ->
-            val afterHandled = lastPaid == null || date > lastPaid
-            val stillUnpaid = firstUnpaid != null && date >= firstUnpaid
-            date !in paidDates && (afterHandled || stillUnpaid)
+            date !in paidDates && if (sameDates) {
+                date in unpaidDates || latest == null || date > latest
+            } else {
+                val afterHandled = lastPaid == null || date > lastPaid
+                val stillUnpaid = firstUnpaid != null && date >= firstUnpaid
+                afterHandled || stillUnpaid
+            }
         }
     }
 

@@ -81,6 +81,7 @@ class EditPlannedViewModelTest {
     private var accounts = listOf(bank, visa, closed)
     private val saved = mutableListOf<PlannedPaymentRule>()
     private val ruleRepository = mockk<PlannedPaymentRuleRepository>(relaxUnitFun = true) {
+        coEvery { findById(any()) } returns null
         coEvery { findById(gym.id) } returns gym
         coEvery { save(capture(saved)) } returns Unit
     }
@@ -174,7 +175,7 @@ class EditPlannedViewModelTest {
         rule.interval shouldBe PlannedPaymentInterval(PositiveInt.unsafe(1), IntervalType.MONTH)
         coVerifyOrder {
             ruleRepository.save(rule)
-            generator.generate(rule)
+            generator.generate(rule, previous = null)
             nav.back()
         }
     }
@@ -274,7 +275,8 @@ class EditPlannedViewModelTest {
         rule.id shouldBe gym.id
         rule.amount shouldBe PositiveDouble.unsafe(45.0)
         rule.interval shouldBe gym.interval
-        coVerify(exactly = 1) { generator.generate(rule) }
+        // The rule as it was tells which of its dates were skipped.
+        coVerify(exactly = 1) { generator.generate(rule, previous = gym) }
         verify(exactly = 0) { nav.back() }
     }
 
