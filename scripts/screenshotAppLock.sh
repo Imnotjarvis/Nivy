@@ -91,6 +91,15 @@ sleep 2
 launch
 recents recents-lock-on-dark
 adb shell cmd uimode night no
+sleep 2
+
+# The app's own dark and Amoled themes, chosen in Settings: its theme row goes Light, Dark, Amoled.
+for theme in "Light mode:app-dark" "Dark mode:app-amoled"; do
+    launch
+    adb shell input tap 975 244
+    sleep 1
+    tap_text "Settings" && tap_text "${theme%%:*}" && sleep 2 && recents "recents-lock-on-${theme##*:}"
+done
 
 echo "app lock screenshots: $shots"
 exit 0

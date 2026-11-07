@@ -64,7 +64,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.app.ActivityManager
-import android.graphics.Color
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.nivy.data.preferences.AppPreferences
@@ -307,8 +306,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
         }
     }
 
-    // Stopped and started, not paused and resumed: a dialog, the notification shade or the unlock's
-    // own prompt over the app aren't leaving it.
     // Whether the recent-apps view may show the app's last screen. When it may not, Android draws
     // its card from the app's colors instead (recentsCard), so a locked app shows nothing there.
     private fun showsAppInRecents(shows: Boolean) {
@@ -316,18 +313,22 @@ class RootActivity : AppCompatActivity(), RootScreen {
     }
 
     // That card: the screens' background in the app's own theme (light, dark or Amoled, whatever
-    // the phone's), without bars of other colors. Before Android 13, the window theme gives it.
+    // the phone's), with its bars in the same color. Android takes a transparent bar color as no
+    // color and keeps the starting theme's, a band of the system's own color. Before Android 13,
+    // the window theme gives these colors.
     private fun recentsCard(background: Int) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         setTaskDescription(
             ActivityManager.TaskDescription.Builder()
                 .setBackgroundColor(background)
-                .setStatusBarColor(Color.TRANSPARENT)
-                .setNavigationBarColor(Color.TRANSPARENT)
+                .setStatusBarColor(background)
+                .setNavigationBarColor(background)
                 .build()
         )
     }
 
+    // Stopped and started, not paused and resumed: a dialog, the notification shade or the unlock's
+    // own prompt over the app aren't leaving it.
     override fun onStart() {
         super.onStart()
         viewModel.onAppShown()
