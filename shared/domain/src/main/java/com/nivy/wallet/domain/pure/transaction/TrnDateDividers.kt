@@ -2,7 +2,6 @@ package com.nivy.wallet.domain.pure.transaction
 
 import arrow.core.Option
 import com.nivy.base.time.TimeConverter
-import com.nivy.data.model.Account
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
@@ -14,21 +13,18 @@ import com.nivy.wallet.domain.pure.exchange.ExchangeTrnArgument
 import com.nivy.wallet.domain.pure.exchange.exchangeInBaseCurrency
 import kotlinx.collections.immutable.toImmutableList
 import java.math.BigDecimal
-import java.util.UUID
 
 /** Groups [transactions] by local day, newest first, each day headed by its income and expenses. */
 suspend fun transactionsWithDateDividers(
     transactions: List<Transaction>,
     baseCurrencyCode: String,
     timeConverter: TimeConverter,
-    getAccount: suspend (accountId: UUID) -> Account?,
     exchange: suspend (ExchangeData, BigDecimal) -> Option<BigDecimal>,
     getTags: suspend (tagIds: List<TagId>) -> List<Tag> = { emptyList() },
 ): List<TransactionHistoryItem> {
     if (transactions.isEmpty()) return emptyList()
     val arg = ExchangeTrnArgument(
         baseCurrency = baseCurrencyCode,
-        getAccount = getAccount,
         exchange = exchange
     )
     return transactions

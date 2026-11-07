@@ -27,7 +27,6 @@ object WalletValueFunctions {
         when (this) {
             is Income -> exchangeInBaseCurrency(
                 transaction = this,
-                accounts = arg.accounts,
                 baseCurrency = arg.baseCurrency,
                 exchange = arg.exchange
             )
@@ -42,12 +41,12 @@ object WalletValueFunctions {
         arg: Argument
     ): BigDecimal {
         val transfer = transaction as? Transfer
-        val toAccount = transfer?.let { arg.accounts.find { it.id == transfer.toAccount } }
-        if (transfer == null || toAccount == null) return BigDecimal.ZERO
+        // Only what comes into one of the accounts counts.
+        if (transfer == null || arg.accounts.none { it.id == transfer.toAccount }) return BigDecimal.ZERO
         return arg.exchange(
             ExchangeData(
                 baseCurrency = arg.baseCurrency,
-                fromCurrency = toAccount.asset.code.toOption(),
+                fromCurrency = transfer.toValue.asset.code.toOption(),
             ),
             transfer.toValue.amount.value.toBigDecimal()
         ).getOrNull() ?: BigDecimal.ZERO
@@ -60,7 +59,6 @@ object WalletValueFunctions {
         when (this) {
             is Expense -> exchangeInBaseCurrency(
                 transaction = this,
-                accounts = arg.accounts,
                 baseCurrency = arg.baseCurrency,
                 exchange = arg.exchange
             )
@@ -80,7 +78,6 @@ object WalletValueFunctions {
         when (this) {
             is Transfer -> exchangeInBaseCurrency(
                 transaction = this,
-                accounts = arg.accounts,
                 baseCurrency = arg.baseCurrency,
                 exchange = arg.exchange
             )
