@@ -2,17 +2,13 @@ package com.nivy.budgets.model
 
 import androidx.compose.runtime.Immutable
 import com.nivy.data.model.Budget
-import com.nivy.data.model.Expense
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import com.nivy.wallet.domain.data.Reorderable
 
-/** A budget in a month: what it [spentAmount], in the base currency, and the [expenses] it counts. */
+/** A budget in a month: what it [spentAmount], in the base currency. */
 @Immutable
 data class DisplayBudget(
     val budget: Budget,
     val spentAmount: Double,
-    val expenses: ImmutableList<Expense> = persistentListOf(),
 ) : Reorderable {
     override fun getItemOrderNum(): Double {
         return budget.orderNum

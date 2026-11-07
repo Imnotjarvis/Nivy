@@ -333,7 +333,7 @@ private fun QuickAccess(
                 icon = R.drawable.home_more_menu_budgets,
                 label = stringResource(R.string.budgets),
             ) {
-                nav.navigateTo(BudgetScreen)
+                nav.navigateTo(BudgetScreen())
             }
 
             Spacer(Modifier.weight(1f))

@@ -37,9 +37,6 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// What the home screen keeps aside until the user sets their own buffer.
-private const val DefaultBufferAmount = 1000.0
-
 @Stable
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
@@ -124,7 +121,8 @@ class OnboardingViewModel @Inject constructor(
                     theme = if (isSystemDarkMode) Theme.DARK else Theme.LIGHT,
                     name = "",
                     baseCurrency = defaultCurrency.code,
-                    bufferAmount = DefaultBufferAmount,
+                    // The savings goal: none until the user sets one, in Budgets.
+                    bufferAmount = 0.0,
                 )
             )
         }

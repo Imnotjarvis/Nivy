@@ -124,7 +124,7 @@ internal fun BoxWithConstraintsScope.UI(
                     .padding(start = 32.dp)
                     .testTag("piechart_title"),
                 text = when {
-                    budgetPage != null -> budgetPage.name
+                    budgetPage != null -> budgetPage.budget.name.value
                     state.transactionType == TransactionType.EXPENSE -> stringResource(R.string.expenses)
                     else -> stringResource(R.string.income)
                 },

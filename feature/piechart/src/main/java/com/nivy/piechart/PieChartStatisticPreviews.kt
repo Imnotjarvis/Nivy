@@ -9,6 +9,9 @@ import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.navigation.BudgetPage
+import com.nivy.data.model.Budget
+import com.nivy.data.model.BudgetId
+import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.TransactionMetadata
@@ -270,7 +273,21 @@ fun BudgetPageUiTest(isDark: Boolean) {
                 filterExcluded = false,
                 transactions = expenses.toImmutableList(),
                 choosePeriodModal = null,
-                budgetPage = BudgetPage(name = "Food", month = "November 2023"),
+                budgetPage = BudgetPage(
+                    budget = Budget(
+                        id = BudgetId(UUID.randomUUID()),
+                        name = NotBlankTrimmedString.unsafe("Food"),
+                        amount = PositiveDouble.unsafe(400.0),
+                        categories = listOf(groceries.id, eatingOut.id),
+                        accounts = emptyList(),
+                        orderNum = 0.0,
+                    ),
+                    month = "November 2023",
+                    range = ClosedTimeRange(
+                        from = Instant.parse("2023-11-01T00:00:00Z"),
+                        to = Instant.parse("2023-11-30T23:59:59Z"),
+                    ),
+                ),
                 history = history.toImmutableList(),
                 baseData = AppBaseData(
                     baseCurrency = "EUR",

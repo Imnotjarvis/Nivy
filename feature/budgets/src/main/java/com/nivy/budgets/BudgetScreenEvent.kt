@@ -6,8 +6,11 @@ import com.nivy.data.model.Budget
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
+import com.nivy.navigation.BudgetScreen
 
 sealed interface BudgetScreenEvent {
+    /** Budgets shows [screen]: an opening of its own, or one gone back to. */
+    data class OnOpen(val screen: BudgetScreen) : BudgetScreenEvent
     data class OnReorder(val newOrder: List<DisplayBudget>) : BudgetScreenEvent
     data class OnCreateBudget(
         val name: NotBlankTrimmedString,

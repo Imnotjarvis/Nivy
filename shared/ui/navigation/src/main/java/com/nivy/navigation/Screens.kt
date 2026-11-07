@@ -1,7 +1,9 @@
 package com.nivy.navigation
 
 import com.nivy.base.model.TransactionType
+import com.nivy.data.model.Budget
 import com.nivy.data.model.Transaction
+import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
@@ -61,10 +63,11 @@ data class PieChartStatisticScreen(
 }
 
 /**
- * The pie chart as a budget's page: headed by the budget's [name] and [month], charting only the
- * screen's transactions, even none, and listing them under the chart.
+ * The pie chart as [budget]'s page for [month], which [range] covers: headed by the budget's name
+ * and the month, charting its expenses, even none, and listing them under the chart. They're read
+ * each time the page shows, so one edited or deleted from it shows as it is now.
  */
-data class BudgetPage(val name: String, val month: String)
+data class BudgetPage(val budget: Budget, val month: String, val range: ClosedTimeRange)
 
 data class EditPlannedScreen(
     val plannedPaymentRuleId: UUID?,
@@ -116,7 +119,11 @@ data object ReportScreen : Screen {
         get() = true
 }
 
-data object BudgetScreen : Screen {
+/**
+ * Budgets. Each opening is its own screen: gone back to, it's the same one, and shows the month it
+ * showed; opened anew, it shows the current month.
+ */
+class BudgetScreen : Screen {
     override val isLegacy: Boolean
         get() = true
 }
