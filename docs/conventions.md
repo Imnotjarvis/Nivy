@@ -57,7 +57,9 @@ package: the entry point and layout, its sections, its dialogs, and its previews
   `// when` and `// then`. Fake DAOs live in `shared:data:core-testing`.
 - Screenshot tests (Paparazzi) cover light, dark and minimal colors. After a UI change, record
   their reference images on CI (Actions > Build > Run workflow > `record-screenshots`, on your
-  branch, not on `main`), which commits them and builds the result.
+  branch). The run's `screenshots` artifact holds the changes as a patch: apply it at the
+  repository root with `git apply screenshots.patch`, then commit and push. CI never pushes
+  itself: a pull request only counts the checks of a push like yours.
 - Instrumented tests (`src/androidTest` in `shared:data:core` and `shared:domain`) cover what
   needs a real database or real files: migrations, balances, backups.
 - `main` takes changes through pull requests only, squash-merged, once these checks pass:
