@@ -35,6 +35,7 @@ import com.nivy.ui.time.impl.NivyTimeFormatter
 import com.nivy.wallet.MainScreenState
 import com.nivy.wallet.NivyTheme
 import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.EditTransactionDisplayLoan
 import com.nivy.wallet.domain.data.CustomExchangeRateState
 import com.nivy.wallet.ui.component.tags.ShowTagModal
 import com.nivy.wallet.ui.previewAccount
@@ -161,40 +162,32 @@ private fun BoxWithConstraintsScope.Editor(
     UI(
         // An existing transaction: a new one opens the amount panel at once.
         screen = EditTransactionScreen(initialTransactionId = UUID(0, 1), type = type),
-        transactionType = type,
-        baseCurrency = "EUR",
-        initialTitle = title,
-        titleSuggestions = persistentSetOf(),
-        description = description,
-        category = category,
-        dateTime = Instant.parse("2026-11-03T17:30:00Z"),
-        account = Bank,
-        toAccount = toAccount,
-        dueDate = null,
-        amount = amount,
-        customExchangeRateState = exchangeRate,
-        categories = Categories,
-        accounts = persistentListOf(Bank, Revolut),
-        tags = Tags,
-        transactionAssociatedTags = associatedTags,
-        onTitleChange = {},
-        onDescriptionChange = {},
-        onAmountChange = {},
-        onCategoryChange = {},
-        onAccountChange = {},
-        onToAccountChange = {},
-        onDueDateChange = {},
-        onSetDate = {},
-        onSetTime = {},
-        onSetTransactionType = {},
-        onCreateCategory = {},
-        onEditCategory = {},
-        onPayPlannedPayment = {},
-        onSave = {},
-        onSetHasChanges = {},
-        onDelete = {},
-        onDuplicate = {},
-        onCreateAccount = {},
+        state = EditTransactionViewState(
+            transactionType = type,
+            initialTitle = title,
+            titleSuggestions = persistentSetOf(),
+            currency = "EUR",
+            description = description,
+            dateTime = Instant.parse("2026-11-03T17:30:00Z"),
+            dueDate = null,
+            creditCards = persistentListOf(),
+            creditCard = null,
+            chargeDate = null,
+            canMoveChargeEarlier = false,
+            accounts = persistentListOf(Bank, Revolut),
+            categories = Categories,
+            account = Bank,
+            toAccount = toAccount,
+            category = category,
+            amount = amount,
+            hasChanges = false,
+            displayLoanHelper = EditTransactionDisplayLoan(),
+            backgroundProcessingStarted = false,
+            customExchangeRateState = exchangeRate,
+            tags = Tags,
+            transactionAssociatedTags = associatedTags,
+        ),
+        onEvent = {},
     )
 }
 
