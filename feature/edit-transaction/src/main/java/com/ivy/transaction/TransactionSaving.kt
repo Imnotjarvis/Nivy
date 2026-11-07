@@ -35,7 +35,6 @@ class TransactionSaving @Inject constructor(
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val timeProvider: TimeProvider,
 ) {
-    // Comment for push
     @Suppress("ReturnCount")
     fun validTransaction(
         scope: CoroutineScope,
