@@ -254,6 +254,23 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `a transfer in from an account the filter leaves out is compared in its own currency`() {
+        // given 40 USD = 20 EUR, from the dollars account into the bank
+        val fromDollars = transfer(dollars, bank, 40.0, "2026-11-08T10:00:00Z")
+        transactions = transactions + fromDollars
+
+        // when
+        report(
+            ReportScreenEvent.OnFilter(
+                filter(types = TransactionType.entries, accounts = listOf(bank), minAmount = 15.0, maxAmount = 25.0)
+            )
+        ) {
+            // then
+            transactions shouldContainExactlyInAnyOrder listOf(groceries, fromDollars)
+        }
+    }
+
+    @Test
     fun `keywords match the title or description in any case, and excluded ones win`() {
         // when
         report(ReportScreenEvent.OnFilter(filter(includeKeywords = listOf("rent", "DINER")))) {

@@ -2,9 +2,7 @@ package com.nivy.domain.usecase.transaction
 
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
-import com.nivy.data.model.AccountId
 import com.nivy.data.model.Transaction
-import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.domain.data.TransactionHistoryItem
@@ -15,7 +13,6 @@ import javax.inject.Inject
 class TransactionsWithDateDividersUseCase @Inject constructor(
     private val exchangeUseCase: ExchangeUseCase,
     private val tagRepository: TagRepository,
-    private val accountRepository: AccountRepository,
     private val timeConverter: TimeConverter,
     private val dispatchers: DispatchersProvider,
 ) {
@@ -28,7 +25,6 @@ class TransactionsWithDateDividersUseCase @Inject constructor(
             baseCurrencyCode = baseCurrency,
             timeConverter = timeConverter,
             getTags = { tagIds -> tagRepository.findByIds(tagIds) },
-            getAccount = { accountId -> accountRepository.findById(AccountId(accountId)) },
             exchange = exchangeUseCase::exchange
         )
     }

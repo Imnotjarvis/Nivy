@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
+import arrow.core.toOption
 import com.nivy.base.Toaster
 import com.nivy.base.model.TransactionType
 import com.nivy.base.resource.ResourceProvider
@@ -25,6 +26,7 @@ import com.nivy.data.model.Tag
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.Transfer
+import com.nivy.data.model.getFromValue
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.AccountRepository
@@ -51,7 +53,6 @@ import com.nivy.ui.R
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import com.nivy.wallet.domain.pure.exchange.ExchangeData
-import com.nivy.wallet.domain.pure.transaction.trnCurrency
 import com.nivy.wallet.domain.pure.util.orZero
 import com.nivy.design.system.colors.Gray
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -247,7 +248,6 @@ class ReportViewModel @Inject constructor(
 
             val transactionsList = filterTransactions(
                 baseCurrency = baseCurrency,
-                accounts = tempAccounts,
                 filter = reportFilter
             )
 
@@ -356,7 +356,6 @@ class ReportViewModel @Inject constructor(
     @Suppress("CyclomaticComplexMethod")
     private suspend fun filterTransactions(
         baseCurrency: String,
-        accounts: List<Account>,
         filter: ReportFilter,
     ): ImmutableList<Transaction> {
         val filterAccountIds = filter.accounts.map { it.id.value }
@@ -434,7 +433,7 @@ class ReportViewModel @Inject constructor(
                 val trnAmountBaseCurrency = exchangeUseCase.exchange(
                     data = ExchangeData(
                         baseCurrency = baseCurrency,
-                        fromCurrency = trnCurrency(it, accounts, baseCurrency),
+                        fromCurrency = it.getFromValue().asset.code.toOption(),
                     ),
                     amount = it.getValue()
                 ).orZero().toDouble()
@@ -516,7 +515,6 @@ class ReportViewModel @Inject constructor(
                     exportScope = {
                         filterTransactions(
                             baseCurrency = baseCurrency,
-                            accounts = accounts,
                             filter = filter
                         )
                     }
