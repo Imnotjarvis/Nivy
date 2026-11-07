@@ -329,8 +329,10 @@ class EditPlannedViewModel @Inject constructor(
             // Edit mode saves on every keystroke. Generating deletes the unpaid payments and adds
             // them again, so overlapping runs would leave duplicates: one run at a time, in order.
             saveMutex.withLock {
+                // The rule as it was, so that the payments already skipped stay so.
+                val previous = plannedPaymentRuleRepository.findById(rule.id)
                 plannedPaymentRuleRepository.save(rule)
-                plannedPaymentsGenerator.generate(rule)
+                plannedPaymentsGenerator.generate(rule, previous = previous)
             }
 
             if (closeScreen) {

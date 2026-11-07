@@ -5,10 +5,13 @@ import arrow.core.None
 import arrow.core.Some
 import com.nivy.base.model.LoanRecordType
 import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
+import com.nivy.data.model.CreditCard
+import com.nivy.data.model.CreditCardId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Loan
@@ -18,15 +21,19 @@ import com.nivy.data.model.LoanRecordId
 import com.nivy.base.model.LoanType
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.TransactionId
+import com.nivy.data.model.TransactionMetadata
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -48,6 +55,7 @@ class LoanTransactionsUseCaseTest {
     private val currencyRepository = mockk<CurrencyRepository>()
     private val exchangeUseCase = mockk<ExchangeUseCase>()
     private val timeProvider = mockk<TimeProvider>()
+    private val creditCardRepository = mockk<CreditCardRepository>()
 
     private val useCase = LoanTransactionsUseCase(
         transactionRepository = transactionRepository,
@@ -57,6 +65,7 @@ class LoanTransactionsUseCaseTest {
         currencyRepository = currencyRepository,
         exchangeUseCase = exchangeUseCase,
         timeProvider = timeProvider,
+        creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, TestTimeConverter()),
     )
 
     init {
@@ -101,6 +110,52 @@ class LoanTransactionsUseCaseTest {
         val saved = slot<Transaction>()
         coVerify { transactionRepository.save(capture(saved)) }
         saved.captured.time shouldBe Instant.parse("2024-01-15T10:00:00Z")
+    }
+
+    @Test
+    fun `editing a loan keeps its transaction's card, charged on the card's day`() = runTest {
+        // given: lent on 3 February, paid with a card that charges on the 10th, so on 10 March
+        coEvery { timeProvider.getZoneId() } returns java.time.ZoneOffset.UTC
+        val card = CreditCard(
+            id = CreditCardId(UUID.randomUUID()),
+            account = BgnAccount.id,
+            name = NotBlankTrimmedString.unsafe("Visa"),
+            chargeDay = 10,
+            statementClosingDay = null,
+            creditLimit = null,
+        )
+        coEvery { creditCardRepository.findById(card.id) } returns card
+        val purchase = Instant.parse("2024-02-03T10:00:00Z")
+        val loan = BorrowedLoan.copy(type = LoanType.LEND, dateTime = java.time.LocalDateTime.of(2024, 2, 3, 10, 0))
+        coEvery { transactionRepository.findLoanTransaction(loan.id.value) } returns Expense(
+            id = TransactionId(UUID.randomUUID()),
+            title = loan.name,
+            description = null,
+            category = LoansCategory.id,
+            time = Instant.parse("2024-03-10T10:00:00Z"),
+            settled = true,
+            metadata = TransactionMetadata(
+                recurringRuleId = null,
+                paidForDateTime = null,
+                loanId = loan.id.value,
+                loanRecordId = null,
+                purchaseDateTime = purchase,
+                creditCard = card.id,
+            ),
+            tags = emptyList(),
+            value = PositiveValue(loan.amount, Bgn),
+            account = BgnAccount.id,
+        )
+
+        // when: it's renamed
+        useCase.syncLoanTransaction(loan.copy(name = NotBlankTrimmedString.unsafe("Car, half")), create = true)
+
+        // then
+        val saved = slot<Transaction>()
+        coVerify { transactionRepository.save(capture(saved)) }
+        saved.captured.metadata.creditCard shouldBe card.id
+        saved.captured.metadata.purchaseDateTime shouldBe purchase
+        saved.captured.time shouldBe Instant.parse("2024-03-10T10:00:00Z")
     }
 
     @Test
