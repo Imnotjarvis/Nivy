@@ -8,25 +8,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.NonZeroDouble
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
-import com.nivy.base.model.AccountType
-import com.nivy.data.repository.AccountValueRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.ui.ComposeViewModel
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
+import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -53,20 +53,22 @@ sealed interface TrendsEvent {
 }
 
 /**
- * Income, expenses and net worth of the last months, counting the accounts included in the
- * balance, as the home screen does: investment accounts at their value.
+ * Income and expenses of the last months, of the accounts included in the balance, as Home counts
+ * them; and the net worth at each month's end, of every account, as the Accounts tab counts it:
+ * investment accounts at their value.
  */
 @Stable
 @HiltViewModel
 class TrendsViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
-    private val accountValueRepository: AccountValueRepository,
     private val currencyRepository: CurrencyRepository,
     private val exchangeUseCase: ExchangeUseCase,
+    private val walletBalanceUseCase: WalletBalanceUseCase,
     private val appPreferences: AppPreferences,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<TrendsState, TrendsEvent>() {
     private var baseCurrency by mutableStateOf("")
     private var months by mutableStateOf<ImmutableList<MonthTrend>>(persistentListOf())
@@ -104,21 +106,22 @@ class TrendsViewModel @Inject constructor(
             val ranges = periods.map {
                 it.toRange(startDay, timeConverter, timeProvider).toCloseTimeRange()
             }
-            val included = accountRepository.findAll().filter { it.includeInBalance }
-            val accounts = included.map { it.id }.toSet()
-            val values = included.filter { it.type == AccountType.INVESTMENT }
-                .associateWith { accountValueRepository.findByAccount(it.id) }
-            val transactions = transactionRepository.findAll()
-            val sums = withContext(Dispatchers.Default) {
-                monthSums(transactions, accounts, ranges, now = timeProvider.utcNow(), values = values)
-            }
+            val included = accountRepository.findAll().filter { it.includeInBalance }.map { it.id }.toSet()
+            val transactions = transactionRepository.findAllBetween(ranges.first().from, ranges.last().to)
+            val sums = withContext(dispatchers.default) { monthSums(transactions, included, ranges) }
+            val now = timeProvider.utcNow()
 
-            months = periods.zip(sums) { period, month ->
+            months = periods.indices.map { i ->
                 MonthTrend(
-                    period = period,
-                    income = month.income.inCurrency(base),
-                    expense = month.expense.inCurrency(base),
-                    netWorth = month.netWorth.inCurrency(base),
+                    period = periods[i],
+                    income = sums[i].income.inCurrency(base),
+                    expense = sums[i].expense.inCurrency(base),
+                    // At the month's end, or now for the current month.
+                    netWorth = walletBalanceUseCase.balance(
+                        baseCurrency = base.code,
+                        range = ClosedTimeRange.to(minOf(ranges[i].to, now)),
+                        withExcluded = true,
+                    ).toDouble(),
                 )
             }.toImmutableList()
             baseCurrency = base.code

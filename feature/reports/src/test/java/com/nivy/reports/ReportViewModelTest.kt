@@ -177,6 +177,20 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `a payment due earlier today is upcoming, as on Home and the account pages`() {
+        // given: due this morning; it's noon
+        val thisMorning = expense(bank, 25.0, "2026-11-15T08:00:00Z", food, settled = false)
+        transactions = transactions + thisMorning
+
+        // when
+        report(ReportScreenEvent.OnFilter(filter(accounts = listOf(bank)))) {
+            // then
+            upcomingTransactions shouldBe listOf(thisMorning, upcoming)
+            overdueTransactions shouldBe listOf(overdue)
+        }
+    }
+
+    @Test
     fun `the account filter keeps transfers into the account as well as out of it`() {
         // when
         report(ReportScreenEvent.OnFilter(filter(types = TransactionType.entries, accounts = listOf(dollars)))) {

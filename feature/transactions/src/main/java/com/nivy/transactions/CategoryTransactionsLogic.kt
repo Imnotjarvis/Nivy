@@ -109,24 +109,22 @@ class CategoryTransactionsLogic @Inject constructor(
             )
         )
 
-    suspend fun calculateUpcomingIncomeByCategory(category: Category, range: FromToTimeRange): Double =
-        total(upcomingByCategory(category, range).filterIsInstance<Income>())
-
-    suspend fun calculateUpcomingExpensesByCategory(category: Category, range: FromToTimeRange): Double =
-        total(upcomingByCategory(category, range).filterIsInstance<Expense>())
-
     suspend fun calculateUpcomingIncomeUnspecified(range: FromToTimeRange): Double =
         total(upcomingUnspecified(range).filterIsInstance<Income>())
 
     suspend fun calculateUpcomingExpensesUnspecified(range: FromToTimeRange): Double =
         total(upcomingUnspecified(range).filterIsInstance<Expense>())
 
-    suspend fun upcomingByCategory(category: Category, range: FromToTimeRange): List<Transaction> =
+    suspend fun upcomingByCategory(
+        category: Category,
+        range: FromToTimeRange,
+        accountFilterSet: Set<UUID> = emptySet(),
+    ): List<Transaction> =
         transactionRepository.findAllDueToBetweenByCategory(
             categoryId = category.id,
             startDate = range.upcomingFrom(timeProvider),
             endDate = range.to()
-        ).filterUpcoming(timeProvider)
+        ).filterUpcoming(timeProvider).inAccounts(accountFilterSet)
 
     suspend fun upcomingUnspecified(range: FromToTimeRange): List<Transaction> =
         transactionRepository.findAllDueToBetweenByCategoryUnspecified(
@@ -134,24 +132,22 @@ class CategoryTransactionsLogic @Inject constructor(
             endDate = range.to()
         ).filterUpcoming(timeProvider)
 
-    suspend fun calculateOverdueIncomeByCategory(category: Category, range: FromToTimeRange): Double =
-        total(overdueByCategory(category, range).filterIsInstance<Income>())
-
-    suspend fun calculateOverdueExpensesByCategory(category: Category, range: FromToTimeRange): Double =
-        total(overdueByCategory(category, range).filterIsInstance<Expense>())
-
     suspend fun calculateOverdueIncomeUnspecified(range: FromToTimeRange): Double =
         total(overdueUnspecified(range).filterIsInstance<Income>())
 
     suspend fun calculateOverdueExpensesUnspecified(range: FromToTimeRange): Double =
         total(overdueUnspecified(range).filterIsInstance<Expense>())
 
-    suspend fun overdueByCategory(category: Category, range: FromToTimeRange): List<Transaction> =
+    suspend fun overdueByCategory(
+        category: Category,
+        range: FromToTimeRange,
+        accountFilterSet: Set<UUID> = emptySet(),
+    ): List<Transaction> =
         transactionRepository.findAllDueToBetweenByCategory(
             categoryId = category.id,
             startDate = range.from(),
             endDate = range.overdueTo(timeProvider)
-        ).filterOverdue(timeProvider)
+        ).filterOverdue(timeProvider).inAccounts(accountFilterSet)
 
     suspend fun overdueUnspecified(range: FromToTimeRange): List<Transaction> =
         transactionRepository.findAllDueToBetweenByCategoryUnspecified(
