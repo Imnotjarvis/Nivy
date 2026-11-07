@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
+import com.nivy.base.Toaster
 import com.nivy.base.model.TransactionType
 import com.nivy.base.resource.ResourceProvider
 import com.nivy.base.threading.DispatchersProvider
@@ -86,6 +87,7 @@ class ReportViewModel @Inject constructor(
     private val features: Features,
     private val resourceProvider: ResourceProvider,
     private val dispatchers: DispatchersProvider,
+    private val toaster: Toaster,
 ) : ComposeViewModel<ReportScreenState, ReportScreenEvent>() {
     private val unSpecifiedCategory =
         Category(
@@ -518,10 +520,9 @@ class ReportViewModel @Inject constructor(
                             filter = filter
                         )
                     }
-                )
-
-                rootScreen.shareCSVFile(
-                    fileUri = fileUri
+                ).fold(
+                    ifLeft = { toaster.show(R.string.msg_export_failed) },
+                    ifRight = { rootScreen.shareCSVFile(fileUri = fileUri) },
                 )
 
                 loading = false

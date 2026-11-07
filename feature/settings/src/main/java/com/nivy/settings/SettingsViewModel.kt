@@ -231,12 +231,9 @@ class SettingsViewModel @Inject constructor(
             }.csv"
         ) { fileUri ->
             viewModelScope.launch {
-                exportCsvUseCase.exportToFile(
-                    outputFile = fileUri
-                )
-
-                rootScreen.shareCSVFile(
-                    fileUri = fileUri
+                exportCsvUseCase.exportToFile(outputFile = fileUri).fold(
+                    ifLeft = { toaster.show(R.string.msg_export_failed) },
+                    ifRight = { rootScreen.shareCSVFile(fileUri = fileUri) },
                 )
             }
         }

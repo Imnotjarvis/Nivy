@@ -3,12 +3,14 @@ package com.nivy.wallet.domain.logic
 import android.database.sqlite.SQLiteException
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
+import com.nivy.base.Toaster
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.ui.R
 import com.nivy.wallet.utils.ioThread
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import com.nivy.wallet.domain.pure.util.nextOrderNum
@@ -18,6 +20,7 @@ import javax.inject.Inject
 
 class CategoryCreator @Inject constructor(
     private val categoryRepository: CategoryRepository,
+    private val toaster: Toaster,
 ) {
     suspend fun createCategory(
         data: CreateCategoryData,
@@ -46,7 +49,9 @@ class CategoryCreator @Inject constructor(
 
             newCategory?.let { onRefreshUI(it) }
         } catch (e: SQLiteException) {
+            // The dialog has closed: without this, the category would seem saved.
             Timber.e(e)
+            toaster.show(R.string.msg_category_not_saved)
         }
     }
 
@@ -63,7 +68,9 @@ class CategoryCreator @Inject constructor(
 
             onRefreshUI(updatedCategory)
         } catch (e: SQLiteException) {
+            // The dialog has closed: without this, the category would seem saved.
             Timber.e(e)
+            toaster.show(R.string.msg_category_not_saved)
         }
     }
 }

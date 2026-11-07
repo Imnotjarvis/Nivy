@@ -41,7 +41,7 @@ class BackupDataUseCaseTest {
     private val json = KotlinxSerializationModule.provideJson()
 
     /** The fakes have no transactions; the block simply runs. */
-    private class FakeDatabaseTransaction : DatabaseTransaction(mockk()) {
+    private class FakeDatabaseTransaction : DatabaseTransaction(mockk(), mockk()) {
         override suspend fun <R> run(block: suspend () -> R): R = block()
     }
 

@@ -7,6 +7,7 @@ import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.backup.CSVRow
 import com.nivy.data.backup.ImportResult
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.read.AccountDao
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.model.Account
@@ -47,6 +48,7 @@ class CSVImporterV2 @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val accountRepository: AccountRepository,
     private val timeConverter: TimeConverter,
+    private val transaction: DatabaseTransaction,
 ) {
 
     lateinit var accounts: List<Account>
@@ -55,13 +57,18 @@ class CSVImporterV2 @Inject constructor(
     private var newCategoryColorIndex = 0
     private var newAccountColorIndex = 0
 
+    /**
+     * Imports the rows of [csv] after its header, all of it or nothing: the accounts and
+     * categories made for the rows are written in the same database transaction, so that an
+     * import cut short leaves the wallet as it was.
+     */
     suspend fun import(
         csv: List<CSVRowNew>,
         importantFields: ImportantFields,
         transferFields: TransferFields,
         optionalFields: OptionalFields,
         onProgress: suspend (progressPercent: Double) -> Unit,
-    ): ImportResult {
+    ): ImportResult = transaction.run {
         val rows = csv.drop(1) // drop the header
         val rowsCount = rows.size
 
@@ -116,7 +123,7 @@ class CSVImporterV2 @Inject constructor(
             transactionRepository.save(transaction)
         }
 
-        return ImportResult(
+        ImportResult(
             rowsFound = rowsCount,
             transactionsImported = transactions.size,
             accountsImported = accounts.size - initialAccountsCount,

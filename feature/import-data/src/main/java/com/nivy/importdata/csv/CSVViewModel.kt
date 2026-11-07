@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nivy.base.Toaster
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.importdata.csv.domain.CSVImporterV2
 import com.nivy.importdata.csv.domain.SAMPLE_SIZE
@@ -30,9 +31,11 @@ import com.nivy.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.nio.charset.Charset
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -50,6 +53,7 @@ class CSVViewModel @Inject constructor(
     private val csvImporter: CSVImporterV2,
     private val nav: Navigation,
     private val dispatchers: DispatchersProvider,
+    private val toaster: Toaster,
 ) : ViewModel() {
 
     private var columns by mutableStateOf<CSVRow?>(null)
@@ -451,7 +455,22 @@ class CSVViewModel @Inject constructor(
         readCsv.readCsv(csv, separator = if (semicolons) ';' else ',').map(::CSVRow)
     // endregion
 
+    // An import that fails, like on a database error, imports nothing (it's one transaction): it
+    // says so, and the columns show again to try once more.
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun handleContinue() {
+        try {
+            import()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e, "CSV import failed")
+            uiState = UIState.Idle
+            toaster.show(R.string.msg_import_failed)
+        }
+    }
+
+    private suspend fun import() {
         val csv = this.csv ?: return
         val emptyStatus = MappingStatus(emptyList(), false)
 

@@ -60,7 +60,7 @@ class AccountCategoryDeletionTest {
 
     // The database transaction's block runs as it is; inTransaction says when.
     private var inTransaction = false
-    private val transaction = object : DatabaseTransaction(mockk()) {
+    private val transaction = object : DatabaseTransaction(mockk(), mockk()) {
         override suspend fun <R> run(block: suspend () -> R): R {
             inTransaction = true
             return try {

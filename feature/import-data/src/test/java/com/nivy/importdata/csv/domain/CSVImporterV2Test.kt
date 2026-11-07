@@ -2,6 +2,7 @@ package com.nivy.importdata.csv.domain
 
 import com.nivy.base.model.AccountType
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Transaction
@@ -22,9 +23,7 @@ import com.nivy.importdata.csv.TransferFields
 import com.nivy.importdata.csv.TrnTypeMetadata
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.util.UUID
@@ -40,14 +39,28 @@ class CSVImporterV2Test {
         listOf(bank, savings, dollars).forEach { coEvery { findById(it.id) } returns it }
     }
     private val saved = mutableListOf<Transaction>()
+
+    // Notes whether each transaction is saved inside the database transaction.
+    private var inTransaction = false
+    private val savedInTransaction = mutableListOf<Boolean>()
+    private val transaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            inTransaction = true
+            return block().also { inTransaction = false }
+        }
+    }
+
     private val importer = CSVImporterV2(
-        transactionRepository = mockk<TransactionRepository> { coEvery { save(capture(saved)) } just runs },
+        transactionRepository = mockk<TransactionRepository> {
+            coEvery { save(capture(saved)) } answers { savedInTransaction += inTransaction }
+        },
         transactionMapper = TransactionMapper(accountRepository),
         accountDao = mockk(),
         categoryRepository = mockk { coEvery { findAll() } returns emptyList() },
         currencyRepository = mockk { coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR") },
         accountRepository = accountRepository,
         timeConverter = TestTimeConverter(),
+        transaction = transaction,
     )
 
     @Test
@@ -59,6 +72,16 @@ class CSVImporterV2Test {
             result.failedRows.single().index shouldBe 2
             saved shouldBe emptyList()
         }
+
+    @Test
+    fun `an import is all or nothing, in one database transaction`() = runTest {
+        import(
+            transfer(from = "Bank", to = "Savings", amount = "100", toAmount = ""),
+            transfer(from = "Bank", to = "Dollars", amount = "100", toAmount = "108"),
+        )
+
+        savedInTransaction shouldBe listOf(true, true)
+    }
 
     @Test
     fun `a transfer between two currencies arrives as its To Amount`() = runTest {

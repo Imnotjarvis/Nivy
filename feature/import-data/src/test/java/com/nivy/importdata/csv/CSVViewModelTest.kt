@@ -1,17 +1,21 @@
 package com.nivy.importdata.csv
 
+import android.database.sqlite.SQLiteException
 import android.net.Uri
 import arrow.core.left
 import arrow.core.right
 import com.nivy.base.TestDispatchersProvider
+import com.nivy.base.Toaster
 import com.nivy.data.backup.ImportResult
 import com.nivy.data.file.FileSystem
 import com.nivy.domain.usecase.csv.ReadCsvUseCase
 import com.nivy.importdata.csv.domain.CSVImporterV2
 import com.nivy.navigation.Navigation
 import com.nivy.onboarding.viewmodel.OnboardingViewModel
+import com.nivy.ui.R
 import com.nivy.ui.testing.runComposeTest
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -51,6 +55,7 @@ class CSVViewModelTest {
         coEvery { import(any(), capture(importedFields), any(), any(), any()) } returns imported
     }
     private val nav = mockk<Navigation>(relaxed = true)
+    private val toaster = mockk<Toaster>(relaxed = true)
     private lateinit var viewModel: CSVViewModel
 
     @Before
@@ -63,6 +68,7 @@ class CSVViewModelTest {
             csvImporter = csvImporter,
             nav = nav,
             dispatchers = TestDispatchersProvider,
+            toaster = toaster,
         )
     }
 
@@ -160,6 +166,17 @@ class CSVViewModelTest {
         importedFields.captured.amount.metadata shouldBe 100
         importedFields.captured.account.index shouldBe 3
         coVerify(exactly = 1) { csvImporter.import(match { it.size == 3 }, any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `an import that fails says so, and shows the columns again to try once more`() {
+        coEvery { csvImporter.import(any(), any(), any(), any(), any()) } throws SQLiteException("disk I/O error")
+
+        csv(pickedAndMapped + CSVEvent.Continue) {
+            uiState shouldBe UIState.Idle
+            columns shouldNotBe null
+        }
+        coVerify { toaster.show(R.string.msg_import_failed, any()) }
     }
 
     @Test
