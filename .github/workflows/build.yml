@@ -1,4 +1,5 @@
-# Builds Nivy (offline), tests it, and publishes signed APKs for v* tags.
+# Builds Nivy (offline) and tests it; for v* tags and "release" runs, also the signed APK, as a
+# download. Nothing is published anywhere.
 #
 # Jobs:
 #   plan    decides what this run needs (scripts/ciPlan.sh, explained in the run summary)
@@ -8,10 +9,11 @@
 #           tests
 #   demo    the R8-minified "demo" APK, signed with the committed debug key ("apk-demo"
 #           artifact); only when the device job runs. Its own job, in parallel with build: R8
-#           and the release-variant compile take longer than the debug build
+#           and the release-variant compile take longer than the debug build. In a release run,
+#           also the signed release APK, whose signing key it checks ("apk-release")
 #   test    unit tests, and screenshot tests compared with their reference images; in parallel
 #           with build
-#   device  launches both APKs on an emulator and runs the instrumented tests; launch
+#   device  launches the APKs on an emulator and runs the instrumented tests; launch
 #           screenshots are in its "device-results" artifact
 #   lint    Android Lint; fails on errors, prints warnings. Its findings also go to the Security
 #           tab (code scanning)
@@ -31,21 +33,29 @@
 #
 # Manual runs (Actions > Build > Run workflow) take an "action":
 #   build                 everything
-#   release               everything, plus a signed release APK
+#   release               everything, plus the signed APK (see "Signed APKs" below)
 #   record-screenshots    re-records the screenshot tests' reference images, commits them and
 #                         starts a "build" run on the new commit
 #
-# Artifacts are kept for 3 days and the signed release APK for 30; an older APK can be rebuilt
-# from its commit.
+# Artifacts are kept for 3 days and the signed APK for 30; an older APK can be rebuilt from its
+# commit.
 #
-# Signed releases: push a tag such as v2026.11.01, or run the workflow by hand with "release".
-# The APK's version comes from the commit it's built from (its date and time, see
-# app/build.gradle.kts), so a later commit's APK always installs over an earlier one's.
-# Releasing needs four repository secrets (Settings -> Secrets and variables -> Actions):
+# Signed APKs: push a tag such as v2026.11.01, or run the workflow by hand with "release". The
+# demo job builds the APK with the release key and checks which key signed it, the device job
+# installs that very file on the emulator and goes through onboarding to Home, and the release
+# job keeps it as the run's "Nivy-<version>" artifact, with its checksum in the run summary.
+# Nothing is published: no GitHub release, no store. The APK's version comes from the commit
+# it's built from (its date and time, see app/build.gradle.kts), so a later commit's APK always
+# installs over an earlier one's.
+# It needs four repository secrets (Settings -> Secrets and variables -> Actions -> Secrets):
 #   RELEASE_KEYSTORE_BASE64  output of: base64 -w0 release.jks
 #   RELEASE_STORE_PASSWORD   keystore password
-#   RELEASE_KEY_ALIAS        e.g. ivy-offline
+#   RELEASE_KEY_ALIAS        the key's alias in release.jks
 #   RELEASE_KEY_PASSWORD     key password
+# and one variable (the same page, Variables):
+#   RELEASE_CERT_SHA256      the SHA-256 of the key's certificate: keytool -list -v -keystore
+#                            release.jks prints it, as does the first run without it
+# An APK signed with another key stops the run, as Android wouldn't let it update the app.
 # Use the same release.jks as your local builds, so CI and local APKs update each other.
 #
 # Jobs run on an explicit Ubuntu 26.04 image rather than ubuntu-latest, so an image switch
@@ -71,7 +81,7 @@ on:
         default: build
         options: [build, release, record-screenshots]
 
-# Read-only by default; record-screenshots and release ask for contents: write themselves.
+# Read-only by default; record-screenshots asks for contents: write itself.
 permissions:
   contents: read
 
@@ -264,12 +274,17 @@ jobs:
   # The R8-minified demo APK the device job launches to catch what minification breaks (keep
   # rules, Hilt, Room). R8 alone takes about 4 minutes, after a release-variant compile of every
   # module, so it runs beside the debug build rather than after it: the emulator waits for the
-  # slower of the two instead of their sum.
+  # slower of the two instead of their sum. A release run also builds the signed APK here, from
+  # the same compile, so the emulator launches the very file the release job keeps.
   demo:
     needs: plan
     if: needs.plan.outputs.device == 'true'
     runs-on: ubuntu-26.04
     timeout-minutes: 60
+    outputs:
+      version: ${{ steps.signed.outputs.version }}
+      sha256: ${{ steps.signed.outputs.sha256 }}
+      cert: ${{ steps.signed.outputs.cert }}
     steps:
       - uses: actions/checkout@v7
 
@@ -299,6 +314,39 @@ jobs:
           set -o pipefail
           ./gradlew :app:assembleDemo 2>&1 | tee gradle-output.log
 
+      - name: Restore release key
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.action == 'release'
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "::error::Add the RELEASE_* secrets described at the top of build.yml first."
+            exit 1
+          fi
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release.jks
+          cat > keystore.properties <<EOF
+          storeFile=release.jks
+          storePassword=$RELEASE_STORE_PASSWORD
+          keyAlias=$RELEASE_KEY_ALIAS
+          keyPassword=$RELEASE_KEY_PASSWORD
+          EOF
+
+      - name: Build the signed APK
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.action == 'release'
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleRelease 2>&1 | tee gradle-output.log
+
+      - name: Check which key signed it
+        id: signed
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.action == 'release'
+        env:
+          EXPECTED: ${{ vars.RELEASE_CERT_SHA256 }}
+        run: scripts/checkReleaseApk.sh app/build/outputs/apk/release/app-release.apk >> "$GITHUB_OUTPUT"
+
       - name: Drop build cache entries older than a week
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
         run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
@@ -315,6 +363,14 @@ jobs:
           name: apk-demo
           retention-days: 3
           path: app/build/outputs/apk/demo/*.apk
+
+      # For the device job; the release job keeps it, under its version's name, once it passed.
+      - uses: actions/upload-artifact@v7
+        if: steps.signed.outcome == 'success'
+        with:
+          name: apk-release
+          retention-days: 1
+          path: app/build/outputs/apk/release/app-release.apk
 
       - name: Compiler problems
         if: failure()
@@ -389,8 +445,9 @@ jobs:
             **/build/paparazzi/failures/
           if-no-files-found: ignore
 
-  # Runs the app on an emulator: launches both APKs on a fresh install (catches startup
-  # crashes from R8, Hilt, Room), opens them the way shortcuts do and presses back
+  # Runs the app on an emulator: launches each APK (debug, demo, and the signed one in a release
+  # run) on a fresh install (catches startup crashes from R8, Hilt, Room), opens them the way
+  # shortcuts do and presses back
   # (scripts/smokeTestApks.sh), and runs the instrumented database-migration, backup and
   # exchange-rate tests.
   device:
@@ -501,7 +558,7 @@ jobs:
           disable-animations: true
           # The instrumented tests run even when the smoke test fails, whose result comes last.
           script: |
-            scripts/smokeTestApks.sh apks/app-debug.apk apks/app-demo.apk; echo $? > build/smoke-exit-code
+            scripts/smokeTestApks.sh apks/*.apk; echo $? > build/smoke-exit-code
             ./gradlew :shared:data:core:connectedDebugAndroidTest :shared:domain:connectedDebugAndroidTest --continue
             scripts/checkInstrumentedTestsRan.sh shared/data/core shared/domain
             exit "$(cat build/smoke-exit-code)"
@@ -637,70 +694,50 @@ jobs:
           git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
           gh workflow run build.yml --ref "$GITHUB_REF_NAME" -f action=build
 
-  # Waits for the device job too: the release APK is R8-minified like the demo APK the emulator
-  # launched, so a keep-rule regression fails the run before anything is published.
+  # Keeps the signed APK: the file the demo job built and checked and the device job ran on the
+  # emulator, under its version's name. Nothing is published; it's this run's artifact, kept for
+  # 30 days, to download and install.
   release:
     if: startsWith(github.ref, 'refs/tags/v') || inputs.action == 'release'
-    needs: [plan, checks, build, test, device]
+    needs: [plan, checks, build, test, demo, device]
     runs-on: ubuntu-26.04
-    timeout-minutes: 45
-    permissions:
-      contents: write
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-java@v6
+      - uses: actions/download-artifact@v8
         with:
-          distribution: temurin
-          java-version: '21'
+          name: apk-release
+          path: apk
 
-      - uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
-          cache-read-only: true
-
-      # The library modules' release variants were compiled by the demo job (for the demo APK).
-      - uses: actions/cache/restore@v6
-        with:
-          path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
-          key: gradle-build-cache-demo-${{ github.sha }}
-          restore-keys: |
-            gradle-build-cache-demo-
-            gradle-build-cache-
-
-      - name: Restore release key
+      - name: Name it after its version
         env:
-          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          VERSION: ${{ needs.demo.outputs.version }}
+          SHA256: ${{ needs.demo.outputs.sha256 }}
+          CERT: ${{ needs.demo.outputs.cert }}
+          EXPECTED: ${{ vars.RELEASE_CERT_SHA256 }}
         run: |
-          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
-            echo "::error::Add the RELEASE_* secrets described at the top of build.yml first."
-            exit 1
-          fi
-          echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release.jks
-          cat > keystore.properties <<EOF
-          storeFile=release.jks
-          storePassword=$RELEASE_STORE_PASSWORD
-          keyAlias=$RELEASE_KEY_ALIAS
-          keyPassword=$RELEASE_KEY_PASSWORD
-          EOF
-
-      - name: Build signed release APK
-        run: ./gradlew :app:assembleRelease
+          apk="Nivy-$VERSION.apk"
+          mv apk/app-release.apk "$apk"
+          # The very file the emulator ran.
+          echo "$SHA256  $apk" | sha256sum --check --strict
+          {
+            echo "## $apk"
+            echo "Tested on the emulator, from onboarding to Home. Download it from this run's"
+            echo "**Nivy-$VERSION** artifact (a zip; it's kept 30 days), unzip it on the phone and open"
+            echo "the APK. Android asks once to allow installing from the files app."
+            echo ""
+            echo "- SHA-256: \`$SHA256\`"
+            if [ -n "$EXPECTED" ]; then
+              echo "- Signed with the expected key: certificate \`$CERT\`"
+            else
+              echo "- Signed with certificate \`$CERT\`. Set the RELEASE_CERT_SHA256 repository"
+              echo "  variable to it, if it's your release key's, so a release signed with another key stops."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v7
         with:
-          name: release-apk
+          name: Nivy-${{ needs.demo.outputs.version }}
           retention-days: 30
-          path: app/build/outputs/apk/release/*.apk
-
-      - name: Publish GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "$GITHUB_REF_NAME"
-          app/build/outputs/apk/release/app-release.apk
-          --title "$GITHUB_REF_NAME" --generate-notes
+          # An APK is already compressed.
+          compression-level: 0
+          path: Nivy-*.apk

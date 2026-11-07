@@ -50,7 +50,7 @@ says what runs when.
 
 ## Notes
 
-- [Releasing](docs/release.md): versions, signing, publishing a release.
+- [Releasing](docs/release.md): versions, signing, getting the signed APK.
 - [The database](docs/database.md): changing the schema, migrations and their tests.
 - [The backup format](docs/backup-format.md): what a backup holds and how it imports.
 - [Conventions](docs/conventions.md): where code goes, one rule per number, errors, tests.
