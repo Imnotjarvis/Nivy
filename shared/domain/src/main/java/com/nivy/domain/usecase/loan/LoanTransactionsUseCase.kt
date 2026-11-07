@@ -124,6 +124,8 @@ class LoanTransactionsUseCase @Inject constructor(
      *
      * An edited record keeps its rate unless [recalculate] is true or its currency changed:
      * a new amount is converted at the rate the old one was.
+     *
+     * @throws NoLoanExchangeRate when it has to be converted and there's no rate.
      */
     suspend fun convertedAmount(
         loanAccount: AccountId?,
@@ -148,12 +150,15 @@ class LoanTransactionsUseCase @Inject constructor(
         }
     }
 
-    /** Converts the loan's records to its currency after its account changed from [oldAccount]. */
+    /**
+     * Converts the loan's records to its currency after its account changed from [oldAccount]: all
+     * of them, or none when one can't be ([NoLoanExchangeRate]).
+     */
     suspend fun recalculateRecords(loan: Loan, oldAccount: AccountId?) {
         if (oldAccount == loan.account || currencyOf(oldAccount) == currencyOf(loan.account)) return
 
-        loanRepository.findRecordsByLoanId(loan.id).forEach { record ->
-            loanRepository.saveRecord(
+        loanRepository.findRecordsByLoanId(loan.id)
+            .map { record ->
                 record.copy(
                     convertedAmount = convertedAmount(
                         loanAccount = loan.account,
@@ -161,11 +166,15 @@ class LoanTransactionsUseCase @Inject constructor(
                         recalculate = true,
                     )
                 )
-            )
-        }
+            }
+            .forEach { loanRepository.saveRecord(it) }
     }
 
-    /** Updates the loan or loan record that [transaction] was made for, after it was edited. */
+    /**
+     * Updates the loan or loan record that [transaction] was made for, after it was edited.
+     *
+     * @throws NoLoanExchangeRate when an amount can't be in the loan's currency; nothing changes.
+     */
     suspend fun updateFromTransaction(transaction: Transaction) {
         val loanId = transaction.metadata.loanId?.let(::LoanId) ?: return
         val recordId = transaction.metadata.loanRecordId?.let(::LoanRecordId)
@@ -287,13 +296,17 @@ class LoanTransactionsUseCase @Inject constructor(
     private suspend fun currencyOf(account: AccountId?): AssetCode =
         account?.let { accountRepository.findById(it)?.asset } ?: currencyRepository.getBaseCurrency()
 
-    /** Without a rate the amount passes through unconverted, as it always has for loans. */
+    /** Never one for one: amounts in different currencies aren't added up without a rate. */
     private suspend fun convert(amount: PositiveDouble, from: AssetCode, to: AssetCode): PositiveDouble =
         exchangeUseCase.convert(PositiveValue(amount = amount, asset = from), to = to)
-            .getOrNull()?.amount ?: amount
+            .getOrNull()?.amount ?: throw NoLoanExchangeRate(from, to)
 
     private companion object {
         // Blue2, the fifth color of the free color picker.
         val LoanCategoryColor = ColorInt(0xFF45E6E6.toInt())
     }
 }
+
+/** A loan record's amount can't be in the loan's currency: there's no exchange rate between them. */
+class NoLoanExchangeRate(from: AssetCode, to: AssetCode) :
+    IllegalStateException("No exchange rate from ${from.code} to ${to.code}")

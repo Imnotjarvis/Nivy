@@ -130,6 +130,9 @@ class EditTransactionPaparazziTest(
             onTagDelete = {},
             onTagSelected = {},
             onTagDeSelected = {},
+            // Focusing asks for the keyboard, and the screenshot tests' renderer can crash
+            // starting it (the input method's latency tracker, on a thread it starts).
+            focusSearch = false,
             onTagSearch = {},
         )
     }

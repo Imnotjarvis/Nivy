@@ -1,6 +1,7 @@
 package com.nivy.domain.usecase.loan
 
 import com.nivy.base.model.AccountType
+import arrow.core.None
 import arrow.core.Some
 import com.nivy.base.model.LoanRecordType
 import com.nivy.base.time.TimeProvider
@@ -27,6 +28,7 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
@@ -60,6 +62,7 @@ class LoanTransactionsUseCaseTest {
     init {
         coEvery { accountRepository.findById(BgnAccount.id) } returns BgnAccount
         coEvery { accountRepository.findById(EurAccount.id) } returns EurAccount
+        coEvery { accountRepository.findById(UsdAccount.id) } returns UsdAccount
         coEvery { currencyRepository.getBaseCurrency() } returns Bgn
         coEvery { categoryRepository.findAll() } returns listOf(LoansCategory)
         coEvery { transactionRepository.findLoanTransaction(any()) } returns null
@@ -160,6 +163,38 @@ class LoanTransactionsUseCaseTest {
     }
 
     @Test
+    fun `a record in another currency with no rate isn't taken one for one, as it can't be converted`() = runTest {
+        // given
+        coEvery { exchangeUseCase.convert(any<PositiveValue>(), any()) } returns None
+
+        // when, then
+        shouldThrow<NoLoanExchangeRate> {
+            useCase.convertedAmount(
+                loanAccount = BgnAccount.id,
+                record = record(type = LoanRecordType.DECREASE, account = EurAccount.id),
+            )
+        }
+    }
+
+    @Test
+    fun `when one record can't be converted, an account change converts none of them`() = runTest {
+        // given: the loan moves from BGN to EUR; its records are in BGN, which converts, and USD
+        val loan = BorrowedLoan.copy(account = EurAccount.id)
+        val inLev = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+        val inDollars = record(type = LoanRecordType.DECREASE, account = UsdAccount.id)
+        coEvery { loanRepository.findRecordsByLoanId(loan.id) } returns listOf(inLev, inDollars)
+        coEvery { exchangeUseCase.convert(PositiveValue(inLev.amount, Bgn), to = Eur) } returns
+            Some(PositiveValue(PositiveDouble.unsafe(51.0), Eur))
+        coEvery { exchangeUseCase.convert(PositiveValue(inDollars.amount, Usd), to = Eur) } returns None
+
+        // when
+        shouldThrow<NoLoanExchangeRate> { useCase.recalculateRecords(loan, oldAccount = BgnAccount.id) }
+
+        // then
+        coVerify(exactly = 0) { loanRepository.saveRecord(any()) }
+    }
+
+    @Test
     fun `edited amount keeps the old rate`() = runTest {
         // given
         val old = record(type = LoanRecordType.DECREASE, account = EurAccount.id)
@@ -213,9 +248,11 @@ class LoanTransactionsUseCaseTest {
         val Now: Instant = Instant.parse("2024-03-01T10:00:00Z")
         val Bgn = AssetCode.unsafe("BGN")
         val Eur = AssetCode.unsafe("EUR")
+        val Usd = AssetCode.unsafe("USD")
 
         val BgnAccount = account("Bank", Bgn)
         val EurAccount = account("Revolut", Eur)
+        val UsdAccount = account("Dollars", Usd)
 
         val LoansCategory = Category(
             id = CategoryId(UUID.randomUUID()),

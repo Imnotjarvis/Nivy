@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.pickable
@@ -44,7 +45,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -65,7 +65,8 @@ class LoanViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
-    private val dateTimePicker: DateTimePicker
+    private val dateTimePicker: DateTimePicker,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<LoanScreenState, LoanScreenEvent>() {
 
     private var baseCurrencyCode by mutableStateOf(getDefaultFIATCurrency().currencyCode)
@@ -163,7 +164,7 @@ class LoanViewModel @Inject constructor(
     }
 
     private fun start() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatchers.default) {
             dateTime = timeProvider.utcNow()
 
             defaultCurrencyCode = ioThread {
@@ -178,10 +179,12 @@ class LoanViewModel @Inject constructor(
             totalOwedAmount = 0.0
 
             allLoans = ioThread {
+                // Every account, archived ones too: the picker's list leaves those out.
+                val allAccounts = accountRepository.findAll()
                 loanRepository.findAll()
                     .map { loan ->
                         val progress = loan.progress(loanRepository.findRecordsByLoanId(loan.id))
-                        val currCode = findCurrencyCode(accounts, loan.account?.value)
+                        val currCode = findCurrencyCode(allAccounts, loan.account?.value)
 
                         // The totals are shown in the base currency; each loan is in its account's.
                         val remaining = inBaseCurrency(progress.left, currCode)

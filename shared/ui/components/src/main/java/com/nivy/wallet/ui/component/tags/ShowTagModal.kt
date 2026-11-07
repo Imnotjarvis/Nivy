@@ -66,6 +66,8 @@ fun BoxWithConstraintsScope.ShowTagModal(
     id: UUID = UUID.randomUUID(),
     visible: Boolean = false,
     selectOnlyMode: Boolean = false,
+    // Off only where a keyboard can't show: the screenshot tests.
+    focusSearch: Boolean = true,
     onTagSearch: (String) -> Unit
 ) {
     var showTagAddModal by remember {
@@ -113,6 +115,7 @@ fun BoxWithConstraintsScope.ShowTagModal(
         SearchInput(
             searchQueryTextFieldValue = searchQueryTextFieldValue,
             hint = stringResource(id = R.string.search_tags),
+            focus = focusSearch,
             onSetSearchQueryTextField = {
                 searchQueryTextFieldValue = it
                 onTagSearch(it.text)

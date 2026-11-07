@@ -415,6 +415,7 @@
     <string name="decrease_loan">Decrease</string>
     <string name="msg_select_account_to_transfer">Select the transfer destination</string>
     <string name="msg_enter_exchange_rate">Enter the exchange rate for this transfer</string>
+    <string name="msg_no_loan_exchange_rate">There\'s no exchange rate to the loan\'s currency. Add one in Exchange rates, then try again.</string>
     <string name="msg_export_failed">Couldn\'t save the file</string>
     <string name="msg_transaction_not_saved">Couldn\'t save the transaction</string>
     <string name="msg_exchange_rates_not_downloaded">Couldn\'t download the exchange rates</string>
@@ -499,7 +500,7 @@
     <string name="csv_column_to_account_currency">To Account Currency</string>
     <string name="csv_column_to_account_currency_help">The currency of the account that receives the transfer.\nSkip it if there\'s no such.</string>
     <string name="csv_column_to_amount">To Amount</string>
-    <string name="csv_column_to_amount_help">The amount that the \"To Account\" will receive.\nSkip it if there\'s no such.</string>
+    <string name="csv_column_to_amount_help">The amount that the \"To Account\" will receive. A transfer between two currencies needs it.\nSkip it if there\'s no such.</string>
     <string name="csv_column_category">Category</string>
     <string name="csv_column_category_help">The category of the transaction.</string>
     <string name="csv_column_title">Title</string>

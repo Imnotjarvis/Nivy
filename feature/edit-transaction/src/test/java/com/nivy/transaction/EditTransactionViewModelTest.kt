@@ -37,6 +37,8 @@ import com.nivy.data.repository.mapper.TransactionMapper
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
+import com.nivy.domain.usecase.loan.NoLoanExchangeRate
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.R
@@ -98,6 +100,7 @@ class EditTransactionViewModelTest {
     private val transactionRepo = mockk<TransactionRepository>(relaxUnitFun = true)
     private val nav = mockk<Navigation>(relaxed = true)
     private val toaster = mockk<Toaster>(relaxed = true)
+    private val loanTransactionsUseCase = mockk<LoanTransactionsUseCase>(relaxed = true)
 
     private lateinit var viewModel: EditTransactionViewModel
 
@@ -138,7 +141,7 @@ class EditTransactionViewModelTest {
                 toaster = toaster,
                 transactionRepo = transactionRepo,
                 transactionMapper = TransactionMapper(accountRepository),
-                loanTransactionsUseCase = mockk(relaxed = true),
+                loanTransactionsUseCase = loanTransactionsUseCase,
                 creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, timeConverter),
                 dueTransactionsUseCase = mockk(relaxed = true),
                 timeProvider = FixedTime,
@@ -266,6 +269,19 @@ class EditTransactionViewModelTest {
 
         coVerify { toaster.show(R.string.msg_transaction_not_saved, any()) }
         verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `a loan's transaction with no rate to the loan's currency isn't saved, and says why`() {
+        val payment = lunch().run { copy(metadata = metadata.copy(loanId = UUID.randomUUID())) }
+        coEvery { transactionRepo.findById(payment.id) } returns payment
+        coEvery { loanTransactionsUseCase.updateFromTransaction(any()) } throws NoLoanExchangeRate(Usd, Eur)
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = payment.id.value, type = TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(30.0))
+
+        coVerify(exactly = 0) { transactionRepo.save(any()) }
+        coVerify { toaster.show(R.string.msg_no_loan_exchange_rate, any()) }
     }
 
     @Test
