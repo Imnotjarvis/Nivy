@@ -8,6 +8,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
 import com.nivy.base.threading.DispatchersProvider
@@ -25,13 +26,10 @@ import com.nivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import com.nivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,6 +44,7 @@ class RootViewModel @Inject constructor(
     private val dateFormatState: DateFormatState,
     private val features: Features,
     private val dispatchers: DispatchersProvider,
+    private val clock: ElapsedClock,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -53,13 +52,20 @@ class RootViewModel @Inject constructor(
         /** The action the launcher shortcuts and the widgets open the app with (AndroidManifest). */
         const val ACTION_ADD_TRANSACTION = "ivy.wallet.intent.action.add_transaction"
         const val EXTRA_ADD_TRANSACTION_TYPE = "add_transaction_type_extra"
-
-        const val USER_INACTIVITY_TIME_LIMIT = 60 // Time in seconds
     }
 
-    // Kept current by the collector in start(); read by the activity on the main thread.
+    // Kept current by the collectors in start(); read by the activity on the main thread.
     @Volatile
     private var appLockEnabled = false
+
+    @Volatile
+    private var appLockDelay = AppLockDelay.Default
+
+    // When the app left the screen unlocked, on the clock; null while it's on screen.
+    private var leftAt: Long? = null
+
+    // A file picker the app opened is on screen: going to it isn't leaving the app.
+    private var pickingFile = false
 
     // The activity is recreated on configuration changes (dark mode, language, and from
     // Android 16 rotation on tablets, where the portrait lock no longer applies) and calls
@@ -77,6 +83,7 @@ class RootViewModel @Inject constructor(
 
     fun awaitFile(onPicked: (Uri) -> Unit) {
         onFilePicked = onPicked
+        pickingFile = true
     }
 
     fun filePicked(uri: Uri) {
@@ -102,6 +109,11 @@ class RootViewModel @Inject constructor(
             // Settings can turn the lock on or off while the app runs; the activity asks
             // isAppLockEnabled() on every pause and focus change, so the answer has to follow.
             appPreferences.appLockEnabled.collect { appLockEnabled = it }
+        }
+
+        viewModelScope.launch {
+            // How long the app can be away before it locks, as chosen in the settings.
+            appPreferences.appLockDelay.collect { appLockDelay = it }
         }
 
         viewModelScope.launch {
@@ -202,7 +214,7 @@ class RootViewModel @Inject constructor(
         return appPreferences.isOnboardingCompleted()
     }
 
-    // App Lock & UserInactivity --------------------------------------------------------------------
+    // App lock and time away ----------------------------------------------------------------------
     fun isAppLockEnabled(): Boolean {
         return appLockEnabled
     }
@@ -220,38 +232,30 @@ class RootViewModel @Inject constructor(
         _appLocked.value = false
     }
 
-    private val userInactiveTime = AtomicLong(0)
-    private var userInactiveJob: Job? = null
-
-    @Suppress("MagicNumber")
-    fun startUserInactiveTimeCounter() {
-        if (userInactiveJob != null && userInactiveJob!!.isActive) return
-        // Counts from this pause: after a timed lock the count stayed at the limit, so every
-        // later pause, a file picker included, locked the app at once.
-        resetUserInactiveTimer()
-
-        // Coming back cancels the count in delay(). The loop doesn't look at userInactiveJob: it
-        // can start before launch() returns and the job is stored, and the old, cancelled job it
-        // then found there locked the app at once.
-        userInactiveJob = viewModelScope.launch(dispatchers.io) {
-            while (userInactiveTime.get() < USER_INACTIVITY_TIME_LIMIT) {
-                delay(1000)
-                userInactiveTime.incrementAndGet()
-            }
+    /**
+     * The app left the screen: home, another app, or the screen turned off. With the lock on, it
+     * locks at once if the settings say so; otherwise it notes when, for [onAppShown]. Going to a
+     * file picker the app opened isn't leaving it, and a locked app has nothing to count: its
+     * unlock can show the phone's own PIN screen.
+     */
+    fun onAppHidden() {
+        if (!appLockEnabled || isAppLocked() || pickingFile) return
+        if (appLockDelay == AppLockDelay.IMMEDIATELY) {
             lockApp()
+        } else {
+            leftAt = clock.millis()
         }
     }
 
-    fun checkUserInactiveTimeStatus() {
-        if (userInactiveTime.get() < USER_INACTIVITY_TIME_LIMIT) {
-            if (userInactiveJob != null && userInactiveJob?.isCancelled == false) {
-                userInactiveJob?.cancel()
-                resetUserInactiveTimer()
-            }
-        }
-    }
-
-    fun resetUserInactiveTimer() {
-        userInactiveTime.set(0)
+    /**
+     * The app is back on screen: it locks if it was away at least as long as the settings allow.
+     * The time away is measured on the clock, not counted while the app runs, as Android freezes
+     * the apps it moves to the background.
+     */
+    fun onAppShown() {
+        pickingFile = false
+        val left = leftAt ?: return
+        leftAt = null
+        if (appLockEnabled && clock.millis() - left >= appLockDelay.millis) lockApp()
     }
 }

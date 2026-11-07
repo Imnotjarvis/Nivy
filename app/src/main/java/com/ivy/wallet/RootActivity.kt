@@ -289,18 +289,17 @@ class RootActivity : AppCompatActivity(), RootScreen {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (viewModel.isAppLockEnabled()) {
-            viewModel.checkUserInactiveTimeStatus()
-        }
+    // Stopped and started, not paused and resumed: a dialog, the notification shade or the unlock's
+    // own prompt over the app aren't leaving it.
+    override fun onStart() {
+        super.onStart()
+        viewModel.onAppShown()
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (viewModel.isAppLockEnabled()) {
-            viewModel.startUserInactiveTimeCounter()
-        }
+    override fun onStop() {
+        super.onStop()
+        // A rotation or a theme change recreates the activity: that's not leaving the app either.
+        if (!isChangingConfigurations) viewModel.onAppHidden()
     }
 
     private fun authenticateWithOSBiometricsModal(

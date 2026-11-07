@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.base.model.Theme
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,12 @@ class AppPreferences @Inject constructor(
     /** The lock setting as it changes, for the activity that enforces it. */
     val appLockEnabled: Flow<Boolean> =
         dataStore.data.map { it[AppLockEnabled] ?: false }.distinctUntilChanged()
+
+    /** How long the app can be away before it locks, as it changes. */
+    val appLockDelay: Flow<AppLockDelay> = dataStore.data.map { prefs ->
+        AppLockDelay.entries.find { it.name == prefs[LockDelay] } ?: AppLockDelay.Default
+    }.distinctUntilChanged()
+    suspend fun setAppLockDelay(delay: AppLockDelay) = set(LockDelay, delay.name)
 
     suspend fun startDayOfMonth(): Int = get(StartDayOfMonth, 1)
     suspend fun setStartDayOfMonth(day: Int) = set(StartDayOfMonth, day)
@@ -135,6 +142,7 @@ class AppPreferences @Inject constructor(
         private val OnboardingCompleted = booleanPreferencesKey("onboarding_completed")
         private val LastSelectedAccountId = stringPreferencesKey("last_selected_account_id")
         private val AppLockEnabled = booleanPreferencesKey("lock_app")
+        private val LockDelay = stringPreferencesKey("lock_delay")
         private val StartDayOfMonth = intPreferencesKey("start_date_of_month")
         private val DateFormat = stringPreferencesKey("date_format")
         private val CornerRadiusDp = intPreferencesKey("corner_radius")
