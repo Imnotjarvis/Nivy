@@ -152,31 +152,6 @@ fun formatInt(number: Long): String {
     return DecimalFormat("#,###,###,###").format(number)
 }
 
-fun decimalPartFormatted(currency: String, value: Double): String {
-    return if (NivyCurrency.fromCode(currency)?.isCrypto == true) {
-        val decimalPartFormatted = value.formatCrypto()
-            .split(localDecimalSeparator())
-            .getOrNull(1) ?: "null"
-        if (decimalPartFormatted.isNotBlank()) {
-            "${localDecimalSeparator()}$decimalPartFormatted"
-        } else {
-            ""
-        }
-    } else {
-        "${localDecimalSeparator()}${decimalPartFormattedFIAT(value)}"
-    }
-}
-
-private fun decimalPartFormattedFIAT(value: Double): String {
-    return DecimalFormat(".00").format(value)
-        .split(localDecimalSeparator())
-        .getOrNull(1)
-        ?: value.toString()
-            .split(localDecimalSeparator())
-            .getOrNull(1)
-        ?: "null"
-}
-
 fun Long.length() = when (this) {
     0L -> 1
     else -> log10(abs(toDouble())).toInt() + 1

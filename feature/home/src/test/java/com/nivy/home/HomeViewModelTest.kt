@@ -61,7 +61,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
             coEvery { incomeExpense(any(), any(), any()) } returns monthsTotals
         },
         walletBalanceUseCase = mockk<WalletBalanceUseCase> {
-            coEvery { balance(any(), any(), any(), any()) } coAnswers { balance.await() }
+            coEvery { balance(any(), any(), any()) } coAnswers { balance.await() }
         },
         appPreferences = mockk<AppPreferences>(relaxed = true) {
             coEvery { settings() } returns AppSettings(

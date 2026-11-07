@@ -1,7 +1,5 @@
 package com.nivy.accounts
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -22,13 +20,10 @@ import com.nivy.domain.features.Features
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.AccountData
 import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.ioThread
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.LoadTimer
-import com.nivy.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -36,11 +31,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Stable
-@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
     private val periodState: PeriodState,
     private val appPreferences: AppPreferences,
     private val currencyRepository: CurrencyRepository,
@@ -54,9 +46,7 @@ class AccountsViewModel @Inject constructor(
     private var baseCurrency by mutableStateOf("")
     private var accountsData by mutableStateOf(listOf<AccountData>())
     private var totalBalanceWithExcluded by mutableStateOf("")
-    private var totalBalanceWithExcludedText by mutableStateOf("")
     private var totalBalanceWithoutExcluded by mutableStateOf("")
-    private var totalBalanceWithoutExcludedText by mutableStateOf("")
     private var reorderVisible by mutableStateOf(false)
     private var typeFilter by mutableStateOf<AccountType?>(null)
     private var showArchived by mutableStateOf(false)
@@ -100,9 +90,7 @@ class AccountsViewModel @Inject constructor(
             archivedCount = accountsData.size - unarchived.size,
             showArchived = showArchived,
             totalBalanceWithExcluded = totalBalanceWithExcluded,
-            totalBalanceWithExcludedText = totalBalanceWithExcludedText,
             totalBalanceWithoutExcluded = totalBalanceWithoutExcluded,
-            totalBalanceWithoutExcludedText = totalBalanceWithoutExcludedText,
             reorderVisible = reorderVisible,
             compactAccountsModeEnabled = getCompactAccountsMode(),
             hideTotalBalance = getHideTotalBalance(),
@@ -175,21 +163,7 @@ class AccountsViewModel @Inject constructor(
         baseCurrency = baseCurrencyCode
         accountsData = accountsDataList
         totalBalanceWithExcluded = totalBalanceWithExcludedAccounts.toString()
-        totalBalanceWithExcludedText = context.getString(
-            R.string.total,
-            baseCurrencyCode,
-            totalBalanceWithExcludedAccounts.format(
-                baseCurrencyCode
-            )
-        )
         totalBalanceWithoutExcluded = totalBalanceWithoutExcludedAccounts.toString()
-        totalBalanceWithoutExcludedText = context.getString(
-            R.string.total_exclusive,
-            baseCurrencyCode,
-            totalBalanceWithoutExcludedAccounts.format(
-                baseCurrencyCode
-            )
-        )
         loaded = true
         timer.done()
     }

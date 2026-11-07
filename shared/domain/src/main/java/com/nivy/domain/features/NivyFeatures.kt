@@ -54,14 +54,6 @@ class NivyFeatures @Inject constructor() : Features {
         defaultValue = false
     )
 
-    override val showDecimalNumber = BoolFeature(
-        key = "show_decimal_number",
-        group = FeatureGroup.Other,
-        name = "Show values with decimals",
-        description = "Include the decimal part in amounts",
-        defaultValue = true
-    )
-
     override val standardKeypadLayout = BoolFeature(
         key = "enable_standard_keypad_layout",
         group = FeatureGroup.Other,
@@ -97,9 +89,5 @@ class NivyFeatures @Inject constructor() : Features {
             standardKeypadLayout,
             showAccountColorsInTransactions,
             compactTransactionsMode
-            /* will be uncommented when this functionality
-             * will be available across the application in up-coming PRs
-            showDecimalNumber
-             */
         )
 }

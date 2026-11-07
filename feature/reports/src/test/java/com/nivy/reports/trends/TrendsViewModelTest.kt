@@ -44,9 +44,9 @@ class TrendsViewModelTest {
     // answers with that time's month number.
     private val asked = mutableListOf<Pair<Instant, Boolean>>()
     private val walletBalanceUseCase = mockk<WalletBalanceUseCase> {
-        coEvery { balance(any(), any(), any(), any()) } answers {
-            val at = thirdArg<ClosedTimeRange>().to
-            asked += at to arg<Boolean>(3)
+        coEvery { balance(any(), any(), any()) } answers {
+            val at = secondArg<ClosedTimeRange>().to
+            asked += at to thirdArg<Boolean>()
             BigDecimal(at.atOffset(ZoneOffset.UTC).monthValue)
         }
     }

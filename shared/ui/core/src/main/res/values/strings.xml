@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="accounts">Accounts</string>
-    <string name="total">Total: %1$s %2$s</string>
     <string name="month_income">Income this month</string>
     <string name="month_expenses">Expenses this month</string>
     <string name="excluded">(excluded)</string>
@@ -407,7 +406,6 @@
     <string name="confirm_skip_all">Confirm skipping all</string>
     <string name="confirm_skip_all_description">Are you sure you want to skip all overdue planned payments?</string>
     <string name="wallet_balance">Wallet balance</string>
-    <string name="total_exclusive">Total (exclusive): %1$s %2$s</string>
     <string name="active_balance">Active balance</string>
     <string name="initial_loan_record">Starting record</string>
     <string name="loan_record_type">Record type</string>
@@ -430,8 +428,6 @@
     <string name="add_tags">Add Tags</string>
     <string name="this_transaction_is_associated_with_loan">* This transaction is associated with Loan : %1$s</string>
     <string name="this_transaction_is_associated_with_loan_record">* This transaction is associated with a Loan Record of Loan : %1$s</string>
-    <string name="note_transaction_associated_with_loan_record_of_loan">Note: This transaction is associated with a Loan Record of Loan : %1$s\nYou are trying to change the account associated with the loan record to an account of different currency\n The Loan Record will be re-calculated based on today\'s currency exchanges rates</string>
-    <string name="note_you_are_trying_to_change_the_account_associated_with_the_loan">Note: You are trying to change the account associated with the loan: %1$s with an account of different currency, \nAll the loan records will be re-calculated based on today\'s currency exchanges rates</string>
     <string name="tap_to_switch_theme">Tap to toggle theme</string>
     <string name="do_not_use_for_backup_purposes">⚠\uFE0F Not intended for backup use</string>
     <string name="done">Done</string>

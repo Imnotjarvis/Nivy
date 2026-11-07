@@ -19,7 +19,6 @@ class WalletBalanceUseCase @Inject constructor(
 ) {
     suspend fun balance(
         baseCurrency: String,
-        balanceCurrency: String = baseCurrency,
         range: ClosedTimeRange? = null,
         withExcluded: Boolean = false,
     ): BigDecimal = withContext(dispatchers.io) {
@@ -33,7 +32,7 @@ class WalletBalanceUseCase @Inject constructor(
                     data = ExchangeData(
                         baseCurrency = baseCurrency,
                         fromCurrency = (it.account.asset.code).toOption(),
-                        toCurrency = balanceCurrency
+                        toCurrency = baseCurrency
                     ),
                     amount = it.balance
                 )

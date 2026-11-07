@@ -23,18 +23,6 @@ class TransactionLoanDisplay @Inject constructor(
             ioThread { loanDao.findById(trans.loanId) } ?: return EditTransactionDisplayLoan()
         val isLoanRecord = trans.loanRecordId != null
 
-        val loanWarningDescription = if (isLoanRecord) {
-            context.getString(
-                R.string.note_transaction_associated_with_loan_record_of_loan,
-                loan.name
-            )
-        } else {
-            context.getString(
-                R.string.note_you_are_trying_to_change_the_account_associated_with_the_loan,
-                loan.name
-            )
-        }
-
         val loanCaption =
             if (isLoanRecord) {
                 context.getString(
@@ -52,7 +40,6 @@ class TransactionLoanDisplay @Inject constructor(
             isLoan = true,
             isLoanRecord = isLoanRecord,
             loanCaption = loanCaption,
-            loanWarningDescription = loanWarningDescription
         )
     }
 }
