@@ -24,6 +24,7 @@ import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.ui.R
 import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.utils.computationThread
@@ -76,34 +77,7 @@ class CategoryPeriodLoader @Inject constructor(
             ).toImmutableList()
         }
 
-        // Upcoming
-        // TODO: Rework Upcoming to FP
-        upcomingIncome.doubleValue = ioThread {
-            categoryLogic.calculateUpcomingIncomeByCategory(initialCategory, range)
-        }
-
-        upcomingExpenses.doubleValue = ioThread {
-            categoryLogic.calculateUpcomingExpensesByCategory(initialCategory, range)
-        }
-
-        upcoming.value = ioThread {
-            categoryLogic.upcomingByCategory(initialCategory, range).toImmutableList()
-        }
-
-        // Overdue
-        // TODO: Rework Overdue to FP
-        overdueIncome.doubleValue = ioThread {
-            categoryLogic.calculateOverdueIncomeByCategory(initialCategory, range)
-        }
-
-        overdueExpenses.doubleValue = ioThread {
-            categoryLogic.calculateOverdueExpensesByCategory(initialCategory, range)
-        }
-
-        overdue.value =
-            ioThread {
-                categoryLogic.overdueByCategory(initialCategory, range).toImmutableList()
-            }
+        loadDue(initialCategory, range, accountFilterSet)
     }
 
     internal suspend fun initForCategoryWithTransactions(
@@ -167,34 +141,7 @@ class CategoryPeriodLoader @Inject constructor(
                 ).toImmutableList()
             }
 
-            // Upcoming
-            // TODO: Rework Upcoming to FP
-            upcomingIncome.doubleValue = ioThread {
-                categoryLogic.calculateUpcomingIncomeByCategory(initialCategory, range)
-            }
-
-            upcomingExpenses.doubleValue = ioThread {
-                categoryLogic.calculateUpcomingExpensesByCategory(initialCategory, range)
-            }
-
-            upcoming.value = ioThread {
-                categoryLogic.upcomingByCategory(initialCategory, range).toImmutableList()
-            }
-
-            // Overdue
-            // TODO: Rework Overdue to FP
-            overdueIncome.doubleValue = ioThread {
-                categoryLogic.calculateOverdueIncomeByCategory(initialCategory, range)
-            }
-
-            overdueExpenses.doubleValue = ioThread {
-                categoryLogic.calculateOverdueExpensesByCategory(initialCategory, range)
-            }
-
-            overdue.value =
-                ioThread {
-                    categoryLogic.overdueByCategory(initialCategory, range).toImmutableList()
-                }
+            loadDue(initialCategory, range, accountFilterSet)
         }
     }
 
@@ -303,6 +250,22 @@ class CategoryPeriodLoader @Inject constructor(
             baseCurrency = baseCurrency.value,
             transactions = transactions.filter { it.settled }
         ).toImmutableList()
+    }
+
+    /**
+     * The category's upcoming and overdue transactions in [range], of the [accounts] (all of them
+     * when empty), and their totals.
+     */
+    private suspend fun CategoryLoadState.loadDue(category: Category, range: FromToTimeRange, accounts: Set<UUID>) {
+        val upcomingList = ioThread { categoryLogic.upcomingByCategory(category, range, accounts) }
+        upcomingIncome.doubleValue = categoryLogic.calculateCategoryIncome(upcomingList.filterIsInstance<Income>())
+        upcomingExpenses.doubleValue = categoryLogic.calculateCategoryExpenses(upcomingList.filterIsInstance<Expense>())
+        upcoming.value = upcomingList.toImmutableList()
+
+        val overdueList = ioThread { categoryLogic.overdueByCategory(category, range, accounts) }
+        overdueIncome.doubleValue = categoryLogic.calculateCategoryIncome(overdueList.filterIsInstance<Income>())
+        overdueExpenses.doubleValue = categoryLogic.calculateCategoryExpenses(overdueList.filterIsInstance<Expense>())
+        overdue.value = overdueList.toImmutableList()
     }
 }
 

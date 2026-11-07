@@ -41,6 +41,8 @@ import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.model.filterOverdue
+import com.nivy.wallet.data.model.filterUpcoming
 import com.nivy.wallet.utils.getISOFormattedDateTime
 import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.ui.ComposeViewModel
@@ -276,11 +278,8 @@ class ReportViewModel @Inject constructor(
 
             val accountFilterIdList = async { reportFilter.accounts.map { it.id.value } }
 
-            val now = timeProvider.utcNow()
-
-            // Upcoming
-            val upcomingTransactionsList = transactionsList
-                .filter { !it.settled && it.time.isAfter(now) }
+            // Due today counts as upcoming, earlier days as overdue, as everywhere else.
+            val upcomingTransactionsList = transactionsList.filterUpcoming(timeProvider)
                 .sortedBy { it.time }
                 .toImmutableList()
 
@@ -290,11 +289,9 @@ class ReportViewModel @Inject constructor(
                 baseCurrency = baseCurrency
             )
             // Overdue
-            val overdue = transactionsList.filter {
-                !it.settled && it.time.isBefore(now)
-            }.sortedByDescending {
-                it.time
-            }.toImmutableList()
+            val overdue = transactionsList.filterOverdue(timeProvider)
+                .sortedByDescending { it.time }
+                .toImmutableList()
             val overdueIncomeExpense = transactionsIncomeExpenseUseCase.incomeExpense(
                 transactions = overdue,
                 accounts = tempAccounts,

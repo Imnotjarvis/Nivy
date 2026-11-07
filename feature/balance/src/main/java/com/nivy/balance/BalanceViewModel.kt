@@ -16,9 +16,11 @@ import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.wallet.PeriodState
 import com.nivy.ui.ComposeViewModel
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.utils.ioThread
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 @Stable
@@ -70,18 +72,28 @@ class BalanceViewModel @Inject constructor(
 
             currentBalance = walletBalanceUseCase.balance(baseCurrencyCode).toDouble()
 
+            val startDay = periodState.startDayOfMonth
+            val end = timePeriod.toRange(startDay, timeConverter, timeProvider).to()
             plannedPaymentsAmount = ioThread {
                 // What's due from the start of the current month to the end of the selected one:
                 // + positive if Income > Expenses else - negative
-                val startDay = periodState.startDayOfMonth
                 val currentMonth = TimePeriod.currentMonth(startDay, timeProvider)
                     .toRange(startDay, timeConverter, timeProvider)
-                val range = timePeriod.toRange(startDay, timeConverter, timeProvider)
-                dueTransactionsUseCase.dueBalance(currentMonth.from(), range.to())
-            }
+                dueTransactionsUseCase.dueBalance(currentMonth.from(), end)
+            } + chargesToCome(end)
             balanceAfterPlannedPayments =
                 currentBalance + plannedPaymentsAmount
         }
+    }
+
+    /**
+     * What's paid but dated after now, up to [end]: a credit card's purchases, until the card
+     * charges them. The current balance leaves them out; the balance at the period's end doesn't.
+     */
+    private suspend fun chargesToCome(end: Instant): Double {
+        if (!end.isAfter(timeProvider.utcNow())) return 0.0
+        val atEnd = walletBalanceUseCase.balance(baseCurrencyCode, range = ClosedTimeRange.to(end))
+        return atEnd.toDouble() - currentBalance
     }
 
     private fun setTimePeriod(timePeriod: TimePeriod) {
