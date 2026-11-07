@@ -107,8 +107,9 @@ if open_lunch; then
         && tap_text "Transport" && shot category-changed
     tap_desc "Delete" && shot delete-dialog \
         && adb shell input keyevent KEYCODE_BACK && shot delete-cancelled
+    # Its name field takes the first back, for the keyboard: its close button instead.
     tap_text "Add account" && shot new-account-dialog \
-        && adb shell input keyevent KEYCODE_BACK && shot new-account-closed
+        && tap_desc "Close" '$' && shot new-account-closed
     tap_text "Expense" && shot type-dialog \
         && tap_text "Transfer" && tap_text "Set" && shot transfer \
         && tap_text "Bank" 2 && shot transfer-to-bank \
