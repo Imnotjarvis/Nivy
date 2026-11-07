@@ -227,7 +227,8 @@ fun CashFlowInfo(
 
         val cashflow = monthlyIncome - monthlyExpenses
         val page = MaterialTheme.colorScheme.background
-        if (cashflow != 0.0 && !hideBalance) {
+        // Hidden with the income too: with the expenses beside it, it would tell the income.
+        if (cashflow != 0.0 && !hideBalance && !hideIncome) {
             Spacer(Modifier.height(12.dp))
 
             Text(
