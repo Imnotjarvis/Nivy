@@ -19,6 +19,14 @@ are in the root `build.gradle.kts`, checked by `./gradlew :assertModuleGraph`.
   `TestDispatchersProvider`. The older `*Act` classes are gone; don't bring the pattern back.
 - **Screens:** a `ComposeViewModel` per screen, its state and events next to it.
 
+## Names that stay Ivy Wallet's
+
+The code is in `com.nivy`, but what a phone stores by name keeps the name Ivy Wallet gave it, or
+an update would lose it: the app ID (`com.ivy.wallet.offline`), the database, DataStore and
+preferences file names, the add-transaction intent action, and the six classes the system finds by
+class name (`RootActivity`, `PaymentTileService`, the three widget receivers and
+`TransactionReminderWorker`). The manifest writes those classes' names in full.
+
 ## One rule per number
 
 - **No exchange rate:** a total leaves out an amount it can't convert, counting it as 0. Never
