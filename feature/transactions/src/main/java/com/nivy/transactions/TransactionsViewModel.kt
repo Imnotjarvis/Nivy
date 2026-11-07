@@ -9,6 +9,7 @@ import arrow.core.toOption
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.model.AccountType
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountValue
 import com.nivy.data.model.AccountId
@@ -32,7 +33,6 @@ import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
 import com.nivy.wallet.domain.logic.AccountCreator
-import com.nivy.wallet.utils.ioThread
 import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.ui.ComposeViewModel
@@ -45,6 +45,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 
@@ -74,6 +75,7 @@ class TransactionsViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<TransactionsState, TransactionsEvent>() {
 
     private val period = mutableStateOf(periodState.selected)
@@ -265,28 +267,28 @@ class TransactionsViewModel @Inject constructor(
         ).toImmutableList()
 
         // Upcoming
-        upcomingIncome.doubleValue = ioThread {
+        upcomingIncome.doubleValue = withContext(dispatchers.io) {
             accountLogic.calculateUpcomingIncome(initialAccount, range)
         }
 
-        upcomingExpenses.doubleValue = ioThread {
+        upcomingExpenses.doubleValue = withContext(dispatchers.io) {
             accountLogic.calculateUpcomingExpenses(initialAccount, range)
         }
 
-        upcoming.value = ioThread {
+        upcoming.value = withContext(dispatchers.io) {
             accountLogic.upcoming(initialAccount, range).toImmutableList()
         }
 
         // Overdue
-        overdueIncome.doubleValue = ioThread {
+        overdueIncome.doubleValue = withContext(dispatchers.io) {
             accountLogic.calculateOverdueIncome(initialAccount, range)
         }
 
-        overdueExpenses.doubleValue = ioThread {
+        overdueExpenses.doubleValue = withContext(dispatchers.io) {
             accountLogic.calculateOverdueExpenses(initialAccount, range)
         }
 
-        overdue.value = ioThread {
+        overdue.value = withContext(dispatchers.io) {
             accountLogic.overdue(initialAccount, range).toImmutableList()
         }
     }
