@@ -92,6 +92,14 @@
       "id": "a1a1a1a1-0000-4000-8000-000000000002"
     }
   ],
+  "exchangeRates": [
+    {
+      "baseCurrency": "EUR",
+      "currency": "USD",
+      "rate": 1.08,
+      "manualOverride": true
+    }
+  ],
   "categories": [
     {
       "name": "Food",
