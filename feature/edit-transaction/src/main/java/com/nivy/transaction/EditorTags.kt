@@ -17,13 +17,14 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 
 private const val SearchDebounceMillis = 500L
 
 /**
  * The editor's tags: those the tag dialog lists, and the ids of the transaction's own. The dialog's
- * changes are saved as they're made, with [transactionId] the transaction they're linked to.
- * [afterTagAdd] runs after the dialog adds a tag.
+ * changes are saved as they're made, on [io], with [transactionId] the transaction they're linked
+ * to. [afterTagAdd] runs after the dialog adds a tag.
  */
 @Stable
 internal class EditorTags(
@@ -31,6 +32,7 @@ internal class EditorTags(
     private val scope: CoroutineScope,
     private val transactionId: () -> UUID,
     private val afterTagAdd: () -> Unit,
+    private val io: CoroutineContext = Dispatchers.IO,
 ) {
     var all by mutableStateOf<ImmutableList<Tag>>(persistentListOf())
         private set
@@ -62,7 +64,7 @@ internal class EditorTags(
     }
 
     private fun create(name: String) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(io) {
             transactionTags.saveTag(name)?.let { all = it }
 
             afterTagAdd()
@@ -70,37 +72,37 @@ internal class EditorTags(
     }
 
     private fun associate(tag: Tag, transaction: () -> UUID) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(io) {
             val associatedId = AssociationId(transaction())
             associated = transactionTags.associateTag(associatedId, tag)
         }
     }
 
     private fun removeAssociation(tag: Tag) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(io) {
             val associatedId = AssociationId(transactionId())
             associated = transactionTags.removeTagAssociation(associatedId, tag)
         }
     }
 
     private fun search(query: String) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(io) {
             searchJob?.cancelAndJoin()
             delay(SearchDebounceMillis) // Debounce effect
-            searchJob = launch(Dispatchers.IO) {
+            searchJob = launch(io) {
                 all = transactionTags.searchTags(query)
             }
         }
     }
 
     private fun delete(tag: Tag) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(io) {
             all = transactionTags.deleteTag(tag)
         }
     }
 
     private fun update(tag: Tag) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(io) {
             all = transactionTags.updateTag(tag)
         }
     }
