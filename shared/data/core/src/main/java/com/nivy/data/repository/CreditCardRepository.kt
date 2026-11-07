@@ -31,14 +31,18 @@ class CreditCardRepository @Inject constructor(
                 .mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
         }
 
-    /** Saves the [cards] of [accountId], and deletes the ones it had that aren't among them. */
+    /**
+     * Saves the [cards] of [accountId], and deletes the ones it had that aren't among them, in one
+     * database transaction: a save cut short leaves the cards, and what was bought with them, as
+     * they were.
+     */
     suspend fun saveAccountCards(accountId: AccountId, cards: List<CreditCard>): Unit =
         withContext(dispatchersProvider.io) {
             val kept = cards.map { it.id }.toSet()
-            creditCardDao.findByAccountId(accountId.value)
+            val removed = creditCardDao.findByAccountId(accountId.value)
                 .filter { CreditCardId(it.id) !in kept }
-                .forEach { writeCreditCardDao.deleteById(it.id) }
-            writeCreditCardDao.saveMany(cards.map { with(mapper) { it.toEntity() } })
+                .map { it.id }
+            writeCreditCardDao.replaceCards(removed, cards.map { with(mapper) { it.toEntity() } })
         }
 
     suspend fun deleteAllByAccountId(accountId: AccountId): Unit =

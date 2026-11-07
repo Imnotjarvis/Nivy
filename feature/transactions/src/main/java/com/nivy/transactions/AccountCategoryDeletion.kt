@@ -1,5 +1,6 @@
 package com.nivy.transactions
 
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
@@ -26,16 +27,21 @@ class AccountCategoryDeletion @Inject constructor(
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val creditCardRepository: CreditCardRepository,
     private val accountValueRepository: AccountValueRepository,
+    private val transaction: DatabaseTransaction,
     private val nav: Navigation,
 ) {
     suspend fun deleteAccount(accountId: UUID) {
         ioThread {
-            keepTransfersWithOtherAccounts(AccountId(accountId))
-            transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            creditCardRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            accountValueRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            accountRepository.deleteById(AccountId(accountId))
+            // One database transaction: a deletion cut short leaves the account as it was, its
+            // transfers with other accounts included.
+            transaction.run {
+                keepTransfersWithOtherAccounts(AccountId(accountId))
+                transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+                plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+                creditCardRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+                accountValueRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+                accountRepository.deleteById(AccountId(accountId))
+            }
 
             nav.back()
         }

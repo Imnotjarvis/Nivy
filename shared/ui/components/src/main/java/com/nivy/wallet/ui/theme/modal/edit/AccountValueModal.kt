@@ -178,7 +178,8 @@ fun BoxWithConstraintsScope.AccountValueModal(
         initialAmount = amount,
         dismiss = { amountModalVisible = false }
     ) {
-        amount = it
+        // The keypad's calculator can give a negative result, which no value is.
+        amount = it.takeIf { value -> value >= 0 }
     }
 
     val cashModalId = remember(shown) { UUID.randomUUID() }
@@ -189,7 +190,8 @@ fun BoxWithConstraintsScope.AccountValueModal(
         initialAmount = cash,
         dismiss = { cashModalVisible = false }
     ) {
-        // Zero is kept: none is uninvested now, and money moved in later waits as cash.
-        cash = it
+        // Zero is kept: none is uninvested now, and money moved in later waits as cash. A negative
+        // result of the calculator is no cash.
+        cash = it.takeIf { value -> value >= 0 }
     }
 }

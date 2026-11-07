@@ -2,6 +2,7 @@ package com.nivy.transactions
 
 import com.nivy.base.model.AccountType
 import com.nivy.data.model.Account
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
@@ -28,6 +29,7 @@ import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.coVerifySequence
 import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -56,6 +58,19 @@ class AccountCategoryDeletionTest {
     private val accountValueRepository = mockk<AccountValueRepository>(relaxUnitFun = true)
     private val nav = mockk<Navigation>(relaxed = true)
 
+    // The database transaction's block runs as it is; inTransaction says when.
+    private var inTransaction = false
+    private val transaction = object : DatabaseTransaction(mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            inTransaction = true
+            return try {
+                block()
+            } finally {
+                inTransaction = false
+            }
+        }
+    }
+
     private val deletion = AccountCategoryDeletion(
         accountRepository = accountRepository,
         categoryRepository = categoryRepository,
@@ -63,6 +78,7 @@ class AccountCategoryDeletionTest {
         plannedPaymentRuleRepository = plannedPaymentRuleRepository,
         creditCardRepository = creditCardRepository,
         accountValueRepository = accountValueRepository,
+        transaction = transaction,
         nav = nav,
     )
 
@@ -82,6 +98,40 @@ class AccountCategoryDeletionTest {
             accountRepository.deleteById(oldBank.id)
             nav.back()
         }
+    }
+
+    @Test
+    fun `deleting an account writes in one database transaction, and leaves its page once it's done`() = runTest {
+        // given: a transfer to keep, and each write and the page's leaving noting where it happens
+        transactions = listOf(transfer(revolut, 60.0, oldBank, 50.0))
+        val events = mutableListOf<String>()
+        fun note(event: String) {
+            events += if (inTransaction) event else "$event, outside the transaction"
+        }
+        coEvery { transactionRepository.save(any()) } answers { note("transfer kept") }
+        coEvery { transactionRepository.deleteAllByAccountId(any()) } answers { note("transactions deleted") }
+        coEvery { plannedPaymentRuleRepository.deleteAllByAccountId(any()) } answers { note("plans deleted") }
+        coEvery { creditCardRepository.deleteAllByAccountId(any()) } answers { note("cards deleted") }
+        coEvery { accountValueRepository.deleteAllByAccountId(any()) } answers { note("values deleted") }
+        coEvery { accountRepository.deleteById(any()) } answers { note("account deleted") }
+        every { nav.back() } answers {
+            note("page left")
+            true
+        }
+
+        // when
+        deletion.deleteAccount(oldBank.id.value)
+
+        // then
+        events shouldBe listOf(
+            "transfer kept",
+            "transactions deleted",
+            "plans deleted",
+            "cards deleted",
+            "values deleted",
+            "account deleted",
+            "page left, outside the transaction",
+        )
     }
 
     @Test
