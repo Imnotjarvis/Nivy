@@ -58,12 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nivy.data.model.pickable
 import com.nivy.budgets.model.DisplayBudget
 import com.nivy.wallet.ui.theme.wallet.PeriodSelector
 import com.nivy.wallet.ui.theme.components.BudgetBattery
+import com.nivy.wallet.ui.theme.components.EmptyState
 import com.nivy.design.utils.clickableNoIndication
 import com.nivy.design.utils.rememberInteractionSource
 import com.nivy.navigation.navigation
@@ -170,9 +170,10 @@ private fun BoxWithConstraintsScope.UI(
         if (state.budgets.isEmpty()) {
             Spacer(Modifier.weight(1f))
 
-            NoBudgetsEmptyState(
-                emptyStateTitle = stringResource(R.string.no_budgets),
-                emptyStateText = stringResource(R.string.no_budgets_text)
+            EmptyState(
+                icon = R.drawable.ic_budget_xl,
+                title = stringResource(R.string.no_budgets),
+                text = stringResource(R.string.no_budgets_text)
             )
 
             Spacer(Modifier.weight(1f))
@@ -433,49 +434,6 @@ private fun budgetPage(item: DisplayBudget, month: String, range: ClosedTimeRang
     type = TransactionType.EXPENSE,
     budgetPage = BudgetPage(budget = item.budget, month = month, range = range),
 )
-
-@Composable
-private fun NoBudgetsEmptyState(
-    emptyStateTitle: String,
-    emptyStateText: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(32.dp))
-
-        NivyIcon(
-            icon = R.drawable.ic_budget_xl,
-            tint = Gray
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = emptyStateTitle,
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = Gray,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
-            text = emptyStateText,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = Gray,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
-        )
-
-        Spacer(Modifier.height(96.dp))
-    }
-}
 
 /** For screenshot testing: a month with a savings goal, budgets within their amounts and one over. */
 @Composable

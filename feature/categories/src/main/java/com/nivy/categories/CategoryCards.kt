@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nivy.wallet.utils.balancePrefix
@@ -34,15 +33,14 @@ import com.nivy.wallet.utils.format
 import com.nivy.ui.R
 import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
+import com.nivy.wallet.ui.theme.components.TwoAmountsRow
 import com.nivy.design.system.colors.categoryColor
 import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.expenseRed
-import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.typography.numberTitleLarge
-import androidx.compose.material3.VerticalDivider
 
 @Composable
 internal fun CategoryCard(
@@ -93,10 +91,15 @@ private fun DefaultCategoryCard(
         Spacer(Modifier.height(12.dp))
 
         // Emitting content
-        AddedSpent(
+        TwoAmountsRow(
+            startLabel = stringResource(R.string.month_expenses),
+            startAmount = categoryData.monthlyExpenses,
+            endLabel = stringResource(R.string.month_income),
+            endAmount = categoryData.monthlyIncome,
             currency = currency,
-            monthlyIncome = categoryData.monthlyIncome,
-            monthlyExpenses = categoryData.monthlyExpenses
+            // Green and red as on Home's cards, also in minimal colors.
+            startColor = expenseRed(MaterialTheme.colorScheme.surface),
+            endColor = incomeGreen(MaterialTheme.colorScheme.surface),
         )
 
         Spacer(Modifier.height(12.dp))
@@ -192,109 +195,6 @@ private fun CompactCategoryCard(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun AddedSpent(
-    monthlyIncome: Double,
-    monthlyExpenses: Double,
-    currency: String,
-    modifier: Modifier = Modifier,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    dividerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    center: Boolean = true,
-    dividerSpacer: Dp? = null,
-
-    ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (center) {
-            Spacer(Modifier.weight(1f))
-        }
-
-        LabelAmount(
-            textColor = textColor,
-            // Green and red as on Home's cards, also in minimal colors.
-            amountColor = expenseRed(MaterialTheme.colorScheme.surface),
-            label = stringResource(R.string.month_expenses),
-            amount = monthlyExpenses,
-            currency = currency,
-            center = center
-        )
-
-        if (center) {
-            Spacer(Modifier.weight(1f))
-        }
-
-        if (dividerSpacer != null) {
-            Spacer(modifier = Modifier.width(dividerSpacer))
-        }
-
-        VerticalDivider(
-            modifier = Modifier
-                .height(48.dp)
-                .clip(PillShape),
-            thickness = 2.dp,
-            color = dividerColor
-        )
-
-        if (center) {
-            Spacer(Modifier.weight(1f))
-        }
-
-        if (dividerSpacer != null) {
-            Spacer(modifier = Modifier.width(dividerSpacer))
-        }
-
-        LabelAmount(
-            textColor = textColor,
-            amountColor = incomeGreen(MaterialTheme.colorScheme.surface),
-            label = stringResource(R.string.month_income),
-            amount = monthlyIncome,
-            currency = currency,
-            center = center
-        )
-
-        if (center) {
-            Spacer(Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun LabelAmount(
-    label: String,
-    amount: Double,
-    currency: String,
-    textColor: Color,
-    amountColor: Color,
-    center: Boolean
-) {
-    Column(
-        horizontalAlignment = if (center) Alignment.CenterHorizontally else Alignment.Start
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = textColor,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.height(4.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AmountCurrencyB1(
-                textColor = amountColor,
-                amount = amount,
-                currency = currency
-            )
         }
     }
 }

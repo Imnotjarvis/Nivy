@@ -1,21 +1,16 @@
 package com.nivy.wallet.ui.component.transaction
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nivy.data.model.Transaction
@@ -30,11 +25,10 @@ import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.design.system.colors.Black
-import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.White
+import com.nivy.wallet.ui.theme.components.EmptyState
 import com.nivy.wallet.ui.theme.components.NivyButton
-import com.nivy.wallet.ui.theme.components.NivyIcon
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.colors.Palette
 import com.nivy.design.system.motion.appearTween
@@ -101,9 +95,10 @@ fun LazyListScope.transactions(
     if (upcoming?.trns.isNullOrEmpty() && overdue?.trns.isNullOrEmpty() && history.isEmpty()) {
         item {
             FadingIn(fadeIn) {
-                NoTransactionsEmptyState(
-                    emptyStateTitle = emptyStateTitle,
-                    emptyStateText = emptyStateText
+                EmptyState(
+                    icon = R.drawable.ic_notransactions,
+                    title = emptyStateTitle,
+                    text = emptyStateText
                 )
             }
         }
@@ -345,48 +340,6 @@ private fun onTransactionClick(
             type = transaction.getTransactionType()
         )
     )
-}
-
-@Composable
-private fun LazyItemScope.NoTransactionsEmptyState(
-    emptyStateTitle: String,
-    emptyStateText: String,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(32.dp))
-
-        NivyIcon(
-            icon = R.drawable.ic_notransactions,
-            tint = Gray
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = emptyStateTitle,
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = Gray,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
-            text = emptyStateText,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = Gray,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
-        )
-
-        Spacer(Modifier.height(96.dp))
-    }
 }
 
 private fun LazyListScope.scrollHackSpacer(
