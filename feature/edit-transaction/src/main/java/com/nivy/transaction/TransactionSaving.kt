@@ -10,6 +10,7 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
+import com.nivy.domain.usecase.loan.NoLoanExchangeRate
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.CustomExchangeRateState
@@ -94,6 +95,9 @@ class TransactionSaving @Inject constructor(
             ioThread { save() }
         } catch (e: CancellationException) {
             throw e
+        } catch (ignored: NoLoanExchangeRate) {
+            toaster.show(R.string.msg_no_loan_exchange_rate)
+            return false
         } catch (e: Exception) {
             Timber.e(e)
             false

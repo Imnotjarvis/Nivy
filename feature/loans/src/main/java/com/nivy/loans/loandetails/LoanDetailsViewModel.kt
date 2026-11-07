@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
+import com.nivy.base.Toaster
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
@@ -21,6 +22,8 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
+import com.nivy.domain.usecase.loan.NoLoanExchangeRate
+import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.loans.LoanProgress
 import com.nivy.loans.loan.data.DisplayLoanRecord
@@ -63,6 +66,7 @@ class LoanDetailsViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
     private val dispatchers: DispatchersProvider,
+    private val toaster: Toaster,
 ) : ComposeViewModel<LoanDetailsScreenState, LoanDetailsScreenEvent>() {
 
     private val baseCurrency = mutableStateOf("")
@@ -298,8 +302,15 @@ class LoanDetailsViewModel @Inject constructor(
     fun editLoan(loan: Loan, createLoanTransaction: Boolean = false) {
         viewModelScope.launch {
             val oldAccount = this@LoanDetailsViewModel.loan.value?.account
+            // Before the loan: when a record can't be converted, the loan stays as it was.
+            try {
+                loanTransactionsUseCase.recalculateRecords(loan, oldAccount = oldAccount)
+            } catch (ignored: NoLoanExchangeRate) {
+                waitModalVisible.value = false
+                toaster.show(R.string.msg_no_loan_exchange_rate)
+                return@launch
+            }
             loanRepository.save(loan)
-            loanTransactionsUseCase.recalculateRecords(loan, oldAccount = oldAccount)
             loanTransactionsUseCase.syncLoanTransaction(loan, create = createLoanTransaction)
             // A changed type turns the records' income into expenses and the other way round.
             loanTransactionsUseCase.syncRecordTransactions(loan)
@@ -335,12 +346,17 @@ class LoanDetailsViewModel @Inject constructor(
                     type = data.loanRecordType,
                 )
             }.getOrNull() ?: return@launch
-            val withConvertedAmount = record.copy(
-                convertedAmount = loanTransactionsUseCase.convertedAmount(
-                    loanAccount = loan.account,
-                    record = record,
+            val withConvertedAmount = try {
+                record.copy(
+                    convertedAmount = loanTransactionsUseCase.convertedAmount(
+                        loanAccount = loan.account,
+                        record = record,
+                    )
                 )
-            )
+            } catch (ignored: NoLoanExchangeRate) {
+                toaster.show(R.string.msg_no_loan_exchange_rate)
+                return@launch
+            }
             loanRepository.saveRecord(withConvertedAmount)
             loanTransactionsUseCase.syncLoanRecordTransaction(
                 loan = loan,
@@ -354,14 +370,19 @@ class LoanDetailsViewModel @Inject constructor(
     private fun editLoanRecord(editLoanRecordData: EditLoanRecordData) {
         val loan = loan.value ?: return
         viewModelScope.launch {
-            val record = editLoanRecordData.newLoanRecord.copy(
-                convertedAmount = loanTransactionsUseCase.convertedAmount(
-                    loanAccount = loan.account,
-                    record = editLoanRecordData.newLoanRecord,
-                    oldRecord = editLoanRecordData.originalLoanRecord,
-                    recalculate = editLoanRecordData.reCalculateLoanAmount,
+            val record = try {
+                editLoanRecordData.newLoanRecord.copy(
+                    convertedAmount = loanTransactionsUseCase.convertedAmount(
+                        loanAccount = loan.account,
+                        record = editLoanRecordData.newLoanRecord,
+                        oldRecord = editLoanRecordData.originalLoanRecord,
+                        recalculate = editLoanRecordData.reCalculateLoanAmount,
+                    )
                 )
-            )
+            } catch (ignored: NoLoanExchangeRate) {
+                toaster.show(R.string.msg_no_loan_exchange_rate)
+                return@launch
+            }
             loanRepository.saveRecord(record)
             loanTransactionsUseCase.syncLoanRecordTransaction(
                 loan = loan,

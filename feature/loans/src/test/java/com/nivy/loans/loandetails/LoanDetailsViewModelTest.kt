@@ -14,6 +14,9 @@ import com.nivy.data.model.LoanRecord
 import com.nivy.data.model.LoanRecordId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.primitive.AssetCode
+import com.nivy.ui.R
+import com.nivy.domain.usecase.loan.NoLoanExchangeRate
+import com.nivy.base.Toaster
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -90,6 +93,7 @@ class LoanDetailsViewModelTest {
         }
     }
     private val nav = mockk<Navigation>(relaxed = true)
+    private val toaster = mockk<Toaster>(relaxed = true)
 
     private val viewModel = LoanDetailsViewModel(
         loanRepository = loanRepository,
@@ -103,6 +107,7 @@ class LoanDetailsViewModelTest {
         timeProvider = FixedTime,
         dateTimePicker = mockk(relaxed = true),
         dispatchers = TestDispatchersProvider,
+        toaster = toaster,
     ).also { it.screen = LoanDetailsScreen(loanId = loan.id.value) }
 
     @Test
@@ -140,6 +145,45 @@ class LoanDetailsViewModelTest {
         saved.convertedAmount shouldBe PositiveDouble.unsafe(50.0)
         saved.account shouldBe dollars.id
         coVerify(exactly = 1) { loanTransactionsUseCase.syncLoanRecordTransaction(loan, saved, create = true) }
+    }
+
+    @Test
+    fun `a record in another currency with no exchange rate isn't saved, and the page says why`() {
+        // given
+        coEvery { loanTransactionsUseCase.convertedAmount(any(), any(), any(), any()) } throws
+            NoLoanExchangeRate(AssetCode.unsafe("USD"), Eur)
+        val newPayment = CreateLoanRecordData(
+            note = null,
+            amount = 100.0,
+            dateTime = Instant.parse("2026-11-10T10:00:00Z"),
+            account = dollars,
+            loanRecordType = LoanRecordType.DECREASE,
+        )
+
+        // when
+        viewModel.runTest(events = listOf(LoanRecordModalEvent.OnCreateLoanRecord(newPayment))) {}
+
+        // then
+        coVerify(exactly = 0) { loanRepository.saveRecord(any()) }
+        coVerify(exactly = 1) { toaster.show(R.string.msg_no_loan_exchange_rate, any()) }
+    }
+
+    @Test
+    fun `when a record can't be converted, the loan's new account isn't saved, and the page says why`() {
+        // given
+        coEvery { loanTransactionsUseCase.recalculateRecords(any(), any()) } throws
+            NoLoanExchangeRate(AssetCode.unsafe("USD"), Eur)
+        val moved = loan.copy(account = dollars.id)
+
+        // when
+        viewModel.runTest(
+            events = listOf(LoanModalEvent.PerformCalculation, LoanModalEvent.OnEditLoanModal(moved, true))
+        ) {
+            // then
+            waitModalVisible shouldBe false
+        }
+        coVerify(exactly = 0) { loanRepository.save(any()) }
+        coVerify(exactly = 1) { toaster.show(R.string.msg_no_loan_exchange_rate, any()) }
     }
 
     @Test
@@ -214,8 +258,8 @@ class LoanDetailsViewModelTest {
             waitModalVisible shouldBe false
         }
         coVerifyOrder {
-            loanRepository.save(moved)
             loanTransactionsUseCase.recalculateRecords(moved, oldAccount = bank.id)
+            loanRepository.save(moved)
             loanTransactionsUseCase.syncLoanTransaction(moved, create = true)
             loanTransactionsUseCase.syncRecordTransactions(moved)
         }

@@ -202,6 +202,10 @@ class CSVImporterV2 @Inject constructor(
             orderNum = null,
         ) ?: return null
 
+        // Between two currencies, what arrives isn't what left: without a To Amount, the row
+        // is skipped and listed rather than taken one for one.
+        if (toAccount != null && toAmount == null && toAccount.asset != account.asset) return null
+
         val category = mapCategory(
             categoryNameString = parseCategory(
                 value = row.extractValue(optionalFields.category),
