@@ -110,8 +110,9 @@ if open_lunch; then
     # Its name field takes the first back, for the keyboard: its close button instead.
     tap_text "Add account" && shot new-account-dialog \
         && tap_desc "Close" '$' && shot new-account-closed
+    # A type applies as it's tapped.
     tap_text "Expense" && shot type-dialog \
-        && tap_text "Transfer" && tap_text "Set" && shot transfer \
+        && tap_text "Transfer" && shot transfer \
         && tap_text "Bank" 2 && shot transfer-to-bank \
         && tap_text "Save" && sleep 2 && shot home-with-transfer
 fi
