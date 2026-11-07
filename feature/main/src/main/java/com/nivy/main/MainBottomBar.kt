@@ -1,5 +1,6 @@
 package com.nivy.main
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -299,63 +300,77 @@ private fun TransactionButtons(
             onAddPlannedPayment()
         }
 
-        // Add INCOME ------------------------------------------------------------------------------
-        AddIncomeButton(
-            buttonsShownPercent = buttonsShownPercent,
-            fabStartX = fabStartX,
-            fabStartY = fabStartY,
-            buttonLeftX = buttonLeftX,
-            sideButtonsY = sideButtonsY,
+        val start = Offset(fabStartX, fabStartY)
+        // Income on the left, expense in the middle, raised, and transfer on the right: each
+        // also tapped anywhere in its third of the screen's width.
+        AddTransactionButton(
+            icon = R.drawable.ic_income,
+            backgroundColor = Green,
+            tint = White,
+            label = stringResource(R.string.add_income_uppercase),
+            shownPercent = buttonsShownPercent,
+            start = start,
+            end = Offset(buttonLeftX, sideButtonsY),
+            clickArea = 0,
             clickAreaWidth = clickAreaWidth,
-            onAddIncome = onAddIncome
+            onClick = onAddIncome
         )
-        // Add INCOME ------------------------------------------------------------------------------
-
-        // Add EXPENSE ------------------------------------------------------------------------------
-        AddExpenseButton(
-            buttonsShownPercent = buttonsShownPercent,
-            fabStartX = fabStartX,
-            fabStartY = fabStartY,
-            buttonCenterY = buttonCenterY,
+        AddTransactionButton(
+            icon = R.drawable.ic_expense,
+            backgroundColor = MaterialTheme.colorScheme.onSurface,
+            // The button is the text color: its icon the background's, to show in dark mode too.
+            tint = MaterialTheme.colorScheme.surface,
+            label = stringResource(R.string.add_expense_uppercase),
+            shownPercent = buttonsShownPercent,
+            start = start,
+            end = Offset(fabStartX, buttonCenterY),
+            clickArea = 1,
             clickAreaWidth = clickAreaWidth,
-            onAddExpense = onAddExpense
+            onClick = onAddExpense
         )
-        // Add EXPENSE ------------------------------------------------------------------------------
-
-        // Add TRANSFER ----------------------------------------------------------------------------
-        AddTransferButton(
-            buttonsShownPercent = buttonsShownPercent,
-            fabStartX = fabStartX,
-            fabStartY = fabStartY,
-            buttonRightX = buttonRightX,
-            sideButtonsY = sideButtonsY,
+        AddTransactionButton(
+            icon = R.drawable.ic_transfer,
+            backgroundColor = Nivy,
+            tint = White,
+            label = stringResource(R.string.account_transfer),
+            shownPercent = buttonsShownPercent,
+            start = start,
+            end = Offset(buttonRightX, sideButtonsY),
+            clickArea = 2,
             clickAreaWidth = clickAreaWidth,
-            onAddTransfer = onAddTransfer
+            onClick = onAddTransfer
         )
-        // Add TRANSFER ----------------------------------------------------------------------------
     }
 }
 
+/**
+ * One of the add menu's buttons: it comes out of the + button at [start] and rises to [end] as
+ * the menu opens, with its label under it.
+ */
 @Composable
-private fun AddIncomeButton(
-    buttonsShownPercent: Float,
-    fabStartX: Float,
-    fabStartY: Float,
-    buttonLeftX: Float,
-    sideButtonsY: Float,
+@Suppress("LongParameterList")
+private fun AddTransactionButton(
+    @DrawableRes icon: Int,
+    backgroundColor: Color,
+    tint: Color,
+    label: String,
+    shownPercent: Float,
+    start: Offset,
+    end: Offset,
+    clickArea: Int,
     clickAreaWidth: Int,
-    onAddIncome: () -> Unit,
+    onClick: () -> Unit,
 ) {
     NivyCircleButton(
         modifier = Modifier
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
 
-                val x = lerp(fabStartX, buttonLeftX, buttonsShownPercent)
+                val x = lerp(start.x, end.x, shownPercent)
                 val y = lerp(
-                    fabStartY,
-                    sideButtonsY - FAB_BUTTON_SIZE.roundToPx(),
-                    buttonsShownPercent
+                    start.y,
+                    end.y - FAB_BUTTON_SIZE.roundToPx(),
+                    shownPercent
                 )
 
                 layout(placeable.width, placeable.height) {
@@ -367,10 +382,10 @@ private fun AddIncomeButton(
             }
             .size(FAB_BUTTON_SIZE)
             .zIndex(200f),
-        icon = R.drawable.ic_income,
-        backgroundColor = Green,
-        tint = White,
-        onClick = onAddIncome
+        icon = icon,
+        backgroundColor = backgroundColor,
+        tint = tint,
+        onClick = onClick
     )
 
     Text(
@@ -380,17 +395,17 @@ private fun AddIncomeButton(
                 val placeable = measurable.measure(constraints)
                 layout(placeable.width, placeable.height) {
                     placeable.place(
-                        x = buttonLeftX.roundToInt() - 8.dp.roundToPx(),
-                        y = (sideButtonsY + 12.dp.toPx()).roundToInt()
+                        x = end.x.roundToInt() - 8.dp.roundToPx(),
+                        y = (end.y + 12.dp.toPx()).roundToInt()
                     )
                 }
             }
-            .alpha(buttonsShownPercent)
+            .alpha(shownPercent)
             .clickableNoIndication(rememberInteractionSource()) {
-                onAddIncome()
+                onClick()
             }
             .zIndex(200f),
-        text = stringResource(R.string.add_income_uppercase),
+        text = label,
         style = MaterialTheme.typography.labelMedium.copy(
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.ExtraBold,
@@ -410,186 +425,14 @@ private fun AddIncomeButton(
 
                 layout(placeable.width, placeable.height) {
                     placeable.place(
-                        x = 0,
-                        y = sideButtonsY.roundToInt() - FAB_BUTTON_SIZE.roundToPx() - 16.dp.roundToPx()
+                        x = clickArea * clickAreaWidth,
+                        y = end.y.roundToInt() - FAB_BUTTON_SIZE.roundToPx() - 16.dp.roundToPx()
                     )
                 }
             }
             .zIndex(199f)
             .clickableNoIndication(rememberInteractionSource()) {
-                onAddIncome()
-            }
-    )
-}
-
-@Composable
-private fun AddExpenseButton(
-    buttonsShownPercent: Float,
-    fabStartX: Float,
-    fabStartY: Float,
-    buttonCenterY: Float,
-    clickAreaWidth: Int,
-    onAddExpense: () -> Unit,
-) {
-    NivyCircleButton(
-        modifier = Modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-
-                val y =
-                    lerp(
-                        fabStartY,
-                        buttonCenterY - FAB_BUTTON_SIZE.roundToPx(),
-                        buttonsShownPercent
-                    )
-
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = fabStartX.roundToInt(),
-                        y = y.roundToInt()
-                    )
-                }
-            }
-            .size(FAB_BUTTON_SIZE)
-            .zIndex(200f),
-        icon = R.drawable.ic_expense,
-        backgroundColor = MaterialTheme.colorScheme.onSurface,
-        // The button is the text color: its icon the background's, to show in dark mode too.
-        tint = MaterialTheme.colorScheme.surface,
-        onClick = onAddExpense
-    )
-
-    Text(
-        modifier = Modifier
-            .width(FAB_BUTTON_SIZE + 16.dp)
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = fabStartX.roundToInt() - 8.dp.roundToPx(),
-                        y = (buttonCenterY + 12.dp.toPx()).roundToInt()
-                    )
-                }
-            }
-            .alpha(buttonsShownPercent)
-            .clickableNoIndication(rememberInteractionSource()) {
-                onAddExpense()
-            }
-            .zIndex(200f),
-        text = stringResource(R.string.add_expense_uppercase),
-        style = MaterialTheme.typography.labelMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center
-        )
-    )
-
-    // Click area
-    Spacer(
-        modifier = Modifier
-            .size(
-                width = clickAreaWidth.toDensityDp(),
-                height = TRN_BUTTON_CLICK_AREA_HEIGHT
-            )
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = clickAreaWidth,
-                        y = buttonCenterY.roundToInt() - FAB_BUTTON_SIZE.roundToPx() - 16.dp.roundToPx()
-                    )
-                }
-            }
-            .zIndex(199f)
-            .clickableNoIndication(rememberInteractionSource()) {
-                onAddExpense()
-            }
-    )
-}
-
-@Composable
-private fun AddTransferButton(
-    buttonsShownPercent: Float,
-    fabStartX: Float,
-    fabStartY: Float,
-    buttonRightX: Float,
-    sideButtonsY: Float,
-    clickAreaWidth: Int,
-    onAddTransfer: () -> Unit,
-) {
-    NivyCircleButton(
-        modifier = Modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-
-                val x = lerp(fabStartX, buttonRightX, buttonsShownPercent)
-                val y = lerp(
-                    fabStartY,
-                    sideButtonsY - FAB_BUTTON_SIZE.roundToPx(),
-                    buttonsShownPercent
-                )
-
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = x.roundToInt(),
-                        y = y.roundToInt()
-                    )
-                }
-            }
-            .size(FAB_BUTTON_SIZE)
-            .zIndex(200f),
-        icon = R.drawable.ic_transfer,
-        backgroundColor = Nivy,
-        tint = White,
-        onClick = onAddTransfer
-    )
-
-    Text(
-        modifier = Modifier
-            .width(FAB_BUTTON_SIZE + 16.dp)
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = buttonRightX.roundToInt() - 8.dp.roundToPx(),
-                        y = (sideButtonsY + 12.dp.toPx()).roundToInt()
-                    )
-                }
-            }
-            .alpha(buttonsShownPercent)
-            .clickableNoIndication(rememberInteractionSource()) {
-                onAddTransfer()
-            }
-            .zIndex(200f),
-        text = stringResource(R.string.account_transfer),
-        style = MaterialTheme.typography.labelMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center
-        )
-    )
-
-    // Click area
-    Spacer(
-        modifier = Modifier
-            .size(
-                width = clickAreaWidth.toDensityDp(),
-                height = TRN_BUTTON_CLICK_AREA_HEIGHT
-            )
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = 2 * clickAreaWidth,
-                        y = sideButtonsY.roundToInt() - FAB_BUTTON_SIZE.roundToPx() - 16.dp.roundToPx()
-                    )
-                }
-            }
-            .zIndex(199f)
-            .clickableNoIndication(rememberInteractionSource()) {
-                onAddTransfer()
+                onClick()
             }
     )
 }

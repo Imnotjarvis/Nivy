@@ -47,11 +47,10 @@ import com.nivy.navigation.navigation
 import com.nivy.ui.R
 import com.nivy.ui.rememberScrollPositionListState
 import com.nivy.design.system.colors.Blue
-import com.nivy.design.system.colors.Gray
 import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.CircleButtonFilled
+import com.nivy.wallet.ui.theme.components.EmptyState
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
-import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.ProgressBar
 import com.nivy.wallet.ui.theme.components.ReorderButton
 import com.nivy.wallet.ui.theme.components.ReorderModalSingleType
@@ -137,9 +136,10 @@ private fun BoxWithConstraintsScope.UI(
         if (loans.isEmpty()) {
             Spacer(Modifier.weight(1f))
 
-            NoLoansEmptyState(
-                emptyStateTitle = stringResource(R.string.no_loans),
-                emptyStateText = stringResource(R.string.no_loans_description)
+            EmptyState(
+                icon = R.drawable.ic_custom_loan_l,
+                title = stringResource(R.string.no_loans),
+                text = stringResource(R.string.no_loans_description)
             )
 
             Spacer(Modifier.weight(1f))
@@ -384,49 +384,6 @@ private fun ColumnScope.LoanInfo(
         notFilledColor = MaterialTheme.colorScheme.surfaceVariant,
         percent = displayLoan.percentPaid
     )
-}
-
-@Composable
-private fun NoLoansEmptyState(
-    emptyStateTitle: String,
-    emptyStateText: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(32.dp))
-
-        NivyIcon(
-            icon = R.drawable.ic_custom_loan_l,
-            tint = Gray
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = emptyStateTitle,
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = Gray,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
-            text = emptyStateText,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = Gray,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
-        )
-
-        Spacer(Modifier.height(96.dp))
-    }
 }
 
 /** For Preview purpose **/

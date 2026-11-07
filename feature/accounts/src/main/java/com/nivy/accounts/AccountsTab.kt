@@ -71,6 +71,7 @@ import com.nivy.wallet.ui.theme.components.BalanceRowMini
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.nivy.wallet.ui.theme.components.ReorderButton
 import com.nivy.wallet.ui.theme.components.ReorderModalSingleType
+import com.nivy.wallet.ui.theme.components.TwoAmountsRow
 import com.nivy.design.system.colors.dynamicContrast
 import com.nivy.design.system.colors.readableOn
 import kotlinx.collections.immutable.persistentListOf
@@ -142,12 +143,12 @@ private fun BoxWithConstraintsScope.UI(
             if (!state.hideTotalBalance) {
                 Column(Modifier.graphicsLayer { alpha = totalsShown.value }) {
                     Spacer(Modifier.height(16.dp))
-                    IncomeExpensesRow(
+                    TwoAmountsRow(
                         currency = state.baseCurrency,
-                        incomeLabel = stringResource(id = R.string.active_balance),
-                        income = state.totalBalanceWithoutExcluded.toDoubleOrNull() ?: 0.00,
-                        expensesLabel = stringResource(id = R.string.net_worth),
-                        expenses = state.totalBalanceWithExcluded.toDoubleOrNull() ?: 0.00
+                        startLabel = stringResource(id = R.string.active_balance),
+                        startAmount = state.totalBalanceWithoutExcluded.toDoubleOrNull() ?: 0.00,
+                        endLabel = stringResource(id = R.string.net_worth),
+                        endAmount = state.totalBalanceWithExcluded.toDoubleOrNull() ?: 0.00
                     )
                 }
                 Spacer(Modifier.height(16.dp))
@@ -318,30 +319,30 @@ private fun AccountCard(
             if (gain != null) {
                 // An investment account with a value: what was invested, and what it made.
                 val invested = accountData.balance - gain - (accountData.cash ?: 0.0)
-                IncomeExpensesRow(
+                TwoAmountsRow(
                     currency = currency,
-                    incomeLabel = stringResource(R.string.invested),
-                    income = invested,
-                    expensesLabel = formatGainPercent(gain, invested)
+                    startLabel = stringResource(R.string.invested),
+                    startAmount = invested,
+                    endLabel = formatGainPercent(gain, invested)
                         ?.let { stringResource(R.string.gain_percent, it) }
                         ?: stringResource(R.string.gain),
-                    expenses = gain,
-                    expensesColor = if (gain < 0) {
+                    endAmount = gain,
+                    endColor = if (gain < 0) {
                         expenseRed(MaterialTheme.colorScheme.surface)
                     } else {
                         incomeGreen(MaterialTheme.colorScheme.surface)
                     },
                 )
             } else {
-                IncomeExpensesRow(
+                TwoAmountsRow(
                     currency = currency,
-                    incomeLabel = stringResource(R.string.month_income),
-                    income = accountData.monthlyIncome,
-                    expensesLabel = stringResource(R.string.month_expenses),
-                    expenses = accountData.monthlyExpenses,
+                    startLabel = stringResource(R.string.month_income),
+                    startAmount = accountData.monthlyIncome,
+                    endLabel = stringResource(R.string.month_expenses),
+                    endAmount = accountData.monthlyExpenses,
                     // Green and red as on Home's cards, also in minimal colors.
-                    incomeColor = incomeGreen(MaterialTheme.colorScheme.surface),
-                    expensesColor = expenseRed(MaterialTheme.colorScheme.surface),
+                    startColor = incomeGreen(MaterialTheme.colorScheme.surface),
+                    endColor = expenseRed(MaterialTheme.colorScheme.surface),
                 )
             }
 
@@ -494,9 +495,9 @@ private fun AccountTypeFilter(
     }
 }
 
-@Preview
+/** Four accounts, for the previews and the screenshot tests. */
 @Composable
-private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
+private fun AccountsTabSample(theme: Theme, compact: Boolean) {
     NivyPreview(theme = theme) {
         val acc1 = Account(
             id = AccountId(UUID.randomUUID()),
@@ -590,7 +591,7 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
             totalBalanceWithExcluded = "25.54",
             totalBalanceWithoutExcluded = "25.54",
             reorderVisible = false,
-            compactAccountsModeEnabled = false,
+            compactAccountsModeEnabled = compact,
             hideTotalBalance = false,
             loaded = true,
         )
@@ -600,124 +601,18 @@ private fun PreviewAccountsTabCompactModeDisabled(theme: Theme = Theme.LIGHT) {
 
 @Preview
 @Composable
-private fun PreviewAccountsTabCompactModeEnabled(theme: Theme = Theme.LIGHT) {
-    NivyPreview(theme = theme) {
-        val acc1 = Account(
-            id = AccountId(UUID.randomUUID()),
-            name = NotBlankTrimmedString.unsafe("Phyre"),
-            color = ColorInt(Green.toArgb()),
-            asset = AssetCode.unsafe("USD"),
-            icon = null,
-            includeInBalance = true,
-            type = AccountType.OTHER,
-            archived = false,
-            orderNum = 0.0,
-        )
+private fun PreviewAccountsTabCompactModeDisabled() = AccountsTabSample(Theme.LIGHT, compact = false)
 
-        val acc2 = Account(
-            id = AccountId(UUID.randomUUID()),
-            name = NotBlankTrimmedString.unsafe("DSK"),
-            color = ColorInt(GreenLight.toArgb()),
-            asset = AssetCode.unsafe("USD"),
-            icon = null,
-            includeInBalance = true,
-            type = AccountType.OTHER,
-            archived = false,
-            orderNum = 0.0,
-        )
-
-        val acc3 = Account(
-            id = AccountId(UUID.randomUUID()),
-            name = NotBlankTrimmedString.unsafe("Revolut"),
-            color = ColorInt(Green.toArgb()),
-            asset = AssetCode.unsafe("USD"),
-            icon = IconAsset.unsafe("revolut"),
-            includeInBalance = true,
-            type = AccountType.OTHER,
-            archived = false,
-            orderNum = 0.0,
-        )
-
-        val acc4 = Account(
-            id = AccountId(UUID.randomUUID()),
-            name = NotBlankTrimmedString.unsafe("Cash"),
-            color = ColorInt(Green.toArgb()),
-            asset = AssetCode.unsafe("USD"),
-            icon = IconAsset.unsafe("cash"),
-            includeInBalance = true,
-            type = AccountType.OTHER,
-            archived = false,
-            orderNum = 0.0,
-        )
-        val accounts = persistentListOf(
-            AccountData(
-                account = acc1,
-                balance = 2125.0,
-                balanceBaseCurrency = null,
-                monthlyExpenses = 920.0,
-                monthlyIncome = 3045.0,
-                creditCards = persistentListOf()
-            ),
-            AccountData(
-                account = acc2,
-                balance = 12125.21,
-                balanceBaseCurrency = null,
-                monthlyExpenses = 1350.50,
-                monthlyIncome = 8000.48,
-                creditCards = persistentListOf()
-            ),
-            AccountData(
-                account = acc3,
-                balance = 1200.0,
-                balanceBaseCurrency = 1979.64,
-                monthlyExpenses = 750.0,
-                monthlyIncome = 1000.30,
-                creditCards = persistentListOf()
-            ),
-            AccountData(
-                account = acc4,
-                balance = 820.0,
-                balanceBaseCurrency = null,
-                monthlyExpenses = 340.0,
-                monthlyIncome = 400.0,
-                creditCards = persistentListOf()
-            ),
-        )
-        val state = AccountsState(
-            baseCurrency = "BGN",
-            accountsData = accounts,
-            shownAccountsData = accounts,
-            accountTypes = persistentListOf(),
-            typeFilter = null,
-            archivedCount = 0,
-            showArchived = false,
-            totalBalanceWithExcluded = "25.54",
-            totalBalanceWithoutExcluded = "25.54",
-            reorderVisible = false,
-            compactAccountsModeEnabled = true,
-            hideTotalBalance = false,
-            loaded = true,
-        )
-        UI(state = state)
-    }
-}
+@Preview
+@Composable
+private fun PreviewAccountsTabCompactModeEnabled() = AccountsTabSample(Theme.LIGHT, compact = true)
 
 /** For screen shot testing **/
 @Composable
-fun AccountsTabNonCompactUITest(dark: Boolean) {
-    val theme = when (dark) {
-        true -> Theme.DARK
-        false -> Theme.LIGHT
-    }
-    PreviewAccountsTabCompactModeDisabled(theme)
-}
+fun AccountsTabNonCompactUITest(dark: Boolean) =
+    AccountsTabSample(theme = if (dark) Theme.DARK else Theme.LIGHT, compact = false)
 
 /** For screen shot testing **/
 @Composable
-fun AccountsTabCompactUITest(dark: Boolean) {
-    val theme = when (dark) {
-        true -> Theme.DARK
-        false -> Theme.LIGHT
-    }
-    PreviewAccountsTabCompactModeEnabled(theme)
-}
+fun AccountsTabCompactUITest(dark: Boolean) =
+    AccountsTabSample(theme = if (dark) Theme.DARK else Theme.LIGHT, compact = true)
