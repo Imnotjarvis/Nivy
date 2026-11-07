@@ -1,7 +1,6 @@
 package com.nivy.budgets
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
@@ -18,7 +17,7 @@ import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.getFromAccount
+import com.nivy.data.model.expensesIn
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -29,6 +28,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.navigation.BudgetScreen
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
@@ -73,10 +73,6 @@ class BudgetViewModel @Inject constructor(
 
     @Composable
     override fun uiState(): BudgetScreenState {
-        LaunchedEffect(Unit) {
-            start()
-        }
-
         return BudgetScreenState(
             baseCurrency = baseCurrency.value,
             categories = categories.value,
@@ -92,6 +88,8 @@ class BudgetViewModel @Inject constructor(
 
     override fun onEvent(event: BudgetScreenEvent) {
         when (event) {
+            is BudgetScreenEvent.OnOpen -> open(event.screen)
+
             is BudgetScreenEvent.OnCreateBudget -> {
                 createBudget(event.name, event.amount, event.categories, event.accounts)
             }
@@ -124,6 +122,15 @@ class BudgetViewModel @Inject constructor(
         }
     }
 
+    // The opening shown, which keeps its month: an opening of its own starts on the current month.
+    private var opening: BudgetScreen? = null
+
+    private fun open(screen: BudgetScreen) {
+        if (screen != opening) period.value = null
+        opening = screen
+        start()
+    }
+
     private fun start() {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
@@ -142,11 +149,10 @@ class BudgetViewModel @Inject constructor(
             val range = timeRange.toCloseTimeRange()
             val transactions = transactionRepository.findAllBetween(range.from, range.to)
             this@BudgetViewModel.budgets.value = budgets.map {
-                val expenses = budgetExpenses(budget = it, transactions = transactions)
+                val expenses = it.expensesIn(transactions)
                 DisplayBudget(
                     budget = it,
                     spentAmount = expenses.sumOf { expense -> inBaseCurrency(expense.value, baseCurrency) },
-                    expenses = expenses.toImmutableList(),
                 )
             }.toImmutableList()
             savings.value = SavingsGoal(
@@ -165,13 +171,6 @@ class BudgetViewModel @Inject constructor(
         period.value = month.incrementMonthPeriod(increment, year)
         start()
     }
-
-    /** The budget's expenses: of its accounts and categories, all of them when it has none. */
-    private fun budgetExpenses(budget: Budget, transactions: List<Transaction>): List<Expense> =
-        transactions
-            .filterIsInstance<Expense>()
-            .filter { budget.accounts.isEmpty() || it.getFromAccount() in budget.accounts }
-            .filter { budget.categories.isEmpty() || it.category in budget.categories }
 
     /**
      * What the month kept, as Home's income and expenses count it: income less expenses, paid ones

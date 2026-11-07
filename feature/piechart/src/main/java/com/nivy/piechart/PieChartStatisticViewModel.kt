@@ -8,13 +8,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.base.model.TransactionType
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Category
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.expensesIn
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.data.repository.TransactionRepository
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.utils.ioThread
@@ -32,7 +35,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -50,6 +52,8 @@ class PieChartStatisticViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
     private val features: Features,
+    private val transactionRepository: TransactionRepository,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<PieChartStatisticState, PieChartStatisticEvent>() {
 
     private var treatTransfersAsIncomeExpense by mutableStateOf(false)
@@ -91,7 +95,7 @@ class PieChartStatisticViewModel @Inject constructor(
     }
 
     override fun onEvent(event: PieChartStatisticEvent) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatchers.default) {
             when (event) {
                 is PieChartStatisticEvent.OnSelectNextMonth -> nextMonth()
                 is PieChartStatisticEvent.OnSelectPreviousMonth -> previousMonth()
@@ -106,14 +110,20 @@ class PieChartStatisticViewModel @Inject constructor(
     private fun start(
         screen: PieChartStatisticScreen
     ) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatchers.default) {
             budgetPage = screen.budgetPage
+            // Read each time the page shows, so one edited or deleted from it shows as it is now.
+            val budgetExpenses = screen.budgetPage?.let { page ->
+                page.budget.expensesIn(transactionRepository.findAllBetween(page.range.from, page.range.to))
+            }
             startInternally(
                 period = periodState.selected,
                 type = screen.type,
-                accountIdFilterList = screen.accountList,
+                // The budget's own accounts: the chart then counts all its expenses, as the budget does.
+                accountIdFilterList = budgetExpenses?.map { it.account.value }?.distinct()?.toImmutableList()
+                    ?: screen.accountList,
                 filterExclude = screen.filterExcluded,
-                transactions = screen.transactions,
+                transactions = budgetExpenses?.toImmutableList() ?: screen.transactions,
                 transfersAsIncomeExpenseValue = screen.treatTransfersAsIncomeExpense
             )
         }

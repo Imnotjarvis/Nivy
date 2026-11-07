@@ -12,7 +12,6 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.BudgetId
 import com.nivy.base.model.Theme
 import java.util.UUID
-import kotlinx.collections.immutable.toImmutableList
 import com.nivy.wallet.ui.theme.modal.edit.AmountModal
 import com.nivy.wallet.ui.theme.modal.DeleteModal
 import com.nivy.wallet.LocalPeriodState
@@ -20,6 +19,9 @@ import com.nivy.ui.time.LocalTimeProvider
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.navigation.PieChartStatisticScreen
 import com.nivy.navigation.BudgetPage
+import com.nivy.navigation.BudgetScreen
+import com.nivy.wallet.data.model.toCloseTimeRange
+import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.design.system.shapes.PillShape
 import com.nivy.design.system.colors.deleteRed
 import com.nivy.data.model.Budget
@@ -50,6 +52,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -75,9 +78,12 @@ import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun BoxWithConstraintsScope.BudgetScreen() {
+fun BoxWithConstraintsScope.BudgetScreen(screen: BudgetScreen) {
     val viewModel: BudgetViewModel = screenScopedViewModel()
     val uiState = viewModel.uiState()
+    LaunchedEffect(screen) {
+        viewModel.onEvent(BudgetScreenEvent.OnOpen(screen))
+    }
 
     UI(
         state = uiState,
@@ -157,7 +163,7 @@ private fun BoxWithConstraintsScope.UI(
                 },
                 onDelete = { deletingBudget = item.budget },
             ) {
-                nav.navigateTo(budgetPage(item, month))
+                state.timeRange?.let { nav.navigateTo(budgetPage(item, month, it.toCloseTimeRange())) }
             }
         }
 
@@ -422,13 +428,10 @@ private fun BudgetMenuItem(
     )
 }
 
-/** The budget's page: the pie chart of its expenses in [month], listed under it. */
-private fun budgetPage(item: DisplayBudget, month: String) = PieChartStatisticScreen(
+/** The budget's page: the pie chart of its expenses in [month], which [range] covers, listed under it. */
+private fun budgetPage(item: DisplayBudget, month: String, range: ClosedTimeRange) = PieChartStatisticScreen(
     type = TransactionType.EXPENSE,
-    // The budget's own accounts: the chart then counts all its expenses, as the budget does.
-    accountList = item.expenses.map { it.account.value }.distinct().toImmutableList(),
-    transactions = item.expenses,
-    budgetPage = BudgetPage(name = item.budget.name.value, month = month),
+    budgetPage = BudgetPage(budget = item.budget, month = month, range = range),
 )
 
 @Composable

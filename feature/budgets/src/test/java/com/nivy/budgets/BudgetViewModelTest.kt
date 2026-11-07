@@ -29,6 +29,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.navigation.BudgetScreen
 import com.nivy.ui.testing.ComposeViewModelTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
@@ -62,6 +63,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
     private var transactions = listOf<Transaction>()
     private var savingsGoal = 0.0
 
+    private val opening = BudgetScreen()
     private lateinit var viewModel: BudgetViewModel
 
     @Before
@@ -109,7 +111,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             expense(bank, 20.0, "2026-11-04T10:00:00Z"),
         )
 
-        viewModel.runTest(context = paparazzi.context) {
+        openBudgets {
             spentOf("Card") shouldBe 30.0
             spentOf("All") shouldBe 50.0
         }
@@ -124,7 +126,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             expense(bank, 5.0, "2026-11-05T10:00:00Z", category = null),
         )
 
-        viewModel.runTest(context = paparazzi.context) {
+        openBudgets {
             spentOf("Groceries") shouldBe 30.0
         }
     }
@@ -138,7 +140,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             transfer(bank, card, 200.0, "2026-11-02T10:00:00Z"),
         )
 
-        viewModel.runTest(context = paparazzi.context) {
+        openBudgets {
             spentOf("All") shouldBe 30.0
         }
     }
@@ -148,20 +150,9 @@ class BudgetViewModelTest : ComposeViewModelTest() {
         budgets = listOf(budget("Dollars", accounts = listOf(dollars.id)))
         transactions = listOf(expense(dollars, 10.0, "2026-11-03T10:00:00Z"))
 
-        viewModel.runTest(context = paparazzi.context) {
+        openBudgets {
             spentOf("Dollars") shouldBe 5.0
             baseCurrency shouldBe "EUR"
-        }
-    }
-
-    @Test
-    fun `a budget lists the expenses it counts`() {
-        val groceriesExpense = expense(bank, 30.0, "2026-11-03T10:00:00Z", groceries)
-        budgets = listOf(budget("Groceries", categories = listOf(groceries)))
-        transactions = listOf(groceriesExpense, expense(bank, 500.0, "2026-11-01T10:00:00Z", rent))
-
-        viewModel.runTest(context = paparazzi.context) {
-            budgets.single().expenses shouldBe listOf(groceriesExpense)
         }
     }
 
@@ -175,7 +166,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             transfer(bank, card, 200.0, "2026-11-02T10:00:00Z"),
         )
 
-        viewModel.runTest(context = paparazzi.context) {
+        openBudgets {
             savings shouldBe SavingsGoal(goal = 500.0, saved = 650.0)
         }
     }
@@ -188,17 +179,14 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             expense(bank, 60.0, "2026-11-05T10:00:00Z", settled = false),
         )
 
-        viewModel.runTest(context = paparazzi.context) {
+        openBudgets {
             savings.saved shouldBe -40.0
         }
     }
 
     @Test
     fun `setting the savings goal stores it`() {
-        viewModel.runTest(
-            events = listOf(BudgetScreenEvent.OnSetSavingsGoal(300.0)),
-            context = paparazzi.context,
-        ) {}
+        openBudgets(BudgetScreenEvent.OnSetSavingsGoal(300.0))
 
         coVerify { appPreferences.setBufferAmount(300.0) }
     }
@@ -211,12 +199,23 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             expense(bank, 30.0, "2026-11-03T10:00:00Z"),
         )
 
-        viewModel.runTest(
-            events = listOf(BudgetScreenEvent.OnPreviousMonth),
-            context = paparazzi.context,
-        ) {
+        openBudgets(BudgetScreenEvent.OnPreviousMonth) {
             period?.month shouldBe Month.fromMonthValue(10)
             spentOf("All") shouldBe 40.0
+        }
+    }
+
+    @Test
+    fun `back on Budgets, from a budget's page, it shows the month it showed`() {
+        openBudgets(BudgetScreenEvent.OnPreviousMonth, BudgetScreenEvent.OnOpen(opening)) {
+            period?.month shouldBe Month.fromMonthValue(10)
+        }
+    }
+
+    @Test
+    fun `Budgets opened anew shows the current month`() {
+        openBudgets(BudgetScreenEvent.OnPreviousMonth, BudgetScreenEvent.OnOpen(BudgetScreen())) {
+            period?.month shouldBe Month.fromMonthValue(11)
         }
     }
 
@@ -224,17 +223,14 @@ class BudgetViewModelTest : ComposeViewModelTest() {
     fun `a new budget keeps its accounts and goes last`() {
         budgets = listOf(budget("First", orderNum = 0.0), budget("Second", orderNum = 1.0))
 
-        viewModel.runTest(
-            events = listOf(
-                BudgetScreenEvent.OnCreateBudget(
-                    name = NotBlankTrimmedString.unsafe("Card"),
-                    amount = PositiveDouble.unsafe(300.0),
-                    categories = listOf(groceries),
-                    accounts = listOf(card.id),
-                )
-            ),
-            context = paparazzi.context,
-        ) {}
+        openBudgets(
+            BudgetScreenEvent.OnCreateBudget(
+                name = NotBlankTrimmedString.unsafe("Card"),
+                amount = PositiveDouble.unsafe(300.0),
+                categories = listOf(groceries),
+                accounts = listOf(card.id),
+            )
+        )
 
         coVerify {
             budgetRepository.save(
@@ -246,6 +242,14 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             )
         }
     }
+
+    // Budgets loads as it's opened, here from Home.
+    private fun openBudgets(vararg events: BudgetScreenEvent, verify: BudgetScreenState.() -> Unit = {}) =
+        viewModel.runTest(
+            events = listOf(BudgetScreenEvent.OnOpen(opening)) + events,
+            context = paparazzi.context,
+            verify = verify,
+        )
 
     private fun BudgetScreenState.spentOf(name: String): Double =
         budgets.single { it.budget.name.value == name }.spentAmount

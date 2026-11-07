@@ -69,7 +69,7 @@ fun BoxWithConstraintsScope.NivyNavGraph(screen: Screen?) {
         is BalanceScreen -> BalanceScreen()
         is ImportScreen -> ImportCSVScreen(screen = screen)
         is ReportScreen -> ReportScreen()
-        is BudgetScreen -> BudgetScreen()
+        is BudgetScreen -> BudgetScreen(screen)
         is LoansScreen -> LoansScreen()
         is LoanDetailsScreen -> LoanDetailsScreen(screen = screen)
         is SearchScreen -> SearchScreen()

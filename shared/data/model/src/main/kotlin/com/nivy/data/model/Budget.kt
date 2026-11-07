@@ -23,3 +23,9 @@ data class Budget(
     val accounts: List<AccountId>,
     override val orderNum: Double,
 ) : Identifiable<BudgetId>, Reorderable
+
+/** Its expenses among [transactions]: of its accounts and categories, all of them when it has none. */
+fun Budget.expensesIn(transactions: List<Transaction>): List<Expense> = transactions
+    .filterIsInstance<Expense>()
+    .filter { accounts.isEmpty() || it.account in accounts }
+    .filter { categories.isEmpty() || it.category in categories }
