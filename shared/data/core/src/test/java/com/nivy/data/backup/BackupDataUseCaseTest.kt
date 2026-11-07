@@ -10,6 +10,7 @@ import com.nivy.data.db.dao.fake.FakeBudgetDao
 import com.nivy.data.db.dao.fake.FakeCategoryDao
 import com.nivy.data.db.dao.fake.FakeAccountValueDao
 import com.nivy.data.db.dao.fake.FakeCreditCardDao
+import com.nivy.data.db.dao.fake.FakeExchangeRatesDao
 import com.nivy.data.db.dao.fake.FakeLoanDao
 import com.nivy.data.db.dao.fake.FakeLoanRecordDao
 import com.nivy.data.db.dao.fake.FakePlannedPaymentDao
@@ -57,6 +58,7 @@ class BackupDataUseCaseTest {
         tagAssociationDao: FakeTagAssociationDao = FakeTagAssociationDao(),
         creditCardDao: FakeCreditCardDao = FakeCreditCardDao(),
         accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
+        exchangeRatesDao: FakeExchangeRatesDao = FakeExchangeRatesDao(),
     ): BackupDataUseCase {
         return BackupDataUseCase(
             accountDao = accountDao,
@@ -88,6 +90,8 @@ class BackupDataUseCaseTest {
             creditCardWriter = creditCardDao,
             accountValueDao = accountValueDao,
             accountValueWriter = accountValueDao,
+            exchangeRatesDao = exchangeRatesDao,
+            exchangeRatesWriter = exchangeRatesDao,
             transaction = FakeDatabaseTransaction(),
         )
     }
@@ -160,6 +164,7 @@ class BackupDataUseCaseTest {
         private val tagAssociations = FakeTagAssociationDao()
         private val creditCards = FakeCreditCardDao()
         private val accountValues = FakeAccountValueDao()
+        private val exchangeRates = FakeExchangeRatesDao()
         val preferences = AppPreferences(InMemoryPreferencesDataStore())
         val backup = newBackupDataUseCase(
             accountDao = accounts,
@@ -174,6 +179,7 @@ class BackupDataUseCaseTest {
             tagAssociationDao = tagAssociations,
             creditCardDao = creditCards,
             accountValueDao = accountValues,
+            exchangeRatesDao = exchangeRates,
         )
 
         suspend fun tables() = NivyCompleteData(
@@ -188,6 +194,7 @@ class BackupDataUseCaseTest {
             tagAssociations = tagAssociations.findAll(),
             creditCards = creditCards.findAll(),
             accountValues = accountValues.findAll(),
+            exchangeRates = exchangeRates.findAllManuallyOverridden(),
         ).tables()
 
         suspend fun balance(account: String) =
@@ -449,6 +456,70 @@ class BackupDataUseCaseTest {
         result.accountsImported shouldBe 1
         result.transactionsImported shouldBe 1
     }
+
+    @Test
+    fun `a backup's transfers to and from deleted accounts stay with the account still there`() = runTest {
+        // given: a wallet with an account of its own, and a backup from before deleting an account
+        // kept its transfers, two of which point to an account that's gone
+        val accountDao = FakeAccountDao()
+        val transactionDao = FakeTransactionDao(accounts = accountDao)
+        val home = AccountEntity(name = "Home", color = 1)
+        accountDao.save(home)
+        val useCase = newBackupDataUseCase(accountDao = accountDao, transactionDao = transactionDao)
+        val bank = AccountEntity(name = "Bank", color = 2)
+        val deleted = UUID.randomUUID()
+        val day = Instant.parse("2026-10-01T10:00:00Z")
+        val toDeleted = TransactionEntity(
+            accountId = bank.id,
+            type = TransactionType.TRANSFER,
+            amount = 60.0,
+            toAccountId = deleted,
+            toAmount = 50.0,
+            dateTime = day,
+        )
+        val fromDeleted = TransactionEntity(
+            accountId = deleted,
+            type = TransactionType.TRANSFER,
+            amount = 20.0,
+            toAccountId = bank.id,
+            toAmount = 24.0,
+            dateTime = day,
+        )
+        val toHome = TransactionEntity(
+            accountId = bank.id,
+            type = TransactionType.TRANSFER,
+            amount = 10.0,
+            toAccountId = home.id,
+            toAmount = 10.0,
+            dateTime = day,
+        )
+        val backup = NivyCompleteData(accounts = listOf(bank), transactions = listOf(toDeleted, fromDeleted, toHome))
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then: the bank's expense and income, as the database keeps them; the transfer to the
+        // wallet's own account stays a transfer
+        transactionDao.findAll() shouldContainExactlyInAnyOrder listOf(
+            toDeleted.copy(
+                type = TransactionType.EXPENSE,
+                toAccountId = null,
+                toAmount = null,
+                description = "Transfer to a deleted account",
+            ),
+            fromDeleted.copy(
+                type = TransactionType.INCOME,
+                accountId = bank.id,
+                amount = 24.0,
+                toAccountId = null,
+                toAmount = null,
+                description = "Transfer from a deleted account",
+            ),
+            toHome,
+        )
+        val balance = transactionDao.balance(bank.id, Instant.EPOCH, Instant.parse("3000-01-01T00:00:00Z"))
+        balance shouldBe -46.0 // -60 + 24 - 10
+    }
 }
 
 /** The rows, each table in a fixed order. Settings are checked on their own. */
@@ -464,6 +535,7 @@ private fun NivyCompleteData.tables() = NivyCompleteData(
     tagAssociations = tagAssociations.sortedBy { "${it.tagId} ${it.associatedId}" },
     creditCards = creditCards.sortedBy { it.id },
     accountValues = accountValues.sortedBy { it.id },
+    exchangeRates = exchangeRates.sortedBy { "${it.baseCurrency} ${it.currency}" },
 )
 
 /**

@@ -6,6 +6,7 @@ import com.nivy.data.db.entity.BudgetEntity
 import com.nivy.data.db.entity.CategoryEntity
 import com.nivy.data.db.entity.AccountValueEntity
 import com.nivy.data.db.entity.CreditCardEntity
+import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
@@ -46,6 +47,9 @@ data class NivyCompleteData(
     val creditCards: List<CreditCardEntity> = emptyList(),
     @SerialName("accountValues")
     val accountValues: List<AccountValueEntity> = emptyList(),
+    /** The exchange rates entered by hand. The others are downloaded again. */
+    @SerialName("exchangeRates")
+    val exchangeRates: List<ExchangeRateEntity> = emptyList(),
 )
 
 /**

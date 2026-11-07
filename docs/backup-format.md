@@ -16,6 +16,7 @@ empty, so a backup from an older version imports, and an older version can impor
 | Key | Holds |
 |---|---|
 | `accounts`, `categories`, `transactions`, `budgets`, `loans`, `loanRecords`, `plannedPaymentRules`, `tags`, `tagAssociations`, `creditCards`, `accountValues` | The database's rows, field for field (the entities' `@SerialName`s). |
+| `exchangeRates` | The exchange rates entered by hand (`manualOverride`). Downloaded ones aren't kept: they're downloaded again. |
 | `settings` | One entry: `theme`, `currency` (the base currency), `bufferAmount` (the savings goal) and `name`. |
 | `sharedPrefs` | A few display settings as strings, under their old SharedPreferences names: notifications, hiding the balance, transfers as income and expense, and the app lock. |
 
@@ -31,6 +32,9 @@ milliseconds. Tags keep Ivy Wallet's key names, `creationTime` and `lastSyncTime
   same currency) is merged into it.
 - A backup from before credit cards had their own table gets one card per credit-card account, as
   the database migration does (`LegacyCreditCards.kt`).
+- A transfer to or from an account that's in neither the backup nor the app becomes a plain expense
+  or income of the account that's there, as the database migration does
+  (`TransfersOfDeletedAccounts.kt`). Older versions left those behind when an account was deleted.
 - The settings are applied once the data is in. The app lock never is: a backup made by someone
   else, or one without the key, mustn't switch it off.
 

@@ -9,11 +9,13 @@ import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
 import com.nivy.data.db.DatabaseTransaction
+import com.nivy.data.db.keepTransfersOfDeletedAccounts
 import com.nivy.data.db.dao.read.AccountDao
 import com.nivy.data.db.dao.read.BudgetDao
 import com.nivy.data.db.dao.read.CategoryDao
 import com.nivy.data.db.dao.read.AccountValueDao
 import com.nivy.data.db.dao.read.CreditCardDao
+import com.nivy.data.db.dao.read.ExchangeRatesDao
 import com.nivy.data.db.dao.read.LoanDao
 import com.nivy.data.db.dao.read.LoanRecordDao
 import com.nivy.data.db.dao.read.PlannedPaymentRuleDao
@@ -25,6 +27,7 @@ import com.nivy.data.db.dao.write.WriteBudgetDao
 import com.nivy.data.db.dao.write.WriteCategoryDao
 import com.nivy.data.db.dao.write.WriteAccountValueDao
 import com.nivy.data.db.dao.write.WriteCreditCardDao
+import com.nivy.data.db.dao.write.WriteExchangeRatesDao
 import com.nivy.data.db.dao.write.WriteLoanDao
 import com.nivy.data.db.dao.write.WriteLoanRecordDao
 import com.nivy.data.db.dao.write.WritePlannedPaymentRuleDao
@@ -90,6 +93,8 @@ class BackupDataUseCase @Inject constructor(
     private val creditCardWriter: WriteCreditCardDao,
     private val accountValueDao: AccountValueDao,
     private val accountValueWriter: WriteAccountValueDao,
+    private val exchangeRatesDao: ExchangeRatesDao,
+    private val exchangeRatesWriter: WriteExchangeRatesDao,
     private val transaction: DatabaseTransaction,
 ) {
     suspend fun exportToFile(
@@ -139,6 +144,7 @@ class BackupDataUseCase @Inject constructor(
             val tagAssociations = async { tagAssociationReader.findAll() }
             val creditCards = async { creditCardDao.findAll() }
             val accountValues = async { accountValueDao.findAll() }
+            val exchangeRates = async { exchangeRatesDao.findAllManuallyOverridden() }
 
             val completeData = NivyCompleteData(
                 accounts = accounts.await(),
@@ -154,6 +160,7 @@ class BackupDataUseCase @Inject constructor(
                 tagAssociations = tagAssociations.await(),
                 creditCards = creditCards.await(),
                 accountValues = accountValues.await(),
+                exchangeRates = exchangeRates.await(),
             )
 
             json.encodeToString(completeData)
@@ -307,6 +314,10 @@ class BackupDataUseCase @Inject constructor(
             plannedPaymentRuleWriter.saveMany(completeData.plannedPaymentRules)
             creditCardWriter.saveMany(completeData.creditCards)
             accountValueWriter.saveMany(completeData.accountValues)
+            exchangeRatesWriter.saveMany(completeData.exchangeRates)
+            // Backups from before deleting an account kept its transfers still carry the ones
+            // left behind: they're kept as the database keeps them.
+            keepTransfersOfDeletedAccounts(accountDao, transactionDao, transactionWriter)
             onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }
