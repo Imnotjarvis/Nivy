@@ -21,7 +21,7 @@ buildSrc/     Gradle convention plugins
 gradle/       version catalog and wrapper
 config/       detekt rules
 scripts/      CI helper scripts
-docs/         notes: releasing, the database, the backup format, conventions
+docs/         notes: installing, the database, the backup format, conventions
 .github/      CI, CodeQL and dependency workflows, Dependabot
 ```
 
@@ -31,9 +31,8 @@ docs/         notes: releasing, the database, the backup format, conventions
 ./gradlew :app:assembleDebug
 ```
 
-Two more builds: `./gradlew :app:assembleDemo` is the R8-minified build signed with the committed
-debug key, and `./gradlew :app:assembleRelease` is signed with your own key
-([docs/release.md](docs/release.md)).
+`./gradlew :app:assembleDemo` builds the APK to install: R8-minified and signed with the committed
+debug key. CI builds and tests it on every push to `main` ([docs/install.md](docs/install.md)).
 
 ## Checks
 
@@ -50,7 +49,7 @@ says what runs when.
 
 ## Notes
 
-- [Releasing](docs/release.md): versions, signing, publishing a release.
+- [Installing](docs/install.md): where to get the APK, versions, building it yourself.
 - [The database](docs/database.md): changing the schema, migrations and their tests.
 - [The backup format](docs/backup-format.md): what a backup holds and how it imports.
 - [Conventions](docs/conventions.md): where code goes, one rule per number, errors, tests.
