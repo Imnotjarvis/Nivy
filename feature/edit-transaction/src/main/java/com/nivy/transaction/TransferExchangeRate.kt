@@ -1,5 +1,9 @@
 package com.nivy.transaction
 
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.nivy.data.model.Account
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.primitive.PositiveDouble
@@ -93,4 +97,46 @@ internal fun displayedExchangeRateState(
         toCurrencyCode = toAccountCurrency,
         fromCurrencyCode = currency
     )
+}
+
+/** A transfer's rate card as the editor shows it, kept as the transfer's accounts and amount change. */
+@Stable
+internal class RateCard(private val transferExchangeRate: TransferExchangeRate) {
+    var state by mutableStateOf(CustomExchangeRateState())
+        private set
+
+    private lateinit var baseCurrency: String
+
+    suspend fun loadBaseCurrency() {
+        baseCurrency = transferExchangeRate.baseCurrency()
+    }
+
+    /** The card [transaction] opens with, at the rate of its two amounts. */
+    fun show(transaction: TransactionDraft, accounts: List<Account>, account: Account?, currency: String) {
+        state = displayedExchangeRateState(transaction, accounts, account, currency)
+    }
+
+    /**
+     * The card for a transfer from [from] to [to] of [amount], at the [exchangeRate] entered, or at
+     * the market's on [resetRate]; false when there's none, as between accounts of one currency.
+     */
+    suspend fun update(
+        from: Account?,
+        to: Account?,
+        amount: () -> Double,
+        exchangeRate: Double?,
+        resetRate: Boolean,
+    ): Boolean {
+        val updated = transferExchangeRate.exchangeRateState(
+            customExchangeRateState = state,
+            toAcc = to,
+            fromAcc = from,
+            baseUserCurrency = { baseCurrency },
+            exchangeRate = exchangeRate,
+            resetRate = resetRate,
+            enteredAmount = amount,
+        )
+        state = updated ?: CustomExchangeRateState()
+        return updated != null
+    }
 }

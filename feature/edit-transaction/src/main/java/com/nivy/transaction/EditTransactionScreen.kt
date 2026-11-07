@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,58 +31,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
-import com.nivy.data.model.Account
 import com.nivy.data.model.Category
-import com.nivy.data.model.CreditCard
-import com.nivy.data.model.Tag
-import com.nivy.data.model.TagId
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.domain.RootScreen
-import com.nivy.wallet.data.EditTransactionDisplayLoan
-import com.nivy.wallet.ui.component.edit.TransactionDateTime
-import com.nivy.wallet.ui.component.edit.core.Description
-import com.nivy.wallet.ui.component.tags.AddTagButton
-import com.nivy.wallet.ui.component.tags.ShowTagModal
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.navigation
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
-import com.nivy.wallet.domain.data.CustomExchangeRateState
-import com.nivy.wallet.domain.logic.model.CreateAccountData
-import com.nivy.wallet.domain.logic.model.CreateCategoryData
+import com.nivy.wallet.ui.component.edit.TransactionDateTime
+import com.nivy.wallet.ui.component.edit.core.Description
+import com.nivy.wallet.ui.component.tags.AddTagButton
 import com.nivy.wallet.ui.edit.core.Category
 import com.nivy.wallet.ui.edit.core.DueDate
 import com.nivy.wallet.ui.edit.core.EditBottomSheet
 import com.nivy.wallet.ui.edit.core.Title
 import com.nivy.wallet.ui.edit.core.Toolbar
 import com.nivy.wallet.ui.theme.components.AddPrimaryAttributeButton
-import com.nivy.wallet.ui.theme.components.ChangeTransactionTypeModal
 import com.nivy.wallet.ui.theme.components.CardChoice
 import com.nivy.wallet.ui.theme.components.CustomExchangeRateCard
-import com.nivy.wallet.ui.theme.modal.DeleteModal
 import com.nivy.wallet.ui.theme.modal.ModalAdd
 import com.nivy.wallet.ui.theme.modal.ModalCheck
 import com.nivy.wallet.ui.theme.modal.ModalSave
-import com.nivy.wallet.ui.theme.modal.ProgressModal
-import com.nivy.wallet.ui.theme.modal.edit.AccountModal
 import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.nivy.wallet.ui.theme.modal.edit.AmountModal
-import com.nivy.wallet.ui.theme.modal.edit.CategoryModal
-import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
-import com.nivy.wallet.ui.theme.modal.edit.ChooseCategoryModal
-import com.nivy.wallet.ui.theme.modal.edit.DescriptionModal
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableSet
-import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.UUID
 import kotlin.math.roundToInt
-import androidx.compose.material3.MaterialTheme
-
-private const val ExchangeRateDecimals = 12
 
 @ExperimentalFoundationApi
 @Composable
@@ -95,191 +71,34 @@ fun BoxWithConstraintsScope.EditTransactionScreen(screen: EditTransactionScreen)
 
     val view = LocalView.current
 
-    UI(
-        screen = screen,
-        transactionType = uiState.transactionType,
-        baseCurrency = uiState.currency,
-        initialTitle = uiState.initialTitle,
-        titleSuggestions = uiState.titleSuggestions,
-        description = uiState.description,
-        dateTime = uiState.dateTime,
-        category = uiState.category,
-        account = uiState.account,
-        toAccount = uiState.toAccount,
-        dueDate = uiState.dueDate,
-        creditCards = uiState.creditCards,
-        creditCard = uiState.creditCard,
-        onCreditCardChange = { viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(it)) },
-        chargeDate = uiState.chargeDate,
-        canMoveChargeEarlier = uiState.canMoveChargeEarlier,
-        onMoveCharge = { viewModel.onEvent(EditTransactionViewEvent.OnMoveCharge(it)) },
-        amount = uiState.amount,
-        loanData = uiState.displayLoanHelper,
-        backgroundProcessing = uiState.backgroundProcessingStarted,
-        customExchangeRateState = uiState.customExchangeRateState,
-
-        categories = uiState.categories,
-        accounts = uiState.accounts,
-        tags = uiState.tags,
-        transactionAssociatedTags = uiState.transactionAssociatedTags,
-        hasChanges = uiState.hasChanges,
-        onSetDate = {
-            viewModel.onEvent(EditTransactionViewEvent.OnChangeDate)
-        },
-        onSetTime = {
-            viewModel.onEvent(EditTransactionViewEvent.OnChangeTime)
-        },
-        onTitleChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnTitleChanged(it))
-        },
-        onDescriptionChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnDescriptionChanged(it))
-        },
-        onAmountChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(it))
-        },
-        onCategoryChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnCategoryChanged(it))
-        },
-        onAccountChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnAccountChanged(it))
-        },
-        onToAccountChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnToAccountChanged(it))
-        },
-        onDueDateChange = {
-            viewModel.onEvent(EditTransactionViewEvent.OnDueDateChanged(it))
-        },
-        onSetTransactionType = {
-            viewModel.onEvent(EditTransactionViewEvent.OnSetTransactionType(it))
-        },
-        onCreateCategory = {
-            viewModel.onEvent(EditTransactionViewEvent.CreateCategory(it))
-        },
-        onEditCategory = {
-            viewModel.onEvent(EditTransactionViewEvent.EditCategory(it))
-        },
-        onPayPlannedPayment = {
-            viewModel.onEvent(EditTransactionViewEvent.OnPayPlannedPayment)
-        },
-        onSave = {
-            view.hideKeyboard()
-            viewModel.onEvent(EditTransactionViewEvent.Save(it))
-        },
-        onSetHasChanges = {
-            viewModel.onEvent(EditTransactionViewEvent.SetHasChanges(it))
-        },
-        onDelete = {
-            viewModel.onEvent(EditTransactionViewEvent.Delete)
-        },
-        onDuplicate = {
-            viewModel.onEvent(EditTransactionViewEvent.Duplicate)
-        },
-        onCreateAccount = {
-            viewModel.onEvent(EditTransactionViewEvent.CreateAccount(it))
-        },
-        onExchangeRateChange = {
-            viewModel.onEvent(EditTransactionViewEvent.UpdateExchangeRate(it))
-        },
-        onTagOperation = {
-            viewModel.onEvent(it)
-        }
-    )
+    UI(screen = screen, state = uiState) { event ->
+        if (event is EditTransactionViewEvent.Save) view.hideKeyboard()
+        viewModel.onEvent(event)
+    }
 }
 
-@Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @ExperimentalFoundationApi
 @Composable
 internal fun BoxWithConstraintsScope.UI(
     screen: EditTransactionScreen,
-    transactionType: TransactionType,
-    baseCurrency: String,
-    initialTitle: String?,
-    titleSuggestions: ImmutableSet<String>,
-    description: String?,
-    category: Category?,
-    dateTime: Instant?,
-    account: Account?,
-    toAccount: Account?,
-    dueDate: Instant?,
-    amount: Double,
-
-    customExchangeRateState: CustomExchangeRateState,
-    categories: ImmutableList<Category>,
-    accounts: ImmutableList<Account>,
-    tags: ImmutableList<Tag>,
-    transactionAssociatedTags: ImmutableList<TagId>,
-    onTitleChange: (String?) -> Unit,
-    onDescriptionChange: (String?) -> Unit,
-    onAmountChange: (Double) -> Unit,
-    onCategoryChange: (Category?) -> Unit,
-    onAccountChange: (Account) -> Unit,
-    onToAccountChange: (Account) -> Unit,
-    onDueDateChange: (LocalDateTime?) -> Unit,
-    onSetDate: () -> Unit,
-    onSetTime: () -> Unit,
-    onSetTransactionType: (TransactionType) -> Unit,
-
-    onCreateCategory: (CreateCategoryData) -> Unit,
-    onEditCategory: (Category) -> Unit,
-    onPayPlannedPayment: () -> Unit,
-    onSave: (closeScreen: Boolean) -> Unit,
-    onSetHasChanges: (hasChanges: Boolean) -> Unit,
-    onDelete: () -> Unit,
-    onDuplicate: () -> Unit,
-    onCreateAccount: (CreateAccountData) -> Unit,
-    onExchangeRateChange: (Double?) -> Unit = { },
-    onTagOperation: (EditTransactionViewEvent.TagEvent) -> Unit = {},
-    loanData: EditTransactionDisplayLoan = EditTransactionDisplayLoan(),
-    creditCards: ImmutableList<CreditCard> = persistentListOf(),
-    creditCard: CreditCard? = null,
-    onCreditCardChange: (CreditCard?) -> Unit = {},
-    chargeDate: LocalDateTime? = null,
-    canMoveChargeEarlier: Boolean = false,
-    onMoveCharge: (months: Int) -> Unit = {},
-    backgroundProcessing: Boolean = false,
-    hasChanges: Boolean = false,
-
-    ) {
-    var chooseCategoryModalVisible by remember { mutableStateOf(false) }
-    var tagModelVisible by remember { mutableStateOf(false) }
-    var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
-    var accountModalData: AccountModalData? by remember { mutableStateOf(null) }
-    var descriptionModalVisible by remember { mutableStateOf(false) }
-    var deleteTrnModalVisible by remember { mutableStateOf(false) }
-    var changeTransactionTypeModalVisible by remember { mutableStateOf(false) }
-    var amountModalShown by remember { mutableStateOf(false) }
-    var exchangeRateAmountModalShown by remember { mutableStateOf(false) }
-    var accountChangeModal by remember { mutableStateOf(false) }
+    state: EditTransactionViewState,
+    onEvent: (EditTransactionViewEvent) -> Unit,
+) {
+    val open = remember { OpenModals() }
     // How high the amount panel covers the screen: the card list stays clear of it.
     var bottomSheetHeight by remember { mutableStateOf(0.dp) }
-    val waitModalVisible by remember(backgroundProcessing) {
-        mutableStateOf(backgroundProcessing)
-    }
-    var selectedAcc by remember(account) {
-        mutableStateOf(account)
-    }
 
-    val amountModalId =
-        remember(screen.initialTransactionId, customExchangeRateState.exchangeRate) {
-            UUID.randomUUID()
-        }
-
-    var titleTextFieldValue by remember(initialTitle) {
-        mutableStateOf(
-            TextFieldValue(
-                initialTitle ?: ""
-            )
-        )
+    var titleTextFieldValue by remember(state.initialTitle) {
+        mutableStateOf(TextFieldValue(state.initialTitle ?: ""))
     }
     val titleFocus = remember { FocusRequester() }
     val scrollState = rememberScrollState()
 
     // This is to scroll the column to the customExchangeCard composable when it is shown
     var customExchangeRatePosition by remember { mutableFloatStateOf(0F) }
-    LaunchedEffect(key1 = customExchangeRateState.showCard) {
+    LaunchedEffect(key1 = state.customExchangeRateState.showCard) {
         val scrollInt =
-            if (customExchangeRateState.showCard) customExchangeRatePosition.roundToInt() else 0
+            if (state.customExchangeRateState.showCard) customExchangeRatePosition.roundToInt() else 0
         scrollState.animateScrollTo(scrollInt)
     }
 
@@ -295,154 +114,93 @@ internal fun BoxWithConstraintsScope.UI(
         Toolbar(
             // Setting the transaction type to TransactionType.TRANSFER for transactions associated
             // with loan record to hide the ChangeTransactionType Button
-            type = if (loanData.isLoanRecord) TransactionType.TRANSFER else transactionType,
+            type = if (state.displayLoanHelper.isLoanRecord) TransactionType.TRANSFER else state.transactionType,
             initialTransactionId = screen.initialTransactionId,
-            onDeleteTrnModal = {
-                deleteTrnModalVisible = true
-            },
-            onChangeTransactionTypeModal = {
-                changeTransactionTypeModalVisible = true
-            },
+            onDeleteTrnModal = { open.delete = true },
+            onChangeTransactionTypeModal = { open.changeType = true },
             showDuplicateButton = true,
-            onDuplicate = onDuplicate
+            onDuplicate = { onEvent(EditTransactionViewEvent.Duplicate) }
         )
 
         Spacer(Modifier.height(32.dp))
 
         Title(
-            type = transactionType,
+            type = state.transactionType,
             titleFocus = titleFocus,
-
             titleTextFieldValue = titleTextFieldValue,
-            setTitleTextFieldValue = {
-                titleTextFieldValue = it
-            },
-            suggestions = titleSuggestions,
+            setTitleTextFieldValue = { titleTextFieldValue = it },
+            suggestions = state.titleSuggestions,
             scrollState = scrollState,
-
-            onTitleChanged = onTitleChange,
+            onTitleChanged = { onEvent(EditTransactionViewEvent.OnTitleChanged(it)) },
         )
 
-        if (loanData.loanCaption != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                text = loanData.loanCaption,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.inverseSurface,
-                    fontWeight = FontWeight.Normal
-                )
-            )
-        }
+        state.displayLoanHelper.loanCaption?.let { LoanCaption(it) }
 
         Spacer(Modifier.height(32.dp))
 
-        Category(category = category, onChooseCategory = {
-            chooseCategoryModalVisible = true
-        })
+        Category(category = state.category, onChooseCategory = { open.chooseCategory = true })
 
         Spacer(Modifier.height(16.dp))
 
-        AddTagButton(transactionAssociatedTags = transactionAssociatedTags, onClick = {
-            tagModelVisible = true
-        })
+        AddTagButton(transactionAssociatedTags = state.transactionAssociatedTags, onClick = { open.tags = true })
 
         Spacer(Modifier.height(32.dp))
 
-        // looked up on tap, so previews without the activity still draw
-
-        val context = LocalContext.current
-
-        val timeConverter = LocalTimeConverter.current
-        if (dueDate != null) {
-            DueDate(dueDate = dueDate) {
-                (context as RootScreen).pickDate(
-                    initialDate = with(timeConverter) {
-                        dueDate.toLocalDate()
-                    }
-                ) {
-                    onDueDateChange(it.atTime(12, 0))
-                }
-            }
+        if (state.dueDate != null) {
+            PlannedDueDate(dueDate = state.dueDate) { onEvent(EditTransactionViewEvent.OnDueDateChanged(it)) }
 
             Spacer(Modifier.height(12.dp))
         }
 
         Description(
-            description = description,
-            onAddDescription = { descriptionModalVisible = true },
-            onEditDescription = { descriptionModalVisible = true }
+            description = state.description,
+            onAddDescription = { open.description = true },
+            onEditDescription = { open.description = true }
         )
 
         TransactionDateTime(
-            dateTime = dateTime,
-            dueDateTime = dueDate,
-            onEditDate = onSetDate,
-            onEditTime = onSetTime,
+            dateTime = state.dateTime,
+            dueDateTime = state.dueDate,
+            onEditDate = { onEvent(EditTransactionViewEvent.OnChangeDate) },
+            onEditTime = { onEvent(EditTransactionViewEvent.OnChangeTime) },
         )
 
-        if (creditCards.isNotEmpty()) {
+        if (state.creditCards.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
 
             CardChoice(
-                cards = creditCards,
-                selected = creditCard,
-                onSelect = onCreditCardChange,
+                cards = state.creditCards,
+                selected = state.creditCard,
+                onSelect = { onEvent(EditTransactionViewEvent.OnCreditCardChanged(it)) },
                 coveredBottom = { bottomSheetHeight },
             )
         }
 
-        if (chargeDate != null) {
+        if (state.chargeDate != null) {
             Spacer(Modifier.height(8.dp))
 
             ChargeDate(
-                chargeDate = chargeDate,
-                canMoveEarlier = canMoveChargeEarlier,
-                onMove = onMoveCharge,
+                chargeDate = state.chargeDate,
+                canMoveEarlier = state.canMoveChargeEarlier,
+                onMove = { onEvent(EditTransactionViewEvent.OnMoveCharge(it)) },
             )
         }
 
-        if (transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard) {
+        if (state.showsRateCard) {
             Spacer(Modifier.height(12.dp))
-            CustomExchangeRateCard(
-                fromCurrencyCode = baseCurrency,
-                toCurrencyCode = customExchangeRateState.toCurrencyCode ?: baseCurrency,
-                exchangeRate = customExchangeRateState.exchangeRate,
-                onRefresh = {
-                    // Set exchangeRate to null to reset
-                    onExchangeRateChange(null)
-                },
-                modifier = Modifier.onGloballyPositioned { coordinates ->
-                    customExchangeRatePosition = coordinates.positionInParent().y * 0.3f
-                }
-            ) {
-                exchangeRateAmountModalShown = true
-            }
+
+            TransferRateCard(
+                state = state,
+                onEvent = onEvent,
+                onEditRate = { open.exchangeRate = true },
+                onPositionChange = { customExchangeRatePosition = it },
+            )
         }
 
-        if (dueDate == null && transactionType != TransactionType.TRANSFER && dateTime == null) {
+        if (state.canBecomePlanned) {
             Spacer(Modifier.height(12.dp))
 
-            val nav = navigation()
-            AddPrimaryAttributeButton(
-                icon = R.drawable.ic_planned_payments,
-                text = stringResource(R.string.add_planned_date_payment),
-                onClick = {
-                    nav.back()
-                    nav.navigateTo(
-                        EditPlannedScreen(
-                            plannedPaymentRuleId = null,
-                            type = transactionType,
-                            amount = amount,
-                            accountId = account?.id?.value,
-                            categoryId = category?.id?.value,
-                            title = titleTextFieldValue.text,
-                            description = description,
-                        )
-                    )
-                }
-            )
+            PlanItButton(state = state, title = { titleTextFieldValue.text })
         }
 
         Spacer(Modifier.height(600.dp)) // scroll hack
@@ -450,216 +208,173 @@ internal fun BoxWithConstraintsScope.UI(
 
     LaunchedEffect(Unit) {
         if (screen.initialTransactionId == null) {
-            amountModalShown = true
+            open.amount = true
         }
     }
 
     EditBottomSheet(
         onHeightChanged = { bottomSheetHeight = it },
         initialTransactionId = screen.initialTransactionId,
-        type = transactionType,
-        accounts = accounts,
-        selectedAccount = account,
-        toAccount = toAccount,
-        amount = amount,
-        currency = baseCurrency,
-        convertedAmount = customExchangeRateState.convertedAmount,
-        convertedAmountCurrencyCode = customExchangeRateState.toCurrencyCode,
-
-        actionButton = {
-            if (screen.initialTransactionId != null) {
-                // Edit mode
-                if (dueDate != null) {
-                    // due date stuff
-                    if (hasChanges) {
-                        // has changes
-                        ModalSave {
-                            onSave(false)
-                            onSetHasChanges(false)
-                        }
-                    } else {
-                        // no changes, pay
-                        ModalCheck(
-                            label = if (transactionType == TransactionType.EXPENSE) {
-                                stringResource(
-                                    R.string.pay
-                                )
-                            } else {
-                                stringResource(R.string.get)
-                            }
-                        ) {
-                            onPayPlannedPayment()
-                        }
-                    }
-                } else {
-                    // normal transaction
-                    ModalSave {
-                        onSave(true)
-                    }
-                }
-            } else {
-                // create new mode
-                ModalAdd {
-                    onSave(true)
-                }
-            }
-        },
-
-        amountModalShown = amountModalShown,
-        setAmountModalShown = {
-            amountModalShown = it
-        },
-
+        type = state.transactionType,
+        accounts = state.accounts,
+        selectedAccount = state.account,
+        toAccount = state.toAccount,
+        amount = state.amount,
+        currency = state.currency,
+        convertedAmount = state.customExchangeRateState.convertedAmount,
+        convertedAmountCurrencyCode = state.customExchangeRateState.toCurrencyCode,
+        actionButton = { ActionButton(screen = screen, state = state, onEvent = onEvent) },
+        amountModalShown = open.amount,
+        setAmountModalShown = { open.amount = it },
         onAmountChanged = {
-            onAmountChange(it)
-            if (shouldFocusCategory(category)) {
-                chooseCategoryModalVisible = true
-            } else if (shouldFocusTitle(titleTextFieldValue, transactionType)) {
+            onEvent(EditTransactionViewEvent.OnAmountChanged(it))
+            if (shouldFocusCategory(state.category)) {
+                open.chooseCategory = true
+            } else if (shouldFocusTitle(titleTextFieldValue, state.transactionType)) {
                 titleFocus.requestFocus()
             }
         },
         onSelectedAccountChanged = {
-            if (loanData.isLoan && account?.asset != it.asset) {
-                selectedAcc = it
-                accountChangeModal = true
+            if (state.displayLoanHelper.isLoan && state.account?.asset != it.asset) {
+                open.loanAccount = it
             } else {
-                onAccountChange(it)
+                onEvent(EditTransactionViewEvent.OnAccountChanged(it))
             }
         },
-        onToAccountChanged = onToAccountChange,
+        onToAccountChanged = { onEvent(EditTransactionViewEvent.OnToAccountChanged(it)) },
         onAddNewAccount = {
-            accountModalData = AccountModalData(
-                account = null, baseCurrency = baseCurrency, balance = 0.0
+            open.newAccount = AccountModalData(account = null, baseCurrency = state.currency, balance = 0.0)
+        }
+    )
+
+    EditTransactionModals(open = open, screen = screen, state = state, onEvent = onEvent) {
+        if (shouldFocusTitle(titleTextFieldValue, state.transactionType)) {
+            titleFocus.requestFocus()
+        } else if (shouldFocusAmount(amount = state.amount)) {
+            open.amount = true
+        }
+    }
+}
+
+@Composable
+private fun LoanCaption(caption: String) {
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Text(
+        modifier = Modifier.padding(horizontal = 24.dp),
+        text = caption,
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.inverseSurface,
+            fontWeight = FontWeight.Normal
+        )
+    )
+}
+
+/** A planned payment's due date; a tap picks another day, at noon. */
+@Composable
+private fun PlannedDueDate(dueDate: Instant, onChange: (LocalDateTime) -> Unit) {
+    // looked up on tap, so previews without the activity still draw
+    val context = LocalContext.current
+    val timeConverter = LocalTimeConverter.current
+    DueDate(dueDate = dueDate) {
+        (context as RootScreen).pickDate(
+            initialDate = with(timeConverter) {
+                dueDate.toLocalDate()
+            }
+        ) {
+            onChange(it.atTime(12, 0))
+        }
+    }
+}
+
+/** A transfer's rate between its accounts' currencies; [onPositionChange] gets how far down the card is. */
+@Composable
+private fun TransferRateCard(
+    state: EditTransactionViewState,
+    onEvent: (EditTransactionViewEvent) -> Unit,
+    onEditRate: () -> Unit,
+    onPositionChange: (Float) -> Unit,
+) {
+    CustomExchangeRateCard(
+        fromCurrencyCode = state.currency,
+        toCurrencyCode = state.customExchangeRateState.toCurrencyCode ?: state.currency,
+        exchangeRate = state.customExchangeRateState.exchangeRate,
+        onRefresh = {
+            // Set exchangeRate to null to reset
+            onEvent(EditTransactionViewEvent.UpdateExchangeRate(null))
+        },
+        modifier = Modifier.onGloballyPositioned { coordinates ->
+            onPositionChange(coordinates.positionInParent().y * 0.3f)
+        },
+        onClick = onEditRate,
+    )
+}
+
+/** Turns the new transaction into a planned payment, with what's entered so far. */
+@Composable
+private fun PlanItButton(state: EditTransactionViewState, title: () -> String) {
+    val nav = navigation()
+    AddPrimaryAttributeButton(
+        icon = R.drawable.ic_planned_payments,
+        text = stringResource(R.string.add_planned_date_payment),
+        onClick = {
+            nav.back()
+            nav.navigateTo(
+                EditPlannedScreen(
+                    plannedPaymentRuleId = null,
+                    type = state.transactionType,
+                    amount = state.amount,
+                    accountId = state.account?.id?.value,
+                    categoryId = state.category?.id?.value,
+                    title = title(),
+                    description = state.description,
+                )
             )
         }
     )
-
-    // Modals
-    ChooseCategoryModal(
-        visible = chooseCategoryModalVisible,
-        initialCategory = category,
-        categories = categories,
-        showCategoryModal = { categoryModalData = CategoryModalData(it) },
-        onCategoryChanged = {
-            onCategoryChange(it)
-            if (shouldFocusTitle(titleTextFieldValue, transactionType)) {
-                titleFocus.requestFocus()
-            } else if (shouldFocusAmount(amount = amount)) {
-                amountModalShown = true
-            }
-        },
-        dismiss = {
-            chooseCategoryModalVisible = false
-        }
-    )
-
-    CategoryModal(modal = categoryModalData, onCreateCategory = { createData ->
-        onCreateCategory(createData)
-        chooseCategoryModalVisible = false
-    }, onEditCategory = onEditCategory, dismiss = {
-        categoryModalData = null
-    })
-
-    AccountModal(
-        modal = accountModalData,
-        onCreateAccount = onCreateAccount,
-        onEditAccount = { _, _, _ -> },
-        dismiss = {
-            accountModalData = null
-        }
-    )
-
-    DescriptionModal(
-        visible = descriptionModalVisible,
-        description = description,
-        onDescriptionChanged = onDescriptionChange,
-        dismiss = {
-            descriptionModalVisible = false
-        }
-    )
-
-    DeleteModal(
-        visible = deleteTrnModalVisible,
-        title = stringResource(R.string.confirm_deletion),
-        description = stringResource(R.string.transaction_confirm_deletion_description),
-        dismiss = { deleteTrnModalVisible = false }
-    ) {
-        onDelete()
-    }
-
-    ChangeTransactionTypeModal(
-        visible = changeTransactionTypeModalVisible,
-        includeTransferType = true,
-        initialType = transactionType,
-        dismiss = {
-            changeTransactionTypeModalVisible = false
-        }
-    ) {
-        onSetTransactionType(it)
-    }
-
-    DeleteModal(
-        visible = accountChangeModal,
-        title = stringResource(R.string.confirm_account_change),
-        description = stringResource(R.string.confirm_account_change_description),
-        buttonText = stringResource(R.string.confirm),
-        iconStart = R.drawable.ic_agreed,
-        dismiss = {
-            accountChangeModal = false
-        }
-    ) {
-        selectedAcc?.let { onAccountChange(it) }
-        accountChangeModal = false
-    }
-
-    ProgressModal(
-        title = stringResource(R.string.confirm_account_change),
-        description = stringResource(R.string.confirm_account_loan_change),
-        visible = waitModalVisible
-    )
-
-    AmountModal(
-        id = amountModalId,
-        visible = exchangeRateAmountModalShown,
-        currency = "",
-        initialAmount = customExchangeRateState.exchangeRate,
-        dismiss = { exchangeRateAmountModalShown = false },
-        // A rate needs more decimals than an amount (1.0853, 0.0067), as on the exchange-rates screen.
-        decimalCountMax = ExchangeRateDecimals,
-        onAmountChanged = {
-            onExchangeRateChange(it)
-        }
-    )
-
-    ShowTagModal(
-        visible = tagModelVisible,
-        onDismiss = {
-            tagModelVisible = false
-            // Reset TagList, avoids showing incorrect tag list when user has searched for a tag
-            onTagOperation(EditTransactionViewEvent.TagEvent.OnTagSearch(""))
-        },
-        allTagList = tags,
-        selectedTagList = transactionAssociatedTags,
-        onTagAdd = {
-            onTagOperation(EditTransactionViewEvent.TagEvent.SaveTag(name = it))
-        },
-        onTagEdit = { oldTag, newTag ->
-            onTagOperation(EditTransactionViewEvent.TagEvent.OnTagEdit(oldTag, newTag))
-        },
-        onTagDelete = {
-            onTagOperation(EditTransactionViewEvent.TagEvent.OnTagDelete(it))
-        },
-        onTagSelected = {
-            onTagOperation(EditTransactionViewEvent.TagEvent.OnTagSelect(it))
-        },
-        onTagDeSelected = {
-            onTagOperation(EditTransactionViewEvent.TagEvent.OnTagDeSelect(it))
-        },
-        onTagSearch = {
-            onTagOperation(EditTransactionViewEvent.TagEvent.OnTagSearch(it))
-        }
-    )
 }
+
+/** Add for a new transaction; Save for an edited one, or Pay (Get) for a planned one without changes. */
+@Composable
+private fun ActionButton(
+    screen: EditTransactionScreen,
+    state: EditTransactionViewState,
+    onEvent: (EditTransactionViewEvent) -> Unit,
+) {
+    when {
+        // create new mode
+        screen.initialTransactionId == null -> ModalAdd {
+            onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+        }
+        // normal transaction
+        state.dueDate == null -> ModalSave {
+            onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+        }
+        // a planned one with changes
+        state.hasChanges -> ModalSave {
+            onEvent(EditTransactionViewEvent.Save(closeScreen = false))
+            onEvent(EditTransactionViewEvent.SetHasChanges(false))
+        }
+        // no changes, pay
+        else -> ModalCheck(
+            label = if (state.transactionType == TransactionType.EXPENSE) {
+                stringResource(R.string.pay)
+            } else {
+                stringResource(R.string.get)
+            }
+        ) {
+            onEvent(EditTransactionViewEvent.OnPayPlannedPayment)
+        }
+    }
+}
+
+/** A transfer between two currencies shows the rate it's made at. */
+private val EditTransactionViewState.showsRateCard: Boolean
+    get() = transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard
+
+/** A transaction without a date yet, and not planned nor a transfer, can be planned instead. */
+private val EditTransactionViewState.canBecomePlanned: Boolean
+    get() = dueDate == null && transactionType != TransactionType.TRANSFER && dateTime == null
 
 private fun shouldFocusCategory(
     category: Category?,
