@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.nivy.data.datastore.dataStore
 import com.nivy.wallet.migrations.impl.DisableGitHubAutoBackupMigration
+import com.nivy.wallet.migrations.impl.KeepTransfersWithDeletedAccountsMigration
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -21,10 +22,12 @@ class MigrationsManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val disableGitHubAutoBackupMigration: Lazy<DisableGitHubAutoBackupMigration>,
+    private val keepTransfersWithDeletedAccountsMigration: Lazy<KeepTransfersWithDeletedAccountsMigration>,
 ) {
     private val migrations by lazy {
         listOf(
             disableGitHubAutoBackupMigration.get(),
+            keepTransfersWithDeletedAccountsMigration.get(),
         )
     }
 
