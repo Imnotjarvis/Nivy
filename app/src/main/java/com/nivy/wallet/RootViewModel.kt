@@ -10,11 +10,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.colors.ColorMode
 import com.nivy.domain.features.Features
-import com.nivy.wallet.utils.ioThread
 import com.nivy.wallet.utils.readOnly
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.MainScreen
@@ -25,12 +25,11 @@ import com.nivy.wallet.domain.logic.notification.TransactionReminderScheduler
 import com.nivy.wallet.migrations.MigrationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
@@ -46,6 +45,7 @@ class RootViewModel @Inject constructor(
     private val migrationsManager: MigrationsManager,
     private val dateFormatState: DateFormatState,
     private val features: Features,
+    private val dispatchers: DispatchersProvider,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -86,7 +86,7 @@ class RootViewModel @Inject constructor(
 
     fun start(systemDarkMode: Boolean, intent: Intent) {
         viewModelScope.launch {
-            ioThread {
+            withContext(dispatchers.io) {
                 val theme = appPreferences.settings()?.theme
                     ?: if (systemDarkMode) Theme.DARK else Theme.LIGHT
                 themeState.switchTheme(theme)
@@ -120,7 +120,7 @@ class RootViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            ioThread {
+            withContext(dispatchers.io) {
                 // initial app locked state
                 _appLocked.value = appPreferences.isAppLockEnabled()
 
@@ -230,19 +230,15 @@ class RootViewModel @Inject constructor(
         // later pause, a file picker included, locked the app at once.
         resetUserInactiveTimer()
 
-        userInactiveJob = viewModelScope.launch(Dispatchers.IO) {
-            while (userInactiveTime.get() < USER_INACTIVITY_TIME_LIMIT &&
-                userInactiveJob != null && !userInactiveJob?.isCancelled!!
-            ) {
+        // Coming back cancels the count in delay(). The loop doesn't look at userInactiveJob: it
+        // can start before launch() returns and the job is stored, and the old, cancelled job it
+        // then found there locked the app at once.
+        userInactiveJob = viewModelScope.launch(dispatchers.io) {
+            while (userInactiveTime.get() < USER_INACTIVITY_TIME_LIMIT) {
                 delay(1000)
                 userInactiveTime.incrementAndGet()
             }
-
-            if (!isAppLocked()) {
-                lockApp()
-            }
-
-            cancel()
+            lockApp()
         }
     }
 
