@@ -10,8 +10,6 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import java.time.Instant
 
-// TODO: Fix Ivy Explicit detekt false-positives
-@SuppressWarnings("DataClassTypedIDs")
 data class NivyCsvRow(
     val date: Instant?,
     val title: NotBlankTrimmedString?,

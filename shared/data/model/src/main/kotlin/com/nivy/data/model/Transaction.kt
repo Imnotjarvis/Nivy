@@ -63,7 +63,6 @@ data class Transfer(
     val toValue: PositiveValue,
 ) : Transaction
 
-@Suppress("DataClassTypedIDs")
 data class TransactionMetadata(
     val recurringRuleId: UUID?,
     val paidForDateTime: Instant?,

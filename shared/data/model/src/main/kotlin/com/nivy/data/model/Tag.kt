@@ -20,7 +20,6 @@ data class Tag(
     val creationTimestamp: Instant,
 ) : Identifiable<TagId>, Reorderable
 
-@Suppress("DataClassTypedIDs")
 data class TagAssociation(
     override val id: TagId,
     val associatedId: AssociationId,
