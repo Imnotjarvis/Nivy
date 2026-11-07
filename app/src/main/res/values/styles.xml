@@ -1,11 +1,19 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Base application theme. -->
+    <!-- Base application theme. While the lock is on, Android hides the app in the recent-apps
+         view and draws its card from these window colors instead: the screens' background, light
+         or dark with the phone, and no bar colors of their own, so the card is one plain color.
+         The screens draw their own bars (edge to edge). -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:colorPrimary">@color/nivy</item>
         <item name="android:colorPrimaryDark">@color/nivy</item>
         <item name="android:colorAccent">@color/nivy</item>
         <item name="android:colorControlActivated">@color/nivy</item>
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:colorBackground">@color/splash_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
     </style>
 
     <!-- While the app starts: its icon on the screens' background, light or dark with the phone,

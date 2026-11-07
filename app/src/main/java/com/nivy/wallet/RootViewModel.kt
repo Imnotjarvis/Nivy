@@ -55,8 +55,10 @@ class RootViewModel @Inject constructor(
     }
 
     // Kept current by the collectors in start(); read by the activity on the main thread.
-    @Volatile
-    private var appLockEnabled = false
+    private val lockOn = MutableStateFlow(false)
+
+    /** Whether the lock is on, as the settings change it. */
+    val appLockOn = lockOn.readOnly()
 
     @Volatile
     private var appLockDelay = AppLockDelay.Default
@@ -106,9 +108,9 @@ class RootViewModel @Inject constructor(
         started = true
 
         viewModelScope.launch {
-            // Settings can turn the lock on or off while the app runs; the activity asks
-            // isAppLockEnabled() on every pause and focus change, so the answer has to follow.
-            appPreferences.appLockEnabled.collect { appLockEnabled = it }
+            // Settings can turn the lock on or off while the app runs: the activity and the
+            // time away follow it.
+            appPreferences.appLockEnabled.collect { lockOn.value = it }
         }
 
         viewModelScope.launch {
@@ -216,7 +218,7 @@ class RootViewModel @Inject constructor(
 
     // App lock and time away ----------------------------------------------------------------------
     fun isAppLockEnabled(): Boolean {
-        return appLockEnabled
+        return lockOn.value
     }
 
     fun isAppLocked(): Boolean {
@@ -239,7 +241,7 @@ class RootViewModel @Inject constructor(
      * unlock can show the phone's own PIN screen.
      */
     fun onAppHidden() {
-        if (!appLockEnabled || isAppLocked() || pickingFile) return
+        if (!lockOn.value || isAppLocked() || pickingFile) return
         if (appLockDelay == AppLockDelay.IMMEDIATELY) {
             lockApp()
         } else {
@@ -256,6 +258,6 @@ class RootViewModel @Inject constructor(
         pickingFile = false
         val left = leftAt ?: return
         leftAt = null
-        if (appLockEnabled && clock.millis() - left >= appLockDelay.millis) lockApp()
+        if (lockOn.value && clock.millis() - left >= appLockDelay.millis) lockApp()
     }
 }
