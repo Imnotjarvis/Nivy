@@ -1,7 +1,5 @@
 package com.ivy.transaction
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -10,13 +8,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.ivy.base.Toaster
-import com.ivy.base.model.AccountType
 import com.ivy.base.model.TransactionType
-import com.ivy.base.refreshWidget
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.LoanDao
 import com.ivy.data.model.Account
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
@@ -24,96 +18,68 @@ import com.ivy.data.model.CreditCard
 import com.ivy.data.model.CategoryId
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
-import com.ivy.data.model.PositiveValue
 import com.ivy.data.model.TransactionId
 import com.ivy.data.model.pickable
 import com.ivy.data.model.primitive.AssociationId
-import com.ivy.data.model.primitive.NotBlankTrimmedString
-import com.ivy.data.model.primitive.PositiveDouble
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CreditCardRepository
-import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
-import com.ivy.data.repository.mapper.TagMapper
-import com.ivy.data.repository.mapper.TransactionMapper
-import com.ivy.domain.usecase.creditcard.CreditCardChargeUseCase
-import com.ivy.domain.usecase.creditcard.chargeDateTime
 import com.ivy.domain.usecase.creditcard.minChargeShift
 import com.ivy.domain.features.Features
-import com.ivy.domain.usecase.exchange.ExchangeUseCase
-import com.ivy.domain.usecase.loan.LoanTransactionsUseCase
-import com.ivy.domain.usecase.planned.DueTransactionsUseCase
 import com.ivy.wallet.data.EditTransactionDisplayLoan
 import com.ivy.wallet.domain.logic.AccountCreator
 import com.ivy.wallet.utils.computationThread
 import com.ivy.wallet.utils.ioThread
-import com.ivy.wallet.utils.toLowerCaseLocal
 import com.ivy.wallet.utils.uiThread
 import com.ivy.navigation.EditTransactionScreen
 import com.ivy.navigation.MainScreen
 import com.ivy.navigation.Navigation
 import com.ivy.ui.ComposeViewModel
-import com.ivy.ui.R
-import com.ivy.ui.time.impl.DateTimePicker
 import com.ivy.wallet.domain.data.CustomExchangeRateState
 import com.ivy.wallet.domain.logic.CategoryCreator
 import com.ivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import com.ivy.wallet.domain.logic.model.CreateAccountData
 import com.ivy.wallet.domain.logic.model.CreateCategoryData
-import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
-@Suppress("LargeClass")
 @Stable
-@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class EditTransactionViewModel @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
-    private val toaster: Toaster,
-    private val loanDao: LoanDao,
-    private val currencyRepository: CurrencyRepository,
+    private val transactionLoanDisplay: TransactionLoanDisplay,
+    private val transferExchangeRate: TransferExchangeRate,
+    private val transactionSaving: TransactionSaving,
     private val nav: Navigation,
     private val appPreferences: AppPreferences,
-    private val exchangeUseCase: ExchangeUseCase,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
-    private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val smartTitleSuggestionsLogic: SmartTitleSuggestionsLogic,
-    private val loanTransactionsUseCase: LoanTransactionsUseCase,
+    private val sortedCategories: SortedCategories,
     private val categoryRepository: CategoryRepository,
     private val accountRepository: AccountRepository,
     private val transactionRepo: TransactionRepository,
-    private val transactionMapper: TransactionMapper,
-    private val tagRepository: TagRepository,
-    private val tagMapper: TagMapper,
+    private val transactionTags: TransactionTags,
     private val features: Features,
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
-    private val dateTimePicker: DateTimePicker,
-    private val creditCardChargeUseCase: CreditCardChargeUseCase,
+    private val transactionDateTimePicker: TransactionDateTimePicker,
     private val creditCardRepository: CreditCardRepository,
 ) : ComposeViewModel<EditTransactionViewState, EditTransactionViewEvent>() {
 
@@ -158,9 +124,9 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             editMode = screen.initialTransactionId != null
 
-            baseUserCurrency = baseCurrency()
+            baseUserCurrency = transferExchangeRate.baseCurrency()
 
-            val tagList = async { getAllTags() }
+            val tagList = async { transactionTags.getAllTags() }
 
             val getAccounts = accountRepository.findAll()
             if (getAccounts.isEmpty()) {
@@ -168,14 +134,14 @@ class EditTransactionViewModel @Inject constructor(
                 return@launch
             }
 
-            categories = sortCategories()
+            categories = sortedCategories.sortCategories()
             allCreditCards = creditCardRepository.findAll()
 
             reset()
 
             loadedTransaction = screen.initialTransactionId?.let {
                 transactionRepo.findById(TransactionId(it))?.toDraft()
-            } ?: newDraft(screen, getAccounts.pickable().ifEmpty { getAccounts })
+            } ?: newDraft(screen, getAccounts.pickable().ifEmpty { getAccounts }, allCreditCards, appPreferences)
 
             accounts = getAccounts.pickable(
                 listOf(
@@ -185,9 +151,7 @@ class EditTransactionViewModel @Inject constructor(
             ).toImmutableList()
 
             tags = tagList.await()
-            transactionAssociatedTags =
-                tagRepository.findByAssociatedId(AssociationId(loadedTransaction().id)).map(Tag::id)
-                    .toImmutableList()
+            transactionAssociatedTags = transactionTags.associatedTagIds(AssociationId(loadedTransaction().id))
             display(loadedTransaction!!)
         }
     }
@@ -202,10 +166,10 @@ class EditTransactionViewModel @Inject constructor(
             description = description,
             dateTime = dateTime,
             dueDate = dueDate,
-            creditCards = accountCreditCards(),
+            creditCards = accountCreditCards(transactionType, allCreditCards, account),
             creditCard = creditCard,
-            chargeDate = chargeDate(),
-            canMoveChargeEarlier = canMoveChargeEarlier(),
+            chargeDate = chargeDate(transactionType, dueDate, creditCard, chargeShift, ::purchase),
+            canMoveChargeEarlier = canMoveChargeEarlier(creditCard, chargeShift, ::purchase),
             accounts = accounts,
             categories = categories,
             account = account,
@@ -219,25 +183,6 @@ class EditTransactionViewModel @Inject constructor(
             tags = tags,
             transactionAssociatedTags = transactionAssociatedTags
         )
-    }
-
-    /** The cards of the account an expense can be paid with. */
-    private fun accountCreditCards(): ImmutableList<CreditCard> =
-        if (transactionType == TransactionType.EXPENSE) {
-            allCreditCards.filter { it.account == account?.id }.toImmutableList()
-        } else {
-            persistentListOf()
-        }
-
-    /** When the card charges the expense, if it's paid with a credit card and not planned. */
-    private fun chargeDate(): LocalDateTime? {
-        if (transactionType != TransactionType.EXPENSE || dueDate != null) return null
-        return creditCard?.chargeDateTime(purchase(), chargeShift)
-    }
-
-    private fun canMoveChargeEarlier(): Boolean {
-        val card = creditCard ?: return false
-        return chargeShift > card.minChargeShift(purchase())
     }
 
     private fun purchase(): LocalDateTime = with(timeConverter) {
@@ -296,28 +241,6 @@ class EditTransactionViewModel @Inject constructor(
         }
     }
 
-    private suspend fun defaultAccountId(
-        screen: EditTransactionScreen,
-        accounts: List<Account>,
-    ): UUID {
-        if (screen.accountId != null) {
-            return screen.accountId!!
-        }
-
-        val lastSelectedId = appPreferences.lastSelectedAccountId()?.let { UUID.fromString(it) }
-        if (lastSelectedId != null && ioThread {
-                accounts.find {
-                    it.id.value == lastSelectedId
-                }
-            } != null
-        ) {
-            // use last selected account
-            return lastSelectedId
-        }
-
-        return accounts.first().id.value
-    }
-
     private suspend fun display(transaction: TransactionDraft) {
         this.title = transaction.title
 
@@ -341,64 +264,9 @@ class EditTransactionViewModel @Inject constructor(
 
         updateCurrency(account = selectedAccount)
 
-        customExchangeRateState = if (transaction.toAccountId == null) {
-            CustomExchangeRateState()
-        } else {
-            val exchangeRate = transaction.toAmount / transaction.amount
-            val toAccountCurrency =
-                accounts.find { acc -> acc.id.value == transaction.toAccountId }?.asset?.code
-            CustomExchangeRateState(
-                showCard = toAccountCurrency != account?.asset?.code,
-                exchangeRate = exchangeRate,
-                convertedAmount = transaction.toAmount,
-                toCurrencyCode = toAccountCurrency,
-                fromCurrencyCode = currency
-            )
-        }
+        customExchangeRateState = displayedExchangeRateState(transaction, accounts, account, currency)
 
-        displayLoanHelper = getDisplayLoanHelper(trans = transaction)
-    }
-
-    private suspend fun getDisplayLoanHelper(trans: TransactionDraft): EditTransactionDisplayLoan {
-        if (trans.loanId == null) {
-            return EditTransactionDisplayLoan()
-        }
-
-        val loan =
-            ioThread { loanDao.findById(trans.loanId) } ?: return EditTransactionDisplayLoan()
-        val isLoanRecord = trans.loanRecordId != null
-
-        val loanWarningDescription = if (isLoanRecord) {
-            context.getString(
-                R.string.note_transaction_associated_with_loan_record_of_loan,
-                loan.name
-            )
-        } else {
-            context.getString(
-                R.string.note_you_are_trying_to_change_the_account_associated_with_the_loan,
-                loan.name
-            )
-        }
-
-        val loanCaption =
-            if (isLoanRecord) {
-                context.getString(
-                    R.string.this_transaction_is_associated_with_loan_record,
-                    loan.name
-                )
-            } else {
-                context.getString(
-                    R.string.this_transaction_is_associated_with_loan,
-                    loan.name
-                )
-            }
-
-        return EditTransactionDisplayLoan(
-            isLoan = true,
-            isLoanRecord = isLoanRecord,
-            loanCaption = loanCaption,
-            loanWarningDescription = loanWarningDescription
-        )
+        displayLoanHelper = transactionLoanDisplay.getDisplayLoanHelper(trans = transaction)
     }
 
     private fun onAmountChanged(newAmount: Double) {
@@ -437,7 +305,7 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             // Another account's card can't pay it: the one its new expenses start on instead.
             if (newAccount.id != account?.id) {
-                creditCard = defaultCreditCard(newAccount, transactionType)
+                creditCard = defaultCreditCard(allCreditCards, newAccount, transactionType)
                 chargeShift = 0
             }
             loadedTransaction = loadedTransaction().copy(
@@ -489,29 +357,19 @@ class EditTransactionViewModel @Inject constructor(
     }
 
     private fun handleChangeDate() {
-        dateTimePicker.pickDate(
+        transactionDateTimePicker.pickDate(
             initialDate = loadedTransaction?.dateTime,
-        ) { localDate ->
-            val localTime = loadedTransaction().dateTime?.let {
-                with(timeConverter) { it.toLocalTime() }
-            } ?: timeProvider.localTimeNow()
-            updateDateTime(localDate.atTime(localTime))
-        }
+            dateTime = { loadedTransaction().dateTime },
+            onPicked = ::updateDateTime,
+        )
     }
 
     private fun handleChangeTime() {
-        dateTimePicker.pickTime(
-            initialTime = loadedTransaction?.dateTime?.let {
-                with(timeConverter) {
-                    it.toLocalDateTime()
-                }
-            }?.toLocalTime()
-        ) { localTime ->
-            val localDate = loadedTransaction().dateTime?.let {
-                with(timeConverter) { it.toLocalDate() }
-            } ?: timeProvider.localDateNow()
-            updateDateTime(localDate.atTime(localTime))
-        }
+        transactionDateTimePicker.pickTime(
+            initialDateTime = loadedTransaction?.dateTime,
+            dateTime = { loadedTransaction().dateTime },
+            onPicked = ::updateDateTime,
+        )
     }
 
     private fun updateDateTime(newDateTime: LocalDateTime) {
@@ -537,7 +395,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun onSetTransactionType(newTransactionType: TransactionType) {
         // Only an expense is paid with a card.
         if (newTransactionType != transactionType) {
-            creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+            creditCard = account?.let { defaultCreditCard(allCreditCards, it, newTransactionType) }
             chargeShift = 0
         }
         loadedTransaction = loadedTransaction().copy(
@@ -561,34 +419,9 @@ class EditTransactionViewModel @Inject constructor(
         saveIfEditMode()
     }
 
-    private suspend fun newDraft(screen: EditTransactionScreen, accounts: List<Account>): TransactionDraft {
-        val accountId = defaultAccountId(
-            screen = screen,
-            accounts = accounts.filter { it.id.value != screen.toAccountId }.ifEmpty { accounts },
-        )
-        val card = accounts.find { it.id.value == accountId }?.let { defaultCreditCard(it, screen.type) }
-        return TransactionDraft(
-            accountId = accountId,
-            toAccountId = screen.toAccountId,
-            categoryId = screen.categoryId,
-            type = screen.type,
-            amount = 0.0,
-            toAmount = 0.0,
-            creditCardId = card?.id?.value,
-        )
-    }
-
-    /** What a new expense on [account] is paid with: a credit card account's own card. */
-    private fun defaultCreditCard(account: Account, type: TransactionType): CreditCard? =
-        allCreditCards.firstOrNull { it.account == account.id }
-            ?.takeIf { type == TransactionType.EXPENSE && account.type == AccountType.CREDIT_CARD }
-
     private fun onPayPlannedPayment() {
         viewModelScope.launch {
-            val paidTransaction = loadedTransaction().toDomain(transactionMapper)
-                ?.let { dueTransactionsUseCase.pay(it) }
-                ?.toDraft()
-                ?: return@launch
+            val paidTransaction = transactionSaving.pay(loadedTransaction()) ?: return@launch
             loadedTransaction = paidTransaction
             paidHistory = paidTransaction.paidFor
             dueDate = paidTransaction.dueDate
@@ -613,29 +446,13 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun duplicate() {
         viewModelScope.launch {
-            val saved = trySaving {
+            val saved = transactionSaving.trySaving {
                 val id = UUID.randomUUID()
-                val copy = loadedTransaction()
-                    .copy(
-                        id = id,
-                        dateTime = timeProvider.utcNow(),
-                        // Not another payment of the planned rule, nor part of the loan.
-                        dueDate = null,
-                        recurringRuleId = null,
-                        paidFor = null,
-                        loanId = null,
-                        loanRecordId = null,
-                    )
-                    .toDomain(transactionMapper)
-                    ?: return@trySaving false
-                transactionRepo.save(creditCardChargeUseCase.dated(copy))
-
-                tagRepository.findByIds(transactionAssociatedTags).forEach {
-                    associateTagToTransaction(it, id)
+                transactionSaving.saveCopy(loadedTransaction(), id) {
+                    transactionTags.findByIds(transactionAssociatedTags).forEach {
+                        associateTagToTransaction(it, id)
+                    }
                 }
-
-                context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
-                true
             }
 
             if (saved) closeScreen()
@@ -645,7 +462,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun createCategory(data: CreateCategoryData) {
         viewModelScope.launch {
             categoryCreator.createCategory(data) {
-                categories = sortCategories()
+                categories = sortedCategories.sortCategories()
 
                 // Select the newly created category
                 onCategoryChanged(it)
@@ -683,7 +500,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun editCategory(updatedCategory: Category) {
         viewModelScope.launch {
             categoryCreator.editCategory(updatedCategory) {
-                categories = sortCategories()
+                categories = sortedCategories.sortCategories()
             }
         }
     }
@@ -698,7 +515,15 @@ class EditTransactionViewModel @Inject constructor(
     }
 
     private fun save(closeScreen: Boolean = true) {
-        if (!validTransaction()) {
+        val valid = transactionSaving.validTransaction(
+            scope = viewModelScope,
+            transactionType = transactionType,
+            account = account,
+            toAccount = toAccount,
+            amount = amount,
+            customExchangeRateState = customExchangeRateState,
+        )
+        if (!valid) {
             return
         }
         // A double tap would save twice and go back twice.
@@ -713,7 +538,7 @@ class EditTransactionViewModel @Inject constructor(
     private var closingSave: Job? = null
 
     private suspend fun saveInternal(closeScreen: Boolean) {
-        val saved = trySaving {
+        val saved = transactionSaving.trySaving {
             loadedTransaction = loadedTransaction().copy(
                 accountId = account?.id?.value ?: error("no accountId"),
                 toAccountId = toAccount?.id?.value,
@@ -735,19 +560,7 @@ class EditTransactionViewModel @Inject constructor(
                 categoryId = category?.id?.value,
             )
 
-            val transaction = loadedTransaction().toDomain(transactionMapper) ?: return@trySaving false
-            if (transaction.metadata.loanId != null) {
-                backgroundProcessingStarted = true
-                try {
-                    loanTransactionsUseCase.updateFromTransaction(transaction)
-                } finally {
-                    backgroundProcessingStarted = false
-                }
-            }
-            transactionRepo.save(creditCardChargeUseCase.dated(transaction))
-
-            context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
-            true
+            transactionSaving.save(loadedTransaction()) { backgroundProcessingStarted = it }
         }
 
         if (saved && closeScreen) {
@@ -755,30 +568,10 @@ class EditTransactionViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Runs [save] in the background; it returns false when it can't save. Then, or when it fails,
-     * the screen says so and stays open with what was entered, instead of closing as if saved.
-     */
-    @Suppress("TooGenericExceptionCaught")
-    private suspend fun trySaving(save: suspend () -> Boolean): Boolean {
-        val saved = try {
-            ioThread { save() }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Timber.e(e)
-            false
-        }
-        if (!saved) toaster.show(R.string.msg_transaction_not_saved)
-        return saved
-    }
-
     @JvmName("setHasChangesMethod")
     private fun setHasChanges(hasChangesValue: Boolean) {
         hasChanges = hasChangesValue
     }
-
-    private suspend fun baseCurrency(): String = ioThread { currencyRepository.getBaseCurrency().code }
 
     private fun closeScreen() {
         if (nav.backStackEmpty()) {
@@ -787,45 +580,6 @@ class EditTransactionViewModel @Inject constructor(
         } else {
             nav.back()
         }
-    }
-
-    // Comment for push
-    @Suppress("ReturnCount")
-    private fun validTransaction(): Boolean {
-        if (hasChosenSameSourceAndDestinationAccountToTransfer()) {
-            viewModelScope.launch {
-                toaster.show(R.string.msg_source_account_destination_account_same_for_transfer)
-            }
-            return false
-        }
-        if (hasNotChosenAccountToTransfer()) {
-            viewModelScope.launch {
-                toaster.show(R.string.msg_select_account_to_transfer)
-            }
-            return false
-        }
-
-        if (amount <= 0.0) {
-            return false
-        }
-        if (transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard &&
-            customExchangeRateState.exchangeRate == null
-        ) {
-            viewModelScope.launch {
-                toaster.show(R.string.msg_enter_exchange_rate)
-            }
-            return false
-        }
-
-        return true
-    }
-
-    private fun hasNotChosenAccountToTransfer(): Boolean {
-        return transactionType == TransactionType.TRANSFER && toAccount == null
-    }
-
-    private fun hasChosenSameSourceAndDestinationAccountToTransfer(): Boolean {
-        return transactionType == TransactionType.TRANSFER && toAccount == account
     }
 
     private fun reset() {
@@ -857,55 +611,24 @@ class EditTransactionViewModel @Inject constructor(
         resetRate: Boolean = false
     ) {
         computationThread {
-            val toAcc = toAccountValue ?: toAccount
-            val fromAcc = fromAccount ?: account
-
-            val toAccCurrencyCode = toAcc?.asset?.code ?: baseUserCurrency
-            val fromAccCurrencyCode = fromAcc?.asset?.code ?: baseUserCurrency
-
-            if (toAcc == null || fromAcc == null || (toAccCurrencyCode == fromAccCurrencyCode)) {
+            val customTransferExchangeRateState = transferExchangeRate.exchangeRateState(
+                customExchangeRateState = customExchangeRateState,
+                toAcc = toAccountValue ?: toAccount,
+                fromAcc = fromAccount ?: account,
+                baseUserCurrency = { baseUserCurrency },
+                exchangeRate = exchangeRate,
+                resetRate = resetRate,
+            ) { amt ?: amount }
+            if (customTransferExchangeRateState == null) {
                 customExchangeRateState = CustomExchangeRateState()
                 return@computationThread
             }
-
-            val exRate = exchangeRate
-                ?: if (isCustomExchangeRateCurrencyCodeMatchingWithSourceAndDestinationAccountCurrencyCode(
-                        toAccCurrencyCode = toAccCurrencyCode,
-                        fromAccCurrencyCode = fromAccCurrencyCode
-                    ) && !resetRate
-                ) {
-                    customExchangeRateState.exchangeRate
-                } else {
-                    exchangeUseCase.convert(
-                        PositiveValue(PositiveDouble.unsafe(1.0), fromAcc.asset),
-                        to = toAcc.asset
-                    ).getOrNull()?.amount?.value
-                }
-
-            val amount = amt ?: amount
-
-            val customTransferExchangeRateState = CustomExchangeRateState(
-                showCard = true,
-                toCurrencyCode = toAccCurrencyCode,
-                fromCurrencyCode = fromAccCurrencyCode,
-                exchangeRate = exRate,
-                convertedAmount = exRate?.let { it * amount }
-            )
 
             customExchangeRateState = customTransferExchangeRateState
             uiThread {
                 saveIfEditMode()
             }
         }
-    }
-
-    private fun isCustomExchangeRateCurrencyCodeMatchingWithSourceAndDestinationAccountCurrencyCode(
-        toAccCurrencyCode: String,
-        fromAccCurrencyCode: String
-    ): Boolean {
-        return customExchangeRateState.showCard &&
-                toAccCurrencyCode == customExchangeRateState.toCurrencyCode &&
-                fromAccCurrencyCode == customExchangeRateState.fromCurrencyCode
     }
 
     private fun saveIfEditMode(closeScreen: Boolean = false) {
@@ -916,17 +639,9 @@ class EditTransactionViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getAllTags(): ImmutableList<Tag> =
-        tagRepository.findAll().toImmutableList()
-
     private fun onTagSaved(name: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            NotBlankTrimmedString.from(name.toLowerCaseLocal())
-                .onRight {
-                    val tag = with(tagMapper) { createNewTag(name = it) }
-                    tagRepository.save(tag)
-                    this@EditTransactionViewModel.tags = getAllTags()
-                }
+            transactionTags.saveTag(name)?.let { this@EditTransactionViewModel.tags = it }
 
             saveIfEditMode()
         }
@@ -935,27 +650,21 @@ class EditTransactionViewModel @Inject constructor(
     private fun associateTagToTransaction(selectedTag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             val associatedId = AssociationId(loadedTransaction().id)
-            tagRepository.associateTagToEntity(associatedId, selectedTag.id)
-            transactionAssociatedTags =
-                tagRepository.findByAssociatedId(associatedId).map(Tag::id).toImmutableList()
+            transactionAssociatedTags = transactionTags.associateTag(associatedId, selectedTag)
         }
     }
 
     private fun associateTagToTransaction(selectedTag: Tag, id: UUID) {
         viewModelScope.launch(Dispatchers.IO) {
             val associatedId = AssociationId(id)
-            tagRepository.associateTagToEntity(associatedId, selectedTag.id)
-            transactionAssociatedTags =
-                tagRepository.findByAssociatedId(associatedId).map(Tag::id).toImmutableList()
+            transactionAssociatedTags = transactionTags.associateTag(associatedId, selectedTag)
         }
     }
 
     private fun removeTagAssociation(selectedTag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             val associatedId = AssociationId(loadedTransaction().id)
-            tagRepository.removeTagAssociation(associatedId, selectedTag.id)
-            transactionAssociatedTags =
-                tagRepository.findByAssociatedId(associatedId).map(Tag::id).toImmutableList()
+            transactionAssociatedTags = transactionTags.removeTagAssociation(associatedId, selectedTag)
         }
     }
 
@@ -964,42 +673,20 @@ class EditTransactionViewModel @Inject constructor(
             tagSearchJob?.cancelAndJoin()
             delay(tagSearchDebounceTimeInMills) // Debounce effect
             tagSearchJob = launch(Dispatchers.IO) {
-                NotBlankTrimmedString.from(query.toLowerCaseLocal())
-                    .onRight {
-                        tags =
-                            tagRepository.findByText(text = it.value).toImmutableList()
-                    }
-                    .onLeft {
-                        tags = tagRepository.findAll().toImmutableList()
-                    }
+                tags = transactionTags.searchTags(query)
             }
         }
     }
 
     private fun deleteTag(selectedTag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-            tagRepository.deleteById(selectedTag.id)
-            tags = tagRepository.findAll().toImmutableList()
+            tags = transactionTags.deleteTag(selectedTag)
         }
     }
 
     private fun updateTagInformation(newTag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-            tagRepository.save(newTag)
-            tags = tagRepository.findAll().toImmutableList()
+            tags = transactionTags.updateTag(newTag)
         }
-    }
-
-    private suspend fun sortCategories(): ImmutableList<Category> {
-        val categories = categoryRepository.findAll()
-        return if (shouldSortCategoriesAscending()) {
-            categories.sortedBy { it.name.value }.toImmutableList()
-        } else {
-            categories.toImmutableList()
-        }
-    }
-
-    private suspend fun shouldSortCategoriesAscending(): Boolean {
-        return features.sortCategoriesAscending.isEnabled(context)
     }
 }

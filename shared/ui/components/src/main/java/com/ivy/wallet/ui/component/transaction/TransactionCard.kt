@@ -3,93 +3,55 @@ package com.ivy.wallet.ui.component.transaction
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import com.ivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
-import com.ivy.data.model.Account
-import com.ivy.data.model.Category
-import com.ivy.data.model.CategoryId
-import com.ivy.data.model.primitive.ColorInt
-import com.ivy.data.model.primitive.IconAsset
 import com.ivy.data.model.Tag
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.Transfer
 import com.ivy.data.model.getFromAccount
 import com.ivy.data.model.getFromValue
-import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.temp.migration.getTransactionType
-import com.ivy.design.system.colors.BlueLight
-import com.ivy.wallet.IvyWalletPreview
 import com.ivy.wallet.data.AppBaseData
-import com.ivy.wallet.ui.previewAccount
-import com.ivy.wallet.ui.previewTransaction
-import com.ivy.wallet.utils.capitalizeLocal
 import com.ivy.wallet.utils.format
-import com.ivy.navigation.Navigation
-import com.ivy.navigation.TransactionsScreen
-import com.ivy.navigation.navigation
 import com.ivy.ui.R
 import com.ivy.ui.time.LocalTimeConverter
 import com.ivy.ui.time.LocalTimeFormatter
 import com.ivy.ui.time.LocalTimeProvider
 import com.ivy.ui.time.TimeFormatter
 import com.ivy.wallet.domain.data.IvyCurrency
-import com.ivy.design.system.colors.Blue
 import com.ivy.design.system.colors.Green
 import com.ivy.design.system.colors.Ivy
 import com.ivy.design.system.colors.Orange
 import com.ivy.design.system.colors.Gray
-import com.ivy.design.system.colors.GreenDark
-import com.ivy.design.system.colors.IvyDark
 import com.ivy.design.system.colors.White
-import com.ivy.design.system.colors.ColorMode
 import com.ivy.design.system.colors.readableTint
-import com.ivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.ivy.wallet.ui.theme.components.IvyButton
 import com.ivy.wallet.ui.theme.components.IvyIcon
-import com.ivy.design.system.colors.readableOn
-import com.ivy.design.system.colors.categoryColor
 import com.ivy.wallet.ui.theme.wallet.AmountCurrencyB1
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
-import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.ivy.design.system.typography.numberBodyLarge
 import com.ivy.design.system.typography.numberLabelMedium
-import com.ivy.design.system.colors.accountColor
 import com.ivy.design.system.colors.incomeGreen
 import com.ivy.design.system.colors.expenseRed
 
@@ -290,298 +252,6 @@ fun TransactionCard(
 }
 
 @Composable
-private fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
-    Spacer(Modifier.height(12.dp))
-
-    LazyRow(
-        modifier = Modifier.padding(horizontal = 24.dp)
-    ) {
-        item {
-            // Tag Text
-            Text(
-                text = stringResource(R.string.tags_colon),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Normal
-                )
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-
-        items(tags, key = { it.id.value }) { tag ->
-            Text(
-                text = "#${tag.name.value}",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = BlueLight,
-                    fontWeight = FontWeight.Normal
-                )
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun TransactionHeaderRow(
-    transaction: Transaction,
-    categories: List<Category>,
-    accounts: List<Account>,
-    shouldShowAccountSpecificColorInTransactions: Boolean,
-) {
-    val nav = navigation()
-
-    val category = category(
-        categoryId = transaction.category?.value,
-        categories = categories
-    )
-
-    if (transaction is Transfer) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp),
-        ) {
-            if (category != null) {
-                CategoryBadgeDisplay(category, nav)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            TransferHeader(
-                accounts = accounts,
-                transaction = transaction,
-                shouldShowAccountSpecificColorInTransactions = shouldShowAccountSpecificColorInTransactions
-            )
-        }
-    } else {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (category != null) {
-                CategoryBadgeDisplay(category, nav)
-            }
-
-            val account = account(
-                accountId = transaction.getFromAccount().value,
-                accounts = accounts
-            )
-
-            val accountBackgroundColor = if (shouldShowAccountSpecificColorInTransactions) {
-                account?.let { accountColor(it.color.value) } ?: MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.surface
-            }
-
-            TransactionBadge(
-                text = account?.name?.value ?: stringResource(R.string.deleted),
-                backgroundColor = accountBackgroundColor,
-                icon = account?.icon?.id,
-                defaultIcon = R.drawable.ic_custom_account_s
-            ) {
-                account?.let {
-                    nav.navigateTo(
-                        TransactionsScreen(
-                            accountId = account.id.value,
-                            categoryId = null
-                        )
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CategoryBadgeDisplay(
-    category: Category,
-    nav: Navigation,
-) {
-    TransactionBadge(
-        text = category.name.value,
-        backgroundColor = categoryColor(category.color.value),
-        icon = category.icon?.id,
-        defaultIcon = R.drawable.ic_custom_category_s
-    ) {
-        // Navigation logic
-        nav.navigateTo(
-            TransactionsScreen(
-                accountId = null,
-                categoryId = category.id.value
-            )
-        )
-    }
-}
-
-@Composable
-@ReadOnlyComposable
-private fun getTransactionDescription(transaction: Transaction): String? {
-    val paidFor = with(LocalTimeConverter.current) {
-        transaction.metadata.paidForDateTime?.toLocalDateTime()
-    }
-    val description = transaction.description?.value
-    return when {
-        description != null -> description
-        transaction.metadata.recurringRuleId != null &&
-                transaction.settled &&
-                paidFor != null -> {
-            stringResource(
-                R.string.bill_paid,
-                paidFor.month.name.lowercase().capitalizeLocal(),
-                paidFor.year.toString()
-            )
-        }
-
-        else -> null
-    }
-}
-
-@Composable
-private fun TransactionBadge(
-    text: String,
-    backgroundColor: Color,
-    icon: String?,
-    @DrawableRes
-    defaultIcon: Int,
-
-    onClick: () -> Unit
-) {
-    // In minimal colors the items' grey is the card's own: the tags take the page's color instead.
-    val pillColor = if (ColorMode.minimal) MaterialTheme.colorScheme.surface else backgroundColor
-    Row(
-        modifier = Modifier
-            .clip(PillShape)
-            .background(pillColor, PillShape)
-            .clickable {
-                onClick()
-            }
-            .padding(end = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(8.dp))
-
-        val contrastColor = readableOn(pillColor)
-
-        ItemIconSDefaultIcon(
-            iconName = icon,
-            defaultIcon = defaultIcon,
-            tint = contrastColor
-        )
-
-        Spacer(Modifier.width(4.dp))
-
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = contrastColor,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.width(20.dp))
-    }
-}
-
-@Composable
-private fun TransferHeader(
-    accounts: List<Account>,
-    transaction: Transfer,
-    shouldShowAccountSpecificColorInTransactions: Boolean
-) {
-    val account = remember(accounts, transaction) {
-        accounts.find { it.id == transaction.fromAccount }
-    }
-    val toAccount = remember(accounts, transaction) {
-        accounts.find { it.id == transaction.toAccount }
-    }
-    // In minimal colors the accounts' grey is the card's own: the pill takes the page's color, as tags do.
-    val accountColors = shouldShowAccountSpecificColorInTransactions && !ColorMode.minimal
-
-    Row(
-        modifier = Modifier
-            .then(
-                if (accountColors && account != null && toAccount != null) {
-                    Modifier
-                        .background(
-                            // Two solid halves: the source account's color, then the destination's.
-                            brush = Brush.horizontalGradient(
-                                0f to accountColor(account.color.value),
-                                0.5f to accountColor(account.color.value),
-                                0.5f to accountColor(toAccount.color.value),
-                                1f to accountColor(toAccount.color.value)
-                            ),
-                            shape = PillShape
-                        )
-                } else {
-                    Modifier.background(MaterialTheme.colorScheme.surface, PillShape)
-                }
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(8.dp))
-
-        val accountContrastColor =
-            if (accountColors && account != null) {
-                readableOn(accountColor(account.color.value))
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-
-        ItemIconSDefaultIcon(
-            iconName = account?.icon?.id,
-            defaultIcon = R.drawable.ic_custom_account_s,
-            tint = accountContrastColor
-        )
-
-        Spacer(Modifier.width(4.dp))
-
-        Text(
-            modifier = Modifier
-                .padding(vertical = 8.dp),
-            // used toString() in case of null
-            text = account?.name?.value.toString(),
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = accountContrastColor,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        IvyIcon(icon = R.drawable.ic_arrow_right, tint = accountContrastColor)
-
-        Spacer(Modifier.width(12.dp))
-
-        val toAccountContrastColor =
-            if (accountColors && toAccount != null) {
-                readableOn(accountColor(toAccount.color.value))
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-
-        ItemIconSDefaultIcon(
-            iconName = toAccount?.icon?.id,
-            defaultIcon = R.drawable.ic_custom_account_s,
-            tint = toAccountContrastColor
-        )
-
-        Spacer(Modifier.width(4.dp))
-
-        Text(
-            modifier = Modifier
-                .padding(vertical = 8.dp),
-            // used toString() in case of null
-            text = toAccount?.name?.value.toString(),
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = toAccountContrastColor,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.width(20.dp))
-    }
-}
-
-@Composable
 fun TypeAmountCurrency(
     transactionType: TransactionType,
     dueDate: LocalDateTime?,
@@ -686,257 +356,3 @@ private data class AmountTypeStyle(
     val iconTint: Color,
     val textColor: Color
 )
-
-@Preview
-@Composable
-private fun PreviewUpcomingExpense() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val cash = previewAccount("Cash", color = Green, currency = "BGN")
-            val food = Category(
-                name = NotBlankTrimmedString.unsafe("Food"),
-                color = ColorInt(Blue.toArgb()),
-                icon = null,
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(food),
-                        accounts = persistentListOf(cash)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.EXPENSE,
-                        account = cash,
-                        amount = 250.75,
-                        time = Instant.now().plus(5, ChronoUnit.DAYS),
-                        settled = false,
-                        title = "Lidl pazar",
-                        category = food.id,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = false,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewUpcomingExpenseBadgeSecondRow() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val cash = previewAccount("Cash", color = Green, currency = "BGN")
-            val food = Category(
-                name = NotBlankTrimmedString.unsafe("Food-Travel-Entertaiment-Food"),
-                color = ColorInt(Blue.toArgb()),
-                icon = null,
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(food),
-                        accounts = persistentListOf(cash)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.EXPENSE,
-                        account = cash,
-                        amount = 250.75,
-                        time = Instant.now().plus(5, ChronoUnit.DAYS),
-                        settled = false,
-                        title = "Lidl pazar",
-                        category = food.id,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = false,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewOverdueExpense() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val cash = previewAccount("Cash", color = Green, currency = "BGN")
-            val food = Category(
-                name = NotBlankTrimmedString.unsafe("Rent"),
-                color = ColorInt(Green.toArgb()),
-                icon = null,
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(food),
-                        accounts = persistentListOf(cash)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.EXPENSE,
-                        account = cash,
-                        amount = 500.0,
-                        time = Instant.now().minus(5, ChronoUnit.DAYS),
-                        settled = false,
-                        title = "Rent",
-                        category = food.id,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = false,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewNormalExpense() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val cash = previewAccount("Cash", color = Green, currency = "BGN")
-            val food = Category(
-                name = NotBlankTrimmedString.unsafe("Bitovi"),
-                color = ColorInt(Orange.toArgb()),
-                icon = IconAsset.unsafe("groceries"),
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(food),
-                        accounts = persistentListOf(cash)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.EXPENSE,
-                        account = cash,
-                        amount = 32.51,
-                        title = "Близкия магазин",
-                        category = food.id,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = false,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewIncome() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val cash = previewAccount("DSK Bank", color = Green, currency = "BGN")
-            val category = Category(
-                name = NotBlankTrimmedString.unsafe("Salary"),
-                color = ColorInt(GreenDark.toArgb()),
-                icon = null,
-                id = CategoryId(UUID.randomUUID()),
-                orderNum = 0.0,
-            )
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(category),
-                        accounts = persistentListOf(cash)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.INCOME,
-                        account = cash,
-                        amount = 8049.70,
-                        title = "Qredo Salary May",
-                        category = category.id,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = false,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewTransfer() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val acc1 = previewAccount("DSK Bank", color = Green, icon = "bank", currency = "BGN")
-            val acc2 = previewAccount("Revolut", color = IvyDark, icon = "revolut", currency = "BGN")
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(),
-                        accounts = persistentListOf(acc1, acc2)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.TRANSFER,
-                        account = acc1,
-                        amount = 1000.0,
-                        title = "Top-up revolut",
-                        toAccount = acc2,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = false,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewTransfer_differentCurrency() {
-    IvyWalletPreview {
-        LazyColumn(Modifier.fillMaxSize()) {
-            val acc1 = previewAccount("DSK Bank", color = Green, icon = "bank", currency = "BGN")
-            val acc2 = previewAccount("Revolut", color = IvyDark, icon = "revolut", currency = "EUR")
-
-            item {
-                TransactionCard(
-                    baseData = AppBaseData(
-                        baseCurrency = "BGN",
-                        categories = persistentListOf(),
-                        accounts = persistentListOf(acc1, acc2)
-                    ),
-                    transaction = previewTransaction(
-                        type = TransactionType.TRANSFER,
-                        account = acc1,
-                        amount = 1000.0,
-                        title = "Top-up revolut",
-                        toAccount = acc2,
-                        toAmount = 510.0,
-                    ),
-                    shouldShowAccountSpecificColorInTransactions = true,
-                    onPayOrGet = {},
-                ) {
-                }
-            }
-        }
-    }
-}
