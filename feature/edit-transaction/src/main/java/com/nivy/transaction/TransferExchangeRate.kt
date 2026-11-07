@@ -10,7 +10,6 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.domain.data.CustomExchangeRateState
-import com.nivy.wallet.utils.ioThread
 import javax.inject.Inject
 
 /** The rate of a transfer to another currency, and the amount the other account receives. */
@@ -18,7 +17,7 @@ class TransferExchangeRate @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val exchangeUseCase: ExchangeUseCase,
 ) {
-    suspend fun baseCurrency(): String = ioThread { currencyRepository.getBaseCurrency().code }
+    suspend fun baseCurrency(): String = currencyRepository.getBaseCurrency().code
 
     /**
      * The rate card of a transfer from [fromAcc] to [toAcc]; null when one of them isn't chosen or

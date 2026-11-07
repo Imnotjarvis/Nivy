@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.base.model.TransactionType
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
@@ -27,9 +28,6 @@ import com.nivy.domain.usecase.creditcard.minChargeShift
 import com.nivy.domain.features.Features
 import com.nivy.wallet.data.EditTransactionDisplayLoan
 import com.nivy.wallet.domain.logic.AccountCreator
-import com.nivy.wallet.utils.computationThread
-import com.nivy.wallet.utils.ioThread
-import com.nivy.wallet.utils.uiThread
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.MainScreen
 import com.nivy.navigation.Navigation
@@ -49,6 +47,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
 @Stable
 @HiltViewModel
@@ -71,6 +70,7 @@ class EditTransactionViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val transactionDateTimePicker: TransactionDateTimePicker,
     private val creditCardRepository: CreditCardRepository,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<EditTransactionViewState, EditTransactionViewEvent>() {
 
     private var transactionType by mutableStateOf(TransactionType.EXPENSE)
@@ -108,7 +108,7 @@ class EditTransactionViewModel @Inject constructor(
         transactionId = { loadedTransaction().id },
         afterTagAdd = { saveIfEditMode() },
     )
-    private val titleSuggestions = TitleSuggestions(smartTitleSuggestionsLogic, features, viewModelScope)
+    private val titleSuggestions = TitleSuggestions(smartTitleSuggestionsLogic, features, viewModelScope, dispatchers)
     private val rateCard = RateCard(transferExchangeRate)
 
     fun start(screen: EditTransactionScreen) {
@@ -405,12 +405,10 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun delete() {
         viewModelScope.launch {
-            ioThread {
-                loadedTransaction?.let {
-                    transactionRepo.deleteById(TransactionId(it.id))
-                }
-                closeScreen()
+            loadedTransaction?.let {
+                transactionRepo.deleteById(TransactionId(it.id))
             }
+            closeScreen()
         }
     }
 
@@ -564,19 +562,17 @@ class EditTransactionViewModel @Inject constructor(
         exchangeRate: Double? = null,
         resetRate: Boolean = false
     ) {
-        computationThread {
-            val shown = rateCard.update(
+        val shown = withContext(dispatchers.default) {
+            rateCard.update(
                 from = fromAccount ?: account,
                 to = toAccountValue ?: toAccount,
                 amount = { amt ?: amount },
                 exchangeRate = exchangeRate,
                 resetRate = resetRate,
             )
-            if (shown) {
-                uiThread {
-                    saveIfEditMode()
-                }
-            }
+        }
+        if (shown) {
+            saveIfEditMode()
         }
     }
 
