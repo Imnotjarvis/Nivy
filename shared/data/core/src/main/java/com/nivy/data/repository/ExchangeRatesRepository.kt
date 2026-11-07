@@ -1,0 +1,87 @@
+package com.nivy.data.repository
+
+import arrow.core.Either
+import arrow.core.raise.either
+import com.nivy.base.threading.DispatchersProvider
+import com.nivy.data.db.dao.read.ExchangeRatesDao
+import com.nivy.data.db.dao.write.WriteExchangeRatesDao
+import com.nivy.data.model.ExchangeRate
+import com.nivy.data.model.primitive.AssetCode
+import com.nivy.data.remote.RemoteExchangeRatesDataSource
+import com.nivy.data.repository.mapper.ExchangeRateMapper
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+
+class ExchangeRatesRepository @Inject constructor(
+    private val mapper: ExchangeRateMapper,
+    private val exchangeRatesDao: ExchangeRatesDao,
+    private val writeExchangeRatesDao: WriteExchangeRatesDao,
+    private val remoteExchangeRatesDataSource: RemoteExchangeRatesDataSource,
+    private val dispatchers: DispatchersProvider,
+) {
+    suspend fun fetchEurExchangeRates(): Either<String, List<ExchangeRate>> = either {
+        withContext(dispatchers.io) {
+            val response = remoteExchangeRatesDataSource.fetchEurExchangeRates().bind()
+            with(mapper) { response.toDomain().bind() }
+        }
+    }
+
+    fun findAll(): Flow<List<ExchangeRate>> =
+        exchangeRatesDao.findAll().map { entities ->
+            entities.mapNotNull {
+                with(mapper) { it.toDomain().getOrNull() }
+            }
+        }.flowOn(dispatchers.io)
+
+    /** The rate from [baseCurrency] to [currency], or null when there's none. */
+    suspend fun findRate(baseCurrency: AssetCode, currency: AssetCode): ExchangeRate? =
+        withContext(dispatchers.io) {
+            exchangeRatesDao.findByBaseCurrencyAndCurrency(
+                baseCurrency = baseCurrency.code,
+                currency = currency.code
+            )?.let { with(mapper) { it.toDomain().getOrNull() } }
+        }
+
+    suspend fun findAllManuallyOverridden(): List<ExchangeRate> =
+        withContext(dispatchers.io) {
+            exchangeRatesDao.findAllManuallyOverridden()
+                .mapNotNull {
+                    with(mapper) { it.toDomain().getOrNull() }
+                }
+        }
+
+    suspend fun save(value: ExchangeRate) {
+        withContext(dispatchers.io) {
+            writeExchangeRatesDao.save(with(mapper) { value.toEntity() })
+        }
+    }
+
+    suspend fun saveManyRates(values: List<ExchangeRate>) {
+        withContext(dispatchers.io) {
+            writeExchangeRatesDao.saveMany(
+                values.map {
+                    with(mapper) { it.toEntity() }
+                },
+            )
+        }
+    }
+
+    suspend fun deleteAll() {
+        withContext(dispatchers.io) {
+            writeExchangeRatesDao.deleteAll()
+        }
+    }
+
+    suspend fun deleteByBaseCurrencyAndCurrency(
+        baseCurrency: AssetCode,
+        currency: AssetCode
+    ): Unit = withContext(dispatchers.io) {
+        writeExchangeRatesDao.deleteByBaseCurrencyAndCurrency(
+            baseCurrency = baseCurrency.code,
+            currency = currency.code
+        )
+    }
+}

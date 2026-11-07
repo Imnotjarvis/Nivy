@@ -1,0 +1,18 @@
+package com.nivy.data.db.dao.read
+
+import androidx.room.Dao
+import androidx.room.Query
+import com.nivy.data.db.entity.LoanEntity
+import java.util.*
+
+@Dao
+interface LoanDao {
+    @Query("SELECT * FROM loans ORDER BY orderNum ASC")
+    suspend fun findAll(): List<LoanEntity>
+
+    @Query("SELECT * FROM loans WHERE id = :id")
+    suspend fun findById(id: UUID): LoanEntity?
+
+    @Query("SELECT MAX(orderNum) FROM loans")
+    suspend fun findMaxOrderNum(): Double?
+}

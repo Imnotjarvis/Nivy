@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:name=".IvyAndroidApp"
+        android:name=".NivyAndroidApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -21,9 +21,12 @@
         android:theme="@style/AppTheme"
         tools:ignore="LockedOrientationActivity">
 
+        <!-- Components the system stores by class name keep their com.ivy names, written in full:
+             a short ".Name" would resolve against the com.nivy.wallet namespace. -->
+
         <!-- The phone layouts are portrait-only; Android 16 ignores the lock on tablets. -->
         <activity
-            android:name=".RootActivity"
+            android:name="com.ivy.wallet.RootActivity"
             android:exported="true"
             android:theme="@style/Theme.Nivy.Starting"
             android:screenOrientation="portrait"
@@ -45,7 +48,7 @@
         <!-- Libraries start themselves through androidx.startup; only ProfileInstaller does here.
              It installs the libraries' baseline profiles on installs that don't come from Play,
              which otherwise run without them. WorkManager mustn't start itself: the app configures
-             it for HiltWorker (IvyAndroidApp). OkHttp's would build its platform on the main thread
+             it for HiltWorker (NivyAndroidApp). OkHttp's would build its platform on the main thread
              at every launch; it builds it itself on the first request. Emoji and process-lifecycle
              setup serve nothing the app uses. All of these stay off as before. -->
         <provider
@@ -104,7 +107,7 @@
         </receiver>
 
         <service
-            android:name=".PaymentTileService"
+            android:name="com.ivy.wallet.PaymentTileService"
             android:exported="true"
             android:icon="@drawable/ic_launcher_foreground"
             android:label="Add Payment"

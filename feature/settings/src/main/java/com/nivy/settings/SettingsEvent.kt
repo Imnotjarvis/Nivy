@@ -1,0 +1,26 @@
+package com.nivy.settings
+
+import com.nivy.base.model.DateDisplayFormat
+import com.nivy.domain.RootScreen
+
+sealed interface SettingsEvent {
+    data class SetCurrency(val newCurrency: String) : SettingsEvent
+    data class SetName(val newName: String) : SettingsEvent
+    data class ExportToCsv(val rootScreen: RootScreen) : SettingsEvent
+    data class BackupData(val rootScreen: RootScreen) : SettingsEvent
+    data object SwitchTheme : SettingsEvent
+    data class SetLockApp(val lockApp: Boolean) : SettingsEvent
+    data class SetShowNotifications(val showNotifications: Boolean) : SettingsEvent
+    data class SetHideCurrentBalance(val hideCurrentBalance: Boolean) : SettingsEvent
+    data class SetHideIncome(val hideIncome: Boolean) : SettingsEvent
+    data class SetTransfersAsIncomeExpense(val treatTransfersAsIncomeExpense: Boolean) :
+        SettingsEvent
+
+    data class SetStartDateOfMonth(val startDate: Int) : SettingsEvent
+    data class SetDateFormat(val format: DateDisplayFormat) : SettingsEvent
+
+    /** A radius in dp, or null to match the phone's screen corners. */
+    data class SetCornerRadius(val dp: Int?) : SettingsEvent
+    data class SetMinimalColors(val minimal: Boolean) : SettingsEvent
+    data object DeleteAllUserData : SettingsEvent
+}

@@ -6,20 +6,21 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.ivy.base.time.TimeConverter
-import com.ivy.base.time.TimeProvider
-import com.ivy.data.db.dao.read.TransactionDao
-import com.ivy.data.preferences.AppPreferences
-import com.ivy.domain.AppStarter
-import com.ivy.wallet.utils.atEndOfDay
-import com.ivy.ui.R
-import com.ivy.wallet.android.notification.IvyNotificationChannel
-import com.ivy.wallet.android.notification.NotificationService
+import com.nivy.base.time.TimeConverter
+import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.dao.read.TransactionDao
+import com.nivy.data.preferences.AppPreferences
+import com.nivy.domain.AppStarter
+import com.nivy.wallet.utils.atEndOfDay
+import com.nivy.ui.R
+import com.nivy.wallet.android.notification.NivyNotificationChannel
+import com.nivy.wallet.android.notification.NotificationService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// Stays in com.ivy.wallet.domain.logic.notification: WorkManager stores this class name; a new one breaks the reminder.
 @HiltWorker
 class TransactionReminderWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -52,8 +53,8 @@ class TransactionReminderWorker @AssistedInject constructor(
             // Have less than 1 two transactions today, remind them
 
             val notification = notificationService
-                .defaultIvyNotification(
-                    channel = IvyNotificationChannel.TRANSACTION_REMINDER,
+                .defaultNivyNotification(
+                    channel = NivyNotificationChannel.TRANSACTION_REMINDER,
                     priority = NotificationCompat.PRIORITY_HIGH
                 )
                 .setContentTitle(applicationContext.applicationInfo.loadLabel(applicationContext.packageManager))

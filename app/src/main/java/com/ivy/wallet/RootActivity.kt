@@ -29,21 +29,28 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ivy.IvyNavGraph
-import com.ivy.base.model.Theme
-import com.ivy.base.time.TimeConverter
-import com.ivy.base.time.TimeProvider
-import com.ivy.design.system.IvyMaterial3Theme
-import com.ivy.design.system.shapes.AppCornerRadius
-import com.ivy.domain.RootScreen
-import com.ivy.wallet.utils.activityForResultLauncher
-import com.ivy.wallet.utils.simpleActivityForResultLauncher
-import com.ivy.navigation.Navigation
-import com.ivy.navigation.NavigationRoot
-import com.ivy.ui.R
-import com.ivy.ui.time.TimeFormatter
-import com.ivy.ui.time.impl.DateTimePicker
-import com.ivy.wallet.ui.applocked.AppLockedScreen
+import com.nivy.NivyNavGraph
+import com.nivy.base.model.Theme
+import com.nivy.base.time.TimeConverter
+import com.nivy.base.time.TimeProvider
+import com.nivy.design.system.NivyMaterial3Theme
+import com.nivy.design.system.shapes.AppCornerRadius
+import com.nivy.domain.RootScreen
+import com.nivy.wallet.utils.activityForResultLauncher
+import com.nivy.wallet.utils.simpleActivityForResultLauncher
+import com.nivy.navigation.Navigation
+import com.nivy.navigation.NavigationRoot
+import com.nivy.ui.R
+import com.nivy.ui.time.TimeFormatter
+import com.nivy.ui.time.impl.DateTimePicker
+import com.nivy.wallet.BuildConfig
+import com.nivy.wallet.MainScreenState
+import com.nivy.wallet.NivyTheme
+import com.nivy.wallet.PeriodState
+import com.nivy.wallet.RootViewModel
+import com.nivy.wallet.ThemeState
+import com.nivy.wallet.isDarkTheme
+import com.nivy.wallet.ui.applocked.AppLockedScreen
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.ivy.widget.transaction.AddTransactionWidget
 import com.ivy.widget.transaction.AddTransactionWidgetCompact
@@ -56,10 +63,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
-import com.ivy.data.preferences.AppPreferences
-import com.ivy.navigation.MainScreen
+import com.nivy.data.preferences.AppPreferences
+import com.nivy.navigation.MainScreen
 import kotlinx.coroutines.launch
 
+// Stays in com.ivy.wallet: launchers and pinned shortcuts store this class name; a new one would drop them on update.
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class RootActivity : AppCompatActivity(), RootScreen {
@@ -123,7 +131,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 null -> { // display nothing
                 }
                 true -> {
-                    IvyWalletTheme(
+                    NivyTheme(
                         theme = themeState.theme,
                         periodState = periodState,
                         mainScreenState = mainScreenState,
@@ -146,7 +154,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
 
                 false -> {
                     NavigationRoot(navigation = navigation) { screen ->
-                        IvyWalletTheme(
+                        NivyTheme(
                             theme = themeState.theme,
                             periodState = periodState,
                             mainScreenState = mainScreenState,
@@ -155,13 +163,13 @@ class RootActivity : AppCompatActivity(), RootScreen {
                             timeProvider = timeProvider,
                             timeFormatter = timeFormatter,
                         ) {
-                            IvyNavGraph(screen)
+                            NivyNavGraph(screen)
                         }
                     }
                 }
             }
 
-            IvyMaterial3Theme(
+            NivyMaterial3Theme(
                 dark = isDarkTheme(themeState.theme, isSystemInDarkTheme),
                 isTrueBlack = themeState.theme == Theme.AMOLED_DARK
             ) {

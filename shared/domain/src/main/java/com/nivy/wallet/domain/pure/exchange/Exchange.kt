@@ -1,0 +1,111 @@
+package com.nivy.wallet.domain.pure.exchange
+
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
+import arrow.core.raise.option
+import arrow.core.toOption
+import com.nivy.wallet.utils.isNotNullOrBlank
+import java.math.BigDecimal
+import java.math.MathContext
+
+data class ExchangeData(
+    val baseCurrency: String,
+    val fromCurrency: Option<String>,
+    val toCurrency: String = baseCurrency,
+)
+
+suspend fun exchange(
+    data: ExchangeData,
+    amount: BigDecimal,
+    getExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> Double?,
+): Option<BigDecimal> = option {
+    if (amount == BigDecimal.ZERO) {
+        return@option BigDecimal.ZERO
+    }
+
+    val fromCurrency = data.fromCurrency.bind().validateCurrency().bind()
+    val toCurrency = data.toCurrency.validateCurrency().bind()
+
+    if (fromCurrency == toCurrency) {
+        return@option amount
+    }
+
+    when (val baseCurrency = data.baseCurrency.validateCurrency().bind()) {
+        fromCurrency -> {
+            // exchange from base currency to other currency
+            // we need the rate from baseCurrency to toCurrency
+            val rateFromTo = validExchangeRate(
+                baseCurrency = fromCurrency, // fromCurrency = baseCurrency
+                toCurrency = toCurrency,
+                retrieveExchangeRate = getExchangeRate
+            ).bind()
+
+            // toAmount = fromAmount * rateFromTo
+            amount * rateFromTo
+        }
+        toCurrency -> {
+            // exchange from other currency to base currency
+            // we'll get the rate to
+
+            val rateToFrom = validExchangeRate(
+                baseCurrency = toCurrency, // toCurrency = baseCurrency
+                toCurrency = fromCurrency,
+                retrieveExchangeRate = getExchangeRate
+            ).bind()
+
+            /*
+            Example: fromA = 10 fromC = EUR; toC = BGN
+            rateToFrom = rate (BGN EUR) ~= 0.51
+
+            Formula: (10 EUR / 0.51 ~= 19.67)
+                fromAmount / rateToFrom
+
+            EXPECTED: 10 EUR ~= 19.67 BGN
+             */
+            amount.divide(rateToFrom, MathContext.DECIMAL64)
+        }
+        else -> {
+            // exchange from other currency to other currency
+            // that's the only possible case left because we already checked "fromCurrency == toCurrency"
+
+            val rateBaseFrom = validExchangeRate(
+                baseCurrency = baseCurrency,
+                toCurrency = fromCurrency,
+                retrieveExchangeRate = getExchangeRate
+            ).bind()
+
+            val rateBaseTo = validExchangeRate(
+                baseCurrency = baseCurrency,
+                toCurrency = toCurrency,
+                retrieveExchangeRate = getExchangeRate
+            ).bind()
+
+            // Convert: toBaseCurrency -> toToCurrency
+            // "/" would round to the amount's own scale: 1.2E7 / 27,900 gives 0.
+            val amountBaseCurrency = amount.divide(rateBaseFrom, MathContext.DECIMAL64)
+            amountBaseCurrency * rateBaseTo
+        }
+    }
+}
+
+private fun String.validateCurrency(): Option<String> {
+    return if (this.isNotNullOrBlank()) return Some(this) else None
+}
+
+suspend fun validExchangeRate(
+    baseCurrency: String,
+    toCurrency: String,
+    retrieveExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> Double?,
+): Option<BigDecimal> = option {
+    retrieveExchangeRate(
+        baseCurrency,
+        toCurrency
+    ).toOption().bind()
+        .validateRate().bind()
+}
+
+private fun Double.validateRate(): Option<BigDecimal> {
+    // exchange rate which <= 0 is invalid!
+    return if (this > 0) return Some(toBigDecimal()) else None
+}

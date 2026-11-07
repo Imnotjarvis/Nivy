@@ -1,0 +1,165 @@
+package com.nivy.data.preferences
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.nivy.base.model.DateDisplayFormat
+import com.nivy.base.model.Theme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import java.time.Instant
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * The app's settings and small bits of UI state, kept in DataStore.
+ *
+ * The key names are the ones the app used in its old SharedPreferences file ("ivy_wallet_prefs"):
+ * the DataStore copies that file over on first use (see Datastore.kt), so users keep their
+ * settings, and backups keep their format.
+ */
+@Singleton
+class AppPreferences @Inject constructor(
+    private val dataStore: DataStore<Preferences>,
+) {
+    suspend fun isOnboardingCompleted(): Boolean = get(OnboardingCompleted, false)
+    suspend fun setOnboardingCompleted(completed: Boolean) = set(OnboardingCompleted, completed)
+
+    suspend fun lastSelectedAccountId(): String? = dataStore.data.first()[LastSelectedAccountId]
+    suspend fun setLastSelectedAccountId(id: String) = set(LastSelectedAccountId, id)
+
+    suspend fun isAppLockEnabled(): Boolean = get(AppLockEnabled, false)
+    suspend fun setAppLockEnabled(enabled: Boolean) = set(AppLockEnabled, enabled)
+
+    /** The lock setting as it changes, for the activity that enforces it. */
+    val appLockEnabled: Flow<Boolean> =
+        dataStore.data.map { it[AppLockEnabled] ?: false }.distinctUntilChanged()
+
+    suspend fun startDayOfMonth(): Int = get(StartDayOfMonth, 1)
+    suspend fun setStartDayOfMonth(day: Int) = set(StartDayOfMonth, day)
+
+    /** How dates are shown, as it changes. */
+    val dateFormat: Flow<DateDisplayFormat> = dataStore.data.map { prefs ->
+        DateDisplayFormat.entries.find { it.name == prefs[DateFormat] } ?: DateDisplayFormat.Default
+    }.distinctUntilChanged()
+    suspend fun setDateFormat(format: DateDisplayFormat) = set(DateFormat, format.name)
+
+    /** The corner radius the user picked, in dp, or null to match the phone's screen corners. */
+    val cornerRadius: Flow<Int?> = dataStore.data.map { it[CornerRadiusDp] }.distinctUntilChanged()
+    suspend fun setCornerRadius(dp: Int?) {
+        dataStore.edit { if (dp == null) it.remove(CornerRadiusDp) else it[CornerRadiusDp] = dp }
+    }
+
+    /** Whether the app is drawn in greys only (see ColorMode). */
+    val minimalColors: Flow<Boolean> = dataStore.data.map { it[MinimalColors] ?: false }.distinctUntilChanged()
+    suspend fun setMinimalColors(minimal: Boolean) = set(MinimalColors, minimal)
+
+    suspend fun showNotifications(): Boolean = get(ShowNotifications, true)
+    suspend fun setShowNotifications(show: Boolean) = set(ShowNotifications, show)
+
+    suspend fun hideCurrentBalance(): Boolean = get(HideCurrentBalance, false)
+    suspend fun setHideCurrentBalance(hide: Boolean) = set(HideCurrentBalance, hide)
+
+    suspend fun hideIncome(): Boolean = get(HideIncome, false)
+    suspend fun setHideIncome(hide: Boolean) = set(HideIncome, hide)
+
+    suspend fun transfersAsIncomeExpense(): Boolean = get(TransfersAsIncomeExpense, false)
+    suspend fun setTransfersAsIncomeExpense(enabled: Boolean) = set(TransfersAsIncomeExpense, enabled)
+
+    suspend fun categorySortOrder(default: Int): Int = get(CategorySortOrder, default)
+    suspend fun setCategorySortOrder(order: Int) = set(CategorySortOrder, order)
+
+    /** The user's settings; null until onboarding (or a backup, or the old database) sets them. */
+    suspend fun settings(): AppSettings? {
+        val prefs = dataStore.data.first()
+        val baseCurrency = prefs[BaseCurrency] ?: return null
+        return AppSettings(
+            theme = prefs[ThemeName]?.let { name -> Theme.entries.find { it.name == name } } ?: Theme.AUTO,
+            baseCurrency = baseCurrency,
+            bufferAmount = prefs[BufferAmount] ?: 0.0,
+            name = prefs[UserName].orEmpty(),
+        )
+    }
+
+    suspend fun saveSettings(settings: AppSettings) {
+        dataStore.edit {
+            it[ThemeName] = settings.theme.name
+            it[BaseCurrency] = settings.baseCurrency
+            it[BufferAmount] = settings.bufferAmount
+            it[UserName] = settings.name
+        }
+    }
+
+    suspend fun baseCurrency(): String? = dataStore.data.first()[BaseCurrency]
+    suspend fun setBaseCurrency(code: String) = set(BaseCurrency, code)
+    suspend fun setTheme(theme: Theme) = set(ThemeName, theme.name)
+    suspend fun setBufferAmount(amount: Double) = set(BufferAmount, amount)
+    suspend fun setUserName(name: String) = set(UserName, name)
+
+    // Home screen cards the user dismissed, by card id.
+    suspend fun isCardDismissed(cardId: String): Boolean = get(cardDismissedKey(cardId), false)
+    suspend fun setCardDismissed(cardId: String) = set(cardDismissedKey(cardId), true)
+
+    /** When the exchange rates were last downloaded for [baseCurrency], or null if they never were. */
+    suspend fun exchangeRatesSyncedAt(baseCurrency: String): Instant? {
+        val prefs = dataStore.data.first()
+        if (prefs[ExchangeRatesSyncedFor] != baseCurrency) return null
+        return prefs[ExchangeRatesSyncedAt]?.let(Instant::ofEpochMilli)
+    }
+
+    suspend fun setExchangeRatesSynced(baseCurrency: String, at: Instant) {
+        dataStore.edit {
+            it[ExchangeRatesSyncedFor] = baseCurrency
+            it[ExchangeRatesSyncedAt] = at.toEpochMilli()
+        }
+    }
+
+    private suspend fun <T> get(key: Preferences.Key<T>, default: T): T =
+        dataStore.data.first()[key] ?: default
+
+    private suspend fun <T> set(key: Preferences.Key<T>, value: T) {
+        dataStore.edit { it[key] = value }
+    }
+
+    companion object {
+        /** The SharedPreferences file these settings used to live in. */
+        const val LegacySharedPreferencesName = "ivy_wallet_prefs"
+
+        private val OnboardingCompleted = booleanPreferencesKey("onboarding_completed")
+        private val LastSelectedAccountId = stringPreferencesKey("last_selected_account_id")
+        private val AppLockEnabled = booleanPreferencesKey("lock_app")
+        private val StartDayOfMonth = intPreferencesKey("start_date_of_month")
+        private val DateFormat = stringPreferencesKey("date_format")
+        private val CornerRadiusDp = intPreferencesKey("corner_radius")
+        private val MinimalColors = booleanPreferencesKey("minimal_colors")
+        private val ShowNotifications = booleanPreferencesKey("show_notifications")
+        private val HideCurrentBalance = booleanPreferencesKey("hide_current_balance")
+        private val HideIncome = booleanPreferencesKey("hide_income")
+        private val TransfersAsIncomeExpense = booleanPreferencesKey("transfers_as_inc_exp")
+        private val CategorySortOrder = intPreferencesKey("categorySortOrder")
+        private val ExchangeRatesSyncedFor = stringPreferencesKey("exchange_rates_synced_for")
+        private val ExchangeRatesSyncedAt = longPreferencesKey("exchange_rates_synced_at")
+        private const val CardDismissedSuffix = "_cj_dismissed"
+
+        // The settings that used to live in the database's settings table.
+        internal val ThemeName = stringPreferencesKey("settings_theme")
+        internal val BaseCurrency = stringPreferencesKey("settings_base_currency")
+        internal val BufferAmount = doublePreferencesKey("settings_buffer_amount")
+        internal val UserName = stringPreferencesKey("settings_name")
+
+        private fun cardDismissedKey(cardId: String) = booleanPreferencesKey(cardId + CardDismissedSuffix)
+
+        // The names backups use for the settings they carry.
+        const val BackupShowNotifications = "show_notifications"
+        const val BackupAppLockEnabled = "lock_app"
+        const val BackupHideCurrentBalance = "hide_current_balance"
+        const val BackupTransfersAsIncomeExpense = "transfers_as_inc_exp"
+    }
+}

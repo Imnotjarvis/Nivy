@@ -5,6 +5,7 @@ import android.service.quicksettings.TileService
 import androidx.core.service.quicksettings.PendingIntentActivityWrapper
 import androidx.core.service.quicksettings.TileServiceCompat
 
+// Stays in com.ivy.wallet: Quick Settings stores this class name, and a new one would drop the tile on update.
 class PaymentTileService : TileService() {
     // Called when the user adds your tile.
     override fun onTileAdded() {

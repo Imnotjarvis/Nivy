@@ -11,13 +11,21 @@ are in the root `build.gradle.kts`, checked by `./gradlew :assertModuleGraph`.
 
 ## Where code goes
 
-- **Data access:** repositories in `shared:data:core` (`com.ivy.data.repository`), over Room's
+- **Data access:** repositories in `shared:data:core` (`com.nivy.data.repository`), over Room's
   DAOs.
 - **Logic:** use cases, `<Name>UseCase` classes with named suspend functions, in
-  `com.ivy.domain.usecase.<area>` (shared) or in a feature's own `usecase` package. A use case
+  `com.nivy.domain.usecase.<area>` (shared) or in a feature's own `usecase` package. A use case
   takes `DispatchersProvider` rather than using `Dispatchers.IO` itself, so tests run it on
   `TestDispatchersProvider`. The older `*Act` classes are gone; don't bring the pattern back.
 - **Screens:** a `ComposeViewModel` per screen, its state and events next to it.
+
+## Names that stay Ivy Wallet's
+
+The code is in `com.nivy`, but what a phone stores by name keeps the name Ivy Wallet gave it, or
+an update would lose it: the app ID (`com.ivy.wallet.offline`), the database, DataStore and
+preferences file names, the add-transaction intent action, and the six classes the system finds by
+class name (`RootActivity`, `PaymentTileService`, the three widget receivers and
+`TransactionReminderWorker`). The manifest writes those classes' names in full.
 
 ## One rule per number
 
@@ -49,7 +57,9 @@ package: the entry point and layout, its sections, its dialogs, and its previews
   `// when` and `// then`. Fake DAOs live in `shared:data:core-testing`.
 - Screenshot tests (Paparazzi) cover light, dark and minimal colors. After a UI change, record
   their reference images on CI (Actions > Build > Run workflow > `record-screenshots`, on your
-  branch, not on `main`), which commits them and builds the result.
+  branch). The run's `screenshots` artifact holds the changes as a patch: apply it at the
+  repository root with `git apply screenshots.patch`, then commit and push. CI never pushes
+  itself: a pull request only counts the checks of a push like yours.
 - Instrumented tests (`src/androidTest` in `shared:data:core` and `shared:domain`) cover what
   needs a real database or real files: migrations, balances, backups.
 - `main` takes changes through pull requests only, squash-merged, once these checks pass:

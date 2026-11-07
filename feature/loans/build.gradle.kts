@@ -1,9 +1,9 @@
 plugins {
-    id("ivy.feature")
+    id("nivy.feature")
 }
 
 android {
-    namespace = "com.ivy.loans"
+    namespace = "com.nivy.loans"
 }
 
 dependencies {

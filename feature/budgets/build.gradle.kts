@@ -1,9 +1,9 @@
 plugins {
-    id("ivy.feature")
+    id("nivy.feature")
 }
 
 android {
-    namespace = "com.ivy.budgets"
+    namespace = "com.nivy.budgets"
 }
 
 dependencies {

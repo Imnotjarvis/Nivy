@@ -41,6 +41,7 @@ absent() {
 check  "firebase"   'firebase|crashlytics|google-services|google\.services|com\.google\.gms'
 check  "play-core"  'com\.google\.android\.play|play-services'
 check  "github-api" 'api\.github\.com'
+# The "ivy" names below are Ivy Wallet's: its detekt rules from JitPack and its ivy.script plugin.
 check  "jitpack"    'jitpack|detekt-explicit|ivy[.-]explicit|IvyExplicit'
 check  "ci-wiring"  'ci-actions|wrapperUpgrade|wrapper-upgrade'
 check  "network-boundary" 'android\.permission\.INTERNET|^\s*(api|implementation)\(libs\.bundles\.ktor|import io\.ktor\.' \

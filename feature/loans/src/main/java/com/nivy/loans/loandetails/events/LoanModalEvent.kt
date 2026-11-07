@@ -1,0 +1,13 @@
+package com.nivy.loans.loandetails.events
+
+import com.nivy.data.model.Loan
+
+sealed interface LoanModalEvent : LoanDetailsScreenEvent {
+    data object OnDismissLoanModal : LoanModalEvent
+    data class OnEditLoanModal(val loan: Loan, val createLoanTransaction: Boolean) :
+        LoanModalEvent
+
+    data object PerformCalculation : LoanModalEvent
+    data object OnChangeDate : LoanModalEvent
+    data object OnChangeTime : LoanModalEvent
+}
