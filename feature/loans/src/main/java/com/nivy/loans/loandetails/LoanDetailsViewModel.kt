@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
@@ -21,8 +22,6 @@ import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.nivy.wallet.domain.logic.AccountCreator
-import com.nivy.wallet.utils.computationThread
-import com.nivy.wallet.utils.ioThread
 import com.nivy.loans.LoanProgress
 import com.nivy.loans.loan.data.DisplayLoanRecord
 import com.nivy.loans.progress
@@ -44,6 +43,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -62,6 +62,7 @@ class LoanDetailsViewModel @Inject constructor(
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<LoanDetailsScreenState, LoanDetailsScreenEvent>() {
 
     private val baseCurrency = mutableStateOf("")
@@ -240,7 +241,7 @@ class LoanDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             dateTime.value = timeProvider.utcNow()
 
-            defaultCurrencyCode = ioThread {
+            defaultCurrencyCode = withContext(dispatchers.io) {
                 currencyRepository.getBaseCurrency().code
             }.also {
                 baseCurrency.value = it
@@ -260,10 +261,10 @@ class LoanDetailsViewModel @Inject constructor(
                 }
             }
 
-            computationThread {
+            withContext(dispatchers.default) {
                 displayLoanRecords.value =
                     loanRepository.findRecordsByLoanId(LoanId(loanId)).map {
-                        val trans = ioThread {
+                        val trans = withContext(dispatchers.io) {
                             transactionRepository.findLoanRecordTransaction(
                                 it.id.value
                             )
@@ -285,7 +286,7 @@ class LoanDetailsViewModel @Inject constructor(
                     }.toImmutableList()
             }
 
-            progress.value = computationThread {
+            progress.value = withContext(dispatchers.default) {
                 loan.value?.progress(displayLoanRecords.value.map { it.loanRecord }) ?: LoanProgress.None
             }
 
