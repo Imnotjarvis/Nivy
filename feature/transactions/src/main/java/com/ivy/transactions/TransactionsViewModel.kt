@@ -4,10 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.toOption
-import com.ivy.base.resource.ResourceProvider
 import com.ivy.base.time.TimeConverter
 import com.ivy.base.time.TimeProvider
 import com.ivy.base.model.AccountType
@@ -16,48 +14,31 @@ import com.ivy.data.model.AccountValue
 import com.ivy.data.model.AccountId
 import com.ivy.data.model.Category
 import com.ivy.data.model.CreditCard
-import com.ivy.data.model.CategoryId
-import com.ivy.data.model.Expense
-import com.ivy.data.model.Income
 import com.ivy.data.model.Transaction
-import com.ivy.data.model.Transfer
-import com.ivy.data.model.getFromAccount
-import com.ivy.data.model.primitive.ColorInt
-import com.ivy.data.model.primitive.IconAsset
-import com.ivy.data.model.primitive.NotBlankTrimmedString
 import com.ivy.data.preferences.AppPreferences
 import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.AccountValueRepository
 import com.ivy.data.repository.CategoryRepository
 import com.ivy.data.repository.CreditCardRepository
 import com.ivy.data.repository.CurrencyRepository
-import com.ivy.data.repository.PlannedPaymentRuleRepository
-import com.ivy.data.repository.TransactionRepository
-import com.ivy.design.system.colors.RedLight
 import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.account.AccountBalanceUseCase
 import com.ivy.domain.usecase.account.AccountIncomeExpenseUseCase
 import com.ivy.domain.usecase.account.AccountTransactionsUseCase
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.domain.usecase.planned.DueTransactionsUseCase
-import com.ivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.ivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.ivy.wallet.PeriodState
 import com.ivy.wallet.data.model.TimePeriod
 import com.ivy.wallet.data.model.toCloseTimeRange
 import com.ivy.wallet.domain.logic.AccountCreator
-import com.ivy.wallet.utils.computationThread
 import com.ivy.wallet.utils.ioThread
 import com.ivy.design.utils.selectEndTextFieldValue
-import com.ivy.navigation.Navigation
 import com.ivy.navigation.TransactionsScreen
 import com.ivy.ui.ComposeViewModel
-import com.ivy.ui.R
 import com.ivy.wallet.domain.data.TransactionHistoryItem
 import com.ivy.wallet.domain.logic.CategoryCreator
-import com.ivy.wallet.domain.pure.data.ClosedTimeRange
 import com.ivy.wallet.domain.pure.exchange.ExchangeData
-import com.ivy.wallet.domain.pure.transaction.AccountValueFunctions
 import com.ivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -68,16 +49,16 @@ import java.util.UUID
 import javax.inject.Inject
 
 // The transactions screen serves accounts and categories with their own stats and actions.
-@Suppress("LargeClass")
 @Stable
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
     private val periodState: PeriodState,
-    private val nav: Navigation,
     private val accountLogic: AccountTransactionsLogic,
-    private val categoryLogic: CategoryTransactionsLogic,
+    private val categoryPeriodLoader: CategoryPeriodLoader,
+    private val accountInvestmentData: AccountInvestmentData,
+    private val accountCategoryDeletion: AccountCategoryDeletion,
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
     private val dueTransactionsUseCase: DueTransactionsUseCase,
@@ -87,16 +68,12 @@ class TransactionsViewModel @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val accountBalanceUseCase: AccountBalanceUseCase,
     private val accountIncomeExpenseUseCase: AccountIncomeExpenseUseCase,
-    private val transactionsIncomeExpenseUseCase: TransactionsIncomeExpenseUseCase,
     private val exchangeUseCase: ExchangeUseCase,
-    private val transactionRepository: TransactionRepository,
-    private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val creditCardRepository: CreditCardRepository,
     private val accountValueRepository: AccountValueRepository,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
-    private val resourceProvider: ResourceProvider,
 ) : ComposeViewModel<TransactionsState, TransactionsEvent>() {
 
     private val period = mutableStateOf(periodState.selected)
@@ -137,6 +114,24 @@ class TransactionsViewModel @Inject constructor(
     private val choosePeriodModal = mutableStateOf<ChoosePeriodModalData?>(null)
     private val investment = mutableStateOf<InvestmentData?>(null)
     private val valuesExpanded = mutableStateOf(true)
+
+    private val categoryLoadState = CategoryLoadState(
+        period = period,
+        baseCurrency = baseCurrency,
+        accounts = accounts,
+        category = category,
+        initWithTransactions = initWithTransactions,
+        balance = balance,
+        income = income,
+        expenses = expenses,
+        history = history,
+        upcoming = upcoming,
+        upcomingIncome = upcomingIncome,
+        upcomingExpenses = upcomingExpenses,
+        overdue = overdue,
+        overdueIncome = overdueIncome,
+        overdueExpenses = overdueExpenses,
+    )
 
     @Composable
     override fun uiState(): TransactionsState {
@@ -230,7 +225,13 @@ class TransactionsViewModel @Inject constructor(
         val balanceValue = balanceOutput.balance.toDouble()
         balance.doubleValue = balanceValue
         investment.value = if (initialAccount.type == AccountType.INVESTMENT) {
-            investmentData(initialAccount, balanceValue, balanceOutput.gain?.toDouble(), balanceOutput.cash?.toDouble())
+            accountInvestmentData.investmentData(
+                initialAccount,
+                balanceValue,
+                balanceOutput.gain?.toDouble(),
+                balanceOutput.cash?.toDouble(),
+                valuesExpanded.value,
+            )
         } else {
             null
         }
@@ -290,260 +291,6 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initForCategory(categoryId: UUID, accountFilterList: List<UUID>) {
-        val accountFilterSet = accountFilterList.toSet()
-        val initialCategory = ioThread {
-            categoryRepository.findById(CategoryId(categoryId)) ?: error("category not found")
-        }
-        category.value = initialCategory
-        val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
-
-        balance.doubleValue = ioThread {
-            categoryLogic.calculateCategoryBalance(initialCategory, range, accountFilterSet)
-        }
-
-        income.doubleValue = ioThread {
-            categoryLogic.calculateCategoryIncome(initialCategory, range, accountFilterSet)
-        }
-
-        expenses.doubleValue = ioThread {
-            categoryLogic.calculateCategoryExpenses(initialCategory, range, accountFilterSet)
-        }
-
-        history.value = ioThread {
-            categoryLogic.historyByCategoryAccountWithDateDividers(
-                initialCategory,
-                range,
-                accountFilterSet = accountFilterList.toSet(),
-            ).toImmutableList()
-        }
-
-        // Upcoming
-        // TODO: Rework Upcoming to FP
-        upcomingIncome.doubleValue = ioThread {
-            categoryLogic.calculateUpcomingIncomeByCategory(initialCategory, range)
-        }
-
-        upcomingExpenses.doubleValue = ioThread {
-            categoryLogic.calculateUpcomingExpensesByCategory(initialCategory, range)
-        }
-
-        upcoming.value = ioThread {
-            categoryLogic.upcomingByCategory(initialCategory, range).toImmutableList()
-        }
-
-        // Overdue
-        // TODO: Rework Overdue to FP
-        overdueIncome.doubleValue = ioThread {
-            categoryLogic.calculateOverdueIncomeByCategory(initialCategory, range)
-        }
-
-        overdueExpenses.doubleValue = ioThread {
-            categoryLogic.calculateOverdueExpensesByCategory(initialCategory, range)
-        }
-
-        overdue.value =
-            ioThread {
-                categoryLogic.overdueByCategory(initialCategory, range).toImmutableList()
-            }
-    }
-
-    private suspend fun initForCategoryWithTransactions(
-        categoryId: UUID,
-        accountFilterList: List<UUID>,
-        transactions: List<Transaction>,
-    ) {
-        computationThread {
-            initWithTransactions.value = true
-
-            val trans = transactions.filter {
-                it !is Transfer && it.category?.value == categoryId
-            }
-
-            val accountFilterSet = accountFilterList.toSet()
-            val initialCategory = ioThread {
-                categoryRepository.findById(CategoryId(categoryId)) ?: error("category not found")
-            }
-            category.value = initialCategory
-            val range =
-                period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
-
-            val incomeTrans = transactions.filter {
-                it is Income && it.category?.value == categoryId
-            }
-
-            val expenseTrans = transactions.filter {
-                it is Expense && it.category?.value == categoryId
-            }
-
-            balance.doubleValue = ioThread {
-                categoryLogic.calculateCategoryBalance(
-                    initialCategory,
-                    range,
-                    accountFilterSet,
-                    transactions = trans
-                )
-            }
-
-            income.doubleValue = ioThread {
-                categoryLogic.calculateCategoryIncome(
-                    incomeTransaction = incomeTrans,
-                    accountFilterSet = accountFilterSet
-                )
-            }
-
-            expenses.doubleValue = ioThread {
-                categoryLogic.calculateCategoryExpenses(
-                    expenseTransactions = expenseTrans,
-                    accountFilterSet = accountFilterSet
-                )
-            }
-
-            history.value = ioThread {
-                categoryLogic.historyByCategoryAccountWithDateDividers(
-                    initialCategory,
-                    range,
-                    accountFilterSet = accountFilterList.toSet(),
-                    transactions = trans
-                ).toImmutableList()
-            }
-
-            // Upcoming
-            // TODO: Rework Upcoming to FP
-            upcomingIncome.doubleValue = ioThread {
-                categoryLogic.calculateUpcomingIncomeByCategory(initialCategory, range)
-            }
-
-            upcomingExpenses.doubleValue = ioThread {
-                categoryLogic.calculateUpcomingExpensesByCategory(initialCategory, range)
-            }
-
-            upcoming.value = ioThread {
-                categoryLogic.upcomingByCategory(initialCategory, range).toImmutableList()
-            }
-
-            // Overdue
-            // TODO: Rework Overdue to FP
-            overdueIncome.doubleValue = ioThread {
-                categoryLogic.calculateOverdueIncomeByCategory(initialCategory, range)
-            }
-
-            overdueExpenses.doubleValue = ioThread {
-                categoryLogic.calculateOverdueExpensesByCategory(initialCategory, range)
-            }
-
-            overdue.value =
-                ioThread {
-                    categoryLogic.overdueByCategory(initialCategory, range).toImmutableList()
-                }
-        }
-    }
-
-    private suspend fun initForUnspecifiedCategory() {
-        val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
-
-        balance.doubleValue = ioThread {
-            categoryLogic.calculateUnspecifiedBalance(range)
-        }
-
-        income.doubleValue = ioThread {
-            categoryLogic.calculateUnspecifiedIncome(range)
-        }
-
-        expenses.doubleValue = ioThread {
-            categoryLogic.calculateUnspecifiedExpenses(range)
-        }
-
-        history.value = ioThread {
-            categoryLogic.historyUnspecified(range).toImmutableList()
-        }
-
-        // Upcoming
-        upcomingIncome.doubleValue = ioThread {
-            categoryLogic.calculateUpcomingIncomeUnspecified(range)
-        }
-
-        upcomingExpenses.doubleValue = ioThread {
-            categoryLogic.calculateUpcomingExpensesUnspecified(range)
-        }
-
-        upcoming.value = ioThread {
-            categoryLogic.upcomingUnspecified(range).toImmutableList()
-        }
-
-        // Overdue
-        overdueIncome.doubleValue = ioThread {
-            categoryLogic.calculateOverdueIncomeUnspecified(range)
-        }
-
-        overdueExpenses.doubleValue = ioThread {
-            categoryLogic.calculateOverdueExpensesUnspecified(range)
-        }
-
-        overdue.value = ioThread { categoryLogic.overdueUnspecified(range).toImmutableList() }
-    }
-
-    /** A pie chart's "Unspecified" slice: its transactions without a category, in its accounts. */
-    private suspend fun initForUnspecifiedWithTransactions(
-        accountFilterList: List<UUID>,
-        transactions: List<Transaction>,
-    ) {
-        initWithTransactions.value = true
-        val accountFilterSet = accountFilterList.toSet()
-        val trans = transactions.filter { it !is Transfer && it.category == null }
-
-        income.doubleValue = categoryLogic.calculateCategoryIncome(
-            incomeTransaction = trans.filterIsInstance<Income>(),
-            accountFilterSet = accountFilterSet,
-        )
-        expenses.doubleValue = categoryLogic.calculateCategoryExpenses(
-            expenseTransactions = trans.filterIsInstance<Expense>(),
-            accountFilterSet = accountFilterSet,
-        )
-        balance.doubleValue = income.doubleValue - expenses.doubleValue
-        history.value = transactionsWithDateDividersUseCase.withDateDividers(
-            baseCurrency = baseCurrency.value,
-            transactions = trans.filter {
-                it.settled && (accountFilterSet.isEmpty() || it.getFromAccount().value in accountFilterSet)
-            }
-        ).toImmutableList()
-    }
-
-    private suspend fun initForAccountTransfersCategory(
-        accountFilterList: List<UUID>,
-        transactions: List<Transaction>,
-    ) {
-        initWithTransactions.value = true
-        val accountTransferCategory = Category(
-            name = NotBlankTrimmedString.unsafe(resourceProvider.getString(R.string.account_transfers)),
-            color = ColorInt(RedLight.toArgb()),
-            icon = IconAsset.unsafe("transfer"),
-            id = CategoryId(UUID.randomUUID()),
-            orderNum = 0.0,
-        )
-        category.value = accountTransferCategory
-        val accountFilterIdSet = accountFilterList.toHashSet()
-        val trans = transactions.filter {
-            it is Transfer && it.category == null && (
-                    it.fromAccount.value in accountFilterIdSet || it.toAccount.value in accountFilterIdSet
-                    )
-        }
-
-        val historyIncomeExpense = transactionsIncomeExpenseUseCase.incomeExpense(
-            transactions = trans,
-            accounts = accountFilterList.mapNotNull { accID -> accounts.value.find { it.id.value == accID } },
-            baseCurrency = baseCurrency.value
-        )
-
-        income.doubleValue = historyIncomeExpense.transferIncome.toDouble()
-        expenses.doubleValue = historyIncomeExpense.transferExpense.toDouble()
-        balance.doubleValue = income.doubleValue - expenses.doubleValue
-        history.value = transactionsWithDateDividersUseCase.withDateDividers(
-            baseCurrency = baseCurrency.value,
-            transactions = transactions.filter { it.settled }
-        ).toImmutableList()
-    }
-
     private fun reset() {
         account.value = null
         category.value = null
@@ -601,33 +348,13 @@ class TransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             when {
                 screen.accountId != null -> {
-                    deleteAccount(screen.accountId!!)
+                    accountCategoryDeletion.deleteAccount(screen.accountId!!)
                 }
 
                 screen.categoryId != null -> {
-                    deleteCategory(screen.categoryId!!)
+                    accountCategoryDeletion.deleteCategory(screen.categoryId!!)
                 }
             }
-        }
-    }
-
-    private suspend fun deleteAccount(accountId: UUID) {
-        ioThread {
-            transactionRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            creditCardRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            accountValueRepository.deleteAllByAccountId(accountId = AccountId(accountId))
-            accountRepository.deleteById(AccountId(accountId))
-
-            nav.back()
-        }
-    }
-
-    private suspend fun deleteCategory(categoryId: UUID) {
-        ioThread {
-            categoryRepository.deleteById(CategoryId(categoryId))
-
-            nav.back()
         }
     }
 
@@ -662,61 +389,6 @@ class TransactionsViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    // What [account]'s transactions put in and invested, at each value entered too, and the transfers into it.
-    private suspend fun investmentData(
-        account: Account,
-        balance: Double,
-        gain: Double?,
-        cash: Double?,
-    ): InvestmentData {
-        val transactions = accountTransactionsUseCase.transactions(
-            accountId = account.id.value,
-            range = ClosedTimeRange.allTimeIvy(timeProvider)
-        )
-        val values = accountValueRepository.findByAccount(account.id).reversed().map { value ->
-            ValueEntry(
-                value = value,
-                invested = transactions.filter { it.time <= value.time }
-                    .sumOf { AccountValueFunctions.balance(it, account.id.value) }
-                    .toDouble() - (value.cash?.value ?: 0.0),
-            )
-        }
-        return InvestmentData(
-            chart = valueChart(account, firstValue = values.lastOrNull()?.value),
-            invested = balance - (gain ?: 0.0) - (cash ?: 0.0),
-            gain = gain,
-            cash = cash,
-            transfersIn = transactions.count {
-                it is Transfer && it.toAccount == account.id && it.fromAccount != account.id
-            },
-            values = values.toImmutableList(),
-            valuesExpanded = valuesExpanded.value,
-        )
-    }
-
-    // The value and the money invested at the end of each of the last months, as the balance has them
-    // then: from the month of the first value, before which there's no value to show.
-    private suspend fun valueChart(account: Account, firstValue: AccountValue?): ImmutableList<ValuePoint> {
-        val startDay = periodState.startDayOfMonth
-        val current = TimePeriod.currentMonth(startDayOfMonth = startDay, timeProvider = timeProvider)
-        val month = current.month
-        val year = current.year
-        if (firstValue == null || month == null || year == null) return persistentListOf()
-        val now = timeProvider.utcNow()
-        return (ChartMonths - 1 downTo 0).mapNotNull { monthsAgo ->
-            val period = month.incrementMonthPeriod(-monthsAgo.toLong(), year)
-            val end = minOf(period.toRange(startDay, timeConverter, timeProvider).toCloseTimeRange().to, now)
-            if (end < firstValue.time) return@mapNotNull null
-            val output = accountBalanceUseCase.balance(account = account, range = ClosedTimeRange.to(end))
-            val value = output.balance.toDouble()
-            ValuePoint(
-                month = period.month,
-                value = value,
-                invested = value - (output.gain?.toDouble() ?: 0.0) - (output.cash?.toDouble() ?: 0.0),
-            )
-        }.toImmutableList()
     }
 
     private fun saveValue(screen: TransactionsScreen, value: AccountValue) {
@@ -790,13 +462,18 @@ class TransactionsViewModel @Inject constructor(
                 }
 
                 screen.categoryId != null && screen.transactions.isEmpty() -> {
-                    initForCategory(screen.categoryId!!, screen.accountIdFilterList)
+                    categoryPeriodLoader.initForCategory(
+                        categoryLoadState,
+                        screen.categoryId!!,
+                        screen.accountIdFilterList
+                    )
                 }
                 // unspecifiedCategory==false is explicitly checked to accommodate for a temp
                 // AccountTransfers Category during Reports Screen
                 screen.categoryId != null && screen.transactions.isNotEmpty() &&
                         screen.unspecifiedCategory == false -> {
-                    initForCategoryWithTransactions(
+                    categoryPeriodLoader.initForCategoryWithTransactions(
+                        categoryLoadState,
                         screen.categoryId!!,
                         screen.accountIdFilterList,
                         screen.transactions
@@ -805,21 +482,23 @@ class TransactionsViewModel @Inject constructor(
 
                 screen.unspecifiedCategory == true && screen.categoryId != null &&
                         screen.transactions.isNotEmpty() -> {
-                    initForAccountTransfersCategory(
+                    categoryPeriodLoader.initForAccountTransfersCategory(
+                        categoryLoadState,
                         screen.accountIdFilterList,
                         screen.transactions
                     )
                 }
 
                 screen.unspecifiedCategory == true && screen.transactions.isNotEmpty() -> {
-                    initForUnspecifiedWithTransactions(
+                    categoryPeriodLoader.initForUnspecifiedWithTransactions(
+                        categoryLoadState,
                         screen.accountIdFilterList,
                         screen.transactions
                     )
                 }
 
                 screen.unspecifiedCategory == true -> {
-                    initForUnspecifiedCategory()
+                    categoryPeriodLoader.initForUnspecifiedCategory(categoryLoadState)
                 }
 
                 else -> error("no id provided")
@@ -827,5 +506,3 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 }
-
-private const val ChartMonths = 12

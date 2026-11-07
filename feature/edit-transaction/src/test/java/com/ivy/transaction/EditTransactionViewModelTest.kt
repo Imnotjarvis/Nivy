@@ -34,6 +34,7 @@ import com.ivy.data.repository.CurrencyRepository
 import com.ivy.data.repository.TagRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TransactionMapper
+import com.ivy.domain.features.Features
 import com.ivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.ivy.domain.usecase.exchange.ExchangeUseCase
 import com.ivy.navigation.EditTransactionScreen
@@ -113,44 +114,63 @@ class EditTransactionViewModelTest {
 
         coEvery { accountRepository.findAll() } returns persistentListOf(bank, wallet, dollars, amexAccount)
         val timeConverter = TestTimeConverter()
+        val context = mockk<Context>(relaxed = true)
+        val categoryRepository = mockk<CategoryRepository> {
+            coEvery { findAll() } returns listOf(food)
+            coEvery { findById(food.id) } returns food
+        }
+        val features = mockk<Features>(relaxed = true)
         viewModel = EditTransactionViewModel(
-            context = mockk(relaxed = true),
-            toaster = toaster,
-            loanDao = mockk(relaxed = true),
-            currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
+            transactionLoanDisplay = TransactionLoanDisplay(
+                context = context,
+                loanDao = mockk(relaxed = true),
+            ),
+            transferExchangeRate = TransferExchangeRate(
+                currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
+                exchangeUseCase = mockk<ExchangeUseCase> {
+                    // 1 EUR = 2 USD
+                    coEvery { convert(any<PositiveValue>(), Usd) } answers { firstArg<PositiveValue>().to(Usd, 2.0) }
+                    coEvery { convert(any<PositiveValue>(), Eur) } answers { firstArg<PositiveValue>().to(Eur, 0.5) }
+                },
+            ),
+            transactionSaving = TransactionSaving(
+                context = context,
+                toaster = toaster,
+                transactionRepo = transactionRepo,
+                transactionMapper = TransactionMapper(accountRepository),
+                loanTransactionsUseCase = mockk(relaxed = true),
+                creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, timeConverter),
+                dueTransactionsUseCase = mockk(relaxed = true),
+                timeProvider = FixedTime,
+            ),
             nav = nav,
             appPreferences = mockk<AppPreferences>(relaxed = true) {
                 coEvery { lastSelectedAccountId() } returns null
             },
-            exchangeUseCase = mockk<ExchangeUseCase> {
-                // 1 EUR = 2 USD
-                coEvery { convert(any<PositiveValue>(), Usd) } answers { firstArg<PositiveValue>().to(Usd, 2.0) }
-                coEvery { convert(any<PositiveValue>(), Eur) } answers { firstArg<PositiveValue>().to(Eur, 0.5) }
-            },
             categoryCreator = mockk(relaxed = true),
             accountCreator = mockk(relaxed = true),
-            dueTransactionsUseCase = mockk(relaxed = true),
             smartTitleSuggestionsLogic = mockk<SmartTitleSuggestionsLogic> {
                 coEvery { suggest(any(), any(), any()) } returns emptySet()
             },
-            loanTransactionsUseCase = mockk(relaxed = true),
-            categoryRepository = mockk<CategoryRepository> {
-                coEvery { findAll() } returns listOf(food)
-                coEvery { findById(food.id) } returns food
-            },
+            sortedCategories = SortedCategories(categoryRepository, features, context),
+            categoryRepository = categoryRepository,
             accountRepository = accountRepository,
             transactionRepo = transactionRepo,
-            transactionMapper = TransactionMapper(accountRepository),
-            tagRepository = mockk<TagRepository> {
-                coEvery { findAll() } returns emptyList()
-                coEvery { findByAssociatedId(any<AssociationId>()) } returns emptyList()
-            },
-            tagMapper = mockk(relaxed = true),
-            features = mockk(relaxed = true),
+            transactionTags = TransactionTags(
+                tagRepository = mockk<TagRepository> {
+                    coEvery { findAll() } returns emptyList()
+                    coEvery { findByAssociatedId(any<AssociationId>()) } returns emptyList()
+                },
+                tagMapper = mockk(relaxed = true),
+            ),
+            features = features,
             timeConverter = timeConverter,
             timeProvider = FixedTime,
-            dateTimePicker = mockk(relaxed = true),
-            creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, timeConverter),
+            transactionDateTimePicker = TransactionDateTimePicker(
+                dateTimePicker = mockk(relaxed = true),
+                timeConverter = timeConverter,
+                timeProvider = FixedTime,
+            ),
             creditCardRepository = creditCardRepository,
         )
     }

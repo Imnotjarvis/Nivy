@@ -1,20 +1,5 @@
 package com.ivy.transaction
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.text.style.TextOverflow
-import com.ivy.design.system.shapes.PillShape
-import com.ivy.wallet.ui.theme.components.IvyIcon
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.Alignment
-import com.ivy.design.system.typography.numberTitleSmall
-import com.ivy.ui.time.LocalTimeFormatter
-import com.ivy.ui.time.TimeFormatter
-import com.ivy.design.system.colors.Gray
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -43,7 +28,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ivy.base.model.TransactionType
 import com.ivy.data.model.Account
@@ -51,7 +35,6 @@ import com.ivy.data.model.Category
 import com.ivy.data.model.CreditCard
 import com.ivy.data.model.Tag
 import com.ivy.data.model.TagId
-import com.ivy.design.system.colors.Orange
 import com.ivy.design.utils.hideKeyboard
 import com.ivy.domain.RootScreen
 import com.ivy.wallet.data.EditTransactionDisplayLoan
@@ -59,10 +42,8 @@ import com.ivy.wallet.ui.component.edit.TransactionDateTime
 import com.ivy.wallet.ui.component.edit.core.Description
 import com.ivy.wallet.ui.component.tags.AddTagButton
 import com.ivy.wallet.ui.component.tags.ShowTagModal
-import com.ivy.wallet.ui.previewAccount
 import com.ivy.navigation.EditPlannedScreen
 import com.ivy.navigation.EditTransactionScreen
-import com.ivy.navigation.IvyPreview
 import com.ivy.navigation.navigation
 import com.ivy.navigation.screenScopedViewModel
 import com.ivy.ui.R
@@ -94,10 +75,8 @@ import com.ivy.wallet.ui.theme.modal.edit.DescriptionModal
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentSetOf
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
@@ -211,7 +190,7 @@ fun BoxWithConstraintsScope.EditTransactionScreen(screen: EditTransactionScreen)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @ExperimentalFoundationApi
 @Composable
-private fun BoxWithConstraintsScope.UI(
+internal fun BoxWithConstraintsScope.UI(
     screen: EditTransactionScreen,
     transactionType: TransactionType,
     baseCurrency: String,
@@ -682,79 +661,6 @@ private fun BoxWithConstraintsScope.UI(
     )
 }
 
-/**
- * When the credit card charges the expense, with arrows to move it a month earlier or later, like
- * when the bank closed the statement on another day. Like the date row above it: the label in the
- * text font, the date in the number font.
- */
-@Composable
-private fun ChargeDate(
-    chargeDate: LocalDateTime,
-    canMoveEarlier: Boolean,
-    onMove: (months: Int) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .padding(start = 32.dp, end = 16.dp)
-            .testTag("transaction_charge_date"),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.charged_on),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = Gray,
-                fontWeight = FontWeight.Bold
-            )
-        )
-        Spacer(Modifier.width(6.dp))
-        Text(
-            modifier = Modifier.weight(1f),
-            text = with(LocalTimeFormatter.current) {
-                chargeDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = true))
-            },
-            style = MaterialTheme.typography.numberTitleSmall.copy(color = Gray),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        MoveChargeButton(
-            modifier = Modifier.rotate(180f),
-            description = stringResource(R.string.charge_earlier),
-            enabled = canMoveEarlier,
-            testTag = "transaction_charge_earlier",
-            onClick = { onMove(-1) },
-        )
-        MoveChargeButton(
-            description = stringResource(R.string.charge_later),
-            enabled = true,
-            testTag = "transaction_charge_later",
-            onClick = { onMove(1) },
-        )
-    }
-}
-
-@Composable
-private fun MoveChargeButton(
-    description: String,
-    enabled: Boolean,
-    testTag: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    IvyIcon(
-        modifier = modifier
-            .size(40.dp)
-            .clip(PillShape)
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(8.dp)
-            .testTag(testTag),
-        icon = R.drawable.ic_arrow_right,
-        tint = if (enabled) MaterialTheme.colorScheme.onSurface else Gray.copy(alpha = DisabledAlpha),
-        contentDescription = description,
-    )
-}
-
-private const val DisabledAlpha = 0.4f
-
 private fun shouldFocusCategory(
     category: Category?,
 ): Boolean = category == null
@@ -765,55 +671,3 @@ private fun shouldFocusTitle(
 ): Boolean = titleTextFieldValue.text.isBlank() && type != TransactionType.TRANSFER
 
 private fun shouldFocusAmount(amount: Double) = amount == 0.0
-
-/** For Preview purpose **/
-private val testDateTime = LocalDateTime.of(2023, 4, 27, 0, 35)
-    .toInstant(ZoneOffset.UTC)
-
-@ExperimentalFoundationApi
-@Preview
-@Composable
-private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
-    IvyPreview(isDark) {
-        UI(
-            screen = EditTransactionScreen(null, TransactionType.EXPENSE),
-            initialTitle = "",
-            titleSuggestions = persistentSetOf(),
-            tags = persistentListOf(),
-            transactionAssociatedTags = persistentListOf(),
-            baseCurrency = "BGN",
-            dateTime = testDateTime,
-            description = null,
-            category = null,
-            account = previewAccount("phyre", color = Orange, currency = "BGN"),
-            toAccount = null,
-            amount = 0.0,
-            dueDate = null,
-            transactionType = TransactionType.INCOME,
-            customExchangeRateState = CustomExchangeRateState(),
-
-            categories = persistentListOf(),
-            accounts = persistentListOf(),
-
-            onDueDateChange = {},
-            onCategoryChange = {},
-            onAccountChange = {},
-            onToAccountChange = {},
-            onDescriptionChange = {},
-            onTitleChange = {},
-            onAmountChange = {},
-
-            onCreateCategory = { },
-            onEditCategory = {},
-            onPayPlannedPayment = {},
-            onSave = {},
-            onSetHasChanges = {},
-            onDelete = {},
-            onDuplicate = {},
-            onCreateAccount = { },
-            onSetDate = {},
-            onSetTime = {},
-            onSetTransactionType = {}
-        )
-    }
-}
