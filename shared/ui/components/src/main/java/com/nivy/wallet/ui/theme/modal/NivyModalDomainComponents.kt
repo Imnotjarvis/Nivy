@@ -19,7 +19,6 @@ import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.NivyDividerLine
 import androidx.compose.material3.MaterialTheme
 
-@Suppress("UnusedParameter")
 @Composable
 fun ModalAmountSection(
     label: String,
@@ -32,8 +31,7 @@ fun ModalAmountSection(
     showAmountModal: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NivyDividerLine()

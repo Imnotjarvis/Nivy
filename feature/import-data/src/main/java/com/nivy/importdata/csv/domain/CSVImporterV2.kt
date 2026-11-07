@@ -149,14 +149,14 @@ class CSVImporterV2 @Inject constructor(
         val toAccount = if (type == TransactionType.TRANSFER) {
             mapAccount(
                 baseCurrency = baseCurrency,
-                accountNameString = parseToAccount(
+                accountNameString = parseText(
                     value = row.extractValue(transferFields.toAccount),
                     metadata = transferFields.toAccount.metadata
                 ),
-                currencyRawString = parseToAccountCurrency(
+                currencyRawString = parseText(
                     value = row.extractValue(transferFields.toAccountCurrency),
                     metadata = transferFields.toAccountCurrency.metadata
-                ) ?: parseAccountCurrency(
+                ) ?: parseText(
                     value = row.extractValue(importantFields.accountCurrency),
                     metadata = importantFields.accountCurrency.metadata,
                 ),
@@ -196,11 +196,11 @@ class CSVImporterV2 @Inject constructor(
 
         val account = mapAccount(
             baseCurrency = baseCurrency,
-            accountNameString = parseAccount(
+            accountNameString = parseText(
                 value = row.extractValue(importantFields.account),
                 metadata = importantFields.account.metadata
             ),
-            currencyRawString = parseAccountCurrency(
+            currencyRawString = parseText(
                 value = row.extractValue(importantFields.accountCurrency),
                 metadata = importantFields.accountCurrency.metadata
             ),
@@ -214,7 +214,7 @@ class CSVImporterV2 @Inject constructor(
         if (toAccount != null && toAmount == null && toAccount.asset != account.asset) return null
 
         val category = mapCategory(
-            categoryNameString = parseCategory(
+            categoryNameString = parseText(
                 value = row.extractValue(optionalFields.category),
                 metadata = optionalFields.category.metadata
             ),
@@ -222,11 +222,11 @@ class CSVImporterV2 @Inject constructor(
             icon = null,
             orderNum = null,
         )
-        val title = parseTitle(
+        val title = parseText(
             row.extractValue(optionalFields.title),
             optionalFields.title.metadata
         )
-        val description = parseTitle(
+        val description = parseText(
             row.extractValue(optionalFields.description),
             optionalFields.description.metadata
         )

@@ -19,11 +19,6 @@ class FakeTagDao : TagDao, WriteTagDao {
         return items.find { it.id == id }
     }
 
-    override suspend fun findByIds(ids: List<UUID>): List<TagEntity> {
-        val setOfIds = ids.toSet()
-        return items.filter { setOfIds.contains(it.id) }
-    }
-
     override suspend fun findByText(text: String): List<TagEntity> {
         return items.filter { it.name.contains(text.toLowerCase(Locale.current)) }
     }

@@ -81,8 +81,6 @@ fun parseTransactionType(
 }
 
 // region Parse Date
-var lastSuccessfulFormat: String? = null
-
 fun parseDate(
     value: String,
     metadata: DateMetadata
@@ -92,17 +90,6 @@ fun parseDate(
     }
 
     val possibleFormats = possibleDateFormats(metadata)
-    if (lastSuccessfulFormat != null) {
-        try {
-            return@tryParse LocalDateTime.parse(
-                cleanedValue,
-                DateTimeFormatter.ofPattern(lastSuccessfulFormat)
-            )
-        } catch (e: DateTimeParseException) {
-            // Ignore and continue trying other formats
-            lastSuccessfulFormat = null
-        }
-    }
     for (format in possibleFormats) {
         try {
             return@tryParse LocalDateTime.parse(cleanedValue, DateTimeFormatter.ofPattern(format))
@@ -183,54 +170,13 @@ private fun possibleDateFormats(metadata: DateMetadata): List<String> {
 }
 // endregion
 
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
+/** A text field (account, currency, category, title, description), trimmed; null when blank. */
+// Every parser has the (value, metadata) shape parseStatus() takes; text needs no metadata.
 @Suppress("UnusedParameter")
-fun parseAccount(
+fun parseText(
     value: String,
     metadata: Unit,
-): String? = notBlankTrimmedString(value)
-
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
-@Suppress("UnusedParameter")
-fun parseAccountCurrency(
-    value: String,
-    metadata: Unit,
-): String? = notBlankTrimmedString(value)
-
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
-@Suppress("UnusedParameter")
-fun parseToAccount(
-    value: String,
-    metadata: Unit
-): String? = notBlankTrimmedString(value)
-
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
-@Suppress("UnusedParameter")
-fun parseToAccountCurrency(
-    value: String,
-    metadata: Unit
-): String? = notBlankTrimmedString(value)
-
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
-@Suppress("UnusedParameter")
-fun parseCategory(
-    value: String,
-    metadata: Unit
-): String? = notBlankTrimmedString(value)
-
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
-@Suppress("UnusedParameter")
-fun parseTitle(
-    value: String,
-    metadata: Unit
-): String? = notBlankTrimmedString(value)
-
-// Every parser has the (value, metadata) shape parseStatus() takes; this one needs no metadata.
-@Suppress("UnusedParameter")
-fun parseDescription(
-    value: String,
-    metadata: Unit
-): String? = notBlankTrimmedString(value)
+): String? = value.trim().takeIf { it.isNotBlank() }
 
 /** The row's value in the mapped column; "" when the row is shorter. */
 fun <M> CSVRow.extractValue(
@@ -238,9 +184,6 @@ fun <M> CSVRow.extractValue(
 ): String = values.getOrElse(mapping.index) { "" }
 
 // region Util
-private fun notBlankTrimmedString(value: String): String? =
-    value.trim().takeIf { it.isNotBlank() }
-
 // A value the parser can't read, whatever it throws, is no value: the import goes on without it.
 private fun <T> tryParse(block: () -> T): T? = try {
     block()

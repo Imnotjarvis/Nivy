@@ -13,16 +13,10 @@ import com.nivy.base.Toaster
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.importdata.csv.domain.CSVImporterV2
 import com.nivy.importdata.csv.domain.SAMPLE_SIZE
-import com.nivy.importdata.csv.domain.parseAccount
-import com.nivy.importdata.csv.domain.parseAccountCurrency
 import com.nivy.importdata.csv.domain.parseAmount
-import com.nivy.importdata.csv.domain.parseCategory
 import com.nivy.importdata.csv.domain.parseDate
-import com.nivy.importdata.csv.domain.parseDescription
 import com.nivy.importdata.csv.domain.parseStatus
-import com.nivy.importdata.csv.domain.parseTitle
-import com.nivy.importdata.csv.domain.parseToAccount
-import com.nivy.importdata.csv.domain.parseToAccountCurrency
+import com.nivy.importdata.csv.domain.parseText
 import com.nivy.importdata.csv.domain.parseTransactionType
 import com.nivy.navigation.Navigation
 import com.nivy.data.file.FileSystem
@@ -231,11 +225,11 @@ class CSVViewModel @Inject constructor(
                         date = date,
                         dateStatus = sampleCSV.parseStatus(date, ::parseDate),
                         account = account,
-                        accountStatus = sampleCSV.parseStatus(account, ::parseAccount),
+                        accountStatus = sampleCSV.parseStatus(account, ::parseText),
                         accountCurrency = accountCurrency,
                         accountCurrencyStatus = sampleCSV.parseStatus(
                             accountCurrency,
-                            ::parseAccountCurrency
+                            ::parseText
                         ),
                     )
                 } else {
@@ -259,11 +253,11 @@ class CSVViewModel @Inject constructor(
                 if (sampleCSV != null) {
                     TransferFields(
                         toAccount = toAccount,
-                        toAccountStatus = sampleCSV.parseStatus(toAccount, ::parseToAccount),
+                        toAccountStatus = sampleCSV.parseStatus(toAccount, ::parseText),
                         toAccountCurrency = toAccountCurrency,
                         toAccountCurrencyStatus = sampleCSV.parseStatus(
                             toAccountCurrency,
-                            ::parseToAccountCurrency
+                            ::parseText
                         ),
                         toAmount = toAmount,
                         toAmountStatus = sampleCSV.parseStatus(toAmount, ::parseAmount)
@@ -289,11 +283,11 @@ class CSVViewModel @Inject constructor(
                 if (sampleCSV != null) {
                     OptionalFields(
                         category = category,
-                        categoryStatus = sampleCSV.parseStatus(category, ::parseCategory),
+                        categoryStatus = sampleCSV.parseStatus(category, ::parseText),
                         title = title,
-                        titleStatus = sampleCSV.parseStatus(title, ::parseTitle),
+                        titleStatus = sampleCSV.parseStatus(title, ::parseText),
                         description = description,
-                        descriptionStatus = sampleCSV.parseStatus(description, ::parseDescription),
+                        descriptionStatus = sampleCSV.parseStatus(description, ::parseText),
                     )
                 } else {
                     null

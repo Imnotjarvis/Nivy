@@ -28,8 +28,8 @@ class BalanceViewModelTest {
 
     // 1,000 now; by the end of November, a card purchase of 300 is charged, and 100 more is due.
     private val walletBalanceUseCase = mockk<WalletBalanceUseCase> {
-        coEvery { balance(any(), any(), isNull(), any()) } returns BigDecimal(1_000)
-        coEvery { balance(any(), any(), isNull(inverse = true), any()) } returns BigDecimal(700)
+        coEvery { balance(any(), isNull(), any()) } returns BigDecimal(1_000)
+        coEvery { balance(any(), isNull(inverse = true), any()) } returns BigDecimal(700)
     }
 
     private val viewModel = BalanceViewModel(

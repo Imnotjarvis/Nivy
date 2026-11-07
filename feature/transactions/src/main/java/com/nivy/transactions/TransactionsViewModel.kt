@@ -33,7 +33,6 @@ import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
 import com.nivy.wallet.domain.logic.AccountCreator
-import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.ui.ComposeViewModel
 import com.nivy.wallet.domain.data.TransactionHistoryItem
@@ -109,7 +108,6 @@ class TransactionsViewModel @Inject constructor(
     private val category = mutableStateOf<Category?>(null)
     private val initWithTransactions = mutableStateOf(false)
     private val treatTransfersAsIncomeExpense = mutableStateOf(false)
-    private val accountNameConfirmation = mutableStateOf(selectEndTextFieldValue(""))
     private val enableDeletionButton = mutableStateOf(false)
     private val skipAllModalVisible = mutableStateOf(false)
     private val deleteModal1Visible = mutableStateOf(false)
@@ -432,7 +430,6 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private fun updateAccountDeletionState(confirmationText: String) {
-        accountNameConfirmation.value = selectEndTextFieldValue(confirmationText)
         enableDeletionButton.value = account.value?.name?.value == confirmationText ||
                 category.value?.name?.value == confirmationText
     }

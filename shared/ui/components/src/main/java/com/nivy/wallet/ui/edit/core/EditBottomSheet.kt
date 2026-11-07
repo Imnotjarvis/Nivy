@@ -78,7 +78,7 @@ import com.nivy.design.system.colors.accountColor
 
 const val SWIPE_UP_EXPANDED_THRESHOLD = 200
 
-@Suppress("LongMethod", "LongParameterList", "UnusedParameter", "ParameterNaming")
+@Suppress("LongMethod", "LongParameterList", "ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.EditBottomSheet(
     initialTransactionId: UUID?,
@@ -95,7 +95,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     onSelectedAccountChanged: (Account) -> Unit,
     onToAccountChanged: (Account) -> Unit,
     onAddNewAccount: () -> Unit,
-    modifier: Modifier = Modifier, // Modifier comes after other parameters
+    modifier: Modifier = Modifier,
     convertedAmount: Double? = null,
     convertedAmountCurrencyCode: String? = null,
     onHeightChanged: (Dp) -> Unit = {},
@@ -137,7 +137,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     val density = LocalDensity.current
     val navigationBar = WindowInsets.navigationBars.getBottom(density)
     Column(
-        modifier = Modifier
+        modifier = modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
             .statusBarsPadding()
