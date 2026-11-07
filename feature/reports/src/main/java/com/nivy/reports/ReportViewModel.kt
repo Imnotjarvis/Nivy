@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import com.nivy.base.model.TransactionType
 import com.nivy.base.resource.ResourceProvider
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
@@ -41,9 +42,7 @@ import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.utils.getISOFormattedDateTime
-import com.nivy.wallet.utils.scopedIOThread
 import com.nivy.wallet.utils.toLowerCaseLocal
-import com.nivy.wallet.utils.uiThread
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.TransactionHistoryItem
@@ -56,7 +55,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -85,6 +83,7 @@ class ReportViewModel @Inject constructor(
     private val timeConverter: TimeConverter,
     private val features: Features,
     private val resourceProvider: ResourceProvider,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<ReportScreenState, ReportScreenEvent>() {
     private val unSpecifiedCategory =
         Category(
@@ -165,7 +164,7 @@ class ReportViewModel @Inject constructor(
     }
 
     override fun onEvent(event: ReportScreenEvent) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatchers.default) {
             when (event) {
                 is ReportScreenEvent.OnFilter -> setFilter(event.filter)
                 is ReportScreenEvent.OnExport -> export(event.context)
@@ -185,10 +184,10 @@ class ReportViewModel @Inject constructor(
     }
 
     private suspend fun onTagSearch(query: String) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             tagSearchJob?.cancelAndJoin()
             delay(tagSearchDebounceTimeInMills) // Debounce effect
-            tagSearchJob = launch(Dispatchers.IO) {
+            tagSearchJob = launch(dispatchers.io) {
                 NotBlankTrimmedString.from(query.toLowerCaseLocal())
                     .fold(
                         ifRight = {
@@ -204,7 +203,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private fun start() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.io) {
             baseCurrency = currencyRepository.getBaseCurrency().code
             accounts = accountRepository.findAll().toImmutableList()
             categories =
@@ -216,7 +215,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private suspend fun setFilter(reportFilter: ReportFilter?) {
-        scopedIOThread { scope ->
+        withContext(dispatchers.io) {
             if (reportFilter == null) {
                 // The transfers checkbox recomputes the totals from it.
                 historyIncomeExpense = IncomeExpenseTransferPair.zero()
@@ -234,10 +233,10 @@ class ReportViewModel @Inject constructor(
                     transactions = persistentListOf(),
                     balanceValue = 0.00
                 )
-                return@scopedIOThread
+                return@withContext
             }
 
-            if (!reportFilter.validate()) return@scopedIOThread
+            if (!reportFilter.validate()) return@withContext
             val tempAccounts = reportFilter.accounts
             val baseCurrency = baseCurrency
             loading = true
@@ -254,7 +253,7 @@ class ReportViewModel @Inject constructor(
             val tempHistory = settledTransactions
                 .sortedByDescending { it.time }
 
-            val historyWithDateDividers = scope.async {
+            val historyWithDateDividers = async {
                 transactionsWithDateDividersUseCase.withDateDividers(
                     baseCurrency = baseCurrency,
                     transactions = tempHistory
@@ -275,7 +274,7 @@ class ReportViewModel @Inject constructor(
 
             val tempBalance = calculateBalance(historyIncomeExpense).toDouble()
 
-            val accountFilterIdList = scope.async { reportFilter.accounts.map { it.id.value } }
+            val accountFilterIdList = async { reportFilter.accounts.map { it.id.value } }
 
             val now = timeProvider.utcNow()
 
@@ -564,7 +563,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private suspend fun reloadReport() {
-        uiThread {
+        withContext(dispatchers.main) {
             start()
             setFilter(filter)
         }
