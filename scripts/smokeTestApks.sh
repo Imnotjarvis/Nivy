@@ -7,17 +7,12 @@
 # OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed() for apps targeting
 # it. It fails if the app process dies, anything lands in the crash log, or a screen it waits for
 # doesn't show.
-# Each APK runs as the package it declares, so the debug, demo and signed release builds can be
-# checked in one go. Screenshots of each step go to build/smoke/ for a visual check.
+# Screenshots of each step go to build/smoke/ for a visual check.
 # Usage: scripts/smokeTestApks.sh path/to/app-debug.apk [more.apk ...]
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-# An APK's package, as aapt2 (from the newest build-tools) reads it; $PACKAGE without aapt2.
-AAPT2=$(ls "${ANDROID_HOME:-/nonexistent}"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)
-apk_package() {
-    if [ -n "$AAPT2" ]; then "$AAPT2" dump packagename "$1"; else echo "${PACKAGE:-com.ivy.wallet.offline.debug}"; fi
-}
+PACKAGE="${PACKAGE:-com.ivy.wallet.offline.debug}"
 ACTIVITY="com.ivy.wallet.RootActivity"
 ADD_TRANSACTION_ACTION="ivy.wallet.intent.action.add_transaction"
 OUT="build/smoke"
@@ -108,8 +103,7 @@ echo "error dialogs hidden: $(adb shell settings get global hide_error_dialogs |
 
 for apk in "$@"; do
     name=$(basename "$apk" .apk)
-    PACKAGE=$(apk_package "$apk")
-    echo "== $name ($PACKAGE)"
+    echo "== $name"
     adb uninstall "$PACKAGE" >/dev/null 2>&1 || true
     if ! adb install "$apk"; then
         echo "FAIL [$name] install"

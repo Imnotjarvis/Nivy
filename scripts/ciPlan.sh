@@ -40,16 +40,14 @@ case "$EVENT" in
         ;;
     workflow_dispatch)
         case "${ACTION:-build}" in
-            build | release) reason="manual run: everything" ;;
+            build) reason="manual run: everything" ;;
             *) run=false test=false device=false lint=false reason="maintenance action '$ACTION' only" ;;
         esac
         ;;
     push)
         # The changed paths, or "everything" for a new branch or a force-push.
         changed=$(scripts/changedPaths.sh || echo everything)
-        if [[ "$REF" == refs/tags/* ]]; then
-            reason="tag: everything"
-        elif [ "$changed" != everything ] && ! grep -qvE "$DOCS" <<< "$changed"; then
+        if [ "$changed" != everything ] && ! grep -qvE "$DOCS" <<< "$changed"; then
             run=false test=false device=false lint=false
             reason="push: only docs changed, nothing to build"
         elif [ "$REF" = "refs/heads/$DEFAULT_BRANCH" ]; then
