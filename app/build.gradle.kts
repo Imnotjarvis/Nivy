@@ -189,6 +189,7 @@ dependencies {
     implementation(libs.androidx.work)
 
     testImplementation(libs.bundles.testing)
+    testImplementation(projects.shared.data.coreTesting)
 
     lintChecks(libs.slack.lint.compose)
 }
