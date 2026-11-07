@@ -4,11 +4,14 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
-import com.ivy.base.model.TransactionType
-import com.ivy.widget.WidgetBase
+import com.nivy.base.model.TransactionType
+import com.nivy.widget.WidgetBase
+import com.nivy.widget.transaction.AddTransactionWidgetClick
+import com.nivy.widget.transaction.R
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+// Stays in com.ivy.widget.transaction: launchers store this class name, and a new one would drop the widget on update.
 @AndroidEntryPoint
 class AddTransactionWidgetCompact : AppWidgetProvider() {
 

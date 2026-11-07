@@ -1,0 +1,250 @@
+package com.nivy.balance
+
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nivy.base.model.Theme
+import com.nivy.wallet.NivyPreview
+import com.nivy.wallet.data.model.Month
+import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.utils.format
+import com.nivy.navigation.navigation
+import com.nivy.ui.R
+import com.nivy.design.system.colors.Gray
+import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.White
+import com.nivy.wallet.ui.theme.components.BalanceRow
+import com.nivy.wallet.ui.theme.components.FAB_BUTTON_SIZE
+import com.nivy.wallet.ui.theme.components.NivyCircleButton
+import com.nivy.wallet.ui.theme.components.NivyDividerLine
+import com.nivy.wallet.ui.theme.modal.ChoosePeriodModal
+import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
+import com.nivy.wallet.ui.theme.wallet.PeriodSelector
+import androidx.compose.material3.MaterialTheme
+import com.nivy.design.system.typography.numberLabelMedium
+
+@Composable
+fun BoxWithConstraintsScope.BalanceScreen() {
+    val viewModel: BalanceViewModel = viewModel()
+    val uiState = viewModel.uiState()
+
+    UI(
+        state = uiState,
+        onEvent = viewModel::onEvent
+    )
+}
+
+@Composable
+private fun BoxWithConstraintsScope.UI(
+    state: BalanceState,
+    onEvent: (BalanceEvent) -> Unit = {}
+) {
+    var choosePeriodModal: ChoosePeriodModalData? by remember { mutableStateOf(null) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        Spacer(Modifier.height(20.dp))
+
+        PeriodSelector(
+            period = state.period,
+            onPreviousMonth = { onEvent(BalanceEvent.OnPreviousMonth) },
+            onNextMonth = { onEvent(BalanceEvent.OnNextMonth) },
+            onShowChoosePeriodModal = {
+                choosePeriodModal = ChoosePeriodModalData(
+                    period = state.period
+                )
+            }
+        )
+
+        Spacer(Modifier.height(32.dp))
+
+        CurrentBalance(
+            currency = state.baseCurrencyCode,
+            currentBalance = state.currentBalance
+        )
+
+        Spacer(Modifier.height(32.dp))
+
+        NivyDividerLine(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+        )
+
+        Spacer(Modifier.height(40.dp))
+
+        BalanceAfterPlannedPayments(
+            currency = state.baseCurrencyCode,
+            currentBalance = state.currentBalance,
+            plannedPaymentsAmount = state.plannedPaymentsAmount,
+            balanceAfterPlannedPayments = state.balanceAfterPlannedPayments
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        CloseButton()
+
+        Spacer(Modifier.height(48.dp))
+    }
+
+    ChoosePeriodModal(
+        modal = choosePeriodModal,
+        dismiss = {
+            choosePeriodModal = null
+        }
+    ) {
+        onEvent(BalanceEvent.OnSetPeriod(it))
+    }
+}
+
+@Composable
+private fun ColumnScope.CurrentBalance(
+    currency: String,
+    currentBalance: Double
+) {
+    Text(
+        modifier = Modifier.align(Alignment.CenterHorizontally),
+        text = stringResource(R.string.current_balance),
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = Gray,
+            fontWeight = FontWeight.ExtraBold
+        )
+    )
+
+    Spacer(Modifier.height(4.dp))
+
+    BalanceRow(
+        modifier = Modifier.align(Alignment.CenterHorizontally),
+        currency = currency,
+        balance = currentBalance
+    )
+}
+
+@Composable
+private fun ColumnScope.BalanceAfterPlannedPayments(
+    currency: String,
+    currentBalance: Double,
+    plannedPaymentsAmount: Double,
+    balanceAfterPlannedPayments: Double
+) {
+    Text(
+        modifier = Modifier
+            .padding(horizontal = 32.dp),
+        text = stringResource(R.string.balance_after_payments),
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = Orange,
+            fontWeight = FontWeight.ExtraBold
+        )
+    )
+
+    Spacer(Modifier.height(8.dp))
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(32.dp))
+
+        BalanceRow(
+            currency = currency,
+            balance = balanceAfterPlannedPayments,
+
+            balanceFontSize = 30.sp,
+
+            currencyUpfront = false
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        Column(
+            horizontalAlignment = Alignment.End,
+        ) {
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = "${currentBalance.format(2)} $currency",
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Normal
+                )
+            )
+
+            Spacer(Modifier.height(2.dp))
+
+            val plusSign = if (plannedPaymentsAmount >= 0) "+" else ""
+            Text(
+                text = "${plusSign}${plannedPaymentsAmount.format(2)} $currency",
+                style = MaterialTheme.typography.numberLabelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            )
+        }
+
+        Spacer(Modifier.width(32.dp))
+    }
+}
+
+@Composable
+private fun ColumnScope.CloseButton() {
+    val nav = navigation()
+    NivyCircleButton(
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .size(FAB_BUTTON_SIZE)
+            .rotate(45f)
+            .zIndex(200f),
+        backgroundPadding = 8.dp,
+        icon = R.drawable.ic_add,
+        backgroundColor = Gray,
+        tint = White
+    ) {
+        nav.back()
+    }
+}
+
+@Preview
+@Composable
+private fun Preview(theme: Theme = Theme.LIGHT) {
+    NivyPreview(theme) {
+        UI(
+            state = BalanceState(
+                period = TimePeriod(month = Month.monthsList().first()),
+                baseCurrencyCode = "BGN",
+                currentBalance = 9326.55,
+                balanceAfterPlannedPayments = 8426.0,
+                plannedPaymentsAmount = -900.55,
+            )
+        )
+    }
+}

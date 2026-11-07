@@ -1,0 +1,38 @@
+package com.nivy.wallet.ui.theme.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import com.nivy.design.utils.thenIf
+import com.nivy.design.system.colors.Transparent
+import androidx.compose.material3.MaterialTheme
+
+@Composable
+fun BoxWithConstraintsScope.GradientCutBottom(
+    modifier: Modifier = Modifier,
+    height: Dp = 96.dp,
+    alpha: Float = 1f,
+    zIndex: Float? = null
+) {
+    Spacer(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .thenIf(zIndex != null) {
+                zIndex(zIndex!!)
+            }
+            .background(Brush.verticalGradient(listOf(Transparent, MaterialTheme.colorScheme.surface)))
+            .align(Alignment.BottomCenter)
+            .alpha(alpha = alpha)
+    )
+}

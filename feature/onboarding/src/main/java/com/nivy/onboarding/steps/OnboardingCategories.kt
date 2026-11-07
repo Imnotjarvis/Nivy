@@ -1,0 +1,480 @@
+package com.nivy.onboarding.steps
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import com.nivy.design.system.shapes.PillShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.nivy.data.model.Category
+import com.nivy.data.model.CategoryId
+import com.nivy.data.model.primitive.ColorInt
+import com.nivy.data.model.primitive.IconAsset
+import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.wallet.NivyPreview
+import com.nivy.wallet.utils.toLowerCaseLocal
+import com.nivy.onboarding.components.OnboardingProgressSlider
+import com.nivy.onboarding.components.OnboardingToolbar
+import com.nivy.onboarding.components.Suggestions
+import com.nivy.ui.R
+import com.nivy.wallet.domain.logic.model.CreateCategoryData
+import com.nivy.design.system.colors.Nivy
+import com.nivy.design.system.colors.Green
+import com.nivy.design.system.colors.NivyDark
+import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.OrangeLight
+import com.nivy.design.system.colors.Red
+import com.nivy.design.system.colors.RedLight
+import com.nivy.design.system.colors.White
+import com.nivy.wallet.ui.theme.components.GradientCutBottom
+import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
+import com.nivy.wallet.ui.theme.components.OnboardingButton
+import com.nivy.design.system.colors.readableOn
+import com.nivy.wallet.ui.theme.modal.edit.CategoryModal
+import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
+import com.nivy.design.system.colors.categoryColor
+import java.util.UUID
+import androidx.compose.material3.MaterialTheme
+import com.nivy.navigation.rememberOnBack
+
+@ExperimentalFoundationApi
+@Composable
+internal fun BoxWithConstraintsScope.OnboardingCategories(
+    suggestions: List<CreateCategoryData>,
+    categories: List<Category>,
+
+    onCreateCategory: (CreateCategoryData) -> Unit = { },
+    onEditCategory: (Category) -> Unit = { _ -> },
+
+    onSkip: () -> Unit = {},
+    onDoneClick: () -> Unit = {}
+) {
+    var categoryModalData: CategoryModalData? by remember { mutableStateOf(null) }
+
+    val onBack = rememberOnBack()
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        stickyHeader {
+            OnboardingToolbar(
+                hasSkip = categories.isEmpty(),
+                onBack = { onBack() },
+                onSkip = onSkip
+            )
+        }
+
+        item {
+            Column {
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    text = stringResource(R.string.add_categories),
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Black
+                    )
+                )
+
+                if (categories.isEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+
+                    Image(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        painter = painterResource(id = R.drawable.onboarding_illustration_categories),
+                        contentDescription = null
+                    )
+
+                    OnboardingProgressSlider(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        selectedStep = 3,
+                        stepsCount = 4,
+                        selectedColor = NivyDark
+                    )
+
+                    Spacer(Modifier.height(48.dp))
+                } else {
+                    Spacer(Modifier.height(24.dp))
+                }
+
+                Categories(
+                    categories = categories,
+                    onClick = {
+                        categoryModalData = CategoryModalData(
+                            category = it
+                        )
+                    }
+                )
+
+                if (categories.isNotEmpty()) {
+                    Spacer(Modifier.height(20.dp))
+                }
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    text = stringResource(R.string.suggestions),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Suggestions(
+                    suggestions = suggestions.filter { suggestion ->
+                        categories.map { it.name.value.toLowerCaseLocal() }
+                            .contains(suggestion.name.toLowerCaseLocal()).not()
+                    },
+                    onAddSuggestion = {
+                        onCreateCategory(it as CreateCategoryData)
+                    },
+                    onAddNew = {
+                        categoryModalData = CategoryModalData(
+                            category = null
+                        )
+                    }
+                )
+
+                Spacer(Modifier.height(96.dp))
+            }
+        }
+    }
+
+    GradientCutBottom(
+        height = 96.dp
+    )
+
+    if (categories.isNotEmpty()) {
+        OnboardingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 20.dp),
+
+            text = stringResource(R.string.finish),
+            textColor = White,
+            backgroundColor = Nivy,
+            hasNext = false,
+            enabled = true
+        ) {
+            onDoneClick()
+        }
+    }
+
+    CategoryModal(
+        modal = categoryModalData,
+        onCreateCategory = onCreateCategory,
+        onEditCategory = onEditCategory,
+        dismiss = {
+            categoryModalData = null
+        }
+    )
+}
+
+@Composable
+private fun Categories(
+    categories: List<Category>,
+    onClick: (Category) -> Unit
+) {
+    for (category in categories) {
+        CategoryCard(
+            category = category
+        ) {
+            onClick(category)
+        }
+
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Composable
+private fun CategoryCard(
+    category: Category,
+    onClick: () -> Unit
+) {
+    val categoryColor = categoryColor(category.color.value)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.large)
+            .clickable {
+                onClick()
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(20.dp))
+
+        ItemIconSDefaultIcon(
+            modifier = Modifier
+                .background(categoryColor, PillShape),
+            iconName = category.icon?.id,
+            defaultIcon = R.drawable.ic_custom_category_s,
+            tint = readableOn(categoryColor)
+        )
+
+        Spacer(Modifier.width(16.dp))
+
+        Text(
+            modifier = Modifier
+                .padding(start = 16.dp, end = 24.dp)
+                .padding(vertical = 24.dp),
+            text = category.name.value,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+        )
+
+        Spacer(Modifier.width(24.dp))
+    }
+}
+
+@ExperimentalFoundationApi
+@Preview
+@Composable
+private fun Preview_Empty() {
+    NivyPreview {
+        OnboardingCategories(
+            suggestions = listOf(
+                CreateCategoryData(
+                    name = "Food & Drinks",
+                    color = Green,
+                    icon = "fooddrink"
+                ),
+
+                CreateCategoryData(
+                    name = "Bills & Fees",
+                    color = Red,
+                    icon = "bills"
+                ),
+
+                CreateCategoryData(
+                    name = "Transport",
+                    color = OrangeLight,
+                    icon = "transport"
+                ),
+
+                CreateCategoryData(
+                    name = "Groceries",
+                    color = Color(0xFF75ff4d),
+                    icon = "groceries"
+                ),
+
+                CreateCategoryData(
+                    name = "Entertainment",
+                    color = Orange,
+                    icon = "game"
+                ),
+
+                CreateCategoryData(
+                    name = "Shopping",
+                    color = Nivy,
+                    icon = "shopping"
+                ),
+
+                CreateCategoryData(
+                    name = "Gifts",
+                    color = RedLight,
+                    icon = "gift"
+                ),
+
+                CreateCategoryData(
+                    name = "Health",
+                    color = Color(0xFF4dfff3),
+                    icon = "health"
+                ),
+
+                CreateCategoryData(
+                    name = "Investments",
+                    color = Color(0xFF1e5166),
+                    icon = "leaf"
+                ),
+            ),
+            categories = listOf()
+        )
+    }
+}
+
+@ExperimentalFoundationApi
+@Preview
+@Composable
+private fun Preview_Categories() {
+    NivyPreview {
+        OnboardingCategories(
+            suggestions = listOf(
+                CreateCategoryData(
+                    name = "Food & Drinks",
+                    color = Green,
+                    icon = "fooddrink"
+                ),
+
+                CreateCategoryData(
+                    name = "Bills & Fees",
+                    color = Red,
+                    icon = "bills"
+                ),
+
+                CreateCategoryData(
+                    name = "Transport",
+                    color = OrangeLight,
+                    icon = "transport"
+                ),
+
+                CreateCategoryData(
+                    name = "Groceries",
+                    color = Color(0xFF75ff4d),
+                    icon = "groceries"
+                ),
+
+                CreateCategoryData(
+                    name = "Entertainment",
+                    color = Orange,
+                    icon = "game"
+                ),
+
+                CreateCategoryData(
+                    name = "Shopping",
+                    color = Nivy,
+                    icon = "shopping"
+                ),
+
+                CreateCategoryData(
+                    name = "Gifts",
+                    color = RedLight,
+                    icon = "gift"
+                ),
+
+                CreateCategoryData(
+                    name = "Health",
+                    color = Color(0xFF4dfff3),
+                    icon = "health"
+                ),
+
+                CreateCategoryData(
+                    name = "Investments",
+                    color = Color(0xFF1e5166),
+                    icon = "leaf"
+                ),
+            ),
+            categories = listOf(
+                Category(
+                    name = NotBlankTrimmedString.unsafe("Food & Drinks"),
+                    color = ColorInt(Orange.toArgb()),
+                    icon = IconAsset.unsafe("fooddrinks"),
+                    id = CategoryId(UUID.randomUUID()),
+                    orderNum = 0.0,
+                )
+            )
+        )
+    }
+}
+
+@ExperimentalFoundationApi
+@Preview
+@Composable
+private fun Preview_Premium() {
+    NivyPreview {
+        OnboardingCategories(
+            suggestions = listOf(
+                CreateCategoryData(
+                    name = "Food & Drinks",
+                    color = Green,
+                    icon = "fooddrink"
+                ),
+
+                CreateCategoryData(
+                    name = "Bills & Fees",
+                    color = Red,
+                    icon = "bills"
+                ),
+
+                CreateCategoryData(
+                    name = "Transport",
+                    color = OrangeLight,
+                    icon = "transport"
+                ),
+
+                CreateCategoryData(
+                    name = "Groceries",
+                    color = Color(0xFF75ff4d),
+                    icon = "groceries"
+                ),
+
+                CreateCategoryData(
+                    name = "Entertainment",
+                    color = Orange,
+                    icon = "game"
+                ),
+
+                CreateCategoryData(
+                    name = "Shopping",
+                    color = Nivy,
+                    icon = "shopping"
+                ),
+
+                CreateCategoryData(
+                    name = "Gifts",
+                    color = RedLight,
+                    icon = "gift"
+                ),
+
+                CreateCategoryData(
+                    name = "Health",
+                    color = Color(0xFF4dfff3),
+                    icon = "health"
+                ),
+
+                CreateCategoryData(
+                    name = "Investments",
+                    color = Color(0xFF1e5166),
+                    icon = "leaf"
+                ),
+            ),
+            categories = List(12) {
+                Category(
+                    name = NotBlankTrimmedString.unsafe("Food & Drinks"),
+                    color = ColorInt(Orange.toArgb()),
+                    icon = IconAsset.unsafe("fooddrinks"),
+                    id = CategoryId(UUID.randomUUID()),
+                    orderNum = 0.0,
+                )
+            }
+        )
+    }
+}

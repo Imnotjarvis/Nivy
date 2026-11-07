@@ -11,10 +11,10 @@ are in the root `build.gradle.kts`, checked by `./gradlew :assertModuleGraph`.
 
 ## Where code goes
 
-- **Data access:** repositories in `shared:data:core` (`com.ivy.data.repository`), over Room's
+- **Data access:** repositories in `shared:data:core` (`com.nivy.data.repository`), over Room's
   DAOs.
 - **Logic:** use cases, `<Name>UseCase` classes with named suspend functions, in
-  `com.ivy.domain.usecase.<area>` (shared) or in a feature's own `usecase` package. A use case
+  `com.nivy.domain.usecase.<area>` (shared) or in a feature's own `usecase` package. A use case
   takes `DispatchersProvider` rather than using `Dispatchers.IO` itself, so tests run it on
   `TestDispatchersProvider`. The older `*Act` classes are gone; don't bring the pattern back.
 - **Screens:** a `ComposeViewModel` per screen, its state and events next to it.

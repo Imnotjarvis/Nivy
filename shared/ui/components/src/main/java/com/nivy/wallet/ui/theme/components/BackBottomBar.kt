@@ -1,0 +1,50 @@
+package com.nivy.wallet.ui.theme.components
+
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.nivy.design.utils.navigationBarInset
+import com.nivy.design.utils.toDensityDp
+import com.nivy.ui.R
+import com.nivy.design.system.colors.gradientCutBackgroundTop
+import androidx.compose.material3.MaterialTheme
+
+@Composable
+fun BoxWithConstraintsScope.BackBottomBar(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    bottomInset: Dp = navigationBarInset().toDensityDp(),
+    primaryAction: @Composable () -> Unit,
+) {
+    val density = LocalDensity.current
+    ActionsRow(
+        modifier = modifier
+            .align(Alignment.BottomCenter)
+            .gradientCutBackgroundTop(MaterialTheme.colorScheme.surface, density)
+            .padding(bottom = bottomInset)
+            .padding(bottom = 16.dp)
+    ) {
+        Spacer(Modifier.width(20.dp))
+
+        CircleButton(
+            modifier = Modifier.rotate(180f),
+            icon = R.drawable.ic_arrow_right
+        ) {
+            onBack()
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        primaryAction()
+
+        Spacer(Modifier.width(20.dp))
+    }
+}

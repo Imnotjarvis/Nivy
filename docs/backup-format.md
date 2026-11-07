@@ -9,7 +9,7 @@ Settings > Backup data writes a zip holding one JSON file, encoded as UTF-16. Im
 zip or the JSON file itself; a zip has to hold exactly one `.json` file and unzip to at most
 256 MB.
 
-The JSON is one object, `IvyWalletCompleteData`. Every key is optional and an absent one reads as
+The JSON is one object, `NivyCompleteData`. Every key is optional and an absent one reads as
 empty, so a backup from an older version imports, and an older version can import a newer backup
 (it ignores the keys it doesn't know).
 

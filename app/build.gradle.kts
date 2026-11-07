@@ -30,7 +30,7 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "com.ivy.wallet"
+    namespace = "com.nivy.wallet"
     compileSdk = libs.versions.compile.sdk.get().toInt()
 
     defaultConfig {

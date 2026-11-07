@@ -16,7 +16,7 @@ buildCache {
     }
 }
 
-rootProject.name = "IvyWallet"
+rootProject.name = "Nivy"
 include(":app")
 include(":feature:accounts")
 include(":feature:balance")

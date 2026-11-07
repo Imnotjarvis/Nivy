@@ -1,10 +1,10 @@
 plugins {
-    id("ivy.feature")
-    id("ivy.room")
+    id("nivy.feature")
+    id("nivy.room")
 }
 
 android {
-    namespace = "com.ivy.ui.components"
+    namespace = "com.nivy.ui.components"
 }
 
 dependencies {
