@@ -18,4 +18,6 @@ dependencies {
     implementation(libs.androidx.work)
     implementation(libs.keval)
     implementation(libs.androidx.recyclerview)
+
+    testImplementation(projects.shared.ui.testing)
 }

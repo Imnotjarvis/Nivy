@@ -3,17 +3,13 @@ package com.nivy.transaction
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.resource.AndroidResourceProvider
 import com.nivy.base.time.TimeProvider
-import com.nivy.base.time.impl.StandardTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
@@ -22,19 +18,11 @@ import com.nivy.data.model.TagId
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.Palette
 import com.nivy.navigation.EditTransactionScreen
-import com.nivy.navigation.Navigation
-import com.nivy.navigation.NavigationRoot
 import com.nivy.ui.testing.PaparazziScreenshotTest
 import com.nivy.ui.testing.PaparazziTheme
-import com.nivy.ui.time.DateFormatState
-import com.nivy.ui.time.impl.AndroidDevicePreferences
-import com.nivy.ui.time.impl.NivyTimeFormatter
-import com.nivy.wallet.MainScreenState
-import com.nivy.wallet.NivyTheme
-import com.nivy.wallet.PeriodState
+import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.EditTransactionDisplayLoan
 import com.nivy.wallet.domain.data.CustomExchangeRateState
 import com.nivy.wallet.ui.component.tags.ShowTagModal
@@ -137,16 +125,14 @@ class EditTransactionPaparazziTest(
         )
     }
 
-    private fun shot(content: @Composable BoxWithConstraintsScope.() -> Unit) {
-        ColorMode.minimal = colors == Colors.Minimal
-        try {
-            snapshot(theme) {
-                FixedTimeTheme(dark = theme == PaparazziTheme.Dark, content = content)
+    // The app's theme on a clock stopped at FixedTime, so dates read the same on every run.
+    private fun shot(content: @Composable BoxWithConstraintsScope.() -> Unit) =
+        snapshot(theme, minimal = colors == Colors.Minimal) {
+            val dark = theme == PaparazziTheme.Dark
+            NivyPreview(theme = if (dark) Theme.DARK else Theme.LIGHT, timeProvider = FixedTime) {
+                content()
             }
-        } finally {
-            ColorMode.minimal = false
         }
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -192,31 +178,6 @@ private fun BoxWithConstraintsScope.Editor(
         ),
         onEvent = {},
     )
-}
-
-/** The app's theme on a clock stopped at [FixedTime], so dates read the same on every run. */
-@Composable
-private fun FixedTimeTheme(dark: Boolean, content: @Composable BoxWithConstraintsScope.() -> Unit) {
-    val context = LocalContext.current
-    val timeConverter = remember { StandardTimeConverter(FixedTime) }
-    NivyTheme(
-        theme = if (dark) Theme.DARK else Theme.LIGHT,
-        periodState = remember { PeriodState(FixedTime) },
-        mainScreenState = remember { MainScreenState() },
-        timeConverter = timeConverter,
-        timeProvider = FixedTime,
-        timeFormatter = NivyTimeFormatter(
-            resourceProvider = AndroidResourceProvider(context),
-            timeProvider = FixedTime,
-            converter = timeConverter,
-            devicePreferences = AndroidDevicePreferences(context),
-            dateFormatState = DateFormatState(),
-        ),
-    ) {
-        NavigationRoot(navigation = Navigation()) {
-            content()
-        }
-    }
 }
 
 /** November 7, 2026, noon, in UTC. */

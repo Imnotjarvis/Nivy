@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.ui.R
 import com.nivy.ui.testing.PaparazziScreenshotTest
 import com.nivy.ui.testing.PaparazziTheme
@@ -31,13 +30,8 @@ class BudgetBarsPaparazziTest(
 
     @Test
     fun `snapshot bars whose fill ends under their texts`() {
-        ColorMode.minimal = colors == Colors.Minimal
-        try {
-            snapshot(theme) {
-                Bars()
-            }
-        } finally {
-            ColorMode.minimal = false
+        snapshot(theme, minimal = colors == Colors.Minimal) {
+            Bars()
         }
     }
 }

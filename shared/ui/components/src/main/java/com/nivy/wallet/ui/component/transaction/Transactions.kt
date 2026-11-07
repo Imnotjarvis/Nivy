@@ -25,7 +25,7 @@ import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.design.system.colors.Black
-import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.colors.White
 import com.nivy.wallet.ui.theme.components.EmptyState
 import com.nivy.wallet.ui.theme.components.NivyButton
@@ -133,7 +133,7 @@ private fun LazyListScope.upcomingSection(
                     expanded = upcoming.expanded,
                     setExpanded = setExpanded,
                     title = stringResource(R.string.upcoming),
-                    titleColor = Orange,
+                    titleColor = upcomingOrange(MaterialTheme.colorScheme.background),
                     baseCurrency = baseData.baseCurrency,
                     income = upcoming.stats.income.toDouble(),
                     expenses = upcoming.stats.expense.abs().toDouble()

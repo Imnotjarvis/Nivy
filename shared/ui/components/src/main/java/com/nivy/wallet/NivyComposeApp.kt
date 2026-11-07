@@ -128,17 +128,21 @@ fun NivyComponentPreview(
     }
 }
 
+/**
+ * The app's theme and screens' setting around a preview or a screenshot test, on [timeProvider]'s
+ * clock: the device's, unless a test stops it so that dates read the same on every run.
+ */
 @Composable
 fun NivyPreview(
     theme: Theme = Theme.LIGHT,
+    timeProvider: TimeProvider = remember { DeviceTimeProvider() },
     content: @Composable BoxWithConstraintsScope.() -> Unit
 ) {
     val context = LocalContext.current
-    val timeProvider = remember { DeviceTimeProvider() }
-    val timeConverter = remember { StandardTimeConverter(timeProvider) }
+    val timeConverter = remember(timeProvider) { StandardTimeConverter(timeProvider) }
     NivyTheme(
         theme = theme,
-        periodState = remember { PeriodState(timeProvider) },
+        periodState = remember(timeProvider) { PeriodState(timeProvider) },
         mainScreenState = remember { MainScreenState() },
         timeConverter = timeConverter,
         timeProvider = timeProvider,

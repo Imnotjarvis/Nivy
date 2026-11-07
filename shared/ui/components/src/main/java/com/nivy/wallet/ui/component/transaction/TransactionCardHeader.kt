@@ -34,7 +34,7 @@ import com.nivy.data.model.Tag
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
 import com.nivy.data.model.getFromAccount
-import com.nivy.design.system.colors.BlueLight
+import com.nivy.design.system.colors.tagBlue
 import com.nivy.wallet.utils.capitalizeLocal
 import com.nivy.navigation.Navigation
 import com.nivy.navigation.TransactionsScreen
@@ -74,7 +74,7 @@ internal fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
             Text(
                 text = "#${tag.name.value}",
                 style = MaterialTheme.typography.labelMedium.copy(
-                    color = BlueLight,
+                    color = tagBlue(MaterialTheme.colorScheme.surfaceVariant),
                     fontWeight = FontWeight.Normal
                 )
             )

@@ -2,17 +2,14 @@ package com.nivy.settings
 
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.base.model.Theme
 import com.nivy.base.time.TimeProvider
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.ui.testing.PaparazziScreenshotTest
 import com.nivy.ui.testing.PaparazziTheme
-import com.nivy.ui.time.LocalTimeProvider
 import com.nivy.wallet.NivyPreview
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,21 +44,14 @@ class SettingsDialogsPaparazziTest(
         ChooseCornerRadiusModal(visible = true, dismiss = {}, onSet = {})
     }
 
-    private fun shot(content: @Composable BoxWithConstraintsScope.() -> Unit) {
-        ColorMode.minimal = colors == Colors.Minimal
-        try {
-            snapshot(theme) {
-                NivyPreview(theme = if (theme == PaparazziTheme.Dark) Theme.DARK else Theme.LIGHT) {
-                    // The date format dialog shows today's date: one that stays the same.
-                    CompositionLocalProvider(LocalTimeProvider provides FixedTime) {
-                        content()
-                    }
-                }
+    // The date format dialog shows today's date: on a stopped clock, one that stays the same.
+    private fun shot(content: @Composable BoxWithConstraintsScope.() -> Unit) =
+        snapshot(theme, minimal = colors == Colors.Minimal) {
+            val dark = theme == PaparazziTheme.Dark
+            NivyPreview(theme = if (dark) Theme.DARK else Theme.LIGHT, timeProvider = FixedTime) {
+                content()
             }
-        } finally {
-            ColorMode.minimal = false
         }
-    }
 }
 
 /** November 7, 2026, noon, in UTC. */
