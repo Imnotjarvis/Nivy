@@ -6,8 +6,14 @@ How the code is laid out, and the rules the checks enforce or that keep numbers 
 
 `app` → `feature/*` → `widget/*` → `shared:ui:components` → `shared:ui:navigation` →
 `shared:ui:core` → `shared:domain` → `shared:data:core` → `shared:data:model` → `shared:base`.
-A module only depends on those to its right, and features never depend on each other. The rules
-are in the root `build.gradle.kts`, checked by `./gradlew :assertModuleGraph`.
+A module only depends on those to its right, and features don't depend on each other, with two
+exceptions:
+- `feature:main` shows `feature:home` and `feature:accounts` as its two tabs.
+- `feature:import-data` uses `feature:onboarding`, its view model and toolbar: an import made
+  during onboarding finishes it, or is skipped.
+
+The rules are in the root `build.gradle.kts`, checked by `./gradlew :assertModuleGraph`, and
+allow only these two links.
 
 ## Where code goes
 

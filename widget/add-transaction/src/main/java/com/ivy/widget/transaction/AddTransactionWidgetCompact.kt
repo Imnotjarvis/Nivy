@@ -5,7 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
 import com.nivy.base.model.TransactionType
-import com.nivy.widget.WidgetBase
+import com.nivy.base.refreshWidget
 import com.nivy.widget.transaction.AddTransactionWidgetClick
 import com.nivy.widget.transaction.R
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,7 +20,7 @@ class AddTransactionWidgetCompact : AppWidgetProvider() {
 
     companion object {
         fun updateBroadcast(context: Context) {
-            WidgetBase.updateBroadcast(context, AddTransactionWidgetCompact::class.java)
+            context.refreshWidget(AddTransactionWidgetCompact::class.java)
         }
     }
 
