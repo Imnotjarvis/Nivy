@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.nivy.design.utils.outlineBehind
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Nivy
+import com.nivy.domain.usecase.account.invested
 import com.nivy.wallet.ui.displayName
 import com.nivy.wallet.ui.iconName
 import com.nivy.wallet.ui.theme.components.ListItem
@@ -318,7 +319,7 @@ private fun AccountCard(
             val gain = accountData.gain
             if (gain != null) {
                 // An investment account with a value: what was invested, and what it made.
-                val invested = accountData.balance - gain - (accountData.cash ?: 0.0)
+                val invested = invested(accountData.balance, gain, accountData.cash)
                 TwoAmountsRow(
                     currency = currency,
                     startLabel = stringResource(R.string.invested),

@@ -8,6 +8,7 @@ import com.nivy.data.model.Transfer
 import com.nivy.data.repository.AccountValueRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.account.AccountTransactionsUseCase
+import com.nivy.domain.usecase.account.invested
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
@@ -49,7 +50,7 @@ class AccountInvestmentData @Inject constructor(
         }
         return InvestmentData(
             chart = valueChart(account, firstValue = values.lastOrNull()?.value),
-            invested = balance - (gain ?: 0.0) - (cash ?: 0.0),
+            invested = invested(balance, gain, cash),
             gain = gain,
             cash = cash,
             transfersIn = transactions.count {
@@ -78,7 +79,7 @@ class AccountInvestmentData @Inject constructor(
             ValuePoint(
                 month = period.month,
                 value = value,
-                invested = value - (output.gain?.toDouble() ?: 0.0) - (output.cash?.toDouble() ?: 0.0),
+                invested = invested(value, output.gain?.toDouble(), output.cash?.toDouble()),
             )
         }.toImmutableList()
     }

@@ -8,10 +8,11 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * The cases every TransactionDao.balance must pass: the database's query (TransactionDaoBalanceTest,
- * on a device) and FakeTransactionDao's copy of it (FakeTransactionDaoBalanceTest), so that the two
- * can't drift apart. The balance is what the transactions add up to when read one by one
- * (TransactionMapper, AccountValueFunctions.balance), what can't be read counting for nothing.
+ * The cases every balance must pass: the database's query (TransactionDaoBalanceTest, on a device),
+ * FakeTransactionDao's copy of it (FakeTransactionDaoBalanceTest) and an account's transactions added
+ * up in memory (AccountValueFunctionsBalanceTest), so that the three can't drift apart. The balance
+ * is what the transactions add up to when read one by one (TransactionMapper,
+ * AccountValueFunctions.balance), what can't be read counting for nothing.
  */
 @VisibleForTesting
 object BalanceCases {
