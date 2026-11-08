@@ -17,11 +17,13 @@ import com.nivy.home.usecase.UpcomingTransactions
 import com.nivy.home.usecase.UpcomingTransactionsUseCase
 import com.nivy.navigation.Navigation
 import com.nivy.ui.testing.ComposeViewModelTest
+import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.ThemeState
 import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryItem
+import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -46,6 +48,9 @@ class HomeViewModelTest : ComposeViewModelTest() {
     // The balance reads every transaction there is: it comes when this completes.
     private val balance = CompletableDeferred<BigDecimal>()
     private val syncExchangeRates = mockk<SyncExchangeRatesUseCase>(relaxed = true)
+    private val historyWithDateDividers = mockk<HistoryWithDateDividersUseCase> {
+        coEvery { history(any(), any()) } returns monthsTransactions
+    }
 
     private val viewModel = HomeViewModel(
         periodState = PeriodState(FixedTime),
@@ -54,9 +59,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
         nav = Navigation(),
         dueTransactionsUseCase = mockk(relaxed = true),
         customerJourneyLogic = mockk { coEvery { loadCards() } returns emptyList() },
-        historyWithDateDividersUseCase = mockk<HistoryWithDateDividersUseCase> {
-            coEvery { history(any(), any()) } returns monthsTransactions
-        },
+        historyWithDateDividersUseCase = historyWithDateDividers,
         walletIncomeExpenseUseCase = mockk<WalletIncomeExpenseUseCase> {
             coEvery { incomeExpense(any(), any(), any()) } returns monthsTotals
         },
@@ -130,6 +133,31 @@ class HomeViewModelTest : ComposeViewModelTest() {
         }
 
         coVerify(exactly = 1) { syncExchangeRates.syncIfDue(AssetCode.unsafe("EUR")) }
+    }
+
+    @Test
+    fun `a month chosen after another shows its own transactions, even when the other one's load ends last`() {
+        // December's transactions come slowly: January is chosen, and comes, before they do.
+        val december = CompletableDeferred<Unit>()
+        coEvery { historyWithDateDividers.history(any(), any()) } coAnswers {
+            val month = firstArg<ClosedTimeRange>().from.atZone(ZoneId.of("UTC")).toLocalDate()
+            if (month.monthValue == 12) december.await()
+            persistentListOf(TransactionHistoryDateDivider(date = month, income = 0.0, expenses = 1.0))
+        }
+
+        runComposeTest(
+            present = { viewModel.uiState() },
+            actions = {
+                viewModel.onEvent(HomeEvent.SelectNextMonth)
+                viewModel.onEvent(HomeEvent.SelectNextMonth)
+                december.complete(Unit)
+            },
+        ) {
+            period.month?.monthValue shouldBe 1
+            history shouldBe persistentListOf(
+                TransactionHistoryDateDivider(date = LocalDate.of(2027, 1, 1), income = 0.0, expenses = 1.0)
+            )
+        }
     }
 
     private companion object {

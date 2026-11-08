@@ -24,8 +24,12 @@ import com.nivy.navigation.BudgetPage
 import com.nivy.navigation.PieChartStatisticScreen
 import com.nivy.piechart.usecase.PieChartData
 import com.nivy.piechart.usecase.PieChartUseCase
+import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.model.FromToTimeRange
+import com.nivy.wallet.data.model.Month
+import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.utils.ioThread
 import io.kotest.matchers.shouldBe
@@ -35,6 +39,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -64,16 +69,17 @@ class PieChartStatisticViewModelTest {
         budgetPage = BudgetPage(budget = budget("Food", listOf(groceries)), month = "November 2026", range = november),
     )
 
+    private val pieChartUseCase = mockk<PieChartUseCase> {
+        coEvery { pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns
+            PieChartData(totalAmount = 0.0, categoryAmounts = persistentListOf())
+    }
     private val transactionRepository = mockk<TransactionRepository> {
         coEvery { findAllBetween(any(), any()) } answers { stored }
     }
     private val viewModel = PieChartStatisticViewModel(
         currencyRepository = mockk { coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR") },
         periodState = PeriodState(FixedTime),
-        pieChartUseCase = mockk<PieChartUseCase> {
-            coEvery { pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns
-                PieChartData(totalAmount = 0.0, categoryAmounts = persistentListOf())
-        },
+        pieChartUseCase = pieChartUseCase,
         appPreferences = mockk { coEvery { transfersAsIncomeExpense() } returns false },
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
@@ -118,6 +124,34 @@ class PieChartStatisticViewModelTest {
             transactions shouldBe listOf(lunch)
         }
         coVerify { transactionRepository.findAllBetween(november.from, november.to) }
+    }
+
+    @Test
+    fun `a month chosen after another stays chosen, even when the other one's load ends last`() {
+        // December's chart comes slowly: January is chosen, and comes, before it does.
+        val december = CompletableDeferred<Unit>()
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            val month = secondArg<FromToTimeRange>().from!!.atZone(ZoneId.of("UTC")).monthValue
+            if (month == 12) december.await()
+            PieChartData(totalAmount = month.toDouble(), categoryAmounts = persistentListOf())
+        }
+
+        val expenses = PieChartStatisticScreen(type = TransactionType.EXPENSE)
+        val januaryPeriod = TimePeriod(month = Month.fromMonthValue(1), year = 2027)
+        runComposeTest(
+            present = { viewModel.uiState() },
+            actions = {
+                viewModel.onEvent(PieChartStatisticEvent.OnStart(expenses))
+                viewModel.onEvent(
+                    PieChartStatisticEvent.OnSetPeriod(TimePeriod(month = Month.fromMonthValue(12), year = 2026))
+                )
+                viewModel.onEvent(PieChartStatisticEvent.OnSetPeriod(januaryPeriod))
+                december.complete(Unit)
+            },
+        ) {
+            period shouldBe januaryPeriod
+            totalAmount shouldBe 1.0
+        }
     }
 
     private fun budget(name: String, categories: List<CategoryId>) = Budget(

@@ -35,6 +35,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -107,10 +108,19 @@ class PieChartStatisticViewModel @Inject constructor(
         }
     }
 
+    private var loadJob: Job? = null
+
+    // A newer load replaces one still running, which would otherwise put back what it read: a month
+    // chosen after another would turn back into the other one when its load ended last.
+    private fun loadLatest(load: suspend () -> Unit) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch(dispatchers.default) { load() }
+    }
+
     private fun start(
         screen: PieChartStatisticScreen
     ) {
-        viewModelScope.launch(dispatchers.default) {
+        loadLatest {
             budgetPage = screen.budgetPage
             // Read each time the page shows, so one edited or deleted from it shows as it is now.
             val budgetExpenses = screen.budgetPage?.let { page ->
@@ -207,30 +217,26 @@ class PieChartStatisticViewModel @Inject constructor(
         ).toImmutableList()
     }
 
-    private suspend fun onSetPeriod(periodValue: TimePeriod) {
+    private fun onSetPeriod(periodValue: TimePeriod) {
         periodState.select(periodValue)
-        load(
-            periodValue = periodValue
-        )
+        loadLatest { load(periodValue = periodValue) }
     }
 
-    private suspend fun nextMonth() {
+    private fun nextMonth() {
         val month = period.month
         val year = period.year ?: timeProvider.localDateNow().year
         if (month != null) {
-            load(
-                periodValue = periodState.selectMonth(month, 1L, year)
-            )
+            val next = periodState.selectMonth(month, 1L, year)
+            loadLatest { load(periodValue = next) }
         }
     }
 
-    private suspend fun previousMonth() {
+    private fun previousMonth() {
         val month = period.month
         val year = period.year ?: timeProvider.localDateNow().year
         if (month != null) {
-            load(
-                periodValue = periodState.selectMonth(month, -1L, year)
-            )
+            val previous = periodState.selectMonth(month, -1L, year)
+            loadLatest { load(periodValue = previous) }
         }
     }
 

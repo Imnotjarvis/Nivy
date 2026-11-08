@@ -30,6 +30,7 @@ import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.navigation.TransactionsScreen
+import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.FromToTimeRange
@@ -42,6 +43,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
@@ -215,6 +217,36 @@ class TransactionsViewModelTest {
             // then
             period shouldBe TimePeriod(month = December, year = 2026)
             income shouldBe 70.0
+        }
+    }
+
+    @Test
+    fun `a month chosen after another shows its own figures, even when the other one's load ends last`() {
+        // December's figures come slowly: January is chosen, and comes, before they do.
+        val december = CompletableDeferred<Unit>()
+        coEvery { accountIncomeExpenseUseCase.incomeExpense(any(), any(), any()) } coAnswers {
+            val range = secondArg<ClosedTimeRange>()
+            if (range.from == Instant.parse("2026-12-01T00:00:00Z")) december.await()
+            AccountIncomeExpense(
+                account = firstArg(),
+                incomeExpensePair = IncomeExpensePair(
+                    income = incomeOf(range).toBigDecimal(),
+                    expense = BigDecimal(30),
+                ),
+            )
+        }
+        viewModel.start(bankPage)
+
+        runComposeTest(
+            present = { viewModel.uiState() },
+            actions = {
+                viewModel.onEvent(TransactionsEvent.NextMonth(bankPage))
+                viewModel.onEvent(TransactionsEvent.NextMonth(bankPage))
+                december.complete(Unit)
+            },
+        ) {
+            period shouldBe TimePeriod(month = January, year = 2027)
+            income shouldBe 0.0
         }
     }
 
