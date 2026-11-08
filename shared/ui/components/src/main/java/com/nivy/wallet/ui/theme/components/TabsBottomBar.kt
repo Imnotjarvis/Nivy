@@ -1,7 +1,7 @@
 package com.nivy.wallet.ui.theme.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -96,7 +97,7 @@ fun RowScope.BottomBarTab(
         modifier = modifier
             .weight(1f)
             .clip(CircleShape)
-            .clickable(onClick = onClick)
+            .selectable(selected = selected, role = Role.Tab, onClick = onClick)
             .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
         horizontalArrangement = Arrangement.Center,
@@ -104,7 +105,9 @@ fun RowScope.BottomBarTab(
     ) {
         NivyIcon(
             icon = icon,
-            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface
+            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface,
+            // An unselected tab shows no name: its icon tells TalkBack which tab it is.
+            contentDescription = name.takeUnless { selected },
         )
 
         if (selected) {
@@ -132,10 +135,11 @@ fun bottomBarFabStart(): Offset {
     )
 }
 
-/** The + button, raised over the middle of [TabsBottomBar]. */
+/** The + button, raised over the middle of [TabsBottomBar], which TalkBack reads as [contentDescription]. */
 @Composable
 fun BottomBarFab(
     backgroundColor: Color,
+    contentDescription: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -156,6 +160,7 @@ fun BottomBarFab(
         icon = R.drawable.ic_add,
         backgroundColor = backgroundColor,
         tint = White,
+        contentDescription = contentDescription,
         onClick = onClick
     )
 }
