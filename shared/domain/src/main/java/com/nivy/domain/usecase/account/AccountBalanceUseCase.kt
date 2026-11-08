@@ -60,3 +60,9 @@ data class AccountBalanceDetails(
     val gain: BigDecimal? = null,
     val cash: BigDecimal? = null,
 )
+
+/**
+ * Of the money put into an investment account, what's invested: its [balance] less its [gain] and the
+ * [cash] it holds, all as an [AccountBalanceDetails] has them.
+ */
+fun invested(balance: Double, gain: Double?, cash: Double?): Double = balance - (gain ?: 0.0) - (cash ?: 0.0)
