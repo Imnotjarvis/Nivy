@@ -4,6 +4,7 @@ import android.content.Context
 import com.nivy.base.Toaster
 import com.nivy.base.model.TransactionType
 import com.nivy.base.refreshWidget
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.repository.TransactionRepository
@@ -14,12 +15,12 @@ import com.nivy.domain.usecase.loan.NoLoanExchangeRate
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.CustomExchangeRateState
-import com.nivy.wallet.utils.ioThread
 import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
@@ -34,6 +35,7 @@ class TransactionSaving @Inject constructor(
     private val loanTransactionsUseCase: LoanTransactionsUseCase,
     private val creditCardChargeUseCase: CreditCardChargeUseCase,
     private val dueTransactionsUseCase: DueTransactionsUseCase,
+    private val dispatchers: DispatchersProvider,
     private val timeProvider: TimeProvider,
 ) {
     @Suppress("ReturnCount")
@@ -92,7 +94,7 @@ class TransactionSaving @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     suspend fun trySaving(save: suspend () -> Boolean): Boolean {
         val saved = try {
-            ioThread { save() }
+            withContext(dispatchers.io) { save() }
         } catch (e: CancellationException) {
             throw e
         } catch (ignored: NoLoanExchangeRate) {

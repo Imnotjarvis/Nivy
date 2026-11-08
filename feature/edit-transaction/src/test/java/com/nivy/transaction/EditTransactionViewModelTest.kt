@@ -2,6 +2,7 @@ package com.nivy.transaction
 
 import android.content.Context
 import arrow.core.Some
+import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.Toaster
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
@@ -43,8 +44,6 @@ import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
-import com.nivy.wallet.utils.computationThread
-import com.nivy.wallet.utils.ioThread
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
@@ -107,10 +106,6 @@ class EditTransactionViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        // The view model's background work runs where it's started, so a test sees it done.
-        mockkStatic("com.nivy.wallet.utils.MVVMExtKt")
-        coEvery { ioThread<Any?>(any()) } coAnswers { firstArg<suspend () -> Any?>().invoke() }
-        coEvery { computationThread<Any?>(any()) } coAnswers { firstArg<suspend () -> Any?>().invoke() }
         // No home screen widgets to refresh.
         mockkStatic("com.nivy.base.WidgetRefreshKt")
         every { any<Context>().refreshWidget(any()) } just Runs
@@ -145,6 +140,7 @@ class EditTransactionViewModelTest {
                 creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, timeConverter),
                 dueTransactionsUseCase = mockk(relaxed = true),
                 timeProvider = FixedTime,
+                dispatchers = TestDispatchersProvider,
             ),
             nav = nav,
             appPreferences = mockk<AppPreferences>(relaxed = true) {
@@ -175,6 +171,8 @@ class EditTransactionViewModelTest {
                 timeProvider = FixedTime,
             ),
             creditCardRepository = creditCardRepository,
+            // The view model's background work runs where it's started, so a test sees it done.
+            dispatchers = TestDispatchersProvider,
         )
     }
 

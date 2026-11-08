@@ -4,7 +4,6 @@ import android.content.Context
 import com.nivy.data.db.dao.read.LoanDao
 import com.nivy.ui.R
 import com.nivy.wallet.data.EditTransactionDisplayLoan
-import com.nivy.wallet.utils.ioThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -19,8 +18,7 @@ class TransactionLoanDisplay @Inject constructor(
             return EditTransactionDisplayLoan()
         }
 
-        val loan =
-            ioThread { loanDao.findById(trans.loanId) } ?: return EditTransactionDisplayLoan()
+        val loan = loanDao.findById(trans.loanId) ?: return EditTransactionDisplayLoan()
         val isLoanRecord = trans.loanRecordId != null
 
         val loanCaption =

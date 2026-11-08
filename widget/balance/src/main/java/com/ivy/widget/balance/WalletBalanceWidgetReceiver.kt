@@ -11,6 +11,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import com.nivy.base.refreshWidget
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.preferences.AppPreferences
@@ -21,7 +22,6 @@ import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.widget.WidgetBase
 import com.nivy.widget.balance.PrefsKey
 import com.nivy.widget.balance.WalletBalanceWidget
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,7 +35,7 @@ import javax.inject.Inject
 class WalletBalanceWidgetReceiver : GlanceAppWidgetReceiver() {
     companion object {
         fun updateBroadcast(context: Context) {
-            WidgetBase.updateBroadcast(context, WalletBalanceWidgetReceiver::class.java)
+            context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         }
     }
 
