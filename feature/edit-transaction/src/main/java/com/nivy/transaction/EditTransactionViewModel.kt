@@ -47,6 +47,8 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 @Stable
@@ -482,12 +484,15 @@ class EditTransactionViewModel @Inject constructor(
         if (closeScreen && closingSave?.isActive == true) return
 
         val job = viewModelScope.launch {
-            saveInternal(closeScreen = closeScreen)
+            // Edit mode saves on every change: one save at a time, in order, so a slow one can't
+            // land after a newer one and undo it.
+            saveMutex.withLock { saveInternal(closeScreen = closeScreen) }
         }
         if (closeScreen) closingSave = job
     }
 
     private var closingSave: Job? = null
+    private val saveMutex = Mutex()
 
     private suspend fun saveInternal(closeScreen: Boolean) {
         val saved = transactionSaving.trySaving {

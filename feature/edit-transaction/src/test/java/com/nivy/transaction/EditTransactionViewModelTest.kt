@@ -57,6 +57,7 @@ import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -255,6 +256,28 @@ class EditTransactionViewModelTest {
         saved() shouldBe original.copy(value = PositiveValue(PositiveDouble.unsafe(30.0), Eur))
         // Still open: each change is saved as it's made.
         verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `edits saved as they're made land in order, so the last one stays`() {
+        val original = lunch()
+        coEvery { transactionRepo.findById(original.id) } returns original
+        // The first save is slow: the second change is saved while it's still being written.
+        val firstSave = CompletableDeferred<Unit>()
+        var saves = 0
+        val landed = mutableListOf<Double>()
+        coEvery { transactionRepo.save(any()) } coAnswers {
+            val amount = (firstArg<Transaction>() as Expense).value.amount.value
+            if (saves++ == 0) firstSave.await()
+            landed += amount
+        }
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = original.id.value, type = TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(30.0))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(35.0))
+        firstSave.complete(Unit)
+
+        landed.last() shouldBe 35.0
     }
 
     @Test
