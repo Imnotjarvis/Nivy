@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.accounts.usecase.AccountDataUseCase
 import com.nivy.base.model.AccountType
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.DataObserver
@@ -20,12 +21,11 @@ import com.nivy.domain.features.Features
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.AccountData
 import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.wallet.utils.ioThread
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.LoadTimer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,6 +42,7 @@ class AccountsViewModel @Inject constructor(
     private val features: Features,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
+    private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<AccountsState, AccountsEvent>() {
     private var baseCurrency by mutableStateOf("")
     private var accountsData by mutableStateOf(listOf<AccountData>())
@@ -109,7 +110,7 @@ class AccountsViewModel @Inject constructor(
     }
 
     override fun onEvent(event: AccountsEvent) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatchers.default) {
             when (event) {
                 is AccountsEvent.OnReorder -> reorder(event.reorderedList)
                 is AccountsEvent.OnReorderModalVisible -> reorderModalVisible(event.reorderVisible)
@@ -119,18 +120,19 @@ class AccountsViewModel @Inject constructor(
         }
     }
 
+    // One write: the change it reports reloads the list once, not once per account.
     private suspend fun reorder(newOrder: List<AccountData>) {
-        ioThread {
-            newOrder.mapIndexed { index, accountData ->
-                accountRepository.save(accountData.account.copy(orderNum = index.toDouble()))
-            }
-        }
-
-        startInternally()
+        accountRepository.saveMany(
+            newOrder.mapIndexed { index, accountData -> accountData.account.copy(orderNum = index.toDouble()) }
+        )
     }
 
+    private var loadJob: Job? = null
+
+    // A newer load replaces one still running, which would otherwise put back what it read.
     private fun onStart() {
-        viewModelScope.launch(Dispatchers.Default) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch(dispatchers.default) {
             startInternally()
         }
     }
