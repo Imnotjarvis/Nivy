@@ -82,6 +82,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       - uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin

@@ -126,6 +126,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       - name: Offline guard
         run: scripts/verifyOffline.sh
 
@@ -170,6 +173,9 @@ jobs:
           cache-provider: basic
           cache-read-only: ${{ needs.plan.outputs.test == 'true' }}
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       - name: Restore build cache
         id: restore-cache
         uses: actions/cache/restore@v6
@@ -193,10 +199,11 @@ jobs:
           set -o pipefail
           ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
 
-      # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
-      - name: Drop build cache entries older than a week
+      # Trimmed and saved even when the build fails: entries of the tasks that succeeded stay valid.
+      # The cap keeps the caches of a run within GitHub's 10 GB (scripts/trimBuildCache.sh).
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -281,6 +288,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       # Release-variant outputs, so its own cache family; falls back to any other job's.
       - name: Restore build cache
         id: restore-cache
@@ -297,9 +307,9 @@ jobs:
           set -o pipefail
           ./gradlew :app:assembleDemo 2>&1 | tee gradle-output.log
 
-      - name: Drop build cache entries older than a week
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -336,8 +346,12 @@ jobs:
         with:
           cache-provider: basic
           # Save from every branch, not only the default one, so later runs skip the
-          # ~10 min plugin download. This job resolves almost everything the others need.
+          # ~10 min plugin download. This job resolves almost everything the others need, and
+          # detekt's tools for the checks job (resolveDetektTools).
           cache-read-only: false
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       - name: Restore build cache
         id: restore-cache
@@ -366,9 +380,16 @@ jobs:
         if: failure()
         run: python3 -I scripts/printCompilerProblems.py
 
-      - name: Drop build cache entries older than a week
+      # Puts detekt's tools in the Gradle caches this job saves, for the checks job. On its own and
+      # best effort: they come from GitHub's release servers, which sometimes time out, and a
+      # failed download there shouldn't fail the tests. The checks job then downloads them itself.
+      - name: Resolve detekt's tools
+        if: ${{ !cancelled() }}
+        run: ./gradlew resolveDetektTools || echo "::warning::Detekt's tools weren't downloaded; the checks job downloads them."
+
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -411,6 +432,9 @@ jobs:
         with:
           cache-provider: basic
           cache-read-only: true
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       # Reuses what the build job just compiled for this commit, instrumented tests included.
       # Not saved again: this job adds nothing worth keeping.
@@ -536,6 +560,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       # Lint's per-module analysis is cacheable too, and it needs the compiled classes.
       - name: Restore build cache
         id: restore-cache
@@ -552,9 +579,9 @@ jobs:
       - name: Android Lint
         run: ./gradlew :app:lintDebug --continue
 
-      - name: Drop build cache entries older than a week
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -606,6 +633,9 @@ jobs:
         with:
           cache-provider: basic
           cache-read-only: true
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       - uses: actions/cache/restore@v6
         with:

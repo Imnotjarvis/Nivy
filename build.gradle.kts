@@ -37,3 +37,11 @@ moduleGraphAssert {
         ":feature:import-data -X> :feature:(?!onboarding$).*",
     )
 }
+
+// CI's test job saves the Gradle caches every job restores. It runs this after its tests, best
+// effort, so they hold detekt's own tools too: the checks job downloaded them every run.
+tasks.register("resolveDetektTools") {
+    val tools = files(configurations.named("detekt"), configurations.named("detektPlugins"))
+    inputs.files(tools)
+    doLast { logger.lifecycle("Detekt's tools: ${tools.files.size} files") }
+}
