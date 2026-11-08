@@ -205,8 +205,11 @@ jobs:
           path: ${{ env.GRADLE_BUILD_CACHE_DIR }}
           key: gradle-build-cache-build-${{ github.sha }}
 
+      # The demo build is the APK people install; release is what a store build would ship.
       - name: Audit shipped libraries
-        run: scripts/auditRuntimeDependencies.sh
+        run: |
+          scripts/auditRuntimeDependencies.sh demoRuntimeClasspath
+          scripts/auditRuntimeDependencies.sh releaseRuntimeClasspath
 
       # Room writes each schema version into the module's schemas folder, and the migration tests
       # read it from there, so a new version has to be committed. The files are in the artifact,

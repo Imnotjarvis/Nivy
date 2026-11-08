@@ -3,10 +3,10 @@
 # new user does: from the welcome screen through every onboarding step (Continue offline, Start
 # fresh, the currency, skipping accounts and categories, which adds the starter ones) to Home,
 # allowing the notifications Home asks for. Then it opens the app the way app shortcuts do
-# (straight on the add-transaction screen) and presses back twice, which goes through the
-# OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed() for apps targeting
-# it. It fails if the app process dies, anything lands in the crash log, or a screen it waits for
-# doesn't show.
+# (straight on the add-transaction screen, waiting for its keypad) and presses back twice, which
+# goes through the OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed()
+# for apps targeting it. It fails if the app process dies, anything lands in the crash log, or a
+# screen it waits for doesn't show.
 # Screenshots of each step go to build/smoke/ for a visual check.
 # Usage: scripts/smokeTestApks.sh path/to/app-debug.apk [more.apk ...]
 set -u
@@ -125,9 +125,9 @@ for apk in "$@"; do
 
     adb shell am start -W -n "$PACKAGE/$ACTIVITY" -a "$ADD_TRANSACTION_ACTION" \
         --es add_transaction_type_extra EXPENSE
-    sleep 5
-    adb exec-out screencap -p > "$OUT/$name-8-add-transaction.png"
-    check "$name" "add-transaction launch" || { fail=1; continue; }
+    # A new transaction opens on its keypad, and only the keypad shows Enter: the editor opened,
+    # not just an app that didn't crash.
+    step "$name" 8-add-transaction "Enter" || { fail=1; continue; }
 
     adb shell input keyevent KEYCODE_BACK
     sleep 2
