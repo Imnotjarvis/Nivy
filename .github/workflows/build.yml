@@ -182,21 +182,22 @@ jobs:
 
       # The instrumented tests are only built for the device job, which takes the compiled tests
       # from this job's build cache. When the test job doesn't run, the unit tests are still
-      # compiled here.
+      # compiled here, and detekt's tools resolved for the Gradle caches this job then saves.
       - name: Build APKs
         env:
           DEVICE_TASKS: >-
             ${{ needs.plan.outputs.device == 'true' &&
             ':shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
-          TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
+          TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources resolveDetektTools' || '' }}
         run: |
           set -o pipefail
           ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
 
-      # Pruned and saved even when the build fails: entries of the tasks that succeeded stay valid.
-      - name: Drop build cache entries older than a week
+      # Trimmed and saved even when the build fails: entries of the tasks that succeeded stay valid.
+      # The cap keeps the caches of a run within GitHub's 10 GB (scripts/trimBuildCache.sh).
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -297,9 +298,9 @@ jobs:
           set -o pipefail
           ./gradlew :app:assembleDemo 2>&1 | tee gradle-output.log
 
-      - name: Drop build cache entries older than a week
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -336,7 +337,8 @@ jobs:
         with:
           cache-provider: basic
           # Save from every branch, not only the default one, so later runs skip the
-          # ~10 min plugin download. This job resolves almost everything the others need.
+          # ~10 min plugin download. This job resolves almost everything the others need, and
+          # detekt's tools for the checks job (resolveDetektTools).
           cache-read-only: false
 
       - name: Restore build cache
@@ -360,15 +362,15 @@ jobs:
           verify=$(find . \( -name build -o -name .gradle -o -name .git \) -prune -o \
               -path '*/src/test/snapshots' -type d -print \
               | sed -E 's#^\./(.*)/src/test/snapshots$#:\1:verifyPaparazziDebug#; s#/#:#g')
-          ./gradlew testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
+          ./gradlew resolveDetektTools testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
 
       - name: Compiler problems
         if: failure()
         run: python3 -I scripts/printCompilerProblems.py
 
-      - name: Drop build cache entries older than a week
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
@@ -552,9 +554,9 @@ jobs:
       - name: Android Lint
         run: ./gradlew :app:lintDebug --continue
 
-      - name: Drop build cache entries older than a week
+      - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
-        run: find "$GRADLE_BUILD_CACHE_DIR" -maxdepth 1 -type f -mtime +7 -delete 2>/dev/null || true
+        run: scripts/trimBuildCache.sh
 
       - name: Save build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
