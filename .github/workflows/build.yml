@@ -126,6 +126,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       - name: Offline guard
         run: scripts/verifyOffline.sh
 
@@ -169,6 +172,9 @@ jobs:
           # key collide and warn.
           cache-provider: basic
           cache-read-only: ${{ needs.plan.outputs.test == 'true' }}
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       - name: Restore build cache
         id: restore-cache
@@ -282,6 +288,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       # Release-variant outputs, so its own cache family; falls back to any other job's.
       - name: Restore build cache
         id: restore-cache
@@ -340,6 +349,9 @@ jobs:
           # ~10 min plugin download. This job resolves almost everything the others need, and
           # detekt's tools for the checks job (resolveDetektTools).
           cache-read-only: false
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       - name: Restore build cache
         id: restore-cache
@@ -420,6 +432,9 @@ jobs:
         with:
           cache-provider: basic
           cache-read-only: true
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       # Reuses what the build job just compiled for this commit, instrumented tests included.
       # Not saved again: this job adds nothing worth keeping.
@@ -545,6 +560,9 @@ jobs:
           cache-provider: basic
           cache-read-only: true
 
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       # Lint's per-module analysis is cacheable too, and it needs the compiled classes.
       - name: Restore build cache
         id: restore-cache
@@ -615,6 +633,9 @@ jobs:
         with:
           cache-provider: basic
           cache-read-only: true
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
 
       - uses: actions/cache/restore@v6
         with:
