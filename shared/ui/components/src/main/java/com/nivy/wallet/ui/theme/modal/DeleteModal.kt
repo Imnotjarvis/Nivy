@@ -59,7 +59,7 @@ fun BoxWithConstraintsScope.DeleteModal(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
                 color = deleteRed(),
@@ -70,7 +70,7 @@ fun BoxWithConstraintsScope.DeleteModal(
         Spacer(Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = description,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -119,7 +119,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
                 color = deleteRed(),
@@ -130,7 +130,7 @@ fun BoxWithConstraintsScope.DeleteConfirmationModal(
         Spacer(Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = description,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,

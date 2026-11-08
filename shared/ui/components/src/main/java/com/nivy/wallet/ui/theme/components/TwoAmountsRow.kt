@@ -82,8 +82,8 @@ private fun LabelAmountColumn(
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Normal
             )
         )
 

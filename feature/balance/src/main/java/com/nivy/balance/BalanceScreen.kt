@@ -181,7 +181,6 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
 
             balanceFontSize = 30.sp,
 
-            currencyUpfront = false
         )
 
         Spacer(Modifier.weight(1f))

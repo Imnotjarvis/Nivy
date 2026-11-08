@@ -38,7 +38,7 @@ fun BoxWithConstraintsScope.ProgressModal(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
                 color = Red,
@@ -49,7 +49,7 @@ fun BoxWithConstraintsScope.ProgressModal(
         Spacer(Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = description,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -62,7 +62,7 @@ fun BoxWithConstraintsScope.ProgressModal(
         LinearProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
                 .height(8.dp)
                 .clip(
                     PillShape

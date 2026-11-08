@@ -165,7 +165,7 @@ fun BoxWithConstraintsScope.AmountModal(
             currency = currency
         )
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
         AmountInput(
             currency = currency,

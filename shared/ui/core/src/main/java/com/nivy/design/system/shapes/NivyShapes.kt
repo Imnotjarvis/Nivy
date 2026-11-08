@@ -49,6 +49,12 @@ fun nivyShapes(radius: Dp): Shapes {
 val ShapeTop: Shape
     get() = RoundedCornerShape(topStart = AppCornerRadius.value, topEnd = AppCornerRadius.value)
 
+/**
+ * For a block set [inset] inside another one, like the selected half of a two-option switch:
+ * corners concentric with the outer block's, the app's radius less the inset, never under 4 dp.
+ */
+fun nestedShape(inset: Dp): Shape = RoundedCornerShape((AppCornerRadius.value - inset).coerceAtLeast(4.dp))
+
 /** Pills follow the app's corner radius; square elements (round icon buttons) stay circles. */
 val PillShape: Shape get() = Pill(AppCornerRadius.value)
 

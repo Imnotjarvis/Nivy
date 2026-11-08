@@ -104,7 +104,8 @@ fun BoxWithConstraintsScope.MoreMenu(
     val nav = navigation()
     val searchLabel = stringResource(R.string.search_transactions)
 
-    val xButton = screenSize.width - 24.dp.toDensityPx() - 40.dp.toDensityPx()
+    // 24 dp from the edge, as the page's text is from the other one; the button is 48 dp wide.
+    val xButton = screenSize.width - 24.dp.toDensityPx() - 48.dp.toDensityPx()
     val yButton = 20.dp.toDensityPx() + statusBarInset()
 
     if (shown) {

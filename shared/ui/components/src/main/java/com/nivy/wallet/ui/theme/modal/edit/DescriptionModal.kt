@@ -83,7 +83,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
 
         Text(
             modifier = Modifier
-                .padding(start = 32.dp),
+                .padding(start = 24.dp),
             text = stringResource(R.string.description),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -100,7 +100,7 @@ fun BoxWithConstraintsScope.DescriptionModal(
 
         NivyDescriptionTextField(
             modifier = Modifier
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
                 .fillMaxWidth()
                 .focusRequester(focus),
             testTag = "modal_desc_input",

@@ -271,7 +271,6 @@ fun AddNewButton(
             fontWeight = FontWeight.Bold
         ),
         iconTint = MaterialTheme.colorScheme.onSurface,
-        padding = 10.dp,
         onClick = onClick
     )
 }

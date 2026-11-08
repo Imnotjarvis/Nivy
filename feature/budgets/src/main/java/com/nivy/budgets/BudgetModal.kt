@@ -237,7 +237,7 @@ private fun CategoriesRow(
     onSetBudgetCategoryIds: (List<CategoryId>) -> Unit,
 ) {
     Text(
-        modifier = Modifier.padding(start = 32.dp),
+        modifier = Modifier.padding(start = 24.dp),
         text = determineBudgetType(budgetCategoryIds.size),
         style = MaterialTheme.typography.titleLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,
@@ -287,7 +287,7 @@ private fun AccountsRow(
     onSetBudgetAccountIds: (List<AccountId>) -> Unit,
 ) {
     Text(
-        modifier = Modifier.padding(start = 32.dp),
+        modifier = Modifier.padding(start = 24.dp),
         text = if (budgetAccountIds.isEmpty()) {
             stringResource(R.string.budget_all_accounts)
         } else {

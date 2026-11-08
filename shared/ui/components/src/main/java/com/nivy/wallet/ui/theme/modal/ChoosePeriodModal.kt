@@ -172,7 +172,7 @@ private fun ColumnScope.ChooseMonth(
 ) {
     Text(
         modifier = Modifier
-            .padding(start = 32.dp),
+            .padding(start = 24.dp),
         text = stringResource(R.string.choose_month),
         style = MaterialTheme.typography.titleLarge.copy(
             color = if (selectedMonthYear != null) MaterialTheme.colorScheme.onSurface else Gray,
@@ -301,7 +301,7 @@ private fun ColumnScope.FromToRange(
 ) {
     Text(
         modifier = Modifier
-            .padding(start = 32.dp),
+            .padding(start = 24.dp),
         text = stringResource(R.string.or_custom_range),
         style = MaterialTheme.typography.titleLarge.copy(
             color = if (timeRange != null) MaterialTheme.colorScheme.onSurface else Gray,
@@ -393,7 +393,7 @@ private fun IntervalFromToDate(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(32.dp))
+        Spacer(Modifier.width(24.dp))
 
         Text(
             modifier = Modifier
@@ -441,7 +441,7 @@ private fun IntervalFromToDate(
 
             Spacer(Modifier.width(4.dp))
         } else {
-            Spacer(Modifier.width(32.dp))
+            Spacer(Modifier.width(24.dp))
         }
     }
 }
@@ -469,7 +469,7 @@ private fun ColumnScope.LastNPeriod(
 
     Text(
         modifier = Modifier
-            .padding(start = 32.dp),
+            .padding(start = 24.dp),
         text = stringResource(R.string.or_in_the_last),
         style = MaterialTheme.typography.titleLarge.copy(
             color = if (lastNTimeRange != null) MaterialTheme.colorScheme.onSurface else Gray,
@@ -517,7 +517,7 @@ private fun ColumnScope.AllTime(
 
     Text(
         modifier = Modifier
-            .padding(start = 32.dp),
+            .padding(start = 24.dp),
         text = stringResource(R.string.or_all_time),
         style = MaterialTheme.typography.titleLarge.copy(
             color = if (active) MaterialTheme.colorScheme.onSurface else Gray,
@@ -528,7 +528,7 @@ private fun ColumnScope.AllTime(
     Spacer(Modifier.height(16.dp))
 
     MonthButton(
-        modifier = Modifier.padding(start = 32.dp),
+        modifier = Modifier.padding(start = 24.dp),
         selected = active,
         text = if (active) stringResource(R.string.unselect_all_time) else stringResource(R.string.select_all_time)
     ) {

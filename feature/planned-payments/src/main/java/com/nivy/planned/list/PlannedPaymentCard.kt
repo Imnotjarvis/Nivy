@@ -171,7 +171,7 @@ private fun PlannedPaymentHeaderRow(
                         fontWeight = FontWeight.ExtraBold
                     ),
                     padding = 8.dp,
-                    iconEdgePadding = 10.dp
+                    iconEdgePadding = 8.dp
                 ) {
                     nav.navigateTo(
                         TransactionsScreen(
@@ -195,7 +195,7 @@ private fun PlannedPaymentHeaderRow(
                     fontWeight = FontWeight.ExtraBold
                 ),
                 padding = 8.dp,
-                iconEdgePadding = 10.dp
+                iconEdgePadding = 8.dp
             ) {
                 account?.let {
                     nav.navigateTo(

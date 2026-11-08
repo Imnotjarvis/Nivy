@@ -129,7 +129,7 @@ private fun CompactCategoryCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(all = 10.dp),
+                .padding(all = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -251,7 +251,6 @@ private fun CategoryHeader(
 
             balanceFontSize = 30.sp,
 
-            currencyUpfront = false,
             balanceAmountPrefix = balancePrefixValue
         )
 

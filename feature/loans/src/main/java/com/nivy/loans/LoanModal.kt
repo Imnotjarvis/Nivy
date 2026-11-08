@@ -227,7 +227,7 @@ fun BoxWithConstraintsScope.LoanModal(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = stringResource(R.string.note),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -249,7 +249,7 @@ fun BoxWithConstraintsScope.LoanModal(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = stringResource(R.string.associated_account),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -380,7 +380,7 @@ private fun ColumnScope.LoanTypePicker(
     onTypeSelected: (LoanType) -> Unit
 ) {
     Text(
-        modifier = Modifier.padding(horizontal = 32.dp),
+        modifier = Modifier.padding(horizontal = 24.dp),
         text = stringResource(R.string.loan_type),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

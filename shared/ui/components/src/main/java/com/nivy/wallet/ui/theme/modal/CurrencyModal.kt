@@ -79,7 +79,7 @@ fun BoxWithConstraintsScope.CurrencyModal(
                     )
                 )
 
-                Spacer(Modifier.width(32.dp))
+                Spacer(Modifier.width(24.dp))
             }
         }
 

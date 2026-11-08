@@ -71,7 +71,7 @@ fun CompactTransactionRow(
                 // Like the full card: a transaction of a deleted account doesn't open.
                 if (account != null) onClick(transaction)
             }
-            .padding(10.dp)
+            .padding(8.dp)
             .testTag("compact_transaction_row"),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -48,7 +48,7 @@ internal fun ValueEntryRow(
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 14.dp)
+            .padding(horizontal = 20.dp, vertical = 12.dp)
             .testTag("account_value_entry"),
         verticalAlignment = Alignment.CenterVertically
     ) {

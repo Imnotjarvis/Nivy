@@ -216,7 +216,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         Spacer(Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = stringResource(R.string.associated_account),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -251,7 +251,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = stringResource(R.string.loan_record_type),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -504,7 +504,7 @@ private fun LoanRecordType(
         Spacer(Modifier.width(4.dp))
 
         Text(
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             text = text,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,

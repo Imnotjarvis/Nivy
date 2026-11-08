@@ -328,7 +328,6 @@ private fun Keyword(
         iconStart = R.drawable.ic_remove,
         iconTint = Red,
         borderColor = borderColor,
-        padding = 10.dp,
     ) {
         onClick()
     }
@@ -340,7 +339,6 @@ internal fun AddKeywordButton(text: String, modifier: Modifier = Modifier, onCLi
         modifier = modifier,
         text = text,
         iconStart = R.drawable.ic_plus,
-        padding = 10.dp,
     ) {
         onCLick()
     }

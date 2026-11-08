@@ -114,17 +114,41 @@ class ColorModeTest {
     }
 
     @Test
-    fun `in minimal colors on the light theme, secondary text reads at 4,5 to 1`() {
-        Gray shouldBe Color(0xFF939199)
+    fun `on the light theme, secondary text reads at 4,5 to 1`() {
+        // when
+        val gray = Gray
 
+        // then
+        contrast(gray, White) shouldBeGreaterThanOrEqual TextContrast
+        contrast(gray, MediumWhite) shouldBeGreaterThanOrEqual TextContrast
+    }
+
+    @Test
+    fun `in minimal colors on the light theme, secondary text reads at 4,5 to 1`() {
+        // given
         ColorMode.minimal = true
 
-        contrast(Gray, White) shouldBeGreaterThanOrEqual TextContrast
-        contrast(Gray, MediumWhite) shouldBeGreaterThanOrEqual TextContrast
+        // when
+        val gray = Gray
 
+        // then
+        contrast(gray, White) shouldBeGreaterThanOrEqual TextContrast
+        contrast(gray, MediumWhite) shouldBeGreaterThanOrEqual TextContrast
+    }
+
+    @Test
+    fun `on the dark theme, secondary text keeps its grey, also in minimal colors`() {
+        // given
         ColorMode.dark = true
 
-        Gray shouldBe Color(0xFF939199)
+        // when
+        val default = Gray
+        ColorMode.minimal = true
+        val minimal = Gray
+
+        // then
+        default shouldBe Color(0xFF939199)
+        minimal shouldBe Color(0xFF939199)
     }
 
     private fun contrast(a: Color, b: Color): Double {

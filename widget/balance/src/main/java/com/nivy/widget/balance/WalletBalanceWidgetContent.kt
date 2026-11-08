@@ -108,7 +108,7 @@ private fun BalanceSection(
                 color = ColorProvider(Color.White)
             )
         )
-        Spacer(GlanceModifier.width(10.dp))
+        Spacer(GlanceModifier.width(8.dp))
         Text(
             text = balance,
             style = TextStyle(
@@ -134,7 +134,7 @@ private fun IncomeExpenseSection(
         val resources = LocalContext.current.resources
         Row(
             GlanceModifier
-                .padding(10.dp)
+                .padding(12.dp)
                 .defaultWeight()
                 .background(ImageProvider(R.drawable.income_shape_widget_background)),
             verticalAlignment = Alignment.CenterVertically,
@@ -152,7 +152,7 @@ private fun IncomeExpenseSection(
         Spacer(GlanceModifier.width(8.dp))
         Row(
             GlanceModifier
-                .padding(10.dp)
+                .padding(12.dp)
                 .defaultWeight()
                 .background(ImageProvider(R.drawable.expense_shape_widget_background)),
             verticalAlignment = Alignment.CenterVertically,

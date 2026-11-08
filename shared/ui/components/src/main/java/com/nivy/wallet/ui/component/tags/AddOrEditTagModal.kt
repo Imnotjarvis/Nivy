@@ -115,7 +115,7 @@ fun BoxWithConstraintsScope.AddOrEditTagModal(
 
         NivyTitleTextField(
             modifier = Modifier
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
                 .focusRequester(titleFocus),
             dividerModifier = Modifier
                 .padding(horizontal = 24.dp),

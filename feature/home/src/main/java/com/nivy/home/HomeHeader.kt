@@ -169,7 +169,7 @@ private fun HeaderStickyRow(
 
         Spacer(Modifier.width(12.dp))
 
-        Spacer(Modifier.width(40.dp)) // settings menu button spacer
+        Spacer(Modifier.width(48.dp)) // settings menu button spacer
     }
 }
 
@@ -199,7 +199,7 @@ fun CashFlowInfo(
         BalanceRow(
             modifier = Modifier
                 .graphicsLayer { alpha = balanceShown.value }
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 24.dp)
                 .clickableNoIndication(rememberInteractionSource()) {
                     if (hideBalance) {
                         onHiddenBalanceClick()
@@ -349,7 +349,7 @@ private fun RowScope.HeaderCard(
 
             NivyIcon(
                 icon = icon,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(Modifier.width(4.dp))
@@ -357,8 +357,8 @@ private fun RowScope.HeaderCard(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.ExtraBold
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Normal
                 ),
             )
         }

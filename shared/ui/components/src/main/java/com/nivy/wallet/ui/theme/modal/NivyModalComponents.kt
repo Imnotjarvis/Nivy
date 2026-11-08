@@ -203,7 +203,7 @@ fun ModalTitle(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        modifier = modifier.padding(horizontal = 32.dp),
+        modifier = modifier.padding(horizontal = 24.dp),
         text = text,
         style = MaterialTheme.typography.titleLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

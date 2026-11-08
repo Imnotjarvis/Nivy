@@ -228,7 +228,7 @@ private fun MultipleTimes(
 
     Text(
         modifier = Modifier
-            .padding(start = 32.dp),
+            .padding(start = 24.dp),
         text = stringResource(R.string.starts_on),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,
@@ -252,7 +252,7 @@ private fun MultipleTimes(
 
     Text(
         modifier = Modifier
-            .padding(start = 32.dp),
+            .padding(start = 24.dp),
         text = stringResource(R.string.repeats_every_text),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,
@@ -292,7 +292,7 @@ private fun DateRow(
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(32.dp))
+        Spacer(Modifier.width(24.dp))
 
         // looked up on tap, so previews without the activity still draw
 
@@ -346,7 +346,7 @@ private fun DateRow(
             (context as RootScreen).pickDateAtNoon(dateTime.toLocalDate(), onDatePicked)
         }
 
-        Spacer(Modifier.width(32.dp))
+        Spacer(Modifier.width(24.dp))
     }
 }
 

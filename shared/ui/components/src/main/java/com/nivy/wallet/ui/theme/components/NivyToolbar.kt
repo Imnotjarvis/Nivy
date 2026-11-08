@@ -35,7 +35,7 @@ fun NivyToolbar(
             .padding(top = paddingTop),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(20.dp))
+        Spacer(Modifier.width(24.dp))
 
         when (backButtonType) {
             BackButtonType.BACK -> {

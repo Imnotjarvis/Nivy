@@ -63,7 +63,7 @@ fun ListItem(
         Spacer(Modifier.width(4.dp))
 
         Text(
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             text = text,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,

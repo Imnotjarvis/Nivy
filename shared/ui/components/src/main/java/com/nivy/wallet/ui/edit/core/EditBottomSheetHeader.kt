@@ -148,7 +148,6 @@ internal fun TransferRowMini(
                 color = fromContrastColor,
                 fontWeight = FontWeight.ExtraBold
             ),
-            padding = 10.dp,
         ) {
             onSetExpanded()
         }
@@ -169,7 +168,6 @@ internal fun TransferRowMini(
                 color = toContrastColor,
                 fontWeight = FontWeight.ExtraBold
             ),
-            padding = 10.dp,
         ) {
             onSetExpanded()
         }
@@ -301,7 +299,6 @@ internal fun Amount(
 
                 balanceFontSize = balanceFontSize.sp,
 
-                currencyUpfront = false
             )
             if (showConvertedAmountText != null) {
                 Text(
