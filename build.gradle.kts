@@ -38,8 +38,9 @@ moduleGraphAssert {
     )
 }
 
-// CI's test job saves the Gradle caches every job restores. It runs this after its tests, best
-// effort, so they hold detekt's own tools too: the checks job downloaded them every run.
+// CI's test job saves the Gradle caches every job restores, when its tests pass. It runs this
+// after them, best effort, so the caches hold detekt's own tools too: the checks job downloaded
+// them every run.
 tasks.register("resolveDetektTools") {
     val tools = files(configurations.named("detekt"), configurations.named("detektPlugins"))
     inputs.files(tools)
