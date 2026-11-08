@@ -182,13 +182,13 @@ jobs:
 
       # The instrumented tests are only built for the device job, which takes the compiled tests
       # from this job's build cache. When the test job doesn't run, the unit tests are still
-      # compiled here, and detekt's tools resolved for the Gradle caches this job then saves.
+      # compiled here.
       - name: Build APKs
         env:
           DEVICE_TASKS: >-
             ${{ needs.plan.outputs.device == 'true' &&
             ':shared:data:core:assembleDebugAndroidTest :shared:domain:assembleDebugAndroidTest' || '' }}
-          TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources resolveDetektTools' || '' }}
+          TEST_TASKS: ${{ needs.plan.outputs.test != 'true' && 'compileDebugUnitTestSources' || '' }}
         run: |
           set -o pipefail
           ./gradlew :app:assembleDebug $DEVICE_TASKS $TEST_TASKS --continue 2>&1 | tee gradle-output.log
@@ -362,11 +362,18 @@ jobs:
           verify=$(find . \( -name build -o -name .gradle -o -name .git \) -prune -o \
               -path '*/src/test/snapshots' -type d -print \
               | sed -E 's#^\./(.*)/src/test/snapshots$#:\1:verifyPaparazziDebug#; s#/#:#g')
-          ./gradlew resolveDetektTools testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
+          ./gradlew testDebugUnitTest $verify --continue 2>&1 | tee gradle-output.log
 
       - name: Compiler problems
         if: failure()
         run: python3 -I scripts/printCompilerProblems.py
+
+      # Puts detekt's tools in the Gradle caches this job saves, for the checks job. On its own and
+      # best effort: they come from GitHub's release servers, which sometimes time out, and a
+      # failed download there shouldn't fail the tests. The checks job then downloads them itself.
+      - name: Resolve detekt's tools
+        if: ${{ !cancelled() }}
+        run: ./gradlew resolveDetektTools || echo "::warning::Detekt's tools weren't downloaded; the checks job downloads them."
 
       - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
