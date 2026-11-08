@@ -75,6 +75,15 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # The submission runs Gradle through the wrapper, and this job usually starts without the
+      # Gradle caches: it runs when a build file changes, and a pull request's run can't restore
+      # what its branch saved. The wrapper tries its download only once, so Gradle is downloaded
+      # here first, with retries, once the wrapper is checked (the submission doesn't check it).
+      - uses: gradle/actions/wrapper-validation@v6
+
+      - name: Download Gradle
+        run: scripts/downloadGradle.sh
+
       - name: Submit the dependency graph
         uses: gradle/actions/dependency-submission@v6
         with:

@@ -347,7 +347,8 @@ jobs:
           cache-provider: basic
           # Save from every branch, not only the default one, so later runs skip the
           # ~10 min plugin download. This job resolves almost everything the others need, and
-          # detekt's tools for the checks job (resolveDetektTools).
+          # detekt's tools for the checks job (resolveDetektTools). A failed run saves nothing:
+          # see the job's last step.
           cache-read-only: false
 
       - name: Download Gradle
@@ -384,7 +385,6 @@ jobs:
       # best effort: they come from GitHub's release servers, which sometimes time out, and a
       # failed download there shouldn't fail the tests. The checks job then downloads them itself.
       - name: Resolve detekt's tools
-        if: ${{ !cancelled() }}
         run: ./gradlew resolveDetektTools || echo "::warning::Detekt's tools weren't downloaded; the checks job downloads them."
 
       - name: Keep the newest 750 MB of the build cache
@@ -407,6 +407,14 @@ jobs:
             **/build/reports/tests/
             **/build/paparazzi/failures/
           if-no-files-found: ignore
+
+      # setup-gradle saves the Gradle caches at the end of the job even when it failed, under a key
+      # that only changes with the build files, and never replaces an entry: the caches of a run
+      # that stopped before downloading everything would be what every later run restores. With
+      # them gone it saves nothing, and warns that it couldn't.
+      - name: Don't save the Gradle caches of a failed run
+        if: failure()
+        run: rm -rf "${GRADLE_USER_HOME:?}/caches" "${GRADLE_USER_HOME:?}/wrapper"
 
   # Runs the app on an emulator: launches both APKs on a fresh install (catches startup
   # crashes from R8, Hilt, Room), opens them the way shortcuts do and presses back
