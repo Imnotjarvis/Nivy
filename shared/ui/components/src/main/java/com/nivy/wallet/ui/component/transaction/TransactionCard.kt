@@ -39,7 +39,7 @@ import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.Nivy
-import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.White
 import com.nivy.design.system.colors.readableTint
@@ -116,7 +116,7 @@ fun TransactionCard(
                 ),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = if (dueDate.isAfter(timeProvider.utcNow())) {
-                        Orange
+                        upcomingOrange(MaterialTheme.colorScheme.surfaceVariant)
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
@@ -281,9 +281,9 @@ fun TypeAmountCurrency(
                         // Upcoming Expense
                         AmountTypeStyle(
                             icon = R.drawable.ic_expense,
-                            fill = Orange,
+                            fill = upcomingOrange(MaterialTheme.colorScheme.surfaceVariant),
                             iconTint = White,
-                            textColor = Orange
+                            textColor = upcomingOrange(MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
 

@@ -26,6 +26,8 @@ import com.nivy.design.utils.rememberInteractionSource
 import com.nivy.wallet.utils.springBounce
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.incomeGreen
+import com.nivy.design.system.colors.shown
 import com.nivy.wallet.ui.theme.components.NivyDividerDot
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import androidx.compose.material3.MaterialTheme
@@ -138,7 +140,8 @@ private fun SectionDividerIncomeExpenseRow(
                 modifier = Modifier.testTag("upcoming_income"),
                 text = "${income.format(baseCurrency)} $baseCurrency",
                 style = MaterialTheme.typography.numberLabelMedium.copy(
-                    color = MaterialTheme.colorScheme.secondary,
+                    // Readable on light pages; the text color in minimal colors.
+                    color = incomeGreen(MaterialTheme.colorScheme.background).shown(),
                     fontWeight = FontWeight.ExtraBold
                 )
             )
