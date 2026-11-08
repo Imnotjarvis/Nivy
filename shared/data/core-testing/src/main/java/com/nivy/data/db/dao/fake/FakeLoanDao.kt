@@ -23,7 +23,7 @@ class FakeLoanDao : LoanDao, WriteLoanDao {
     }
 
     override suspend fun save(value: LoanEntity) {
-        items.add(value)
+        items.upsert(value) { it.id == value.id }
     }
 
     override suspend fun saveMany(value: List<LoanEntity>) {

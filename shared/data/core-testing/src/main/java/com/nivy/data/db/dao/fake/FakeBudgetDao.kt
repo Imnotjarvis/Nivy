@@ -19,7 +19,7 @@ class FakeBudgetDao : BudgetDao, WriteBudgetDao {
     }
 
     override suspend fun save(value: BudgetEntity) {
-        items.add(value)
+        items.upsert(value) { it.id == value.id }
     }
 
     override suspend fun saveMany(value: List<BudgetEntity>) {
