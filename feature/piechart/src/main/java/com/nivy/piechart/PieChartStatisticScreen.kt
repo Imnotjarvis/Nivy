@@ -152,7 +152,6 @@ internal fun BoxWithConstraintsScope.UI(
                     .alpha(percentExpanded),
                 currency = state.baseCurrency,
                 balance = state.totalAmount,
-                currencyUpfront = false
             )
         }
 

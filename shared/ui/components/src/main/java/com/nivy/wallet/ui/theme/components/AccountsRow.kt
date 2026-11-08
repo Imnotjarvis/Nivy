@@ -127,7 +127,7 @@ private fun Account(
         Spacer(Modifier.width(4.dp))
 
         Text(
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             text = account.name.value,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = textColor,
@@ -161,7 +161,7 @@ private fun AddAccount(
         Spacer(Modifier.width(4.dp))
 
         Text(
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             text = stringResource(R.string.add_account),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,

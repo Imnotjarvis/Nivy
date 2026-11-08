@@ -406,7 +406,7 @@ private fun AccountTypeSection(
     onSelectType: (AccountType) -> Unit,
 ) {
     Text(
-        modifier = Modifier.padding(start = 32.dp),
+        modifier = Modifier.padding(start = 24.dp),
         text = stringResource(R.string.account_type),
         style = MaterialTheme.typography.titleLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,
@@ -448,7 +448,7 @@ private fun CreditCardsSection(
     onAddCard: () -> Unit,
 ) {
     Text(
-        modifier = Modifier.padding(start = 32.dp),
+        modifier = Modifier.padding(start = 24.dp),
         text = stringResource(R.string.credit_cards),
         style = MaterialTheme.typography.titleLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,
@@ -540,7 +540,7 @@ private fun AccountCurrency(
             .testTag("account_modal_currency"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(32.dp))
+        Spacer(Modifier.width(24.dp))
 
         Text(
             text = currencyCode.toUpperCaseLocal(),

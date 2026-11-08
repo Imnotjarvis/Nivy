@@ -44,6 +44,20 @@ class name (`RootActivity`, `PaymentTileService`, the three widget receivers and
 - **An account's balance:** the database sums it (`TransactionDao.balance`). Its copy in
   `FakeTransactionDao` passes the same `BalanceCases` as the query.
 
+## Layout and copy
+
+- **Edges:** blocks (cards, list rows, bars) keep 16 dp from the screen's sides. Page text and the
+  round buttons at a header's ends keep 24 dp, and so does everything in a dialog: its title,
+  labels, fields and controls.
+- **Spacing:** on the 4 dp grid, except a value that centers or aligns something exactly.
+- **Corners:** one radius, the corner radius setting (`AppCornerRadius`), which every shape reads.
+  A block close inside another one's corners, like a switch's selected half, takes
+  `nestedShape(inset)`: the radius less the gap, so the corners stay concentric.
+- **Amounts:** the currency code after the number, everywhere. A small label over an amount is in
+  regular weight and the secondary grey, so the amount leads.
+- **Copy:** sentence case, no emoji or exclamation marks, and no final period on a label, a
+  caption or a one-sentence hint.
+
 ## Files
 
 Keep a file under about 600 lines; none is over 800. Split a screen by part, in the same

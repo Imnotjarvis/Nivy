@@ -25,7 +25,6 @@ import com.nivy.data.model.Income
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatGainPercent
 import com.nivy.ui.R
-import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.design.system.colors.Green
@@ -39,6 +38,7 @@ import com.nivy.design.system.typography.numberTitleLarge
 import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.expenseRed
+import com.nivy.design.system.shapes.nestedShape
 
 @Suppress("ParameterNaming")
 @Composable
@@ -215,7 +215,7 @@ private fun RowScope.HeaderCard(
             text = title,
             style = MaterialTheme.typography.labelMedium.copy(
                 color = contrastColor,
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.Normal
             )
         )
 
@@ -237,7 +237,7 @@ private fun RowScope.HeaderCard(
         )
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = NivyCurrency.fromCode(currencyCode)?.name ?: "",
+            text = currencyCode,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.Normal
@@ -274,6 +274,8 @@ private fun RowScope.HeaderCard(
                     .align(Alignment.CenterHorizontally),
                 text = addButtonText,
                 backgroundColor = addButtonBackground,
+                // 8 dp inside the card on three sides: corners concentric with the card's.
+                shape = nestedShape(8.dp),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = readableOn(addButtonBackground),
                     fontWeight = FontWeight.Bold
@@ -283,7 +285,7 @@ private fun RowScope.HeaderCard(
                 onAddClick()
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }

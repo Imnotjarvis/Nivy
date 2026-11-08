@@ -78,7 +78,7 @@ internal fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
                     fontWeight = FontWeight.Normal
                 )
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }
@@ -215,7 +215,7 @@ private fun TransactionBadge(
             .clickable {
                 onClick()
             }
-            .padding(end = 10.dp),
+            .padding(end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(8.dp))

@@ -229,7 +229,7 @@ private fun LoanInfoCard(
                         fontWeight = FontWeight.ExtraBold
                     ),
                     padding = 8.dp,
-                    iconEdgePadding = 10.dp
+                    iconEdgePadding = 8.dp
                 ) {
                     nav.navigateTo(
                         TransactionsScreen(

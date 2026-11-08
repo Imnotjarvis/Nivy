@@ -58,7 +58,7 @@ internal fun <T> BoxWithConstraintsScope.ChooseOptionModal(
             val isSelected = option == selected
             Text(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(horizontal = 24.dp, vertical = 4.dp)
                     .fillMaxWidth()
                     .clip(MaterialTheme.shapes.medium)
                     .background(if (isSelected) Nivy else Color.Transparent)

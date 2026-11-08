@@ -24,7 +24,6 @@ fun BalanceRowMedium(
     modifier: Modifier = Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     balanceAmountPrefix: String? = null,
-    currencyUpfront: Boolean = true,
     shortenBigNumbers: Boolean = false,
     hiddenMode: Boolean = false,
 ) {
@@ -38,7 +37,6 @@ fun BalanceRowMedium(
         balanceFontSize = 26.sp,
 
         balanceAmountPrefix = balanceAmountPrefix,
-        currencyUpfront = currencyUpfront,
         shortenBigNumbers = shortenBigNumbers
     )
 }
@@ -50,7 +48,6 @@ fun BalanceRowMini(
     modifier: Modifier = Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     balanceAmountPrefix: String? = null,
-    currencyUpfront: Boolean = true,
     shortenBigNumbers: Boolean = false,
     hiddenMode: Boolean = false,
 ) {
@@ -64,7 +61,6 @@ fun BalanceRowMini(
         balanceFontSize = 22.sp,
 
         balanceAmountPrefix = balanceAmountPrefix,
-        currencyUpfront = currencyUpfront,
         shortenBigNumbers = shortenBigNumbers
     )
 }
@@ -77,7 +73,6 @@ fun BalanceRow(
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     hiddenMode: Boolean = false,
     balanceFontSize: TextUnit? = null,
-    currencyUpfront: Boolean = true,
     balanceAmountPrefix: String? = null,
     shortenBigNumbers: Boolean = false,
 ) {
@@ -94,11 +89,8 @@ fun BalanceRow(
         else -> integerPartFormatted
     }
 
-    val balanceCurrencyText = if (currencyUpfront) {
-        "$currency $balanceText"
-    } else {
-        "$balanceText $currency"
-    }
+    // The currency after the amount, as everywhere else in the app.
+    val balanceCurrencyText = "$balanceText $currency"
 
     Column(
         modifier = modifier,

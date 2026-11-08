@@ -37,9 +37,9 @@ fun ModalNameInput(
     val view = LocalView.current
     NivyNameTextField(
         modifier = modifier
-            .padding(start = 32.dp, end = 36.dp)
+            .padding(start = 24.dp, end = 28.dp)
             .focusRequester(nameFocus),
-        underlineModifier = Modifier.padding(start = 32.dp, end = 32.dp),
+        underlineModifier = Modifier.padding(start = 24.dp, end = 24.dp),
         value = textFieldValue,
         hint = hint,
         keyboardOptions = KeyboardOptions(

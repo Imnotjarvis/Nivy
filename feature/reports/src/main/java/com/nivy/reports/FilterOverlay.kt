@@ -291,7 +291,6 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
             text = stringResource(R.string.apply_filter),
             iconStart = R.drawable.ic_filter_xs,
             backgroundColor = Green,
-            padding = 10.dp,
         ) {
             if (localFilter != null) {
                 onSetFilter(localFilter!!)

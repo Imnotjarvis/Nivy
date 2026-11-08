@@ -54,7 +54,7 @@ fun BoxWithConstraintsScope.AddKeywordModal(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            modifier = Modifier.padding(start = 32.dp),
+            modifier = Modifier.padding(start = 24.dp),
             text = stringResource(R.string.add_keyword),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -72,7 +72,7 @@ fun BoxWithConstraintsScope.AddKeywordModal(
 
         NivyTitleTextField(
             modifier = Modifier
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
                 .focusRequester(inputFocus),
             dividerModifier = Modifier.padding(horizontal = 24.dp),
             value = modalKeyword,

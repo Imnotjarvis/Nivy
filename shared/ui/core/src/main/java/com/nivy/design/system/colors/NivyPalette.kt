@@ -8,9 +8,14 @@ import androidx.compose.ui.graphics.Color
 val White = Color(0xFFFAFAFA)
 val MediumWhite = Color(0xFFEFEEF0)
 
-// Secondary text and icons. Darker in minimal colors on the light theme, where greys carry what
-// hues told apart: this one is 3:1 on White, short of the 4.5:1 text needs; that one is 5:1.
-val Gray: Color get() = if (ColorMode.minimal && !ColorMode.dark) Color(0xFF666666) else Color(0xFF939199)
+// Secondary text and icons. On the light theme a darker grey, 5:1 on White where the dark theme's
+// is 3:1, short of the 4.5:1 text needs; darker still in minimal colors, where greys carry what
+// hues told apart.
+val Gray: Color get() = when {
+    ColorMode.dark -> Color(0xFF939199)
+    ColorMode.minimal -> Color(0xFF666666)
+    else -> Color(0xFF6B6A70)
+}
 
 val MediumBlack = Color(0xFF2B2C2D)
 val Black = Color(0xFF111114)

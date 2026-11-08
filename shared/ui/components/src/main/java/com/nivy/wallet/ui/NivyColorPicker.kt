@@ -49,7 +49,7 @@ fun ColumnScope.NivyColorPicker(
     onColorSelected: (Color) -> Unit
 ) {
     Text(
-        modifier = modifier.padding(horizontal = 32.dp),
+        modifier = modifier.padding(horizontal = 24.dp),
         text = stringResource(R.string.choose_color),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

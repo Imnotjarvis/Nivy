@@ -83,7 +83,7 @@ internal fun SavingsGoalItem(
                 )
             }
 
-            Spacer(Modifier.width(32.dp))
+            Spacer(Modifier.width(24.dp))
         }
 
         Spacer(Modifier.height(12.dp))

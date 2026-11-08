@@ -26,7 +26,7 @@ import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.White
 import com.nivy.design.system.colors.readableTint
-import com.nivy.design.system.shapes.PillShape
+import com.nivy.design.system.shapes.nestedShape
 import com.nivy.design.utils.thenIf
 import com.nivy.ui.R
 
@@ -44,14 +44,16 @@ fun RowScope.SegmentedButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    // The track around the two options keeps 8 dp around them: corners concentric with its own.
+    val shape = nestedShape(8.dp)
     Text(
         modifier = modifier
             .weight(1f)
-            .clip(PillShape)
+            .clip(shape)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
             .padding(vertical = 8.dp)
             .thenIf(selected) {
-                background(Nivy, PillShape)
+                background(Nivy, shape)
             }
             .padding(vertical = 8.dp),
         text = label,
@@ -80,7 +82,8 @@ fun SelectableOptionRow(
 ) {
     Row(
         modifier = modifier
-            .padding(horizontal = 16.dp)
+            // 24 dp from the dialog's edges, as its title and its other controls.
+            .padding(horizontal = 24.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .background(

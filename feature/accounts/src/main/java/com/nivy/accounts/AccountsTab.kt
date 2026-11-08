@@ -435,7 +435,6 @@ private fun AccountHeader(
 
             balanceFontSize = 30.sp,
 
-            currencyUpfront = false
         )
 
         if (currency != baseCurrency && accountData.balanceBaseCurrency != null) {
@@ -449,7 +448,6 @@ private fun AccountHeader(
                 textColor = accountColor(account.color.value).dynamicContrast(),
                 currency = baseCurrency,
                 balance = accountData.balanceBaseCurrency,
-                currencyUpfront = false
             )
         }
 

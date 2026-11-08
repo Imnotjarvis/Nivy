@@ -70,7 +70,7 @@ internal fun BoxWithConstraintsScope.AddRateModal(
         Spacer(Modifier.height(24.dp))
 
         NivyNameTextField(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             underlineModifier = Modifier.padding(horizontal = 24.dp),
             value = toCurrency,
             hint = stringResource(R.string.currency)

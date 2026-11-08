@@ -219,9 +219,9 @@ fun IconNameRow(
         val view = LocalView.current
         NivyNameTextField(
             modifier = Modifier
-                .padding(start = 28.dp, end = 36.dp)
+                .padding(start = 28.dp, end = 28.dp)
                 .focusRequester(nameFocus),
-            underlineModifier = Modifier.padding(start = 24.dp, end = 32.dp),
+            underlineModifier = Modifier.padding(start = 24.dp, end = 24.dp),
             value = nameTextFieldValue,
             hint = hint,
             keyboardOptions = KeyboardOptions(

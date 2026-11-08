@@ -51,7 +51,7 @@ fun BoxWithConstraintsScope.NameModal(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            modifier = Modifier.padding(start = 32.dp),
+            modifier = Modifier.padding(start = 24.dp),
             text = stringResource(R.string.edit_name),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -62,7 +62,7 @@ fun BoxWithConstraintsScope.NameModal(
         Spacer(Modifier.height(32.dp))
 
         NivyTitleTextField(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             dividerModifier = Modifier.padding(horizontal = 24.dp),
             value = modalName,
             hint = stringResource(R.string.what_is_your_name)

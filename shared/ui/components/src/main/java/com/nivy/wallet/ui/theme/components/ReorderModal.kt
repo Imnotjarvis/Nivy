@@ -57,7 +57,7 @@ fun <T : Reorderable> BoxScope.ReorderModalSingleType(
     id: UUID = UUID.randomUUID(),
     titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
-            modifier = Modifier.padding(start = 32.dp),
+            modifier = Modifier.padding(start = 24.dp),
             text = stringResource(R.string.reorder),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -100,7 +100,7 @@ private fun <T : Reorderable> BoxScope.ReorderModal(
     id: UUID = UUID.randomUUID(),
     titleContent: @Composable ColumnScope.() -> Unit = {
         Text(
-            modifier = Modifier.padding(start = 32.dp),
+            modifier = Modifier.padding(start = 24.dp),
             text = stringResource(R.string.reorder),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,

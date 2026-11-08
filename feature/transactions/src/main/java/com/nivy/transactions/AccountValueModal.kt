@@ -164,7 +164,7 @@ fun BoxWithConstraintsScope.AccountValueModal(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = stringResource(R.string.investments_and_cash_hint),
             style = MaterialTheme.typography.bodyMedium.copy(color = Gray, fontWeight = FontWeight.SemiBold)
         )

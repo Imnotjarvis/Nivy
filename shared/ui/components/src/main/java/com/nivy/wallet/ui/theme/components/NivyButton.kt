@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,16 +48,17 @@ fun NivyButton(
     padding: Dp = 12.dp,
     iconEdgePadding: Dp = 12.dp,
     iconTextPadding: Dp = 4.dp,
+    shape: Shape = PillShape,
     onClick: () -> Unit
 ) {
     // The fill drawn: content is readable on it, also on a disabled button's grey.
     val fill = if (enabled) backgroundColor else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = modifier
-            .clip(PillShape)
+            .clip(shape)
             .background(
                 color = fill,
-                shape = PillShape
+                shape = shape
             )
             .clickable(onClick = onClick, enabled = enabled),
         verticalAlignment = Alignment.CenterVertically
