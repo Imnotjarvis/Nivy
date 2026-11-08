@@ -44,8 +44,8 @@ import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.wallet.PeriodState
-import com.nivy.wallet.data.model.filterOverdue
-import com.nivy.wallet.data.model.filterUpcoming
+import com.nivy.wallet.domain.pure.transaction.filterOverdue
+import com.nivy.wallet.domain.pure.transaction.filterUpcoming
 import com.nivy.wallet.utils.getISOFormattedDateTime
 import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.ui.ComposeViewModel

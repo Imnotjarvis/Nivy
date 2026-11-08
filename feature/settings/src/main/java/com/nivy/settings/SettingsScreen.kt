@@ -42,7 +42,6 @@ import com.nivy.wallet.ui.theme.components.NivyToolbar
 import com.nivy.wallet.ui.theme.modal.ChooseStartDateOfMonthModal
 import com.nivy.wallet.ui.theme.modal.CurrencyModal
 import com.nivy.wallet.ui.theme.modal.DeleteModal
-import com.nivy.wallet.ui.theme.modal.NameModal
 import com.nivy.wallet.ui.theme.modal.ProgressModal
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberLabelMedium

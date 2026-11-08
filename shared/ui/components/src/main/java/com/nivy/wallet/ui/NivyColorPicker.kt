@@ -43,12 +43,13 @@ private data class NivyColor(
 
 @Suppress("ParameterNaming")
 @Composable
-internal fun ColumnScope.NivyColorPicker(
+fun ColumnScope.NivyColorPicker(
     selectedColor: Color,
+    modifier: Modifier = Modifier,
     onColorSelected: (Color) -> Unit
 ) {
     Text(
-        modifier = Modifier.padding(horizontal = 32.dp),
+        modifier = modifier.padding(horizontal = 32.dp),
         text = stringResource(R.string.choose_color),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface,

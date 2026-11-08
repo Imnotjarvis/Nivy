@@ -49,13 +49,14 @@ private const val ICON_PICKER_ICONS_PER_ROW = 5
 
 @Suppress("ParameterNaming")
 @Composable
-internal fun BoxWithConstraintsScope.ChooseIconModal(
+fun BoxWithConstraintsScope.ChooseIconModal(
     visible: Boolean,
     initialIcon: String?,
     color: Color,
 
     dismiss: () -> Unit,
 
+    modifier: Modifier = Modifier,
     id: UUID = UUID.randomUUID(),
     onIconChosen: (String?) -> Unit
 ) {
@@ -64,6 +65,7 @@ internal fun BoxWithConstraintsScope.ChooseIconModal(
     }
 
     NivyModal(
+        modifier = modifier,
         id = id,
         visible = visible,
         dismiss = dismiss,

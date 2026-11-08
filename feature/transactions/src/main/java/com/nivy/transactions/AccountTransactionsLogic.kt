@@ -8,8 +8,8 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.transaction.TransactionAmountsUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
-import com.nivy.wallet.data.model.filterOverdue
-import com.nivy.wallet.data.model.filterUpcoming
+import com.nivy.wallet.domain.pure.transaction.filterOverdue
+import com.nivy.wallet.domain.pure.transaction.filterUpcoming
 import javax.inject.Inject
 
 /** Due transactions of one account, with totals in the base currency as the screen labels them. */

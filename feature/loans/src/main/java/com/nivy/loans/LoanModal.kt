@@ -1,4 +1,4 @@
-package com.nivy.wallet.ui.theme.modal
+package com.nivy.loans
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -43,6 +43,15 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.wallet.ui.NivyColorPicker
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.ui.theme.components.DateTimeRow
+import com.nivy.wallet.ui.theme.modal.ChooseIconModal
+import com.nivy.wallet.ui.theme.modal.CurrencyModal
+import com.nivy.wallet.ui.theme.modal.DeleteModal
+import com.nivy.wallet.ui.theme.modal.ModalAddSave
+import com.nivy.wallet.ui.theme.modal.ModalAmountSection
+import com.nivy.wallet.ui.theme.modal.ModalNameInput
+import com.nivy.wallet.ui.theme.modal.ModalTitle
+import com.nivy.wallet.ui.theme.modal.NivyModal
+import com.nivy.wallet.ui.theme.modal.dialogData
 import com.nivy.wallet.utils.isNotNullOrBlank
 import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.design.utils.thenIf

@@ -4,8 +4,7 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.Loan
 import com.nivy.loans.LoanProgress
 import com.nivy.loans.loan.data.DisplayLoanRecord
-import com.nivy.wallet.ui.theme.modal.LoanModalData
-import com.nivy.wallet.ui.theme.modal.LoanRecordModalData
+import com.nivy.loans.LoanModalData
 import java.time.Instant
 import kotlinx.collections.immutable.ImmutableList
 

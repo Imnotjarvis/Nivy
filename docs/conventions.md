@@ -24,6 +24,8 @@ allow only these two links.
   takes `DispatchersProvider` rather than using `Dispatchers.IO` itself, so tests run it on
   `TestDispatchersProvider`. The older `*Act` classes are gone; don't bring the pattern back.
 - **Screens:** a `ComposeViewModel` per screen, its state and events next to it.
+- **UI pieces:** a dialog or component that one feature uses lives in that feature;
+  `shared:ui:components` holds what two or more use.
 
 ## Names that stay Ivy Wallet's
 

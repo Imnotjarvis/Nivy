@@ -1,4 +1,4 @@
-package com.nivy.wallet.ui.theme.modal
+package com.nivy.reports
 
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +21,8 @@ import com.nivy.wallet.NivyPreview
 import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.ui.R
 import com.nivy.wallet.ui.theme.components.NivyTitleTextField
+import com.nivy.wallet.ui.theme.modal.ModalAdd
+import com.nivy.wallet.ui.theme.modal.NivyModal
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect

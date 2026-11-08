@@ -1,4 +1,4 @@
-package com.nivy.wallet.ui.component.edit
+package com.nivy.transaction
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

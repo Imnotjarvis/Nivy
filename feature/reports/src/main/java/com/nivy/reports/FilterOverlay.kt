@@ -57,7 +57,6 @@ import com.nivy.design.system.colors.Red3Light
 import com.nivy.wallet.ui.theme.components.CloseButton
 import com.nivy.wallet.ui.theme.components.GradientCutBottom
 import com.nivy.wallet.ui.theme.components.NivyButton
-import com.nivy.wallet.ui.theme.modal.AddKeywordModal
 import com.nivy.wallet.ui.theme.modal.AddModalBackHandling
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData

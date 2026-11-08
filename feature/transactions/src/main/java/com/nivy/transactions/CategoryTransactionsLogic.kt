@@ -12,8 +12,8 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.transaction.TransactionAmountsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
-import com.nivy.wallet.data.model.filterOverdue
-import com.nivy.wallet.data.model.filterUpcoming
+import com.nivy.wallet.domain.pure.transaction.filterOverdue
+import com.nivy.wallet.domain.pure.transaction.filterUpcoming
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import java.util.UUID
 import javax.inject.Inject

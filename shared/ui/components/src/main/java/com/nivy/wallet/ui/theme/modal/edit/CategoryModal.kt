@@ -175,7 +175,7 @@ fun BoxWithConstraintsScope.CategoryModal(
 }
 
 @Composable
-internal fun IconNameRow(
+fun IconNameRow(
     hint: String,
     @DrawableRes defaultIcon: Int,
     color: Color,
@@ -186,9 +186,11 @@ internal fun IconNameRow(
     nameTextFieldValue: TextFieldValue,
     setNameTextFieldValue: (TextFieldValue) -> Unit,
 
+    modifier: Modifier = Modifier,
     showChooseIconModal: () -> Unit
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         val nameFocus = remember { FocusRequester() }
