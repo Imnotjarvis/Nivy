@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.White
+import com.nivy.design.system.colors.readableTint
 import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.shapes.PillShape
 import com.nivy.design.system.typography.numberBodyLarge
@@ -116,7 +117,8 @@ internal fun BoxWithConstraintsScope.ChooseCornerRadiusModal(
                 .testTag("corner_radius_match_phone"),
             text = stringResource(R.string.match_my_phone),
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = if (matching) White else MaterialTheme.colorScheme.onSurface,
+                // Readable on the fill, also where minimal colors turn it into the text color.
+                color = if (matching) readableTint(Nivy, White) else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
             ),
         )
