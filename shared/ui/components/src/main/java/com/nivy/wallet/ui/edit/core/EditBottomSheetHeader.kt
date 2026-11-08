@@ -29,6 +29,7 @@ import com.nivy.design.utils.LocalScreenSize
 import com.nivy.design.utils.clickableNoIndication
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.design.utils.lerp
+import com.nivy.wallet.ui.theme.components.AccountsRow
 import com.nivy.wallet.utils.springBounce
 import com.nivy.base.model.TransactionType
 import com.nivy.design.utils.rememberInteractionSource
