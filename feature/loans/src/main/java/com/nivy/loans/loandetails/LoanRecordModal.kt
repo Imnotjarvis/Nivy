@@ -1,4 +1,4 @@
-package com.nivy.wallet.ui.theme.modal
+package com.nivy.loans.loandetails
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -50,6 +50,14 @@ import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.nivy.wallet.ui.theme.components.NivyCheckboxWithText
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.design.system.colors.readableOn
+import com.nivy.wallet.ui.theme.modal.DeleteModal
+import com.nivy.wallet.ui.theme.modal.ModalAddSave
+import com.nivy.wallet.ui.theme.modal.ModalAmountSection
+import com.nivy.wallet.ui.theme.modal.ModalDelete
+import com.nivy.wallet.ui.theme.modal.ModalNameInput
+import com.nivy.wallet.ui.theme.modal.ModalTitle
+import com.nivy.wallet.ui.theme.modal.NivyModal
+import com.nivy.wallet.ui.theme.modal.dialogData
 import com.nivy.wallet.ui.theme.modal.edit.AccountModal
 import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.nivy.wallet.ui.theme.modal.edit.AmountModal

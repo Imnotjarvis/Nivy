@@ -6,6 +6,7 @@ import com.nivy.wallet.utils.nivyMinTime
 import com.nivy.wallet.utils.nivyMaxTime
 import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import com.nivy.wallet.domain.pure.transaction.startOfToday
 import java.time.Instant
 
 @Suppress("DataClassFunctions")
@@ -60,24 +61,6 @@ data class FromToTimeRange(
             }
         }
     }
-}
-
-// Due today counts as upcoming, earlier days as overdue.
-private fun startOfToday(timeProvider: TimeProvider): Instant =
-    timeProvider.localDateNow().atStartOfDay(timeProvider.getZoneId()).toInstant()
-
-fun Iterable<com.nivy.data.model.Transaction>.filterUpcoming(
-    timeProvider: TimeProvider,
-): List<com.nivy.data.model.Transaction> {
-    val startOfToday = startOfToday(timeProvider)
-    return filter { !it.settled && !it.time.isBefore(startOfToday) }
-}
-
-fun Iterable<com.nivy.data.model.Transaction>.filterOverdue(
-    timeProvider: TimeProvider,
-): List<com.nivy.data.model.Transaction> {
-    val startOfToday = startOfToday(timeProvider)
-    return filter { !it.settled && it.time.isBefore(startOfToday) }
 }
 
 fun FromToTimeRange.toCloseTimeRange(): ClosedTimeRange {

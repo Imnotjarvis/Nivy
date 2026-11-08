@@ -40,7 +40,6 @@ import com.nivy.navigation.navigation
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
-import com.nivy.wallet.ui.component.edit.TransactionDateTime
 import com.nivy.wallet.ui.component.edit.core.Description
 import com.nivy.wallet.ui.component.tags.AddTagButton
 import com.nivy.wallet.ui.edit.core.Category

@@ -2,7 +2,7 @@ package com.nivy.loans.loan
 
 import com.nivy.data.model.Account
 import com.nivy.loans.loan.data.DisplayLoan
-import com.nivy.wallet.ui.theme.modal.LoanModalData
+import com.nivy.loans.LoanModalData
 import kotlinx.collections.immutable.ImmutableList
 import java.time.Instant
 

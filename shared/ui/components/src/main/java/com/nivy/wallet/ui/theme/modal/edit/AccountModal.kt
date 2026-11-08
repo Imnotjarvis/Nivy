@@ -480,14 +480,15 @@ private fun CreditCardsSection(
 }
 
 @Composable
-internal fun AccountSettingRow(
+fun AccountSettingRow(
     label: String,
     value: String,
     testTag: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)

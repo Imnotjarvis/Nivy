@@ -35,8 +35,7 @@ import com.nivy.navigation.LoanDetailsScreen
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Gray
 import com.nivy.wallet.ui.theme.modal.DeleteModal
-import com.nivy.wallet.ui.theme.modal.LoanModal
-import com.nivy.wallet.ui.theme.modal.LoanRecordModal
+import com.nivy.loans.LoanModal
 import com.nivy.wallet.ui.theme.modal.ProgressModal
 import com.nivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf

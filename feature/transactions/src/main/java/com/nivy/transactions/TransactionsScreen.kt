@@ -43,8 +43,6 @@ import androidx.compose.foundation.lazy.items
 import com.nivy.data.model.AccountValue
 import com.nivy.design.system.colors.Nivy
 import com.nivy.wallet.ui.component.transaction.SectionDivider
-import com.nivy.wallet.ui.theme.modal.edit.AccountValueModal
-import com.nivy.wallet.ui.theme.modal.edit.AccountValueModalData
 import com.nivy.wallet.ui.component.transaction.transactions
 import com.nivy.wallet.utils.horizontalSwipeListener
 import com.nivy.wallet.utils.rememberSwipeListenerState

@@ -56,7 +56,7 @@ import com.nivy.wallet.ui.theme.components.ReorderButton
 import com.nivy.wallet.ui.theme.components.ReorderModalSingleType
 import com.nivy.design.system.colors.dynamicContrast
 import com.nivy.design.system.colors.readableOn
-import com.nivy.wallet.ui.theme.modal.LoanModal
+import com.nivy.loans.LoanModal
 import com.nivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant

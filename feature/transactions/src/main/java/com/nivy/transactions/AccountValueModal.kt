@@ -1,4 +1,4 @@
-package com.nivy.wallet.ui.theme.modal.edit
+package com.nivy.transactions
 
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
@@ -32,6 +32,8 @@ import com.nivy.wallet.ui.theme.modal.ModalAddSave
 import com.nivy.wallet.ui.theme.modal.ModalDelete
 import com.nivy.wallet.ui.theme.modal.ModalTitle
 import com.nivy.wallet.ui.theme.modal.dialogData
+import com.nivy.wallet.ui.theme.modal.edit.AccountSettingRow
+import com.nivy.wallet.ui.theme.modal.edit.AmountModal
 import com.nivy.wallet.utils.format
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter

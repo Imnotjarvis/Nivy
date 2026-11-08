@@ -39,8 +39,7 @@ import com.nivy.ui.time.impl.DateTimePicker
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateLoanRecordData
 import com.nivy.wallet.domain.logic.model.EditLoanRecordData
-import com.nivy.wallet.ui.theme.modal.LoanModalData
-import com.nivy.wallet.ui.theme.modal.LoanRecordModalData
+import com.nivy.loans.LoanModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
