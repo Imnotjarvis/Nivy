@@ -21,12 +21,13 @@ class FakeTagAssociationDao : TagAssociationDao, WriteTagAssociationDao {
         )
     }
 
+    // Keyed by the tag and what it's on, as the table is.
     override suspend fun save(value: TagAssociationEntity) {
-        items.add(value)
+        items.upsert(value) { it.tagId == value.tagId && it.associatedId == value.associatedId }
     }
 
     override suspend fun save(value: List<TagAssociationEntity>) {
-        items.addAll(value)
+        value.forEach { save(it) }
     }
 
     override suspend fun deleteAll() {

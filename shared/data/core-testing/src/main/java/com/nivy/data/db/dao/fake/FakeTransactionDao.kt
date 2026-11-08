@@ -199,9 +199,16 @@ class FakeTransactionDao(
         return items.count { it.dateTime != null }.toLong()
     }
 
+    // SQLite's LIKE: % for any text, _ for one character, letters in any case; no order asked.
     override suspend fun findAllByTitleMatchingPattern(pattern: String): List<TransactionEntity> {
-        return items.filter { it.title?.contains(pattern) == true }
-            .sortedByDescending { it.dateTime }
+        val like = pattern.map { char ->
+            when (char) {
+                '%' -> ".*"
+                '_' -> "."
+                else -> Regex.escape(char.toString())
+            }
+        }.joinToString("").toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+        return items.filter { it.title?.let(like::matches) == true }
     }
 
     override suspend fun findAllByCategory(categoryId: UUID): List<TransactionEntity> {
@@ -215,7 +222,7 @@ class FakeTransactionDao(
     }
 
     override suspend fun findLoanTransaction(loanId: UUID): TransactionEntity? {
-        return items.find { it.loanId == loanId }
+        return items.find { it.loanId == loanId && it.loanRecordId == null }
     }
 
     override suspend fun findLoanRecordTransaction(loanRecordId: UUID): TransactionEntity? {
@@ -241,7 +248,7 @@ class FakeTransactionDao(
     }
 
     override suspend fun deletedByRecurringRuleIdAndNoDateTime(recurringRuleId: UUID) {
-        items.removeIf { it.recurringRuleId == recurringRuleId }
+        items.removeIf { it.recurringRuleId == recurringRuleId && it.dateTime == null }
     }
 
     override suspend fun deleteById(id: UUID) {

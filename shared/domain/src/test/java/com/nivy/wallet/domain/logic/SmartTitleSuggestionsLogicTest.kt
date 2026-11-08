@@ -34,4 +34,25 @@ class SmartTitleSuggestionsLogicTest {
         // then
         suggestions.toList() shouldBe listOf("Groceries", "Gym", "Gas")
     }
+
+    @Test
+    fun `titles that start with what's typed are suggested, in any case`() = runTest {
+        // given
+        listOf("Lunch", "lunch at work", "Brunch", "Lunch").forEach { title ->
+            dao.save(
+                TransactionEntity(
+                    accountId = UUID.randomUUID(),
+                    type = TransactionType.EXPENSE,
+                    amount = 1.0,
+                    title = title,
+                )
+            )
+        }
+
+        // when
+        val suggestions = logic.suggest(title = "lun", categoryId = null, accountId = null)
+
+        // then
+        suggestions.toList() shouldBe listOf("Lunch", "Lunch At Work")
+    }
 }

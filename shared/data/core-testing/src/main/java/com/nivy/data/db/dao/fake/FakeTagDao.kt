@@ -32,11 +32,11 @@ class FakeTagDao : TagDao, WriteTagDao {
     }
 
     override suspend fun save(value: TagEntity) {
-        items.add(value)
+        items.upsert(value) { it.id == value.id }
     }
 
     override suspend fun save(value: List<TagEntity>) {
-        items.addAll(value)
+        value.forEach { save(it) }
     }
 
     override suspend fun deleteById(id: UUID) {
