@@ -51,6 +51,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -184,10 +185,22 @@ class HomeViewModel @Inject constructor(
         reload(periodState.initSelected(startDayOfMonth = startDay))
     }
 
-    // -----------------------------------------------------------------------------------
+    private var loadJob: Job? = null
+
+    /**
+     * Loads [timePeriod]. A newer load cancels one still running: choosing two months quickly, the
+     * first one's transactions would otherwise come in after the second's and show under it.
+     */
     private suspend fun reload(
         timePeriod: TimePeriod = periodState.selected
     ) {
+        loadJob?.cancel()
+        val load = viewModelScope.launch { load(timePeriod) }
+        loadJob = load
+        load.join()
+    }
+
+    private suspend fun load(timePeriod: TimePeriod) {
         val timer = LoadTimer("Home")
         val settings = timer.step("settings") {
             val stored = appPreferences.settings()

@@ -43,6 +43,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -434,6 +435,8 @@ class TransactionsViewModel @Inject constructor(
                 category.value?.name?.value == confirmationText
     }
 
+    private var loadJob: Job? = null
+
     fun start(
         screen: TransactionsScreen,
         timePeriod: TimePeriod? = periodState.selected,
@@ -443,7 +446,10 @@ class TransactionsViewModel @Inject constructor(
             reset()
         }
 
-        viewModelScope.launch {
+        // A newer load replaces one still running, which would otherwise put back what it read:
+        // a month chosen after another would show the other one's figures.
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             period.value = timePeriod ?: periodState.selected
 
             val baseCurrencyValue = currencyRepository.getBaseCurrency().code
