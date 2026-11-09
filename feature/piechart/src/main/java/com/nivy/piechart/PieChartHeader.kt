@@ -117,7 +117,9 @@ internal fun Header(
             }
 
             if (percentExpanded > 0f) {
-                Spacer(Modifier.width(12.dp))
+                // The gap shrinks with the button, as Home's does with its menu button: the month
+                // glides into their place, rather than jumping the gap's width once the button goes.
+                Spacer(Modifier.width(12.dp * percentExpanded))
 
                 val backgroundColor = if (transactionType == TransactionType.EXPENSE) {
                     MaterialTheme.colorScheme.onSurface
@@ -146,8 +148,9 @@ internal fun Header(
     }
 }
 
-// The amount in full when it fits the width it's given, otherwise shortened (2.69k), and
-// smaller still if even that is too wide.
+// The amount in full when it fits the width it's given, otherwise shortened (2.69k EUR), and
+// smaller still if even that is too wide. The number comes first, as in every amount: where even
+// the smallest size doesn't fit, the line keeps its first word, and that has to be the number.
 @Composable
 private fun FittingBalanceMini(
     currency: String,
@@ -164,7 +167,7 @@ private fun FittingBalanceMini(
         } else {
             subcompose("short") {
                 Text(
-                    text = "$currency ${shortenAmount(amount)}",
+                    text = "${shortenAmount(amount)} $currency",
                     style = MaterialTheme.typography.numberHeadlineLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold,
