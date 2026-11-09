@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.nivy.design.utils.outlineBehind
+import com.nivy.design.system.colors.Palette
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Nivy
 import com.nivy.domain.usecase.account.invested
@@ -65,8 +66,6 @@ import com.nivy.navigation.navigation
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
 import com.nivy.ui.rememberScrollPositionListState
-import com.nivy.design.system.colors.Green
-import com.nivy.design.system.colors.GreenLight
 import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.BalanceRowMini
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
@@ -78,7 +77,6 @@ import com.nivy.design.system.colors.readableOn
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.accountColor
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.expenseRed
@@ -236,12 +234,7 @@ private fun BoxWithConstraintsScope.UI(
                 .padding(vertical = 8.dp),
             text = item.account.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
-                // In minimal colors the names are in the text color: the accounts' grey is the list's.
-                color = if (ColorMode.minimal) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    accountColor(item.account.color.value)
-                },
+                color = accountColor(item.account.color.value),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -501,7 +494,7 @@ private fun AccountsTabSample(theme: Theme, compact: Boolean) {
         val acc1 = Account(
             id = AccountId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("Phyre"),
-            color = ColorInt(Green.toArgb()),
+            color = ColorInt(Palette.Green.toArgb()),
             asset = AssetCode.unsafe("USD"),
             icon = null,
             includeInBalance = true,
@@ -513,7 +506,7 @@ private fun AccountsTabSample(theme: Theme, compact: Boolean) {
         val acc2 = Account(
             id = AccountId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("DSK"),
-            color = ColorInt(GreenLight.toArgb()),
+            color = ColorInt(Palette.GreenLight.toArgb()),
             asset = AssetCode.unsafe("USD"),
             icon = null,
             includeInBalance = true,
@@ -525,7 +518,7 @@ private fun AccountsTabSample(theme: Theme, compact: Boolean) {
         val acc3 = Account(
             id = AccountId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("Revolut"),
-            color = ColorInt(Green.toArgb()),
+            color = ColorInt(Palette.Green.toArgb()),
             asset = AssetCode.unsafe("USD"),
             icon = IconAsset.unsafe("revolut"),
             includeInBalance = true,
@@ -537,7 +530,7 @@ private fun AccountsTabSample(theme: Theme, compact: Boolean) {
         val acc4 = Account(
             id = AccountId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("Cash"),
-            color = ColorInt(Green.toArgb()),
+            color = ColorInt(Palette.Green.toArgb()),
             asset = AssetCode.unsafe("USD"),
             icon = IconAsset.unsafe("cash"),
             includeInBalance = true,

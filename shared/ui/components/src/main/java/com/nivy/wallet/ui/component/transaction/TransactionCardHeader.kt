@@ -41,7 +41,6 @@ import com.nivy.navigation.TransactionsScreen
 import com.nivy.navigation.navigation
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.design.system.colors.readableOn
@@ -206,12 +205,10 @@ private fun TransactionBadge(
 
     onClick: () -> Unit
 ) {
-    // In minimal colors the items' grey is the card's own: the tags take the page's color instead.
-    val pillColor = if (ColorMode.minimal) MaterialTheme.colorScheme.surface else backgroundColor
     Row(
         modifier = Modifier
             .clip(PillShape)
-            .background(pillColor, PillShape)
+            .background(backgroundColor, PillShape)
             .clickable {
                 onClick()
             }
@@ -220,7 +217,7 @@ private fun TransactionBadge(
     ) {
         Spacer(Modifier.width(8.dp))
 
-        val contrastColor = readableOn(pillColor)
+        val contrastColor = readableOn(backgroundColor)
 
         ItemIconSDefaultIcon(
             iconName = icon,
@@ -254,8 +251,7 @@ private fun TransferHeader(
     val toAccount = remember(accounts, transaction) {
         accounts.find { it.id == transaction.toAccount }
     }
-    // In minimal colors the accounts' grey is the card's own: the pill takes the page's color, as tags do.
-    val accountColors = shouldShowAccountSpecificColorInTransactions && !ColorMode.minimal
+    val accountColors = shouldShowAccountSpecificColorInTransactions
 
     Row(
         modifier = Modifier

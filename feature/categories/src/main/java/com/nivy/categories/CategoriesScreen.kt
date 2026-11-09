@@ -36,7 +36,6 @@ import com.nivy.design.system.colors.Green
 import com.nivy.wallet.ui.theme.components.CircleButtonFilled
 import com.nivy.wallet.ui.theme.components.ReorderButton
 import com.nivy.wallet.ui.theme.components.ReorderModalSingleType
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.categoryColor
 import com.nivy.wallet.ui.theme.modal.NivyModal
 import com.nivy.wallet.ui.theme.modal.ModalSet
@@ -171,12 +170,7 @@ internal fun BoxWithConstraintsScope.UI(
                 .padding(vertical = 8.dp),
             text = item.category.name.value,
             style = MaterialTheme.typography.titleLarge.copy(
-                // In minimal colors the names are in the text color: the categories' grey is the list's.
-                color = if (ColorMode.minimal) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    categoryColor(item.category.color.value)
-                },
+                color = categoryColor(item.category.color.value),
                 fontWeight = FontWeight.Bold
             )
         )

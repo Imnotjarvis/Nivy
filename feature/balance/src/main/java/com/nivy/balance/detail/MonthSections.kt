@@ -28,7 +28,6 @@ import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.minimalTone
-import com.nivy.design.system.colors.shown
 import com.nivy.design.system.colors.toComposeColor
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeFormatter
@@ -608,7 +607,7 @@ private fun OwnAndOwePanel(holdings: Holdings, currency: String) {
     ) {
         if (holdings.assets.isNotEmpty()) {
             val owned = holdings.assets.sumOf { it.amount }
-            val colors = holdings.assets.mapIndexed { rank, holding -> partColor(rank, accountColor(holding.account)) }
+            val colors = holdings.assets.map { accountColor(it.account) }
             SplitBar(holdings.assets.zip(colors) { holding, color -> holding.amount to color })
             Spacer(Modifier.height(16.dp))
             InfoRows(holdings.assets.zip(colors)) { (holding, color) ->
@@ -672,13 +671,14 @@ private fun RunwayPanel(runway: Runway, currency: String) {
     }
 }
 
-// A split bar's part, and its row's dot: its own color, or in minimal colors a grey by its place.
+// A part of a split bar that isn't an account, and its row's dot: its color, or in minimal colors a
+// grey by its place.
 private fun partColor(rank: Int, color: Color): Color = if (ColorMode.minimal) minimalTone(rank) else color
 
-// An account's or a category's own color, the text's in minimal colors.
-private fun accountColor(account: Account): Color = account.color.value.toComposeColor().shown()
+// An account's or a category's own color, its grey in minimal colors.
+private fun accountColor(account: Account): Color = account.color.value.toComposeColor()
 
-private fun categoryColor(category: Category?): Color = category?.color?.value?.toComposeColor()?.shown() ?: Gray
+private fun categoryColor(category: Category?): Color = category?.color?.value?.toComposeColor() ?: Gray
 
 /** An amount without its decimals when it's whole, as a size band's edge. */
 private fun compact(amount: Double): String = if (amount == floor(amount)) "%,.0f".format(amount) else amount.format(2)

@@ -10,11 +10,7 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
-import com.nivy.design.system.colors.Green
-import com.nivy.design.system.colors.GreenDark
-import com.nivy.design.system.colors.GreenLight
-import com.nivy.design.system.colors.NivyDark
-import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.Palette
 import kotlinx.collections.immutable.persistentListOf
 import java.util.UUID
 
@@ -47,7 +43,7 @@ private fun Preview(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Groceries"),
-                        color = ColorInt(Green.toArgb()),
+                        color = ColorInt(Palette.Green.toArgb()),
                         icon = IconAsset.unsafe("groceries"),
                         orderNum = 0.0,
                     ),
@@ -59,7 +55,7 @@ private fun Preview(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Fun"),
-                        color = ColorInt(Orange.toArgb()),
+                        color = ColorInt(Palette.Orange.toArgb()),
                         icon = IconAsset.unsafe("game"),
                         orderNum = 0.0,
                     ),
@@ -71,7 +67,7 @@ private fun Preview(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Nivy"),
-                        color = ColorInt(NivyDark.toArgb()),
+                        color = ColorInt(Palette.NivyDark.toArgb()),
                         icon = IconAsset.unsafe("star"),
                         orderNum = 0.0,
                     ),
@@ -83,7 +79,7 @@ private fun Preview(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Food"),
-                        color = ColorInt(GreenLight.toArgb()),
+                        color = ColorInt(Palette.GreenLight.toArgb()),
                         icon = IconAsset.unsafe("atom"),
                         orderNum = 0.0,
                     ),
@@ -95,7 +91,7 @@ private fun Preview(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Shisha"),
-                        color = ColorInt(GreenDark.toArgb()),
+                        color = ColorInt(Palette.GreenDark.toArgb()),
                         icon = IconAsset.unsafe("drink"),
                         orderNum = 0.0,
                     ),
@@ -127,7 +123,7 @@ private fun PreviewWithSearchBarEnabled(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Groceries"),
-                        color = ColorInt(Green.toArgb()),
+                        color = ColorInt(Palette.Green.toArgb()),
                         icon = IconAsset.unsafe("groceries"),
                         orderNum = 0.0,
                     ),
@@ -139,7 +135,7 @@ private fun PreviewWithSearchBarEnabled(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Fun"),
-                        color = ColorInt(Orange.toArgb()),
+                        color = ColorInt(Palette.Orange.toArgb()),
                         icon = IconAsset.unsafe("game"),
                         orderNum = 0.0,
                     ),
@@ -151,7 +147,7 @@ private fun PreviewWithSearchBarEnabled(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Nivy"),
-                        color = ColorInt(NivyDark.toArgb()),
+                        color = ColorInt(Palette.NivyDark.toArgb()),
                         icon = IconAsset.unsafe("star"),
                         orderNum = 0.0,
                     ),
@@ -163,7 +159,7 @@ private fun PreviewWithSearchBarEnabled(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Food"),
-                        color = ColorInt(GreenLight.toArgb()),
+                        color = ColorInt(Palette.GreenLight.toArgb()),
                         icon = IconAsset.unsafe("atom"),
                         orderNum = 0.0,
                     ),
@@ -175,7 +171,7 @@ private fun PreviewWithSearchBarEnabled(
                     category = Category(
                         id = CategoryId(UUID.randomUUID()),
                         name = NotBlankTrimmedString.unsafe("Shisha"),
-                        color = ColorInt(GreenDark.toArgb()),
+                        color = ColorInt(Palette.GreenDark.toArgb()),
                         icon = IconAsset.unsafe("drink"),
                         orderNum = 0.0,
                     ),

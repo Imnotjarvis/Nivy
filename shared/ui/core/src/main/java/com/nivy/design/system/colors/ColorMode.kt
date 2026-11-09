@@ -1,8 +1,5 @@
 package com.nivy.design.system.colors
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,9 +24,9 @@ object ColorMode {
 fun Color.shown(): Color = if (ColorMode.minimal) ink.copy(alpha = alpha) else this
 
 /**
- * In minimal colors, the tone of a chart's part by its rank, the largest first, as the pie chart's
- * slices and the split bars are told apart: three greys, each at 3:1 or more against the cards'
- * grey, darkest to lightest on light themes and the reverse on dark.
+ * In minimal colors, the tone of a chart's part by its rank, for parts that aren't an account or a
+ * category (which have their own greys), as a split bar's: three greys, each at 3:1 or more
+ * against the cards' grey, darkest to lightest on light themes and the reverse on dark.
  */
 fun minimalTone(rank: Int): Color {
     val tones = if (ColorMode.dark) TonesDark else TonesLight
@@ -39,24 +36,10 @@ fun minimalTone(rank: Int): Color {
 private val TonesLight = listOf(Black, Color(0xFF4A4A4F), Color(0xFF808080))
 private val TonesDark = listOf(White, Color(0xFFBDBDBD), Color(0xFF7A7A7A))
 
-/** In minimal colors, an item's saved color (an account's, a category's, a loan's): the cards' grey. */
-internal val itemGrey: Color get() = if (ColorMode.dark) MediumBlack else MediumWhite
-
 private val ink: Color get() = if (ColorMode.dark) White else Black
 
-/**
- * An account's saved color as drawn: in minimal colors every account is the same grey, the cards'
- * one.
- */
-@Composable
-@ReadOnlyComposable
-fun accountColor(argb: Int): Color =
-    if (ColorMode.minimal) MaterialTheme.colorScheme.surfaceVariant else argb.toComposeColor()
+/** An account's saved color as drawn: in minimal colors its grey (see [toComposeColor]). */
+fun accountColor(argb: Int): Color = argb.toComposeColor()
 
-/**
- * A category's saved color as drawn: in minimal colors the accounts' grey. The pie chart, whose
- * slices are told apart by shade, gives them greys by size instead.
- */
-@Composable
-@ReadOnlyComposable
-fun categoryColor(argb: Int): Color = accountColor(argb)
+/** A category's saved color as drawn: in minimal colors its grey, as an account's. */
+fun categoryColor(argb: Int): Color = argb.toComposeColor()

@@ -46,14 +46,52 @@ class ColorModeTest {
     }
 
     @Test
-    fun `in minimal colors, saved item colors are the cards' grey`() {
+    fun `in minimal colors, a saved item color is its grey, as light as the color, on both themes`() {
         ColorMode.minimal = true
 
-        Palette.Nivy.toArgb().toComposeColor() shouldBe MediumWhite
+        for (dark in listOf(false, true)) {
+            ColorMode.dark = dark
+            listOf(Palette.Nivy, Palette.Yellow, Palette.NivyDark).forEach { color ->
+                val grey = color.toArgb().toComposeColor()
+                grey.red shouldBe grey.green
+                grey.green shouldBe grey.blue
+                grey.luminance().toDouble() shouldBe (color.luminance().toDouble() plusOrMinus Tolerance)
+            }
+        }
+        accountColor(Palette.Nivy.toArgb()) shouldBe Palette.Nivy.toArgb().toComposeColor()
+        categoryColor(Palette.Nivy.toArgb()) shouldBe Palette.Nivy.toArgb().toComposeColor()
+    }
 
-        ColorMode.dark = true
+    @Test
+    fun `in minimal colors, items stay apart as their colors are lighter or darker`() {
+        ColorMode.minimal = true
 
-        Palette.Nivy.toArgb().toComposeColor() shouldBe MediumBlack
+        val greys = listOf(Palette.NivyDark, Palette.Nivy, Palette.Blue, Palette.Yellow)
+            .map { it.toArgb().toComposeColor().luminance() }
+
+        greys shouldBe greys.sorted()
+        greys.distinct().size shouldBe greys.size
+    }
+
+    @Test
+    fun `in minimal colors, a grey picked shows as itself`() {
+        ColorMode.minimal = true
+
+        NIVY_COLOR_PICKER_GREYS.forEach { grey ->
+            val shown = grey.toArgb().toComposeColor()
+            shown.red.toDouble() shouldBe (grey.red.toDouble() plusOrMinus Channel)
+            shown.alpha shouldBe grey.alpha
+        }
+    }
+
+    @Test
+    fun `the greys the pickers offer in minimal colors run from near black to a light grey`() {
+        NIVY_COLOR_PICKER_GREYS.size shouldBe 8
+        // Saved as they are: these values must never change.
+        NIVY_COLOR_PICKER_GREYS.first() shouldBe Color(0xFF1F1F1F)
+        NIVY_COLOR_PICKER_GREYS.last() shouldBe Color(0xFFDDDDDD)
+        NIVY_COLOR_PICKER_GREYS.forEach { it.red shouldBe it.blue }
+        NIVY_COLOR_PICKER_GREYS.map { it.luminance() } shouldBe NIVY_COLOR_PICKER_GREYS.map { it.luminance() }.sorted()
     }
 
     @Test
@@ -158,6 +196,9 @@ class ColorModeTest {
 
     private companion object {
         const val Tolerance = 0.01
+
+        // Half of one of a channel's 256 steps.
+        const val Channel = 0.5 / 255
         const val TextContrast = 4.5
     }
 }

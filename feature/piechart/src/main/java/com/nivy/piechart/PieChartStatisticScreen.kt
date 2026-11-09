@@ -74,9 +74,6 @@ internal fun BoxWithConstraintsScope.UI(
         animationSpec = com.nivy.wallet.utils.springBounce(),
         label = "percent expanded"
     )
-    // The chart's order (the largest first), which gives each slice its tone in minimal colors.
-    val bySize = remember(state.categoryAmounts) { state.categoryAmounts.sortedByDescending { it.amount } }
-    val accountsBySize = remember(state.accountAmounts) { state.accountAmounts.sortedByDescending { it.amount } }
     val budgetPage = state.budgetPage
     val noTransactions = stringResource(R.string.no_transactions)
     val budgetNoExpenses = budgetPage?.let { stringResource(R.string.budget_no_expenses, it.month) }.orEmpty()
@@ -162,9 +159,9 @@ internal fun BoxWithConstraintsScope.UI(
         breakdownChart(state = state, onEvent = onEvent)
 
         if (state.breakdown == Breakdown.Accounts) {
-            accountCards(state = state, bySize = accountsBySize, nav = nav)
+            accountCards(state = state, nav = nav)
         } else {
-            categoryCards(state = state, bySize = bySize, nav = nav)
+            categoryCards(state = state, nav = nav)
         }
 
         if (budgetPage != null) {
@@ -237,7 +234,6 @@ private fun LazyListScope.breakdownChart(
 // opens the account.
 private fun LazyListScope.accountCards(
     state: PieChartStatisticState,
-    bySize: List<AccountAmount>,
     nav: Navigation,
 ) {
     val total = state.accountAmounts.sumOf { it.amount }
@@ -251,7 +247,6 @@ private fun LazyListScope.accountCards(
 
         AccountAmountCard(
             accountAmount = item,
-            rank = bySize.indexOf(item),
             currency = state.baseCurrency,
             totalAmount = total,
             selected = state.selectedAccount == item.account,
@@ -264,7 +259,6 @@ private fun LazyListScope.accountCards(
 // Each category's card. A tap opens the category's transactions of the chart.
 private fun LazyListScope.categoryCards(
     state: PieChartStatisticState,
-    bySize: List<CategoryAmount>,
     nav: Navigation,
 ) {
     itemsIndexed(
@@ -278,7 +272,6 @@ private fun LazyListScope.categoryCards(
 
             CategoryAmountCard(
                 categoryAmount = item,
-                rank = bySize.indexOf(item),
                 currency = state.baseCurrency,
                 totalAmount = state.totalAmount,
                 selectedCategory = state.selectedCategory
