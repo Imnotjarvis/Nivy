@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -29,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
 import com.nivy.wallet.LocalPeriodState
@@ -37,7 +37,6 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.ui.component.transaction.TransactionsDividerLine
 import com.nivy.design.utils.clickableNoIndication
 import com.nivy.wallet.utils.format
-import com.nivy.wallet.utils.isNotNullOrBlank
 import com.nivy.design.utils.rememberInteractionSource
 import com.nivy.wallet.utils.horizontalSwipeListener
 import com.nivy.wallet.utils.rememberSwipeListenerState
@@ -60,23 +59,30 @@ import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.typography.numberTitleLarge
+import com.nivy.home.usecase.Glance
+
+/**
+ * How Home's header collapses as the list scrolls, and expands back at its top. The menu button
+ * beside it, which Home draws on its own, moves with it on the same spring.
+ */
+internal fun <T> headerSpring() = springBounce<T>(stiffness = Spring.StiffnessLow)
 
 @ExperimentalAnimationApi
 @Composable
 internal fun HomeHeader(
     expanded: Boolean,
-    name: String,
+    glance: Glance?,
+    hideIncome: Boolean,
     period: TimePeriod,
     onShowMonthModal: () -> Unit,
     onSelectNextMonth: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
+    firstGlanceFact: GlanceFact? = null,
 ) {
     Column {
         val percentExpanded by animateFloatAsState(
             targetValue = if (expanded) 1f else 0f,
-            animationSpec = springBounce(
-                stiffness = Spring.StiffnessLow
-            ),
+            animationSpec = headerSpring(),
             label = "Home Header Expand Collapse"
         )
 
@@ -84,7 +90,9 @@ internal fun HomeHeader(
 
         HeaderStickyRow(
             percentExpanded = percentExpanded,
-            name = name,
+            glance = glance,
+            hideIncome = hideIncome,
+            firstGlanceFact = firstGlanceFact,
             period = period,
 
             onShowMonthModal = onShowMonthModal,
@@ -106,13 +114,17 @@ internal fun HomeHeader(
 @Composable
 private fun HeaderStickyRow(
     percentExpanded: Float,
-    name: String,
+    glance: Glance?,
+    hideIncome: Boolean,
+    firstGlanceFact: GlanceFact?,
     period: TimePeriod,
     onShowMonthModal: () -> Unit,
     onSelectNextMonth: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
 ) {
-    // The greeting fades out as the header collapses; the balance stays in the page, below it.
+    // The glance fades in once loaded, and stays as the list scrolls: today stays in view, with
+    // the room the menu button leaves.
+    val glanceShown by animateFloatAsState(if (glance != null) 1f else 0f, appearTween(), label = "glance")
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,26 +135,23 @@ private fun HeaderStickyRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
     ) {
-        Text(
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .alpha(percentExpanded)
-                .testTag("home_greeting_text"),
-            text = if (name.isNotNullOrBlank()) {
-                stringResource(
-                    R.string.hi_name,
-                    name,
+                .graphicsLayer { alpha = glanceShown }
+                .testTag("home_glance"),
+        ) {
+            if (glance != null) {
+                HomeGlance(
+                    glance = glance,
+                    hideIncome = hideIncome,
+                    firstFact = firstGlanceFact,
                 )
-            } else {
-                stringResource(R.string.hi)
-            },
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold
-            ),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-        )
+            }
+        }
+
+        // As far from the month as the month is from the menu button.
+        Spacer(Modifier.width(12.dp))
 
         NivyOutlinedButton(
             modifier = Modifier.horizontalSwipeListener(
@@ -167,9 +176,12 @@ private fun HeaderStickyRow(
             onShowMonthModal()
         }
 
-        Spacer(Modifier.width(12.dp))
-
-        Spacer(Modifier.width(48.dp)) // settings menu button spacer
+        // The menu button's room, with the gap before it. As the list scrolls the button shrinks
+        // and fades, as the pie chart's add button does, and this shrinks with it: the month
+        // slides into the corner.
+        if (percentExpanded > 0f) {
+            Spacer(Modifier.width((12 + 48).dp * percentExpanded))
+        }
     }
 }
 

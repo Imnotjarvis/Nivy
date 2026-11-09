@@ -10,7 +10,9 @@ import com.nivy.data.preferences.AppSettings
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
+import com.nivy.home.usecase.Glance
 import com.nivy.home.usecase.HistoryWithDateDividersUseCase
+import com.nivy.home.usecase.HomeGlanceUseCase
 import com.nivy.home.usecase.OverdueTransactions
 import com.nivy.home.usecase.OverdueTransactionsUseCase
 import com.nivy.home.usecase.UpcomingTransactions
@@ -85,6 +87,9 @@ class HomeViewModelTest : ComposeViewModelTest() {
         overdueTransactionsUseCase = mockk<OverdueTransactionsUseCase> {
             coEvery { overdue(any(), any()) } returns OverdueTransactions(IncomeExpensePair.zero(), emptyList())
         },
+        homeGlanceUseCase = mockk<HomeGlanceUseCase> {
+            coEvery { glance(baseCurrency = "EUR", accounts = any(), categories = any()) } returns TodaysGlance
+        },
         transactionDao = mockk(relaxed = true),
         startDayOfMonthUseCase = mockk { coEvery { startDay() } returns 1 },
         timeProvider = FixedTime,
@@ -101,6 +106,14 @@ class HomeViewModelTest : ComposeViewModelTest() {
             historyLoaded shouldBe true
             stats shouldBe monthsTotals
             statsLoaded shouldBe true
+            balanceLoaded shouldBe false
+        }
+    }
+
+    @Test
+    fun `the header's glance shows today, in the base currency, before the balance is computed`() {
+        viewModel.runTest {
+            glance shouldBe TodaysGlance
             balanceLoaded shouldBe false
         }
     }
@@ -161,6 +174,13 @@ class HomeViewModelTest : ComposeViewModelTest() {
     }
 
     private companion object {
+        val TodaysGlance = Glance(
+            overdue = 2,
+            spentToday = BigDecimal("12.40"),
+            baseCurrency = "EUR",
+            nextPayment = null,
+        )
+
         /** November 6, 2026, noon, in UTC. */
         val FixedTime = object : TimeProvider {
             private val now = LocalDateTime.of(2026, 11, 6, 12, 0)

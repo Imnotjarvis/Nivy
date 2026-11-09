@@ -26,7 +26,9 @@ import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
 import com.nivy.home.customerjourney.CustomerJourneyCardModel
 import com.nivy.home.customerjourney.CustomerJourneyCardsProvider
+import com.nivy.home.usecase.Glance
 import com.nivy.home.usecase.HistoryWithDateDividersUseCase
+import com.nivy.home.usecase.HomeGlanceUseCase
 import com.nivy.home.usecase.OverdueTransactionsUseCase
 import com.nivy.home.usecase.UpcomingTransactionsUseCase
 import com.nivy.wallet.MainScreenState
@@ -80,6 +82,7 @@ class HomeViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val upcomingTransactionsUseCase: UpcomingTransactionsUseCase,
     private val overdueTransactionsUseCase: OverdueTransactionsUseCase,
+    private val homeGlanceUseCase: HomeGlanceUseCase,
     private val transactionDao: TransactionDao,
     private val startDayOfMonthUseCase: StartDayOfMonthUseCase,
     private val timeProvider: TimeProvider,
@@ -89,7 +92,6 @@ class HomeViewModel @Inject constructor(
     private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<HomeState, HomeEvent>() {
     private var currentTheme by mutableStateOf(Theme.AUTO)
-    private var name by mutableStateOf("")
     private var period by mutableStateOf(periodState.selected)
     private var baseData by mutableStateOf(
         AppBaseData(
@@ -120,6 +122,7 @@ class HomeViewModel @Inject constructor(
             expanded = false,
         )
     )
+    private var glance by mutableStateOf<Glance?>(null)
     private var customerJourneyCards by
     mutableStateOf<ImmutableList<CustomerJourneyCardModel>>(persistentListOf())
     private var hideBalance by mutableStateOf(false)
@@ -134,7 +137,6 @@ class HomeViewModel @Inject constructor(
 
         return HomeState(
             theme = currentTheme,
-            name = name,
             period = period,
             baseData = baseData,
             history = history,
@@ -145,6 +147,7 @@ class HomeViewModel @Inject constructor(
             balanceLoaded = balanceLoaded,
             upcoming = upcoming,
             overdue = overdue,
+            glance = glance,
             customerJourneyCards = customerJourneyCards,
             hideBalance = hideBalance,
             expanded = expanded,
@@ -215,7 +218,6 @@ class HomeViewModel @Inject constructor(
         val hideIncome = appPreferences.hideIncome()
 
         currentTheme = settings.theme
-        name = settings.name
         period = timePeriod
         this.hideBalance = hideBalance
         this.hideIncome = hideIncome
@@ -232,11 +234,13 @@ class HomeViewModel @Inject constructor(
         val withAccounts = timer.step("accounts") { loadAppBaseData(settings to timeRange) }
         val currencyAndRange = settings.baseCurrency to timeRange
         // First what shows above the transactions, so that nothing comes in over them and pushes
-        // them down; then the transactions; last the balance, which reads every transaction there is.
+        // them down; then the transactions, and the header's glance, which moves nothing; last the
+        // balance, which reads every transaction there is.
         timer.step("cards") { loadCustomerJourney() }
         timer.step("planned") { loadDueTrns(currencyAndRange) }
         timer.step("month totals") { loadMonthTotals(withAccounts) }
         timer.step("transactions") { loadTrnHistory(currencyAndRange) }
+        timer.step("glance") { loadGlance(withAccounts) }
         timer.step("balance") { loadBalance(settings.baseCurrency) }
         timer.done()
         // Once all Home shows has loaded, which the download and the rates it rewrites would slow.
@@ -269,6 +273,15 @@ class HomeViewModel @Inject constructor(
             range = timeRange
         )
         statsLoaded = true
+    }
+
+    private suspend fun loadGlance(input: Triple<AppSettings, ClosedTimeRange, List<Account>>) {
+        val (settings, _, accounts) = input
+        glance = homeGlanceUseCase.glance(
+            baseCurrency = settings.baseCurrency,
+            accounts = accounts,
+            categories = baseData.categories,
+        )
     }
 
     private suspend fun loadBalance(baseCurrency: String) {

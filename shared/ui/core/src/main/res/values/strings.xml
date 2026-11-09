@@ -62,8 +62,6 @@
     <string name="confirm_account_change_description">Note: You are attempting to change the account associated with the loan to an account in a different currency.\nAll loan records will be recalculated based on today’s exchange rates.</string>
     <string name="confirm">Confirm</string>
     <string name="created_on">Created on</string>
-    <string name="hi">Hi</string>
-    <string name="hi_name">Hi %1$s</string>
     <string name="cashflow">Cashflow: %1$s%2$s %3$s</string>
     <string name="search_transactions">Search transactions…</string>
     <string name="savings_goal">Savings goal</string>
@@ -150,6 +148,20 @@
     <string name="due_on">Due on %1$s</string>
     <string name="upcoming">Upcoming</string>
     <string name="overdue">Overdue</string>
+    <!-- Home's glance, in place of a greeting: one fact about today, a small label over a value -->
+    <string name="glance_spent_today">Spent today</string>
+    <plurals name="glance_payments">
+        <item quantity="one">payment</item>
+        <item quantity="other">payments</item>
+    </plurals>
+    <string name="glance_due_today">today</string>
+    <string name="glance_due_tomorrow">tomorrow</string>
+    <plurals name="glance_due_in_days">
+        <item quantity="one">in %d day</item>
+        <item quantity="other">in %d days</item>
+    </plurals>
+    <!-- TalkBack: "Double tap to show the next one" -->
+    <string name="glance_next">show the next one</string>
     <string name="expenses_lowercase">expenses</string>
     <string name="income_lowercase">income</string>
     <string name="edit_account">Edit account</string>
