@@ -34,14 +34,13 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.ui.R
-import com.nivy.design.system.colors.Black
 import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.White
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.NivyDark
 import com.nivy.design.system.colors.RedLight
 import com.nivy.wallet.ui.theme.components.NivyIcon
+import com.nivy.design.system.colors.minimalTone
 import com.nivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -363,14 +362,5 @@ private fun Preview() {
     }
 }
 
-/**
- * In minimal colors, a slice's tone by its rank (the largest first): three greys, each at 3:1 or
- * more against the chart's backdrop, darkest to lightest on light themes and the reverse on dark.
- */
-internal fun pieTone(rank: Int): Color {
-    val tones = if (ColorMode.dark) PieTonesDark else PieTonesLight
-    return tones[rank % tones.size]
-}
-
-private val PieTonesLight = listOf(Black, Color(0xFF4A4A4F), Color(0xFF808080))
-private val PieTonesDark = listOf(White, Color(0xFFBDBDBD), Color(0xFF7A7A7A))
+/** In minimal colors, a slice's tone by its rank (the largest first). */
+internal fun pieTone(rank: Int): Color = minimalTone(rank)
