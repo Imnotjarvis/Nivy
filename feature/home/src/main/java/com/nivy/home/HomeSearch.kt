@@ -127,7 +127,7 @@ internal fun HomeSearchBar(
                 }
             }
             .height(SearchSlotHeight)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 24.dp)
             .testTag("home_search"),
         contentAlignment = Alignment.Center,
     ) {
@@ -171,8 +171,9 @@ private fun SearchButton(
     }
 }
 
-// The bar, 48 dp, with 8 dp above and below it.
-private val SearchSlotHeight = 64.dp
+// The bar, 48 dp, with 8 dp above it, 24 dp under the header's 16, and 24 dp below it: as far
+// from the balance as the balance is from the income and expense cards.
+private val SearchSlotHeight = 80.dp
 
 // Let go faster than this and the bar settles the way the finger was going: Material's threshold
 // for swipeable sheets, per second.
