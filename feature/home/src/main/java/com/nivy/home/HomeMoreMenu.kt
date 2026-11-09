@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -86,6 +87,8 @@ import androidx.compose.ui.semantics.semantics
 @Composable
 fun BoxWithConstraintsScope.MoreMenu(
     expanded: Boolean,
+    // Whether Home's header is expanded, at the list's top: the button collapses with it.
+    headerExpanded: Boolean,
     theme: Theme,
 
     setExpanded: (Boolean) -> Unit,
@@ -104,9 +107,19 @@ fun BoxWithConstraintsScope.MoreMenu(
     val nav = navigation()
     val searchLabel = stringResource(R.string.search_transactions)
 
-    // 24 dp from the edge, as the page's text is from the other one; the button is 48 dp wide.
-    val xButton = screenSize.width - 24.dp.toDensityPx() - 48.dp.toDensityPx()
-    val yButton = 20.dp.toDensityPx() + statusBarInset()
+    // 24 dp from the edge, as the page's text is from the other one; the button is 48 dp wide, as
+    // tall as the header's row and centered on it.
+    val xButtonEnd = screenSize.width - 24.dp.toDensityPx()
+    val yButtonMiddle = 20.dp.toDensityPx() + statusBarInset() + 24.dp.toDensityPx()
+
+    // As the list scrolls the button shrinks and fades with the header, as the pie chart's add
+    // button does, keeping its right edge and middle; then it goes, and the month takes its room.
+    val headerShown = animateFloatAsState(
+        targetValue = if (headerExpanded) 1f else 0f,
+        animationSpec = headerSpring(),
+        label = "more_menu_button",
+    )
+    val buttonShown by remember { derivedStateOf { headerShown.value > 0f } }
 
     if (shown) {
         // The dim and the panel read the animated value while drawing, not in composition.
@@ -162,38 +175,48 @@ fun BoxWithConstraintsScope.MoreMenu(
         }
     }
 
-    CircleButtonFilled(
-        modifier = Modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
+    if (buttonShown) {
+        CircleButtonFilled(
+            modifier = Modifier
+                // Read while laying out and drawing, so that the collapse doesn't recompose Home.
+                .layout { measurable, _ ->
+                    val size = (48.dp.toPx() * headerShown.value.coerceAtLeast(0f)).roundToInt()
+                    val placeable = measurable.measure(Constraints.fixed(size, size))
 
-                layout(placeable.width, placeable.height) {
-                    placeable.place(x = xButton.roundToInt(), y = yButton.roundToInt())
-                }
-            }
-            .graphicsLayer { rotationZ = -180f * progress.value }
-            // Over the panel also while it leaves.
-            .thenIf(shown) {
-                zIndex(520f)
-            }
-            // Search is on Home, pulled down from the list's top: screen readers also reach it here.
-            .semantics {
-                customActions = listOf(
-                    CustomAccessibilityAction(searchLabel) {
-                        nav.navigateTo(SearchScreen)
-                        true
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(
+                            x = (xButtonEnd - size).roundToInt(),
+                            y = (yButtonMiddle - size / 2f).roundToInt(),
+                        )
                     }
-                )
-            }
-            .testTag("home_more_menu_arrow"),
-        backgroundColor = colorLerp(
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.surface,
-            progress.value
-        ),
-        icon = R.drawable.ic_expandarrow
-    ) {
-        setExpanded(!expanded)
+                }
+                .graphicsLayer {
+                    alpha = headerShown.value.coerceIn(0f, 1f)
+                    rotationZ = -180f * progress.value
+                }
+                // Over the panel also while it leaves.
+                .thenIf(shown) {
+                    zIndex(520f)
+                }
+                // Search is on Home, pulled down from the list's top: screen readers also reach it here.
+                .semantics {
+                    customActions = listOf(
+                        CustomAccessibilityAction(searchLabel) {
+                            nav.navigateTo(SearchScreen)
+                            true
+                        }
+                    )
+                }
+                .testTag("home_more_menu_arrow"),
+            backgroundColor = colorLerp(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surface,
+                progress.value
+            ),
+            icon = R.drawable.ic_expandarrow
+        ) {
+            setExpanded(!expanded)
+        }
     }
 }
 
@@ -406,6 +429,7 @@ private fun BoxWithConstraintsScope.Preview_Expanded() {
     NivyMaterial3Preview {
         MoreMenu(
             expanded = true,
+            headerExpanded = true,
             theme = Theme.LIGHT,
             setExpanded = {
             },
@@ -422,6 +446,7 @@ private fun BoxWithConstraintsScope.Preview() {
 
         MoreMenu(
             expanded = expanded,
+            headerExpanded = true,
             theme = Theme.LIGHT,
             setExpanded = {
                 expanded = it

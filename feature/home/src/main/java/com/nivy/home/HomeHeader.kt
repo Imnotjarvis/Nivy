@@ -61,11 +61,18 @@ import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.typography.numberTitleLarge
 import com.nivy.home.usecase.Glance
 
+/**
+ * How Home's header collapses as the list scrolls, and expands back at its top. The menu button
+ * beside it, which Home draws on its own, moves with it on the same spring.
+ */
+internal fun <T> headerSpring() = springBounce<T>(stiffness = Spring.StiffnessLow)
+
 @ExperimentalAnimationApi
 @Composable
 internal fun HomeHeader(
     expanded: Boolean,
     glance: Glance?,
+    hideIncome: Boolean,
     period: TimePeriod,
     onShowMonthModal: () -> Unit,
     onSelectNextMonth: () -> Unit,
@@ -75,9 +82,7 @@ internal fun HomeHeader(
     Column {
         val percentExpanded by animateFloatAsState(
             targetValue = if (expanded) 1f else 0f,
-            animationSpec = springBounce(
-                stiffness = Spring.StiffnessLow
-            ),
+            animationSpec = headerSpring(),
             label = "Home Header Expand Collapse"
         )
 
@@ -87,6 +92,7 @@ internal fun HomeHeader(
             percentExpanded = percentExpanded,
             expanded = expanded,
             glance = glance,
+            hideIncome = hideIncome,
             firstGlanceFact = firstGlanceFact,
             period = period,
 
@@ -111,6 +117,7 @@ private fun HeaderStickyRow(
     percentExpanded: Float,
     expanded: Boolean,
     glance: Glance?,
+    hideIncome: Boolean,
     firstGlanceFact: GlanceFact?,
     period: TimePeriod,
     onShowMonthModal: () -> Unit,
@@ -139,7 +146,12 @@ private fun HeaderStickyRow(
         ) {
             if (glance != null) {
                 // Tapped only while the header shows it.
-                HomeGlance(glance = glance, enabled = expanded, firstFact = firstGlanceFact)
+                HomeGlance(
+                    glance = glance,
+                    enabled = expanded,
+                    hideIncome = hideIncome,
+                    firstFact = firstGlanceFact,
+                )
             }
         }
 
@@ -169,9 +181,12 @@ private fun HeaderStickyRow(
             onShowMonthModal()
         }
 
-        Spacer(Modifier.width(12.dp))
-
-        Spacer(Modifier.width(48.dp)) // settings menu button spacer
+        // The menu button's room, with the gap before it. As the list scrolls the button shrinks
+        // and fades, as the pie chart's add button does, and this shrinks with it: the month
+        // slides into the corner.
+        if (percentExpanded > 0f) {
+            Spacer(Modifier.width((12 + 48).dp * percentExpanded))
+        }
     }
 }
 

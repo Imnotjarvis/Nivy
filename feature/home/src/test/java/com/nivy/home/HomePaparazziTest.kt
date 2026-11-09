@@ -56,17 +56,19 @@ class HomePaparazziTest(
     }
 
     // The header's glance, a fact a row: overdue, spent today, then the next payment as an
-    // expense, an income, and one with a name too long to show whole.
+    // expense, an income, one with a name too long to show whole, and an income while income is
+    // hidden.
     @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun `snapshot the glance, a fact a row`(@TestParameter colors: Colors) {
         snapshot(theme, minimal = colors == Colors.Minimal) {
             NivyPreview(if (theme == PaparazziTheme.Dark) Theme.DARK else Theme.LIGHT) {
                 Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    GlanceRows.forEach { (glance, fact) ->
+                    GlanceRows.forEach { (glance, fact, hideIncome) ->
                         HomeHeader(
                             expanded = true,
                             glance = glance,
+                            hideIncome = hideIncome,
                             period = TimePeriod(month = Month.monthsList().first(), year = 2023),
                             onShowMonthModal = {},
                             onSelectNextMonth = {},
@@ -92,28 +94,35 @@ class HomePaparazziTest(
                 daysLeft = 3,
             ),
         )
+        val Salary = Today.copy(
+            nextPayment = NextPayment(
+                name = "Salary",
+                type = TransactionType.INCOME,
+                amount = 2_400.0,
+                currency = "EUR",
+                daysLeft = 1,
+            ),
+        )
         val GlanceRows = listOf(
-            Today to GlanceFact.Overdue,
-            Today to GlanceFact.SpentToday,
-            Today to GlanceFact.NextPayment,
-            Today.copy(
-                nextPayment = NextPayment(
-                    name = "Salary",
-                    type = TransactionType.INCOME,
-                    amount = 2_400.0,
-                    currency = "EUR",
-                    daysLeft = 1,
+            GlanceRow(Today, GlanceFact.Overdue),
+            GlanceRow(Today, GlanceFact.SpentToday),
+            GlanceRow(Today, GlanceFact.NextPayment),
+            GlanceRow(Salary, GlanceFact.NextPayment),
+            GlanceRow(
+                Today.copy(
+                    nextPayment = NextPayment(
+                        name = "Car insurance and road tax",
+                        type = TransactionType.EXPENSE,
+                        amount = 1_250.0,
+                        currency = "EUR",
+                        daysLeft = 0,
+                    ),
                 ),
-            ) to GlanceFact.NextPayment,
-            Today.copy(
-                nextPayment = NextPayment(
-                    name = "Car insurance and road tax",
-                    type = TransactionType.EXPENSE,
-                    amount = 1_250.0,
-                    currency = "EUR",
-                    daysLeft = 0,
-                ),
-            ) to GlanceFact.NextPayment,
+                GlanceFact.NextPayment,
+            ),
+            GlanceRow(Salary, GlanceFact.NextPayment, hideIncome = true),
         )
     }
+
+    private data class GlanceRow(val glance: Glance, val fact: GlanceFact, val hideIncome: Boolean = false)
 }

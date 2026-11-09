@@ -64,6 +64,7 @@ internal fun Glance.facts(): List<GlanceFact> = buildList {
 internal fun HomeGlance(
     glance: Glance,
     enabled: Boolean,
+    hideIncome: Boolean,
     modifier: Modifier = Modifier,
     firstFact: GlanceFact? = null,
 ) {
@@ -109,14 +110,16 @@ internal fun HomeGlance(
             )
 
             // Still drawn for a moment, leaving, after the payment is paid.
-            GlanceFact.NextPayment -> glance.nextPayment?.let { NextPaymentLine(it) }
+            GlanceFact.NextPayment -> glance.nextPayment?.let { NextPaymentLine(it, hideIncome) }
         }
     }
 }
 
 @Composable
-private fun NextPaymentLine(payment: NextPayment) {
+private fun NextPaymentLine(payment: NextPayment, hideIncome: Boolean) {
     val background = MaterialTheme.colorScheme.background
+    // Like the income card: with income hidden, an income's amount is too.
+    val hidden = hideIncome && payment.type == TransactionType.INCOME
     GlanceLine(
         label = payment.name ?: stringResource(payment.type.label()),
         labelEnd = when (payment.daysLeft) {
@@ -124,8 +127,8 @@ private fun NextPaymentLine(payment: NextPayment) {
             1 -> stringResource(R.string.glance_due_tomorrow)
             else -> pluralStringResource(R.plurals.glance_due_in_days, payment.daysLeft, payment.daysLeft)
         },
-        number = amount(payment.amount, payment.currency),
-        unit = payment.currency,
+        number = if (hidden) "****" else amount(payment.amount, payment.currency),
+        unit = if (hidden) "" else payment.currency,
         color = when (payment.type) {
             TransactionType.INCOME -> incomeGreen(background)
             TransactionType.EXPENSE -> expenseRed(background)
@@ -168,8 +171,7 @@ private fun GlanceLine(
         Text(
             text = buildAnnotatedString {
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(number) }
-                append(" ")
-                append(unit)
+                if (unit.isNotEmpty()) append(" $unit")
             },
             style = MaterialTheme.typography.numberBodyLarge.copy(color = color),
             maxLines = 1,

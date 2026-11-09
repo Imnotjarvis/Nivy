@@ -33,6 +33,12 @@ class GlanceFactsTest {
     }
 
     private companion object {
-        val Rent = NextPayment(name = "Rent", type = TransactionType.EXPENSE, amount = 850.0, currency = "EUR", daysLeft = 3)
+        val Rent = NextPayment(
+            name = "Rent",
+            type = TransactionType.EXPENSE,
+            amount = 850.0,
+            currency = "EUR",
+            daysLeft = 3,
+        )
     }
 }
