@@ -26,6 +26,19 @@ object ColorMode {
  */
 fun Color.shown(): Color = if (ColorMode.minimal) ink.copy(alpha = alpha) else this
 
+/**
+ * In minimal colors, the tone of a chart's part by its rank, the largest first, as the pie chart's
+ * slices and the split bars are told apart: three greys, each at 3:1 or more against the cards'
+ * grey, darkest to lightest on light themes and the reverse on dark.
+ */
+fun minimalTone(rank: Int): Color {
+    val tones = if (ColorMode.dark) TonesDark else TonesLight
+    return tones[rank % tones.size]
+}
+
+private val TonesLight = listOf(Black, Color(0xFF4A4A4F), Color(0xFF808080))
+private val TonesDark = listOf(White, Color(0xFFBDBDBD), Color(0xFF7A7A7A))
+
 /** In minimal colors, an item's saved color (an account's, a category's, a loan's): the cards' grey. */
 internal val itemGrey: Color get() = if (ColorMode.dark) MediumBlack else MediumWhite
 

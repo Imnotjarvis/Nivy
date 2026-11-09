@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,13 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nivy.base.model.Theme
 import com.nivy.wallet.NivyPreview
@@ -38,14 +38,25 @@ import com.nivy.navigation.navigation
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Orange
-import com.nivy.design.system.colors.White
+import com.nivy.design.system.colors.expenseRed
+import com.nivy.design.system.colors.incomeGreen
 import com.nivy.wallet.ui.theme.components.BalanceRow
-import com.nivy.wallet.ui.theme.components.FAB_BUTTON_SIZE
-import com.nivy.wallet.ui.theme.components.NivyCircleButton
+import com.nivy.wallet.ui.theme.components.CloseButton
+import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.ui.theme.components.NivyDividerLine
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
-import com.nivy.wallet.ui.theme.wallet.PeriodSelector
+import com.nivy.wallet.utils.horizontalSwipeListener
+import com.nivy.wallet.utils.rememberSwipeListenerState
+import com.nivy.wallet.LocalPeriodState
+import com.nivy.ui.time.LocalTimeConverter
+import com.nivy.ui.time.LocalTimeFormatter
+import com.nivy.ui.time.LocalTimeProvider
+import com.nivy.ui.time.TimeFormatter
+import com.nivy.balance.detail.MonthDetail
+import com.nivy.balance.detail.MonthSections
+import androidx.compose.ui.platform.testTag
+import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberLabelMedium
 
@@ -61,21 +72,24 @@ fun BoxWithConstraintsScope.BalanceScreen() {
 }
 
 @Composable
-private fun BoxWithConstraintsScope.UI(
+internal fun BoxWithConstraintsScope.UI(
     state: BalanceState,
-    onEvent: (BalanceEvent) -> Unit = {}
+    onEvent: (BalanceEvent) -> Unit = {},
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     var choosePeriodModal: ChoosePeriodModalData? by remember { mutableStateOf(null) }
 
+    // The balances, then the month in detail under them: the screen scrolls.
     Column(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
             .navigationBarsPadding()
+            .verticalScroll(scrollState)
     ) {
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
-        PeriodSelector(
+        TopBar(
             period = state.period,
             onPreviousMonth = { onEvent(BalanceEvent.OnPreviousMonth) },
             onNextMonth = { onEvent(BalanceEvent.OnNextMonth) },
@@ -86,21 +100,22 @@ private fun BoxWithConstraintsScope.UI(
             }
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
 
         CurrentBalance(
             currency = state.baseCurrencyCode,
-            currentBalance = state.currentBalance
+            currentBalance = state.currentBalance,
+            detail = state.detail,
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
 
         NivyDividerLine(
             modifier = Modifier
                 .padding(horizontal = 24.dp)
         )
 
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(24.dp))
 
         BalanceAfterPlannedPayments(
             currency = state.baseCurrencyCode,
@@ -109,11 +124,11 @@ private fun BoxWithConstraintsScope.UI(
             balanceAfterPlannedPayments = state.balanceAfterPlannedPayments
         )
 
-        Spacer(Modifier.weight(1f))
+        state.detail?.let { detail ->
+            MonthSections(detail = detail, currency = state.baseCurrencyCode, month = state.period.month)
+        }
 
-        CloseButton()
-
-        Spacer(Modifier.height(48.dp))
+        Spacer(Modifier.height(32.dp))
     }
 
     ChoosePeriodModal(
@@ -126,10 +141,51 @@ private fun BoxWithConstraintsScope.UI(
     }
 }
 
+// Close, and the month: a tap chooses another, a swipe goes to the next or the previous one.
+@Composable
+private fun TopBar(
+    period: TimePeriod,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    onShowChoosePeriodModal: () -> Unit,
+) {
+    val nav = navigation()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CloseButton { nav.back() }
+
+        Spacer(Modifier.weight(1f))
+
+        NivyOutlinedButton(
+            modifier = Modifier
+                .horizontalSwipeListener(
+                    sensitivity = 75,
+                    state = rememberSwipeListenerState(),
+                    onSwipeLeft = onNextMonth,
+                    onSwipeRight = onPreviousMonth,
+                )
+                .testTag("balance_month"),
+            iconStart = R.drawable.ic_calendar,
+            text = period.toDisplayShort(
+                startDateOfMonth = LocalPeriodState.current.startDayOfMonth,
+                timeConverter = LocalTimeConverter.current,
+                timeProvider = LocalTimeProvider.current,
+                timeFormatter = LocalTimeFormatter.current,
+            ),
+            onClick = onShowChoosePeriodModal,
+        )
+    }
+}
+
 @Composable
 private fun ColumnScope.CurrentBalance(
     currency: String,
-    currentBalance: Double
+    currentBalance: Double,
+    detail: MonthDetail?,
 ) {
     Text(
         modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -147,6 +203,31 @@ private fun ColumnScope.CurrentBalance(
         currency = currency,
         balance = currentBalance
     )
+
+    // How it moved since the month began, while it's the current month.
+    val change = detail?.sinceStart
+    val firstDay = detail?.days?.firstOrNull()
+    if (change != null && firstDay != null) {
+        Spacer(Modifier.height(4.dp))
+        val page = MaterialTheme.colorScheme.background
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .testTag("balance_since_start"),
+            text = stringResource(
+                R.string.month_since,
+                (if (change >= 0) "+" else "-") + abs(change).format(currency),
+                currency,
+                with(LocalTimeFormatter.current) {
+                    firstDay.atStartOfDay().format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+                },
+            ),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = if (change >= 0) incomeGreen(page) else expenseRed(page),
+                fontWeight = FontWeight.Bold,
+            ),
+        )
+    }
 }
 
 @Composable
@@ -158,7 +239,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
 ) {
     Text(
         modifier = Modifier
-            .padding(horizontal = 32.dp),
+            .padding(horizontal = 24.dp),
         text = stringResource(R.string.balance_after_payments),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = Orange,
@@ -173,7 +254,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(32.dp))
+        Spacer(Modifier.width(24.dp))
 
         BalanceRow(
             currency = currency,
@@ -210,25 +291,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
             )
         }
 
-        Spacer(Modifier.width(32.dp))
-    }
-}
-
-@Composable
-private fun ColumnScope.CloseButton() {
-    val nav = navigation()
-    NivyCircleButton(
-        modifier = Modifier
-            .align(Alignment.CenterHorizontally)
-            .size(FAB_BUTTON_SIZE)
-            .rotate(45f)
-            .zIndex(200f),
-        backgroundPadding = 8.dp,
-        icon = R.drawable.ic_add,
-        backgroundColor = Gray,
-        tint = White
-    ) {
-        nav.back()
+        Spacer(Modifier.width(24.dp))
     }
 }
 

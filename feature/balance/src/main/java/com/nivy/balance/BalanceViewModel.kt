@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.nivy.balance.detail.MonthDetail
+import com.nivy.balance.detail.MonthDetailUseCase
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.repository.CurrencyRepository
@@ -19,6 +21,7 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.utils.ioThread
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -32,6 +35,7 @@ class BalanceViewModel @Inject constructor(
     private val walletBalanceUseCase: WalletBalanceUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
+    private val monthDetailUseCase: MonthDetailUseCase,
 ) : ComposeViewModel<BalanceState, BalanceEvent>() {
 
     private var period by mutableStateOf(periodState.selected)
@@ -39,6 +43,8 @@ class BalanceViewModel @Inject constructor(
     private var currentBalance by mutableDoubleStateOf(0.0)
     private var plannedPaymentsAmount by mutableDoubleStateOf(0.0)
     private var balanceAfterPlannedPayments by mutableDoubleStateOf(0.0)
+    private var detail by mutableStateOf<MonthDetail?>(null)
+    private var loadJob: Job? = null
 
     @Composable
     override fun uiState(): BalanceState {
@@ -51,7 +57,8 @@ class BalanceViewModel @Inject constructor(
             balanceAfterPlannedPayments = balanceAfterPlannedPayments,
             currentBalance = currentBalance,
             baseCurrencyCode = baseCurrencyCode,
-            plannedPaymentsAmount = plannedPaymentsAmount
+            plannedPaymentsAmount = plannedPaymentsAmount,
+            detail = detail,
         )
     }
 
@@ -63,10 +70,12 @@ class BalanceViewModel @Inject constructor(
         }
     }
 
+    // A newer load replaces one still running, which would otherwise put back an older month.
     private fun start(
         timePeriod: TimePeriod = periodState.selected
     ) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             baseCurrencyCode = currencyRepository.getBaseCurrency().code
             period = timePeriod
 
@@ -83,6 +92,12 @@ class BalanceViewModel @Inject constructor(
             } + chargesToCome(end)
             balanceAfterPlannedPayments =
                 currentBalance + plannedPaymentsAmount
+
+            // The month's detail takes longer: the balances come first, then it below them.
+            detail = null
+            detail = ioThread {
+                monthDetailUseCase.detail(timePeriod, startDay, baseCurrencyCode)
+            }
         }
     }
 

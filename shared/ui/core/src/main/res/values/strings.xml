@@ -162,6 +162,117 @@
     </plurals>
     <!-- TalkBack: "Double tap to show the next one" -->
     <string name="glance_next">show the next one</string>
+    <!-- The net worth screen's month in detail -->
+    <string name="month_since">%1$s %2$s since %3$s</string>
+    <string name="month_this_month">This month</string>
+    <string name="month_your_habits">Your habits</string>
+    <string name="month_your_money">Your money</string>
+    <string name="month_free_to_spend">Free to spend</string>
+    <string name="month_per_day">%1$s %2$s a day</string>
+    <plurals name="month_days_left_even">
+        <item quantity="one">for the %1$d day left, to end %2$s even</item>
+        <item quantity="other">for the %1$d days left, to end %2$s even</item>
+    </plurals>
+    <string name="month_over">more went out than came in</string>
+    <string name="month_spent_amount">%1$s %2$s spent</string>
+    <string name="month_left_amount">%1$s %2$s left</string>
+    <string name="month_day_by_day">Day by day</string>
+    <string name="month_balance">Balance</string>
+    <string name="month_planned">Planned</string>
+    <string name="month_lowest_point">Lowest point: %1$s %2$s on %3$s</string>
+    <string name="month_coming_up">Coming up</string>
+    <plurals name="month_payments">
+        <item quantity="one">%d payment</item>
+        <item quantity="other">%d payments</item>
+    </plurals>
+    <string name="month_more_coming_up">and %d more this month</string>
+    <string name="month_spent_each_day">Spent each day</string>
+    <string name="month_spent">Spent</string>
+    <string name="month_average_short">avg %1$s</string>
+    <string name="month_compared_with">Compared with %1$s</string>
+    <string name="month_less_than_by">%1$s %2$s less than by %3$s</string>
+    <string name="month_more_than_by">%1$s %2$s more than by %3$s</string>
+    <string name="month_spent_a_day">Spent a day</string>
+    <plurals name="month_on_average_days">
+        <item quantity="one">on average, %d day</item>
+        <item quantity="other">on average, %d days</item>
+    </plurals>
+    <string name="month_at_this_pace">At this pace</string>
+    <string name="month_spent_by">spent by %1$s</string>
+    <string name="month_saved">Saved</string>
+    <string name="month_of_income">of this month\'s income</string>
+    <string name="month_biggest_expense">Biggest expense</string>
+    <string name="month_purchases">Purchases</string>
+    <string name="month_a_day">%1$s a day</string>
+    <string name="month_typical_purchase">Typical purchase</string>
+    <string name="month_average_amount">average %1$s %2$s</string>
+    <string name="month_busiest_day">Busiest day</string>
+    <string name="month_of_spending">%1$s of spending</string>
+    <string name="month_weekends">Weekends</string>
+    <string name="month_times">%1$sx</string>
+    <string name="month_weekday_spending">a weekday\'s spending</string>
+    <string name="month_no_spend_days">No-spend days</string>
+    <plurals name="month_of_days_so_far">
+        <item quantity="one">of %d so far</item>
+        <item quantity="other">of %d so far</item>
+    </plurals>
+    <string name="month_small_purchases">Small purchases</string>
+    <string name="month_under">%1$d under %2$s %3$s</string>
+    <string name="month_top_place">Top place</string>
+    <plurals name="month_visits">
+        <item quantity="one">%d visit</item>
+        <item quantity="other">%d visits</item>
+    </plurals>
+    <string name="month_most_used_account">Most used account</string>
+    <plurals name="month_of_payments">
+        <item quantity="one">%1$d of %2$d payment</item>
+        <item quantity="other">%1$d of %2$d payments</item>
+    </plurals>
+    <string name="month_when_you_spend">When you spend</string>
+    <string name="month_by_weekday">By weekday</string>
+    <string name="month_by_time_of_day">By time of day</string>
+    <string name="month_morning">Morning</string>
+    <string name="month_afternoon">Afternoon</string>
+    <string name="month_evening">Evening</string>
+    <string name="month_night">Night</string>
+    <string name="month_hours">%1$d to %2$d</string>
+    <string name="month_purchase_sizes">Purchase sizes</string>
+    <plurals name="month_purchases_count">
+        <item quantity="one">%d purchase</item>
+        <item quantity="other">%d purchases</item>
+    </plurals>
+    <plurals name="month_sizes_note">
+        <item quantity="one">%1$d of %2$d purchase under %3$s %4$s makes %5$s of spending</item>
+        <item quantity="other">%1$d of %2$d purchases under %3$s %4$s make %5$s of spending</item>
+    </plurals>
+    <string name="month_fixed_and_flexible">Fixed and flexible</string>
+    <string name="month_fixed">Fixed</string>
+    <string name="month_flexible">Flexible</string>
+    <plurals name="month_planned_payments">
+        <item quantity="one">%d planned payment</item>
+        <item quantity="other">%d planned payments</item>
+    </plurals>
+    <plurals name="month_other_purchases">
+        <item quantity="one">%d other purchase</item>
+        <item quantity="other">%d other purchases</item>
+    </plurals>
+    <string name="month_versus">vs %1$s</string>
+    <string name="month_new">new</string>
+    <string name="month_same">same</string>
+    <string name="month_places">Places you go back to</string>
+    <string name="month_place_note">%1$d times, %2$s %3$s each</string>
+    <string name="month_own_and_owe">What you own and owe</string>
+    <string name="month_you_owe">You owe</string>
+    <string name="month_money_lasts">Your money lasts</string>
+    <plurals name="month_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <string name="month_years">%1$s years</string>
+    <plurals name="month_lasts_note">
+        <item quantity="one">at your average spending of %1$s %2$s a month, over the last month</item>
+        <item quantity="other">at your average spending of %1$s %2$s a month, over the last %3$d months</item>
+    </plurals>
     <string name="expenses_lowercase">expenses</string>
     <string name="income_lowercase">income</string>
     <string name="edit_account">Edit account</string>

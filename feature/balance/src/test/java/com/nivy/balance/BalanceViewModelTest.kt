@@ -1,5 +1,7 @@
 package com.nivy.balance
 
+import com.nivy.balance.detail.MonthDetail
+import com.nivy.balance.detail.MonthDetailUseCase
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.primitive.AssetCode
@@ -43,6 +45,9 @@ class BalanceViewModelTest {
         walletBalanceUseCase = walletBalanceUseCase,
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
+        monthDetailUseCase = mockk<MonthDetailUseCase> {
+            coEvery { detail(any(), any(), any()) } returns MonthDetail.Empty
+        },
     )
 
     @Before
@@ -62,6 +67,13 @@ class BalanceViewModelTest {
             currentBalance shouldBe 1_000.0
             plannedPaymentsAmount shouldBe -400.0
             balanceAfterPlannedPayments shouldBe 600.0
+        }
+    }
+
+    @Test
+    fun `the month in detail loads under the balances`() {
+        viewModel.runTest {
+            detail shouldBe MonthDetail.Empty
         }
     }
 

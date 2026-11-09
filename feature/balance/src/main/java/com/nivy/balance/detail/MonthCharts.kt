@@ -1,0 +1,264 @@
+package com.nivy.balance.detail
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.dp
+import com.nivy.design.system.colors.Gray
+import com.nivy.design.system.colors.Nivy
+import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.expenseRed
+import com.nivy.ui.R
+import com.nivy.wallet.utils.format
+
+/**
+ * The month's balance, a day a step: as it was up to today, then, dashed, as planned payments
+ * will take it. Today and the month's last day are marked, with their balances.
+ */
+@Composable
+internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
+    val line = Nivy
+    val planned = Orange
+    val guide = Gray
+    val ring = MaterialTheme.colorScheme.surfaceVariant
+    val measurer = rememberTextMeasurer()
+    val label = MaterialTheme.typography.labelSmall.copy(
+        color = MaterialTheme.colorScheme.onSurface,
+        fontWeight = FontWeight.ExtraBold,
+    )
+    val balances = detail.balances
+    val actual = detail.actualDays
+    val todayText = balances.getOrNull(actual - 1)?.let { measurer.measure(it.format(currency), label) }
+    val endText = if (actual < balances.size) measurer.measure(balances.last().format(currency), label) else null
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp)
+            .testTag("month_balance_chart")
+    ) {
+        if (balances.size < 2) return@Canvas
+        val margin = (balances.max() - balances.min()).coerceAtLeast(1.0) * ChartMargin
+        val min = balances.min() - margin
+        val max = balances.max() + margin
+        val top = LabelSpace.toPx()
+        val bottom = size.height - PointRing.toPx()
+        fun x(index: Int) = index / (balances.size - 1f) * size.width
+        fun y(value: Double) = top + ((max - value) / (max - min)).toFloat() * (bottom - top)
+
+        if (actual > 0) {
+            val path = Path().apply {
+                (0 until actual).forEach { index ->
+                    if (index == 0) moveTo(x(0), y(balances[0])) else lineTo(x(index), y(balances[index]))
+                }
+            }
+            val area = Path().apply {
+                addPath(path)
+                lineTo(x(actual - 1), bottom)
+                lineTo(x(0), bottom)
+                close()
+            }
+            drawPath(area, Brush.verticalGradient(listOf(line.copy(alpha = AreaAlpha), Color.Transparent), top, bottom))
+            drawPath(path, line, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
+        if (actual < balances.size) {
+            // Ahead, the balance holds until a planned payment's day, then steps to it.
+            val from = (actual - 1).coerceAtLeast(0)
+            val path = Path().apply {
+                moveTo(x(from), y(balances[from]))
+                for (index in from + 1 until balances.size) {
+                    lineTo(x(index), y(balances[index - 1]))
+                    lineTo(x(index), y(balances[index]))
+                }
+            }
+            drawPath(
+                path,
+                planned,
+                style = Stroke(
+                    PlannedWidth.toPx(),
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dash.toPx(), Dash.toPx())),
+                ),
+            )
+            point(Offset(x(balances.lastIndex), y(balances.last())), planned, ring)
+            endText?.let { text ->
+                drawText(text, topLeft = Offset(size.width - text.size.width, y(balances.last()) - text.size.height - LabelGap.toPx()))
+            }
+        }
+        if (actual > 0) {
+            val today = Offset(x(actual - 1), y(balances[actual - 1]))
+            if (actual < balances.size) {
+                drawLine(
+                    guide.copy(alpha = GuideAlpha),
+                    Offset(today.x, top - PointRing.toPx()),
+                    Offset(today.x, bottom),
+                    strokeWidth = 1.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dot.toPx(), Dot.toPx())),
+                )
+            }
+            point(today, line, ring)
+            todayText?.let { text -> labelAbove(text, today) }
+        }
+    }
+}
+
+/**
+ * What was spent each day of the month: today's slot stands out, the days ahead are stubs with a
+ * dot where an expense is planned, and a dashed line marks the average so far.
+ */
+@Composable
+internal fun DailyBars(detail: MonthDetail, average: Double?, currency: String) {
+    val spent = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
+    val highlight = MaterialTheme.colorScheme.surface
+    val idle = Gray.copy(alpha = IdleAlpha)
+    val planned = Orange
+    val measurer = rememberTextMeasurer()
+    val averageText = average?.let {
+        measurer.measure(
+            stringResource(R.string.month_average_short, it.format(currency)),
+            MaterialTheme.typography.labelSmall.copy(color = Gray),
+        )
+    }
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .testTag("month_daily_bars")
+    ) {
+        val days = detail.days
+        if (days.isEmpty()) return@Canvas
+        val slot = size.width / days.size
+        val bar = slot * DayBarFraction
+        val bottom = size.height - DotSpace.toPx()
+        val max = (detail.spentByDay.maxOrNull() ?: 0.0).takeIf { it > 0 }?.times(BarHeadroom) ?: 1.0
+        fun height(amount: Double) = (amount / max).toFloat() * (bottom - BarTop.toPx())
+        val todayIndex = detail.today?.let(days::indexOf)?.takeIf { it >= 0 }
+        if (todayIndex != null) {
+            drawRoundRect(
+                highlight,
+                topLeft = Offset(todayIndex * slot, 0f),
+                size = Size(slot, size.height),
+                cornerRadius = CornerRadius(SlotRadius.toPx()),
+            )
+        }
+        days.forEachIndexed { index, day ->
+            val left = index * slot + (slot - bar) / 2
+            val amount = detail.spentByDay[index]
+            val happened = index < detail.actualDays
+            val h = if (happened) height(amount).coerceAtLeast(Stub.toPx()) else Stub.toPx()
+            drawRoundRect(
+                if (happened && amount > 0) spent else idle,
+                topLeft = Offset(left, bottom - h),
+                size = Size(bar, h),
+                cornerRadius = CornerRadius(bar / 2),
+            )
+            if (day in detail.plannedDays) {
+                drawCircle(planned, PlannedDot.toPx(), Offset(left + bar / 2, size.height - PlannedDot.toPx()))
+            }
+        }
+        if (average != null && average > 0 && detail.actualDays > 0) {
+            val y = bottom - height(average)
+            val end = detail.actualDays * slot
+            drawLine(
+                Gray,
+                Offset(0f, y),
+                Offset(end, y),
+                strokeWidth = AverageWidth.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dash.toPx() * 0.8f, Dash.toPx() * 0.8f)),
+            )
+            averageText?.let { text ->
+                val x = (end + LabelGap.toPx()).coerceAtMost(size.width - text.size.width)
+                drawText(text, topLeft = Offset(x, y - text.size.height / 2f))
+            }
+        }
+    }
+}
+
+/** What was spent by each day, added up: this month so far over the whole month before. */
+@Composable
+internal fun PaceChart(pace: Pace) {
+    val now = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
+    val before = Gray
+    val ring = MaterialTheme.colorScheme.surfaceVariant
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .testTag("month_pace_chart")
+    ) {
+        val count = maxOf(pace.previous.size, pace.current.size)
+        if (count < 2) return@Canvas
+        val max = maxOf(pace.previous.lastOrNull() ?: 0.0, pace.current.last()).takeIf { it > 0 }?.times(BarHeadroom) ?: 1.0
+        val top = PointRing.toPx()
+        val bottom = size.height - PointRing.toPx()
+        fun x(index: Int) = index / (count - 1f) * size.width
+        fun y(value: Double) = bottom - (value / max).toFloat() * (bottom - top)
+        fun path(values: List<Double>) = Path().apply {
+            values.forEachIndexed { index, value -> if (index == 0) moveTo(x(0), y(value)) else lineTo(x(index), y(value)) }
+        }
+        if (pace.previous.size > 1) {
+            drawPath(path(pace.previous), before, style = Stroke(PlannedWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
+        if (pace.current.size > 1) {
+            drawPath(path(pace.current), now, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
+        val day = pace.current.lastIndex
+        pace.previous.getOrNull(day)?.let { point(Offset(x(day), y(it)), before, ring, small = true) }
+        point(Offset(x(day), y(pace.current.last())), now, ring)
+    }
+}
+
+// A point on a line, in a ring of the panel's color that parts it from the line.
+private fun DrawScope.point(center: Offset, color: Color, ring: Color, small: Boolean = false) {
+    drawCircle(ring, (if (small) SmallRing else PointRing).toPx(), center)
+    drawCircle(color, (if (small) SmallPoint else Point).toPx(), center)
+}
+
+// A label centered over a point, kept inside the chart.
+private fun DrawScope.labelAbove(text: TextLayoutResult, point: Offset) {
+    val x = (point.x - text.size.width / 2f).coerceIn(0f, (size.width - text.size.width).coerceAtLeast(0f))
+    drawText(text, topLeft = Offset(x, point.y - text.size.height - LabelGap.toPx()))
+}
+
+private const val ChartMargin = 0.15
+private const val AreaAlpha = 0.25f
+private const val GuideAlpha = 0.5f
+private const val IdleAlpha = 0.25f
+private const val DayBarFraction = 0.6f
+private const val BarHeadroom = 1.1
+private val LabelSpace = 28.dp
+private val LabelGap = 8.dp
+private val LineWidth = 3.dp
+private val PlannedWidth = 2.5.dp
+private val AverageWidth = 1.5.dp
+private val Dash = 4.dp
+private val Dot = 2.dp
+private val PointRing = 7.dp
+private val Point = 4.5.dp
+private val SmallRing = 6.dp
+private val SmallPoint = 3.5.dp
+private val SlotRadius = 6.dp
+private val DotSpace = 10.dp
+private val BarTop = 8.dp
+private val Stub = 2.dp
+private val PlannedDot = 3.dp
