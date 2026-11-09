@@ -21,18 +21,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.colors.ColorMode
+import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.NIVY_COLOR_PICKER_COLORS_FREE
 import com.nivy.design.system.colors.NIVY_COLOR_PICKER_COLORS_PREMIUM
+import com.nivy.design.system.colors.NIVY_COLOR_PICKER_GREYS
 import com.nivy.design.system.colors.dynamicContrast
+import com.nivy.design.system.colors.greyscale
 import com.nivy.design.utils.densityScope
 import com.nivy.design.utils.thenIf
 import com.nivy.ui.R
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
@@ -75,7 +80,14 @@ fun ColumnScope.NivyColorPicker(
             )
         }
 
-    val nivyColors = freeNivyColors + premiumNivyColors
+    // In minimal colors, the greys: a color saved before shows as the grey nearest its own, which
+    // stays saved until another is picked.
+    val nivyColors = if (ColorMode.minimal) {
+        NIVY_COLOR_PICKER_GREYS.map { NivyColor(color = it, premium = false) }
+    } else {
+        freeNivyColors + premiumNivyColors
+    }
+    val shownColor = if (ColorMode.minimal) nearestGrey(selectedColor) else selectedColor
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -84,7 +96,7 @@ fun ColumnScope.NivyColorPicker(
         LaunchedEffect(Unit) {
             // java.lang.IllegalStateException: pending composition has not been applied
 
-            val selectedColorIndex = nivyColors.indexOfFirst { it.color == selectedColor }
+            val selectedColorIndex = nivyColors.indexOfFirst { it.color == shownColor }
             if (selectedColorIndex != -1) {
                 coroutineScope.launch {
                     listState.scrollToItem(
@@ -108,7 +120,7 @@ fun ColumnScope.NivyColorPicker(
             ColorItem(
                 index = index,
                 nivyColor = nivyColors[index],
-                selectedColor = selectedColor,
+                selectedColor = shownColor,
                 onSelected = {
                     onColorSelected(it.color)
                 }
@@ -127,6 +139,7 @@ private fun ColorItem(
 ) {
     val color = nivyColor.color
     val selected = color == selectedColor
+    val minimal = ColorMode.minimal
     val ink = MaterialTheme.colorScheme.onSurface
 
     if (index == 0) {
@@ -137,12 +150,18 @@ private fun ColorItem(
         modifier = Modifier
             .clip(PillShape)
             .size(48.dp)
-            // The color itself, also in minimal colors: where it's used, it's drawn grey there,
-            // but here it's what's being picked.
+            // In minimal colors the grey picked is ringed in the text color, apart from it: a ring
+            // on the swatch itself could match it, or the sheet around it.
+            .thenIf(minimal && selected) {
+                border(width = 3.dp, color = ink, PillShape).padding(6.dp)
+            }
             .background(color, PillShape)
-            .thenIf(selected) {
-                // In minimal colors, the text color: it shows on the page whatever the swatch.
-                border(width = 4.dp, color = if (ColorMode.minimal) ink else color.dynamicContrast(), PillShape)
+            // The greys near the sheet's own color would fade into it: a faint ring keeps each.
+            .thenIf(minimal) {
+                border(width = 1.dp, color = Gray.copy(alpha = OutlineAlpha), PillShape)
+            }
+            .thenIf(!minimal && selected) {
+                border(width = 4.dp, color = color.dynamicContrast(), PillShape)
             }
             .clickable(onClick = {
                 onSelected(nivyColor)
@@ -152,3 +171,11 @@ private fun ColorItem(
 
     Spacer(Modifier.width(if (selected) 16.dp else 24.dp))
 }
+
+// Of the greys offered, the one nearest [color]'s own grey.
+private fun nearestGrey(color: Color): Color {
+    val lightness = color.greyscale().luminance()
+    return NIVY_COLOR_PICKER_GREYS.minBy { abs(it.luminance() - lightness) }
+}
+
+private const val OutlineAlpha = 0.5f

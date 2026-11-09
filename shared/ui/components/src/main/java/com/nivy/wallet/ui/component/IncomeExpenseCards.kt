@@ -35,7 +35,6 @@ import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.colors.isDarkColor
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberTitleLarge
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.shapes.nestedShape
@@ -192,10 +191,6 @@ private fun RowScope.HeaderCard(
     onAddClick: () -> Unit
 ) {
     val backgroundColor = when {
-        // In minimal colors an account's header is the cards' grey: the page's color sets these
-        // apart from it.
-        ColorMode.minimal && itemColor == MaterialTheme.colorScheme.surfaceVariant ->
-            MaterialTheme.colorScheme.surface
         isDarkColor(itemColor) -> MediumBlack.copy(alpha = 0.9f)
         else -> MediumWhite.copy(alpha = 0.9f)
     }

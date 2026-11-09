@@ -45,8 +45,8 @@ import com.nivy.wallet.utils.isNotNullOrBlank
 import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
+import com.nivy.design.system.colors.asItemColor
 import com.nivy.design.system.colors.Palette
-import com.nivy.design.system.colors.shown
 import com.nivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.nivy.wallet.ui.theme.components.NivyNameTextField
 import com.nivy.design.system.colors.dynamicContrast
@@ -206,13 +206,13 @@ fun IconNameRow(
         ItemIconMDefaultIcon(
             modifier = Modifier
                 .clip(PillShape)
-                .background(color.shown(), PillShape)
+                .background(color.asItemColor(), PillShape)
                 .clickable {
                     showChooseIconModal()
                 }
                 .testTag("modal_item_icon"),
             iconName = icon,
-            tint = color.shown().dynamicContrast(),
+            tint = color.asItemColor().dynamicContrast(),
             defaultIcon = defaultIcon
         )
 

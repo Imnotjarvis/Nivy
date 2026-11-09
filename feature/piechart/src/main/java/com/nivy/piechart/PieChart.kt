@@ -40,7 +40,6 @@ import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.NivyDark
 import com.nivy.design.system.colors.RedLight
 import com.nivy.wallet.ui.theme.components.NivyIcon
-import com.nivy.design.system.colors.minimalTone
 import com.nivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -90,13 +89,11 @@ fun <T> PieChart(
     modifier: Modifier = Modifier,
     onSliceClick: (T?) -> Unit = {}
 ) {
-    // In minimal colors slices share a few greys: gaps in the backdrop's color set them apart.
+    // In minimal colors slices are greys, two maybe alike: gaps in the backdrop's color set them apart.
     val gapColor = MaterialTheme.colorScheme.surfaceVariant.takeIf { ColorMode.minimal }
     val bySize = slices.sortedByDescending { it.amount }
-    val colors = bySize.mapIndexed { rank, slice ->
-        // In minimal colors, a slice's tone comes from its rank.
-        val color = if (ColorMode.minimal) pieTone(rank) else slice.color
-        if (selected == null || slice.item == selected) color else color.copy(alpha = 0.15f)
+    val colors = bySize.map { slice ->
+        if (selected == null || slice.item == selected) slice.color else slice.color.copy(alpha = 0.15f)
     }
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -361,6 +358,3 @@ private fun Preview() {
         }
     }
 }
-
-/** In minimal colors, a slice's tone by its rank (the largest first). */
-internal fun pieTone(rank: Int): Color = minimalTone(rank)

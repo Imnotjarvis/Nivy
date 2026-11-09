@@ -24,7 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nivy.wallet.utils.format
 import com.nivy.ui.R
-import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.Gray
 import com.nivy.wallet.ui.theme.components.ItemIconM
 import com.nivy.wallet.ui.theme.components.ItemIconMDefaultIcon
@@ -37,7 +36,6 @@ import com.nivy.design.system.typography.numberBodyLarge
 @Composable
 internal fun CategoryAmountCard(
     categoryAmount: CategoryAmount,
-    rank: Int,
     currency: String,
     totalAmount: Double,
 
@@ -52,7 +50,6 @@ internal fun CategoryAmountCard(
         defaultIcon = R.drawable.ic_custom_category_m,
         // Unspecified category = Gray
         color = category?.color?.value?.toComposeColor() ?: Gray,
-        rank = rank,
         amount = categoryAmount.amount,
         totalAmount = totalAmount,
         currency = currency,
@@ -64,7 +61,6 @@ internal fun CategoryAmountCard(
 @Composable
 internal fun AccountAmountCard(
     accountAmount: AccountAmount,
-    rank: Int,
     currency: String,
     totalAmount: Double,
     selected: Boolean,
@@ -76,7 +72,6 @@ internal fun AccountAmountCard(
         iconName = account.icon?.id,
         defaultIcon = R.drawable.ic_custom_account_m,
         color = account.color.value.toComposeColor(),
-        rank = rank,
         amount = accountAmount.amount,
         totalAmount = totalAmount,
         currency = currency,
@@ -93,16 +88,13 @@ private fun ShareCard(
     iconName: String?,
     @DrawableRes defaultIcon: Int,
     color: Color,
-    rank: Int,
     amount: Double,
     totalAmount: Double,
     currency: String,
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    // In minimal colors, the slice's tone: the list is the chart's legend.
-    val sliceColor = if (ColorMode.minimal) pieTone(rank) else color
-    val backgroundColor = if (selected) sliceColor else MaterialTheme.colorScheme.surfaceVariant
+    val backgroundColor = if (selected) color else MaterialTheme.colorScheme.surfaceVariant
 
     val textColor = readableOn(backgroundColor)
 
@@ -121,16 +113,16 @@ private fun ShareCard(
         Spacer(Modifier.width(20.dp))
 
         ItemIconM(
-            modifier = Modifier.background(sliceColor, PillShape),
+            modifier = Modifier.background(color, PillShape),
             iconName = iconName,
-            tint = readableOn(sliceColor),
+            tint = readableOn(color),
             iconContentScale = ContentScale.None,
             default = {
                 ItemIconMDefaultIcon(
-                    modifier = Modifier.background(sliceColor, PillShape),
+                    modifier = Modifier.background(color, PillShape),
                     iconName = iconName,
                     defaultIcon = defaultIcon,
-                    tint = readableOn(sliceColor)
+                    tint = readableOn(color)
                 )
             }
         )

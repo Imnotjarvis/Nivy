@@ -20,6 +20,13 @@ class AccountsTabPaparazziTest(
     }
 
     @Test
+    fun `snapshot accountTab nonCompact composable in minimal colors, each account its grey`() {
+        snapshot(theme, minimal = true) {
+            AccountsTabNonCompactUITest(theme == PaparazziTheme.Dark)
+        }
+    }
+
+    @Test
     fun `snapshot accountTab compact composable`() {
         snapshot(theme) {
             AccountsTabCompactUITest(theme == PaparazziTheme.Dark)

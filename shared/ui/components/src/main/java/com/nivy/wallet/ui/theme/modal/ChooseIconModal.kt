@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.nivy.design.system.colors.shown
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -33,6 +32,7 @@ import com.nivy.wallet.NivyPreview
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.design.utils.thenIf
 import com.nivy.ui.R
+import com.nivy.design.system.colors.asItemColor
 import com.nivy.design.system.colors.Nivy
 import com.nivy.wallet.ui.theme.components.ItemIconS
 import com.nivy.design.system.colors.dynamicContrast
@@ -96,7 +96,7 @@ fun BoxWithConstraintsScope.ChooseIconModal(
                 Spacer(Modifier.height(4.dp))
             }
 
-            icons(selectedIcon = selectedIcon, color = color.shown()) {
+            icons(selectedIcon = selectedIcon, color = color.asItemColor()) {
                 selectedIcon = it
             }
 

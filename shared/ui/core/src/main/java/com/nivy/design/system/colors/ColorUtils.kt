@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
+import kotlin.math.pow
 
 // Colors at or below this luminance count as dark.
 private const val DarkLuminance = 0.5
@@ -153,5 +154,30 @@ fun Color.hsv(
     return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
-/** A saved color (an account's, a category's, …) as drawn: grey in minimal colors. */
-fun Int.toComposeColor() = if (ColorMode.minimal) itemGrey else Color(this)
+/**
+ * A saved color (an account's, a category's, a loan's) as drawn: in minimal colors its grey, as
+ * light as the color is, so items stay apart as they do in color and a grey picked there shows as
+ * itself.
+ */
+fun Int.toComposeColor() = Color(this).asItemColor()
+
+/** A color picked for an item, as the item is drawn: its grey in minimal colors. */
+fun Color.asItemColor(): Color = if (ColorMode.minimal) greyscale() else this
+
+/**
+ * The grey as light as this color, its luminance kept: the color in black and white, at the same
+ * contrast against anything as the color itself.
+ */
+fun Color.greyscale(): Color {
+    val linear = luminance()
+    val value = if (linear <= LinearToSrgbKnee) linear * LinearToSrgbSlope else
+        SrgbScale * linear.pow(1 / SrgbGamma) - SrgbOffset
+    return Color(value, value, value, alpha)
+}
+
+// sRGB's transfer function, from linear light to the stored value.
+private const val LinearToSrgbKnee = 0.0031308f
+private const val LinearToSrgbSlope = 12.92f
+private const val SrgbScale = 1.055f
+private const val SrgbOffset = 0.055f
+private const val SrgbGamma = 2.4f

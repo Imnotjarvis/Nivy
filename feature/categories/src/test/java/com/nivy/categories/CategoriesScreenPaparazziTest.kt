@@ -20,6 +20,13 @@ class CategoriesScreenPaparazziTest(
     }
 
     @Test
+    fun `snapshot Categories nonCompact Screen in minimal colors, each category its grey`() {
+        snapshot(theme, minimal = true) {
+            CategoriesScreenUiTest(theme == PaparazziTheme.Dark)
+        }
+    }
+
+    @Test
     fun `snapshot Categories nonCompact Screen with search bar`() {
         snapshot(theme) {
             CategoriesScreenWithSearchBarUiTest(theme == PaparazziTheme.Dark)

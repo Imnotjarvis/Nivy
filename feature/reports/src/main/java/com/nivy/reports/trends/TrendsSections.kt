@@ -30,7 +30,6 @@ import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.minimalTone
-import com.nivy.design.system.colors.shown
 import com.nivy.design.system.colors.toComposeColor
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeFormatter
@@ -51,7 +50,6 @@ import com.nivy.wallet.ui.component.evenly
 import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.utils.format
-import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -236,8 +234,8 @@ private fun AccountsPanel(
     selected: Int,
     onSelect: (Int) -> Unit,
 ) {
-    val colors = accounts.mapIndexed { rank, series ->
-        partColor(rank, series.account?.color?.value?.toComposeColor()?.shown(), series.account == null)
+    val colors = accounts.map { series ->
+        partColor(series.account?.color?.value?.toComposeColor(), other = series.account == null)
     }
     ChartPanel(title = stringResource(R.string.trends_by_account), legend = {}) {
         StackedArea(accounts.map { it.values }, colors, selected, onSelect)
@@ -326,16 +324,12 @@ private fun SavingsRatePanel(
 
 @Composable
 private fun CategoriesPanel(
-    series: List<CategorySeries>,
+    categories: List<CategorySeries>,
     axis: List<Pair<Float, String>>,
     selected: Int,
     onSelect: (Int) -> Unit,
 ) {
-    // In minimal colors, as many categories as there are greys to tell them apart.
-    val categories = if (ColorMode.minimal) togetherPast(series, MinimalTones) else series
-    val colors = categories.mapIndexed { rank, series ->
-        partColor(rank, categoryColor(series.category), series.other)
-    }
+    val colors = categories.map { part -> partColor(categoryColor(part.category), part.other) }
     ChartPanel(title = stringResource(R.string.trends_where_it_goes), legend = {}) {
         StackedBars(
             series = categories.map { it.values },
@@ -393,8 +387,9 @@ private fun FixedFlexiblePanel(
     phrase: String,
     onSelect: (Int) -> Unit,
 ) {
-    val fixedColor = partColor(0, Nivy, other = false)
-    val flexibleColor = partColor(1, Blue, other = false)
+    // Not accounts nor categories: in minimal colors, greys by their place.
+    val fixedColor = if (ColorMode.minimal) minimalTone(0) else Nivy
+    val flexibleColor = if (ColorMode.minimal) minimalTone(1) else Blue
     ChartPanel(
         title = stringResource(R.string.month_fixed_and_flexible),
         legend = {
@@ -756,24 +751,14 @@ private fun categoryName(series: CategorySeries): String = when {
     else -> series.category?.name?.value ?: stringResource(R.string.unspecified)
 }
 
-// A category's own color, the text's in minimal colors; grey without a category.
-private fun categoryColor(category: Category?): Color = category?.color?.value?.toComposeColor()?.shown() ?: Gray
+// A category's own color, its grey in minimal colors; grey without a category.
+private fun categoryColor(category: Category?): Color = category?.color?.value?.toComposeColor() ?: Gray
 
-// A stacked part's color: its own, grey for the others together, or in minimal colors a grey by
-// rank and a lighter grey for the others.
-private fun partColor(rank: Int, color: Color?, other: Boolean): Color = when {
-    ColorMode.minimal -> if (other) Gray.copy(alpha = OthersAlpha) else minimalTone(rank)
-    other || color == null -> Gray
+// A stacked part's color: its own (its grey in minimal colors), and grey for the others together:
+// a lighter one in minimal colors, where the items' greys are near the text's.
+private fun partColor(color: Color?, other: Boolean): Color = when {
+    other || color == null -> if (ColorMode.minimal) Gray.copy(alpha = OthersAlpha) else Gray
     else -> color
-}
-
-// [series] with those past the first [count] added to the others.
-private fun togetherPast(series: List<CategorySeries>, count: Int): List<CategorySeries> {
-    if (series.size <= count + 1) return series
-    val others = series.drop(count)
-    val months = others.first().values.indices
-    return series.take(count) +
-        CategorySeries(null, other = true, months.map { month -> others.sumOf { it.values[month] } }.toImmutableList())
 }
 
 // The months to average over: the full ones, or all of them when none is full yet.
@@ -805,9 +790,6 @@ private const val ShadeBase = 0.2f
 private const val ShadeStep = 0.2f
 private const val ForecastLegendAlpha = 0.45f
 private const val OthersAlpha = 0.45f
-
-// The greys minimal colors tell parts apart with.
-private const val MinimalTones = 3
 
 // A change smaller than this is "same".
 private const val SameChange = 0.005
