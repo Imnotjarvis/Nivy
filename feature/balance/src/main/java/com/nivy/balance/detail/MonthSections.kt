@@ -64,7 +64,9 @@ import kotlin.math.roundToInt
 @Composable
 internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, month: Month?) {
     if (detail.days.isNotEmpty()) {
-        GroupTitle(if (detail.today != null) stringResource(R.string.month_this_month) else month?.displayName().orEmpty())
+        GroupTitle(
+            if (detail.today != null) stringResource(R.string.month_this_month) else month?.displayName().orEmpty()
+        )
         detail.freeToSpend?.let {
             FreeToSpendPanel(it, currency, month)
             Spacer(Modifier.height(16.dp))
@@ -232,14 +234,21 @@ private fun DayByDayPanel(detail: MonthDetail, currency: String) {
             buildList {
                 add(0f to dateLabel(detail.days.first()))
                 // Today, unless it's so near an end that the labels would meet.
-                if (today != null && today > EdgeRoom && today < 1 - EdgeRoom) add(today to stringResource(R.string.today))
+                if (today != null && today > EdgeRoom && today < 1 - EdgeRoom) {
+                    add(today to stringResource(R.string.today))
+                }
                 add(1f to dateLabel(detail.days.last()))
             }
         )
         detail.lowest?.let { lowest ->
             Spacer(Modifier.height(12.dp))
             PanelNote(
-                stringResource(R.string.month_lowest_point, lowest.amount.format(currency), currency, dateLabel(lowest.day)),
+                stringResource(
+                    R.string.month_lowest_point,
+                    lowest.amount.format(currency),
+                    currency,
+                    dateLabel(lowest.day)
+                ),
                 color = Gray,
             )
         }
@@ -283,7 +292,10 @@ private fun SpentEachDayPanel(detail: MonthDetail, currency: String) {
     ChartPanel(
         title = stringResource(R.string.month_spent_each_day),
         legend = {
-            LegendDot(color = expenseRed(MaterialTheme.colorScheme.surfaceVariant), label = stringResource(R.string.month_spent))
+            LegendDot(
+                color = expenseRed(MaterialTheme.colorScheme.surfaceVariant),
+                label = stringResource(R.string.month_spent)
+            )
             if (detail.plannedDays.isNotEmpty()) {
                 Spacer(Modifier.width(12.dp))
                 LegendDot(color = Orange, label = stringResource(R.string.month_planned))
@@ -366,7 +378,13 @@ private fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?) {
             }
             habits.biggest?.let {
                 val what = it.title ?: it.category?.name?.value ?: stringResource(R.string.unspecified)
-                add(Stat(stringResource(R.string.month_biggest_expense), money(it.amount, currency), "$what, ${dateLabel(it.day)}"))
+                add(
+                    Stat(
+                        stringResource(R.string.month_biggest_expense),
+                        money(it.amount, currency),
+                        "$what, ${dateLabel(it.day)}"
+                    )
+                )
             }
             add(
                 Stat(
@@ -429,7 +447,12 @@ private fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?) {
                         Stat(
                             stringResource(R.string.month_most_used_account),
                             account.name.value,
-                            pluralStringResource(R.plurals.month_of_payments, habits.purchases, use.payments, habits.purchases),
+                            pluralStringResource(
+                                R.plurals.month_of_payments,
+                                habits.purchases,
+                                use.payments,
+                                habits.purchases
+                            ),
                         )
                     )
                 }
@@ -460,7 +483,11 @@ private fun WhenYouSpendPanel(habits: Habits) {
             )
             ShareRows(
                 rows = parts.mapIndexed { index, (name, hours) ->
-                    ShareRow(stringResource(name), stringResource(R.string.month_hours, hours.first, hours.second), shares[index])
+                    ShareRow(
+                        stringResource(name),
+                        stringResource(R.string.month_hours, hours.first, hours.second),
+                        shares[index]
+                    )
                 },
                 color = red,
                 highlight = shares.indexOf(shares.max()),
@@ -473,7 +500,11 @@ private fun WhenYouSpendPanel(habits: Habits) {
 private fun PurchaseSizesPanel(habits: Habits, currency: String) {
     ChartPanel(
         title = stringResource(R.string.month_purchase_sizes),
-        legend = { LegendText(pluralStringResource(R.plurals.month_purchases_count, habits.purchases, habits.purchases)) },
+        legend = {
+            LegendText(
+                pluralStringResource(R.plurals.month_purchases_count, habits.purchases, habits.purchases)
+            )
+        },
     ) {
         LabeledBars(
             values = habits.sizes.map { it.count.toDouble() },
@@ -568,7 +599,12 @@ private fun PlacesPanel(habits: Habits, currency: String) {
                 lead = "${index + 1}",
                 leadWidth = RankWidth,
                 title = place.name,
-                note = stringResource(R.string.month_place_note, place.visits, (place.total / place.visits).format(currency), currency),
+                note = stringResource(
+                    R.string.month_place_note,
+                    place.visits,
+                    (place.total / place.visits).format(currency),
+                    currency
+                ),
                 value = money(place.total, currency),
             )
         }
@@ -639,7 +675,13 @@ private fun RunwayPanel(runway: Runway, currency: String) {
         )
         Spacer(Modifier.height(4.dp))
         Subtext(
-            pluralStringResource(R.plurals.month_lasts_note, runway.over, runway.monthly.format(currency), currency, runway.over)
+            pluralStringResource(
+                R.plurals.month_lasts_note,
+                runway.over,
+                runway.monthly.format(currency),
+                currency,
+                runway.over
+            )
         )
     }
 }

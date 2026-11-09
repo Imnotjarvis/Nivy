@@ -122,17 +122,15 @@ class MonthDetailUseCase @Inject constructor(
                 },
                 comingUp = ahead.take(ComingUpListed).map { upcoming(it, rates, names) }.toImmutableList(),
                 moreComingUp = (ahead.size - ComingUpListed).coerceAtLeast(0),
-                spentByDay = days.map { day -> spends.filter { it.day == day }.sumOf { it.amount } }.toImmutableList(),
+                spentByDay = spentOn(days, spends).toImmutableList(),
                 plannedDays = due.filterIsInstance<Expense>()
                     .map { it.time.localDate() }
                     .filter { day -> today != null && day.isAfter(today) && day in days }
                     .toImmutableSet(),
                 pace = previous?.let { (month, previousSpends, previousDays) ->
                     Pace(
-                        current = elapsed.map { day -> spends.filter { it.day == day }.sumOf { it.amount } }
-                            .runningReduceOrEmpty().toImmutableList(),
-                        previous = previousDays.map { day -> previousSpends.filter { it.day == day }.sumOf { it.amount } }
-                            .runningReduceOrEmpty().toImmutableList(),
+                        current = spentOn(elapsed, spends).runningReduceOrEmpty().toImmutableList(),
+                        previous = spentOn(previousDays, previousSpends).runningReduceOrEmpty().toImmutableList(),
                         previousMonth = month.month,
                         comparedTo = previousDays.getOrNull(elapsed.size - 1),
                     )
@@ -190,7 +188,10 @@ class MonthDetailUseCase @Inject constructor(
         val month = current.month ?: return emptyList()
         val year = current.year ?: timeProvider.localDateNow().year
         return (1..RunwayMonths).map { back ->
-            val range = month.incrementMonthPeriod(-back.toLong(), year).toRange(startDayOfMonth, timeConverter, timeProvider)
+            val range = month.incrementMonthPeriod(
+                -back.toLong(),
+                year
+            ).toRange(startDayOfMonth, timeConverter, timeProvider)
             paid(range.from(), range.to(), accounts).filterIsInstance<Expense>().sumOf { rates.inBase(it.value) }
         }
     }
@@ -285,5 +286,9 @@ private fun Transaction.accountId(): AccountId = when (this) {
     is Expense -> account
     is Transfer -> fromAccount
 }
+
+// What the [spends] came to on each of the [days].
+private fun spentOn(days: List<LocalDate>, spends: List<Spend>): List<Double> =
+    days.map { day -> spends.filter { it.day == day }.sumOf { it.amount } }
 
 private fun List<Double>.runningReduceOrEmpty(): List<Double> = if (isEmpty()) this else runningReduce(Double::plus)

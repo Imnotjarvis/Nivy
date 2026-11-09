@@ -31,6 +31,7 @@ class BalancePaparazziTest(
         Third(1_560),
         Fourth(2_340),
         Fifth(3_120),
+
         // As far as it goes.
         Bottom(100_000),
     }

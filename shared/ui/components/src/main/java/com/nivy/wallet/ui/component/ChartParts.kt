@@ -77,7 +77,7 @@ fun AxisLabels(
 
 /** [labels] centered on equal slots across a chart, as its bars are. */
 fun evenly(labels: List<String>): List<Pair<Float, String>> =
-    labels.mapIndexed { index, label -> (index + 0.5f) / labels.size to label }
+    labels.mapIndexed { index, label -> (index + SlotMiddle) / labels.size to label }
 
 /**
  * A bar for each of [values] over its label; [notes], when given, under the labels. The
@@ -131,44 +131,46 @@ data class ShareRow(val label: String, val note: String, val share: Double)
 
 /** Each row's label, a bar of its share, the largest full, and the share in percent. */
 @Composable
-fun ShareRows(rows: List<ShareRow>, color: Color, highlight: Int? = null) {
+fun ShareRows(rows: List<ShareRow>, color: Color, modifier: Modifier = Modifier, highlight: Int? = null) {
     val track = MaterialTheme.colorScheme.surface
     val max = rows.maxOfOrNull { it.share }?.takeIf { it > 0 } ?: 1.0
-    rows.forEachIndexed { index, row ->
-        if (index > 0) Spacer(Modifier.height(10.dp))
-        Row(modifier = Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.width(108.dp)) {
+    Column(modifier) {
+        rows.forEachIndexed { index, row ->
+            if (index > 0) Spacer(Modifier.height(10.dp))
+            Row(modifier = Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.width(108.dp)) {
+                    Text(
+                        text = row.label,
+                        maxLines = 1,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = if (index == highlight) FontWeight.ExtraBold else FontWeight.Bold,
+                        ),
+                    )
+                    Text(text = row.note, maxLines = 1, style = MaterialTheme.typography.labelSmall.copy(color = Gray))
+                }
+                Canvas(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(12.dp)
+                ) {
+                    drawRoundRect(track, size = size, cornerRadius = CornerRadius(size.height / 2))
+                    drawRoundRect(
+                        color,
+                        size = Size((row.share / max).toFloat() * size.width, size.height),
+                        cornerRadius = CornerRadius(size.height / 2),
+                    )
+                }
                 Text(
-                    text = row.label,
-                    maxLines = 1,
+                    modifier = Modifier.width(52.dp),
+                    text = percent(row.share),
+                    textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = if (index == highlight) FontWeight.ExtraBold else FontWeight.Bold,
+                        fontWeight = FontWeight.Bold,
                     ),
                 )
-                Text(text = row.note, maxLines = 1, style = MaterialTheme.typography.labelSmall.copy(color = Gray))
             }
-            Canvas(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(12.dp)
-            ) {
-                drawRoundRect(track, size = size, cornerRadius = CornerRadius(size.height / 2))
-                drawRoundRect(
-                    color,
-                    size = Size((row.share / max).toFloat() * size.width, size.height),
-                    cornerRadius = CornerRadius(size.height / 2),
-                )
-            }
-            Text(
-                modifier = Modifier.width(52.dp),
-                text = percent(row.share),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                ),
-            )
         }
     }
 }
@@ -289,10 +291,12 @@ fun InfoRow(
 
 /** [items], each as [row] draws it, one under the other. */
 @Composable
-fun <T> InfoRows(items: List<T>, row: @Composable (T) -> Unit) {
-    items.forEachIndexed { index, item ->
-        if (index > 0) Spacer(Modifier.height(12.dp))
-        row(item)
+fun <T> InfoRows(items: List<T>, modifier: Modifier = Modifier, row: @Composable (T) -> Unit) {
+    Column(modifier) {
+        items.forEachIndexed { index, item ->
+            if (index > 0) Spacer(Modifier.height(12.dp))
+            row(item)
+        }
     }
 }
 
@@ -387,8 +391,10 @@ fun Sparkline(values: List<Double>, color: Color, modifier: Modifier = Modifier)
 }
 
 /** A share, from 0 to 1, in whole percent. */
-fun percent(share: Double): String = "${(share * 100).roundToInt()}%"
+fun percent(share: Double): String = "${(share * Hundred).roundToInt()}%"
 
+private const val SlotMiddle = 0.5f
+private const val Hundred = 100
 private const val BarFraction = 0.5f
 private const val EmptyAlpha = 0.25f
 private val SlotRadius = 8.dp

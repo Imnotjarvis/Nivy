@@ -67,9 +67,8 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
 
         if (actual > 0) {
             val path = Path().apply {
-                (0 until actual).forEach { index ->
-                    if (index == 0) moveTo(x(0), y(balances[0])) else lineTo(x(index), y(balances[index]))
-                }
+                moveTo(x(0), y(balances[0]))
+                for (index in 1 until actual) lineTo(x(index), y(balances[index]))
             }
             val area = Path().apply {
                 addPath(path)
@@ -102,7 +101,13 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
             )
             point(Offset(x(balances.lastIndex), y(balances.last())), planned, ring)
             endText?.let { text ->
-                drawText(text, topLeft = Offset(size.width - text.size.width, y(balances.last()) - text.size.height - LabelGap.toPx()))
+                drawText(
+                    text,
+                    topLeft = Offset(
+                        size.width - text.size.width,
+                        y(balances.last()) - text.size.height - LabelGap.toPx()
+                    )
+                )
             }
         }
         if (actual > 0) {
@@ -208,19 +213,29 @@ internal fun PaceChart(pace: Pace) {
     ) {
         val count = maxOf(pace.previous.size, pace.current.size)
         if (count < 2) return@Canvas
-        val max = maxOf(pace.previous.lastOrNull() ?: 0.0, pace.current.last()).takeIf { it > 0 }?.times(BarHeadroom) ?: 1.0
+        val highest = maxOf(pace.previous.lastOrNull() ?: 0.0, pace.current.last())
+        val max = highest.takeIf { it > 0 }?.times(BarHeadroom) ?: 1.0
         val top = PointRing.toPx()
         val bottom = size.height - PointRing.toPx()
         fun x(index: Int) = index / (count - 1f) * size.width
         fun y(value: Double) = bottom - (value / max).toFloat() * (bottom - top)
         fun path(values: List<Double>) = Path().apply {
-            values.forEachIndexed { index, value -> if (index == 0) moveTo(x(0), y(value)) else lineTo(x(index), y(value)) }
+            moveTo(x(0), y(values.first()))
+            for (index in 1..values.lastIndex) lineTo(x(index), y(values[index]))
         }
         if (pace.previous.size > 1) {
-            drawPath(path(pace.previous), before, style = Stroke(PlannedWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            drawPath(
+                path(pace.previous),
+                before,
+                style = Stroke(PlannedWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            )
         }
         if (pace.current.size > 1) {
-            drawPath(path(pace.current), now, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            drawPath(
+                path(pace.current),
+                now,
+                style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            )
         }
         val day = pace.current.lastIndex
         pace.previous.getOrNull(day)?.let { point(Offset(x(day), y(it)), before, ring, small = true) }

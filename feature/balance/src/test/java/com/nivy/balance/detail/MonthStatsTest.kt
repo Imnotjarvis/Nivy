@@ -104,7 +104,13 @@ class MonthStatsTest {
 
     @Test
     fun `free to spend is what's left a day for the month to end even`() {
-        val free = freeToSpend(income = 1_650.0, plannedIncome = 0.0, spent = 352.85, plannedExpenses = 745.55, daysLeft = 21)!!
+        val free = freeToSpend(
+            income = 1_650.0,
+            plannedIncome = 0.0,
+            spent = 352.85,
+            plannedExpenses = 745.55,
+            daysLeft = 21
+        )!!
 
         free.left shouldBe (551.60 plusOrMinus Cent)
         free.perDay shouldBe (551.60 / 21 plusOrMinus Cent)
@@ -112,15 +118,33 @@ class MonthStatsTest {
 
     @Test
     fun `once more went out than came in, nothing is left to spend`() {
-        val free = freeToSpend(income = 100.0, plannedIncome = 0.0, spent = 150.0, plannedExpenses = 0.0, daysLeft = 10)!!
+        val free = freeToSpend(
+            income = 100.0,
+            plannedIncome = 0.0,
+            spent = 150.0,
+            plannedExpenses = 0.0,
+            daysLeft = 10
+        )!!
 
         free.left shouldBe (-50.0 plusOrMinus Cent)
     }
 
     @Test
     fun `without income this month or a day left, there's no free to spend`() {
-        freeToSpend(income = 0.0, plannedIncome = 0.0, spent = 10.0, plannedExpenses = 0.0, daysLeft = 10).shouldBeNull()
-        freeToSpend(income = 100.0, plannedIncome = 0.0, spent = 10.0, plannedExpenses = 0.0, daysLeft = 0).shouldBeNull()
+        freeToSpend(
+            income = 0.0,
+            plannedIncome = 0.0,
+            spent = 10.0,
+            plannedExpenses = 0.0,
+            daysLeft = 10
+        ).shouldBeNull()
+        freeToSpend(
+            income = 100.0,
+            plannedIncome = 0.0,
+            spent = 10.0,
+            plannedExpenses = 0.0,
+            daysLeft = 0
+        ).shouldBeNull()
     }
 
     @Test

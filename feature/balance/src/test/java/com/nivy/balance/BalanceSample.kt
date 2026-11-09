@@ -162,7 +162,10 @@ internal object BalanceSample {
                 debts = holdings.filter { it.amount < 0 }.toImmutableList(),
                 netWorth = holdings.sumOf { it.amount },
             ),
-            runway = runway(netWorth = holdings.sumOf { it.amount }, monthlySpending = listOf(1_240.0, 1_105.60, 1_312.80)),
+            runway = runway(
+                netWorth = holdings.sumOf { it.amount },
+                monthlySpending = listOf(1_240.0, 1_105.60, 1_312.80)
+            ),
         )
     }
 
