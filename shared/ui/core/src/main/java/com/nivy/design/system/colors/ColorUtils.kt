@@ -170,8 +170,11 @@ fun Color.asItemColor(): Color = if (ColorMode.minimal) greyscale() else this
  */
 fun Color.greyscale(): Color {
     val linear = luminance()
-    val value = if (linear <= LinearToSrgbKnee) linear * LinearToSrgbSlope else
+    val value = if (linear <= LinearToSrgbKnee) {
+        linear * LinearToSrgbSlope
+    } else {
         SrgbScale * linear.pow(1 / SrgbGamma) - SrgbOffset
+    }
     return Color(value, value, value, alpha)
 }
 

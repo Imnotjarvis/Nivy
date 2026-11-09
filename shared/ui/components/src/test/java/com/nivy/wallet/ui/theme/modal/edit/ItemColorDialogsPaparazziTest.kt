@@ -40,7 +40,12 @@ class ItemColorDialogsPaparazziTest(
     @Test
     fun `snapshot the account dialog`() = shot {
         AccountModal(
-            modal = AccountModalData(account = Savings, baseCurrency = "EUR", balance = 2_500.0, autoFocusKeyboard = false),
+            modal = AccountModalData(
+                account = Savings,
+                baseCurrency = "EUR",
+                balance = 2_500.0,
+                autoFocusKeyboard = false,
+            ),
             onCreateAccount = {},
             onEditAccount = { _, _, _ -> },
             dismiss = {},
