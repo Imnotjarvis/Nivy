@@ -148,8 +148,9 @@ internal fun Header(
     }
 }
 
-// The amount in full when it fits the width it's given, otherwise shortened (2.69k), and
-// smaller still if even that is too wide.
+// The amount in full when it fits the width it's given, otherwise shortened (2.69k EUR), and
+// smaller still if even that is too wide. The number comes first, as in every amount: where even
+// the smallest size doesn't fit, the line keeps its first word, and that has to be the number.
 @Composable
 private fun FittingBalanceMini(
     currency: String,
@@ -166,7 +167,7 @@ private fun FittingBalanceMini(
         } else {
             subcompose("short") {
                 Text(
-                    text = "$currency ${shortenAmount(amount)}",
+                    text = "${shortenAmount(amount)} $currency",
                     style = MaterialTheme.typography.numberHeadlineLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.ExtraBold,
