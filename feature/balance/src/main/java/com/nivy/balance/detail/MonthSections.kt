@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -161,6 +162,7 @@ private fun LegendText(text: String) {
 private fun money(amount: Double, currency: String) = "${amount.format(currency)} $currency"
 
 @Composable
+@ReadOnlyComposable
 private fun dateLabel(day: LocalDate): String = with(LocalTimeFormatter.current) {
     day.atStartOfDay().format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
 }
@@ -657,6 +659,7 @@ private fun OwnAndOwePanel(holdings: Holdings, currency: String) {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun totalStyle() = MaterialTheme.typography.bodyMedium.copy(
     color = MaterialTheme.colorScheme.onSurface,
     fontWeight = FontWeight.ExtraBold,
