@@ -117,7 +117,9 @@ internal fun Header(
             }
 
             if (percentExpanded > 0f) {
-                Spacer(Modifier.width(12.dp))
+                // The gap shrinks with the button, as Home's does with its menu button: the month
+                // glides into their place, rather than jumping the gap's width once the button goes.
+                Spacer(Modifier.width(12.dp * percentExpanded))
 
                 val backgroundColor = if (transactionType == TransactionType.EXPENSE) {
                     MaterialTheme.colorScheme.onSurface
