@@ -19,6 +19,7 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
+import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.navigation.BudgetPage
 import com.nivy.navigation.PieChartStatisticScreen
@@ -34,7 +35,9 @@ import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.utils.ioThread
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.Runs
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -76,11 +79,16 @@ class PieChartStatisticViewModelTest {
     private val transactionRepository = mockk<TransactionRepository> {
         coEvery { findAllBetween(any(), any()) } answers { stored }
     }
+    private val appPreferences = mockk<AppPreferences> {
+        coEvery { transfersAsIncomeExpense() } returns false
+        coEvery { pieChartByAccount() } returns false
+        coEvery { setPieChartByAccount(any()) } just Runs
+    }
     private val viewModel = PieChartStatisticViewModel(
         currencyRepository = mockk { coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR") },
         periodState = PeriodState(FixedTime),
         pieChartUseCase = pieChartUseCase,
-        appPreferences = mockk { coEvery { transfersAsIncomeExpense() } returns false },
+        appPreferences = appPreferences,
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         accountRepository = mockk { coEvery { findAll() } returns listOf(account(bank)) },
@@ -153,6 +161,67 @@ class PieChartStatisticViewModelTest {
             totalAmount shouldBe 1.0
         }
     }
+
+    @Test
+    fun `split by account where the chart covers more than one, and the split is remembered`() {
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byAccount
+
+        viewModel.runTest(events = listOf(start, PieChartStatisticEvent.OnBreakdownSelected(Breakdown.Accounts))) {
+            showBreakdownToggle shouldBe true
+            breakdown shouldBe Breakdown.Accounts
+            accountAmounts shouldBe byAccount.accountAmounts
+        }
+        coVerify { appPreferences.setPieChartByAccount(true) }
+    }
+
+    @Test
+    fun `the chart opens split as last chosen`() {
+        coEvery { appPreferences.pieChartByAccount() } returns true
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byAccount
+
+        viewModel.runTest(events = listOf(start)) {
+            breakdown shouldBe Breakdown.Accounts
+        }
+    }
+
+    @Test
+    fun `with one account, the chart splits by category, whatever was chosen`() {
+        coEvery { appPreferences.pieChartByAccount() } returns true
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns
+            byAccount.copy(accountsCovered = 1)
+
+        viewModel.runTest(events = listOf(start)) {
+            showBreakdownToggle shouldBe false
+            breakdown shouldBe Breakdown.Categories
+        }
+    }
+
+    @Test
+    fun `a tapped account is selected, its card first, and a second tap clears it`() {
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byAccount
+        val selectCard = PieChartStatisticEvent.OnAccountClicked(card)
+
+        viewModel.runTest(events = listOf(start, selectCard)) {
+            selectedAccount shouldBe card
+            accountAmounts.map { it.account } shouldBe listOf(card, account(bank))
+        }
+        viewModel.runTest(events = listOf(selectCard)) {
+            selectedAccount shouldBe null
+            accountAmounts.map { it.account } shouldBe listOf(account(bank), card)
+        }
+    }
+
+    private val start = PieChartStatisticEvent.OnStart(PieChartStatisticScreen(type = TransactionType.EXPENSE))
+    private val card = account(AccountId(UUID.randomUUID())).copy(name = NotBlankTrimmedString.unsafe("Card"))
+
+    // The bank paid 70.00 EUR of the month's expenses, the card 20.00 EUR.
+    private val byAccount
+        get() = PieChartData(
+            totalAmount = 90.0,
+            categoryAmounts = persistentListOf(),
+            accountAmounts = persistentListOf(AccountAmount(account(bank), 70.0), AccountAmount(card, 20.0)),
+            accountsCovered = 2,
+        )
 
     private fun budget(name: String, categories: List<CategoryId>) = Budget(
         id = BudgetId(UUID.randomUUID()),

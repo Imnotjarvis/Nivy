@@ -83,6 +83,10 @@ class AppPreferences @Inject constructor(
     suspend fun categorySortOrder(default: Int): Int = get(CategorySortOrder, default)
     suspend fun setCategorySortOrder(order: Int) = set(CategorySortOrder, order)
 
+    /** Whether the pie chart splits its total by account, as last chosen, rather than by category. */
+    suspend fun pieChartByAccount(): Boolean = get(PieChartByAccount, false)
+    suspend fun setPieChartByAccount(byAccount: Boolean) = set(PieChartByAccount, byAccount)
+
     /** The user's settings; null until onboarding (or a backup, or the old database) sets them. */
     suspend fun settings(): AppSettings? {
         val prefs = dataStore.data.first()
@@ -152,6 +156,7 @@ class AppPreferences @Inject constructor(
         private val HideIncome = booleanPreferencesKey("hide_income")
         private val TransfersAsIncomeExpense = booleanPreferencesKey("transfers_as_inc_exp")
         private val CategorySortOrder = intPreferencesKey("categorySortOrder")
+        private val PieChartByAccount = booleanPreferencesKey("pie_chart_by_account")
         private val ExchangeRatesSyncedFor = stringPreferencesKey("exchange_rates_synced_for")
         private val ExchangeRatesSyncedAt = longPreferencesKey("exchange_rates_synced_at")
         private const val CardDismissedSuffix = "_cj_dismissed"

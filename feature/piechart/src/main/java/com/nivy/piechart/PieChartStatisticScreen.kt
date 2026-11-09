@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
 import com.nivy.navigation.EditTransactionScreen
+import com.nivy.navigation.Navigation
 import com.nivy.navigation.PieChartStatisticScreen
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.navigation.navigation
@@ -75,6 +76,7 @@ internal fun BoxWithConstraintsScope.UI(
     )
     // The chart's order (the largest first), which gives each slice its tone in minimal colors.
     val bySize = remember(state.categoryAmounts) { state.categoryAmounts.sortedByDescending { it.amount } }
+    val accountsBySize = remember(state.accountAmounts) { state.accountAmounts.sortedByDescending { it.amount } }
     val budgetPage = state.budgetPage
     val noTransactions = stringResource(R.string.no_transactions)
     val budgetNoExpenses = budgetPage?.let { stringResource(R.string.budget_no_expenses, it.month) }.orEmpty()
@@ -155,47 +157,14 @@ internal fun BoxWithConstraintsScope.UI(
             )
         }
 
-        item {
-            Spacer(Modifier.height(40.dp))
+        breakdownToggle(state = state, onEvent = onEvent)
 
-            PieChart(
-                type = state.transactionType,
-                categoryAmounts = state.categoryAmounts,
-                selectedCategory = state.selectedCategory,
-                onCategoryClick = { clickedCategory ->
-                    onEvent(PieChartStatisticEvent.OnCategoryClicked(clickedCategory))
-                }
-            )
+        breakdownChart(state = state, onEvent = onEvent)
 
-            Spacer(Modifier.height(48.dp))
-        }
-
-        itemsIndexed(
-            items = state.categoryAmounts,
-            key = { _, item -> item.category?.id?.value ?: "unspecified" },
-        ) { index, item ->
-            if (item.amount != 0.0) {
-                if (index != 0) {
-                    Spacer(Modifier.height(16.dp))
-                }
-
-                CategoryAmountCard(
-                    categoryAmount = item,
-                    rank = bySize.indexOf(item),
-                    currency = state.baseCurrency,
-                    totalAmount = state.totalAmount,
-                    selectedCategory = state.selectedCategory
-                ) {
-                    nav.navigateTo(
-                        TransactionsScreen(
-                            categoryId = item.category?.id?.value,
-                            unspecifiedCategory = item.isCategoryUnspecified,
-                            accountIdFilterList = state.accountIdFilterList,
-                            transactions = item.associatedTransactions
-                        )
-                    )
-                }
-            }
+        if (state.breakdown == Breakdown.Accounts) {
+            accountCards(state = state, bySize = accountsBySize, nav = nav)
+        } else {
+            categoryCards(state = state, bySize = bySize, nav = nav)
         }
 
         if (budgetPage != null) {
@@ -214,6 +183,116 @@ internal fun BoxWithConstraintsScope.UI(
         }
     ) {
         onEvent(PieChartStatisticEvent.OnSetPeriod(it))
+    }
+}
+
+// The toggle between the two splits, where there's more than one account to split by.
+private fun LazyListScope.breakdownToggle(
+    state: PieChartStatisticState,
+    onEvent: (PieChartStatisticEvent) -> Unit,
+) {
+    if (!state.showBreakdownToggle) return
+    item {
+        Spacer(Modifier.height(24.dp))
+
+        BreakdownToggle(breakdown = state.breakdown) {
+            onEvent(PieChartStatisticEvent.OnBreakdownSelected(it))
+        }
+    }
+}
+
+// The chart, split by category or by account.
+private fun LazyListScope.breakdownChart(
+    state: PieChartStatisticState,
+    onEvent: (PieChartStatisticEvent) -> Unit,
+) {
+    item {
+        Spacer(Modifier.height(if (state.showBreakdownToggle) 32.dp else 40.dp))
+
+        when (state.breakdown) {
+            Breakdown.Categories -> PieChart(
+                type = state.transactionType,
+                slices = remember(state.categoryAmounts) { categorySlices(state.categoryAmounts) },
+                selected = state.selectedCategory?.category,
+                onSliceClick = { clickedCategory ->
+                    onEvent(PieChartStatisticEvent.OnCategoryClicked(clickedCategory))
+                }
+            )
+
+            Breakdown.Accounts -> PieChart(
+                type = state.transactionType,
+                slices = remember(state.accountAmounts) { accountSlices(state.accountAmounts) },
+                selected = state.selectedAccount,
+                onSliceClick = { clickedAccount ->
+                    onEvent(PieChartStatisticEvent.OnAccountClicked(clickedAccount))
+                }
+            )
+        }
+
+        Spacer(Modifier.height(48.dp))
+    }
+}
+
+// Each account's card, with its share of what the accounts paid, or took in, together. A tap
+// opens the account.
+private fun LazyListScope.accountCards(
+    state: PieChartStatisticState,
+    bySize: List<AccountAmount>,
+    nav: Navigation,
+) {
+    val total = state.accountAmounts.sumOf { it.amount }
+    itemsIndexed(
+        items = state.accountAmounts,
+        key = { _, item -> "account ${item.account.id.value}" },
+    ) { index, item ->
+        if (index != 0) {
+            Spacer(Modifier.height(16.dp))
+        }
+
+        AccountAmountCard(
+            accountAmount = item,
+            rank = bySize.indexOf(item),
+            currency = state.baseCurrency,
+            totalAmount = total,
+            selected = state.selectedAccount == item.account,
+        ) {
+            nav.navigateTo(TransactionsScreen(accountId = item.account.id.value))
+        }
+    }
+}
+
+// Each category's card. A tap opens the category's transactions of the chart.
+private fun LazyListScope.categoryCards(
+    state: PieChartStatisticState,
+    bySize: List<CategoryAmount>,
+    nav: Navigation,
+) {
+    itemsIndexed(
+        items = state.categoryAmounts,
+        key = { _, item -> item.category?.id?.value ?: "unspecified" },
+    ) { index, item ->
+        if (item.amount != 0.0) {
+            if (index != 0) {
+                Spacer(Modifier.height(16.dp))
+            }
+
+            CategoryAmountCard(
+                categoryAmount = item,
+                rank = bySize.indexOf(item),
+                currency = state.baseCurrency,
+                totalAmount = state.totalAmount,
+                selectedCategory = state.selectedCategory
+            ) {
+                nav.navigateTo(
+                    TransactionsScreen(
+                        categoryId = item.category?.id?.value,
+                        unspecifiedCategory = item.isCategoryUnspecified,
+                        accountIdFilterList = state.accountIdFilterList,
+                        transactions = item.associatedTransactions
+                    )
+                )
+            }
+        }
     }
 }
 

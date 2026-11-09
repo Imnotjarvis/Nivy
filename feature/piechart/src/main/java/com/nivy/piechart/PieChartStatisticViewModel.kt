@@ -11,6 +11,7 @@ import com.nivy.base.model.TransactionType
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.expensesIn
@@ -72,6 +73,10 @@ class PieChartStatisticViewModel @Inject constructor(
     private var budgetPage by mutableStateOf<BudgetPage?>(null)
     private var history by mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
     private var baseData by mutableStateOf(AppBaseData("", persistentListOf(), persistentListOf()))
+    private var breakdown by mutableStateOf(Breakdown.Categories)
+    private var showBreakdownToggle by mutableStateOf(false)
+    private var accountAmounts by mutableStateOf<ImmutableList<AccountAmount>>(persistentListOf())
+    private var selectedAccount by mutableStateOf<Account?>(null)
 
     @Composable
     override fun uiState(): PieChartStatisticState {
@@ -92,6 +97,11 @@ class PieChartStatisticViewModel @Inject constructor(
             baseData = baseData,
             compactTransactions = features.compactTransactionsMode.asEnabledState(),
             showAccountColors = features.showAccountColorsInTransactions.asEnabledState(),
+            // By account only where there's more than one to split by.
+            breakdown = if (showBreakdownToggle) breakdown else Breakdown.Categories,
+            showBreakdownToggle = showBreakdownToggle,
+            accountAmounts = accountAmounts,
+            selectedAccount = selectedAccount,
         )
     }
 
@@ -103,6 +113,8 @@ class PieChartStatisticViewModel @Inject constructor(
                 is PieChartStatisticEvent.OnSetPeriod -> onSetPeriod(event.timePeriod)
                 is PieChartStatisticEvent.OnShowMonthModal -> configureMonthModal(event.timePeriod)
                 is PieChartStatisticEvent.OnCategoryClicked -> onCategoryClicked(event.category)
+                is PieChartStatisticEvent.OnBreakdownSelected -> onBreakdownSelected(event.breakdown)
+                is PieChartStatisticEvent.OnAccountClicked -> onAccountClicked(event.account)
                 is PieChartStatisticEvent.OnStart -> start(event.screen)
             }
         }
@@ -122,6 +134,8 @@ class PieChartStatisticViewModel @Inject constructor(
     ) {
         loadLatest {
             budgetPage = screen.budgetPage
+            // The split last chosen, by category or by account.
+            breakdown = if (appPreferences.pieChartByAccount()) Breakdown.Accounts else Breakdown.Categories
             // Read each time the page shows, so one edited or deleted from it shows as it is now.
             val budgetExpenses = screen.budgetPage?.let { page ->
                 page.budget.expensesIn(transactionRepository.findAllBetween(page.range.from, page.range.to))
@@ -202,6 +216,9 @@ class PieChartStatisticViewModel @Inject constructor(
         totalAmount = totalAmountValue
         categoryAmounts = categoryAmountsValue
         selectedCategory = null
+        accountAmounts = pieChartData.accountAmounts
+        showBreakdownToggle = pieChartData.accountsCovered > 1
+        selectedAccount = null
     }
 
     // A budget's page lists its transactions under the chart, as Home lists its own.
@@ -272,5 +289,24 @@ class PieChartStatisticViewModel @Inject constructor(
 
         selectedCategory = selectedCategoryValue
         categoryAmounts = newCategoryAmounts
+    }
+
+    // The other split starts with nothing selected, and is the one the chart opens with next time.
+    private suspend fun onBreakdownSelected(value: Breakdown) {
+        breakdown = value
+        selectedCategory = null
+        selectedAccount = null
+        appPreferences.setPieChartByAccount(value == Breakdown.Accounts)
+    }
+
+    // As a category: a tap selects an account, again or off the slices clears it, and the selected
+    // account's card comes first.
+    private fun onAccountClicked(clickedAccount: Account?) {
+        val selected = clickedAccount.takeIf { it != selectedAccount }
+        accountAmounts = accountAmounts
+            .sortedByDescending { it.amount }
+            .sortedByDescending { selected != null && it.account == selected }
+            .toImmutableList()
+        selectedAccount = selected
     }
 }
