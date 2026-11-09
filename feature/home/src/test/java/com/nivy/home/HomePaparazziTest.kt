@@ -5,7 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.ui.testing.PaparazziScreenshotTest
@@ -76,6 +79,44 @@ class HomePaparazziTest(
                             firstGlanceFact = row.fact,
                         )
                     }
+                }
+            }
+        }
+    }
+
+    // Home pulled down at the list's top: the search bar whole, out from under the header, as far
+    // above the balance as the balance is above the month's cards.
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun `snapshot the search bar pulled down`(@TestParameter colors: Colors) {
+        snapshot(theme, minimal = colors == Colors.Minimal) {
+            NivyPreview(if (theme == PaparazziTheme.Dark) Theme.DARK else Theme.LIGHT) {
+                val pull = rememberPullToSearch()
+                remember(pull) {
+                    pull.onPostScroll(Offset.Zero, Offset(0f, Float.MAX_VALUE), NestedScrollSource.UserInput)
+                }
+                Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                    HomeHeader(
+                        expanded = true,
+                        glance = Today,
+                        hideIncome = false,
+                        period = TimePeriod(month = Month.monthsList().first(), year = 2023),
+                        onShowMonthModal = {},
+                        onSelectNextMonth = {},
+                        onSelectPreviousMonth = {},
+                    )
+                    HomeSearchBar(pull = pull) {}
+                    CashFlowInfo(
+                        currency = "EUR",
+                        balance = 2_400.0,
+                        monthlyIncome = 1_000.0,
+                        monthlyExpenses = 400.0,
+                        hideBalance = false,
+                        hideIncome = false,
+                        onHiddenIncomeClick = {},
+                        onBalanceClick = {},
+                        onHiddenBalanceClick = {},
+                    )
                 }
             }
         }
