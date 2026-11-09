@@ -24,4 +24,13 @@ class FakeTransactionDaoBalanceTest {
             }
         }
     }
+
+    @Test
+    fun `the first paid transaction is the earliest with a date`() = runTest {
+        // given
+        val dao = FakeTransactionDao().apply { saveMany(BalanceCases.transactions) }
+
+        // then
+        dao.findFirstDateTime() shouldBe BalanceCases.firstPaid
+    }
 }

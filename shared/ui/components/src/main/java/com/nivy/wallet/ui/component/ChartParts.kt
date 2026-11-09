@@ -40,6 +40,25 @@ import kotlin.math.roundToInt
 // The small pieces the stats screens draw their panels with: axis labels, bars, shares, rows and
 // tiles. Inside a [ChartPanel], rows sit 8 dp in, under its title.
 
+/** The title of a group of panels: 24 dp in, as the page's text is, and 32 dp under what's above it. */
+@Composable
+fun GroupTitle(text: String, modifier: Modifier = Modifier) {
+    Text(
+        modifier = modifier.padding(start = 24.dp, top = 32.dp, end = 24.dp, bottom = 12.dp),
+        text = text,
+        style = MaterialTheme.typography.titleLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.ExtraBold,
+        ),
+    )
+}
+
+/** A panel's legend in words, where there's no color to tell apart: a range, an average. */
+@Composable
+fun LegendText(text: String, modifier: Modifier = Modifier) {
+    Text(modifier = modifier, text = text, style = MaterialTheme.typography.labelMedium.copy(color = Gray))
+}
+
 /** Labels under a chart, each centered on its place across it, from 0 to 1, and kept inside it. */
 @Composable
 fun AxisLabels(

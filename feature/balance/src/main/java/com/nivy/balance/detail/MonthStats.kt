@@ -3,16 +3,13 @@ package com.nivy.balance.detail
 import androidx.compose.runtime.Immutable
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
+import com.nivy.wallet.domain.pure.util.SmallPurchaseEdgeIndex
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import kotlin.math.abs
-import kotlin.math.floor
-import kotlin.math.log10
-import kotlin.math.pow
 
 /**
  * A purchase, in the base currency: the [day] it counts on, the moment it was [made] (for a card,
@@ -29,25 +26,6 @@ internal data class Spend(
     val account: Account?,
     val recurring: Boolean,
 )
-
-/** Purchase sizes, in euros: under 5, 5 to 15, 15 to 50, 50 to 150, and more. */
-internal val SizeEdgesInEuros = listOf(5.0, 15.0, 50.0, 150.0)
-
-// The edge under which a purchase is small: 15 euros.
-private const val SmallEdge = 1
-
-/** [SizeEdgesInEuros] in a currency of which a euro is [perEuro], rounded to round amounts. */
-internal fun sizeEdges(perEuro: Double): List<Double> =
-    if (perEuro == 1.0) SizeEdgesInEuros else SizeEdgesInEuros.map { roundNicely(it * perEuro) }
-
-/** The nearest of 1, 2, 2.5 and 5 times a power of ten. */
-internal fun roundNicely(value: Double): Double {
-    if (value <= 0) return value
-    val power = 10.0.pow(floor(log10(value)))
-    return NiceSteps.map { it * power }.minBy { abs(it - value) }
-}
-
-private val NiceSteps = listOf(1.0, 2.0, 2.5, 5.0, 10.0)
 
 // The weekend, as most calendars have it.
 private val Weekend = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
@@ -83,7 +61,7 @@ internal fun habits(
         spends.filter { it.made.dayOfWeek == weekday }.sumOf { it.amount }
     }
     val spentOnDay = elapsed.associateWith { day -> spends.filter { it.day == day }.sumOf { it.amount } }
-    val small = spends.filter { it.amount < edges[SmallEdge] }
+    val small = spends.filter { it.amount < edges[SmallPurchaseEdgeIndex] }
     val recurring = spends.filter { it.recurring }
     val places = places(spends)
     return Habits(
@@ -99,7 +77,11 @@ internal fun habits(
         busiest = DayOfWeek.entries[byWeekday.indexOf(byWeekday.max())],
         weekendRatio = weekendRatio(spends, elapsed),
         noSpendDays = spentOnDay.values.count { it == 0.0 },
-        small = Small(count = small.size, share = small.sumOf { it.amount } / spent, under = edges[SmallEdge]),
+        small = Small(
+            count = small.size,
+            share = small.sumOf { it.amount } / spent,
+            under = edges[SmallPurchaseEdgeIndex]
+        ),
         topPlace = places.firstOrNull(),
         topAccount = spends.groupBy { it.account }.maxBy { it.value.size }.let { AccountUse(it.key, it.value.size) },
         timeOfDay = timeOfDay(spends),

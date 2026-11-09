@@ -15,6 +15,10 @@ interface TransactionDao {
     @Query("SELECT EXISTS(SELECT 1 FROM transactions)")
     suspend fun hasTransactions(): Boolean
 
+    // When the first paid transaction was made: a planned one has no date until it's paid.
+    @Query("SELECT MIN(dateTime) FROM transactions")
+    suspend fun findFirstDateTime(): Instant?
+
     @Query(
         "SELECT * FROM transactions WHERE dateTime >= :startDate AND dateTime <= :endDate ORDER BY dateTime DESC"
     )

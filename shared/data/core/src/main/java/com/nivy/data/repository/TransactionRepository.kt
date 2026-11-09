@@ -268,6 +268,11 @@ class TransactionRepository @Inject constructor(
         }
     }
 
+    /** When the first paid transaction was made, or null without any. */
+    suspend fun findFirstPaidTime(): Instant? = withContext(dispatchersProvider.io) {
+        transactionDao.findFirstDateTime()
+    }
+
     suspend fun countHappenedTransactions(): NonNegativeLong = withContext(dispatchersProvider.io) {
         transactionDao.countHappenedTransactions().toNonNegative()
     }
