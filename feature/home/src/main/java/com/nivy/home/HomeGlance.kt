@@ -2,6 +2,8 @@ package com.nivy.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -33,7 +35,6 @@ import com.nivy.base.model.TransactionType
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.motion.AppearRiseFraction
-import com.nivy.design.system.motion.appearTween
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.home.usecase.Glance
 import com.nivy.home.usecase.NextPayment
@@ -84,10 +85,12 @@ internal fun HomeGlance(
             chosen = facts[(facts.indexOf(shown) + 1) % facts.size]
         },
         transitionSpec = {
-            // A tenth of its height, as screens rise and sink a tenth of theirs.
+            // One after the other, so that the two facts never show over each other: the old one
+            // sinks as it fades out, then the new one rises as it fades in, in the 200 ms screens
+            // take, by a tenth of its height as screens move by a tenth of theirs.
             val rise = { height: Int -> (height * AppearRiseFraction).roundToInt() }
-            (fadeIn(appearTween()) + slideInVertically(appearTween(), rise))
-                .togetherWith(fadeOut(appearTween()) + slideOutVertically(appearTween(), rise))
+            (fadeIn(come()) + slideInVertically(come(), rise))
+                .togetherWith(fadeOut(leave()) + slideOutVertically(leave(), rise))
                 .using(SizeTransform(clip = false))
         },
         label = "glance",
@@ -179,6 +182,13 @@ private fun GlanceLine(
         )
     }
 }
+
+private const val LeaveMillis = 80
+private const val ComeMillis = 120
+
+private fun <T> leave() = tween<T>(LeaveMillis, easing = FastOutSlowInEasing)
+
+private fun <T> come() = tween<T>(ComeMillis, delayMillis = LeaveMillis, easing = FastOutSlowInEasing)
 
 /** As the income and expense cards write amounts: shortened from 100k up. */
 private fun amount(value: Double, currency: String): String =
