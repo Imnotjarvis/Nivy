@@ -7,7 +7,6 @@ import com.nivy.balance.detail.Holding
 import com.nivy.balance.detail.Holdings
 import com.nivy.balance.detail.MonthDetail
 import com.nivy.balance.detail.Pace
-import com.nivy.balance.detail.SizeEdgesInEuros
 import com.nivy.balance.detail.Spend
 import com.nivy.balance.detail.Upcoming
 import com.nivy.balance.detail.habits
@@ -27,6 +26,7 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.util.SizeEdgesInEuros
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import java.time.Instant

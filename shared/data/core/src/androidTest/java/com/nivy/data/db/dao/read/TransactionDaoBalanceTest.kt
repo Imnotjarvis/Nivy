@@ -38,4 +38,9 @@ class TransactionDaoBalanceTest {
             assertEquals(it.description, it.balance, balance, BalanceCases.Cents)
         }
     }
+
+    @Test
+    fun theFirstPaidTransactionIsTheEarliestWithADate() = runBlocking {
+        assertEquals(BalanceCases.firstPaid, db.transactionDao.findFirstDateTime())
+    }
 }

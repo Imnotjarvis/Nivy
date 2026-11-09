@@ -36,10 +36,12 @@ import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.ui.component.AxisLabels
 import com.nivy.wallet.ui.component.ChartPanel
+import com.nivy.wallet.ui.component.GroupTitle
 import com.nivy.wallet.ui.component.InfoRow
 import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.LabeledBars
 import com.nivy.wallet.ui.component.LegendDot
+import com.nivy.wallet.ui.component.LegendText
 import com.nivy.wallet.ui.component.PanelNote
 import com.nivy.wallet.ui.component.ProgressBar
 import com.nivy.wallet.ui.component.ShareRow
@@ -113,20 +115,6 @@ internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, mo
 }
 
 @Composable
-private fun GroupTitle(text: String) {
-    Spacer(Modifier.height(32.dp))
-    Text(
-        modifier = Modifier.padding(start = 24.dp),
-        text = text,
-        style = MaterialTheme.typography.titleLarge.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.ExtraBold,
-        ),
-    )
-    Spacer(Modifier.height(12.dp))
-}
-
-@Composable
 private fun SubLabel(text: String) {
     Text(
         modifier = Modifier.padding(horizontal = 8.dp),
@@ -152,11 +140,6 @@ private fun Subtext(text: String) {
         text = text,
         style = MaterialTheme.typography.bodyMedium.copy(color = Gray),
     )
-}
-
-@Composable
-private fun LegendText(text: String) {
-    Text(text = text, style = MaterialTheme.typography.labelMedium.copy(color = Gray))
 }
 
 private fun money(amount: Double, currency: String) = "${amount.format(currency)} $currency"

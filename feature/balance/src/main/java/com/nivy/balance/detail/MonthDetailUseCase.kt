@@ -10,20 +10,20 @@ import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
-import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
-import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import com.nivy.wallet.domain.pure.util.sizeEdges
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.withContext
@@ -51,7 +51,7 @@ class MonthDetailUseCase @Inject constructor(
     @Suppress("LongMethod")
     suspend fun detail(period: TimePeriod, startDayOfMonth: Int, baseCurrency: String): MonthDetail =
         withContext(dispatchers.io) {
-            val rates = Rates(AssetCode.unsafe(baseCurrency))
+            val rates = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency))
             val range = period.toRange(startDayOfMonth, timeConverter, timeProvider)
             val now = timeProvider.utcNow()
             val days = days(range)
@@ -170,7 +170,7 @@ class MonthDetailUseCase @Inject constructor(
         period: TimePeriod,
         startDayOfMonth: Int,
         accounts: List<Account>,
-        rates: Rates,
+        rates: BaseCurrencyRates,
         names: Names,
     ): Triple<TimePeriod, List<Spend>, List<LocalDate>>? {
         val month = period.month ?: return null
@@ -183,7 +183,11 @@ class MonthDetailUseCase @Inject constructor(
     }
 
     // What went out in each of the last full months before the current one.
-    private suspend fun monthlySpending(startDayOfMonth: Int, accounts: List<Account>, rates: Rates): List<Double> {
+    private suspend fun monthlySpending(
+        startDayOfMonth: Int,
+        accounts: List<Account>,
+        rates: BaseCurrencyRates
+    ): List<Double> {
         val current = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
         val month = current.month ?: return emptyList()
         val year = current.year ?: timeProvider.localDateNow().year
@@ -196,7 +200,7 @@ class MonthDetailUseCase @Inject constructor(
         }
     }
 
-    private suspend fun holdings(accounts: List<Account>, rates: Rates): Holdings {
+    private suspend fun holdings(accounts: List<Account>, rates: BaseCurrencyRates): Holdings {
         val held = accounts.map { account ->
             Holding(account, rates.inBase(accountBalanceUseCase.balance(account).balance.toDouble(), account.asset))
         }
@@ -207,7 +211,7 @@ class MonthDetailUseCase @Inject constructor(
         )
     }
 
-    private suspend fun spend(expense: Expense, rates: Rates, names: Names) = Spend(
+    private suspend fun spend(expense: Expense, rates: BaseCurrencyRates, names: Names) = Spend(
         amount = rates.inBase(expense.value),
         day = expense.time.localDate(),
         made = with(timeConverter) { (expense.metadata.purchaseDateTime ?: expense.time).toLocalDateTime() },
@@ -217,7 +221,7 @@ class MonthDetailUseCase @Inject constructor(
         recurring = expense.metadata.recurringRuleId != null,
     )
 
-    private suspend fun upcoming(transaction: Transaction, rates: Rates, names: Names) = Upcoming(
+    private suspend fun upcoming(transaction: Transaction, rates: BaseCurrencyRates, names: Names) = Upcoming(
         day = transaction.time.localDate(),
         title = transaction.title?.value,
         category = transaction.category?.let(names.categories::get),
@@ -244,32 +248,6 @@ class MonthDetailUseCase @Inject constructor(
     private fun Instant.localDate(): LocalDate = with(timeConverter) { toLocalDate() }
 
     private class Names(val accounts: Map<AccountId, Account>, val categories: Map<CategoryId, Category>)
-
-    // A currency's worth in the base currency, read once for each currency.
-    private inner class Rates(private val base: AssetCode) {
-        private val factors = mutableMapOf<AssetCode, Double?>()
-
-        suspend fun factor(currency: AssetCode): Double? = factors.getOrPut(currency) {
-            if (currency == base) {
-                1.0
-            } else {
-                exchangeUseCase.convert(PositiveValue(PositiveDouble.unsafe(1.0), currency), to = base)
-                    .getOrNull()?.amount?.value
-            }
-        }
-
-        // Without a rate, an amount is left out, as in every other total.
-        suspend fun inBase(value: PositiveValue): Double = inBase(value.amount.value, value.asset)
-
-        suspend fun inBase(amount: Double, currency: AssetCode): Double = amount * (factor(currency) ?: 0.0)
-
-        // Income up, expenses down; a transfer stays within the wallet.
-        suspend fun signed(transaction: Transaction): Double = when (transaction) {
-            is Income -> inBase(transaction.value)
-            is Expense -> -inBase(transaction.value)
-            is Transfer -> 0.0
-        }
-    }
 
     private companion object {
         val Euro = AssetCode.unsafe("EUR")

@@ -52,6 +52,9 @@ object BalanceCases {
         expense(Bank.id, 60.0, day = 40),
     )
 
+    /** When the first of [transactions] with a date was made: the planned one has none. */
+    val firstPaid: Instant = day(1)
+
     /** What the balance of [account] from [start] to [end] must be. */
     data class Case(
         val description: String,

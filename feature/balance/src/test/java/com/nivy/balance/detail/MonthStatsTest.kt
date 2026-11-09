@@ -8,6 +8,7 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.wallet.domain.pure.util.SizeEdgesInEuros
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -164,13 +165,6 @@ class MonthStatsTest {
         runway.over shouldBe 2
         runway(netWorth = -5.0, monthlySpending = listOf(1_000.0)).shouldBeNull()
         runway(netWorth = 500.0, monthlySpending = listOf(0.0)).shouldBeNull()
-    }
-
-    @Test
-    fun `size bands are round amounts in other currencies`() {
-        sizeEdges(1.0) shouldBe listOf(5.0, 15.0, 50.0, 150.0)
-        // A euro is about 163 yen.
-        sizeEdges(163.4) shouldBe listOf(1_000.0, 2_500.0, 10_000.0, 25_000.0)
     }
 
     private fun november(): Habits? = habits(Purchases)

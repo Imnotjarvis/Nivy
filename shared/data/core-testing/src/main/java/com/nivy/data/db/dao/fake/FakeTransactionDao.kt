@@ -31,6 +31,10 @@ class FakeTransactionDao(
         return findAll().isNotEmpty()
     }
 
+    override suspend fun findFirstDateTime(): Instant? {
+        return items.mapNotNull { it.dateTime }.minOrNull()
+    }
+
     override suspend fun findAllBetween(
         startDate: Instant,
         endDate: Instant
