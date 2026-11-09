@@ -495,8 +495,6 @@
     <string name="last_value_update">Last update %1$s</string>
     <string name="invested_amount">Invested %1$s</string>
     <string name="trends">Trends</string>
-    <string name="trends_net_worth_in">Net worth in %1$s</string>
-    <string name="trends_last_months">Last %1$s months</string>
     <string name="trends_range_three_months">3M</string>
     <string name="trends_range_six_months">6M</string>
     <string name="trends_range_year">1Y</string>

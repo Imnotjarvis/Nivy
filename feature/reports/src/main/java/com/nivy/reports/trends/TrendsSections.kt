@@ -16,6 +16,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -54,7 +55,6 @@ import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -429,6 +429,7 @@ private fun FixedFlexiblePanel(
 // ---- Habits
 
 @Composable
+@ReadOnlyComposable
 private fun habitStats(months: List<MonthTrend>, habits: RangeHabits, currency: String, phrase: String): List<Stat> {
     val full = months.filter { it.full }
     return buildList {
@@ -460,6 +461,7 @@ private fun habitStats(months: List<MonthTrend>, habits: RangeHabits, currency: 
 }
 
 @Composable
+@ReadOnlyComposable
 private fun noSpendStat(full: List<MonthTrend>): Stat {
     val days = full.map { it.habits.noSpendDays.toDouble() }
     val best = full.maxBy { it.habits.noSpendDays }
@@ -473,6 +475,7 @@ private fun noSpendStat(full: List<MonthTrend>): Stat {
 
 // The shares of the spending on weekends, in small purchases and in the evening.
 @Composable
+@ReadOnlyComposable
 private fun shareStats(full: List<MonthTrend>, habits: RangeHabits, currency: String): List<Stat> = buildList {
     habits.weekendShare?.let { share ->
         add(
@@ -510,6 +513,7 @@ private fun shareStats(full: List<MonthTrend>, habits: RangeHabits, currency: St
 private fun Double.shareOf(whole: Double): Double? = if (whole > 0) this / whole else null
 
 @Composable
+@ReadOnlyComposable
 private fun changeNote(change: Double?, phrase: String): String =
     if (change == null) {
         stringResource(R.string.trends_on_average)
@@ -535,7 +539,7 @@ private fun WhenPanel(cells: List<List<Double>>, currency: String) {
     ) {
         PunchCard(
             cells = cells,
-            rows = weekdays.map { it.getDisplayName(TextStyle.SHORT, Locale.getDefault()) },
+            rows = weekdays.map { weekdayName(it, TextStyle.SHORT) },
             columns = listOf(
                 R.string.month_morning,
                 R.string.month_afternoon,
@@ -550,7 +554,7 @@ private fun WhenPanel(cells: List<List<Double>>, currency: String) {
         PanelNote(
             text = stringResource(
                 R.string.trends_most_on,
-                weekdays[row].getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                weekdayName(weekdays[row], TextStyle.FULL),
                 stringResource(parts[column]),
                 cells[row][column].format(currency),
                 currency,
@@ -602,6 +606,7 @@ private fun CalendarPanel(calendar: SpendingCalendar, currency: String) {
 // ---- Records
 
 @Composable
+@ReadOnlyComposable
 private fun recordStats(records: Records, currency: String): List<Stat> = buildList {
     records.mostSaved?.let {
         add(Stat(stringResource(R.string.trends_most_saved), "+${money(it.amount, currency)}", monthYear(it.period)))
@@ -673,6 +678,7 @@ private fun LegendRows(items: List<Pair<Color, String>>) {
  * a year, and past that only each January's year, and the first month's unless a January is near.
  */
 @Composable
+@ReadOnlyComposable
 private fun monthAxis(periods: List<TimePeriod>): List<Pair<Float, String>> {
     val names = periods.map { monthName(it) }
     return when {
@@ -696,6 +702,7 @@ private fun ahead(last: TimePeriod, count: Int): List<TimePeriod> {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun rangePhrase(range: TrendsRange, first: TimePeriod): String = when (range) {
     TrendsRange.ThreeMonths -> stringResource(R.string.trends_in_three_months)
     TrendsRange.SixMonths -> stringResource(R.string.trends_in_six_months)
@@ -704,6 +711,7 @@ private fun rangePhrase(range: TrendsRange, first: TimePeriod): String = when (r
 }
 
 @Composable
+@ReadOnlyComposable
 private fun overTitle(range: TrendsRange, first: TimePeriod): String = when (range) {
     TrendsRange.ThreeMonths -> stringResource(R.string.trends_over_three_months)
     TrendsRange.SixMonths -> stringResource(R.string.trends_over_six_months)
@@ -726,12 +734,18 @@ private fun dateLabel(day: LocalDate): String = with(LocalTimeFormatter.current)
     day.atStartOfDay().format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
 }
 
+// A weekday's name in the app's language, read from the composition so a change of language redraws it.
+@Composable
+@ReadOnlyComposable
+private fun weekdayName(day: DayOfWeek, style: TextStyle): String =
+    day.getDisplayName(style, LocalConfiguration.current.locales[0])
+
 @Composable
 @ReadOnlyComposable
 private fun weekdayDate(day: LocalDate): String =
     stringResource(
         R.string.trends_weekday_date,
-        day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+        weekdayName(day.dayOfWeek, TextStyle.FULL),
         dateLabel(day)
     )
 

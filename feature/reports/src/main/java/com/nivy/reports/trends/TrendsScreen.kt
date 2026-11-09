@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -113,6 +114,7 @@ private fun RangeChips(range: TrendsRange, onSelect: (TrendsRange) -> Unit) {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun rangeLabel(range: TrendsRange): String = stringResource(
     when (range) {
         TrendsRange.ThreeMonths -> R.string.trends_range_three_months
