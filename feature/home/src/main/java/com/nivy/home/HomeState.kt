@@ -3,6 +3,7 @@ package com.nivy.home
 import androidx.compose.runtime.Immutable
 import com.nivy.base.model.Theme
 import com.nivy.home.customerjourney.CustomerJourneyCardModel
+import com.nivy.home.usecase.Glance
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.data.DueSection
 import com.nivy.wallet.data.model.TimePeriod
@@ -14,7 +15,6 @@ import java.math.BigDecimal
 @Immutable
 data class HomeState(
     val theme: Theme,
-    val name: String,
 
     val period: TimePeriod,
     val baseData: AppBaseData,
@@ -31,6 +31,8 @@ data class HomeState(
 
     val upcoming: DueSection,
     val overdue: DueSection,
+    // What the header shows of today: payments overdue, spending, the next payment. Null until loaded.
+    val glance: Glance? = null,
 
     val customerJourneyCards: ImmutableList<CustomerJourneyCardModel>,
     val hideBalance: Boolean,

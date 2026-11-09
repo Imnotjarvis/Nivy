@@ -137,7 +137,8 @@ fun CompactTransactionRow(
     }
 }
 
-private fun TransactionType.label(): Int = when (this) {
+/** What names a transaction with neither a title nor a category. */
+fun TransactionType.label(): Int = when (this) {
     TransactionType.INCOME -> R.string.income
     TransactionType.EXPENSE -> R.string.expense
     TransactionType.TRANSFER -> R.string.transfer

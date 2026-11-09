@@ -102,7 +102,7 @@ fun BoxWithConstraintsScope.HomeUi(
 
         HomeHeader(
             expanded = uiState.expanded,
-            name = uiState.name,
+            glance = uiState.glance,
             period = uiState.period,
 
             onShowMonthModal = {
@@ -336,7 +336,6 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
         HomeUi(
             uiState = HomeState(
                 theme = Theme.AUTO,
-                name = "",
                 baseData = AppBaseData(
                     baseCurrency = "",
                     accounts = persistentListOf(),
