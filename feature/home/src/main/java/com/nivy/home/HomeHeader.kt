@@ -90,7 +90,6 @@ internal fun HomeHeader(
 
         HeaderStickyRow(
             percentExpanded = percentExpanded,
-            expanded = expanded,
             glance = glance,
             hideIncome = hideIncome,
             firstGlanceFact = firstGlanceFact,
@@ -115,7 +114,6 @@ internal fun HomeHeader(
 @Composable
 private fun HeaderStickyRow(
     percentExpanded: Float,
-    expanded: Boolean,
     glance: Glance?,
     hideIncome: Boolean,
     firstGlanceFact: GlanceFact?,
@@ -124,8 +122,8 @@ private fun HeaderStickyRow(
     onSelectNextMonth: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
 ) {
-    // The glance fades in once loaded, and out as the header collapses; the balance stays in the
-    // page, below it.
+    // The glance fades in once loaded, and stays as the list scrolls: today stays in view, with
+    // the room the menu button leaves.
     val glanceShown by animateFloatAsState(if (glance != null) 1f else 0f, appearTween(), label = "glance")
     Row(
         modifier = Modifier
@@ -140,15 +138,12 @@ private fun HeaderStickyRow(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .alpha(percentExpanded)
                 .graphicsLayer { alpha = glanceShown }
                 .testTag("home_glance"),
         ) {
             if (glance != null) {
-                // Tapped only while the header shows it.
                 HomeGlance(
                     glance = glance,
-                    enabled = expanded,
                     hideIncome = hideIncome,
                     firstFact = firstGlanceFact,
                 )

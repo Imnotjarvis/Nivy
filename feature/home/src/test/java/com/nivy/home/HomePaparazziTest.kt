@@ -57,23 +57,23 @@ class HomePaparazziTest(
 
     // The header's glance, a fact a row: overdue, spent today, then the next payment as an
     // expense, an income, one with a name too long to show whole, and an income while income is
-    // hidden.
+    // hidden; last, the list scrolled, where the glance stays and the month takes the corner.
     @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun `snapshot the glance, a fact a row`(@TestParameter colors: Colors) {
         snapshot(theme, minimal = colors == Colors.Minimal) {
             NivyPreview(if (theme == PaparazziTheme.Dark) Theme.DARK else Theme.LIGHT) {
                 Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    GlanceRows.forEach { (glance, fact, hideIncome) ->
+                    GlanceRows.forEach { row ->
                         HomeHeader(
-                            expanded = true,
-                            glance = glance,
-                            hideIncome = hideIncome,
+                            expanded = row.expanded,
+                            glance = row.glance,
+                            hideIncome = row.hideIncome,
                             period = TimePeriod(month = Month.monthsList().first(), year = 2023),
                             onShowMonthModal = {},
                             onSelectNextMonth = {},
                             onSelectPreviousMonth = {},
-                            firstGlanceFact = fact,
+                            firstGlanceFact = row.fact,
                         )
                     }
                 }
@@ -121,8 +121,14 @@ class HomePaparazziTest(
                 GlanceFact.NextPayment,
             ),
             GlanceRow(Salary, GlanceFact.NextPayment, hideIncome = true),
+            GlanceRow(Today, GlanceFact.Overdue, expanded = false),
         )
     }
 
-    private data class GlanceRow(val glance: Glance, val fact: GlanceFact, val hideIncome: Boolean = false)
+    private data class GlanceRow(
+        val glance: Glance,
+        val fact: GlanceFact,
+        val hideIncome: Boolean = false,
+        val expanded: Boolean = true,
+    )
 }

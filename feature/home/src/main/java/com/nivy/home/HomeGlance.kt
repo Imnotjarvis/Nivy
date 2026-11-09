@@ -57,14 +57,13 @@ internal fun Glance.facts(): List<GlanceFact> = buildList {
 
 /**
  * One fact about today in place of a greeting: a small grey label over its value. A tap shows the
- * next fact, which rises a little as it fades in while the other one sinks as it fades out, the
+ * next fact: the shown one sinks as it fades out, then the next rises a little as it fades in, the
  * way screens come and go. [firstFact] is the one shown first, for previews and screenshots; the
  * most urgent when null.
  */
 @Composable
 internal fun HomeGlance(
     glance: Glance,
-    enabled: Boolean,
     hideIncome: Boolean,
     modifier: Modifier = Modifier,
     firstFact: GlanceFact? = null,
@@ -76,7 +75,7 @@ internal fun HomeGlance(
     AnimatedContent(
         targetState = shown,
         modifier = modifier.clickable(
-            enabled = enabled && facts.size > 1,
+            enabled = facts.size > 1,
             onClickLabel = stringResource(R.string.glance_next),
             role = Role.Button,
             interactionSource = null,
