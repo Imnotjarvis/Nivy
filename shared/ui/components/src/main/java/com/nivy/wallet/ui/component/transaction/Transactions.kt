@@ -1,6 +1,6 @@
 package com.nivy.wallet.ui.component.transaction
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -318,11 +318,14 @@ private fun LazyListScope.historySection(
 /**
  * [content], fading in as its item is added when [fadeIn]: rows that come in after the list shows
  * appear softly. Without placement or fade-out animations, other changes stay as they were.
+ *
+ * In a column, as the list lays out an item's own children: a section's or a day's header is a
+ * spacer then its row, and in a box the row would cover its spacer, losing the room above it.
  */
 @Composable
 private fun LazyItemScope.FadingIn(fadeIn: Boolean, content: @Composable () -> Unit) {
     if (fadeIn) {
-        Box(Modifier.animateItem(fadeInSpec = appearTween(), placementSpec = null, fadeOutSpec = null)) {
+        Column(Modifier.animateItem(fadeInSpec = appearTween(), placementSpec = null, fadeOutSpec = null)) {
             content()
         }
     } else {
