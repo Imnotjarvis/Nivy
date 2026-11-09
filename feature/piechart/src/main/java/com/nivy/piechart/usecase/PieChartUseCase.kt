@@ -14,17 +14,20 @@ import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.data.temp.migration.getAccountId
 import com.nivy.data.temp.migration.getTransactionType
 import com.nivy.design.system.colors.RedLight
 import com.nivy.domain.usecase.category.CategoryIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsInRangeUseCase
 import com.nivy.wallet.data.model.toCloseTimeRange
+import com.nivy.piechart.AccountAmount
 import com.nivy.piechart.CategoryAmount
 import com.nivy.ui.R
 import com.nivy.wallet.domain.pure.account.filterExcluded
 import com.nivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -101,7 +104,17 @@ class PieChartUseCase @Inject constructor(
             incomeExpenseTransfer = incomeExpenseTransfer
         )
 
-        PieChartData(totalAmount.toDouble(), categoryAmounts.toImmutableList())
+        PieChartData(
+            totalAmount = totalAmount.toDouble(),
+            categoryAmounts = categoryAmounts.toImmutableList(),
+            accountAmounts = accountAmounts(
+                baseCurrency = baseCurrency,
+                type = type,
+                transactions = transactions,
+                accountsUsed = accountsUsed,
+            ).toImmutableList(),
+            accountsCovered = accountsUsed.size,
+        )
     }
 
     // The accounts the chart covers: the filtered ones, or all accounts included in the balance.
@@ -152,6 +165,33 @@ class PieChartUseCase @Inject constructor(
                 },
                 associatedTransactions = categoryTransactions,
                 isCategoryUnspecified = category == null
+            )
+        }.filter { it.amount != 0.0 }
+            .sortedByDescending { it.amount }
+    }
+
+    // Each account's total of the chart's type, largest first; accounts with nothing are left out.
+    // So are transfers: they move money between the user's own accounts, and pay nothing.
+    private suspend fun accountAmounts(
+        baseCurrency: String,
+        type: TransactionType,
+        transactions: List<Transaction>,
+        accountsUsed: List<Account>,
+    ): List<AccountAmount> {
+        val byAccount = transactions.groupBy { it.getAccountId() }
+        return accountsUsed.map { account ->
+            val totals = transactionsIncomeExpenseUseCase.incomeExpense(
+                transactions = byAccount[account.id.value].orEmpty(),
+                baseCurrency = baseCurrency,
+                accounts = listOf(account),
+            )
+            AccountAmount(
+                account = account,
+                amount = when (type) {
+                    TransactionType.INCOME -> totals.income.toDouble()
+                    TransactionType.EXPENSE -> totals.expense.toDouble()
+                    else -> error("not supported transactionType - $type")
+                },
             )
         }.filter { it.amount != 0.0 }
             .sortedByDescending { it.amount }
@@ -215,4 +255,10 @@ class PieChartUseCase @Inject constructor(
     }
 }
 
-data class PieChartData(val totalAmount: Double, val categoryAmounts: ImmutableList<CategoryAmount>)
+data class PieChartData(
+    val totalAmount: Double,
+    val categoryAmounts: ImmutableList<CategoryAmount>,
+    val accountAmounts: ImmutableList<AccountAmount> = persistentListOf(),
+    // How many accounts the chart covers: it splits by account only where there's more than one.
+    val accountsCovered: Int = 0,
+)
