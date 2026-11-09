@@ -1,5 +1,6 @@
 package com.nivy.piechart
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -45,28 +46,63 @@ internal fun CategoryAmountCard(
     onClick: () -> Unit
 ) {
     val category = categoryAmount.category
-    val amount = categoryAmount.amount
+    ShareCard(
+        name = category?.name?.value ?: stringResource(R.string.unspecified),
+        iconName = category?.icon?.id,
+        defaultIcon = R.drawable.ic_custom_category_m,
+        // Unspecified category = Gray
+        color = category?.color?.value?.toComposeColor() ?: Gray,
+        rank = rank,
+        amount = categoryAmount.amount,
+        totalAmount = totalAmount,
+        currency = currency,
+        selected = selectedCategory != null && category == selectedCategory.category,
+        onClick = onClick,
+    )
+}
 
+@Composable
+internal fun AccountAmountCard(
+    accountAmount: AccountAmount,
+    rank: Int,
+    currency: String,
+    totalAmount: Double,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val account = accountAmount.account
+    ShareCard(
+        name = account.name.value,
+        iconName = account.icon?.id,
+        defaultIcon = R.drawable.ic_custom_account_m,
+        color = account.color.value.toComposeColor(),
+        rank = rank,
+        amount = accountAmount.amount,
+        totalAmount = totalAmount,
+        currency = currency,
+        selected = selected,
+        onClick = onClick,
+    )
+}
+
+// A slice's card under the chart: its icon in its color, its name, its share and its amount.
+// Filled with its color while its slice is selected.
+@Composable
+private fun ShareCard(
+    name: String,
+    iconName: String?,
+    @DrawableRes defaultIcon: Int,
+    color: Color,
+    rank: Int,
+    amount: Double,
+    totalAmount: Double,
+    currency: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
     // In minimal colors, the slice's tone: the list is the chart's legend.
-    val categoryColor = if (ColorMode.minimal) {
-        pieTone(rank)
-    } else {
-        category?.color?.value?.toComposeColor() ?: Gray // Unspecified category = Gray
-    }
-    val selectedState = when {
-        selectedCategory == null -> {
-            // no selectedCategory
-            false
-        }
-
-        categoryAmount.category == selectedCategory.category -> {
-            // selectedCategory && we're selected
-            true
-        }
-
-        else -> false
-    }
-    val backgroundColor = if (selectedState) categoryColor else MaterialTheme.colorScheme.surfaceVariant
+    val sliceColor = if (ColorMode.minimal) pieTone(rank) else color
+    val backgroundColor = if (selected) sliceColor else MaterialTheme.colorScheme.surfaceVariant
 
     val textColor = readableOn(backgroundColor)
 
@@ -85,16 +121,16 @@ internal fun CategoryAmountCard(
         Spacer(Modifier.width(20.dp))
 
         ItemIconM(
-            modifier = Modifier.background(categoryColor, PillShape),
-            iconName = category?.icon?.id,
-            tint = readableOn(categoryColor),
+            modifier = Modifier.background(sliceColor, PillShape),
+            iconName = iconName,
+            tint = readableOn(sliceColor),
             iconContentScale = ContentScale.None,
             default = {
                 ItemIconMDefaultIcon(
-                    modifier = Modifier.background(categoryColor, PillShape),
-                    iconName = category?.icon?.id,
-                    defaultIcon = R.drawable.ic_custom_category_m,
-                    tint = readableOn(categoryColor)
+                    modifier = Modifier.background(sliceColor, PillShape),
+                    iconName = iconName,
+                    defaultIcon = defaultIcon,
+                    tint = readableOn(sliceColor)
                 )
             }
         )
@@ -112,7 +148,7 @@ internal fun CategoryAmountCard(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 16.dp),
-                    text = category?.name?.value ?: stringResource(R.string.unspecified),
+                    text = name,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = textColor,
                         fontWeight = FontWeight.Bold,
@@ -123,7 +159,7 @@ internal fun CategoryAmountCard(
                 PercentText(
                     amount = amount,
                     totalAmount = totalAmount,
-                    selectedState = selectedState,
+                    selectedState = selected,
                     contrastColor = textColor
                 )
 

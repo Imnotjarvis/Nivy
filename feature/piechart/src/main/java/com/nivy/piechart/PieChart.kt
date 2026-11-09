@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import com.nivy.design.system.shapes.PillShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.nivy.base.model.TransactionType
+import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.ColorInt
@@ -42,7 +44,7 @@ import com.nivy.design.system.colors.RedLight
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.design.system.colors.toComposeColor
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import timber.log.Timber
 import java.util.UUID
 import kotlin.math.acos
@@ -59,16 +61,44 @@ private const val GapWidthDp = 3f
 const val PIE_CHART_RADIUS_DP = 128
 const val RADIUS_DP = 112f
 
+/** A slice of the chart: what it stands for, a category or an account, in its color, for its amount. */
+@Immutable
+data class PieSlice<T>(
+    val item: T,
+    val color: Color,
+    val amount: Double,
+)
+
+/** Each category's slice, in its color: grey for transactions without one. */
+internal fun categorySlices(categoryAmounts: List<CategoryAmount>): ImmutableList<PieSlice<Category?>> =
+    categoryAmounts.map { PieSlice(it.category, it.category?.color?.value?.toComposeColor() ?: Gray, it.amount) }
+        .toImmutableList()
+
+/** Each account's slice, in its color. */
+internal fun accountSlices(accountAmounts: List<AccountAmount>): ImmutableList<PieSlice<Account>> =
+    accountAmounts.map { PieSlice(it.account, it.account.color.value.toComposeColor(), it.amount) }
+        .toImmutableList()
+
+/**
+ * A ring of [slices], the largest first from the top, around the type's icon. With one [selected],
+ * the others fade; a tap on a slice reports its item, and a tap elsewhere null.
+ */
 @Composable
-fun PieChart(
+fun <T> PieChart(
     type: TransactionType,
-    categoryAmounts: ImmutableList<CategoryAmount>,
-    selectedCategory: SelectedCategory?,
+    slices: ImmutableList<PieSlice<T>>,
+    selected: T?,
     modifier: Modifier = Modifier,
-    onCategoryClick: (Category?) -> Unit = {}
+    onSliceClick: (T?) -> Unit = {}
 ) {
     // In minimal colors slices share a few greys: gaps in the backdrop's color set them apart.
     val gapColor = MaterialTheme.colorScheme.surfaceVariant.takeIf { ColorMode.minimal }
+    val bySize = slices.sortedByDescending { it.amount }
+    val colors = bySize.mapIndexed { rank, slice ->
+        // In minimal colors, a slice's tone comes from its rank.
+        val color = if (ColorMode.minimal) pieTone(rank) else slice.color
+        if (selected == null || slice.item == selected) color else color.copy(alpha = 0.15f)
+    }
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
@@ -84,10 +114,10 @@ fun PieChart(
             },
             update = { view ->
                 view.display(
-                    categoryAmounts = categoryAmounts.sortedByDescending { it.amount },
-                    selectedCategory = selectedCategory,
+                    amounts = bySize.map { it.amount },
+                    colors = colors,
                     gapColor = gapColor,
-                    onCategoryClicked = onCategoryClick
+                    onSliceClicked = { index -> onSliceClick(index?.let { bySize[it].item }) }
                 )
             }
         )
@@ -105,8 +135,8 @@ fun PieChart(
 }
 
 private class PieChartView(context: Context) : View(context) {
-    private var categoryAmounts = emptyList<CategoryAmount>()
-    private var paints = mapOf<Category?, Paint>()
+    private var amounts = emptyList<Double>()
+    private var paints = emptyList<Paint>()
     private var gapPaint: Paint? = null
     private var totalAmount = 0.0
 
@@ -117,45 +147,20 @@ private class PieChartView(context: Context) : View(context) {
         com.nivy.design.utils.convertDpToPixel(context, 2 * RADIUS_DP)
     )
 
-    var onCategoryClicked: (Category?) -> Unit = {}
+    // The tapped slice's index in [amounts], or null for a tap off the slices.
+    var onSliceClicked: (Int?) -> Unit = {}
 
     fun display(
-        categoryAmounts: List<CategoryAmount>,
-        selectedCategory: SelectedCategory?,
+        amounts: List<Double>,
+        colors: List<Color>,
         gapColor: Color?,
-        onCategoryClicked: (Category?) -> Unit
+        onSliceClicked: (Int?) -> Unit
     ) {
-        this.onCategoryClicked = onCategoryClicked
+        this.onSliceClicked = onSliceClicked
         this.gapPaint = gapColor?.let(::gapPaintFor)
-
-        this.categoryAmounts = categoryAmounts
-        this.totalAmount = categoryAmounts.sumOf { it.amount }
-
-        this.paints = categoryAmounts
-            .mapIndexed { rank, categoryAmount ->
-                val category = categoryAmount.category
-                val categoryColor = if (ColorMode.minimal) {
-                    pieTone(rank)
-                } else {
-                    category?.color?.value?.toComposeColor() ?: Gray
-                }
-                val color = if (selectedCategory == null) {
-                    categoryColor
-                } else {
-                    if (selectedCategory.category == category) {
-                        categoryColor
-                    } else {
-                        categoryColor.copy(
-                            alpha = 0.15f
-                        )
-                    }
-                }
-
-                category to paintFor(
-                    color = color
-                )
-            }
-            .toMap()
+        this.amounts = amounts
+        this.totalAmount = amounts.sum()
+        this.paints = colors.map(::paintFor)
 
         invalidate()
     }
@@ -188,9 +193,8 @@ private class PieChartView(context: Context) : View(context) {
 
         zones.clear()
 
-        for (categoryAmount in categoryAmounts) {
-            val paint = paints[categoryAmount.category]
-            val amount = categoryAmount.amount
+        for ((index, amount) in amounts.withIndex()) {
+            val paint = paints.getOrNull(index)
             if (paint == null || amount == 0.0) continue
 
             val percent = amount / totalAmount
@@ -200,7 +204,7 @@ private class PieChartView(context: Context) : View(context) {
                 Zone(
                     startAngle = startAngle,
                     endAngle = startAngle + sweepAngle,
-                    category = categoryAmount.category
+                    index = index
                 )
             )
 
@@ -246,13 +250,13 @@ private class PieChartView(context: Context) : View(context) {
 
                     Timber.d("degrees = $angle")
 
-                    val clickedCategory = zones
+                    val clickedSlice = zones
                         .firstOrNull { zone ->
                             zone.contains(angle = angle)
-                        }?.category
-                    Timber.i("clicked category = ${clickedCategory?.name}")
+                        }?.index
+                    Timber.i("clicked slice = $clickedSlice")
 
-                    onCategoryClicked(clickedCategory)
+                    onSliceClicked(clickedSlice)
                 }
             }
         }
@@ -285,7 +289,7 @@ private class PieChartView(context: Context) : View(context) {
     private data class Zone(
         val startAngle: Double,
         val endAngle: Double,
-        val category: Category?
+        val index: Int
     ) {
         fun contains(angle: Double): Boolean =
             angle > startAngle && angle < endAngle
@@ -303,53 +307,55 @@ private fun Preview() {
 
             PieChart(
                 type = TransactionType.EXPENSE,
-                categoryAmounts = persistentListOf(
-                    CategoryAmount(
-                        category = Category(
-                            name = NotBlankTrimmedString.unsafe("Bills"),
-                            color = ColorInt(Green.toArgb()),
-                            icon = null,
-                            id = CategoryId(UUID.randomUUID()),
-                            orderNum = 0.0,
-                            ),
-                        amount = 791.0
-                    ),
-                    CategoryAmount(
-                        category = Category(
-                            name = NotBlankTrimmedString.unsafe("Shisha"),
-                            color = ColorInt(Green.toArgb()),
-                            icon = null,
-                            id = CategoryId(UUID.randomUUID()),
-                            orderNum = 0.0,
-                            ),
-                        amount = 411.93
-                    ),
-                    CategoryAmount(
-                        category = Category(
-                            name = NotBlankTrimmedString.unsafe("Food & Drink"),
-                            color = ColorInt(NivyDark.toArgb()),
-                            icon = null,
-                            id = CategoryId(UUID.randomUUID()),
-                            orderNum = 0.0,
+                slices = categorySlices(
+                    listOf(
+                        CategoryAmount(
+                            category = Category(
+                                name = NotBlankTrimmedString.unsafe("Bills"),
+                                color = ColorInt(Green.toArgb()),
+                                icon = null,
+                                id = CategoryId(UUID.randomUUID()),
+                                orderNum = 0.0,
+                                ),
+                            amount = 791.0
                         ),
-                        amount = 260.03
-                    ),
-                    CategoryAmount(
-                        category = Category(
-                            name = NotBlankTrimmedString.unsafe("Gifts"),
-                            color = ColorInt(RedLight.toArgb()),
-                            icon = null,
-                            id = CategoryId(UUID.randomUUID()),
-                            orderNum = 0.0,
+                        CategoryAmount(
+                            category = Category(
+                                name = NotBlankTrimmedString.unsafe("Shisha"),
+                                color = ColorInt(Green.toArgb()),
+                                icon = null,
+                                id = CategoryId(UUID.randomUUID()),
+                                orderNum = 0.0,
+                                ),
+                            amount = 411.93
                         ),
-                        amount = 160.0
-                    ),
-                    CategoryAmount(
-                        category = null,
-                        amount = 497.0
-                    ),
+                        CategoryAmount(
+                            category = Category(
+                                name = NotBlankTrimmedString.unsafe("Food & Drink"),
+                                color = ColorInt(NivyDark.toArgb()),
+                                icon = null,
+                                id = CategoryId(UUID.randomUUID()),
+                                orderNum = 0.0,
+                            ),
+                            amount = 260.03
+                        ),
+                        CategoryAmount(
+                            category = Category(
+                                name = NotBlankTrimmedString.unsafe("Gifts"),
+                                color = ColorInt(RedLight.toArgb()),
+                                icon = null,
+                                id = CategoryId(UUID.randomUUID()),
+                                orderNum = 0.0,
+                            ),
+                            amount = 160.0
+                        ),
+                        CategoryAmount(
+                            category = null,
+                            amount = 497.0
+                        ),
+                    )
                 ),
-                selectedCategory = null
+                selected = null
             )
 
             Spacer(Modifier.weight(1f))
