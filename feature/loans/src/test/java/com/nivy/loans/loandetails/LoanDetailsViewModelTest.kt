@@ -73,10 +73,6 @@ class LoanDetailsViewModelTest {
     private val loanRepository = mockk<LoanRepository>(relaxUnitFun = true) {
         coEvery { findById(loan.id) } answers { loan }
         coEvery { findRecordsByLoanId(loan.id) } answers { records }
-        coEvery { saveRecord(any()) } answers {
-            val saved = firstArg<LoanRecord>()
-            records = records.filterNot { it.id == saved.id } + saved
-        }
     }
     private val paymentTransaction = mockk<Transaction>()
     private val transactionRepository = mockk<TransactionRepository> {
@@ -91,6 +87,10 @@ class LoanDetailsViewModelTest {
         coEvery { convertedAmount(any(), any(), any(), any()) } answers {
             val record = secondArg<LoanRecord>()
             if (record.account == dollars.id) PositiveDouble.unsafe(record.amount.value / 2) else null
+        }
+        coEvery { saveRecord(any(), any(), any()) } answers {
+            val saved = secondArg<LoanRecord>()
+            records = records.filterNot { it.id == saved.id } + saved
         }
     }
     private val nav = mockk<Navigation>(relaxed = true)
@@ -146,7 +146,7 @@ class LoanDetailsViewModelTest {
         saved.amount shouldBe PositiveDouble.unsafe(100.0)
         saved.convertedAmount shouldBe PositiveDouble.unsafe(50.0)
         saved.account shouldBe dollars.id
-        coVerify(exactly = 1) { loanTransactionsUseCase.syncLoanRecordTransaction(loan, saved, create = true) }
+        coVerify(exactly = 1) { loanTransactionsUseCase.saveRecord(loan, saved, createTransaction = true) }
     }
 
     @Test
@@ -166,14 +166,14 @@ class LoanDetailsViewModelTest {
         viewModel.runTest(events = listOf(LoanRecordModalEvent.OnCreateLoanRecord(newPayment))) {}
 
         // then
-        coVerify(exactly = 0) { loanRepository.saveRecord(any()) }
+        coVerify(exactly = 0) { loanTransactionsUseCase.saveRecord(any(), any(), any()) }
         coVerify(exactly = 1) { toaster.show(R.string.msg_no_loan_exchange_rate, any()) }
     }
 
     @Test
-    fun `when a record can't be converted, the loan's new account isn't saved, and the page says why`() {
+    fun `when a record can't be converted, the page says why and shows the loan as it was`() {
         // given
-        coEvery { loanTransactionsUseCase.recalculateRecords(any(), any()) } throws
+        coEvery { loanTransactionsUseCase.saveLoan(any(), any(), any()) } throws
             NoLoanExchangeRate(AssetCode.unsafe("USD"), Eur)
         val moved = loan.copy(account = dollars.id)
 
@@ -184,8 +184,9 @@ class LoanDetailsViewModelTest {
             // then
             waitModalVisible shouldBe false
         }
-        coVerify(exactly = 0) { loanRepository.save(any()) }
         coVerify(exactly = 1) { toaster.show(R.string.msg_no_loan_exchange_rate, any()) }
+        // Loaded once, when the page opened.
+        coVerify(exactly = 1) { loanRepository.findRecordsByLoanId(loan.id) }
     }
 
     @Test
@@ -202,8 +203,7 @@ class LoanDetailsViewModelTest {
         viewModel.runTest(events = listOf(LoanRecordModalEvent.OnCreateLoanRecord(nothing))) {}
 
         // then
-        coVerify(exactly = 0) { loanRepository.saveRecord(any()) }
-        coVerify(exactly = 0) { loanTransactionsUseCase.syncLoanRecordTransaction(any(), any(), any()) }
+        coVerify(exactly = 0) { loanTransactionsUseCase.saveRecord(any(), any(), any()) }
     }
 
     @Test
@@ -233,22 +233,21 @@ class LoanDetailsViewModelTest {
         }
         oldRecord.captured shouldBe payment
         recalculate.captured shouldBe true
-        coVerify(exactly = 1) { loanTransactionsUseCase.syncLoanRecordTransaction(loan, edited, create = false) }
+        coVerify(exactly = 1) { loanTransactionsUseCase.saveRecord(loan, edited, createTransaction = false) }
     }
 
     @Test
-    fun `deleting a record deletes its transaction too, and reloads the page`() {
+    fun `deleting a record deletes it with its transaction, and reloads the page`() {
         // when
         viewModel.runTest(events = listOf(LoanRecordModalEvent.OnDeleteLoanRecord(payment))) {}
 
         // then
-        coVerify(exactly = 1) { loanRepository.deleteRecordById(payment.id) }
-        coVerify(exactly = 1) { loanTransactionsUseCase.deleteLoanRecordTransaction(payment.id) }
+        coVerify(exactly = 1) { loanTransactionsUseCase.deleteRecord(payment.id) }
         coVerify(exactly = 2) { loanRepository.findRecordsByLoanId(loan.id) }
     }
 
     @Test
-    fun `editing the loan recalculates records from the old account, syncs transactions and closes the wait`() {
+    fun `editing the loan saves it from its old account, with its transaction, and closes the wait`() {
         // given
         val moved = loan.copy(account = dollars.id)
 
@@ -259,24 +258,20 @@ class LoanDetailsViewModelTest {
             // then
             waitModalVisible shouldBe false
         }
-        coVerifyOrder {
-            loanTransactionsUseCase.recalculateRecords(moved, oldAccount = bank.id)
-            loanRepository.save(moved)
-            loanTransactionsUseCase.syncLoanTransaction(moved, create = true)
-            loanTransactionsUseCase.syncRecordTransactions(moved)
+        coVerify(exactly = 1) {
+            loanTransactionsUseCase.saveLoan(moved, oldAccount = bank.id, createTransaction = true)
         }
     }
 
     @Test
-    fun `deleting the loan deletes its transactions, then the loan, and leaves its page`() {
+    fun `deleting the loan deletes it, with its records and transactions, and leaves its page`() {
         // when
         viewModel.runTest(events = listOf(DeleteLoanModalEvent.OnDeleteLoan)) {
             // then
             isDeleteModalVisible shouldBe false
         }
         coVerifyOrder {
-            loanTransactionsUseCase.deleteLoanTransactions(loan.id)
-            loanRepository.deleteById(loan.id)
+            loanTransactionsUseCase.deleteLoan(loan.id)
             nav.back()
         }
     }

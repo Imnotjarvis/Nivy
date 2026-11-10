@@ -303,20 +303,14 @@ class LoanDetailsViewModel @Inject constructor(
     fun editLoan(loan: Loan, createLoanTransaction: Boolean = false) {
         viewModelScope.launch {
             val oldAccount = this@LoanDetailsViewModel.loan.value?.account
-            // Before the loan: when a record can't be converted, the loan stays as it was.
-            val recalculated = try {
+            // When a record can't be converted to the new account's currency, the loan stays as it was.
+            val saved = try {
                 userWrites.run(R.string.msg_change_not_saved) {
-                    loanTransactionsUseCase.recalculateRecords(loan, oldAccount = oldAccount)
+                    loanTransactionsUseCase.saveLoan(loan, oldAccount, createTransaction = createLoanTransaction)
                 }
             } catch (ignored: NoLoanExchangeRate) {
                 toaster.show(R.string.msg_no_loan_exchange_rate)
                 false
-            }
-            val saved = recalculated && userWrites.run(R.string.msg_change_not_saved) {
-                loanRepository.save(loan)
-                loanTransactionsUseCase.syncLoanTransaction(loan, create = createLoanTransaction)
-                // A changed type turns the records' income into expenses and the other way round.
-                loanTransactionsUseCase.syncRecordTransactions(loan)
             }
             if (saved) load(loanId = loan.id.value)
             // Shown while an account change recalculates the records; nothing else hides it.
@@ -327,10 +321,7 @@ class LoanDetailsViewModel @Inject constructor(
     private fun deleteLoan() {
         val loan = loan.value ?: return
         viewModelScope.launch {
-            val deleted = userWrites.run(R.string.msg_change_not_saved) {
-                loanTransactionsUseCase.deleteLoanTransactions(loan.id)
-                loanRepository.deleteById(loan.id)
-            }
+            val deleted = userWrites.run(R.string.msg_change_not_saved) { loanTransactionsUseCase.deleteLoan(loan.id) }
             if (deleted) nav.back()
         }
     }
@@ -363,11 +354,10 @@ class LoanDetailsViewModel @Inject constructor(
                 return@launch
             }
             val saved = userWrites.run(R.string.msg_change_not_saved) {
-                loanRepository.saveRecord(withConvertedAmount)
-                loanTransactionsUseCase.syncLoanRecordTransaction(
+                loanTransactionsUseCase.saveRecord(
                     loan = loan,
                     record = withConvertedAmount,
-                    create = data.createLoanRecordTransaction,
+                    createTransaction = data.createLoanRecordTransaction,
                 )
             }
             if (saved) load(loanId = loan.id.value)
@@ -391,11 +381,10 @@ class LoanDetailsViewModel @Inject constructor(
                 return@launch
             }
             val saved = userWrites.run(R.string.msg_change_not_saved) {
-                loanRepository.saveRecord(record)
-                loanTransactionsUseCase.syncLoanRecordTransaction(
+                loanTransactionsUseCase.saveRecord(
                     loan = loan,
                     record = record,
-                    create = editLoanRecordData.createLoanRecordTransaction,
+                    createTransaction = editLoanRecordData.createLoanRecordTransaction,
                 )
             }
             if (saved) load(loanId = loan.id.value)
@@ -406,8 +395,7 @@ class LoanDetailsViewModel @Inject constructor(
         val loanId = loan.value?.id ?: return
         viewModelScope.launch {
             val deleted = userWrites.run(R.string.msg_change_not_saved) {
-                loanRepository.deleteRecordById(loanRecord.id)
-                loanTransactionsUseCase.deleteLoanRecordTransaction(loanRecord.id)
+                loanTransactionsUseCase.deleteRecord(loanRecord.id)
             }
             if (deleted) load(loanId = loanId.value)
         }

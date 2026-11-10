@@ -1,6 +1,7 @@
 package com.nivy.data.repository
 
 import com.nivy.base.threading.DispatchersProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.read.TagAssociationDao
 import com.nivy.data.db.dao.read.TagDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
@@ -26,6 +27,7 @@ class TagRepository @Inject constructor(
     private val writeTagAssociationDao: WriteTagAssociationDao,
     private val dispatchersProvider: DispatchersProvider,
     memoFactory: RepositoryMemoFactory,
+    private val databaseTransaction: DatabaseTransaction,
 ) {
     private val memo = memoFactory.createMemo<Tag, TagId>()
 
@@ -145,8 +147,11 @@ class TagRepository @Inject constructor(
     suspend fun deleteById(id: TagId): Unit = memo.deleteById(
         id = id,
         deleteByIdOperation = {
-            writeTagAssociationDao.deleteAssociationsByTagId(it.value)
-            writeTagDao.deleteById(it.value)
+            // One database transaction: a tag isn't left without its links, nor its links without it.
+            databaseTransaction.run {
+                writeTagAssociationDao.deleteAssociationsByTagId(it.value)
+                writeTagDao.deleteById(it.value)
+            }
         }
     )
 

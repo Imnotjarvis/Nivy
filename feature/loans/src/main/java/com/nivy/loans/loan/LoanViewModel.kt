@@ -255,8 +255,12 @@ class LoanViewModel @Inject constructor(
                 )
             }.getOrNull() ?: return@launch
             val saved = userWrites.run(R.string.msg_change_not_saved) {
-                loanRepository.save(loan)
-                loanTransactionsUseCase.syncLoanTransaction(loan, create = data.createLoanTransaction)
+                // A new loan has no records to convert.
+                loanTransactionsUseCase.saveLoan(
+                    loan,
+                    oldAccount = loan.account,
+                    createTransaction = data.createLoanTransaction,
+                )
             }
             if (saved) start()
         }
