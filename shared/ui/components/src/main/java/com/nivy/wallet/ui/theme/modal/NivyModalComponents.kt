@@ -21,57 +21,15 @@ import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-internal fun ModalDynamicPrimaryAction(
-    initialEmpty: Boolean,
-    initialChanged: Boolean,
-
-    onDelete: () -> Unit,
-    dismiss: () -> Unit,
-
-    testTagSave: String = "tag_save",
-    testTagDelete: String = "tag_delete",
-    onSave: () -> Unit
-) {
-    when {
-        initialEmpty -> {
-            ModalAdd(
-                testTag = testTagSave
-            ) {
-                onSave()
-                dismiss()
-            }
-        }
-        else -> {
-            if (!initialChanged) {
-                ModalDelete(
-                    testTag = testTagDelete
-                ) {
-                    onDelete()
-                    dismiss()
-                }
-            } else {
-                ModalSave(
-                    modifier = Modifier.testTag(testTagSave)
-                ) {
-                    onSave()
-                    dismiss()
-                }
-            }
-        }
-    }
-}
-
-@Composable
 @NonRestartableComposable
 fun ModalSet(
     modifier: Modifier = Modifier,
-    label: String = stringResource(R.string.set),
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     ModalCheck(
         modifier = modifier,
-        label = label,
+        label = stringResource(R.string.set),
         enabled = enabled,
         onClick = onClick
     )
@@ -214,11 +172,10 @@ fun ModalTitle(
 
 @Composable
 fun ModalSkip(
-    text: String = stringResource(R.string.skip),
     onClick: () -> Unit
 ) {
     NivyOutlinedButton(
-        text = text,
+        text = stringResource(R.string.skip),
         iconStart = null,
         solidBackground = true
     ) {

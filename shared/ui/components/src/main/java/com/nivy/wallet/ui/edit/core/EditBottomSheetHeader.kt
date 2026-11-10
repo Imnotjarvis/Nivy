@@ -81,7 +81,6 @@ internal fun BottomBar(
 //            .gradientCutBackground()
             .padding(bottom = 12.dp)
             .padding(bottom = navBarPadding),
-        lineColor = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Spacer(Modifier.width(24.dp))
 

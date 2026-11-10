@@ -8,16 +8,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun ActionsRow(
     modifier: Modifier = Modifier,
-    lineColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     content: @Composable RowScope.() -> Unit
 ) {
+    val lineColor = MaterialTheme.colorScheme.surfaceVariant
     Row(
         modifier = modifier
             .fillMaxWidth()

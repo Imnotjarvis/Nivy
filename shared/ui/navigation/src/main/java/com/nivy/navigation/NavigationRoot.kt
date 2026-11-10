@@ -78,14 +78,10 @@ fun navigation(): Navigation {
  * activity's view model.
  */
 @Composable
-inline fun <reified T : ViewModel> screenScopedViewModel(
-    factory: ViewModelProvider.Factory? = null
-): T {
+inline fun <reified T : ViewModel> screenScopedViewModel(): T {
     val viewModelStoreOwner = LocalViewModelStoreOwner.current
     requireNotNull(viewModelStoreOwner) { "No ViewModelStoreOwner provided" }
-    val viewModelProvider = remember(viewModelStoreOwner, factory) {
-        factory?.let { ViewModelProvider(viewModelStoreOwner, it) } ?: ViewModelProvider(viewModelStoreOwner)
-    }
+    val viewModelProvider = remember(viewModelStoreOwner) { ViewModelProvider(viewModelStoreOwner) }
     return viewModelProvider[T::class.java]
 }
 

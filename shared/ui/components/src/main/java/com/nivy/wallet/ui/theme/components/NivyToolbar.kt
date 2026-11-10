@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.colors.gradientCutBackgroundBottom
 
@@ -24,15 +23,13 @@ fun NivyToolbar(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backButtonType: BackButtonType = BackButtonType.BACK,
-    paddingTop: Dp = 16.dp,
-    paddingBottom: Dp = 16.dp,
     content: @Composable RowScope.() -> Unit = { }
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .gradientCutBackgroundBottom(MaterialTheme.colorScheme.surface, paddingBottom = paddingBottom)
-            .padding(top = paddingTop),
+            .gradientCutBackgroundBottom(MaterialTheme.colorScheme.surface, paddingBottom = 16.dp)
+            .padding(top = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(24.dp))

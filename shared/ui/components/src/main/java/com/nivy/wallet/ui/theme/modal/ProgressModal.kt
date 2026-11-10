@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.colors.Red
@@ -24,15 +24,12 @@ fun BoxWithConstraintsScope.ProgressModal(
     description: String,
     visible: Boolean,
     modifier: Modifier = Modifier,
-    id: UUID = UUID.randomUUID(),
-    color: Color = MaterialTheme.colorScheme.tertiary,
-    dismiss: () -> Unit = {},
 ) {
     NivyModal(
         modifier = modifier,
-        id = id,
+        id = remember { UUID.randomUUID() },
         visible = visible,
-        dismiss = dismiss,
+        dismiss = {},
         primaryAction = {}
     ) {
         Spacer(Modifier.height(32.dp))
@@ -67,7 +64,7 @@ fun BoxWithConstraintsScope.ProgressModal(
                 .clip(
                     PillShape
                 ),
-            color = color
+            color = MaterialTheme.colorScheme.tertiary
         )
 
         Spacer(Modifier.height(48.dp))

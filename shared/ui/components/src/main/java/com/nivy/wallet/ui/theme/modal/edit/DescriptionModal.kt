@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalView
@@ -33,7 +34,9 @@ import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.ui.R
 import com.nivy.wallet.ui.theme.components.NivyDescriptionTextField
 import com.nivy.wallet.ui.theme.modal.NivyModal
-import com.nivy.wallet.ui.theme.modal.ModalDynamicPrimaryAction
+import com.nivy.wallet.ui.theme.modal.ModalAdd
+import com.nivy.wallet.ui.theme.modal.ModalDelete
+import com.nivy.wallet.ui.theme.modal.ModalSave
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -60,13 +63,9 @@ fun BoxWithConstraintsScope.DescriptionModal(
         visible = visible,
         dismiss = dismiss,
         primaryAction = {
-            ModalDynamicPrimaryAction(
+            PrimaryAction(
                 initialEmpty = description.isNullOrBlank(),
                 initialChanged = description != descTextFieldValue.text,
-
-                testTagSave = "modal_desc_save",
-                testTagDelete = "modal_desc_delete",
-
                 onSave = {
                     onDescriptionChanged(descTextFieldValue.text)
                     view.hideKeyboard()
@@ -146,6 +145,33 @@ private fun PreviewDescriptionModal_emptyText() {
             description = "",
             onDescriptionChanged = {}
         ) {
+        }
+    }
+}
+
+// Add for a new description, Save for a changed one, Delete for one left as it was.
+@Composable
+private fun PrimaryAction(
+    initialEmpty: Boolean,
+    initialChanged: Boolean,
+    onDelete: () -> Unit,
+    dismiss: () -> Unit,
+    onSave: () -> Unit
+) {
+    when {
+        initialEmpty -> ModalAdd(testTag = "modal_desc_save") {
+            onSave()
+            dismiss()
+        }
+
+        !initialChanged -> ModalDelete(testTag = "modal_desc_delete") {
+            onDelete()
+            dismiss()
+        }
+
+        else -> ModalSave(modifier = Modifier.testTag("modal_desc_save")) {
+            onSave()
+            dismiss()
         }
     }
 }
