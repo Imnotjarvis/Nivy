@@ -26,6 +26,7 @@ import com.nivy.wallet.ui.theme.modal.NivyModal
 import com.nivy.wallet.ui.theme.modal.ModalAdd
 import com.nivy.wallet.ui.theme.modal.ModalTitle
 import com.nivy.wallet.ui.theme.modal.edit.AmountModal
+import com.nivy.wallet.domain.data.NivyCurrency
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
@@ -44,23 +45,15 @@ internal fun BoxWithConstraintsScope.AddRateModal(
     var amountModalVisible by remember { mutableStateOf(false) }
     var rate by remember { mutableStateOf<Double?>(null) }
 
+    val addable = addableRate(baseCurrency = baseCurrency, currency = toCurrency.text, rate = rate)
+
     NivyModal(
         id = null,
         visible = visible,
         dismiss = dismiss,
         primaryAction = {
-            ModalAdd {
-                val to = toCurrency
-                val finalRate = rate
-                onAdd(
-                    RatesEvent.AddRate(
-                        RateUi(
-                            from = baseCurrency,
-                            to = to.text,
-                            rate = finalRate ?: 0.0,
-                        )
-                    )
-                )
+            ModalAdd(enabled = addable != null) {
+                addable?.let { onAdd(RatesEvent.AddRate(it)) }
                 dismiss()
             }
         }
@@ -107,6 +100,20 @@ internal fun BoxWithConstraintsScope.AddRateModal(
             rate = it
         }
     )
+}
+
+/**
+ * The rate the dialog would add: from [baseCurrency] to the [currency] typed, a code the app knows
+ * other than the base, at a [rate] above 0; null until there's one.
+ */
+internal fun addableRate(baseCurrency: String, currency: String, rate: Double?): RateUi? {
+    val code = currency.trim().uppercase()
+    val anotherKnownCurrency = NivyCurrency.fromCode(code) != null && code != baseCurrency
+    return if (anotherKnownCurrency && rate != null && rate > 0) {
+        RateUi(from = baseCurrency, to = code, rate = rate)
+    } else {
+        null
+    }
 }
 
 @Preview

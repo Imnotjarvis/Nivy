@@ -104,7 +104,7 @@ class ExchangeRatesViewModel @Inject constructor(
                     syncExchangeRatesUseCase.sync(base)
                         .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
                 }
-            }.onLeft { toaster.show(it) }
+            }.onLeft { toaster.show(R.string.msg_rate_not_removed) }
         }
     }
 
@@ -113,32 +113,26 @@ class ExchangeRatesViewModel @Inject constructor(
     }
 
     private suspend fun handleUpdateRate(event: RatesEvent.UpdateRate) {
-        withContext(dispatchers.io) {
-            either {
-                ExchangeRate(
-                    baseCurrency = AssetCode.from(event.rate.from).bind(),
-                    currency = AssetCode.from(event.rate.to).bind(),
-                    rate = PositiveDouble.from(event.newRate).bind(),
-                    manualOverride = true
-                )
-            }.onRight {
-                exchangeRatesRepo.save(it)
-            }.onLeft { toaster.show(it) }
-        }
+        saveManualRate(from = event.rate.from, to = event.rate.to, rate = event.newRate)
     }
 
     private suspend fun handleAddRate(event: RatesEvent.AddRate) {
+        saveManualRate(from = event.rate.from, to = event.rate.to, rate = event.rate.rate)
+    }
+
+    // A rate entered by hand, kept over the downloaded one; the validators' own text isn't for people.
+    private suspend fun saveManualRate(from: String, to: String, rate: Double) {
         withContext(dispatchers.io) {
             either {
                 ExchangeRate(
-                    baseCurrency = AssetCode.from(event.rate.from).bind(),
-                    currency = AssetCode.from(event.rate.to).bind(),
-                    rate = PositiveDouble.from(event.rate.rate).bind(),
+                    baseCurrency = AssetCode.from(from).bind(),
+                    currency = AssetCode.from(to).bind(),
+                    rate = PositiveDouble.from(rate).bind(),
                     manualOverride = true
                 )
             }.onRight {
                 exchangeRatesRepo.save(it)
-            }.onLeft { toaster.show(it) }
+            }.onLeft { toaster.show(R.string.msg_rate_not_saved) }
         }
     }
     // endregion
