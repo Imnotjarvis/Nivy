@@ -10,7 +10,6 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
-import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -22,7 +21,6 @@ import java.util.UUID
 class RateCardTest {
     private val card = RateCard(
         TransferExchangeRate(
-            currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
             exchangeUseCase = mockk<ExchangeUseCase> {
                 // 1 EUR = 2 USD
                 coEvery { convert(any<PositiveValue>(), Usd) } answers {

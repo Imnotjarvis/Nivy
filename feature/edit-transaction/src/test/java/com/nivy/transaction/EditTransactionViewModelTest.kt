@@ -31,7 +31,6 @@ import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
-import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
@@ -125,7 +124,6 @@ class EditTransactionViewModelTest {
                 loanDao = mockk(relaxed = true),
             ),
             transferExchangeRate = TransferExchangeRate(
-                currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
                 exchangeUseCase = mockk<ExchangeUseCase> {
                     // 1 EUR = 2 USD
                     coEvery { convert(any<PositiveValue>(), Usd) } answers { firstArg<PositiveValue>().to(Usd, 2.0) }

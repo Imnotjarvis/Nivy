@@ -29,6 +29,7 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.base.model.IntervalType
+import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
@@ -96,12 +97,10 @@ internal fun LazyItemScope.PlannedPaymentCard(
         Spacer(Modifier.height(16.dp))
 
         RuleTextRow(
-            oneTime = plannedPayment.interval == null,
             startDate = with(LocalTimeConverter.current) {
                 plannedPayment.startDate.toLocalDateTime()
             },
-            intervalN = plannedPayment.interval?.n?.value,
-            intervalType = plannedPayment.interval?.type
+            interval = plannedPayment.interval,
         )
 
         plannedPayment.title?.let { title ->
@@ -138,82 +137,79 @@ private fun PlannedPaymentHeaderRow(
 ) {
     val nav = navigation()
 
-    if (plannedPayment.type != TransactionType.TRANSFER) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(Modifier.width(20.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(20.dp))
 
-            NivyIcon(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surface, PillShape),
-                icon = R.drawable.ic_planned_payments,
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        NivyIcon(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface, PillShape),
+            icon = R.drawable.ic_planned_payments,
+            tint = MaterialTheme.colorScheme.onSurface
+        )
 
-            Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(12.dp))
 
-            val category =
-                plannedPayment.category?.let { targetId -> categories.find { it.id == targetId } }
-            if (category != null) {
-                NivyButton(
-                    iconTint = readableOn(categoryColor(category.color.value)),
-                    iconStart = getCustomIconIdS(
-                        category.icon?.id,
-                        R.drawable.ic_custom_category_s
-                    ),
-                    text = category.name.value,
-                    backgroundColor = categoryColor(category.color.value),
-                    textStyle = MaterialTheme.typography.labelMedium.copy(
-                        color = readableOn(categoryColor(category.color.value)),
-                        fontWeight = FontWeight.ExtraBold
-                    ),
-                    padding = 8.dp,
-                    iconEdgePadding = 8.dp
-                ) {
-                    nav.navigateTo(
-                        TransactionsScreen(
-                            accountId = null,
-                            categoryId = category.id.value
-                        )
-                    )
-                }
-
-                Spacer(Modifier.width(12.dp))
-            }
-
-            val account = accounts.find { it.id == plannedPayment.account }
+        val category =
+            plannedPayment.category?.let { targetId -> categories.find { it.id == targetId } }
+        if (category != null) {
             NivyButton(
-                backgroundColor = MaterialTheme.colorScheme.surface,
-                text = account?.name?.value ?: stringResource(R.string.deleted),
-                iconTint = MaterialTheme.colorScheme.onSurface,
-                iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),
+                iconTint = readableOn(categoryColor(category.color.value)),
+                iconStart = getCustomIconIdS(
+                    category.icon?.id,
+                    R.drawable.ic_custom_category_s
+                ),
+                text = category.name.value,
+                backgroundColor = categoryColor(category.color.value),
                 textStyle = MaterialTheme.typography.labelMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = readableOn(categoryColor(category.color.value)),
                     fontWeight = FontWeight.ExtraBold
                 ),
                 padding = 8.dp,
                 iconEdgePadding = 8.dp
             ) {
-                account?.let {
-                    nav.navigateTo(
-                        TransactionsScreen(
-                            accountId = account.id.value,
-                            categoryId = null
-                        )
+                nav.navigateTo(
+                    TransactionsScreen(
+                        accountId = null,
+                        categoryId = category.id.value
                     )
-                }
+                )
+            }
+
+            Spacer(Modifier.width(12.dp))
+        }
+
+        val account = accounts.find { it.id == plannedPayment.account }
+        NivyButton(
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            text = account?.name?.value ?: stringResource(R.string.deleted),
+            iconTint = MaterialTheme.colorScheme.onSurface,
+            iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),
+            textStyle = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
+            ),
+            padding = 8.dp,
+            iconEdgePadding = 8.dp
+        ) {
+            account?.let {
+                nav.navigateTo(
+                    TransactionsScreen(
+                        accountId = account.id.value,
+                        categoryId = null
+                    )
+                )
             }
         }
     }
 }
 
+// "Planned for" the date of a one-time payment, or when a repeating one starts and how often.
 @Composable
 private fun RuleTextRow(
-    oneTime: Boolean,
-    startDate: LocalDateTime?,
-    intervalN: Int?,
-    intervalType: IntervalType?
+    startDate: LocalDateTime,
+    interval: PlannedPaymentInterval?,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -221,7 +217,10 @@ private fun RuleTextRow(
     ) {
         Spacer(Modifier.width(24.dp))
 
-        if (oneTime) {
+        val startDateFormatted = with(LocalTimeFormatter.current) {
+            startDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+        }
+        if (interval == null) {
             Text(
                 text = stringResource(R.string.planned_for_uppercase),
                 style = MaterialTheme.typography.labelMedium.copy(
@@ -231,33 +230,26 @@ private fun RuleTextRow(
             )
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
-                text = startDate?.let {
-                    with(LocalTimeFormatter.current) { it.format(TimeFormatter.Style.DateOnly(includeWeekDay = false)) }
-                }
-                    ?: stringResource(R.string.null_text),
+                text = startDateFormatted,
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
         } else {
-            val startDateFormatted = startDate?.let {
-                with(LocalTimeFormatter.current) { it.format(TimeFormatter.Style.DateOnly(includeWeekDay = false)) }
-            }
             Text(
-                text = stringResource(R.string.starts_date, startDateFormatted ?: ""),
+                text = stringResource(R.string.starts_date, startDateFormatted),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,
                     fontWeight = FontWeight.SemiBold
                 )
             )
-            val intervalTypeFormatted = intervalType?.forDisplay(intervalN ?: 0)
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
                 text = stringResource(
                     R.string.repeats_every,
-                    intervalN ?: 0,
-                    intervalTypeFormatted ?: ""
+                    interval.n.value,
+                    interval.type.forDisplay(interval.n.value)
                 ),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = Orange,

@@ -161,7 +161,7 @@ class EditPlannedViewModelTest {
 
         // when
         viewModel.runTest(
-            events = listOf(monthly, EditPlannedScreenEvent.OnCategoryChanged(rent), EditPlannedScreenEvent.OnSave())
+            events = listOf(monthly, EditPlannedScreenEvent.OnCategoryChanged(rent), EditPlannedScreenEvent.OnSave)
         ) {}
 
         // then
@@ -187,7 +187,7 @@ class EditPlannedViewModelTest {
         val once = EditPlannedScreenEvent.OnRuleChanged(firstOfDecember, oneTime = true, null, null)
 
         // when
-        viewModel.runTest(events = listOf(once, EditPlannedScreenEvent.OnSave())) {}
+        viewModel.runTest(events = listOf(once, EditPlannedScreenEvent.OnSave)) {}
 
         // then
         saved.single().interval shouldBe null
@@ -200,10 +200,10 @@ class EditPlannedViewModelTest {
         val noInterval = EditPlannedScreenEvent.OnRuleChanged(firstOfDecember, oneTime = false, null, null)
 
         // when
-        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnSave())) {}
-        viewModel.runTest(events = listOf(noInterval, EditPlannedScreenEvent.OnSave())) {}
+        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnSave)) {}
+        viewModel.runTest(events = listOf(noInterval, EditPlannedScreenEvent.OnSave)) {}
         viewModel.runTest(
-            events = listOf(monthly, EditPlannedScreenEvent.OnAmountChanged(0.0), EditPlannedScreenEvent.OnSave())
+            events = listOf(monthly, EditPlannedScreenEvent.OnAmountChanged(0.0), EditPlannedScreenEvent.OnSave)
         ) {}
 
         // then
@@ -234,7 +234,7 @@ class EditPlannedViewModelTest {
         newPlan(type = TransactionType.TRANSFER)
 
         // when
-        viewModel.runTest(events = listOf(monthly, EditPlannedScreenEvent.OnSave())) {}
+        viewModel.runTest(events = listOf(monthly, EditPlannedScreenEvent.OnSave)) {}
 
         // then
         saved shouldBe emptyList()

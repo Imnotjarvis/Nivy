@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.nivy.base.model.Theme
@@ -390,7 +389,6 @@ private fun MoreMenuButton(
 
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     tint: Color = MaterialTheme.colorScheme.onSurface,
-    expandPadding: Dp = 14.dp,
 
     onClick: () -> Unit
 ) {
@@ -401,7 +399,7 @@ private fun MoreMenuButton(
             icon = icon,
             backgroundColor = backgroundColor,
             tint = tint,
-            clickAreaPadding = expandPadding,
+            clickAreaPadding = 14.dp,
             onClick = onClick
         )
 

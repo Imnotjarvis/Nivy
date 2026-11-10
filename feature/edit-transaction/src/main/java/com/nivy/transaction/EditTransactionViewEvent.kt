@@ -54,7 +54,7 @@ sealed interface EditTransactionViewEvent {
     data class OnCategoryChanged(val newCategory: Category?) : EditTransactionViewEvent
     data class OnAccountChanged(val newAccount: Account) : EditTransactionViewEvent
     data class OnToAccountChanged(val newAccount: Account) : EditTransactionViewEvent
-    data class OnDueDateChanged(val newDueDate: LocalDateTime?) : EditTransactionViewEvent
+    data class OnDueDateChanged(val newDueDate: LocalDateTime) : EditTransactionViewEvent
     data object OnChangeDate : EditTransactionViewEvent
     data object OnChangeTime : EditTransactionViewEvent
     data class OnMoveCharge(val months: Int) : EditTransactionViewEvent
