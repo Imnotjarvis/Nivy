@@ -156,7 +156,7 @@ private fun BoxWithConstraintsScope.UI(
         },
         onAmountChanged = { newRate ->
             rateToUpdate?.let {
-                onEvent(RatesEvent.UpdateRate(rateToUpdate!!, newRate))
+                onEvent(RatesEvent.UpdateRate(it, newRate))
             }
         }
     )
