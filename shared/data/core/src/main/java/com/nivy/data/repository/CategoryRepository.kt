@@ -23,7 +23,7 @@ class CategoryRepository @Inject constructor(
     suspend fun findAll(): List<Category> = memo.findAll(
         findAllOperation = {
             categoryDao.findAll().mapNotNull {
-                with(mapper) { it.toDomain() }.getOrNull()
+                with(mapper) { it.toDomain() }.orLogged()
             }
         },
         sortMemo = { sortedBy(Category::orderNum) }
@@ -33,7 +33,7 @@ class CategoryRepository @Inject constructor(
         id = id,
         findByIdOperation = {
             categoryDao.findById(id.value)?.let {
-                with(mapper) { it.toDomain() }.getOrNull()
+                with(mapper) { it.toDomain() }.orLogged()
             }
         }
     )

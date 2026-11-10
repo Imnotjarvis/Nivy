@@ -38,7 +38,7 @@ class TagRepository @Inject constructor(
 
     private suspend fun findByIdOperation(id: TagId): Tag? = tagDao.findByIds(id.value)
         ?.let {
-            with(mapper) { it.toDomain().getOrNull() }
+            with(mapper) { it.toDomain().orLogged() }
         }
 
     suspend fun findByAssociatedId(id: AssociationId): List<Tag> {
@@ -46,7 +46,7 @@ class TagRepository @Inject constructor(
             tagDao.findTagsByAssociatedId(id.value).let { entities ->
                 entities.mapNotNull {
                     with(mapper) {
-                        it.toDomain().getOrNull()
+                        it.toDomain().orLogged()
                     }
                 }
             }
@@ -63,7 +63,7 @@ class TagRepository @Inject constructor(
                         .entries.associate { (id, tags) ->
                             val domainTags = tags.mapNotNull {
                                 with(mapper) {
-                                    it.toDomain().getOrNull()
+                                    it.toDomain().orLogged()
                                 }
                             }
                             AssociationId(id) to domainTags
@@ -79,7 +79,7 @@ class TagRepository @Inject constructor(
         findAllOperation = {
             tagDao.findAll().let { entities ->
                 entities.mapNotNull {
-                    with(mapper) { it.toDomain().getOrNull() }
+                    with(mapper) { it.toDomain().orLogged() }
                 }
             }
         },
@@ -92,7 +92,7 @@ class TagRepository @Inject constructor(
         return withContext(dispatchersProvider.io) {
             tagDao.findByText(text).let { entities ->
                 entities.mapNotNull {
-                    with(mapper) { it.toDomain().getOrNull() }
+                    with(mapper) { it.toDomain().orLogged() }
                 }
             }
         }

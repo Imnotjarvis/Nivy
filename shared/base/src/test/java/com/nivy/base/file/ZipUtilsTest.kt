@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -16,6 +17,21 @@ class ZipUtilsTest {
 
     @get:Rule
     val temp = TemporaryFolder()
+
+    @Test
+    fun `zipping into a file the provider gives none for fails`() {
+        // Given: a provider that gives no file for the uri
+        val backup = temp.newFile("backup.json").apply { writeText("{}") }
+
+        // Then
+        shouldThrow<FileNotFoundException> { zip(open = { null }, listOf(backup)) }
+    }
+
+    @Test
+    fun `unzipping a file the provider gives none for fails`() {
+        // Given: a provider that gives no file for the uri, then
+        shouldThrow<FileNotFoundException> { unzip(open = { null }, File(temp.root, "out")) }
+    }
 
     @Test
     fun `extracts every entry into the destination folder`() {

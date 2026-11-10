@@ -43,7 +43,7 @@ class TransactionRepository @Inject constructor(
         val tagAssociationMap = getTagsForTransactionIds(transactions)
         transactions.mapNotNull {
             val tags = tagAssociationMap[it.id] ?: emptyList()
-            with(mapper) { it.toDomain(tags = tags) }.getOrNull()
+            with(mapper) { it.toDomain(tags = tags) }.orLogged()
         }
     }
 
@@ -206,7 +206,7 @@ class TransactionRepository @Inject constructor(
         id: TransactionId
     ): Transaction? = withContext(dispatchersProvider.io) {
         transactionDao.findById(id.value)?.let {
-            with(mapper) { it.toDomain() }.getOrNull()
+            with(mapper) { it.toDomain() }.orLogged()
         }
     }
 
@@ -278,14 +278,14 @@ class TransactionRepository @Inject constructor(
     suspend fun findLoanTransaction(loanId: UUID): Transaction? =
         withContext(dispatchersProvider.io) {
             transactionDao.findLoanTransaction(loanId)?.let {
-                with(mapper) { it.toDomain() }.getOrNull()
+                with(mapper) { it.toDomain() }.orLogged()
             }
         }
 
     suspend fun findLoanRecordTransaction(loanRecordId: UUID): Transaction? =
         withContext(dispatchersProvider.io) {
             transactionDao.findLoanRecordTransaction(loanRecordId)?.let {
-                with(mapper) { it.toDomain() }.getOrNull()
+                with(mapper) { it.toDomain() }.orLogged()
             }
         }
 
@@ -300,7 +300,7 @@ class TransactionRepository @Inject constructor(
         retrieveTags: suspend (TransactionEntity) -> List<TagId> = { emptyList() },
     ): List<Transaction> = withContext(dispatchersProvider.io) {
         dbCall().mapNotNull {
-            with(mapper) { it.toDomain(tags = retrieveTags(it)) }.getOrNull()
+            with(mapper) { it.toDomain(tags = retrieveTags(it)) }.orLogged()
         }
     }
 

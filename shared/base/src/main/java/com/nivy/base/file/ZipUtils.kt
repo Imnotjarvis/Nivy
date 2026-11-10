@@ -2,10 +2,12 @@ package com.nivy.base.file
 
 import android.content.Context
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -14,15 +16,21 @@ import java.util.zip.ZipOutputStream
 private const val MODE_WRITE = "w"
 private const val MODE_READ = "r"
 
-fun zip(context: Context, zipFile: Uri, files: List<File>) {
-    context.contentResolver.openFileDescriptor(zipFile, MODE_WRITE).use { descriptor ->
-        descriptor?.fileDescriptor?.let {
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(it))).use { outStream ->
-                zip(outStream, files)
-            }
+fun zip(context: Context, zipFile: Uri, files: List<File>) =
+    zip(open = { context.contentResolver.openFileDescriptor(zipFile, MODE_WRITE) }, files)
+
+/** Zips [files] into the file [open] gives, as the content resolver does; tests give their own. */
+internal fun zip(open: () -> ParcelFileDescriptor?, files: List<File>) {
+    descriptor(open).use { descriptor ->
+        ZipOutputStream(BufferedOutputStream(FileOutputStream(descriptor.fileDescriptor))).use { outStream ->
+            zip(outStream, files)
         }
     }
 }
+
+// The provider can give no file at all for the uri: that's a file not found, not a zip of nothing.
+private fun descriptor(open: () -> ParcelFileDescriptor?): ParcelFileDescriptor =
+    open() ?: throw FileNotFoundException("The provider gave no file to open")
 
 private fun zip(
     outStream: ZipOutputStream,
@@ -51,11 +59,13 @@ private fun zip(
     }
 }
 
-fun unzip(context: Context, zipFile: Uri, location: File) {
-    context.contentResolver.openFileDescriptor(zipFile, MODE_READ).use { descriptor ->
-        descriptor?.fileDescriptor?.let {
-            unzip(FileInputStream(it), location)
-        }
+fun unzip(context: Context, zipFile: Uri, location: File) =
+    unzip(open = { context.contentResolver.openFileDescriptor(zipFile, MODE_READ) }, location)
+
+/** Unzips the file [open] gives, as the content resolver does, into [location]; tests give their own. */
+internal fun unzip(open: () -> ParcelFileDescriptor?, location: File) {
+    descriptor(open).use { descriptor ->
+        unzip(FileInputStream(descriptor.fileDescriptor), location)
     }
 }
 

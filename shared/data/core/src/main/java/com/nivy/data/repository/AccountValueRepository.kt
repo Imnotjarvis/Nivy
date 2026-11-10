@@ -21,7 +21,7 @@ class AccountValueRepository @Inject constructor(
     suspend fun findByAccount(accountId: AccountId): List<AccountValue> =
         withContext(dispatchersProvider.io) {
             accountValueDao.findByAccountId(accountId.value)
-                .mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+                .mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
         }
 
     suspend fun save(value: AccountValue): Unit = withContext(dispatchersProvider.io) {

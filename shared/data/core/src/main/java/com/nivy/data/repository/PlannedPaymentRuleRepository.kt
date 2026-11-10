@@ -21,13 +21,13 @@ class PlannedPaymentRuleRepository @Inject constructor(
     suspend fun findAllByOneTime(oneTime: Boolean): List<PlannedPaymentRule> =
         withContext(dispatchersProvider.io) {
             plannedPaymentRuleDao.findAllByOneTime(oneTime)
-                .mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+                .mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
         }
 
     suspend fun findById(id: PlannedPaymentRuleId): PlannedPaymentRule? =
         withContext(dispatchersProvider.io) {
             plannedPaymentRuleDao.findById(id.value)
-                ?.let { with(mapper) { it.toDomain() }.getOrNull() }
+                ?.let { with(mapper) { it.toDomain() }.orLogged() }
         }
 
     suspend fun count(): Long = withContext(dispatchersProvider.io) {
