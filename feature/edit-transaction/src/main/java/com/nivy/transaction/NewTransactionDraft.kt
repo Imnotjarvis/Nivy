@@ -4,6 +4,7 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.CreditCard
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.navigation.EditTransactionScreen
+import com.nivy.wallet.domain.pure.account.startingAccount
 import java.util.UUID
 
 /** A new transaction's draft, on the screen's account or else the last one chosen, with its default card. */
@@ -40,10 +41,6 @@ private suspend fun defaultAccountId(
     }
 
     val lastSelectedId = appPreferences.lastSelectedAccountId()?.let { UUID.fromString(it) }
-    if (lastSelectedId != null && accounts.any { it.id.value == lastSelectedId }) {
-        // use last selected account
-        return lastSelectedId
-    }
-
-    return accounts.first().id.value
+    // The editor opens only with accounts to choose from.
+    return checkNotNull(accounts.startingAccount(lastSelectedId)).id.value
 }

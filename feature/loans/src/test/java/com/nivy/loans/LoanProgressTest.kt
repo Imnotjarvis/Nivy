@@ -84,6 +84,23 @@ class LoanProgressTest {
     }
 
     @Test
+    fun `a loan paid back in equal payments with cents is paid off`() {
+        // twelve payments of 50.02 add up, as doubles, to 600.2399999999999
+        val progress = loan.copy(amount = PositiveDouble.unsafe(600.24))
+            .progress(List(12) { record(LoanRecordType.DECREASE, 50.02, interest = false) })
+
+        progress.paidOff shouldBe true
+    }
+
+    @Test
+    fun `a loan with a cent left isn't paid off`() {
+        val progress = loan.copy(amount = PositiveDouble.unsafe(100.0))
+            .progress(listOf(record(LoanRecordType.DECREASE, 99.99, interest = false)))
+
+        progress.paidOff shouldBe false
+    }
+
+    @Test
     fun `without a total the shares are 0, not a division by zero`() {
         // when
         val progress = LoanProgress.None

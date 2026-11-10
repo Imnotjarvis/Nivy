@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
+import com.nivy.wallet.domain.pure.account.startingAccount
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
@@ -201,7 +202,8 @@ class LoanViewModel @Inject constructor(
                             formattedDisplayText = "${progress.paid.format(currCode)} $currCode / " +
                                 "${progress.total.format(currCode)} $currCode " +
                                 "(${progress.percentPaid.times(Percent).format(2)}%)",
-                            percentPaid = progress.percentPaid
+                            percentPaid = progress.percentPaid,
+                            paidOff = progress.paidOff,
                         )
                     }.toImmutableList()
             }
@@ -307,11 +309,11 @@ class LoanViewModel @Inject constructor(
     }
 
     private fun loadCompletedLoans() {
-        completedLoans = allLoans.filter { loan -> loan.percentPaid >= 1.0 }.toImmutableList()
+        completedLoans = allLoans.filter { loan -> loan.paidOff }.toImmutableList()
     }
 
     private fun loadPendingLoans() {
-        pendingLoans = allLoans.filter { loan -> loan.percentPaid < 1.0 }.toImmutableList()
+        pendingLoans = allLoans.filterNot { loan -> loan.paidOff }.toImmutableList()
     }
 
     private fun createAccount(data: CreateAccountData) {
@@ -324,17 +326,7 @@ class LoanViewModel @Inject constructor(
 
     private suspend fun defaultAccountId(
         accounts: List<Account>,
-    ): Account? {
-        val lastSelectedId = appPreferences.lastSelectedAccountId()?.let {
-            UUID.fromString(it)
-        }
-
-        lastSelectedId?.let { uuid ->
-            return accounts.find { it.id.value == uuid }
-        } ?: run {
-            return if (accounts.isNotEmpty()) accounts[0] else null
-        }
-    }
+    ): Account? = accounts.startingAccount(appPreferences.lastSelectedAccountId()?.let(UUID::fromString))
 
     /** The amount in the base currency, or 0 when there's no rate for it, as budgets count it. */
     private suspend fun inBaseCurrency(amount: Double, currencyCode: String): Double {
