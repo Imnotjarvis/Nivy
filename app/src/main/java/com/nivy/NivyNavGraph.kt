@@ -49,7 +49,6 @@ import com.nivy.transactions.TransactionsScreen
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-@Suppress("CyclomaticComplexMethod", "FunctionNaming")
 fun BoxWithConstraintsScope.NivyNavGraph(screen: Screen?) {
     when (screen) {
         null -> {

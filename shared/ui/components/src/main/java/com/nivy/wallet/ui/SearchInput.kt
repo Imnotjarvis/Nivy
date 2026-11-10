@@ -25,7 +25,6 @@ import com.nivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
-@Suppress("MagicNumber")
 @Composable
 fun SearchInput(
     searchQueryTextFieldValue: TextFieldValue,

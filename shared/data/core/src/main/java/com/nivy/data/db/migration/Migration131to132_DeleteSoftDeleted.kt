@@ -8,7 +8,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * deleted accounts were still only marked, and so were rows imported from old backups. The app no
  * longer filters on the flag.
  */
-@Suppress("MagicNumber", "ClassNaming")
 class Migration131to132_DeleteSoftDeleted : Migration(131, 132) {
     override fun migrate(db: SupportSQLiteDatabase) {
         listOf(

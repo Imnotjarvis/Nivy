@@ -1,6 +1,5 @@
 package com.nivy.wallet.ui.theme.wallet
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -19,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.typography.numberTitleLarge
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 fun AmountCurrencyB2Row(
     amount: Double,
@@ -50,7 +48,6 @@ fun AmountCurrencyB2Row(
     }
 }
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 fun AmountCurrencyB1Row(
     amount: Double,
@@ -72,11 +69,6 @@ fun AmountCurrencyB1Row(
     }
 }
 
-@SuppressLint(
-    "ComposeContentEmitterReturningValues",
-    "ComposeMultipleContentEmitters",
-    "ComposeModifierMissing"
-)
 @Composable
 fun AmountCurrencyB1(
     amount: Double,

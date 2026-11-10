@@ -3,7 +3,6 @@ package com.nivy.data.db.migration
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Suppress("MagicNumber", "ClassNaming")
 class Migration128to129_DeleteIsDeleted : Migration(128, 129) {
     override fun migrate(db: SupportSQLiteDatabase) {
         with(db) {

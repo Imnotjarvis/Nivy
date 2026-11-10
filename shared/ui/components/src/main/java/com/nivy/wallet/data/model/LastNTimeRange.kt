@@ -9,7 +9,6 @@ import com.nivy.base.model.incrementDate
 import com.nivy.wallet.forDisplay
 import java.time.Instant
 
-@Suppress("DataClassFunctions")
 @Immutable
 data class LastNTimeRange(
     val periodN: Int,

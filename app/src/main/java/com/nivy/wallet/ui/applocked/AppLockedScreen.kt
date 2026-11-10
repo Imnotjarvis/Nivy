@@ -1,6 +1,5 @@
 package com.nivy.wallet.ui.applocked
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,9 +37,7 @@ import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
-@Suppress("LongMethod", "FunctionNaming")
 internal fun BoxWithConstraintsScope.AppLockedScreen(
     onShowOSBiometricsModal: () -> Unit,
     onContinueWithoutAuthentication: () -> Unit
@@ -139,7 +136,6 @@ private fun osAuthentication(
 
 @Preview
 @Composable
-@Suppress("FunctionNaming", "UnusedPrivateMember")
 private fun Preview_Locked() {
     NivyPreview {
         AppLockedScreen(

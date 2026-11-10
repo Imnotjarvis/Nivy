@@ -172,7 +172,7 @@ private fun weekdayName(day: DayOfWeek, style: TextStyle): String = day.getDispl
 // ---- This month
 
 @Composable
-internal fun FreeToSpendPanel(
+private fun FreeToSpendPanel(
     free: FreeToSpend,
     currency: String,
     month: Month?,
@@ -267,7 +267,7 @@ internal fun FreeToSpendPanel(
 }
 
 @Composable
-internal fun DayByDayPanel(detail: MonthDetail, currency: String) {
+private fun DayByDayPanel(detail: MonthDetail, currency: String) {
     val planned = detail.actualDays < detail.days.size
     ChartPanel(
         title = stringResource(R.string.month_day_by_day),
@@ -385,7 +385,7 @@ private fun SpentEachDayPanel(detail: MonthDetail, currency: String) {
 }
 
 @Composable
-internal fun PacePanel(
+private fun PacePanel(
     pace: Pace,
     currency: String,
     month: Month?,
@@ -489,7 +489,7 @@ private fun SpendBar(spent: Double, likely: Double, color: Color) {
  * of the last months in 10, then purchases bigger than their category's for months.
  */
 @Composable
-internal fun UnusualPanel(unusual: Unusual, currency: String) {
+private fun UnusualPanel(unusual: Unusual, currency: String) {
     val panel = MaterialTheme.colorScheme.surfaceVariant
     ChartPanel(
         modifier = Modifier.testTag("month_unusual"),
@@ -587,7 +587,7 @@ private fun FindingRow(
 }
 
 @Composable
-internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, outlook: MonthOutlook? = null) {
+private fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, outlook: MonthOutlook? = null) {
     StatTiles(
         modifier = Modifier.testTag("month_habit_tiles"),
         stats = buildList {

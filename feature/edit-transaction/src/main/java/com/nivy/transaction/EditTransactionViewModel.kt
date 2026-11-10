@@ -182,7 +182,6 @@ class EditTransactionViewModel @Inject constructor(
         (dateTime ?: timeProvider.utcNow()).toLocalDateTime()
     }
 
-    @Suppress("CyclomaticComplexMethod")
     override fun onEvent(event: EditTransactionViewEvent) {
         when (event) {
             is EditTransactionViewEvent.CreateAccount -> createAccount(event.data)

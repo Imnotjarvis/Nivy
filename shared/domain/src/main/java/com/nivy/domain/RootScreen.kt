@@ -14,8 +14,6 @@ interface RootScreen {
      */
     val buildVersionCode: Int
 
-    fun openUrlInBrowser(url: String)
-
     fun shareCSVFile(fileUri: Uri)
 
     fun shareZipFile(fileUri: Uri)

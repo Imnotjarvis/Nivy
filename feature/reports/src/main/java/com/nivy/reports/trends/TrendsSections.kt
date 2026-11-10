@@ -179,7 +179,7 @@ internal fun NetWorthSummary(detail: TrendsDetail, range: TrendsRange, currency:
 // ---- Net worth
 
 @Composable
-internal fun NetWorthPanel(
+private fun NetWorthPanel(
     detail: TrendsDetail,
     range: TrendsRange,
     selected: Int,
@@ -421,7 +421,7 @@ private fun CategoriesPanel(
 }
 
 @Composable
-internal fun ChangesPanel(changes: List<CategoryShift>, currency: String) {
+private fun ChangesPanel(changes: List<CategoryShift>, currency: String) {
     val panel = MaterialTheme.colorScheme.surfaceVariant
     ChartPanel(
         title = stringResource(R.string.trends_biggest_changes),
@@ -459,7 +459,7 @@ internal fun ChangesPanel(changes: List<CategoryShift>, currency: String) {
  * month on, or steadily, each over its months, the level it moved from and the one it's at.
  */
 @Composable
-internal fun ShiftsPanel(shifts: List<HabitShift>, currency: String) {
+private fun ShiftsPanel(shifts: List<HabitShift>, currency: String) {
     val panel = MaterialTheme.colorScheme.surfaceVariant
     ChartPanel(
         modifier = Modifier.testTag("trends_habit_shifts"),

@@ -11,7 +11,6 @@ import kotlinx.serialization.Serializable
 import java.time.Instant
 import java.util.UUID
 
-@Suppress("DataClassDefaultValues")
 @Keep
 @Serializable
 @Entity(tableName = "loan_records")

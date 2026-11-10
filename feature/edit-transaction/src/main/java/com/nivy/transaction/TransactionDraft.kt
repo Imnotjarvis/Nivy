@@ -16,7 +16,6 @@ import java.util.UUID
  * The transaction the screen edits. Unlike [Transaction] it can be incomplete,
  * like a new one without an amount yet.
  */
-@Suppress("DataClassDefaultValues")
 internal data class TransactionDraft(
     val accountId: UUID,
     val type: TransactionType,

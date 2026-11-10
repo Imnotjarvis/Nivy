@@ -1,6 +1,5 @@
 package com.nivy.reports
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -99,7 +98,6 @@ fun ColumnScope.TagFilter(
     }
 }
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun AccountsFilter(
     allAccounts: List<Account>,
@@ -168,7 +166,6 @@ internal fun AccountsFilter(
     }
 }
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun CategoriesFilter(
     allCategories: List<Category>,

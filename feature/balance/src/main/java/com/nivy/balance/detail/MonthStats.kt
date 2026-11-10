@@ -43,7 +43,6 @@ private const val ListedPlaces = 4
  * expenses still due count as fixed, as the bills and subscriptions already paid do. [previous] is
  * what each category took over as many days of the month before.
  */
-@Suppress("LongParameterList")
 internal fun habits(
     spends: List<Spend>,
     elapsed: List<LocalDate>,

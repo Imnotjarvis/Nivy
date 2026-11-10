@@ -1,6 +1,5 @@
 package com.nivy.reports
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -68,7 +67,6 @@ import java.util.UUID
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 
-@SuppressLint("ComposeModifierMissing")
 @Suppress("LongMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

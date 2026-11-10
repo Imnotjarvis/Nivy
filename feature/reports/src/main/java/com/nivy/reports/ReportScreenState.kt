@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.util.*
 
-@Suppress("DataClassDefaultValues")
 data class ReportScreenState(
     val baseCurrency: String = "",
     val balance: Double = 0.0,

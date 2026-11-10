@@ -37,7 +37,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.clickable
 import androidx.annotation.DrawableRes
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -301,7 +300,6 @@ private fun Toolbar(
     }
 }
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 private fun BudgetItem(
     displayBudget: DisplayBudget,

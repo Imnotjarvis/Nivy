@@ -38,7 +38,6 @@ class TransactionSaving @Inject constructor(
     private val dispatchers: DispatchersProvider,
     private val timeProvider: TimeProvider,
 ) {
-    @Suppress("ReturnCount")
     fun validTransaction(
         scope: CoroutineScope,
         transactionType: TransactionType,

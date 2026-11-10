@@ -1,6 +1,5 @@
 package com.nivy.importdata.csvimport.flow
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,7 +39,6 @@ import com.nivy.design.system.typography.numberHeadlineMedium
 import com.nivy.navigation.rememberOnBack
 import com.nivy.design.system.colors.Palette
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 internal fun ImportResultUI(
     result: ImportResult,

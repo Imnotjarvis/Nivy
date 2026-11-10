@@ -1,7 +1,6 @@
 plugins {
     id("nivy.feature")
     id("nivy.integration.testing")
-    id("nivy.room")
 }
 
 android {
@@ -13,6 +12,8 @@ dependencies {
     implementation(projects.shared.data.core)
 
     implementation(libs.datastore)
+    // DeleteAllDataUseCase clears the database through its open helper.
+    implementation(libs.bundles.room)
     implementation(libs.bundles.opencsv)
 
     testImplementation(projects.shared.data.coreTesting)

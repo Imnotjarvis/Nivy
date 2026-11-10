@@ -33,7 +33,6 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList", "TooManyFunctions")
 class RootViewModel @Inject constructor(
     private val periodState: PeriodState,
     private val themeState: ThemeState,
@@ -192,7 +191,6 @@ class RootViewModel @Inject constructor(
         return false
     }
 
-    @Suppress("EmptyFunctionBlock")
     fun handleBiometricAuthResult(
         onAuthSuccess: () -> Unit = {}
     ): BiometricPrompt.AuthenticationCallback {

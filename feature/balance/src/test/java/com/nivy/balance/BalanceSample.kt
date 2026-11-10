@@ -246,7 +246,6 @@ internal object BalanceSample {
         detail = Detail,
     )
 
-    @Suppress("LongParameterList")
     private fun spend(
         day: Int,
         hour: Int,
@@ -257,7 +256,6 @@ internal object BalanceSample {
         account: Account = MainBank,
     ) = spend(LocalDate.of(2026, 11, day), hour, title, category, amount, recurring, account)
 
-    @Suppress("LongParameterList")
     private fun spend(
         day: LocalDate,
         hour: Int,

@@ -19,7 +19,6 @@ import java.util.UUID
 import javax.inject.Inject
 
 /** Totals, history and due transactions of one category, or of the transactions without one. */
-@Suppress("TooManyFunctions")
 class CategoryTransactionsLogic @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val currencyRepository: CurrencyRepository,

@@ -85,7 +85,6 @@ private fun DueDateCard(
     }
 }
 
-@Suppress("MagicNumber")
 @Preview
 @Composable
 private fun Preview_OneTime() {

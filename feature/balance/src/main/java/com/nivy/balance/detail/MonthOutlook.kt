@@ -42,7 +42,6 @@ data class LikelyLowest(val day: LocalDate, val likely: Double, val low: Double)
  * [history], the everyday spending of each past day counted. Null when the month is over, or with
  * less than [MinHistoryDays] days of history.
  */
-@Suppress("LongParameterList")
 internal fun monthOutlook(
     days: List<LocalDate>,
     actualDays: Int,

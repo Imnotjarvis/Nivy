@@ -62,7 +62,6 @@ import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberHeadlineMedium
 import androidx.compose.runtime.LaunchedEffect
 
-@SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.AmountModal(
@@ -193,7 +192,6 @@ fun BoxWithConstraintsScope.AmountModal(
     )
 }
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 private fun AmountCurrency(
     amount: String,
@@ -304,11 +302,6 @@ private fun formatNumber(number: String): String? {
     return null
 }
 
-@SuppressLint(
-    "ComposeContentEmitterReturningValues",
-    "ComposeMultipleContentEmitters",
-    "ComposeModifierMissing",
-)
 @Suppress("ParameterNaming")
 @Composable
 internal fun AmountKeyboard(
@@ -453,7 +446,6 @@ fun CircleNumberButton(
     )
 }
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 internal fun KeypadCircleButton(
     text: String,
@@ -477,7 +469,7 @@ internal fun KeypadCircleButton(
     )
 }
 
-@SuppressLint("ComposableModifierFactory", "ModifierFactoryExtensionFunction")
+@SuppressLint("ModifierFactoryExtensionFunction")
 @Composable
 @ReadOnlyComposable
 private fun circleButtonModifier(

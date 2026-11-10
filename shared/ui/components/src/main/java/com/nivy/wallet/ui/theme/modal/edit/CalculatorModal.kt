@@ -1,6 +1,5 @@
 package com.nivy.wallet.ui.theme.modal.edit
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +36,6 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberHeadlineMedium
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 internal fun BoxWithConstraintsScope.CalculatorModal(
       initialAmount: Double?,
