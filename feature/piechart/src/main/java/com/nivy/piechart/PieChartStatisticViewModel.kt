@@ -12,7 +12,6 @@ import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
-import com.nivy.data.model.Category
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.expensesIn
 import com.nivy.data.preferences.AppPreferences
@@ -112,7 +111,7 @@ class PieChartStatisticViewModel @Inject constructor(
                 is PieChartStatisticEvent.OnSelectPreviousMonth -> previousMonth()
                 is PieChartStatisticEvent.OnSetPeriod -> onSetPeriod(event.timePeriod)
                 is PieChartStatisticEvent.OnShowMonthModal -> configureMonthModal(event.timePeriod)
-                is PieChartStatisticEvent.OnCategoryClicked -> onCategoryClicked(event.category)
+                is PieChartStatisticEvent.OnCategoryClicked -> onCategoryClicked(event.selection)
                 is PieChartStatisticEvent.OnBreakdownSelected -> onBreakdownSelected(event.breakdown)
                 is PieChartStatisticEvent.OnAccountClicked -> onAccountClicked(event.account)
                 is PieChartStatisticEvent.OnStart -> start(event.screen)
@@ -267,28 +266,15 @@ class PieChartStatisticViewModel @Inject constructor(
         choosePeriodModal = choosePeriodModalData
     }
 
-    private suspend fun onCategoryClicked(clickedCategory: Category?) {
-        val selectedCategoryValue = if (clickedCategory == selectedCategory?.category) {
-            null
-        } else {
-            clickedCategory?.let { SelectedCategory(category = it) }
-        }
-
-        val existingCategoryAmounts = categoryAmounts
-        val newCategoryAmounts = if (selectedCategoryValue != null) {
-            existingCategoryAmounts
-                .sortedByDescending { it.amount }
-                .sortedByDescending {
-                    selectedCategoryValue.category == it.category
-                }
-        } else {
-            existingCategoryAmounts.sortedByDescending {
-                it.amount
-            }
-        }.toImmutableList()
-
-        selectedCategory = selectedCategoryValue
-        categoryAmounts = newCategoryAmounts
+    // As an account's: a tap selects a category, Unspecified too; a second tap, or one off the slices,
+    // clears it, and the selected category's card comes first.
+    private fun onCategoryClicked(clicked: SelectedCategory?) {
+        val selected = clicked.takeIf { it != selectedCategory }
+        categoryAmounts = categoryAmounts
+            .sortedByDescending { it.amount }
+            .sortedByDescending { selected != null && it.category == selected.category }
+            .toImmutableList()
+        selectedCategory = selected
     }
 
     // The other split starts with nothing selected, and is the one the chart opens with next time.

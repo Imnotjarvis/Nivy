@@ -1,47 +1,41 @@
 package com.ivy.wallet
 
-import android.content.Intent
+import android.app.PendingIntent
 import android.service.quicksettings.TileService
 import androidx.core.service.quicksettings.PendingIntentActivityWrapper
 import androidx.core.service.quicksettings.TileServiceCompat
+import com.nivy.base.model.TransactionType
+import com.nivy.domain.AppStarter
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-// Stays in com.ivy.wallet: Quick Settings stores this class name, and a new one would drop the tile on update.
+/**
+ * The "Add payment" Quick Settings tile: a tap opens the add-transaction screen for an expense.
+ *
+ * It stays in com.ivy.wallet: Quick Settings stores this class name, and a new one would drop the
+ * tile on update.
+ */
+@AndroidEntryPoint
 class PaymentTileService : TileService() {
-    // Called when the user adds your tile.
-    override fun onTileAdded() {
-        super.onTileAdded()
-    }
+    @Inject
+    lateinit var appStarter: AppStarter
 
-    // Called when your app can update your tile.
-    override fun onStartListening() {
-        super.onStartListening()
-    }
-
-    // Called when your app can no longer update your tile.
-    override fun onStopListening() {
-        super.onStopListening()
-    }
-
-    // Called when the user taps on your tile in an active or inactive state.
+    // TileServiceCompat picks the PendingIntent form on Android 14+ and the Intent form before. The
+    // request code is the widgets' expense button's: PendingIntents that differ only in their extras
+    // are one PendingIntent, so with another code, such as the income button's 0, the tile could
+    // open that button's screen.
     override fun onClick() {
         super.onClick()
 
-        startRootActivity()
-    }
-
-    // Called when the user removes your tile.
-    override fun onTileRemoved() {
-        super.onTileRemoved()
-    }
-
-    // TileServiceCompat picks the PendingIntent form on Android 14+ and the Intent form before.
-    private fun startRootActivity() {
-        val intent = Intent(applicationContext, RootActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
         TileServiceCompat.startActivityAndCollapse(
             this,
-            PendingIntentActivityWrapper(this, 0, intent, 0, false)
+            PendingIntentActivityWrapper(
+                this,
+                TransactionType.EXPENSE.ordinal,
+                appStarter.addTransactionIntent(TransactionType.EXPENSE),
+                PendingIntent.FLAG_UPDATE_CURRENT,
+                false
+            )
         )
     }
 }

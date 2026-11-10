@@ -67,10 +67,11 @@ data class PieSlice<T>(
     val amount: Double,
 )
 
-/** Each category's slice, in its color: grey for transactions without one. */
-internal fun categorySlices(categoryAmounts: List<CategoryAmount>): ImmutableList<PieSlice<Category?>> =
-    categoryAmounts.map { PieSlice(it.category, it.category?.color?.value?.toComposeColor() ?: Gray, it.amount) }
-        .toImmutableList()
+/** Each category's slice, in its color: grey for Unspecified, the transactions without one. */
+internal fun categorySlices(categoryAmounts: List<CategoryAmount>): ImmutableList<PieSlice<SelectedCategory>> =
+    categoryAmounts.map {
+        PieSlice(SelectedCategory(it.category), it.category?.color?.value?.toComposeColor() ?: Gray, it.amount)
+    }.toImmutableList()
 
 /** Each account's slice, in its color. */
 internal fun accountSlices(accountAmounts: List<AccountAmount>): ImmutableList<PieSlice<Account>> =
@@ -79,10 +80,11 @@ internal fun accountSlices(accountAmounts: List<AccountAmount>): ImmutableList<P
 
 /**
  * A ring of [slices], the largest first from the top, around the type's icon. With one [selected],
- * the others fade; a tap on a slice reports its item, and a tap elsewhere null.
+ * the others fade; a tap on a slice reports its item, and a tap elsewhere null: items aren't null,
+ * so that no slice reads as a tap off the chart.
  */
 @Composable
-fun <T> PieChart(
+fun <T : Any> PieChart(
     type: TransactionType,
     slices: ImmutableList<PieSlice<T>>,
     selected: T?,

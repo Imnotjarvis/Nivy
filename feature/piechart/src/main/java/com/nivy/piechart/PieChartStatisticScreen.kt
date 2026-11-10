@@ -210,9 +210,9 @@ private fun LazyListScope.breakdownChart(
             Breakdown.Categories -> PieChart(
                 type = state.transactionType,
                 slices = remember(state.categoryAmounts) { categorySlices(state.categoryAmounts) },
-                selected = state.selectedCategory?.category,
-                onSliceClick = { clickedCategory ->
-                    onEvent(PieChartStatisticEvent.OnCategoryClicked(clickedCategory))
+                selected = state.selectedCategory,
+                onSliceClick = { clicked ->
+                    onEvent(PieChartStatisticEvent.OnCategoryClicked(clicked))
                 }
             )
 
