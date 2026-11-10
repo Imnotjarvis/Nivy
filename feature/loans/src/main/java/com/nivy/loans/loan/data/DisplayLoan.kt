@@ -10,7 +10,8 @@ data class DisplayLoan(
     val amountPaid: Double,
     val currencyCode: String? = getDefaultFIATCurrency().currencyCode,
     val formattedDisplayText: String = "",
-    val percentPaid: Double = 0.0
+    val percentPaid: Double = 0.0,
+    val paidOff: Boolean = false,
 ) : Reorderable {
     override fun getItemOrderNum(): Double {
         return loan.orderNum

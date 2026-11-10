@@ -242,7 +242,7 @@ fun BoxWithConstraintsScope.LoanRecordModal(
             onAddNewAccount = {
                 accountModalData = AccountModalData(
                     account = null,
-                    baseCurrency = selectedAcc?.asset?.code ?: "USD",
+                    baseCurrency = selectedAcc?.asset?.code ?: currencyCode,
                     balance = 0.0
                 )
             },

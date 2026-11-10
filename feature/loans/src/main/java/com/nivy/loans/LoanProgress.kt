@@ -21,6 +21,12 @@ data class LoanProgress(
     /** What's left to pay back. */
     val left: Double get() = total - paid
 
+    /**
+     * Whether the loan is paid back: what's left rounds to nothing. Amounts added up as doubles
+     * can fall a hair short, as twelve payments of 50.02 do of 600.24.
+     */
+    val paidOff: Boolean get() = total > 0 && left < PaidOffBelow
+
     /** [paid] as a share of [total], 1 when paid off; 0 while there's no total. */
     val percentPaid: Double get() = shareOfTotal(paid)
 
@@ -32,6 +38,9 @@ data class LoanProgress(
     companion object {
         /** Before the loan is there. */
         val None = LoanProgress(total = 0.0, paid = 0.0, interestPaid = 0.0)
+
+        // Half a cent: what's left below it shows as 0.00.
+        private const val PaidOffBelow = 0.005
     }
 }
 

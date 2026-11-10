@@ -3,6 +3,7 @@ package com.nivy.loans.loan
 import arrow.core.Some
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
+import com.nivy.base.model.LoanRecordType
 import com.nivy.base.model.LoanType
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
@@ -10,6 +11,8 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Loan
 import com.nivy.data.model.LoanId
+import com.nivy.data.model.LoanRecord
+import com.nivy.data.model.LoanRecordId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NonZeroDouble
@@ -58,13 +61,19 @@ class LoanViewModelTest {
         orderNum = 0.0,
     )
 
+    private var loans = listOf(loan)
+    private var lastSelectedAccount: Account? = null
+    private val loanRepository = mockk<LoanRepository> {
+        coEvery { findAll() } answers { loans }
+        coEvery { findRecordsByLoanId(loan.id) } returns emptyList()
+    }
+
     private val viewModel = LoanViewModel(
-        loanRepository = mockk<LoanRepository> {
-            coEvery { findAll() } returns listOf(loan)
-            coEvery { findRecordsByLoanId(loan.id) } returns emptyList()
-        },
+        loanRepository = loanRepository,
         currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
-        appPreferences = mockk<AppPreferences> { coEvery { lastSelectedAccountId() } returns null },
+        appPreferences = mockk<AppPreferences> {
+            coEvery { lastSelectedAccountId() } answers { lastSelectedAccount?.id?.value?.toString() }
+        },
         accountCreator = mockk(relaxed = true),
         loanTransactionsUseCase = mockk(relaxed = true),
         exchangeUseCase = mockk<ExchangeUseCase> {
@@ -97,6 +106,42 @@ class LoanViewModelTest {
             totalOweAmount shouldBe "${50.0.format("EUR")} EUR"
         }
     }
+
+    @Test
+    fun `a loan paid back in equal payments with cents is completed`() {
+        // given 600.24 lent from the bank, paid back in twelve payments of 50.02: added up as
+        // doubles, they come to 600.2399999999999
+        val lent = loan.copy(amount = PositiveDouble.unsafe(600.24), account = bank.id, type = LoanType.LEND)
+        loans = listOf(lent)
+        coEvery { loanRepository.findRecordsByLoanId(lent.id) } returns List(12) { payment(lent, 50.02) }
+
+        viewModel.runTest {
+            completedLoans.map { it.loan } shouldBe listOf(lent)
+            pendingLoans shouldBe emptyList()
+        }
+    }
+
+    @Test
+    fun `a new loan starts on the first account when the last one used is archived`() {
+        // given
+        lastSelectedAccount = oldDollars
+
+        viewModel.runTest(events = listOf(LoanScreenEvent.OnAddLoan)) {
+            loanModalData?.selectedAccount shouldBe bank
+        }
+    }
+
+    private fun payment(loan: Loan, amount: Double) = LoanRecord(
+        id = LoanRecordId(UUID.randomUUID()),
+        loan = loan.id,
+        amount = PositiveDouble.unsafe(amount),
+        note = null,
+        dateTime = Instant.parse("2026-11-01T09:00:00Z"),
+        interest = false,
+        account = null,
+        convertedAmount = null,
+        type = LoanRecordType.DECREASE,
+    )
 
     private fun account(name: String, asset: AssetCode, archived: Boolean) = Account(
         id = AccountId(UUID.randomUUID()),
