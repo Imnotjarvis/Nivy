@@ -181,7 +181,7 @@ fun getCustomIconIdS(
 
 // Icons are looked up by name: the names come from data (and keep.xml keeps the files).
 @SuppressLint("DiscouragedApi")
-fun getCustomIconId(
+private fun getCustomIconId(
     context: Context,
     iconName: String?,
     size: String,
@@ -233,7 +233,7 @@ enum class IconStyle {
 
 // Icons are looked up by name: the names come from data (and keep.xml keeps the files).
 @SuppressLint("DiscouragedApi")
-fun fallbackToNewIconFormat(
+private fun fallbackToNewIconFormat(
     iconStyle: IconStyle,
     context: Context,
     iconName: String?,

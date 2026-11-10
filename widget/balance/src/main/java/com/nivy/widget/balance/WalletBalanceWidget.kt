@@ -18,7 +18,7 @@ import com.nivy.domain.AppStarter
 import com.nivy.wallet.utils.shortenAmount
 import kotlin.math.abs
 
-const val THOUSAND = 1000
+private const val THOUSAND = 1000
 
 object PrefsKey {
     const val APP_LOCKED = "appLocked"

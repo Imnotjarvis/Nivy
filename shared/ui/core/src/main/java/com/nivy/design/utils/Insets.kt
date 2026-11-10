@@ -8,14 +8,14 @@ import androidx.core.view.WindowInsetsCompat
 
 @Composable
 @ReadOnlyComposable
-fun windowInsets(): WindowInsetsCompat {
+private fun windowInsets(): WindowInsetsCompat {
     val rootView = LocalView.current
     return WindowInsetsCompat.toWindowInsetsCompat(rootView.rootWindowInsets, rootView)
 }
 
 @Composable
 @ReadOnlyComposable
-fun navigationBarInsets(): Insets {
+private fun navigationBarInsets(): Insets {
     val windowInsets = windowInsets()
     return windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
 }

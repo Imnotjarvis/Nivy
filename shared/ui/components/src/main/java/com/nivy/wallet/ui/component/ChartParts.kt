@@ -389,7 +389,7 @@ private fun RowScope.StatTile(stat: Stat) {
 
 /** A small line of [values], its last one marked, scaled from their lowest to their highest. */
 @Composable
-fun Sparkline(values: List<Double>, color: Color, modifier: Modifier = Modifier) {
+private fun Sparkline(values: List<Double>, color: Color, modifier: Modifier = Modifier) {
     Canvas(
         modifier = modifier
             .fillMaxWidth()

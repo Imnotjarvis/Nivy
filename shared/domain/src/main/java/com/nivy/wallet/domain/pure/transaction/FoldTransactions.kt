@@ -22,7 +22,7 @@ fun <Arg> foldTransactions(
 )
 
 // One pass over the list: recursing on drop(1) copied the rest of it at every step.
-internal fun <A> sumTransactionsInternal(
+private fun <A> sumTransactionsInternal(
     transactions: List<Transaction>,
     valueFunctionArgument: A,
     valueFunctions: NonEmptyList<ValueFunction<A>>,
@@ -43,7 +43,7 @@ suspend fun <Arg> foldTransactionsSuspend(
     valueFunctionArgument = arg
 )
 
-internal suspend fun <A> sumTransactionsSuspendInternal(
+private suspend fun <A> sumTransactionsSuspendInternal(
     transactions: List<Transaction>,
     valueFunctionArgument: A,
     valueFunctions: NonEmptyList<SuspendValueFunction<A>>,

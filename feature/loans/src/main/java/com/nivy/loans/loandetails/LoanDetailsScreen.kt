@@ -58,7 +58,7 @@ fun BoxWithConstraintsScope.LoanDetailsScreen(screen: LoanDetailsScreen) {
 }
 
 @Composable
-internal fun BoxWithConstraintsScope.UI(
+private fun BoxWithConstraintsScope.UI(
     state: LoanDetailsScreenState,
     onEventHandler: (LoanDetailsScreenEvent) -> Unit = {}
 ) {

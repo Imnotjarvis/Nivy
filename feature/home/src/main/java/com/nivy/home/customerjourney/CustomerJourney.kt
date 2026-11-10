@@ -69,7 +69,7 @@ fun CustomerJourney(
 }
 
 @Composable
-fun CustomerJourneyCard(
+private fun CustomerJourneyCard(
     cardData: CustomerJourneyCardModel,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,

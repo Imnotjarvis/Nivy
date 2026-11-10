@@ -62,7 +62,7 @@ fun unzip(context: Context, zipFile: Uri, location: File) {
 private const val BYTES_PER_MB = 1024L * 1024
 
 /** A backup is a few megabytes; an archive inflating past this is not one and is rejected. */
-const val MAX_UNZIPPED_BYTES: Long = 256 * BYTES_PER_MB
+private const val MAX_UNZIPPED_BYTES: Long = 256 * BYTES_PER_MB
 
 fun unzip(fileInputStream: FileInputStream, location: File, maxBytes: Long = MAX_UNZIPPED_BYTES) {
     ZipInputStream(BufferedInputStream(fileInputStream)).use { zipInputStream ->

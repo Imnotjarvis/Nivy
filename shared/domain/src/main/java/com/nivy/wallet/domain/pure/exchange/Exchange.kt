@@ -93,7 +93,7 @@ private fun String.validateCurrency(): Option<String> {
     return if (this.isNotNullOrBlank()) return Some(this) else None
 }
 
-suspend fun validExchangeRate(
+private suspend fun validExchangeRate(
     baseCurrency: String,
     toCurrency: String,
     retrieveExchangeRate: suspend (baseCurrency: String, toCurrency: String) -> Double?,

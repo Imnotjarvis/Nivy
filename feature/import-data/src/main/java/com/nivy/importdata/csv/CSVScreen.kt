@@ -171,7 +171,7 @@ private fun ImportButton(
     }
 }
 
-fun LazyListScope.spacer8() {
+private fun LazyListScope.spacer8() {
     item {
         Spacer8()
     }
@@ -315,7 +315,7 @@ private fun <M> LazyListScope.mappingRow(
     }
 }
 
-fun LazyListScope.sectionDivider(@StringRes text: Int) {
+private fun LazyListScope.sectionDivider(@StringRes text: Int) {
     item {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = stringResource(text), style = MaterialTheme.typography.titleLarge)

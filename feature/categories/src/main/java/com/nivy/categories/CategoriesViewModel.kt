@@ -214,7 +214,7 @@ class CategoriesViewModel @Inject constructor(
     }
 }
 
-suspend inline fun <T, R> Iterable<T>.mapAsync(
+private suspend inline fun <T, R> Iterable<T>.mapAsync(
     scope: CoroutineScope,
     crossinline transform: suspend (T) -> R
 ): List<R> {
