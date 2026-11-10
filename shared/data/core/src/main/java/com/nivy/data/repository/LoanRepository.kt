@@ -66,4 +66,10 @@ class LoanRepository @Inject constructor(
     suspend fun deleteRecordById(id: LoanRecordId): Unit = withContext(dispatchersProvider.io) {
         writeLoanRecordDao.deleteById(id.value)
     }
+
+    /** Deletes every loan and every record. */
+    suspend fun deleteAll(): Unit = withContext(dispatchersProvider.io) {
+        writeLoanRecordDao.deleteAll()
+        writeLoanDao.deleteAll()
+    }
 }

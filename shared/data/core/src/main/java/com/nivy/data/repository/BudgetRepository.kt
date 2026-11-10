@@ -35,4 +35,8 @@ class BudgetRepository @Inject constructor(
     suspend fun deleteById(id: BudgetId): Unit = withContext(dispatchersProvider.io) {
         writeBudgetDao.deleteById(id.value)
     }
+
+    suspend fun deleteAll(): Unit = withContext(dispatchersProvider.io) {
+        writeBudgetDao.deleteAll()
+    }
 }

@@ -46,4 +46,8 @@ class PlannedPaymentRuleRepository @Inject constructor(
         withContext(dispatchersProvider.io) {
             writePlannedPaymentRuleDao.deleteAllByAccountId(accountId.value)
         }
+
+    suspend fun deleteAll(): Unit = withContext(dispatchersProvider.io) {
+        writePlannedPaymentRuleDao.deleteAll()
+    }
 }
