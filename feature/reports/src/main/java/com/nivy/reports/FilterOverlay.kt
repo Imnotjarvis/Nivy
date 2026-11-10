@@ -205,7 +205,7 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
                 filter = localFilter,
                 onShowPeriodChooserModal = {
                     choosePeriodModal = ChoosePeriodModalData(
-                        period = filter?.period ?: periodState.selected
+                        period = localFilter?.period ?: periodState.selected
                     )
                 }
             )
@@ -287,14 +287,14 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
 
         Spacer(Modifier.weight(1f))
 
+        // An incomplete filter would be dropped as it's applied: it can't be until it's complete.
         NivyButton(
             text = stringResource(R.string.apply_filter),
             iconStart = R.drawable.ic_filter_xs,
             backgroundColor = Green,
+            enabled = localFilter?.validate() == true,
         ) {
-            if (localFilter != null) {
-                onSetFilter(localFilter!!)
-            }
+            localFilter?.let(onSetFilter)
             onClose()
         }
 
@@ -309,9 +309,11 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
         )
     }
 
+    // The filter's own period: the app's screens keep theirs.
     ChoosePeriodModal(
         modal = choosePeriodModal,
         dismiss = { choosePeriodModal = null },
+        appWide = false,
     ) { selectedPeriod ->
         localFilter = nonNullFilter(localFilter).copy(
             period = selectedPeriod
@@ -319,8 +321,8 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
     }
 
     val minAmountModalId = remember(
-        nonNullFilter(filter).id,
-        nonNullFilter(filter).minAmount
+        nonNullFilter(localFilter).id,
+        nonNullFilter(localFilter).minAmount
     ) {
         UUID.randomUUID()
     }
@@ -328,7 +330,7 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
         id = minAmountModalId,
         visible = minAmountModalShown,
         currency = baseCurrency,
-        initialAmount = filter?.minAmount?.takeIf { it > 0 },
+        initialAmount = localFilter?.minAmount?.takeIf { it > 0 },
         dismiss = {
             minAmountModalShown = false
         }
@@ -348,7 +350,7 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
         id = maxAmountModalId,
         visible = maxAmountModalShown,
         currency = baseCurrency,
-        initialAmount = filter?.maxAmount?.takeIf { it > 0 },
+        initialAmount = localFilter?.maxAmount?.takeIf { it > 0 },
         dismiss = {
             maxAmountModalShown = false
         }
