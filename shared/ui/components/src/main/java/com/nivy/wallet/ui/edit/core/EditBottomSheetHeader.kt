@@ -140,7 +140,7 @@ internal fun TransferRowMini(
         val fromColor = fromAccount?.let { accountColor(it.color.value) } ?: Nivy
         val fromContrastColor = readableOn(fromColor)
         NivyButton(
-            text = fromAccount?.name?.value ?: "Null",
+            text = fromAccount?.name?.value ?: stringResource(R.string.from),
             iconStart = R.drawable.ic_accounts,
             backgroundColor = fromColor,
             iconTint = fromContrastColor,
@@ -160,7 +160,7 @@ internal fun TransferRowMini(
         val toColor = toAccount?.let { accountColor(it.color.value) } ?: Nivy
         val toContrastColor = readableOn(toColor)
         NivyButton(
-            text = toAccount?.name?.value ?: "Null",
+            text = toAccount?.name?.value ?: stringResource(R.string.to),
             iconStart = R.drawable.ic_accounts,
             backgroundColor = toColor,
             iconTint = toContrastColor,

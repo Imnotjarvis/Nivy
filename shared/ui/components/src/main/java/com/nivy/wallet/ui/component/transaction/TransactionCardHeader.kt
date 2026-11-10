@@ -294,8 +294,7 @@ private fun TransferHeader(
         Text(
             modifier = Modifier
                 .padding(vertical = 8.dp),
-            // used toString() in case of null
-            text = account?.name?.value.toString(),
+            text = account?.name?.value ?: stringResource(R.string.deleted),
             style = MaterialTheme.typography.labelMedium.copy(
                 color = accountContrastColor,
                 fontWeight = FontWeight.ExtraBold
@@ -326,8 +325,7 @@ private fun TransferHeader(
         Text(
             modifier = Modifier
                 .padding(vertical = 8.dp),
-            // used toString() in case of null
-            text = toAccount?.name?.value.toString(),
+            text = toAccount?.name?.value ?: stringResource(R.string.deleted),
             style = MaterialTheme.typography.labelMedium.copy(
                 color = toAccountContrastColor,
                 fontWeight = FontWeight.ExtraBold

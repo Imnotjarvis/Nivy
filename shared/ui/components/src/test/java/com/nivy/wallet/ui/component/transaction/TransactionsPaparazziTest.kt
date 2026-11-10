@@ -11,6 +11,8 @@ import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
 import com.nivy.data.model.TransactionId
+import com.nivy.data.model.AccountId
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.TransactionMetadata
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
@@ -80,6 +82,52 @@ class TransactionsPaparazziTest(
             }
         }
     }
+
+    @Test
+    fun `snapshot a transfer to another currency, to an account deleted since`() {
+        val dark = theme == PaparazziTheme.Dark
+        snapshot(theme, minimal = colors == Colors.Minimal) {
+            NivyPreview(theme = if (dark) Theme.DARK else Theme.LIGHT, timeProvider = FixedTime) {
+                LazyColumn {
+                    transactions(
+                        baseData = AppBaseData("EUR", persistentListOf(Bank), persistentListOf()),
+                        upcoming = null,
+                        overdue = null,
+                        history = persistentListOf(
+                            TransactionHistoryDateDivider(
+                                date = LocalDate.of(2026, 11, 6),
+                                income = 0.0,
+                                expenses = 0.0,
+                            ),
+                            TransactionHistoryEntry(transaction = toDeletedAccount, tags = persistentListOf()),
+                        ),
+                        emptyStateTitle = "",
+                        emptyStateText = "",
+                        shouldShowAccountSpecificColorInTransactions = false,
+                        onPayOrGet = {},
+                        setUpcomingExpanded = {},
+                        setOverdueExpanded = {},
+                    )
+                }
+            }
+        }
+    }
+
+    // To a dollar account deleted since, so the list has no account by its id.
+    private val toDeletedAccount = Transfer(
+        id = TransactionId(UUID(0, 4)),
+        title = NotBlankTrimmedString.unsafe("Savings abroad"),
+        description = null,
+        category = null,
+        time = Instant.parse("2026-11-06T10:00:00Z"),
+        settled = true,
+        metadata = NoMetadata,
+        tags = emptyList(),
+        fromAccount = Bank.id,
+        fromValue = eur(1_234.5),
+        toAccount = AccountId(UUID(0, 11)),
+        toValue = PositiveValue(PositiveDouble.unsafe(1_345.6), AssetCode.unsafe("USD")),
+    )
 
     private val salary = Income(
         id = TransactionId(UUID(0, 1)),

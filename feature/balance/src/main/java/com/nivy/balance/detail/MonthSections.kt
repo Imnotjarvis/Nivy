@@ -62,6 +62,7 @@ import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.component.transaction.label
 import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -632,7 +633,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                 Stat(
                     stringResource(R.string.month_purchases),
                     "${habits.purchases}",
-                    stringResource(R.string.month_a_day, (habits.purchases.toDouble() / habits.days).format(1)),
+                    stringResource(R.string.month_a_day, (habits.purchases.toDouble() / habits.days).formatDecimals(1)),
                 )
             )
             add(
@@ -655,7 +656,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                 add(
                     Stat(
                         stringResource(R.string.month_weekends),
-                        stringResource(R.string.month_times, it.format(1)),
+                        stringResource(R.string.month_times, it.formatDecimals(1)),
                         stringResource(R.string.month_weekday_spending),
                     )
                 )
@@ -913,7 +914,7 @@ private fun RunwayPanel(runway: Runway, currency: String) {
             if (months < YearsFrom) {
                 pluralStringResource(R.plurals.month_months, months.coerceAtLeast(1), months.coerceAtLeast(1))
             } else {
-                stringResource(R.string.month_years, (runway.months / MonthsInYear).format(1))
+                stringResource(R.string.month_years, (runway.months / MonthsInYear).formatDecimals(1))
             }
         )
         Spacer(Modifier.height(4.dp))
@@ -939,7 +940,8 @@ private fun accountColor(account: Account): Color = account.color.value.toCompos
 private fun categoryColor(category: Category?): Color = category?.color?.value?.toComposeColor() ?: Gray
 
 /** An amount without its decimals when it's whole, as a size band's edge. */
-private fun compact(amount: Double): String = if (amount == floor(amount)) "%,.0f".format(amount) else amount.format(2)
+private fun compact(amount: Double): String =
+    if (amount == floor(amount)) "%,.0f".format(amount) else "%,.2f".format(amount)
 
 private const val EdgeRoom = 0.12f
 private const val LikelyAlpha = 0.35f

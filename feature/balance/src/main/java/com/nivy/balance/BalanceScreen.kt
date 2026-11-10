@@ -272,7 +272,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
             Spacer(Modifier.height(4.dp))
 
             Text(
-                text = "${currentBalance.format(2)} $currency",
+                text = "${currentBalance.format(currency)} $currency",
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal
@@ -283,7 +283,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
 
             val plusSign = if (plannedPaymentsAmount >= 0) "+" else ""
             Text(
-                text = "${plusSign}${plannedPaymentsAmount.format(2)} $currency",
+                text = "${plusSign}${plannedPaymentsAmount.format(currency)} $currency",
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold

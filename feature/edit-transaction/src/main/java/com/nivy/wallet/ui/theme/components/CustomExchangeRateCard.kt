@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nivy.wallet.NivyComponentPreview
-import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.design.system.colors.Orange
@@ -102,7 +102,7 @@ fun CustomExchangeRateCard(
                 )
                 NivyIcon(icon = R.drawable.ic_arrow_right, tint = Orange)
                 Text(
-                    text = exchangeRate?.format(NivyCurrency.getDecimalPlaces(toCurrencyCode)) ?: "?",
+                    text = exchangeRate?.formatDecimals(NivyCurrency.getDecimalPlaces(toCurrencyCode)) ?: "?",
                     style = MaterialTheme.typography.numberBodyLarge.copy(
                         color = Orange,
                         fontWeight = FontWeight.ExtraBold
