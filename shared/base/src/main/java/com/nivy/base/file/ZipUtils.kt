@@ -1,7 +1,5 @@
 package com.nivy.base.file
 
-import android.content.Context
-import android.net.Uri
 import android.os.ParcelFileDescriptor
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -13,14 +11,8 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-private const val MODE_WRITE = "w"
-private const val MODE_READ = "r"
-
-fun zip(context: Context, zipFile: Uri, files: List<File>) =
-    zip(open = { context.contentResolver.openFileDescriptor(zipFile, MODE_WRITE) }, files)
-
-/** Zips [files] into the file [open] gives, as the content resolver does; tests give their own. */
-internal fun zip(open: () -> ParcelFileDescriptor?, files: List<File>) {
+/** Zips [files] into the file [open] gives, opened for writing, as a content resolver does. */
+fun zip(open: () -> ParcelFileDescriptor?, files: List<File>) {
     descriptor(open).use { descriptor ->
         ZipOutputStream(BufferedOutputStream(FileOutputStream(descriptor.fileDescriptor))).use { outStream ->
             zip(outStream, files)
@@ -59,11 +51,8 @@ private fun zip(
     }
 }
 
-fun unzip(context: Context, zipFile: Uri, location: File) =
-    unzip(open = { context.contentResolver.openFileDescriptor(zipFile, MODE_READ) }, location)
-
-/** Unzips the file [open] gives, as the content resolver does, into [location]; tests give their own. */
-internal fun unzip(open: () -> ParcelFileDescriptor?, location: File) {
+/** Unzips the file [open] gives, opened for reading, as a content resolver does, into [location]. */
+fun unzip(open: () -> ParcelFileDescriptor?, location: File) {
     descriptor(open).use { descriptor ->
         unzip(FileInputStream(descriptor.fileDescriptor), location)
     }

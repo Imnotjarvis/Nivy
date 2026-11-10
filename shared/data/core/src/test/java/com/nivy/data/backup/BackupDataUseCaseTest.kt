@@ -1,21 +1,23 @@
 package com.nivy.data.backup
 
+import android.content.Context
+import arrow.core.left
+import arrow.core.right
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.di.KotlinxSerializationModule
-import com.nivy.data.DataObserver
+import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
+import com.nivy.data.DataObserver
 import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.fake.FakeAccountDao
+import com.nivy.data.db.dao.fake.FakeAccountValueDao
 import com.nivy.data.db.dao.fake.FakeBudgetDao
 import com.nivy.data.db.dao.fake.FakeCategoryDao
-import com.nivy.data.db.dao.fake.FakeAccountValueDao
 import com.nivy.data.db.dao.fake.FakeCreditCardDao
 import com.nivy.data.db.dao.fake.FakeExchangeRatesDao
 import com.nivy.data.db.dao.fake.FakeLoanDao
 import com.nivy.data.db.dao.fake.FakeLoanRecordDao
 import com.nivy.data.db.dao.fake.FakePlannedPaymentDao
-import com.nivy.data.preferences.AppPreferences
-import com.nivy.data.preferences.InMemoryPreferencesDataStore
 import com.nivy.data.db.dao.fake.FakeTagAssociationDao
 import com.nivy.data.db.dao.fake.FakeTagDao
 import com.nivy.data.db.dao.fake.FakeTransactionDao
@@ -23,22 +25,37 @@ import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.AccountValueEntity
 import com.nivy.data.db.entity.CreditCardEntity
 import com.nivy.data.db.entity.TransactionEntity
+import com.nivy.data.file.FileSystem
+import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
+import com.nivy.data.preferences.InMemoryPreferencesDataStore
 import com.nivy.data.testResource
-import com.nivy.base.model.Theme
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import java.time.Instant
 import java.util.UUID
 
 class BackupDataUseCaseTest {
     private val json = KotlinxSerializationModule.provideJson()
+
+    @get:Rule
+    val cache = TemporaryFolder()
+
+    // The app's cache directory is the temporary folder.
+    private val context = mockk<Context>(relaxed = true) { every { cacheDir } answers { cache.root } }
 
     /** The fakes have no transactions; the block simply runs. */
     private class FakeDatabaseTransaction : DatabaseTransaction(mockk(), mockk()) {
@@ -59,6 +76,7 @@ class BackupDataUseCaseTest {
         creditCardDao: FakeCreditCardDao = FakeCreditCardDao(),
         accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
         exchangeRatesDao: FakeExchangeRatesDao = FakeExchangeRatesDao(),
+        fileSystem: FileSystem = mockk(relaxed = true),
     ): BackupDataUseCase {
         return BackupDataUseCase(
             accountDao = accountDao,
@@ -76,11 +94,11 @@ class BackupDataUseCaseTest {
             loanRecordWriter = loanRecordDao,
             plannedPaymentRuleWriter = plannedPaymentDao,
 
-            context = mockk(relaxed = true),
+            context = context,
             appPreferences = appPreferences,
             json = json,
             dispatchersProvider = TestDispatchersProvider,
-            fileSystem = mockk(relaxed = true),
+            fileSystem = fileSystem,
             dataObserver = DataObserver(),
             tagsReader = tagDao,
             tagsWriter = tagDao,
@@ -123,6 +141,82 @@ class BackupDataUseCaseTest {
 
         // Finally, exporting again should yield the same result
         freshBackupUseCase.generateJsonBackup() shouldBe exportedJson
+    }
+
+    @Test
+    fun `a zip refused for what it holds says why, and isn't read as the JSON`() = runTest {
+        // given: an archive with an entry that would land outside its folder
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { isZip(any()) } returns true
+            every { unzip(any(), any()) } throws IOException(ZipSlip)
+            every { read(any(), any()) } returns "not JSON".right()
+        }
+
+        // when
+        val result = newBackupDataUseCase(fileSystem = fileSystem).importBackupFile(mockk(), onProgress = {})
+
+        // then
+        result.error shouldBe ZipSlip
+    }
+
+    @Test
+    fun `a backup that can't be read says why`() = runTest {
+        // given
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { isZip(any()) } returns false
+            every { read(any(), any()) } returns FileSystem.Failure.FileNotFound(FileNotFoundException(NoFile)).left()
+        }
+
+        // when
+        val result = newBackupDataUseCase(fileSystem = fileSystem).importBackupFile(mockk(), onProgress = {})
+
+        // then
+        result.error shouldBe NoFile
+    }
+
+    @Test
+    fun `an import deletes the files it unzipped, and nothing else in the cache`() = runTest {
+        // given
+        cache.newFile("thumbnail.png")
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { isZip(any()) } returns true
+            every { unzip(any(), any()) } answers {
+                secondArg<File>().apply { mkdirs() }.resolve("backup.json").writeText("{}")
+            }
+            every { read(any(), any()) } returns "{}".right()
+        }
+
+        // when
+        newBackupDataUseCase(fileSystem = fileSystem).importBackupFile(mockk(), onProgress = {})
+
+        // then
+        cache.root.list()!!.toList() shouldBe listOf("thumbnail.png")
+    }
+
+    @Test
+    fun `an export deletes its own temporary file, and nothing else in the cache`() = runTest {
+        // given
+        cache.newFile("thumbnail.png")
+
+        // when
+        newBackupDataUseCase().exportToFile(mockk())
+
+        // then
+        cache.root.list()!!.toList() shouldBe listOf("thumbnail.png")
+    }
+
+    @Test
+    fun `an export that fails leaves no backup behind in the cache`() = runTest {
+        // given
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { zip(any(), any()) } throws IOException("No space left on device")
+        }
+
+        // when
+        shouldThrow<IOException> { newBackupDataUseCase(fileSystem = fileSystem).exportToFile(mockk()) }
+
+        // then
+        cache.root.list()!!.toList() shouldBe emptyList()
     }
 
     @Test
@@ -519,6 +613,11 @@ class BackupDataUseCaseTest {
         )
         val balance = transactionDao.balance(bank.id, Instant.EPOCH, Instant.parse("3000-01-01T00:00:00Z"))
         balance shouldBe -46.0 // -60 + 24 - 10
+    }
+
+    private companion object {
+        const val ZipSlip = "Zip entry outside the destination folder: ../databases/x.json"
+        const val NoFile = "The provider gave no file to open"
     }
 }
 

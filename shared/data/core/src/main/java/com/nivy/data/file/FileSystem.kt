@@ -7,6 +7,7 @@ import arrow.core.Either
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import java.io.BufferedReader
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -60,6 +61,25 @@ class FileSystem internal constructor(
         Either.Left(Failure.IO(e))
     }
 
+    /** Zips [files] into the uri's file. @throws IOException when it can't be written. */
+    fun zip(uri: Uri, files: List<File>) = com.nivy.base.file.zip(open = { openFile(uri, "w") }, files)
+
+    /** Unzips the uri's file into [location]. @throws IOException when it can't be read or isn't a backup's. */
+    fun unzip(uri: Uri, location: File) = com.nivy.base.file.unzip(open = { openFile(uri, "r") }, location)
+
+    /** Whether the uri's file starts as a zip archive does; false when it can't be read. */
+    fun isZip(uri: Uri): Boolean = try {
+        descriptor(uri, mode = "r").use {
+            FileInputStream(it.fileDescriptor).use { input ->
+                val start = ByteArray(ZipSignature.size)
+                input.read(start) == start.size && start.contentEquals(ZipSignature)
+            }
+        }
+    } catch (e: IOException) {
+        Timber.w(e, "Couldn't read the file's start")
+        false
+    }
+
     // The provider can give no file at all for the uri: that's a file not found, not a success.
     private fun descriptor(uri: Uri, mode: String): ParcelFileDescriptor =
         openFile(uri, mode) ?: throw FileNotFoundException("The provider gave no file to open")
@@ -78,6 +98,11 @@ class FileSystem internal constructor(
             }
             return sb.toString()
         }
+    }
+
+    private companion object {
+        // Every zip archive starts with "PK".
+        val ZipSignature = byteArrayOf(0x50, 0x4B)
     }
 
     sealed interface Failure {

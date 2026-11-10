@@ -43,8 +43,7 @@ class BackupDataUseCaseAndroidTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, NivyRoomDatabase::class.java).build()
         val appContext = InstrumentationRegistry.getInstrumentation().context
-        // A new file each time: DataStore allows only one instance per file. Not in the cache
-        // directory, which an import clears.
+        // A new file each time: DataStore allows only one instance per file.
         appPreferences = AppPreferences(
             PreferenceDataStoreFactory.create {
                 File(context.filesDir, "backup-test-${UUID.randomUUID()}.preferences_pb")
