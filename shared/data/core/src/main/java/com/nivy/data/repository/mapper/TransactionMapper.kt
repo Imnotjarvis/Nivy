@@ -12,7 +12,6 @@ import com.nivy.data.model.CreditCardId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
-import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
@@ -29,9 +28,7 @@ class TransactionMapper @Inject constructor(
     private val accountRepository: AccountRepository,
 ) {
 
-    suspend fun TransactionEntity.toDomain(
-        tags: List<TagId> = emptyList()
-    ): Either<String, Transaction> = either {
+    suspend fun TransactionEntity.toDomain(): Either<String, Transaction> = either {
         val metadata = TransactionMetadata(
             recurringRuleId = recurringRuleId,
             paidForDateTime = paidForDateTime,
@@ -70,7 +67,6 @@ class TransactionMapper @Inject constructor(
                     time = time,
                     settled = settled,
                     metadata = metadata,
-                    tags = tags,
                 )
             }
 
@@ -85,7 +81,6 @@ class TransactionMapper @Inject constructor(
                     time = time,
                     settled = settled,
                     metadata = metadata,
-                    tags = tags,
                 )
             }
 
@@ -122,7 +117,6 @@ class TransactionMapper @Inject constructor(
                     fromValue = fromValue,
                     toAccount = toAccountId,
                     toValue = toValue,
-                    tags = tags,
                 )
             }
         }

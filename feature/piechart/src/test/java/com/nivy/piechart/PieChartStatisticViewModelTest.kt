@@ -291,7 +291,6 @@ class PieChartStatisticViewModelTest {
             loanRecordId = null,
             purchaseDateTime = null,
         ),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), AssetCode.unsafe("EUR")),
         account = bank,
     )

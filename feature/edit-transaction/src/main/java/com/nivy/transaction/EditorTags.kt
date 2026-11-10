@@ -12,6 +12,7 @@ import com.nivy.transaction.EditTransactionViewEvent.TagEvent
 import com.nivy.ui.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -23,10 +24,12 @@ import kotlin.coroutines.CoroutineContext
 private const val SearchDebounceMillis = 500L
 
 /**
- * The editor's tags: those the tag dialog lists, and the ids of the transaction's own. The dialog's
- * changes are saved as they're made, on [io], with [transactionId] the transaction they're linked
- * to; what's shown changes on [scope]'s thread. [afterTagAdd] runs after the dialog adds a tag. A
- * change the database refuses shows that it failed, through [userWrites], and what's shown stays.
+ * The editor's tags: those the tag dialog lists, and the ids of the transaction's own. A stored
+ * transaction's tags are saved as the dialog changes them, on [io], with [transactionId] the
+ * transaction they're linked to. A new one's, which [stored] says it isn't yet, wait here until it's
+ * saved, when [onSaved] links them: closed without saving, it leaves nothing behind. What's shown
+ * changes on [scope]'s thread. [afterTagAdd] runs after the dialog adds a tag. A change the
+ * database refuses shows that it failed, through [userWrites], and what's shown stays.
  */
 @Stable
 internal class EditorTags(
@@ -34,6 +37,7 @@ internal class EditorTags(
     private val userWrites: UserWrites,
     private val scope: CoroutineScope,
     private val transactionId: () -> UUID,
+    private val stored: () -> Boolean,
     private val afterTagAdd: () -> Unit,
     private val io: CoroutineContext,
 ) {
@@ -61,11 +65,17 @@ internal class EditorTags(
         }
     }
 
-    /** Links the transaction's tags to its copy [copy] too, before it returns. */
-    suspend fun copyTo(copy: UUID) {
+    /** Links the transaction's tags to [transaction] too, before it returns: to a copy of it. */
+    suspend fun linkTo(transaction: UUID) {
+        if (associated.isEmpty()) return
         transactionTags.findByIds(associated).forEach {
-            transactionTags.associateTag(AssociationId(copy), it)
+            transactionTags.associateTag(AssociationId(transaction), it)
         }
+    }
+
+    /** Links a new transaction's tags, now that it's saved as [transaction]; a stored one's are already. */
+    suspend fun onSaved(transaction: UUID) {
+        if (!stored()) linkTo(transaction)
     }
 
     private fun create(name: String) {
@@ -77,16 +87,24 @@ internal class EditorTags(
     }
 
     private fun associate(tag: Tag) {
-        scope.launch {
-            val associatedId = AssociationId(transactionId())
-            write { associated = withContext(io) { transactionTags.associateTag(associatedId, tag) } }
+        if (stored()) {
+            scope.launch {
+                val associatedId = AssociationId(transactionId())
+                write { associated = withContext(io) { transactionTags.associateTag(associatedId, tag) } }
+            }
+        } else if (tag.id !in associated) {
+            associated = (associated + tag.id).toImmutableList()
         }
     }
 
     private fun removeAssociation(tag: Tag) {
-        scope.launch {
-            val associatedId = AssociationId(transactionId())
-            write { associated = withContext(io) { transactionTags.removeTagAssociation(associatedId, tag) } }
+        if (stored()) {
+            scope.launch {
+                val associatedId = AssociationId(transactionId())
+                write { associated = withContext(io) { transactionTags.removeTagAssociation(associatedId, tag) } }
+            }
+        } else {
+            associated = (associated - tag.id).toImmutableList()
         }
     }
 
@@ -102,7 +120,11 @@ internal class EditorTags(
 
     private fun delete(tag: Tag) {
         scope.launch {
-            write { all = withContext(io) { transactionTags.deleteTag(tag) } }
+            write {
+                all = withContext(io) { transactionTags.deleteTag(tag) }
+                // Deleted, it's on no transaction any more, this one included.
+                associated = (associated - tag.id).toImmutableList()
+            }
         }
     }
 

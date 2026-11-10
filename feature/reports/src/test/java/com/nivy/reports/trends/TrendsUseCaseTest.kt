@@ -213,7 +213,6 @@ class TrendsUseCaseTest {
         time = Instant.parse(time),
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = eur(amount),
         account = account.id,
     )
@@ -232,7 +231,6 @@ class TrendsUseCaseTest {
         time = Instant.parse(time),
         settled = settled,
         metadata = Metadata,
-        tags = emptyList(),
         value = eur(amount),
         account = account.id,
     )
@@ -245,7 +243,6 @@ class TrendsUseCaseTest {
         time = Instant.parse(time),
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         fromAccount = from.id,
         fromValue = eur(amount),
         toAccount = to.id,

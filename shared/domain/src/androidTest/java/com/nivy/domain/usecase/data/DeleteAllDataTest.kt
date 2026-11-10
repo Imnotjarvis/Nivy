@@ -115,6 +115,7 @@ class DeleteAllDataTest {
                 writeTransactionDao = db.writeTransactionDao,
                 dispatchersProvider = dispatchers,
                 tagRepository = tagRepository,
+                databaseTransaction = databaseTransaction,
             ),
             categoryRepository = CategoryRepository(
                 mapper = CategoryMapper(),

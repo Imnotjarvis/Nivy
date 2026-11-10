@@ -38,6 +38,7 @@ import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -385,6 +386,15 @@ class MonthDetailUseCaseTest {
         unusual.purchases.single().months shouldBe 6
     }
 
+    @Test
+    fun `the month's detail reads its paid transactions once`() = runTest {
+        // when: November, whose outlook, what stands out and runway all look back months
+        useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR")
+
+        // then
+        coVerify(exactly = 1) { transactionRepository.findAllBetween(any(), any()) }
+    }
+
     private companion object {
         const val Cent = 0.01
         const val Evening = 2
@@ -469,7 +479,6 @@ class MonthDetailUseCaseTest {
                 loanId = if (loan) UUID(7L, 7L) else null,
                 recurringRuleId = if (recurring) UUID(8L, 8L) else null,
             ),
-            tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
             account = account.id,
         )
@@ -482,7 +491,6 @@ class MonthDetailUseCaseTest {
             time = at(day, 9),
             settled = paid,
             metadata = Metadata,
-            tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(amount), Eur),
             account = Bank.id,
         )

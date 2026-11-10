@@ -4,15 +4,15 @@ import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.getFromValue
+import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
-import com.nivy.wallet.domain.pure.exchange.ExchangeTrnArgument
-import com.nivy.wallet.domain.pure.exchange.exchangeInBaseCurrency
 import com.nivy.wallet.domain.pure.transaction.expenses
 import com.nivy.wallet.domain.pure.transaction.incomes
-import com.nivy.wallet.domain.pure.transaction.sumTrns
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
@@ -24,6 +24,7 @@ class DueTransactionsInfoUseCase @Inject constructor(
     private val timeConverter: TimeConverter,
     private val dispatchers: DispatchersProvider,
 ) {
+    /** What's due in [range] and passes [dueFilter], and its income and expenses in the [baseCurrency]. */
     suspend fun info(
         range: ClosedTimeRange,
         baseCurrency: String,
@@ -34,24 +35,12 @@ class DueTransactionsInfoUseCase @Inject constructor(
             dueFilter(with(timeConverter) { it.time.toLocalDate() }, dateNow)
         }
 
-        // We have due transactions in different currencies
-        val exchangeArg = ExchangeTrnArgument(
-            baseCurrency = baseCurrency,
-            exchange = exchangeUseCase::exchange,
-        )
-
+        // What's due can be in different currencies.
+        val rates = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency))
         DueTransactionsInfo(
             dueIncomeExpense = IncomeExpensePair(
-                income = sumTrns(
-                    incomes(dueTrns),
-                    ::exchangeInBaseCurrency,
-                    exchangeArg
-                ),
-                expense = sumTrns(
-                    expenses(dueTrns),
-                    ::exchangeInBaseCurrency,
-                    exchangeArg
-                )
+                income = incomes(dueTrns).sumOf { rates.inBase(it.getFromValue()) }.toBigDecimal(),
+                expense = expenses(dueTrns).sumOf { rates.inBase(it.getFromValue()) }.toBigDecimal(),
             ),
             dueTrns = dueTrns
         )

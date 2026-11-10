@@ -70,7 +70,10 @@ class MonthDetailUseCase @Inject constructor(
             val inBalance = accounts.filter { it.includeInBalance }
             val names = Names(accounts.associateBy { it.id }, categoryRepository.findAll().associateBy { it.id })
 
-            val paid = paid(range.from(), minOf(range.to(), now), inBalance)
+            // What the detail looks back on, read once: the months before the period, to its end so far.
+            val upToNow = minOf(range.to(), now)
+            val history = PaidTransactions(inBalance, lookBackFrom(period, startDayOfMonth, range), upToNow)
+            val paid = history.between(range.from(), upToNow)
             val expenses = paid.filterIsInstance<Expense>()
             val spends = purchases(paid, rates, names)
             val income = paid.filterIsInstance<Income>().sumOf { rates.inBase(it.value) }
@@ -100,7 +103,7 @@ class MonthDetailUseCase @Inject constructor(
             val plannedExpenses = dueInPeriod.filterIsInstance<Expense>().map { rates.inBase(it.value) }
             val ahead = due.filter { startOfToday == null || !it.time.isBefore(startOfToday) }
                 .sortedBy { it.time }
-            val previous = previousMonth(period, startDayOfMonth, inBalance, rates, names)
+            val previous = previousMonth(period, startDayOfMonth, history, rates, names)
             val holdings = holdings(inBalance, rates)
             val free = if (today != null) {
                 freeToSpend(
@@ -115,9 +118,9 @@ class MonthDetailUseCase @Inject constructor(
             }
             // The history the forecasts draw on starts with the first paid transaction.
             val first = today?.let { transactionRepository.findFirstPaidTime()?.localDate() }
-            val outlook = outlook(today, first, days, elapsed.size, balances, spends, due, free, inBalance, rates)
+            val outlook = outlook(today, first, days, elapsed.size, balances, spends, due, free, history, rates)
             val unusual =
-                unusualSoFar(today, first, period, startDayOfMonth, spends, elapsed.size, inBalance, rates, names)
+                unusualSoFar(today, first, period, startDayOfMonth, spends, elapsed.size, history, rates, names)
 
             MonthDetail(
                 days = days.toImmutableList(),
@@ -162,7 +165,7 @@ class MonthDetailUseCase @Inject constructor(
                     edges = sizeEdges(rates.factor(AssetCode.EUR) ?: 1.0),
                 ),
                 holdings = holdings,
-                runway = runway(holdings.netWorth, monthlySpending(startDayOfMonth, inBalance, rates)),
+                runway = runway(holdings.netWorth, monthlySpending(startDayOfMonth, history, rates)),
                 outlook = outlook,
                 unusual = unusual,
             )
@@ -171,25 +174,50 @@ class MonthDetailUseCase @Inject constructor(
     private suspend fun wallet(baseCurrency: String, at: Instant): Double =
         walletBalanceUseCase.balance(baseCurrency, range = ClosedTimeRange.to(at)).toDouble()
 
-    // The paid transactions from [from] to [to] of the [accounts].
-    private suspend fun paid(from: Instant, to: Instant, accounts: List<Account>): List<Transaction> {
-        if (to.isBefore(from)) return emptyList()
-        val ids = accounts.map { it.id }.toSet()
-        return transactionRepository.findAllBetween(from, to).filter { it.settled && it.getFromAccount() in ids }
+    /**
+     * The paid transactions of the [accounts], read once from [from] to [to] and then sliced in
+     * memory; a range reaching outside it is read on its own.
+     */
+    private inner class PaidTransactions(
+        private val accounts: List<Account>,
+        private val from: Instant,
+        private val to: Instant,
+    ) {
+        private var held: List<Transaction>? = null
+
+        suspend fun between(start: Instant, end: Instant): List<Transaction> = when {
+            end.isBefore(start) -> emptyList()
+            start.isBefore(from) || end.isAfter(to) -> read(start, end)
+            else -> (held ?: read(from, to).also { held = it }).filter { it.time in start..end }
+        }
+
+        private suspend fun read(start: Instant, end: Instant): List<Transaction> {
+            val ids = accounts.map { it.id }.toSet()
+            return transactionRepository.findAllBetween(start, end).filter { it.settled && it.getFromAccount() in ids }
+        }
+    }
+
+    // Where the months before [period] that the detail looks back on begin.
+    private fun lookBackFrom(period: TimePeriod, startDayOfMonth: Int, range: FromToTimeRange): Instant {
+        val month = period.month ?: return range.from()
+        val year = period.year ?: timeProvider.localDateNow().year
+        return month.incrementMonthPeriod(-PastMonthsCounted.toLong(), year)
+            .toRange(startDayOfMonth, timeConverter, timeProvider)
+            .from()
     }
 
     // The month before [period]: itself, its purchases and its days.
     private suspend fun previousMonth(
         period: TimePeriod,
         startDayOfMonth: Int,
-        accounts: List<Account>,
+        paid: PaidTransactions,
         rates: BaseCurrencyRates,
         names: Names,
     ): Triple<TimePeriod, List<Flow>, List<LocalDate>>? {
         val month = period.month ?: return null
         val before = month.incrementMonthPeriod(-1L, period.year ?: timeProvider.localDateNow().year)
         val range = before.toRange(startDayOfMonth, timeConverter, timeProvider)
-        val spends = purchases(paid(range.from(), range.to(), accounts), rates, names)
+        val spends = purchases(paid.between(range.from(), range.to()), rates, names)
         return Triple(before, spends, days(range))
     }
 
@@ -206,7 +234,7 @@ class MonthDetailUseCase @Inject constructor(
         spends: List<Flow>,
         due: List<Transaction>,
         free: FreeToSpend?,
-        accounts: List<Account>,
+        paid: PaidTransactions,
         rates: BaseCurrencyRates,
     ): MonthOutlook? {
         if (today == null || first == null) return null
@@ -221,7 +249,7 @@ class MonthDetailUseCase @Inject constructor(
                 val end = endOf(days[index])
                 planned.filter { (time, _) -> !time.isAfter(end) }.sumOf { it.second }
             },
-            history = everydayHistory(today, first, accounts, rates),
+            history = everydayHistory(today, first, paid, rates),
             free = free,
             // The same runs all day, so the figures hold still while the day's data does.
             random = Random(today.toEpochDay()),
@@ -237,7 +265,7 @@ class MonthDetailUseCase @Inject constructor(
         startDayOfMonth: Int,
         spends: List<Flow>,
         elapsed: Int,
-        accounts: List<Account>,
+        paid: PaidTransactions,
         rates: BaseCurrencyRates,
         names: Names,
     ): Unusual? {
@@ -245,7 +273,7 @@ class MonthDetailUseCase @Inject constructor(
         return unusual(
             spends = spends,
             elapsed = elapsed,
-            past = pastMonths(period, startDayOfMonth, first, accounts, rates, names),
+            past = pastMonths(period, startDayOfMonth, first, paid, rates, names),
             atLeast = roundNicely(UnusualEuros * (rates.factor(AssetCode.EUR) ?: 1.0)),
         )
     }
@@ -258,11 +286,11 @@ class MonthDetailUseCase @Inject constructor(
     private suspend fun everydayHistory(
         today: LocalDate,
         first: LocalDate,
-        accounts: List<Account>,
+        paid: PaidTransactions,
         rates: BaseCurrencyRates,
     ): Map<LocalDate, Double> {
         val from = maxOf(today.minusDays(HistoryDays), first)
-        val byDay = paid(startOf(from), startOf(today).minusMillis(1), accounts)
+        val byDay = paid.between(startOf(from), startOf(today).minusMillis(1))
             .filterIsInstance<Expense>()
             .filter { it.isPurchase() && it.metadata.recurringRuleId == null }
             .groupBy { it.time.localDate() }
@@ -277,7 +305,7 @@ class MonthDetailUseCase @Inject constructor(
         period: TimePeriod,
         startDayOfMonth: Int,
         first: LocalDate,
-        accounts: List<Account>,
+        paid: PaidTransactions,
         rates: BaseCurrencyRates,
         names: Names,
     ): List<PastMonth> {
@@ -289,7 +317,7 @@ class MonthDetailUseCase @Inject constructor(
             }
             .filter { !it.from().localDate().isBefore(first) }
         if (ranges.isEmpty()) return emptyList()
-        val spends = purchases(paid(ranges.first().from(), ranges.last().to(), accounts), rates, names)
+        val spends = purchases(paid.between(ranges.first().from(), ranges.last().to()), rates, names)
         return ranges.map { range ->
             val days = days(range)
             val inMonth = days.toSet()
@@ -300,7 +328,7 @@ class MonthDetailUseCase @Inject constructor(
     // What went out in each of the last full months before the current one.
     private suspend fun monthlySpending(
         startDayOfMonth: Int,
-        accounts: List<Account>,
+        paid: PaidTransactions,
         rates: BaseCurrencyRates
     ): List<Double> {
         val current = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
@@ -311,7 +339,7 @@ class MonthDetailUseCase @Inject constructor(
                 -back.toLong(),
                 year
             ).toRange(startDayOfMonth, timeConverter, timeProvider)
-            paid(range.from(), range.to(), accounts).filterIsInstance<Expense>().sumOf { rates.inBase(it.value) }
+            paid.between(range.from(), range.to()).filterIsInstance<Expense>().sumOf { rates.inBase(it.value) }
         }
     }
 

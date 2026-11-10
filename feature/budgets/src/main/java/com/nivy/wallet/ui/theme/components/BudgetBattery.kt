@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,17 +27,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nivy.design.utils.thenIf
-import com.nivy.wallet.NivyComponentPreview
-import com.nivy.wallet.utils.format
-import com.nivy.ui.R
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.readableOn
-import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
-import kotlin.math.abs
-import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberLabelMedium
+import com.nivy.design.utils.thenIf
+import com.nivy.ui.R
+import com.nivy.wallet.NivyComponentPreview
+import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
+import com.nivy.wallet.utils.amountAndCode
+import com.nivy.wallet.utils.format
+import kotlin.math.abs
 
 /**
  * How much of a budget is spent: a bar filling in one calm color while within it, and red only once
@@ -118,7 +119,7 @@ fun BudgetBattery(
             Spacer(Modifier.height(2.dp))
 
             Text(
-                text = "${expenses.format(currency)}/${budget.format(currency)} $currency",
+                text = "${expenses.format(currency)}/${amountAndCode(budget, currency)}",
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = captionTextColor,
                     fontWeight = FontWeight.ExtraBold

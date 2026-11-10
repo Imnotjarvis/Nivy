@@ -102,18 +102,19 @@ private fun BalanceSection(
         modifier = GlanceModifier.padding(start = 12.dp, end = 12.dp, top = 12.dp),
     ) {
         Text(
-            text = currency,
-            style = TextStyle(
-                fontSize = 30.sp,
-                color = ColorProvider(Color.White)
-            )
-        )
-        Spacer(GlanceModifier.width(8.dp))
-        Text(
             text = balance,
             style = TextStyle(
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
+                color = ColorProvider(Color.White)
+            )
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        // The code after the number, as everywhere in the app.
+        Text(
+            text = currency,
+            style = TextStyle(
+                fontSize = 30.sp,
                 color = ColorProvider(Color.White)
             )
         )

@@ -22,13 +22,13 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.ui.R
 import com.nivy.wallet.ui.theme.modal.ChooseStartDateOfMonthModal
-import com.nivy.wallet.ui.theme.modal.NivyModal
 import com.nivy.wallet.ui.theme.modal.ModalAddSave
 import com.nivy.wallet.ui.theme.modal.ModalDelete
 import com.nivy.wallet.ui.theme.modal.ModalNameInput
 import com.nivy.wallet.ui.theme.modal.ModalTitle
+import com.nivy.wallet.ui.theme.modal.NivyModal
 import com.nivy.wallet.ui.theme.modal.dialogData
-import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.amountAndCode
 import java.util.UUID
 
 /**
@@ -143,7 +143,7 @@ fun BoxWithConstraintsScope.CreditCardModal(
 
         AccountSettingRow(
             label = stringResource(R.string.credit_limit),
-            value = creditLimit?.let { "${it.format(currency)} $currency" }
+            value = creditLimit?.let { amountAndCode(it, currency) }
                 ?: stringResource(R.string.credit_limit_not_set),
             testTag = "credit_card_limit",
             onClick = { creditLimitModalVisible = true },

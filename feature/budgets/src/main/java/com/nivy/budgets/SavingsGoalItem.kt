@@ -30,6 +30,7 @@ import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.readableOnFill
 import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1
 import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB2Row
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import kotlin.math.abs
 
@@ -173,7 +174,7 @@ private fun SavingsBar(
             Spacer(Modifier.height(2.dp))
 
             Text(
-                text = "${savings.saved.format(currency)}/${savings.goal.format(currency)} $currency",
+                text = "${savings.saved.format(currency)}/${amountAndCode(savings.goal, currency)}",
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = onBar,
                     fontWeight = FontWeight.ExtraBold

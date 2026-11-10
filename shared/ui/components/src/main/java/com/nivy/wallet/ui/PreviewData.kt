@@ -152,7 +152,6 @@ fun previewTransaction(
             time = time,
             settled = settled,
             metadata = metadata,
-            tags = emptyList(),
             value = value,
             account = account.id,
         )
@@ -165,7 +164,6 @@ fun previewTransaction(
             time = time,
             settled = settled,
             metadata = metadata,
-            tags = emptyList(),
             value = value,
             account = account.id,
         )
@@ -180,7 +178,6 @@ fun previewTransaction(
                 time = time,
                 settled = settled,
                 metadata = metadata,
-                tags = emptyList(),
                 fromAccount = account.id,
                 fromValue = value,
                 toAccount = destination.id,

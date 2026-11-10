@@ -540,7 +540,6 @@ internal fun CalendarGrid(calendar: SpendingCalendar, shades: List<Color>) {
     }
 }
 
-private const val DaysInWeek = 7
 private const val ChartMargin = 0.1
 private const val Headroom = 1.08
 private const val AreaAlpha = 0.25f
@@ -557,7 +556,6 @@ private const val RateMargin = 0.05
 private const val MinDotAlpha = 0.3f
 private val NetWorthHeight = 210.dp
 private val AreaHeight = 140.dp
-private val BarsHeight = 130.dp
 private val RateHeight = 130.dp
 private val PunchHeight = 200.dp
 private val MaxCell = 20.dp

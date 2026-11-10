@@ -1,53 +1,39 @@
 package com.nivy.wallet.domain.pure.transaction
 
-import arrow.core.Option
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.model.Tag
-import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.getFromValue
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
-import com.nivy.wallet.domain.pure.exchange.ExchangeData
-import com.nivy.wallet.domain.pure.exchange.ExchangeTrnArgument
-import com.nivy.wallet.domain.pure.exchange.exchangeInBaseCurrency
 import kotlinx.collections.immutable.toImmutableList
-import java.math.BigDecimal
 
-/** Groups [transactions] by local day, newest first, each day headed by its income and expenses. */
+/**
+ * Groups [transactions] by local day, newest first, each day headed by its income and expenses;
+ * each transaction comes with its tags, [tagsOf] it.
+ */
 suspend fun transactionsWithDateDividers(
     transactions: List<Transaction>,
-    baseCurrencyCode: String,
     timeConverter: TimeConverter,
-    exchange: suspend (ExchangeData, BigDecimal) -> Option<BigDecimal>,
-    getTags: suspend (tagIds: List<TagId>) -> List<Tag> = { emptyList() },
+    rates: BaseCurrencyRates,
+    tagsOf: (Transaction) -> List<Tag> = { emptyList() },
 ): List<TransactionHistoryItem> {
     if (transactions.isEmpty()) return emptyList()
-    val arg = ExchangeTrnArgument(
-        baseCurrency = baseCurrencyCode,
-        exchange = exchange
-    )
     return transactions
         .groupBy { with(timeConverter) { it.time.toLocalDate() } }
         .toSortedMap(compareByDescending { it })
         .flatMap { (date, transactionsForDate) ->
             val divider = TransactionHistoryDateDivider(
                 date = date,
-                income = sumTrns(
-                    incomes(transactionsForDate),
-                    ::exchangeInBaseCurrency,
-                    arg
-                ).toDouble(),
-                expenses = sumTrns(
-                    expenses(transactionsForDate),
-                    ::exchangeInBaseCurrency,
-                    arg
-                ).toDouble()
+                income = incomes(transactionsForDate).sumOf { rates.inBase(it.getFromValue()) },
+                expenses = expenses(transactionsForDate).sumOf { rates.inBase(it.getFromValue()) },
             )
             listOf<TransactionHistoryItem>(divider) + transactionsForDate.map {
                 TransactionHistoryEntry(
                     transaction = it,
-                    tags = getTags(it.tags).toImmutableList(),
+                    tags = tagsOf(it).toImmutableList(),
                 )
             }
         }

@@ -5,17 +5,24 @@ import arrow.core.Some
 import arrow.core.identity
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.TransactionType
+import com.nivy.data.db.DatabaseTransaction
+import com.nivy.data.db.dao.fake.FakeTagAssociationDao
+import com.nivy.data.db.dao.fake.FakeTagDao
 import com.nivy.data.db.dao.fake.FakeTransactionDao
 import com.nivy.data.db.dao.read.TransactionDao
 import com.nivy.data.db.dao.write.WriteTransactionDao
+import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.invalidTransactionEntity
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.TransactionId
 import com.nivy.data.model.testing.ModelFixtures
 import com.nivy.data.model.testing.accountId
 import com.nivy.data.model.testing.transaction
 import com.nivy.data.model.testing.transactionId
+import com.nivy.data.repository.fake.fakeRepositoryMemoFactory
+import com.nivy.data.repository.mapper.TagMapper
 import com.nivy.data.repository.mapper.TransactionMapper
 import com.nivy.data.validTransactionEntity
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
@@ -35,6 +42,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import java.time.Instant
+import java.util.UUID
 
 class TransactionRepositoryTest {
 
@@ -42,6 +51,21 @@ class TransactionRepositoryTest {
     private val transactionDao = mockk<TransactionDao>()
     private val writeTransactionDao = mockk<WriteTransactionDao>()
     private val tagRepository = mockk<TagRepository>(relaxed = true)
+
+    // The database transaction's block runs as it is; writes says, for each write in turn,
+    // whether it was made within one.
+    private var inTransaction = false
+    private val writes = mutableListOf<Boolean>()
+    private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            inTransaction = true
+            return try {
+                block()
+            } finally {
+                inTransaction = false
+            }
+        }
+    }
 
     private lateinit var repository: TransactionRepository
 
@@ -57,7 +81,8 @@ class TransactionRepositoryTest {
         transactionDao = fakeDao ?: transactionDao,
         writeTransactionDao = fakeDao ?: writeTransactionDao,
         dispatchersProvider = TestDispatchersProvider,
-        tagRepository = tagRepository
+        tagRepository = tagRepository,
+        databaseTransaction = databaseTransaction,
     )
 
     @Test
@@ -102,7 +127,7 @@ class TransactionRepositoryTest {
             transactionDao.findById(transactionId.value)
         } returns entity
         with(mapper) {
-            coEvery { entity.toDomain(any()) } returns Either.Right(transaction)
+            coEvery { entity.toDomain() } returns Either.Right(transaction)
         }
 
         // when
@@ -121,7 +146,7 @@ class TransactionRepositoryTest {
             transactionDao.findById(transactionId.value)
         } returns entity
         with(mapper) {
-            coEvery { entity.toDomain(any()) } returns Either.Left("err")
+            coEvery { entity.toDomain() } returns Either.Left("err")
         }
 
         // when
@@ -400,6 +425,76 @@ class TransactionRepositoryTest {
         repository.findAll() shouldBe emptyList()
     }
 
+    @Test
+    fun `a deleted transaction takes its tags' links with it, however it's deleted`() = runTest {
+        // given
+        val dao = FakeTransactionDao()
+        val links = FakeTagAssociationDao(transactions = dao)
+        val tags = FakeTagDao(associations = links)
+        repository = TransactionRepository(
+            mapper = mapper,
+            transactionDao = dao,
+            writeTransactionDao = dao,
+            dispatchersProvider = TestDispatchersProvider,
+            tagRepository = TagRepository(
+                mapper = TagMapper(),
+                tagDao = tags,
+                tagAssociationDao = links,
+                writeTagDao = tags,
+                writeTagAssociationDao = links,
+                dispatchersProvider = TestDispatchersProvider,
+                memoFactory = fakeRepositoryMemoFactory(),
+                databaseTransaction = databaseTransaction,
+            ),
+            databaseTransaction = databaseTransaction,
+        )
+        val rule = UUID.randomUUID()
+        val closed = UUID.randomUUID()
+        val lunch = expense()
+        val rent = expense(recurringRuleId = rule)
+        val bus = expense(accountId = closed)
+        val kept = expense()
+        val trip = UUID.randomUUID()
+        listOf(lunch, rent, bus, kept).forEach {
+            dao.save(it)
+            links.save(TagAssociationEntity(trip, it.id, Instant.EPOCH, isDeleted = false))
+        }
+
+        // when, then
+        repository.deleteById(TransactionId(lunch.id))
+        links.findAll().map { it.associatedId } shouldBe listOf(rent.id, bus.id, kept.id)
+        repository.deletedByRecurringRuleIdAndNoDateTime(rule)
+        links.findAll().map { it.associatedId } shouldBe listOf(bus.id, kept.id)
+        repository.deleteAllByAccountId(AccountId(closed))
+        links.findAll().map { it.associatedId } shouldBe listOf(kept.id)
+    }
+
+    @Test
+    fun `a transaction and its tags' links are deleted in one database transaction`() = runTest {
+        // given
+        coEvery { writeTransactionDao.deleteById(any()) } answers { writes += inTransaction }
+        coEvery { writeTransactionDao.deletedByRecurringRuleIdAndNoDateTime(any()) } answers { writes += inTransaction }
+        coEvery { writeTransactionDao.deleteAllByAccountId(any()) } answers { writes += inTransaction }
+        coEvery { tagRepository.deleteLinksOfDeletedTransactions() } answers { writes += inTransaction }
+
+        // when
+        repository.deleteById(TransactionId(UUID.randomUUID()))
+        repository.deletedByRecurringRuleIdAndNoDateTime(UUID.randomUUID())
+        repository.deleteAllByAccountId(AccountId(UUID.randomUUID()))
+
+        // then
+        writes shouldBe List(6) { true }
+    }
+
+    // An unpaid expense, which a planned payment rule's is.
+    private fun expense(accountId: UUID = UUID.randomUUID(), recurringRuleId: UUID? = null) = TransactionEntity(
+        accountId = accountId,
+        type = TransactionType.EXPENSE,
+        amount = 10.0,
+        dueDate = Instant.EPOCH,
+        recurringRuleId = recurringRuleId,
+    )
+
     private fun mockkFakeTrnMapping(
         account: AccountId = Arb.accountId().next()
     ): Transaction {
@@ -410,7 +505,7 @@ class TransactionRepositoryTest {
         }
         with(mapper) {
             every { trn.toEntity() } returns entity
-            coEvery { entity.toDomain(any()) } returns Either.Right(trn)
+            coEvery { entity.toDomain() } returns Either.Right(trn)
         }
         return trn
     }
@@ -431,7 +526,7 @@ class TransactionRepositoryTest {
             coEvery { daoMethod() } returns trnMapping.keys.toList()
             trnMapping.forEach { (entity, mappingRes) ->
                 with(mapper) {
-                    coEvery { entity.toDomain(any()) } returns mappingRes
+                    coEvery { entity.toDomain() } returns mappingRes
                 }
             }
 

@@ -70,7 +70,6 @@ class SettingsViewModelTest {
             budgetRepository = budgetRepository,
             exchangeUseCase = exchangeUseCase,
             exportCsvUseCase = exportCsvUseCase,
-            context = mockk(relaxed = true),
             timeProvider = mockk(relaxed = true),
             toaster = toaster,
             dateFormatState = mockk(relaxed = true),

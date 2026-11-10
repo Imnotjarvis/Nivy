@@ -17,9 +17,6 @@ sealed interface Transaction : Identifiable<TransactionId> {
     val time: Instant
     val settled: Boolean
     val metadata: TransactionMetadata
-
-    // TODO: Get rid of Tags from the core model because of perf. and complexity
-    val tags: List<TagId>
 }
 
 data class Income(
@@ -30,7 +27,6 @@ data class Income(
     override val time: Instant,
     override val settled: Boolean,
     override val metadata: TransactionMetadata,
-    override val tags: List<TagId>,
     val value: PositiveValue,
     val account: AccountId,
 ) : Transaction
@@ -43,7 +39,6 @@ data class Expense(
     override val time: Instant,
     override val settled: Boolean,
     override val metadata: TransactionMetadata,
-    override val tags: List<TagId>,
     val value: PositiveValue,
     val account: AccountId,
 ) : Transaction
@@ -56,7 +51,6 @@ data class Transfer(
     override val time: Instant,
     override val settled: Boolean,
     override val metadata: TransactionMetadata,
-    override val tags: List<TagId>,
     val fromAccount: AccountId,
     val fromValue: PositiveValue,
     val toAccount: AccountId,

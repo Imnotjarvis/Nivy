@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="240dp"
+    android:minHeight="120dp"
+    android:minResizeWidth="240dp"
+    android:minResizeHeight="120dp"
+    android:previewImage="@drawable/preview_widget_wallet_balance"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

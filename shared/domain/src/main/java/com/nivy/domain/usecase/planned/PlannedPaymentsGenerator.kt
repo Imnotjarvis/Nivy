@@ -143,7 +143,6 @@ class PlannedPaymentsGenerator @Inject constructor(
                 time = dueDate,
                 settled = false,
                 metadata = metadata,
-                tags = emptyList(),
                 value = value,
                 account = rule.account,
             )
@@ -156,7 +155,6 @@ class PlannedPaymentsGenerator @Inject constructor(
                 time = dueDate,
                 settled = false,
                 metadata = metadata,
-                tags = emptyList(),
                 value = value,
                 account = rule.account,
             )

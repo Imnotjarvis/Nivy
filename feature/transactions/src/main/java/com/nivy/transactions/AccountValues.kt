@@ -25,7 +25,7 @@ import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.TimeFormatter
-import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.formatGainPercent
 
 /**
@@ -63,12 +63,12 @@ internal fun ValueEntryRow(
                 )
             )
             Text(
-                text = stringResource(R.string.invested_amount, "${entry.invested.format(currency)} $currency"),
+                text = stringResource(R.string.invested_amount, amountAndCode(entry.invested, currency)),
                 style = MaterialTheme.typography.bodySmall.copy(color = Gray, fontWeight = FontWeight.SemiBold)
             )
             entry.value.cash?.let {
                 Text(
-                    text = stringResource(R.string.cash_amount, "${it.value.format(currency)} $currency"),
+                    text = stringResource(R.string.cash_amount, amountAndCode(it.value, currency)),
                     style = MaterialTheme.typography.bodySmall.copy(color = Gray, fontWeight = FontWeight.SemiBold)
                 )
             }
@@ -78,7 +78,7 @@ internal fun ValueEntryRow(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "${value.format(currency)} $currency",
+                text = amountAndCode(value, currency),
                 maxLines = 1,
                 style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,

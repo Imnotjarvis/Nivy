@@ -2,6 +2,7 @@ package com.nivy.wallet.ui.theme.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,12 +11,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import com.nivy.wallet.NivyComponentPreview
-import com.nivy.wallet.utils.format
-import com.nivy.wallet.utils.shortenAmount
-import com.nivy.wallet.utils.shouldShortAmount
-import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberHeadlineLarge
+import com.nivy.wallet.NivyComponentPreview
+import com.nivy.wallet.utils.HiddenAmount
+import com.nivy.wallet.utils.formatAmount
 
 @Composable
 fun BalanceRowMedium(
@@ -76,15 +75,10 @@ fun BalanceRow(
     balanceAmountPrefix: String? = null,
     shortenBigNumbers: Boolean = false,
 ) {
-    val shortAmount = shortenBigNumbers && shouldShortAmount(balance)
-    val integerPartFormatted = if (shortAmount) {
-        shortenAmount(balance)
-    } else {
-        balance.format(currency)
-    }
+    val integerPartFormatted = formatAmount(balance, currency, shorten = shortenBigNumbers)
 
     val balanceText = when {
-        hiddenMode -> "****"
+        hiddenMode -> HiddenAmount
         balanceAmountPrefix != null -> "$balanceAmountPrefix$integerPartFormatted"
         else -> integerPartFormatted
     }

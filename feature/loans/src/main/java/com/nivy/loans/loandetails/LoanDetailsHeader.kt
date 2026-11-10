@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,36 +22,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nivy.data.model.Account
 import com.nivy.data.model.Loan
-import com.nivy.wallet.humanReadableType
-import com.nivy.wallet.ui.component.ItemStatisticToolbar
-import com.nivy.design.utils.clickableNoIndication
-import com.nivy.wallet.utils.format
-import com.nivy.wallet.utils.formatDecimals
-import com.nivy.design.utils.rememberInteractionSource
+import com.nivy.design.system.colors.Gray
+import com.nivy.design.system.colors.MediumBlack
+import com.nivy.design.system.colors.MediumWhite
+import com.nivy.design.system.colors.dynamicContrast
+import com.nivy.design.system.colors.isDarkColor
+import com.nivy.design.system.colors.readableOn
+import com.nivy.design.system.colors.toComposeColor
+import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.design.system.typography.numberLabelMedium
+import com.nivy.design.system.typography.numberTitleLarge
 import com.nivy.design.utils.StatusBarDarkText
+import com.nivy.design.utils.clickableNoIndication
+import com.nivy.design.utils.rememberInteractionSource
 import com.nivy.loans.LoanProgress
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.navigation.navigation
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.TimeFormatter
-import com.nivy.wallet.domain.data.NivyCurrency
-import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.MediumBlack
-import com.nivy.design.system.colors.MediumWhite
+import com.nivy.wallet.humanReadableType
+import com.nivy.wallet.ui.component.ItemStatisticToolbar
 import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.ItemIconMDefaultIcon
 import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.wallet.ui.theme.components.ProgressBar
 import com.nivy.wallet.ui.theme.components.getCustomIconIdS
-import com.nivy.design.system.colors.dynamicContrast
-import com.nivy.design.system.colors.readableOn
-import com.nivy.design.system.colors.isDarkColor
-import com.nivy.design.system.colors.toComposeColor
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberBodyLarge
-import com.nivy.design.system.typography.numberLabelMedium
-import com.nivy.design.system.typography.numberTitleLarge
+import com.nivy.wallet.utils.amountAndCode
+import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 
 @Composable
 internal fun Header(
@@ -242,30 +242,19 @@ private fun LoanInfoCard(
             }
         }
 
-        // Support UI for Old Versions where
-        if (selectedLoanAccount == null) {
-            Spacer(Modifier.height(12.dp))
-        }
+        // Room under the account's pill, when there is one, before the amount below it.
+        Spacer(Modifier.height(if (selectedLoanAccount == null) 12.dp else 8.dp))
 
         Text(
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .testTag("amount_paid"),
-            text = "${progress.paid.format(baseCurrency)} / ${progress.total.format(baseCurrency)}",
+            text = "${progress.paid.format(baseCurrency)} / ${amountAndCode(progress.total, baseCurrency)}",
             style = MaterialTheme.typography.numberTitleLarge.copy(
                 color = contrastColor,
                 fontWeight = FontWeight.ExtraBold
             )
         )
-        Text(
-            modifier = Modifier.padding(horizontal = 24.dp),
-            text = NivyCurrency.fromCode(baseCurrency)?.name ?: "",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = contrastColor,
-                fontWeight = FontWeight.Normal
-            )
-        )
-
         Spacer(Modifier.height(12.dp))
 
         Row(

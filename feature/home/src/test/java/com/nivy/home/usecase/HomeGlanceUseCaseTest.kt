@@ -159,7 +159,6 @@ class HomeGlanceUseCaseTest {
         time = november(dueOn),
         settled = false,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), AssetCode.unsafe("EUR")),
         account = AccountId(UUID.randomUUID()),
     )
@@ -177,7 +176,6 @@ class HomeGlanceUseCaseTest {
         time = november(dueOn),
         settled = false,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), AssetCode.unsafe(currency)),
         account = AccountId(UUID.randomUUID()),
     )

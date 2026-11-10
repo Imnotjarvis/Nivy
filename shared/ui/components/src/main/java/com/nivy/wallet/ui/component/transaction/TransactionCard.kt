@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import com.nivy.design.system.shapes.PillShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,30 +29,30 @@ import com.nivy.data.model.Transfer
 import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.getFromValue
 import com.nivy.data.temp.migration.getTransactionType
-import com.nivy.wallet.data.AppBaseData
-import com.nivy.wallet.utils.format
+import com.nivy.design.system.colors.Gray
+import com.nivy.design.system.colors.Green
+import com.nivy.design.system.colors.Nivy
+import com.nivy.design.system.colors.White
+import com.nivy.design.system.colors.expenseRed
+import com.nivy.design.system.colors.incomeGreen
+import com.nivy.design.system.colors.readableTint
+import com.nivy.design.system.colors.upcomingOrange
+import com.nivy.design.system.shapes.PillShape
+import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.design.system.typography.numberLabelMedium
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
 import com.nivy.ui.time.TimeFormatter
-import com.nivy.design.system.colors.Green
-import com.nivy.design.system.colors.Nivy
-import com.nivy.design.system.colors.upcomingOrange
-import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.White
-import com.nivy.design.system.colors.readableTint
+import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1
+import com.nivy.wallet.utils.amountAndCode
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberBodyLarge
-import com.nivy.design.system.typography.numberLabelMedium
-import com.nivy.design.system.colors.incomeGreen
-import com.nivy.design.system.colors.expenseRed
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @Composable
@@ -192,7 +192,7 @@ fun TransactionCard(
         if (transaction is Transfer && toAccountCurrency != transactionCurrency) {
             Text(
                 modifier = Modifier.padding(start = 68.dp),
-                text = "${transaction.toValue.amount.value.format(toAccountCurrency)} $toAccountCurrency",
+                text = amountAndCode(transaction.toValue.amount.value, toAccountCurrency),
                 style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.Normal

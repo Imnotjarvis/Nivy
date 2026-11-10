@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,34 +33,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nivy.data.model.Account
-import com.nivy.wallet.NivyPreview
-import com.nivy.design.utils.isKeyboardVisible
-import com.nivy.design.utils.keyboardHeight
-import com.nivy.design.utils.uncoveredNavigationBar
-import com.nivy.design.utils.consumeClicks
-import com.nivy.design.utils.densityScope
-import com.nivy.wallet.ui.previewAccount
-import com.nivy.wallet.ui.theme.components.AccountsRow
-import com.nivy.wallet.utils.format
-import com.nivy.design.utils.hideKeyboard
-import com.nivy.design.utils.lerp
-import com.nivy.wallet.utils.springBounce
-import com.nivy.wallet.utils.verticalSwipeListener
 import com.nivy.base.model.TransactionType
-import com.nivy.design.utils.rememberInteractionSource
-import com.nivy.wallet.utils.rememberSwipeListenerState
-import com.nivy.ui.R
+import com.nivy.data.model.Account
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.GreenDark
 import com.nivy.design.system.colors.GreenLight
 import com.nivy.design.system.colors.NivyDark
+import com.nivy.design.system.shapes.ShapeTop
+import com.nivy.design.utils.consumeClicks
+import com.nivy.design.utils.densityScope
+import com.nivy.design.utils.hideKeyboard
+import com.nivy.design.utils.isKeyboardVisible
+import com.nivy.design.utils.keyboardHeight
+import com.nivy.design.utils.lerp
+import com.nivy.design.utils.rememberInteractionSource
+import com.nivy.design.utils.uncoveredNavigationBar
+import com.nivy.ui.R
+import com.nivy.wallet.NivyPreview
+import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.theme.components.AccountsRow
 import com.nivy.wallet.ui.theme.modal.ModalSave
 import com.nivy.wallet.ui.theme.modal.ModalSet
 import com.nivy.wallet.ui.theme.modal.edit.AmountModal
+import com.nivy.wallet.utils.amountAndCode
+import com.nivy.wallet.utils.rememberSwipeListenerState
+import com.nivy.wallet.utils.springBounce
+import com.nivy.wallet.utils.verticalSwipeListener
 import java.util.UUID
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.shapes.ShapeTop
 
 private const val SWIPE_UP_EXPANDED_THRESHOLD = 200
 
@@ -104,7 +104,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
 
     val showConvertedAmountText = remember(type, convertedAmount, convertedAmountCurrencyCode) {
         if (type == TransactionType.TRANSFER && convertedAmount != null && convertedAmountCurrencyCode != null) {
-            "${convertedAmount.format(convertedAmountCurrencyCode)} $convertedAmountCurrencyCode"
+            amountAndCode(convertedAmount, convertedAmountCurrencyCode)
         } else {
             null
         }

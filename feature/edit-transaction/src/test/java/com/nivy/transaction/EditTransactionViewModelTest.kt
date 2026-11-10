@@ -6,7 +6,6 @@ import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.Toaster
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
-import com.nivy.base.refreshWidget
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.db.DatabaseTransaction
@@ -49,13 +48,9 @@ import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -129,9 +124,6 @@ class EditTransactionViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        // No home screen widgets to refresh.
-        mockkStatic("com.nivy.base.WidgetRefreshKt")
-        every { any<Context>().refreshWidget(any()) } just Runs
 
         coEvery { accountRepository.findAll() } returns persistentListOf(bank, wallet, dollars, amexAccount)
         val timeConverter = TestTimeConverter()
@@ -154,7 +146,6 @@ class EditTransactionViewModelTest {
                 },
             ),
             transactionSaving = TransactionSaving(
-                context = context,
                 toaster = toaster,
                 transactionRepo = transactionRepo,
                 transactionMapper = TransactionMapper(accountRepository),
@@ -380,6 +371,35 @@ class EditTransactionViewModelTest {
     }
 
     @Test
+    fun `a new transaction's tags are linked once it's saved, in the same database transaction`() {
+        val work = Tag(
+            id = TagId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe("work"),
+            description = null,
+            color = ColorInt(0),
+            icon = null,
+            orderNum = 0.0,
+            creationTimestamp = Instant.EPOCH,
+        )
+        coEvery { tagRepository.findByIds(listOf(work.id)) } returns listOf(work)
+        coEvery { transactionRepo.save(any()) } answers { writes += inTransaction }
+        coEvery { tagRepository.associateTagToEntity(any(), work.id) } answers { writes += inTransaction }
+
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+        viewModel.onEvent(EditTransactionViewEvent.TagEvent.OnTagSelect(work))
+
+        // Nothing is written while it's a draft: closed without saving, it leaves nothing behind.
+        writes shouldBe emptyList()
+
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        writes shouldBe listOf(true, true)
+        val savedAs = AssociationId(saved().id.value)
+        coVerify { tagRepository.associateTagToEntity(savedAs, work.id) }
+    }
+
+    @Test
     fun `a transaction that isn't a valid one any more isn't closed as if saved`() {
         viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
         viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
@@ -501,7 +521,6 @@ class EditTransactionViewModelTest {
             loanRecordId = null,
             purchaseDateTime = null,
         ),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(25.0), Eur),
         account = wallet.id,
     )

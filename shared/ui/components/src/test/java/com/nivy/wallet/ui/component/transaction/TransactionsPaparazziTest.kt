@@ -122,7 +122,6 @@ class TransactionsPaparazziTest(
         time = Instant.parse("2026-11-06T10:00:00Z"),
         settled = true,
         metadata = NoMetadata,
-        tags = emptyList(),
         fromAccount = Bank.id,
         fromValue = eur(1_234.5),
         toAccount = AccountId(UUID(0, 11)),
@@ -137,7 +136,6 @@ class TransactionsPaparazziTest(
         time = Instant.parse("2026-11-27T09:00:00Z"),
         settled = false,
         metadata = NoMetadata,
-        tags = emptyList(),
         value = eur(1_800.0),
         account = Bank.id,
     )
@@ -150,7 +148,6 @@ class TransactionsPaparazziTest(
         time = Instant.parse("2026-11-20T09:00:00Z"),
         settled = false,
         metadata = NoMetadata,
-        tags = emptyList(),
         value = eur(45.0),
         account = Bank.id,
     )
@@ -163,7 +160,6 @@ class TransactionsPaparazziTest(
         time = Instant.parse("2026-11-05T20:00:00Z"),
         settled = true,
         metadata = NoMetadata,
-        tags = listOf(Holiday.id),
         value = eur(32.5),
         account = Bank.id,
     )

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,20 +20,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nivy.wallet.NivyComponentPreview
-import com.nivy.design.utils.clickableNoIndication
-import com.nivy.wallet.utils.format
-import com.nivy.design.utils.rememberInteractionSource
-import com.nivy.wallet.utils.springBounce
-import com.nivy.ui.R
 import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.colors.Palette
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.shown
+import com.nivy.design.system.typography.numberLabelMedium
+import com.nivy.design.utils.clickableNoIndication
+import com.nivy.design.utils.rememberInteractionSource
+import com.nivy.ui.R
+import com.nivy.wallet.NivyComponentPreview
 import com.nivy.wallet.ui.theme.components.NivyDividerDot
 import com.nivy.wallet.ui.theme.components.NivyIcon
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberLabelMedium
-import com.nivy.design.system.colors.Palette
+import com.nivy.wallet.utils.amountAndCode
+import com.nivy.wallet.utils.springBounce
 
 @Composable
 fun SectionDivider(
@@ -111,7 +111,7 @@ private fun SectionDividerIncomeExpenseRow(
         if (expenses > 0) {
             Text(
                 modifier = Modifier.testTag("upcoming_expense"),
-                text = "${expenses.format(baseCurrency)} $baseCurrency",
+                text = amountAndCode(expenses, baseCurrency),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
@@ -138,7 +138,7 @@ private fun SectionDividerIncomeExpenseRow(
         if (income > 0) {
             Text(
                 modifier = Modifier.testTag("upcoming_income"),
-                text = "${income.format(baseCurrency)} $baseCurrency",
+                text = amountAndCode(income, baseCurrency),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     // Readable on light pages; the text color in minimal colors.
                     color = incomeGreen(MaterialTheme.colorScheme.background).shown(),

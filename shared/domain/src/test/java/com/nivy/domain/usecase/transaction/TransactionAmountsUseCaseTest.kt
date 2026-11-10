@@ -82,7 +82,6 @@ class TransactionAmountsUseCaseTest {
         time = Time,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = value(amount, asset),
         account = AccountId(UUID.randomUUID()),
     )
@@ -95,7 +94,6 @@ class TransactionAmountsUseCaseTest {
         time = Time,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = value(amount, asset),
         account = AccountId(UUID.randomUUID()),
     )
@@ -108,7 +106,6 @@ class TransactionAmountsUseCaseTest {
         time = Time,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         fromAccount = AccountId(UUID.randomUUID()),
         fromValue = value(amount, asset),
         toAccount = AccountId(UUID.randomUUID()),

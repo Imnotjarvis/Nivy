@@ -60,7 +60,7 @@ class TransactionMapperPropertyTest {
             with(mapper) {
                 // when: domain -> entity -> domain
                 val entityOne = trnOrig.toEntity()
-                val trnTwo = entityOne.toDomain(tags = emptyList()).getOrNull()
+                val trnTwo = entityOne.toDomain().getOrNull()
 
                 // then: the recovered domain trn must be the same
                 trnTwo.shouldNotBeNull() shouldBe trnOrig
@@ -81,7 +81,7 @@ class TransactionMapperPropertyTest {
             mockkValidAccounts(entity)
 
             // when
-            val res = with(mapper) { entity.toDomain(tags = emptyList()) }
+            val res = with(mapper) { entity.toDomain() }
 
             // then
             res.isRight()
@@ -95,7 +95,7 @@ class TransactionMapperPropertyTest {
             mockkValidAccounts(entity)
 
             // when
-            val res = with(mapper) { entity.toDomain(tags = emptyList()) }
+            val res = with(mapper) { entity.toDomain() }
 
             // then
             res.isLeft()
@@ -109,7 +109,7 @@ class TransactionMapperPropertyTest {
             mockkValidAccounts(entity)
 
             // when
-            val res = with(mapper) { entity.toDomain(tags = emptyList()) }
+            val res = with(mapper) { entity.toDomain() }
 
             // then
             res.isLeft()
@@ -123,7 +123,7 @@ class TransactionMapperPropertyTest {
             mockkValidAccounts(entity)
 
             // when
-            val res = with(mapper) { entity.toDomain(tags = emptyList()) }
+            val res = with(mapper) { entity.toDomain() }
 
             // then
             res.isRight()

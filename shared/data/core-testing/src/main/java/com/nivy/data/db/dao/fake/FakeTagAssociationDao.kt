@@ -1,13 +1,20 @@
 package com.nivy.data.db.dao.fake
 
 import com.nivy.data.db.dao.read.TagAssociationDao
+import com.nivy.data.db.dao.read.TransactionDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
 import com.nivy.data.db.entity.TagAssociationEntity
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.UUID
 
+/**
+ * @param transactions the transactions there are, whose links the sweep of deleted transactions'
+ * keeps, as the database's query does: none unless given.
+ */
 @VisibleForTesting
-class FakeTagAssociationDao : TagAssociationDao, WriteTagAssociationDao {
+class FakeTagAssociationDao(
+    private val transactions: TransactionDao = FakeTransactionDao(),
+) : TagAssociationDao, WriteTagAssociationDao {
     private val items = mutableListOf<TagAssociationEntity>()
     override suspend fun findAll(): List<TagAssociationEntity> {
         return items
@@ -40,5 +47,10 @@ class FakeTagAssociationDao : TagAssociationDao, WriteTagAssociationDao {
 
     override suspend fun deleteAssociationsByTagId(tagId: UUID) {
         items.removeIf { it.tagId == tagId }
+    }
+
+    override suspend fun deleteLinksOfDeletedTransactions() {
+        val there = transactions.findAll().map { it.id }.toSet()
+        items.removeIf { it.associatedId !in there }
     }
 }

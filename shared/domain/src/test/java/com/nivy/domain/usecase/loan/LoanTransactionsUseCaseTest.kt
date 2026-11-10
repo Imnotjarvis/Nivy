@@ -165,7 +165,6 @@ class LoanTransactionsUseCaseTest {
                 purchaseDateTime = purchase,
                 creditCard = card.id,
             ),
-            tags = emptyList(),
             value = PositiveValue(loan.amount, Bgn),
             account = BgnAccount.id,
         )
@@ -401,7 +400,6 @@ class LoanTransactionsUseCaseTest {
                     loanRecordId = null,
                     purchaseDateTime = null,
                 ),
-                tags = emptyList(),
                 value = PositiveValue(PositiveDouble.unsafe(250.0), Eur),
                 account = EurAccount.id,
             )

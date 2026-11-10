@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nivy.data.db.entity.TagAssociationEntity
-import java.util.*
+import java.util.UUID
 
 @Dao
 interface WriteTagAssociationDao {
@@ -23,4 +23,8 @@ interface WriteTagAssociationDao {
 
     @Query("DELETE FROM tags_association WHERE tagId = :tagId")
     suspend fun deleteAssociationsByTagId(tagId: UUID)
+
+    /** Deletes the links to transactions that aren't there: tags are only put on transactions. */
+    @Query("DELETE FROM tags_association WHERE associatedId NOT IN (SELECT id FROM transactions)")
+    suspend fun deleteLinksOfDeletedTransactions()
 }

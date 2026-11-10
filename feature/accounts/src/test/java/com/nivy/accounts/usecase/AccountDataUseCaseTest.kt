@@ -118,7 +118,6 @@ class AccountDataUseCaseTest {
         time = Instant.parse("2026-12-15T12:00:00Z"),
         settled = true,
         metadata = metadata(card),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), Eur),
         account = bank.id,
     )
@@ -131,7 +130,6 @@ class AccountDataUseCaseTest {
         time = Instant.parse("2026-12-15T12:00:00Z"),
         settled = true,
         metadata = metadata(card = null),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), Eur),
         account = bank.id,
     )

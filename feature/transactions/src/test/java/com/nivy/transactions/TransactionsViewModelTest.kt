@@ -139,7 +139,9 @@ class TransactionsViewModelTest {
         accountIncomeExpenseUseCase = accountIncomeExpenseUseCase,
         exchangeUseCase = mockk<ExchangeUseCase> {
             // 1 USD = 0.5 EUR
-            coEvery { exchange(any(), any()) } answers { Some(secondArg<BigDecimal>() / BigDecimal(2)) }
+            coEvery { convert(any(), any()) } answers {
+                Some(PositiveValue(PositiveDouble.unsafe(firstArg<PositiveValue>().amount.value / 2), Eur))
+            }
         },
         creditCardRepository = mockk<CreditCardRepository> {
             coEvery { findByAccount(any()) } returns emptyList()
@@ -392,7 +394,6 @@ class TransactionsViewModelTest {
         time = Instant.parse("2026-11-10T10:00:00Z"),
         settled = settled,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(10.0), account.asset),
         account = account.id,
     )

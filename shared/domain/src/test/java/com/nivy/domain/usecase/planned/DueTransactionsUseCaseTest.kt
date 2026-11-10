@@ -193,7 +193,6 @@ class DueTransactionsUseCaseTest {
             loanRecordId = null,
             purchaseDateTime = null,
         ),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(42.0), Usd),
         account = Account,
     )

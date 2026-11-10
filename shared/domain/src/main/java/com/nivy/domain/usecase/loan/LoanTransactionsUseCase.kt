@@ -297,7 +297,6 @@ class LoanTransactionsUseCase @Inject constructor(
                 time = time,
                 settled = true,
                 metadata = withCard,
-                tags = existing?.tags ?: emptyList(),
                 value = value,
                 account = account,
             )
@@ -310,7 +309,6 @@ class LoanTransactionsUseCase @Inject constructor(
                 time = time,
                 settled = true,
                 metadata = withCard,
-                tags = existing?.tags ?: emptyList(),
                 value = value,
                 account = account,
             )
