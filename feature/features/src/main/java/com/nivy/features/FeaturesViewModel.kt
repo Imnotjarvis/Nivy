@@ -1,6 +1,5 @@
 package com.nivy.features
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -18,7 +17,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Stable
-@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class FeaturesViewModel @Inject constructor(
     private val features: Features,
@@ -33,7 +31,6 @@ class FeaturesViewModel @Inject constructor(
         )
     }
 
-    @SuppressLint("BuildListAdds")
     @Composable
     fun getFeatures(): ImmutableList<FeatureItemViewState> {
         return buildList {

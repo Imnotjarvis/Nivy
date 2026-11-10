@@ -240,7 +240,6 @@ internal fun approx(amount: Double): String {
  * The [balances] from the step [from] on, as planned: each holds until a planned payment's day, then
  * steps to it. The last is marked, with [label] over it.
  */
-@Suppress("LongParameterList")
 private fun DrawScope.plannedAhead(
     balances: List<Double>,
     from: Int,
@@ -276,7 +275,6 @@ private fun DrawScope.plannedAhead(
  * From the step [from] on, [bands] a step: the band 8 runs in 10 stay within, the likely line
  * through it, dotted, and its end, marked, with [label] under it.
  */
-@Suppress("LongParameterList")
 private fun DrawScope.likelyAhead(
     bands: List<Band>,
     from: Int,

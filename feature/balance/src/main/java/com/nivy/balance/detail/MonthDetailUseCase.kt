@@ -51,7 +51,6 @@ class MonthDetailUseCase @Inject constructor(
     private val timeConverter: TimeConverter,
     private val dispatchers: DispatchersProvider,
 ) {
-    @Suppress("LongMethod")
     suspend fun detail(period: TimePeriod, startDayOfMonth: Int, baseCurrency: String): MonthDetail =
         withContext(dispatchers.io) {
             val rates = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency))
@@ -197,7 +196,6 @@ class MonthDetailUseCase @Inject constructor(
      * While the month runs, to its [today], what it likely holds still: from the everyday spending
      * since the [first] paid transaction's day, the [spends] so far and the purchases [due].
      */
-    @Suppress("LongParameterList")
     private suspend fun outlook(
         today: LocalDate?,
         first: LocalDate?,
@@ -231,7 +229,6 @@ class MonthDetailUseCase @Inject constructor(
 
     // While the month runs, to its [today], what stands out in its [spends] so far against the months
     // since the [first] paid transaction's day.
-    @Suppress("LongParameterList")
     private suspend fun unusualSoFar(
         today: LocalDate?,
         first: LocalDate?,
@@ -275,7 +272,6 @@ class MonthDetailUseCase @Inject constructor(
 
     // The months before [period], oldest first, those that began on or after the [first] paid
     // transaction's day: each one's days and purchases.
-    @Suppress("LongParameterList")
     private suspend fun pastMonths(
         period: TimePeriod,
         startDayOfMonth: Int,

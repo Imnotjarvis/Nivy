@@ -41,7 +41,6 @@ import javax.inject.Inject
  * A loan or record can have one transaction, in the account it names: an income when the money
  * came in (borrowing, or getting a lent amount back) and an expense when it went out.
  */
-@Suppress("TooManyFunctions")
 class LoanTransactionsUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val loanRepository: LoanRepository,
@@ -226,7 +225,6 @@ class LoanTransactionsUseCase @Inject constructor(
         )
     }
 
-    @Suppress("LongParameterList")
     private suspend fun saveTransaction(
         existing: Transaction?,
         income: Boolean,

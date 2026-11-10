@@ -445,7 +445,6 @@ class MonthDetailUseCaseTest {
         fun at(day: Int, hour: Int, month: Int = 11): Instant =
             LocalDateTime.of(2026, month, day, hour, 0).toInstant(ZoneOffset.UTC)
 
-        @Suppress("LongParameterList")
         fun expense(
             day: Int,
             amount: Double,

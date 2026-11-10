@@ -67,7 +67,6 @@ import com.nivy.wallet.ui.theme.components.bottomBarFabStart
 val TRN_BUTTON_CLICK_AREA_HEIGHT = 150.dp
 
 // The bar's buttons and their expand animation share one state.
-@Suppress("LongMethod")
 @Composable
 internal fun BoxWithConstraintsScope.BottomBar(
     tab: MainTab,
@@ -353,7 +352,6 @@ private fun TransactionButtons(
  * the menu opens, with its label under it.
  */
 @Composable
-@Suppress("LongParameterList")
 private fun AddTransactionButton(
     @DrawableRes icon: Int,
     backgroundColor: Color,

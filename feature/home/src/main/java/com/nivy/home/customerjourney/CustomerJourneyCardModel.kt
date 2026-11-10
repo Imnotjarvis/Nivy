@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 @Immutable
 data class CustomerJourneyCardModel(
     val id: String,
-    @Suppress("MaximumLineLength", "ParameterWrapping", "MaxLineLength", "ParameterListWrapping")
     val condition: suspend (trnCount: Long, plannedPaymentsCount: Long, deps: CustomerJourneyDeps) -> Boolean,
     @StringRes val title: Int,
     @StringRes val description: Int,

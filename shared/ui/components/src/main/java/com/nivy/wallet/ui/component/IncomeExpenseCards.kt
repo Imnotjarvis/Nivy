@@ -172,7 +172,7 @@ private const val NoValue = "–"
  * (null) in the card's text color.
  */
 @Composable
-@Suppress("ParameterNaming", "LongParameterList")
+@Suppress("ParameterNaming")
 private fun RowScope.HeaderCard(
     title: String,
     currencyCode: String,

@@ -69,7 +69,6 @@ private val CalendarLevels = listOf(0.25, 0.5, 0.75)
  * every account's at each month's end. Days before [trackedSince], before the app was used, aren't
  * days without spending. [changeMonths] are the complete months the categories' change compares.
  */
-@Suppress("LongParameterList")
 internal fun trends(
     months: List<MonthSpan>,
     changeMonths: List<MonthSpan>,
@@ -104,7 +103,6 @@ internal fun trends(
 }
 
 /** A month's sums and habits; its days so far from [trackedSince]. */
-@Suppress("LongParameterList")
 internal fun monthTrend(
     month: MonthSpan,
     flows: List<Flow>,

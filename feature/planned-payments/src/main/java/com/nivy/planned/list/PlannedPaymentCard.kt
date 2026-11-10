@@ -1,6 +1,5 @@
 package com.nivy.planned.list
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -61,7 +60,6 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberLabelMedium
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 internal fun LazyItemScope.PlannedPaymentCard(
     baseCurrency: String,

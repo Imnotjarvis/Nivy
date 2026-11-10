@@ -1,7 +1,6 @@
 package com.nivy.wallet.ui.theme.modal
 
 import com.nivy.design.system.colors.deleteRed
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -29,7 +28,6 @@ import com.nivy.wallet.ui.theme.components.NivyNameTextField
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 fun BoxWithConstraintsScope.DeleteModal(
     title: String,
@@ -82,7 +80,6 @@ fun BoxWithConstraintsScope.DeleteModal(
     }
 }
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 fun BoxWithConstraintsScope.DeleteConfirmationModal(
     title: String,

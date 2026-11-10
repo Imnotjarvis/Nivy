@@ -154,7 +154,6 @@ class EditTransactionPaparazziTest(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("LongParameterList")
 @Composable
 private fun BoxWithConstraintsScope.Editor(
     type: TransactionType,

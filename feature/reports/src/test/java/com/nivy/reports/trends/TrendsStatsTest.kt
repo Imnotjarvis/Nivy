@@ -291,7 +291,6 @@ class TrendsStatsTest {
             )
         }
 
-        @Suppress("LongParameterList")
         fun spend(
             day: LocalDate,
             amount: Double,

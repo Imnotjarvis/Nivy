@@ -1,6 +1,5 @@
 package com.nivy.wallet.ui.theme.modal
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -75,7 +74,6 @@ data class ChoosePeriodModalData(
  * Picks a period. [appWide]: the period chosen is also the one the app's screens show, as Home's
  * and the account pages' choice is; a period that's a filter's own leaves theirs alone.
  */
-@SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.ChoosePeriodModal(
@@ -511,7 +509,7 @@ private fun ColumnScope.LastNPeriod(
 }
 
 @Composable
-@Suppress("ParameterNaming", "MagicNumber")
+@Suppress("ParameterNaming")
 private fun ColumnScope.AllTime(
     timeRange: FromToTimeRange?,
     onSelected: (FromToTimeRange?) -> Unit,
@@ -566,7 +564,6 @@ private fun Preview_MonthSelected() {
     }
 }
 
-@Suppress("MagicNumber")
 @Preview
 @Composable
 private fun Preview_FromTo() {

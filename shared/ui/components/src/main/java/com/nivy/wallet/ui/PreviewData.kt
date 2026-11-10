@@ -94,7 +94,6 @@ fun previewLoanRecord(
 )
 
 /** A planned payment rule for previews and screenshot tests; one-time without an [interval]. */
-@Suppress("LongParameterList")
 fun previewPlannedPaymentRule(
     account: AccountId,
     title: String,
@@ -122,7 +121,6 @@ fun previewPlannedPaymentRule(
  * A transaction for previews and screenshot tests: a transfer needs a [toAccount].
  * It's due at [time] unless [settled].
  */
-@Suppress("LongParameterList")
 fun previewTransaction(
     type: TransactionType,
     account: Account,

@@ -1,6 +1,5 @@
 plugins {
     id("nivy.feature")
-    id("nivy.room")
 }
 
 android {

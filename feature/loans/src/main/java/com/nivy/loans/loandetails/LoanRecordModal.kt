@@ -1,6 +1,5 @@
 package com.nivy.loans.loandetails
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -72,7 +71,6 @@ data class LoanRecordModalData(
 )
 
 @Suppress("CyclomaticComplexMethod", "LongMethod")
-@SuppressLint("ComposeModifierMissing")
 @Composable
 fun BoxWithConstraintsScope.LoanRecordModal(
     modal: LoanRecordModalData?,

@@ -1,6 +1,5 @@
 package com.nivy.reports
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,7 +33,6 @@ import com.nivy.wallet.ui.theme.components.WrapContentRow
 import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1Row
 import androidx.compose.material3.MaterialTheme
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun TypeFilter(
     filter: ReportFilter?,
@@ -117,7 +115,6 @@ private fun TypeFilterCheckbox(
     }
 }
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun PeriodFilter(
     filter: ReportFilter?,
@@ -150,7 +147,6 @@ internal fun PeriodFilter(
     }
 }
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun AmountFilter(
     baseCurrency: String,
@@ -216,7 +212,6 @@ internal fun AmountFilter(
     }
 }
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun KeywordsFilter(
     filter: ReportFilter?,
@@ -346,7 +341,6 @@ internal fun AddKeywordButton(text: String, modifier: Modifier = Modifier, onCLi
 
 private class AddKeywordButton
 
-@SuppressLint("ComposeContentEmitterReturningValues", "ComposeMultipleContentEmitters")
 @Composable
 internal fun FilterDivider() {
     Spacer(modifier = Modifier.height(24.dp))

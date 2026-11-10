@@ -9,7 +9,6 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.view.RoundedCorner
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nivy.NivyNavGraph
@@ -57,7 +55,6 @@ import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.ivy.widget.transaction.AddTransactionWidget
 import com.ivy.widget.transaction.AddTransactionWidgetCompact
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 import android.Manifest
@@ -72,7 +69,6 @@ import kotlinx.coroutines.launch
 
 // Stays in com.ivy.wallet: launchers and pinned shortcuts store this class name; a new one would drop them on update.
 @AndroidEntryPoint
-@Suppress("TooManyFunctions")
 class RootActivity : AppCompatActivity(), RootScreen {
     @Inject
     lateinit var themeState: ThemeState
@@ -377,20 +373,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 onBackPressedDispatcher.onBackPressed()
                 isEnabled = true
             }
-        }
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    override fun openUrlInBrowser(url: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-        } catch (e: Exception) {
-            Timber.e(e)
-            Toast.makeText(
-                this,
-                "No browser app found. Visit manually: $url",
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
 

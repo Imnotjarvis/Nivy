@@ -4,7 +4,6 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.Transfer
 import java.time.Instant
 import java.time.LocalDate
 
@@ -14,10 +13,6 @@ fun expenses(transactions: List<Transaction>): List<Transaction> {
 
 fun incomes(transactions: List<Transaction>): List<Transaction> {
     return transactions.filterIsInstance<Income>()
-}
-
-fun transfers(transactions: List<Transaction>): List<Transaction> {
-    return transactions.filterIsInstance<Transfer>()
 }
 
 // Due today counts as upcoming, earlier days as overdue: by date for Home's due payments, by

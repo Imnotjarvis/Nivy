@@ -174,7 +174,6 @@ internal object TrendsSample {
     /** A year of trends, July marked, as a tap on its slot leaves it. */
     val State = TrendsState(baseCurrency = "EUR", range = TrendsRange.Year, detail = Detail, selectedIndex = 7)
 
-    @Suppress("LongParameterList")
     private fun spend(
         day: LocalDate,
         hour: Int,

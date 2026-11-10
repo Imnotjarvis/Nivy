@@ -1,6 +1,5 @@
 package com.nivy.settings
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +45,6 @@ import kotlinx.coroutines.CancellationException
 import com.nivy.ui.R
 
 @Stable
-@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val currencyRepository: CurrencyRepository,

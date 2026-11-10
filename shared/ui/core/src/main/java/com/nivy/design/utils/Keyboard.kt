@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.Dp
 
 // Same JVM signature as View.hideKeyboard(), hence the JvmName.
 @JvmName("hideKeyboardSafely")
-@Suppress("SwallowedException")
 fun hideKeyboard(view: View) {
     try {
         view.hideKeyboard()

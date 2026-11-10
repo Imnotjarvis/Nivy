@@ -10,7 +10,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * account's id, like the card a backup from before gets when it's restored, so restoring one
  * doesn't add the card again.
  */
-@Suppress("MagicNumber", "ClassNaming")
 class Migration135to136_CreditCards : Migration(135, 136) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(

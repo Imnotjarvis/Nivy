@@ -10,7 +10,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.*
 
-@Suppress("DataClassDefaultValues")
 @Keep
 @Serializable
 @Entity(tableName = "accounts")

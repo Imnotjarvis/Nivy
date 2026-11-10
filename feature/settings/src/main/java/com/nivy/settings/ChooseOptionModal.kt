@@ -28,7 +28,6 @@ import java.util.UUID
  * A dialog to choose one of [options], each a row showing its [label] in [style]; the [selected]
  * one is filled. Choosing one closes it. [tag] names each row for the UI tests.
  */
-@Suppress("LongParameterList")
 @Composable
 internal fun <T> BoxWithConstraintsScope.ChooseOptionModal(
     id: UUID,

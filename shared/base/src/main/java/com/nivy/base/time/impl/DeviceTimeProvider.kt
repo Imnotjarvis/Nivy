@@ -8,7 +8,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import javax.inject.Inject
 
-@Suppress("UnnecessaryPassThroughClass")
 class DeviceTimeProvider @Inject constructor() : TimeProvider {
 
     override fun getZoneId(): ZoneId = ZoneId.systemDefault()

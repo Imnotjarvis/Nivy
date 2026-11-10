@@ -68,7 +68,6 @@ fun BoxWithConstraintsScope.HomeTab() {
     HomeUi(uiState, viewModel::onEvent)
 }
 
-@Suppress("LongMethod")
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable

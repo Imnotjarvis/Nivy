@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-@Suppress("DataClassDefaultValues")
 data class NivyCompleteData(
     @SerialName("accounts")
     val accounts: List<AccountEntity> = emptyList(),

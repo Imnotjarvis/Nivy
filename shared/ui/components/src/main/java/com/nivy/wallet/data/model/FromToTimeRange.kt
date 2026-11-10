@@ -9,7 +9,6 @@ import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.transaction.startOfToday
 import java.time.Instant
 
-@Suppress("DataClassFunctions")
 @Immutable
 data class FromToTimeRange(
     val from: Instant?,

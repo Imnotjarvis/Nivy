@@ -53,7 +53,6 @@ class AccountBalanceUseCase @Inject constructor(
  * negative) it's worth than the money put in, which is [balance] less it.
  * @property cash of that money, what isn't invested, when the last value has its cash.
  */
-@Suppress("DataClassDefaultValues")
 data class AccountBalanceDetails(
     val account: Account,
     val balance: BigDecimal,

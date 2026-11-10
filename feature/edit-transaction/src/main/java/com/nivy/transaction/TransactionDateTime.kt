@@ -28,7 +28,6 @@ import java.time.Instant
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberBodyLarge
 
-@Suppress("MultipleEmitters")
 @Composable
 fun TransactionDateTime(
     dateTime: Instant?,

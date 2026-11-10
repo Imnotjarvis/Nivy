@@ -1,6 +1,5 @@
 package com.nivy.wallet.ui.component
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -18,7 +17,6 @@ import com.nivy.wallet.ui.theme.components.CircleButton
 import com.nivy.wallet.ui.theme.components.DeleteButton
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 
-@SuppressLint("ComposeModifierMissing")
 @Composable
 fun ItemStatisticToolbar(
     contrastColor: Color,
