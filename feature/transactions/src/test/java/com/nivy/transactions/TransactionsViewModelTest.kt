@@ -30,6 +30,10 @@ import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
 import com.nivy.navigation.TransactionsScreen
+import io.mockk.verify
+import com.nivy.data.model.CategoryId
+import com.nivy.data.model.Category
+import com.nivy.navigation.Navigation
 import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
@@ -103,10 +107,12 @@ class TransactionsViewModelTest {
         coEvery { balance(any(), any()) } answers { AccountBalanceDetails(firstArg(), BigDecimal(120)) }
     }
     private val periodState = PeriodState(FixedTime)
+    private val categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns emptyList() }
+    private val nav = mockk<Navigation>(relaxed = true)
 
     private val viewModel = TransactionsViewModel(
         accountRepository = accountRepository,
-        categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns emptyList() },
+        categoryRepository = categoryRepository,
         periodState = periodState,
         accountLogic = mockk<AccountTransactionsLogic> {
             coEvery { calculateUpcomingIncome(any(), any()) } returns 0.0
@@ -142,6 +148,7 @@ class TransactionsViewModelTest {
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),
         dispatchers = TestDispatchersProvider,
+        nav = nav,
     )
 
     @Before
@@ -283,6 +290,33 @@ class TransactionsViewModelTest {
     }
 
     @Test
+    fun `a page whose account is gone goes back instead of loading`() {
+        // given the account deleted on a page opened from this one, which went back here
+        coEvery { accountRepository.findById(bank.id) } returns null
+
+        // when
+        viewModel.start(bankPage)
+
+        // then
+        viewModel.runTest { account shouldBe null }
+        verify { nav.back() }
+    }
+
+    @Test
+    fun `a page whose category is gone goes back instead of loading`() {
+        // given
+        val gone = CategoryId(UUID.randomUUID())
+        coEvery { categoryRepository.findById(gone) } returns null
+
+        // when
+        viewModel.start(TransactionsScreen(categoryId = gone.value))
+
+        // then
+        viewModel.runTest { category shouldBe null }
+        verify { nav.back() }
+    }
+
+    @Test
     fun `deleting needs the page's exact name`() {
         // given
         viewModel.start(bankPage)
@@ -327,17 +361,24 @@ class TransactionsViewModelTest {
     @Test
     fun `a category's page loads its own figures, or those Reports passed`() {
         // given
-        val categoryId = UUID.randomUUID()
+        val food = Category(
+            id = CategoryId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe("Food"),
+            color = ColorInt(0),
+            icon = null,
+            orderNum = 0.0,
+        )
+        coEvery { categoryRepository.findById(food.id) } returns food
         val fromReports = listOf<Transaction>(expense(bank, settled = true))
 
         // when
-        viewModel.start(TransactionsScreen(categoryId = categoryId))
-        viewModel.start(TransactionsScreen(categoryId = categoryId, transactions = fromReports))
+        viewModel.start(TransactionsScreen(categoryId = food.id.value))
+        viewModel.start(TransactionsScreen(categoryId = food.id.value, transactions = fromReports))
 
         // then
-        coVerify(exactly = 1) { categoryPeriodLoader.initForCategory(any(), categoryId, any()) }
+        coVerify(exactly = 1) { categoryPeriodLoader.initForCategory(any(), food, any()) }
         coVerify(exactly = 1) {
-            categoryPeriodLoader.initForCategoryWithTransactions(any(), categoryId, any(), fromReports)
+            categoryPeriodLoader.initForCategoryWithTransactions(any(), food, any(), fromReports)
         }
     }
 

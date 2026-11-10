@@ -18,7 +18,6 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
-import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.transaction.TransactionAmountsUseCase
@@ -77,7 +76,6 @@ class CategoryPeriodLoaderTest {
     private val currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur }
 
     private val loader = CategoryPeriodLoader(
-        categoryRepository = mockk<CategoryRepository> { coEvery { findById(food.id) } returns food },
         periodState = PeriodState(FixedTime),
         categoryLogic = CategoryTransactionsLogic(
             transactionRepository = transactionRepository,
@@ -111,7 +109,7 @@ class CategoryPeriodLoaderTest {
         val state = newState()
 
         // when
-        loader.initForCategory(state, food.id.value, accountFilterList = listOf(bank.id.value))
+        loader.initForCategory(state, food, accountFilterList = listOf(bank.id.value))
 
         // then
         state.upcoming.value shouldBe listOf(bankUpcoming)
@@ -126,7 +124,7 @@ class CategoryPeriodLoaderTest {
         val state = newState()
 
         // when
-        loader.initForCategory(state, food.id.value, accountFilterList = emptyList())
+        loader.initForCategory(state, food, accountFilterList = emptyList())
 
         // then
         state.upcoming.value shouldBe listOf(bankUpcoming, cashUpcoming)

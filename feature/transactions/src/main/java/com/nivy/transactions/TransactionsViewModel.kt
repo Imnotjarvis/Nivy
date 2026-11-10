@@ -13,6 +13,7 @@ import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountValue
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Category
 import com.nivy.data.model.CreditCard
 import com.nivy.data.model.Transaction
@@ -33,6 +34,7 @@ import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
 import com.nivy.wallet.domain.logic.AccountCreator
+import com.nivy.navigation.Navigation
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.ui.ComposeViewModel
 import com.nivy.wallet.domain.data.TransactionHistoryItem
@@ -46,7 +48,6 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 import javax.inject.Inject
 
 // The transactions screen serves accounts and categories with their own stats and actions.
@@ -76,6 +77,7 @@ class TransactionsViewModel @Inject constructor(
     private val timeConverter: TimeConverter,
     private val features: Features,
     private val dispatchers: DispatchersProvider,
+    private val nav: Navigation,
 ) : ComposeViewModel<TransactionsState, TransactionsEvent>() {
 
     private val period = mutableStateOf(periodState.selected)
@@ -211,9 +213,7 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initForAccount(accountId: UUID) {
-        val initialAccount = accountRepository.findById(AccountId(accountId))
-            ?: error("account not found")
+    private suspend fun initForAccount(initialAccount: Account) {
         account.value = initialAccount
         creditCards.value = creditCardRepository.findByAccount(initialAccount.id).toImmutableList()
         val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
@@ -290,6 +290,14 @@ class TransactionsViewModel @Inject constructor(
         overdue.value = withContext(dispatchers.io) {
             accountLogic.overdue(initialAccount, range).toImmutableList()
         }
+    }
+
+    /**
+     * The page's account or category is gone: deleted on a page opened from this one, which went
+     * back here. There's nothing to show, so this page goes back too.
+     */
+    private fun backFromGonePage() {
+        nav.back()
     }
 
     private fun reset() {
@@ -463,13 +471,17 @@ class TransactionsViewModel @Inject constructor(
 
             when {
                 screen.accountId != null -> {
-                    initForAccount(screen.accountId!!)
+                    val pageAccount = accountRepository.findById(AccountId(screen.accountId!!))
+                        ?: return@launch backFromGonePage()
+                    initForAccount(pageAccount)
                 }
 
                 screen.categoryId != null && screen.transactions.isEmpty() -> {
+                    val pageCategory = categoryRepository.findById(CategoryId(screen.categoryId!!))
+                        ?: return@launch backFromGonePage()
                     categoryPeriodLoader.initForCategory(
                         categoryLoadState,
-                        screen.categoryId!!,
+                        pageCategory,
                         screen.accountIdFilterList
                     )
                 }
@@ -477,9 +489,11 @@ class TransactionsViewModel @Inject constructor(
                 // AccountTransfers Category during Reports Screen
                 screen.categoryId != null && screen.transactions.isNotEmpty() &&
                         screen.unspecifiedCategory == false -> {
+                    val pageCategory = categoryRepository.findById(CategoryId(screen.categoryId!!))
+                        ?: return@launch backFromGonePage()
                     categoryPeriodLoader.initForCategoryWithTransactions(
                         categoryLoadState,
-                        screen.categoryId!!,
+                        pageCategory,
                         screen.accountIdFilterList,
                         screen.transactions
                     )
