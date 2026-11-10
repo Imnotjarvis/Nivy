@@ -172,7 +172,7 @@ class DeleteAllDataTest {
     }
 
     @Test
-    fun everyTableEndsUpEmptyAndTheOldSettingsTableGoes() = runBlocking {
+    fun everyTableEndsUpEmptyAndTheOldSettingsTableGoes(): Unit = runBlocking {
         // given: a row in every table, and the old settings table
         fillEveryTable()
         tables().forEach { it.shouldNotBeEmpty() }
