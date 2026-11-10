@@ -212,6 +212,23 @@ class EditPlannedViewModelTest {
     }
 
     @Test
+    fun `Set is enabled once the form makes a rule`() {
+        // given
+        newPlan()
+
+        // then: no interval, then an amount of 0, then everything
+        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnRuleChanged(firstOfDecember, false, null, null))) {
+            canSave shouldBe false
+        }
+        viewModel.runTest(events = listOf(monthly, EditPlannedScreenEvent.OnAmountChanged(0.0))) {
+            canSave shouldBe false
+        }
+        viewModel.runTest(events = listOf(monthly, EditPlannedScreenEvent.OnAmountChanged(25.0))) {
+            canSave shouldBe true
+        }
+    }
+
+    @Test
     fun `a transfer can't be planned`() {
         // given
         newPlan(type = TransactionType.TRANSFER)

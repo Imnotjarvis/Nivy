@@ -122,7 +122,8 @@ class EditPlannedViewModel @Inject constructor(
             descriptionModalVisible = descriptionModalVisible,
             amountModalVisible = amountModalVisible,
             transactionTypeModalVisible = transactionTypeModalVisible,
-            recurringRuleModalData = recurringRuleModalData
+            recurringRuleModalData = recurringRuleModalData,
+            canSave = rule() != null,
         )
     }
 
