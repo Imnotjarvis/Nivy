@@ -5,7 +5,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import arrow.core.toOption
 import com.nivy.base.model.AccountType
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
@@ -17,6 +16,7 @@ import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.CreditCard
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.AccountValueRepository
@@ -28,6 +28,7 @@ import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.account.AccountIncomeExpenseUseCase
 import com.nivy.domain.usecase.account.AccountTransactionsUseCase
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
@@ -41,7 +42,6 @@ import com.nivy.wallet.data.model.toCloseTimeRange
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
-import com.nivy.wallet.domain.pure.exchange.ExchangeData
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -240,13 +240,8 @@ class TransactionsViewModel @Inject constructor(
             null
         }
         if (baseCurrency.value != currency.value) {
-            balanceBaseCurrency.value = exchangeUseCase.exchange(
-                data = ExchangeData(
-                    baseCurrency = baseCurrency.value,
-                    fromCurrency = currency.value.toOption()
-                ),
-                amount = balanceValue.toBigDecimal()
-            ).getOrNull()?.toDouble()
+            balanceBaseCurrency.value = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency.value))
+                .inBaseOrNull(balanceValue, AssetCode.unsafe(currency.value))
         }
 
         val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()

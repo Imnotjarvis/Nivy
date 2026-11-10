@@ -33,7 +33,10 @@ class BaseCurrencyRates(private val exchangeUseCase: ExchangeUseCase, private va
      * [value] in the base currency, or null without a rate: for an amount that's counted or listed
      * on its own, where nothing would pass for a purchase of 0.
      */
-    suspend fun inBaseOrNull(value: PositiveValue): Double? = factor(value.asset)?.let { value.amount.value * it }
+    suspend fun inBaseOrNull(value: PositiveValue): Double? = inBaseOrNull(value.amount.value, value.asset)
+
+    /** [amount] of [currency], a balance as much as a payment, in the base currency; null without a rate. */
+    suspend fun inBaseOrNull(amount: Double, currency: AssetCode): Double? = factor(currency)?.let { amount * it }
 
     /** A transaction's amount, income up and expenses down; a transfer stays within the wallet. */
     suspend fun signed(transaction: Transaction): Double = when (transaction) {

@@ -47,7 +47,6 @@ import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
-import com.nivy.wallet.domain.pure.exchange.ExchangeData
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -62,7 +61,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import java.io.IOException
-import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -95,9 +93,10 @@ class ReportViewModelTest {
 
     // 1 USD = 0.5 EUR
     private val exchangeUseCase = mockk<ExchangeUseCase> {
-        coEvery { exchange(any(), any()) } answers {
-            val rate = if (firstArg<ExchangeData>().fromCurrency == Some("USD")) 0.5 else 1.0
-            Some(secondArg<BigDecimal>() * rate.toBigDecimal())
+        coEvery { convert(any(), any()) } answers {
+            val value = firstArg<PositiveValue>()
+            val rate = if (value.asset == AssetCode.unsafe("USD")) 0.5 else 1.0
+            Some(PositiveValue(PositiveDouble.unsafe(value.amount.value * rate), Eur))
         }
     }
 

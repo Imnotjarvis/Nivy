@@ -72,7 +72,6 @@ internal class HomeNumbers {
             dispatchers = TestDispatchersProvider,
         ),
         currencyRepository = currencies,
-        dispatchers = TestDispatchersProvider,
     )
     private val accountValueDao = FakeAccountValueDao()
     val accountBalance = AccountBalanceUseCase(

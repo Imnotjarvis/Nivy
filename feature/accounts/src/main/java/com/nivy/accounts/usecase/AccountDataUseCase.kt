@@ -1,17 +1,17 @@
 package com.nivy.accounts.usecase
 
-import arrow.core.toOption
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Expense
+import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.account.AccountIncomeExpenseUseCase
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.data.model.CreditCardUse
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
-import com.nivy.wallet.domain.pure.exchange.ExchangeData
 import com.nivy.wallet.utils.nivyMaxTime
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -35,12 +35,16 @@ class AccountDataUseCase @Inject constructor(
         includeTransfersInCalc: Boolean = false,
     ): ImmutableList<com.nivy.wallet.data.model.AccountData> =
         withContext(dispatchers.io) {
-            accounts.map { acc -> accountData(acc, baseCurrency, range, includeTransfersInCalc) }.toImmutableList()
+            val rates = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency))
+            accounts
+                .map { acc -> accountData(acc, baseCurrency, rates, range, includeTransfersInCalc) }
+                .toImmutableList()
         }
 
     private suspend fun accountData(
         acc: com.nivy.data.model.Account,
         baseCurrency: String,
+        rates: BaseCurrencyRates,
         range: ClosedTimeRange,
         includeTransfersInCalc: Boolean,
     ): com.nivy.wallet.data.model.AccountData {
@@ -50,13 +54,7 @@ class AccountDataUseCase @Inject constructor(
         val balance = output.balance
 
         val balanceBaseCurrency = if (acc.asset.code != baseCurrency) {
-            exchangeUseCase.exchange(
-                data = ExchangeData(
-                    baseCurrency = baseCurrency,
-                    fromCurrency = acc.asset.code.toOption()
-                ),
-                amount = balance
-            ).getOrNull()
+            rates.inBaseOrNull(balance.toDouble(), acc.asset)?.toBigDecimal()
         } else {
             null
         }

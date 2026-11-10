@@ -44,6 +44,12 @@ class BaseCurrencyRatesTest {
     }
 
     @Test
+    fun `a balance, below zero too, counts at its rate, and is null without one`() = runTest {
+        rates.inBaseOrNull(-200.0, Usd) shouldBe -180.0
+        rates.inBaseOrNull(-200.0, Jpy) shouldBe null
+    }
+
+    @Test
     fun `income counts up, expenses down, and a transfer stays within the wallet`() = runTest {
         rates.signed(income(20.0)) shouldBe 20.0
         rates.signed(expense(7.5)) shouldBe -7.5
