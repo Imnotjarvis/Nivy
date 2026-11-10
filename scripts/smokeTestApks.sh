@@ -1,7 +1,7 @@
 #!/bin/bash
 # Installs each APK on the connected device/emulator as a fresh install and goes through it as a
-# new user does: from the welcome screen through every onboarding step (Continue offline, Start
-# fresh, the currency, skipping accounts and categories, which adds the starter ones) to Home,
+# new user does: from the welcome screen through every onboarding step (Get started, Start fresh,
+# the currency, skipping accounts and categories, which adds the starter ones) to Home,
 # allowing the notifications Home asks for. Then it opens the app the way app shortcuts do
 # (straight on the add-transaction screen, waiting for its keypad) and presses back twice, which
 # goes through the OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed()
@@ -95,9 +95,9 @@ step() {
 }
 
 # A freshly booted emulator's launcher can stall, and its "isn't responding" dialog then takes the
-# taps meant for the app (run 364: "Continue offline" never went through). Without error dialogs,
-# Android closes a stalled app instead. The app's own crash or stall still fails: check() finds
-# its crash log, or its process gone.
+# taps meant for the app (run 364: onboarding's first tap never went through). Without error
+# dialogs, Android closes a stalled app instead. The app's own crash or stall still fails: check()
+# finds its crash log, or its process gone.
 adb shell settings put global hide_error_dialogs 1
 echo "error dialogs hidden: $(adb shell settings get global hide_error_dialogs | tr -d '\r')"
 
@@ -114,7 +114,7 @@ for apk in "$@"; do
     adb logcat -c
     adb shell am start -W -n "$PACKAGE/$ACTIVITY"
     # Each step waits for a text only its screen shows: accounts and categories both have Skip.
-    step "$name" 1-welcome "Continue offline" "Continue offline" \
+    step "$name" 1-welcome "Get started" "Get started" \
         && step "$name" 2-start "Start fresh" "Start fresh" \
         && step "$name" 3-currency "Set currency" "Set" \
         && step "$name" 4-accounts "Add accounts" "Skip" \
