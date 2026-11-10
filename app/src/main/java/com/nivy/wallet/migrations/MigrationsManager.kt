@@ -9,6 +9,7 @@ import com.nivy.data.datastore.dataStore
 import com.nivy.wallet.migrations.impl.AccountsWithoutCurrencyMigration
 import com.nivy.wallet.migrations.impl.DisableGitHubAutoBackupMigration
 import com.nivy.wallet.migrations.impl.KeepTransfersWithDeletedAccountsMigration
+import com.nivy.wallet.migrations.impl.TagLinksOfDeletedTransactionsMigration
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -25,12 +26,14 @@ class MigrationsManager @Inject constructor(
     private val disableGitHubAutoBackupMigration: Lazy<DisableGitHubAutoBackupMigration>,
     private val keepTransfersWithDeletedAccountsMigration: Lazy<KeepTransfersWithDeletedAccountsMigration>,
     private val accountsWithoutCurrencyMigration: Lazy<AccountsWithoutCurrencyMigration>,
+    private val tagLinksOfDeletedTransactionsMigration: Lazy<TagLinksOfDeletedTransactionsMigration>,
 ) {
     private val migrations by lazy {
         listOf(
             disableGitHubAutoBackupMigration.get(),
             keepTransfersWithDeletedAccountsMigration.get(),
             accountsWithoutCurrencyMigration.get(),
+            tagLinksOfDeletedTransactionsMigration.get(),
         )
     }
 

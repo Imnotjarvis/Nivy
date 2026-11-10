@@ -479,7 +479,6 @@ class MonthDetailUseCaseTest {
                 loanId = if (loan) UUID(7L, 7L) else null,
                 recurringRuleId = if (recurring) UUID(8L, 8L) else null,
             ),
-            tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
             account = account.id,
         )
@@ -492,7 +491,6 @@ class MonthDetailUseCaseTest {
             time = at(day, 9),
             settled = paid,
             metadata = Metadata,
-            tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(amount), Eur),
             account = Bank.id,
         )

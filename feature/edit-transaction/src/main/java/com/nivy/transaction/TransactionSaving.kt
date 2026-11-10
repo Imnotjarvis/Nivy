@@ -111,9 +111,13 @@ class TransactionSaving @Inject constructor(
 
     /**
      * Saves [draft] on its card's charge date, after its loan, which [loanUpdating] is told about,
-     * in one database transaction; false when it isn't a valid transaction.
+     * then runs [linkTags], in one database transaction; false when it isn't a valid transaction.
      */
-    internal suspend fun save(draft: TransactionDraft, loanUpdating: (Boolean) -> Unit): Boolean {
+    internal suspend fun save(
+        draft: TransactionDraft,
+        linkTags: suspend () -> Unit,
+        loanUpdating: (Boolean) -> Unit,
+    ): Boolean {
         val transaction = draft.toDomain(transactionMapper) ?: return false
         databaseTransaction.run {
             if (transaction.metadata.loanId != null) {
@@ -125,6 +129,7 @@ class TransactionSaving @Inject constructor(
                 }
             }
             transactionRepo.save(creditCardChargeUseCase.dated(transaction))
+            linkTags()
         }
 
         context.refreshWidget(WalletBalanceWidgetReceiver::class.java)

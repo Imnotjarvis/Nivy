@@ -398,7 +398,6 @@ class ReportViewModelTest {
         time = Instant.parse(time),
         settled = settled,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
         account = account.id,
     )
@@ -411,7 +410,6 @@ class ReportViewModelTest {
         time = Instant.parse(time),
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
         account = account.id,
     )
@@ -424,7 +422,6 @@ class ReportViewModelTest {
         time = Instant.parse(time),
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         fromAccount = from.id,
         fromValue = PositiveValue(PositiveDouble.unsafe(amount), from.asset),
         toAccount = to.id,

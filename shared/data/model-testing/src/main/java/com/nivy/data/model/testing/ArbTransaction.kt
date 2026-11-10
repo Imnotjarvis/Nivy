@@ -50,7 +50,6 @@ fun Arb.Companion.income(
             loanRecordId = null,
             purchaseDateTime = null
         ),
-        tags = listOf(),
         value = Arb.value(amount, asset).bind(),
         account = accountId.getOrElse { Arb.accountId().bind() }
     )
@@ -79,7 +78,6 @@ fun Arb.Companion.expense(
             loanRecordId = null,
             purchaseDateTime = null
         ),
-        tags = listOf(),
         value = Arb.value(amount, asset).bind(),
         account = accountId.getOrElse { Arb.accountId().bind() }
     )
@@ -112,7 +110,6 @@ fun Arb.Companion.transfer(
             loanRecordId = null,
             purchaseDateTime = null
         ),
-        tags = listOf(),
         fromValue = Arb.value(fromAmount, fromAsset).bind(),
         fromAccount = fromAccountVal,
         toAccount = toAccount.getOrElse {

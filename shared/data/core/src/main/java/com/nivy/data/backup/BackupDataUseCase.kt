@@ -315,6 +315,8 @@ class BackupDataUseCase @Inject constructor(
 
             tagsWriter.save(completeData.tags)
             tagAssociationWriter.save(completeData.tagAssociations)
+            // Backups from before a deleted transaction took its tags' links with it still carry them.
+            tagAssociationWriter.deleteLinksOfDeletedTransactions()
             plannedPaymentRuleWriter.saveMany(completeData.plannedPaymentRules)
             creditCardWriter.saveMany(completeData.creditCards)
             accountValueWriter.saveMany(completeData.accountValues)

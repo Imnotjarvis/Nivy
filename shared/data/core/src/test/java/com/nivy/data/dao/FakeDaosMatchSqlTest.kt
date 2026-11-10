@@ -101,6 +101,54 @@ class FakeDaosMatchSqlTest {
         dao.findAll() shouldBe listOf(paid)
     }
 
+    @Test
+    fun `a tag's name matches a search in any case and anywhere in it, as SQL's LIKE does`() = runTest {
+        val dao = FakeTagDao()
+        listOf("Trip", "summer trips", "Work").forEach { dao.save(tag(it)) }
+
+        dao.findByText("TRIP").map { it.name } shouldBe listOf("Trip", "summer trips")
+    }
+
+    @Test
+    fun `the tags on what's asked are found through their links, as the joins do`() = runTest {
+        val links = FakeTagAssociationDao()
+        val dao = FakeTagDao(associations = links)
+        val trip = tag("Trip")
+        val work = tag("Work")
+        dao.save(trip)
+        dao.save(work)
+        val lunch = UUID.randomUUID()
+        val dinner = UUID.randomUUID()
+        links.save(TagAssociationEntity(trip.id, lunch, Now, isDeleted = false))
+        links.save(TagAssociationEntity(work.id, lunch, Now, isDeleted = false))
+        links.save(TagAssociationEntity(trip.id, dinner, Now, isDeleted = false))
+        // A link to a tag that isn't there joins nothing.
+        links.save(TagAssociationEntity(UUID.randomUUID(), dinner, Now, isDeleted = false))
+
+        dao.findTagsByAssociatedId(lunch) shouldBe listOf(trip, work)
+        dao.findTagsByAssociatedIds(listOf(lunch, dinner)) shouldBe
+            mapOf(lunch to listOf(trip, work), dinner to listOf(trip))
+        dao.findTagsByAssociatedIds(listOf(UUID.randomUUID())) shouldBe emptyMap()
+    }
+
+    @Test
+    fun `the sweep deletes the links to transactions that aren't there, and keeps the others`() = runTest {
+        val transactions = FakeTransactionDao()
+        val links = FakeTagAssociationDao(transactions = transactions)
+        val kept = transaction()
+        transactions.save(kept)
+        val trip = UUID.randomUUID()
+        val toKept = TagAssociationEntity(trip, kept.id, Now, isDeleted = false)
+        links.save(toKept)
+        links.save(TagAssociationEntity(trip, UUID.randomUUID(), Now, isDeleted = false))
+
+        links.deleteLinksOfDeletedTransactions()
+
+        links.findAll() shouldBe listOf(toKept)
+    }
+
+    private fun tag(name: String) = TagEntity(UUID.randomUUID(), name, null, 0, null, 0.0, Now, false, Now)
+
     private fun transaction(
         title: String? = null,
         loanId: UUID? = null,

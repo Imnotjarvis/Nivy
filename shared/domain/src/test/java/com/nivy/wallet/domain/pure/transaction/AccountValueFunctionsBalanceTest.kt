@@ -50,6 +50,7 @@ class AccountValueFunctionsBalanceTest {
                 writeTransactionDao = transactionDao,
                 dispatchersProvider = TestDispatchersProvider,
                 tagRepository = mockk(relaxed = true),
+                databaseTransaction = mockk(),
             ),
             dispatchers = TestDispatchersProvider,
         )

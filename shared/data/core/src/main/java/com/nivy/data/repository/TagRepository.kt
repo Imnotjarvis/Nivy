@@ -112,18 +112,6 @@ class TagRepository @Inject constructor(
         }
     }
 
-    suspend fun findByAllTagsForAssociations(): Map<AssociationId, List<TagAssociation>> {
-        return withContext(dispatchersProvider.io) {
-            tagAssociationDao.findAll().groupBy {
-                AssociationId(it.associatedId)
-            }.mapValues {
-                with(mapper) {
-                    it.value.map { it.toDomain() }
-                }
-            }
-        }
-    }
-
     suspend fun associateTagToEntity(associationId: AssociationId, tagId: TagId) {
         withContext(dispatchersProvider.io) {
             writeTagAssociationDao.save(
@@ -137,6 +125,13 @@ class TagRepository @Inject constructor(
     suspend fun removeTagAssociation(associationId: AssociationId, tagId: TagId) {
         withContext(dispatchersProvider.io) {
             writeTagAssociationDao.deleteId(tagId = tagId.value, associatedId = associationId.value)
+        }
+    }
+
+    /** Deletes the links to transactions that aren't there any more: they'd only grow, and go into backups. */
+    suspend fun deleteLinksOfDeletedTransactions() {
+        withContext(dispatchersProvider.io) {
+            writeTagAssociationDao.deleteLinksOfDeletedTransactions()
         }
     }
 

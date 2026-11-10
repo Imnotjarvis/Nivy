@@ -2,7 +2,6 @@ package com.nivy.wallet.domain.pure.transaction
 
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.model.Tag
-import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.getFromValue
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
@@ -11,12 +10,15 @@ import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import kotlinx.collections.immutable.toImmutableList
 
-/** Groups [transactions] by local day, newest first, each day headed by its income and expenses. */
+/**
+ * Groups [transactions] by local day, newest first, each day headed by its income and expenses;
+ * each transaction comes with its tags, [tagsOf] it.
+ */
 suspend fun transactionsWithDateDividers(
     transactions: List<Transaction>,
     timeConverter: TimeConverter,
     rates: BaseCurrencyRates,
-    getTags: suspend (tagIds: List<TagId>) -> List<Tag> = { emptyList() },
+    tagsOf: (Transaction) -> List<Tag> = { emptyList() },
 ): List<TransactionHistoryItem> {
     if (transactions.isEmpty()) return emptyList()
     return transactions
@@ -31,7 +33,7 @@ suspend fun transactionsWithDateDividers(
             listOf<TransactionHistoryItem>(divider) + transactionsForDate.map {
                 TransactionHistoryEntry(
                     transaction = it,
-                    tags = getTags(it.tags).toImmutableList(),
+                    tags = tagsOf(it).toImmutableList(),
                 )
             }
         }

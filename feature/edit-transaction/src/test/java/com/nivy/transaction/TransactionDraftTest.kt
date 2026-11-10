@@ -72,7 +72,6 @@ class TransactionDraftTest {
             time = Instant.parse("2026-11-15T12:00:00Z"),
             settled = true,
             metadata = Metadata,
-            tags = emptyList(),
             fromAccount = bank.id,
             fromValue = PositiveValue(PositiveDouble.unsafe(100.0), Eur),
             toAccount = dollars.id,
@@ -98,7 +97,6 @@ class TransactionDraftTest {
             time = Instant.parse("2026-11-15T12:00:00Z"),
             settled = true,
             metadata = Metadata,
-            tags = emptyList(),
             fromAccount = bank.id,
             fromValue = PositiveValue(PositiveDouble.unsafe(100.0), Eur),
             toAccount = dollars.id,
@@ -132,7 +130,6 @@ class TransactionDraftTest {
         time = time,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
         account = account.id,
     )

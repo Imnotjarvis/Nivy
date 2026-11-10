@@ -143,7 +143,6 @@ class TransactionTest {
                 loanRecordId = null,
                 purchaseDateTime = null
             ),
-            tags = listOf(),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(1.0),
                 asset = AssetCode.EUR
@@ -165,7 +164,6 @@ class TransactionTest {
                 loanRecordId = null,
                 purchaseDateTime = null
             ),
-            tags = listOf(),
             value = PositiveValue(
                 amount = PositiveDouble.unsafe(1.0),
                 asset = AssetCode.EUR
@@ -187,7 +185,6 @@ class TransactionTest {
                 loanRecordId = null,
                 purchaseDateTime = null
             ),
-            tags = listOf(),
             fromAccount = AccountId,
             fromValue = PositiveValue(
                 amount = PositiveDouble.unsafe(1.0),

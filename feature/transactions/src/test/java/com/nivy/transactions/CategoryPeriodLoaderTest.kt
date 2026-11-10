@@ -165,7 +165,6 @@ class CategoryPeriodLoaderTest {
             loanRecordId = null,
             purchaseDateTime = null,
         ),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), Eur),
         account = account.id,
     )

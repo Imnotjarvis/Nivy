@@ -28,7 +28,6 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -73,7 +72,6 @@ class TransactionMapperTest {
                 asset = AssetCode.unsafe("NGN")
             ),
             account = AccountId,
-            tags = persistentListOf()
         )
 
         // when
@@ -128,7 +126,6 @@ class TransactionMapperTest {
                 asset = AssetCode.unsafe("NGN")
             ),
             account = AccountId,
-            tags = persistentListOf()
         )
 
         // when
@@ -188,7 +185,6 @@ class TransactionMapperTest {
                 asset = AssetCode.unsafe("NGN")
             ),
             toAccount = ToAccountId,
-            tags = persistentListOf()
         )
 
         // when
@@ -253,7 +249,6 @@ class TransactionMapperTest {
                 asset = EUR
             ),
             account = AccountId,
-            tags = persistentListOf()
         )
     }
 
@@ -381,7 +376,6 @@ class TransactionMapperTest {
                 asset = EUR
             ),
             account = AccountId,
-            tags = persistentListOf()
         )
     }
 
@@ -515,7 +509,6 @@ class TransactionMapperTest {
                 asset = USD
             ),
             toAccount = ToAccountId,
-            tags = persistentListOf()
         )
     }
 

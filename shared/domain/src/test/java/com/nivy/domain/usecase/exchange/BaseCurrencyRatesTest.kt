@@ -64,7 +64,6 @@ class BaseCurrencyRatesTest {
         time = Instant.EPOCH,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = value(amount, Eur),
         account = Account,
     )
@@ -77,7 +76,6 @@ class BaseCurrencyRatesTest {
         time = Instant.EPOCH,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = value(amount, Eur),
         account = Account,
     )
@@ -90,7 +88,6 @@ class BaseCurrencyRatesTest {
         time = Instant.EPOCH,
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         fromAccount = Account,
         fromValue = value(amount, Eur),
         toAccount = AccountId(UUID.randomUUID()),

@@ -55,7 +55,6 @@ class AdjustAccountBalanceUseCase @Inject constructor(
                     time = time,
                     settled = true,
                     metadata = metadata,
-                    tags = emptyList(),
                     value = value,
                     account = account.id,
                 )
@@ -68,7 +67,6 @@ class AdjustAccountBalanceUseCase @Inject constructor(
                     time = time,
                     settled = true,
                     metadata = metadata,
-                    tags = emptyList(),
                     value = value,
                     account = account.id,
                 )

@@ -205,7 +205,6 @@ class AccountBalanceUseCaseTest {
         time = day(day),
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         fromAccount = from,
         fromValue = eur(amount),
         toAccount = to,
@@ -220,7 +219,6 @@ class AccountBalanceUseCaseTest {
         time = day(day),
         settled = true,
         metadata = Metadata,
-        tags = emptyList(),
         value = eur(amount),
         account = Investment.id,
     )

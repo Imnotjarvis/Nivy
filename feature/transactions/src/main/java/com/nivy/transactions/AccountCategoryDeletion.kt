@@ -84,7 +84,6 @@ private fun Transfer.asExpense(note: String): Transaction = Expense(
     time = time,
     settled = settled,
     metadata = metadata,
-    tags = tags,
     value = fromValue,
     account = fromAccount,
 )
@@ -97,7 +96,6 @@ private fun Transfer.asIncome(note: String): Transaction = Income(
     time = time,
     settled = settled,
     metadata = metadata,
-    tags = tags,
     value = toValue,
     account = toAccount,
 )

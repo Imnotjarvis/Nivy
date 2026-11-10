@@ -394,7 +394,6 @@ class TransactionsViewModelTest {
         time = Instant.parse("2026-11-10T10:00:00Z"),
         settled = settled,
         metadata = Metadata,
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(10.0), account.asset),
         account = account.id,
     )

@@ -112,6 +112,7 @@ class EditTransactionViewModel @Inject constructor(
         userWrites = userWrites,
         scope = viewModelScope,
         transactionId = { loadedTransaction().id },
+        stored = { editMode },
         afterTagAdd = { saveIfEditMode() },
         io = dispatchers.io,
     )
@@ -420,7 +421,7 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             val saved = transactionSaving.trySaving {
                 val id = UUID.randomUUID()
-                transactionSaving.saveCopy(loadedTransaction(), id) { tags.copyTo(id) }
+                transactionSaving.saveCopy(loadedTransaction(), id) { tags.linkTo(id) }
             }
 
             if (saved) closeScreen()
@@ -519,7 +520,8 @@ class EditTransactionViewModel @Inject constructor(
                 categoryId = category?.id?.value,
             )
 
-            transactionSaving.save(loadedTransaction()) { backgroundProcessingStarted = it }
+            val draft = loadedTransaction()
+            transactionSaving.save(draft, linkTags = { tags.onSaved(draft.id) }) { backgroundProcessingStarted = it }
         }
 
         if (saved && closeScreen) {

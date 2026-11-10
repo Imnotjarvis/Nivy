@@ -148,7 +148,6 @@ class CreditCardChargeUseCaseTest {
             time = Instant.parse("2026-10-03T18:30:00Z"),
             settled = true,
             metadata = metadata(card.id),
-            tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(10.0), Eur),
             account = Bank,
         )
@@ -189,7 +188,6 @@ class CreditCardChargeUseCaseTest {
         time = time,
         settled = settled,
         metadata = metadata(card),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(42.0), Eur),
         account = Bank,
     )

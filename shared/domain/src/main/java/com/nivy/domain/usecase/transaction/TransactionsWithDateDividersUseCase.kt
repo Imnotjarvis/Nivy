@@ -4,6 +4,7 @@ import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.primitive.AssetCode
+import com.nivy.data.model.primitive.AssociationId
 import com.nivy.data.repository.TagRepository
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
@@ -18,15 +19,18 @@ class TransactionsWithDateDividersUseCase @Inject constructor(
     private val timeConverter: TimeConverter,
     private val dispatchers: DispatchersProvider,
 ) {
+    /** [transactions] by day, with their tags, whichever finder found them. */
     suspend fun withDateDividers(
         baseCurrency: String,
         transactions: List<Transaction>,
     ): List<TransactionHistoryItem> = withContext(dispatchers.io) {
+        // The listed transactions' tags, read together.
+        val tags = tagRepository.findByAssociatedId(transactions.map { AssociationId(it.id.value) })
         transactionsWithDateDividers(
             transactions = transactions,
             timeConverter = timeConverter,
             rates = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency)),
-            getTags = { tagIds -> tagRepository.findByIds(tagIds) },
+            tagsOf = { tags[AssociationId(it.id.value)].orEmpty() },
         )
     }
 }

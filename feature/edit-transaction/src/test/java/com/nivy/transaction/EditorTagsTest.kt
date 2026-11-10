@@ -36,11 +36,12 @@ class EditorTagsTest {
     private val toaster = mockk<Toaster>(relaxed = true)
     private var tagsAdded = 0
 
-    private fun TestScope.editorTags() = EditorTags(
+    private fun TestScope.editorTags(stored: Boolean = true) = EditorTags(
         transactionTags = transactionTags,
         userWrites = UserWrites(toaster),
         scope = this,
         transactionId = { transaction },
+        stored = { stored },
         afterTagAdd = { tagsAdded++ },
         io = StandardTestDispatcher(testScheduler),
     )
@@ -197,11 +198,59 @@ class EditorTagsTest {
         tags.show(all = persistentListOf(holiday, work), transaction = transaction)
 
         // when
-        tags.copyTo(copy)
+        tags.linkTo(copy)
 
         // then
         coVerify(exactly = 1) { transactionTags.associateTag(AssociationId(copy), holiday) }
         coVerify(exactly = 0) { transactionTags.associateTag(AssociationId(transaction), any()) }
+    }
+
+    @Test
+    fun `a new transaction's tags are kept until it's saved, then linked to it`() = runTest {
+        // given
+        coEvery { transactionTags.associatedTagIds(AssociationId(transaction)) } returns persistentListOf()
+        coEvery { transactionTags.associateTag(any(), any()) } returns persistentListOf()
+        coEvery { transactionTags.removeTagAssociation(any(), any()) } returns persistentListOf()
+        coEvery { transactionTags.findByIds(listOf(work.id)) } returns listOf(work)
+        val tags = editorTags(stored = false)
+        tags.show(all = persistentListOf(holiday, work), transaction = transaction)
+
+        // when
+        tags.onEvent(TagEvent.OnTagSelect(holiday))
+        tags.onEvent(TagEvent.OnTagSelect(work))
+        tags.onEvent(TagEvent.OnTagDeSelect(holiday))
+        advanceUntilIdle()
+
+        // then
+        tags.associated shouldBe persistentListOf(work.id)
+        coVerify(exactly = 0) { transactionTags.associateTag(any(), any()) }
+        coVerify(exactly = 0) { transactionTags.removeTagAssociation(any(), any()) }
+
+        // when
+        tags.linkTo(transaction)
+
+        // then
+        coVerify(exactly = 1) { transactionTags.associateTag(AssociationId(transaction), work) }
+        coVerify(exactly = 0) { transactionTags.associateTag(any(), holiday) }
+    }
+
+    @Test
+    fun `a deleted tag is no longer one of the transaction's`() = runTest {
+        // given
+        coEvery {
+            transactionTags.associatedTagIds(AssociationId(transaction))
+        } returns persistentListOf(holiday.id, work.id)
+        coEvery { transactionTags.deleteTag(holiday) } returns persistentListOf(work)
+        val tags = editorTags()
+        tags.show(all = persistentListOf(holiday, work), transaction = transaction)
+
+        // when
+        tags.onEvent(TagEvent.OnTagDelete(holiday))
+        advanceUntilIdle()
+
+        // then
+        tags.all shouldBe persistentListOf(work)
+        tags.associated shouldBe persistentListOf(work.id)
     }
 }
 

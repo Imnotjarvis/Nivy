@@ -4,25 +4,35 @@ import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.fake.FakeAccountDao
 import com.nivy.data.db.dao.fake.FakeAccountValueDao
 import com.nivy.data.db.dao.fake.FakeExchangeRatesDao
+import com.nivy.data.db.dao.fake.FakeTagAssociationDao
+import com.nivy.data.db.dao.fake.FakeTagDao
 import com.nivy.data.db.dao.fake.FakeTransactionDao
 import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Tag
+import com.nivy.data.model.TagId
+import com.nivy.data.model.primitive.AssociationId
+import com.nivy.data.model.primitive.ColorInt
+import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.AccountValueRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
+import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.fake.fakeRepositoryMemoFactory
 import com.nivy.data.repository.mapper.AccountMapper
 import com.nivy.data.repository.mapper.AccountValueMapper
 import com.nivy.data.repository.mapper.ExchangeRateMapper
+import com.nivy.data.repository.mapper.TagMapper
 import com.nivy.data.repository.mapper.TransactionMapper
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.account.AccountTransactionsUseCase
@@ -56,12 +66,28 @@ internal class HomeNumbers {
         dispatchersProvider = TestDispatchersProvider,
         memoFactory = fakeRepositoryMemoFactory(),
     )
+    private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R = block()
+    }
+    val tagLinkDao = FakeTagAssociationDao(transactions = transactionDao)
+    private val tagDao = FakeTagDao(associations = tagLinkDao)
+    val tags = TagRepository(
+        mapper = TagMapper(),
+        tagDao = tagDao,
+        tagAssociationDao = tagLinkDao,
+        writeTagDao = tagDao,
+        writeTagAssociationDao = tagLinkDao,
+        dispatchersProvider = TestDispatchersProvider,
+        memoFactory = fakeRepositoryMemoFactory(),
+        databaseTransaction = databaseTransaction,
+    )
     val transactions = TransactionRepository(
         mapper = TransactionMapper(accounts),
         transactionDao = transactionDao,
         writeTransactionDao = transactionDao,
         dispatchersProvider = TestDispatchersProvider,
-        tagRepository = mockk(relaxed = true),
+        tagRepository = tags,
+        databaseTransaction = databaseTransaction,
     )
     val exchange = ExchangeUseCase(
         exchangeRatesRepository = ExchangeRatesRepository(
@@ -97,6 +123,22 @@ internal class HomeNumbers {
         return checkNotNull(accounts.findById(AccountId(entity.id)))
     }
 
+    /** A tag named [name], on [transactions]. */
+    suspend fun tag(name: String, vararg transactions: UUID): Tag {
+        val tag = Tag(
+            id = TagId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe(name),
+            description = null,
+            color = ColorInt(0),
+            icon = null,
+            orderNum = 0.0,
+            creationTimestamp = Instant.EPOCH,
+        )
+        tags.save(tag)
+        transactions.forEach { tags.associateTagToEntity(AssociationId(it), tag.id) }
+        return tag
+    }
+
     /** What one euro buys of [currency]. */
     suspend fun rate(currency: String, perEuro: Double) {
         ratesDao.save(ExchangeRateEntity(baseCurrency = Euros, currency = currency, rate = perEuro))
@@ -128,16 +170,23 @@ internal class HomeNumbers {
         )
     }
 
-    private suspend fun save(account: Account, type: TransactionType, amount: Double, on: Instant, category: UUID?) {
-        transactionDao.save(
-            TransactionEntity(
-                accountId = account.id.value,
-                type = type,
-                amount = amount,
-                dateTime = on,
-                categoryId = category,
-            )
+    /** Saves the transaction, and returns its id. */
+    private suspend fun save(
+        account: Account,
+        type: TransactionType,
+        amount: Double,
+        on: Instant,
+        category: UUID?,
+    ): UUID {
+        val entity = TransactionEntity(
+            accountId = account.id.value,
+            type = type,
+            amount = amount,
+            dateTime = on,
+            categoryId = category,
         )
+        transactionDao.save(entity)
+        return entity.id
     }
 
     companion object {

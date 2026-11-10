@@ -15,7 +15,6 @@ import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.time.Instant
@@ -27,7 +26,7 @@ class TransactionListsTest {
     private val inRange = TransactionsInRangeUseCase(home.transactions, TestDispatchersProvider)
     private val withDividers = TransactionsWithDateDividersUseCase(
         exchangeUseCase = home.exchange,
-        tagRepository = mockk(relaxed = true),
+        tagRepository = home.tags,
         timeConverter = timeConverter,
         dispatchers = TestDispatchersProvider,
     )
@@ -69,6 +68,23 @@ class TransactionListsTest {
         third.date shouldBe LocalDate.of(2026, 11, 3)
         third.income shouldBe (1_000.0 plusOrMinus Cent)
         third.expenses shouldBe (20.0 plusOrMinus Cent)
+    }
+
+    @Test
+    fun `an account's list shows its transactions' tags, as Home's does`() = runTest {
+        val bank = home.account("Bank")
+        val lunch = home.expense(bank, 12.0)
+        val trip = home.tag("Trip", lunch)
+        val november = ClosedTimeRange(Nov1, Nov30)
+
+        val onHome = withDividers.withDateDividers(Euros, home.transactions.findAllBetween(Nov1, Nov30))
+        val onTheAccountsPage = withDividers.withDateDividers(
+            Euros,
+            home.accountTransactions.transactions(bank.id.value, november),
+        )
+
+        onHome.filterIsInstance<TransactionHistoryEntry>().single().tags shouldBe listOf(trip)
+        onTheAccountsPage.filterIsInstance<TransactionHistoryEntry>().single().tags shouldBe listOf(trip)
     }
 
     private companion object {

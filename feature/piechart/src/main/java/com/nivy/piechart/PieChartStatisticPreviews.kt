@@ -318,7 +318,6 @@ private fun sampleExpense(account: Account, category: Category, amount: Double, 
             loanRecordId = null,
             purchaseDateTime = null,
         ),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
         account = account.id,
     )

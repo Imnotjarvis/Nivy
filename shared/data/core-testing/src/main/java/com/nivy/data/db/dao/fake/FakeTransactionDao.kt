@@ -203,15 +203,9 @@ class FakeTransactionDao(
         return items.count { it.dateTime != null }.toLong()
     }
 
-    // SQLite's LIKE: % for any text, _ for one character, letters in any case; no order asked.
+    // No order asked.
     override suspend fun findAllByTitleMatchingPattern(pattern: String): List<TransactionEntity> {
-        val like = pattern.map { char ->
-            when (char) {
-                '%' -> ".*"
-                '_' -> "."
-                else -> Regex.escape(char.toString())
-            }
-        }.joinToString("").toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+        val like = likeRegex(pattern)
         return items.filter { it.title?.let(like::matches) == true }
     }
 

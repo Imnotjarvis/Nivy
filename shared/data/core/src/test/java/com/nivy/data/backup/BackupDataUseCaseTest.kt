@@ -24,6 +24,8 @@ import com.nivy.data.db.dao.fake.FakeTransactionDao
 import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.AccountValueEntity
 import com.nivy.data.db.entity.CreditCardEntity
+import com.nivy.data.db.entity.TagAssociationEntity
+import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.file.FileSystem
 import com.nivy.data.preferences.AppPreferences
@@ -255,8 +257,8 @@ class BackupDataUseCaseTest {
         private val budgets = FakeBudgetDao()
         private val loans = FakeLoanDao()
         private val loanRecords = FakeLoanRecordDao()
-        private val tags = FakeTagDao()
-        private val tagAssociations = FakeTagAssociationDao()
+        private val tagAssociations = FakeTagAssociationDao(transactions)
+        private val tags = FakeTagDao(tagAssociations)
         private val creditCards = FakeCreditCardDao()
         private val accountValues = FakeAccountValueDao()
         private val exchangeRates = FakeExchangeRatesDao()
@@ -535,6 +537,43 @@ class BackupDataUseCaseTest {
         transactionDao.findAll().associate { it.amount to it.creditCardId } shouldBe
             mapOf(10.0 to card, 3.0 to null, 7.0 to null)
         plannedPaymentDao.findAll().map { it.creditCardId } shouldBe listOf(card)
+    }
+
+    @Test
+    fun `a backup's tag links to transactions it doesn't hold aren't imported`() = runTest {
+        // given: a backup from before a deleted transaction took its tags' links with it
+        val transactionDao = FakeTransactionDao()
+        val tagAssociationDao = FakeTagAssociationDao(transactions = transactionDao)
+        val useCase = newBackupDataUseCase(transactionDao = transactionDao, tagAssociationDao = tagAssociationDao)
+        val bank = AccountEntity(name = "Bank", color = 1, currency = "EUR")
+        val lunch = TransactionEntity(accountId = bank.id, type = TransactionType.EXPENSE, amount = 12.0)
+        val trip = TagEntity(
+            id = UUID.randomUUID(),
+            name = "Trip",
+            description = null,
+            color = 0,
+            icon = null,
+            orderNum = 0.0,
+            dateTime = Instant.EPOCH,
+            isDeleted = false,
+            lastSyncedTime = Instant.EPOCH,
+        )
+        val toLunch = TagAssociationEntity(trip.id, lunch.id, Instant.EPOCH, isDeleted = false)
+        val backup = NivyCompleteData(
+            accounts = listOf(bank),
+            transactions = listOf(lunch),
+            tags = listOf(trip),
+            tagAssociations = listOf(
+                toLunch,
+                TagAssociationEntity(trip.id, UUID.randomUUID(), Instant.EPOCH, isDeleted = false),
+            ),
+        )
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then
+        tagAssociationDao.findAll() shouldBe listOf(toLunch)
     }
 
     @Suppress("DEPRECATION") // the test is about the obsolete field

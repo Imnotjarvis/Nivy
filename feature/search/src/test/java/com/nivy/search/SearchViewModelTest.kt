@@ -94,7 +94,6 @@ class SearchViewModelTest : ComposeViewModelTest() {
             loanRecordId = null,
             purchaseDateTime = null,
         ),
-        tags = emptyList(),
         value = PositiveValue(PositiveDouble.unsafe(10.0), AssetCode.unsafe("EUR")),
         account = AccountId(UUID.randomUUID()),
     )

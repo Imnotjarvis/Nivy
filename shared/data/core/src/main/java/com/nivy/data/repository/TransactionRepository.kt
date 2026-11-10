@@ -2,17 +2,15 @@ package com.nivy.data.repository
 
 import com.nivy.base.model.TransactionType
 import com.nivy.base.threading.DispatchersProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.read.TransactionDao
 import com.nivy.data.db.dao.write.WriteTransactionDao
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CategoryId
-import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
-import com.nivy.data.model.primitive.AssociationId
 import com.nivy.data.repository.mapper.TransactionMapper
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.util.UUID
@@ -23,29 +21,19 @@ class TransactionRepository @Inject constructor(
     private val transactionDao: TransactionDao,
     private val writeTransactionDao: WriteTransactionDao,
     private val dispatchersProvider: DispatchersProvider,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val databaseTransaction: DatabaseTransaction,
 ) {
-    suspend fun findAll(): List<Transaction> = withContext(dispatchersProvider.io) {
-        val tagMap = async { findAllTagAssociations() }
-        retrieveTrns(
-            dbCall = transactionDao::findAll,
-            retrieveTags = {
-                tagMap.await()[it.id] ?: emptyList()
-            }
-        )
-    }
+    suspend fun findAll(): List<Transaction> = retrieveTrns(dbCall = transactionDao::findAll)
 
     suspend fun findAllBetween(
         startDate: Instant,
         endDate: Instant
-    ): List<Transaction> = withContext(dispatchersProvider.io) {
-        val transactions = transactionDao.findAllBetween(startDate, endDate)
-        val tagAssociationMap = getTagsForTransactionIds(transactions)
-        transactions.mapNotNull {
-            val tags = tagAssociationMap[it.id] ?: emptyList()
-            with(mapper) { it.toDomain(tags = tags) }.orLogged()
+    ): List<Transaction> = retrieveTrns(
+        dbCall = {
+            transactionDao.findAllBetween(startDate, endDate)
         }
-    }
+    )
 
     suspend fun findAllByAccountAndBetween(
         accountId: AccountId,
@@ -210,21 +198,13 @@ class TransactionRepository @Inject constructor(
         }
     }
 
-    suspend fun findByIds(ids: List<TransactionId>): List<Transaction> {
-        return withContext(dispatchersProvider.io) {
-            val tagMap = async { findTagsForTransactionIds(ids) }
-            retrieveTrns(
-                dbCall = {
-                    // SQLite before 3.32 (Android 9 to 11) allows at most 999 variables a query.
-                    ids.map { it.value }.chunked(MAX_SQL_LITE_QUERY_SIZE)
-                        .flatMap { transactionDao.findByIds(it) }
-                },
-                retrieveTags = {
-                    tagMap.await()[it.id] ?: emptyList()
-                }
-            )
+    suspend fun findByIds(ids: List<TransactionId>): List<Transaction> = retrieveTrns(
+        dbCall = {
+            // SQLite before 3.32 (Android 9 to 11) allows at most 999 variables a query.
+            ids.map { it.value }.chunked(MAX_SQL_LITE_QUERY_SIZE)
+                .flatMap { transactionDao.findByIds(it) }
         }
-    }
+    )
 
     suspend fun save(value: Transaction) {
         withContext(dispatchersProvider.io) {
@@ -243,20 +223,27 @@ class TransactionRepository @Inject constructor(
     }
 
     suspend fun deleteById(id: TransactionId) {
-        withContext(dispatchersProvider.io) {
-            writeTransactionDao.deleteById(id.value)
-        }
+        deleting { writeTransactionDao.deleteById(id.value) }
     }
 
     suspend fun deleteAllByAccountId(accountId: AccountId) {
-        withContext(dispatchersProvider.io) {
-            writeTransactionDao.deleteAllByAccountId(accountId.value)
-        }
+        deleting { writeTransactionDao.deleteAllByAccountId(accountId.value) }
     }
 
     suspend fun deletedByRecurringRuleIdAndNoDateTime(recurringRuleId: UUID) {
+        deleting { writeTransactionDao.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId) }
+    }
+
+    /**
+     * Runs [delete], then deletes the tag links of what it deleted, in one database transaction: a
+     * deleted transaction takes its links with it.
+     */
+    private suspend fun deleting(delete: suspend () -> Unit) {
         withContext(dispatchersProvider.io) {
-            writeTransactionDao.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId)
+            databaseTransaction.run {
+                delete()
+                tagRepository.deleteLinksOfDeletedTransactions()
+            }
         }
     }
 
@@ -297,31 +284,9 @@ class TransactionRepository @Inject constructor(
 
     private suspend fun retrieveTrns(
         dbCall: suspend () -> List<TransactionEntity>,
-        retrieveTags: suspend (TransactionEntity) -> List<TagId> = { emptyList() },
     ): List<Transaction> = withContext(dispatchersProvider.io) {
         dbCall().mapNotNull {
-            with(mapper) { it.toDomain(tags = retrieveTags(it)) }.orLogged()
-        }
-    }
-
-    private suspend fun getTagsForTransactionIds(
-        transactions: List<TransactionEntity>
-    ): Map<UUID, List<TagId>> {
-        return findTagsForTransactionIds(transactions.map { TransactionId(it.id) })
-    }
-
-    private suspend fun findTagsForTransactionIds(
-        transactionIds: List<TransactionId>
-    ): Map<UUID, List<TagId>> {
-        return tagRepository.findByAssociatedId(transactionIds.map { AssociationId(it.value) })
-            .entries.associate {
-                it.key.value to it.value.map { ta -> ta.id }
-            }
-    }
-
-    private suspend fun findAllTagAssociations(): Map<UUID, List<TagId>> {
-        return tagRepository.findByAllTagsForAssociations().entries.associate {
-            it.key.value to it.value.map { ta -> ta.id }
+            with(mapper) { it.toDomain() }.orLogged()
         }
     }
 }
