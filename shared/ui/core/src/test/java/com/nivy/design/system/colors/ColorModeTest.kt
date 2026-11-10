@@ -98,8 +98,8 @@ class ColorModeTest {
     fun `the color pickers offer the colors as they are, also in minimal colors`() {
         ColorMode.minimal = true
 
-        NIVY_COLOR_PICKER_COLORS_FREE.first() shouldBe Palette.Nivy
-        NIVY_COLOR_PICKER_COLORS_PREMIUM.last() shouldBe Palette.Red3Dark
+        NIVY_COLOR_PICKER_HUES.first() shouldBe Palette.Nivy
+        NIVY_COLOR_PICKER_SHADES.last() shouldBe Palette.Red3Dark
     }
 
     @Test
@@ -124,7 +124,7 @@ class ColorModeTest {
 
         // On every color the pickers offer, at least 4.2:1: the closest calls, a mid red and a
         // dull yellow, are a hair under 4.5 either way.
-        (NIVY_COLOR_PICKER_COLORS_FREE + NIVY_COLOR_PICKER_COLORS_PREMIUM).forEach { fill ->
+        (NIVY_COLOR_PICKER_HUES + NIVY_COLOR_PICKER_SHADES).forEach { fill ->
             contrast(readableOn(fill), fill) shouldBeGreaterThanOrEqual 4.2
         }
     }

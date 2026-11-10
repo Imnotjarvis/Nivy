@@ -6,7 +6,6 @@ import com.nivy.base.model.Theme
 
 data class SettingsState(
     val currencyCode: String,
-    val name: String,
     val currentTheme: Theme,
     val lockApp: Boolean,
     val lockDelay: AppLockDelay,

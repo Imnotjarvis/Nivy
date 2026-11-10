@@ -22,7 +22,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
-import com.nivy.design.system.colors.NIVY_COLOR_PICKER_COLORS_FREE
+import com.nivy.design.system.colors.NIVY_COLOR_PICKER_HUES
 import com.nivy.importdata.csv.ImportantFields
 import com.nivy.importdata.csv.OptionalFields
 import com.nivy.importdata.csv.TransferFields
@@ -282,9 +282,9 @@ class CSVImporterV2 @Inject constructor(
                 Palette.NivyDark
             }
 
-            else -> NIVY_COLOR_PICKER_COLORS_FREE.getOrElse(newAccountColorIndex++) {
+            else -> NIVY_COLOR_PICKER_HUES.getOrElse(newAccountColorIndex++) {
                 newAccountColorIndex = 0
-                NIVY_COLOR_PICKER_COLORS_FREE.first()
+                NIVY_COLOR_PICKER_HUES.first()
             }
         }.toArgb()
 
@@ -331,9 +331,9 @@ class CSVImporterV2 @Inject constructor(
         }
 
         // create new category
-        val colorArgb = NIVY_COLOR_PICKER_COLORS_FREE.getOrElse(newCategoryColorIndex++) {
+        val colorArgb = NIVY_COLOR_PICKER_HUES.getOrElse(newCategoryColorIndex++) {
             newCategoryColorIndex = 0
-            NIVY_COLOR_PICKER_COLORS_FREE.first()
+            NIVY_COLOR_PICKER_HUES.first()
         }.toArgb()
 
         val newCategory: Category? = either {

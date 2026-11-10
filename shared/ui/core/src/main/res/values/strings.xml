@@ -114,7 +114,6 @@
     <string name="account_transfer">Account transfer</string>
     <string name="skip">Skip</string>
     <string name="add_new">Add new</string>
-    <string name="what_is_your_name">What\'s your name?</string>
     <string name="enter">Enter</string>
     <string name="add_accounts">Add accounts</string>
     <string name="next">Next</string>
@@ -122,7 +121,7 @@
     <string name="suggestions">Suggestions</string>
     <string name="set">Set</string>
     <string name="your_personal_money_manager">Your personal money manager</string>
-    <string name="continue_offline">Continue offline</string>
+    <string name="get_started">Get started</string>
     <string name="import_csv_file">Import CSV file</string>
     <string name="from_nivy_backup_or_csv">From a Nivy backup or a CSV file</string>
     <string name="importing_may_take_a_while">Importing a large backup may take a few minutes. You can always import your data later if you wish.</string>
@@ -365,8 +364,6 @@
     <string name="corner_radius">Corner radius</string>
     <string name="corner_radius_value">%1$d dp</string>
     <string name="match_my_phone">Match my phone</string>
-    <string name="account_uppercase">Account</string>
-    <string name="anonymous">Anonymous</string>
     <string name="export_to_csv">Export to CSV</string>
     <string name="left_to_spend">Left to spend</string>
     <string name="budget_exceeded_by">Budget exceeded by</string>
@@ -416,7 +413,6 @@
     <string name="enter_record_amount_uppercase">Enter record amount</string>
     <string name="record_deletion_warning">Are you sure you want to delete the "%1$s" record?</string>
     <string name="account_change_warning">"If you attempt to change the account associated with the loan record to one in a different currency, all loan records will be recalculated based on today\'s exchange rates."</string>
-    <string name="edit_name">Edit name</string>
     <string name="plan_for">Plan for</string>
     <string name="one_time">One time</string>
     <string name="multiple_times">Multiple times</string>
@@ -662,8 +658,8 @@
     <string name="done">Done</string>
     <string name="you_can_see_a_piechart">Tap the appropriate card above to view a pie chart of your income and expenses</string>
     <string name="please_type_category_name">Please type \"%1$s\" in order to delete your category.</string>
-    <string name="enter_with_offline_account">Enter with offline account</string>
-    <string name="your_data_will_be_saved_only_locally">Your data will be stored locally on your device. If you uninstall the app or switch devices, you may lose your data. To prevent this, we recommend that you regularly export your backups.</string>
+    <string name="kept_on_this_phone">Kept on this phone</string>
+    <string name="your_data_stays_on_this_device">Your data stays on this device. Export a backup now and then, so that a new phone or a reinstall doesn\'t lose it</string>
     <string name="you_owe">You owe: %1$s</string>
     <string name="you_are_owed">You\'re owed %1$s</string>
     <string name="manual_csv_import">Manual CSV import</string>

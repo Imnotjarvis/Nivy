@@ -68,14 +68,10 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         hideIncome = uiState.hideIncome,
         progressState = uiState.progressState,
         treatTransfersAsIncomeExpense = uiState.treatTransfersAsIncomeExpense,
-        nameLocalAccount = uiState.name,
         startDateOfMonth = uiState.startDateOfMonth.toInt(),
         dateFormat = uiState.dateFormat,
         onSetCurrency = {
             viewModel.onEvent(SettingsEvent.SetCurrency(it))
-        },
-        onSetName = {
-            viewModel.onEvent(SettingsEvent.SetName(it))
         },
         onBackupData = {
             viewModel.onEvent(SettingsEvent.BackupData(rootScreen))
@@ -122,12 +118,11 @@ fun BoxWithConstraintsScope.SettingsScreen() {
 @ExperimentalFoundationApi
 @Composable
 @Suppress("LongMethod")
-private fun BoxWithConstraintsScope.UI(
+internal fun BoxWithConstraintsScope.UI(
     currencyCode: String,
     theme: Theme,
     onSwitchTheme: () -> Unit,
     lockApp: Boolean,
-    nameLocalAccount: String?,
     onSetCurrency: (String) -> Unit,
     lockDelay: AppLockDelay = AppLockDelay.Default,
     startDateOfMonth: Int = 1,
@@ -137,7 +132,6 @@ private fun BoxWithConstraintsScope.UI(
     hideIncome: Boolean = false,
     progressState: Boolean = false,
     treatTransfersAsIncomeExpense: Boolean = false,
-    onSetName: (String) -> Unit = {},
     onBackupData: () -> Unit = {},
     onExportToCSV: () -> Unit = {},
     onSetLockApp: (Boolean) -> Unit = {},
@@ -153,7 +147,6 @@ private fun BoxWithConstraintsScope.UI(
     onSetMinimalColors: (Boolean) -> Unit = {},
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
-    var nameModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
     var chooseDateFormatVisible by remember { mutableStateOf(false) }
     var chooseLockDelayVisible by remember { mutableStateOf(false) }
@@ -206,14 +199,6 @@ private fun BoxWithConstraintsScope.UI(
 
             CurrencyButton(currency = currencyCode) {
                 currencyModalVisible = true
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            AccountCard(
-                nameLocalAccount = nameLocalAccount,
-            ) {
-                nameModalVisible = true
             }
         }
 
@@ -421,14 +406,6 @@ private fun BoxWithConstraintsScope.UI(
         onSetCurrency(it)
     }
 
-    NameModal(
-        visible = nameModalVisible,
-        name = nameLocalAccount ?: "",
-        dismiss = { nameModalVisible = false }
-    ) {
-        onSetName(it)
-    }
-
     ChooseStartDateOfMonthModal(
         visible = chooseStartDateOfMonthVisible,
         selectedStartDateOfMonth = startDateOfMonth,
@@ -497,7 +474,6 @@ private fun BoxWithConstraintsScope.UI(
 private fun Preview(theme: Theme = Theme.LIGHT) {
     NivyPreview(theme) {
         UI(
-            nameLocalAccount = null,
             theme = Theme.AUTO,
             onSwitchTheme = {},
             lockApp = false,

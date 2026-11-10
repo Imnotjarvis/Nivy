@@ -8,7 +8,7 @@ import com.nivy.wallet.domain.logic.model.CreateCategoryData
 
 sealed interface OnboardingEvent {
 
-    data object LoginOfflineAccount : OnboardingEvent
+    data object GetStarted : OnboardingEvent
     data object StartImport : OnboardingEvent
     data object ImportSkip : OnboardingEvent
     data object StartFresh : OnboardingEvent

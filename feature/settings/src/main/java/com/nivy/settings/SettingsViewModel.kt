@@ -62,7 +62,6 @@ class SettingsViewModel @Inject constructor(
 ) : ComposeViewModel<SettingsState, SettingsEvent>() {
 
     private val currencyCode = mutableStateOf("")
-    private val name = mutableStateOf("")
     private val currentTheme = mutableStateOf<Theme>(Theme.AUTO)
     private val lockApp = mutableStateOf(false)
     private val lockDelay = mutableStateOf(AppLockDelay.Default)
@@ -81,7 +80,6 @@ class SettingsViewModel @Inject constructor(
 
         return SettingsState(
             currencyCode = currencyCode.value,
-            name = name.value,
             currentTheme = currentTheme.value,
             lockApp = lockApp.value,
             lockDelay = lockDelay.value,
@@ -97,7 +95,6 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun onStart() {
         initializeCurrency()
-        initializeName()
         initializeCurrentTheme()
         initializeLockApp()
         initializeShowNotifications()
@@ -109,10 +106,6 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun initializeCurrency() {
         currencyCode.value = currencyRepository.getBaseCurrency().code
-    }
-
-    private suspend fun initializeName() {
-        name.value = appPreferences.settings()?.name.orEmpty()
     }
 
     private suspend fun initializeCurrentTheme() {
@@ -147,7 +140,6 @@ class SettingsViewModel @Inject constructor(
     override fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.SetCurrency -> setCurrency(event.newCurrency)
-            is SettingsEvent.SetName -> setName(event.newName)
             is SettingsEvent.ExportToCsv -> exportToCSV(event.rootScreen)
             is SettingsEvent.BackupData -> exportToZip(event.rootScreen)
             SettingsEvent.SwitchTheme -> switchTheme()
@@ -217,14 +209,6 @@ class SettingsViewModel @Inject constructor(
                 ?.let { budget.copy(amount = it.amount) }
         }
         budgetRepository.saveMany(converted)
-    }
-
-    private fun setName(newName: String) {
-        name.value = newName
-
-        viewModelScope.launch {
-            appPreferences.setUserName(newName)
-        }
     }
 
     private fun exportToCSV(rootScreen: RootScreen) {
@@ -342,13 +326,8 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    // Deletes everything and starts over, from onboarding.
     private fun deleteAllUserData() {
-        viewModelScope.launch {
-            logout()
-        }
-    }
-
-    private fun logout() {
         viewModelScope.launch {
             deleteAllDataUseCase()
             nav.resetBackStack()

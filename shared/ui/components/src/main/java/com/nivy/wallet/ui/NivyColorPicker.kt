@@ -28,8 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.colors.ColorMode
 import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.NIVY_COLOR_PICKER_COLORS_FREE
-import com.nivy.design.system.colors.NIVY_COLOR_PICKER_COLORS_PREMIUM
+import com.nivy.design.system.colors.NIVY_COLOR_PICKER_HUES
+import com.nivy.design.system.colors.NIVY_COLOR_PICKER_SHADES
 import com.nivy.design.system.colors.NIVY_COLOR_PICKER_GREYS
 import com.nivy.design.system.colors.dynamicContrast
 import com.nivy.design.system.colors.greyscale
@@ -64,7 +64,7 @@ fun ColumnScope.NivyColorPicker(
     val nivyColors = if (ColorMode.minimal) {
         NIVY_COLOR_PICKER_GREYS
     } else {
-        NIVY_COLOR_PICKER_COLORS_FREE + NIVY_COLOR_PICKER_COLORS_PREMIUM
+        NIVY_COLOR_PICKER_HUES + NIVY_COLOR_PICKER_SHADES
     }
     val shownColor = if (ColorMode.minimal) nearestGrey(selectedColor) else selectedColor
 

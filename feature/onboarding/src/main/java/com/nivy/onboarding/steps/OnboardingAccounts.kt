@@ -43,7 +43,6 @@ import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.Green
-import com.nivy.design.system.colors.NivyDark
 import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.White
 import com.nivy.wallet.ui.theme.components.GradientCutBottom
@@ -350,60 +349,6 @@ private fun Preview_Accounts() {
                     account = previewAccount("Cash", color = Green, icon = "cash", currency = baseCurrency),
                     balance = 0.0
                 )
-            )
-        )
-    }
-}
-
-@ExperimentalFoundationApi
-@Preview
-@Composable
-private fun Preview_Premium() {
-    NivyPreview {
-        val baseCurrency = "BGN"
-        OnboardingAccounts(
-            baseCurrency = baseCurrency,
-            suggestions = listOf(
-                CreateAccountData(
-                    name = "Cash",
-                    currency = baseCurrency,
-                    color = Green,
-                    icon = "cash",
-                    balance = 0.0
-                ),
-                CreateAccountData(
-                    name = "Bank",
-                    currency = baseCurrency,
-                    color = Nivy,
-                    icon = "bank",
-                    balance = 0.0
-                ),
-                CreateAccountData(
-                    name = "Revolut",
-                    currency = baseCurrency,
-                    color = Color(0xFF4DCAFF),
-                    icon = "revolut",
-                    balance = 0.0
-                ),
-            ),
-            accounts = listOf(
-                AccountBalance(
-                    account = previewAccount("Cash", color = Green, icon = "cash", currency = baseCurrency),
-                    balance = 0.0
-                ),
-                AccountBalance(
-                    account = previewAccount("Revolut", color = NivyDark, icon = "cash", currency = baseCurrency),
-                    balance = 0.0
-                ),
-                AccountBalance(
-                    account = previewAccount(
-                        "Revolut",
-                        color = Color(0xFF4DCAFF),
-                        icon = "revolut",
-                        currency = baseCurrency
-                    ),
-                    balance = 0.0
-                ),
             )
         )
     }

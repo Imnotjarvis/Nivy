@@ -50,19 +50,19 @@ class OnboardingRouter(
     // then finishes onboarding, and going back from it discards the import.
     private var restoredFromImport = false
 
-    // Back goes one onboarding step back. The screen doesn't send it on the login step, where back
+    // Back goes one onboarding step back. The screen doesn't send it on the welcome step, where back
     // leaves the app, and it does nothing on the splash.
     fun onBack(
         viewModelScope: CoroutineScope,
         restartOnboarding: () -> Unit
     ) {
         when (state.value) {
-            OnboardingState.SPLASH, OnboardingState.LOGIN -> {
+            OnboardingState.SPLASH, OnboardingState.WELCOME -> {
                 // nothing to go back to
             }
 
             OnboardingState.CHOOSE_PATH -> {
-                state.value = OnboardingState.LOGIN
+                state.value = OnboardingState.WELCOME
             }
 
             OnboardingState.CURRENCY -> {
@@ -73,7 +73,7 @@ class OnboardingRouter(
                         nav.navigateTo(OnboardingScreen)
                         restoredFromImport = false
                         restartOnboarding()
-                        state.value = OnboardingState.LOGIN
+                        state.value = OnboardingState.WELCOME
                     }
                 } else {
                     // fresh user
@@ -96,13 +96,13 @@ class OnboardingRouter(
         if (state.value == OnboardingState.SPLASH) {
             delay(SplashDuration)
 
-            state.value = OnboardingState.LOGIN
+            state.value = OnboardingState.WELCOME
         }
     }
     // ------------------------------------- Step 0 -------------------------------------------------
 
-    // ------------------------------------- Step 1 - Login -----------------------------------------
-    suspend fun offlineAccountNext() {
+    // ------------------------------------- Step 1 - Welcome ---------------------------------------
+    suspend fun welcomeNext() {
         state.value = OnboardingState.CHOOSE_PATH
     }
     // ------------------------------------- Step 1 -------------------------------------------------
