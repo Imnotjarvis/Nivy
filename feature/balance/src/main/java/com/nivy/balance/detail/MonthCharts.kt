@@ -30,10 +30,8 @@ import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.ui.R
 import com.nivy.wallet.domain.pure.forecast.Band
+import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.utils.format
-import java.text.DecimalFormat
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 /**
  * The month's balance, a day a step: as it was up to today, then, dashed, as planned payments
@@ -58,7 +56,7 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
     val outlook = detail.outlook
     val todayText = balances.getOrNull(actual - 1)?.let { measurer.measure(it.format(currency), label) }
     val endText = if (actual < balances.size) measurer.measure(balances.last().format(currency), label) else null
-    val likelyText = outlook?.balances?.lastOrNull()?.let { measurer.measure(approx(it.likely), label) }
+    val likelyText = outlook?.balances?.lastOrNull()?.let { measurer.measure(approxAmount(it.likely), label) }
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
@@ -230,12 +228,6 @@ internal fun PaceChart(pace: Pace, ahead: List<Band>? = null, days: Int = 0) {
     }
 }
 
-/** A forecast's amount, as round as it deserves: to 10 from 100 on, whole below. */
-internal fun approx(amount: Double): String {
-    val step = if (abs(amount) >= ApproxFrom) ApproxStep else 1.0
-    return DecimalFormat("#,##0").format((amount / step).roundToInt() * step)
-}
-
 /**
  * The [balances] from the step [from] on, as planned: each holds until a planned payment's day, then
  * steps to it. The last is marked, with [label] over it.
@@ -327,8 +319,6 @@ private const val BandAlpha = 0.2f
 private const val DotLength = 0.01f
 private val LikelyWidth = 3.dp
 private val LikelyGap = 6.dp
-private const val ApproxFrom = 100.0
-private const val ApproxStep = 10.0
 private const val AreaAlpha = 0.25f
 private const val GuideAlpha = 0.5f
 private const val IdleAlpha = 0.25f

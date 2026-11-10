@@ -317,5 +317,3 @@ private fun cheapestWeek(days: List<LocalDate>, byDay: Map<LocalDate, List<Flow>
         }
         .minByOrNull { it.amount }
 }
-
-private const val DaysInWeek = 7
