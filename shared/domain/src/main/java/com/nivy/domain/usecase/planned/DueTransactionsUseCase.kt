@@ -1,15 +1,16 @@
 package com.nivy.domain.usecase.planned
 
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentRuleId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
-import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.transaction.TransactionAmountsUseCase
 import java.time.Instant
 import javax.inject.Inject
@@ -23,6 +24,7 @@ class DueTransactionsUseCase @Inject constructor(
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
     private val creditCardChargeUseCase: CreditCardChargeUseCase,
     private val timeProvider: TimeProvider,
+    private val databaseTransaction: DatabaseTransaction,
 ) {
     /** Income minus expenses of what's due between [from] and [to], in the base currency. */
     suspend fun dueBalance(from: Instant, to: Instant): Double =
@@ -39,16 +41,21 @@ class DueTransactionsUseCase @Inject constructor(
         if (transaction.settled) return null
         // Paid with a credit card, it counts when the card charges it.
         val paid = creditCardChargeUseCase.dated(transaction.paidNow())
-        transactionRepository.save(paid)
-        afterHandled(transaction)
+        // One database transaction: the payment and what it changes in its rule land together.
+        databaseTransaction.run {
+            transactionRepository.save(paid)
+            afterHandled(transaction)
+        }
         return paid
     }
 
     /** Deletes the due [transactions] without paying them. */
     suspend fun skip(transactions: List<Transaction>) {
-        transactions.filterNot { it.settled }.forEach {
-            transactionRepository.deleteById(it.id)
-            afterHandled(it)
+        databaseTransaction.run {
+            transactions.filterNot { it.settled }.forEach {
+                transactionRepository.deleteById(it.id)
+                afterHandled(it)
+            }
         }
     }
 

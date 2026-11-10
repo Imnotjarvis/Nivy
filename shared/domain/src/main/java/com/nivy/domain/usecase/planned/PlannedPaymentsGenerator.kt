@@ -1,6 +1,9 @@
 package com.nivy.domain.usecase.planned
 
 import com.nivy.base.model.TransactionType
+import com.nivy.base.model.incrementDate
+import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentInterval
@@ -9,8 +12,6 @@ import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
-import com.nivy.base.model.incrementDate
-import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.TransactionRepository
@@ -23,6 +24,7 @@ class PlannedPaymentsGenerator @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
     private val timeProvider: TimeProvider,
+    private val databaseTransaction: DatabaseTransaction,
 ) {
     /**
      * Replaces the rule's unpaid transactions: one for a one-time rule, and for a recurring one,
@@ -35,14 +37,26 @@ class PlannedPaymentsGenerator @Inject constructor(
      */
     suspend fun generate(rule: PlannedPaymentRule, previous: PlannedPaymentRule?) {
         val existing = transactionRepository.findAllByRecurringRuleId(recurringRuleId = rule.id.value)
-        transactionRepository.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId = rule.id.value)
-        val asset = accountRepository.findById(rule.account)?.asset ?: return
-        val paidDates = existing.filter { it.settled }.mapTo(HashSet()) { it.dueDate() }
+        val asset = accountRepository.findById(rule.account)?.asset
+        val unpaid = asset?.let { unpaidOccurrences(rule, previous, existing, it) }.orEmpty()
+        // One database transaction: cut short, the rule keeps the payments it had.
+        databaseTransaction.run {
+            transactionRepository.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId = rule.id.value)
+            transactionRepository.saveMany(unpaid)
+        }
+    }
 
+    // The unpaid occurrences [generate] plans for [rule], given its [existing] transactions.
+    private fun unpaidOccurrences(
+        rule: PlannedPaymentRule,
+        previous: PlannedPaymentRule?,
+        existing: List<Transaction>,
+        asset: AssetCode,
+    ): List<Transaction> {
+        val paidDates = existing.filter { it.settled }.mapTo(HashSet()) { it.dueDate() }
         val interval = rule.interval
         if (interval == null) {
-            if (paidDates.isEmpty()) save(rule, asset, dueDate = rule.startDate)
-            return
+            return if (paidDates.isEmpty()) listOf(plannedTransaction(rule, asset, rule.startDate)) else emptyList()
         }
 
         val lastPaid = paidDates.maxOrNull()
@@ -50,7 +64,7 @@ class PlannedPaymentsGenerator @Inject constructor(
         val firstUnpaid = unpaidDates.minOrNull()
         val latest = existing.maxOfOrNull { it.dueDate() }
         val sameDates = previous != null && previous.startDate == rule.startDate && previous.interval == interval
-        saveOccurrences(rule, interval, asset, limit = GeneratedInstancesLimit) { date ->
+        return occurrences(rule, interval, asset, limit = GeneratedInstancesLimit) { date ->
             date !in paidDates && if (sameDates) {
                 date in unpaidDates || latest == null || date > latest
             } else {
@@ -71,42 +85,44 @@ class PlannedPaymentsGenerator @Inject constructor(
         val latest = existing.maxOfOrNull { it.dueDate() } ?: return
         val unpaid = existing.count { !it.settled }
         val asset = accountRepository.findById(rule.account)?.asset ?: return
-        saveOccurrences(rule, interval, asset, limit = GeneratedInstancesLimit - unpaid) { it > latest }
+        // One insert: a top-up cut short adds none.
+        transactionRepository.saveMany(
+            occurrences(rule, interval, asset, limit = GeneratedInstancesLimit - unpaid) { it > latest }
+        )
     }
 
     /**
-     * Saves the rule's occurrences that [include] accepts, up to [limit] of them and three years
-     * from now (or from its start, if that is later). Each date counts from the start date, so a
+     * The rule's occurrences that [include] accepts, up to [limit] of them and three years from
+     * now (or from its start, if that is later). Each date counts from the start date, so a
      * monthly rule from 31 January falls on 28 February and then 31 March.
      */
-    private suspend fun saveOccurrences(
+    private fun occurrences(
         rule: PlannedPaymentRule,
         interval: PlannedPaymentInterval,
         asset: AssetCode,
         limit: Int,
         include: (Instant) -> Boolean,
-    ) {
+    ): List<Transaction> {
         val end = maxOf(rule.startDate, timeProvider.utcNow()).plusSeconds(GenerationPeriodSeconds)
-        var saved = 0
-        var occurrence = 0L
-        while (saved < limit) {
+        val planned = mutableListOf<Transaction>()
+        var step = 0L
+        while (planned.size < limit) {
             val date = interval.type.incrementDate(
                 rule.startDate,
-                intervalN = occurrence++ * interval.n.value,
+                intervalN = step++ * interval.n.value,
                 zone = timeProvider.getZoneId(),
             )
             if (!date.isBefore(end)) break
-            if (include(date)) {
-                save(rule, asset, dueDate = date)
-                saved++
-            }
+            if (include(date)) planned += plannedTransaction(rule, asset, dueDate = date)
         }
+        return planned
     }
 
     /** The date a transaction was planned for: a paid one keeps it in its metadata. */
     private fun Transaction.dueDate(): Instant = metadata.paidForDateTime ?: time
 
-    private suspend fun save(rule: PlannedPaymentRule, asset: AssetCode, dueDate: Instant) {
+    /** The unpaid transaction [rule] plans for [dueDate]. */
+    private fun plannedTransaction(rule: PlannedPaymentRule, asset: AssetCode, dueDate: Instant): Transaction {
         val id = TransactionId(UUID.randomUUID())
         val value = PositiveValue(amount = rule.amount, asset = asset)
         val metadata = TransactionMetadata(
@@ -118,35 +134,33 @@ class PlannedPaymentsGenerator @Inject constructor(
             // Paid with the rule's card, it counts when the card charges it.
             creditCard = rule.creditCard,
         )
-        transactionRepository.save(
-            if (rule.type == TransactionType.INCOME) {
-                Income(
-                    id = id,
-                    title = rule.title,
-                    description = rule.description,
-                    category = rule.category,
-                    time = dueDate,
-                    settled = false,
-                    metadata = metadata,
-                    tags = emptyList(),
-                    value = value,
-                    account = rule.account,
-                )
-            } else {
-                Expense(
-                    id = id,
-                    title = rule.title,
-                    description = rule.description,
-                    category = rule.category,
-                    time = dueDate,
-                    settled = false,
-                    metadata = metadata,
-                    tags = emptyList(),
-                    value = value,
-                    account = rule.account,
-                )
-            }
-        )
+        return if (rule.type == TransactionType.INCOME) {
+            Income(
+                id = id,
+                title = rule.title,
+                description = rule.description,
+                category = rule.category,
+                time = dueDate,
+                settled = false,
+                metadata = metadata,
+                tags = emptyList(),
+                value = value,
+                account = rule.account,
+            )
+        } else {
+            Expense(
+                id = id,
+                title = rule.title,
+                description = rule.description,
+                category = rule.category,
+                time = dueDate,
+                settled = false,
+                metadata = metadata,
+                tags = emptyList(),
+                value = value,
+                account = rule.account,
+            )
+        }
     }
 
     private companion object {
