@@ -129,7 +129,7 @@ private fun BoxWithConstraintsScope.UI(
                 period = state.period,
                 onPreviousMonth = { onEvent(BudgetScreenEvent.OnPreviousMonth) },
                 onNextMonth = { onEvent(BudgetScreenEvent.OnNextMonth) },
-                onShowChoosePeriodModal = {},
+                onShowChoosePeriodModal = null,
             )
         }
 

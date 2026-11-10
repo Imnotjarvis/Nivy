@@ -76,7 +76,7 @@ fun BoxWithConstraintsScope.EditPlannedScreen(screen: EditPlannedScreen) {
 @Suppress("LongMethod")
 @ExperimentalFoundationApi
 @Composable
-private fun BoxWithConstraintsScope.UI(
+internal fun BoxWithConstraintsScope.UI(
     screen: EditPlannedScreen,
     state: EditPlannedScreenState,
     onEvent: (EditPlannedScreenEvent) -> Unit,
@@ -217,7 +217,8 @@ private fun BoxWithConstraintsScope.UI(
 
         actionButton = {
             ModalSet(
-                modifier = Modifier.testTag("editPlannedScreen_set")
+                modifier = Modifier.testTag("editPlannedScreen_set"),
+                enabled = state.canSave,
             ) {
                 onEvent(EditPlannedScreenEvent.OnSave())
             }

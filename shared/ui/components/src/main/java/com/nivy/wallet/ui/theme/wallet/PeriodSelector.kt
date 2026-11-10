@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.nivy.design.utils.thenIf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +38,8 @@ fun PeriodSelector(
     period: TimePeriod,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
-    onShowChoosePeriodModal: () -> Unit,
+    // Null where there's no other period to choose: the label then isn't a button.
+    onShowChoosePeriodModal: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -70,8 +72,8 @@ fun PeriodSelector(
                 .height(48.dp)
                 .defaultMinSize(minWidth = 48.dp)
                 .clip(PillShape)
-                .clickable {
-                    onShowChoosePeriodModal()
+                .thenIf(onShowChoosePeriodModal != null) {
+                    clickable { onShowChoosePeriodModal?.invoke() }
                 },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center

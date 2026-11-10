@@ -37,5 +37,7 @@ data class EditPlannedScreenState(
     val accountModalData: AccountModalData?,
     val recurringRuleModalData: RecurringRuleModalData?,
     val transactionTypeModalVisible: Boolean,
-    val amountModalVisible: Boolean
+    val amountModalVisible: Boolean,
+    // Whether the form makes a rule: a start date, an interval or one time, and an amount.
+    val canSave: Boolean = false,
 )

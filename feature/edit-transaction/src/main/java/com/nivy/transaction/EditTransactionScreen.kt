@@ -342,11 +342,12 @@ private fun ActionButton(
 ) {
     when {
         // create new mode
-        screen.initialTransactionId == null -> ModalAdd {
+        // Without an amount there's nothing to save.
+        screen.initialTransactionId == null -> ModalAdd(enabled = state.amount > 0) {
             onEvent(EditTransactionViewEvent.Save(closeScreen = true))
         }
         // normal transaction
-        state.dueDate == null -> ModalSave {
+        state.dueDate == null -> ModalSave(enabled = state.amount > 0) {
             onEvent(EditTransactionViewEvent.Save(closeScreen = true))
         }
         // a planned one with changes
