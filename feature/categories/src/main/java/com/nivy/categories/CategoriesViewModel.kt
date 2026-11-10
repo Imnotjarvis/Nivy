@@ -95,9 +95,7 @@ class CategoriesViewModel @Inject constructor(
     private fun getCategories(): ImmutableList<CategoryData> {
         val allCats = categories.value
         return remember(allCats, searchQuery.value) {
-            allCats.filter {
-                searchQuery.value.lowercase().trim() in it.category.name.toString().lowercase()
-            }.toImmutableList()
+            allCats.matching(searchQuery.value).toImmutableList()
         }
     }
 
@@ -158,7 +156,7 @@ class CategoriesViewModel @Inject constructor(
                 )
             }
 
-            val sortedList = sortList(categories, sortOrder.value).toImmutableList()
+            val sortedList = categories.inOrder(sortOrder.value).toImmutableList()
             this.categories.value = sortedList
         }
     }
@@ -171,7 +169,7 @@ class CategoriesViewModel @Inject constructor(
         newOrder: List<CategoryData>,
         sortOrder: SortOrder = SortOrder.DEFAULT
     ) {
-        val sortedList = sortList(newOrder, sortOrder).toImmutableList()
+        val sortedList = newOrder.inOrder(sortOrder).toImmutableList()
 
         if (sortOrder == SortOrder.DEFAULT) {
             ioThread {
@@ -185,30 +183,6 @@ class CategoriesViewModel @Inject constructor(
 
         this.categories.value = sortedList
         this.sortOrder.value = sortOrder
-    }
-
-    private fun sortList(
-        categoryData: List<CategoryData>,
-        sortOrder: SortOrder
-    ): List<CategoryData> {
-        return when (sortOrder) {
-            SortOrder.DEFAULT -> categoryData.sortedBy {
-                it.category.orderNum
-            }
-
-            SortOrder.BALANCE_AMOUNT -> categoryData.sortedByDescending {
-                it.monthlyBalance
-            }.partition { it.monthlyBalance.toInt() != 0 } // Partition into non-zero and zero lists
-                .let { (nonZero, zero) -> nonZero + zero }
-
-            SortOrder.ALPHABETICAL -> categoryData.sortedBy {
-                it.category.name.value
-            }
-
-            SortOrder.EXPENSES -> categoryData.sortedByDescending {
-                it.monthlyExpenses
-            }
-        }
     }
 
     private suspend fun createCategory(data: CreateCategoryData) {
