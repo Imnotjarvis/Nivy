@@ -108,7 +108,6 @@ data class Habits(
     val days: Int,
     // The days so far from the first paid transaction's, which the no-spend days count over.
     val trackedDays: Int,
-    val daysInMonth: Int,
     // Of what came in, the share not spent; null when nothing came in.
     val savedShare: Double?,
     val biggest: BiggestPurchase?,

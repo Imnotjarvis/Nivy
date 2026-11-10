@@ -207,7 +207,6 @@ class MonthStatsTest {
         spends = spends,
         elapsed = (1..9).map { LocalDate.of(2026, 11, it) },
         trackedSince = trackedSince,
-        daysInMonth = 30,
         income = 1_650.0,
         outgoing = spends.sumOf { it.amount },
         plannedExpenses = listOf(35.0, 120.55, 40.0, 550.0),

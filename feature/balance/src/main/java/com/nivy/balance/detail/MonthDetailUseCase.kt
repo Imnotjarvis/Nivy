@@ -154,7 +154,6 @@ class MonthDetailUseCase @Inject constructor(
                     spends = spends,
                     elapsed = elapsed,
                     trackedSince = first,
-                    daysInMonth = days.size,
                     income = income,
                     outgoing = outgoing,
                     plannedExpenses = plannedExpenses,

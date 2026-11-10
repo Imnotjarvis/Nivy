@@ -71,8 +71,6 @@ class TrendsViewModelTest {
                 habits = MonthHabits(0, 0.0, null, 0, 0, 0.0, 0.0, 0.0, 0.0),
             )
         }.toImmutableList(),
-        forecast = persistentListOf(),
-        milestone = null,
         accounts = persistentListOf(),
         categories = persistentListOf(),
         changes = persistentListOf(),

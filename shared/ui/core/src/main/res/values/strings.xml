@@ -195,8 +195,6 @@
         <item quantity="one">on average, %d day</item>
         <item quantity="other">on average, %d days</item>
     </plurals>
-    <string name="month_at_this_pace">At this pace</string>
-    <string name="month_spent_by">spent by %1$s</string>
     <string name="month_saved">Saved</string>
     <string name="month_of_income">of this month\'s income</string>
     <string name="month_biggest_expense">Biggest expense</string>
@@ -529,8 +527,6 @@
     <string name="trends_over_the_year">Over the year</string>
     <string name="trends_over_since">Since %1$s</string>
     <string name="trends_actual">Actual</string>
-    <string name="trends_forecast">Forecast</string>
-    <string name="trends_milestone">At this pace, %1$s %2$s by %3$s</string>
     <string name="trends_month_year">%1$s %2$d</string>
     <string name="trends_in_month">%1$s %2$s in %3$s</string>
     <string name="trends_by_account">By account</string>

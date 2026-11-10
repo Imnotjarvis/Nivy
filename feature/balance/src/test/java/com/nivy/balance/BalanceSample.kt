@@ -200,7 +200,6 @@ internal object BalanceSample {
                 spends = Purchases,
                 elapsed = elapsed,
                 trackedSince = null,
-                daysInMonth = Days.size,
                 income = Income,
                 outgoing = spent,
                 plannedExpenses = plannedExpenses,

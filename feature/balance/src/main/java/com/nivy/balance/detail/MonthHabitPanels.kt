@@ -131,14 +131,6 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                         stringResource(R.string.month_by_day, dayLabel(lastDay)),
                     )
                 )
-            } else if (lastDay != null && habits.days < habits.daysInMonth) {
-                add(
-                    Stat(
-                        stringResource(R.string.month_at_this_pace),
-                        amountAndCode(habits.perDay * habits.daysInMonth, currency),
-                        stringResource(R.string.month_spent_by, dayLabel(lastDay)),
-                    )
-                )
             }
             habits.savedShare?.let {
                 add(Stat(stringResource(R.string.month_saved), percent(it), stringResource(R.string.month_of_income)))
