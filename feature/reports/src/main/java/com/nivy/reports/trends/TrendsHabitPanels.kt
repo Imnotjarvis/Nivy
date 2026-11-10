@@ -26,11 +26,11 @@ import com.nivy.wallet.ui.component.ChartPanel
 import com.nivy.wallet.ui.component.LegendText
 import com.nivy.wallet.ui.component.PanelNote
 import com.nivy.wallet.ui.component.Stat
-import com.nivy.wallet.ui.component.amountWithCode
 import com.nivy.wallet.ui.component.dayLabel
 import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.component.weekdayName
 import com.nivy.wallet.ui.component.wholeOrCents
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import java.time.DayOfWeek
 import java.time.format.TextStyle
@@ -59,7 +59,7 @@ internal fun habitStats(months: List<MonthTrend>, habits: RangeHabits, currency:
             add(
                 Stat(
                     label = stringResource(R.string.month_typical_purchase),
-                    value = amountWithCode(typical, currency),
+                    value = amountAndCode(typical, currency),
                     note = changeNote(trendChange(typicals), phrase),
                     trend = typicals,
                 )
@@ -222,20 +222,20 @@ internal fun recordStats(records: Records, currency: String): List<Stat> = build
         add(
             Stat(
                 stringResource(R.string.trends_most_saved),
-                "+${amountWithCode(it.amount, currency)}",
+                "+${amountAndCode(it.amount, currency)}",
                 monthYear(it.period),
             )
         )
     }
     records.mostSpent?.let {
-        add(Stat(stringResource(R.string.trends_most_spent), amountWithCode(it.amount, currency), monthYear(it.period)))
+        add(Stat(stringResource(R.string.trends_most_spent), amountAndCode(it.amount, currency), monthYear(it.period)))
     }
     records.biggest?.let {
         val what = it.title ?: it.category?.name?.value ?: stringResource(R.string.unspecified)
         add(
             Stat(
                 stringResource(R.string.trends_biggest_purchase),
-                amountWithCode(it.amount, currency),
+                amountAndCode(it.amount, currency),
                 stringResource(R.string.trends_what_when, what, dayLabel(it.day)),
             )
         )
@@ -253,7 +253,7 @@ internal fun recordStats(records: Records, currency: String): List<Stat> = build
         add(
             Stat(
                 stringResource(R.string.trends_cheapest_week),
-                amountWithCode(it.amount, currency),
+                amountAndCode(it.amount, currency),
                 stringResource(
                     R.string.trends_from_to,
                     dayLabel(it.from),

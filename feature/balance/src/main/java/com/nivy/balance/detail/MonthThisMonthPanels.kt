@@ -39,10 +39,10 @@ import com.nivy.wallet.ui.component.LegendDot
 import com.nivy.wallet.ui.component.LegendText
 import com.nivy.wallet.ui.component.PanelNote
 import com.nivy.wallet.ui.component.ProgressBar
-import com.nivy.wallet.ui.component.amountWithCode
 import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.ui.component.dayLabel
 import com.nivy.wallet.ui.component.transaction.label
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import java.time.LocalDate
 import kotlin.math.abs
@@ -83,7 +83,7 @@ internal fun FreeToSpendPanel(
                 ProgressBar(free.spent / whole, Nivy)
             }
         } else {
-            BigNumber("-${amountWithCode(-free.left, currency)}", expenseRed(panel))
+            BigNumber("-${amountAndCode(-free.left, currency)}", expenseRed(panel))
             Spacer(Modifier.height(4.dp))
             Subtext(stringResource(R.string.month_over))
             Spacer(Modifier.height(16.dp))
@@ -221,9 +221,9 @@ internal fun ComingUpPanel(detail: MonthDetail, currency: String) {
                 title = upcoming.title ?: upcoming.category?.name?.value ?: stringResource(upcoming.type.label()),
                 note = upcoming.account?.name?.value,
                 value = when (upcoming.type) {
-                    TransactionType.INCOME -> "+${amountWithCode(upcoming.amount, currency)}"
-                    TransactionType.EXPENSE -> "-${amountWithCode(abs(upcoming.amount), currency)}"
-                    TransactionType.TRANSFER -> amountWithCode(upcoming.amount, currency)
+                    TransactionType.INCOME -> "+${amountAndCode(upcoming.amount, currency)}"
+                    TransactionType.EXPENSE -> "-${amountAndCode(abs(upcoming.amount), currency)}"
+                    TransactionType.TRANSFER -> amountAndCode(upcoming.amount, currency)
                 },
                 valueColor = when (upcoming.type) {
                     TransactionType.INCOME -> incomeGreen(panel)

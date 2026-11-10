@@ -37,10 +37,10 @@ import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.LegendDot
 import com.nivy.wallet.ui.component.LegendText
 import com.nivy.wallet.ui.component.PanelNote
-import com.nivy.wallet.ui.component.amountWithCode
 import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.ui.component.categoryColor
 import com.nivy.wallet.ui.component.percent
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import kotlin.math.abs
 
@@ -86,7 +86,7 @@ internal fun ChangesPanel(changes: List<CategoryShift>, currency: String) {
                 } else {
                     stringResource(R.string.trends_a_month_plain)
                 },
-                value = amountWithCode(shift.average, currency),
+                value = amountAndCode(shift.average, currency),
                 trailing = when {
                     change == null -> stringResource(R.string.month_new)
                     abs(change) < SameChange -> stringResource(R.string.month_same)

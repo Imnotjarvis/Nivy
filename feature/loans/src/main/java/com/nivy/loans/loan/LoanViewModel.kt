@@ -40,6 +40,7 @@ import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateLoanData
 import com.nivy.wallet.domain.pure.account.startingAccount
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatDecimals
 import com.nivy.wallet.utils.getDefaultFIATCurrency
@@ -208,7 +209,7 @@ class LoanViewModel @Inject constructor(
 
     // A total for the header, or nothing when it's zero.
     private fun totalText(total: Double, currCode: String): String =
-        if (total != 0.0) "${total.format(currCode)} $currCode" else ""
+        if (total != 0.0) amountAndCode(total, currCode) else ""
 
     private suspend fun initialiseAccounts() {
         val accountsList = accountRepository.findAll().pickable().toImmutableList()

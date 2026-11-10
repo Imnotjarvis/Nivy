@@ -24,9 +24,9 @@ import com.nivy.wallet.ui.component.ChartPanel
 import com.nivy.wallet.ui.component.LegendDot
 import com.nivy.wallet.ui.component.LegendText
 import com.nivy.wallet.ui.component.PanelNote
-import com.nivy.wallet.ui.component.amountWithCode
 import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.ui.component.percent
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import java.time.YearMonth
 
@@ -66,7 +66,7 @@ internal fun NetWorthPanel(
             selected = selected,
             bubble = buildList {
                 add(monthYear(chosen.period) to BubbleLine.Label)
-                add(amountWithCode(chosen.netWorth, currency) to BubbleLine.Amount)
+                add(amountAndCode(chosen.netWorth, currency) to BubbleLine.Amount)
                 if (before != null) {
                     val moved = chosen.netWorth - before.netWorth
                     val change = stringResource(
@@ -232,7 +232,7 @@ internal fun SavedPanel(
     val average = fullOrAll(months).map { it.saved }.average()
     ChartPanel(
         title = stringResource(R.string.trends_saved_each_month),
-        legend = { LegendText(stringResource(R.string.month_average_short, amountWithCode(average, currency))) },
+        legend = { LegendText(stringResource(R.string.month_average_short, amountAndCode(average, currency))) },
     ) {
         SavedBars(months.map { it.saved }, average, selected, onSelect)
         AxisLabels(axis, selectedIndex = selected.takeIf { axis.size == months.size })

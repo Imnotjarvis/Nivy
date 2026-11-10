@@ -29,8 +29,8 @@ import com.nivy.wallet.ui.component.GroupTitle
 import com.nivy.wallet.ui.component.InfoRow
 import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.SplitBar
-import com.nivy.wallet.ui.component.amountWithCode
 import com.nivy.wallet.ui.component.percent
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatDecimals
 import kotlin.math.floor
@@ -141,7 +141,7 @@ private fun OwnAndOwePanel(holdings: Holdings, currency: String) {
                 InfoRow(
                     dot = color,
                     title = holding.account.name.value,
-                    value = amountWithCode(holding.amount, currency),
+                    value = amountAndCode(holding.amount, currency),
                     trailing = percent(holding.amount / owned),
                 )
             }
@@ -153,7 +153,7 @@ private fun OwnAndOwePanel(holdings: Holdings, currency: String) {
                 InfoRow(
                     dot = expenseRed(panel),
                     title = holding.account.name.value,
-                    value = "-${amountWithCode(-holding.amount, currency)}",
+                    value = "-${amountAndCode(-holding.amount, currency)}",
                     valueColor = expenseRed(panel),
                 )
             }
@@ -162,7 +162,7 @@ private fun OwnAndOwePanel(holdings: Holdings, currency: String) {
         Row(modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(text = stringResource(R.string.net_worth), style = totalStyle())
             Spacer(Modifier.weight(1f))
-            Text(text = amountWithCode(holdings.netWorth, currency), style = totalStyle())
+            Text(text = amountAndCode(holdings.netWorth, currency), style = totalStyle())
         }
     }
 }

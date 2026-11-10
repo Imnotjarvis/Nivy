@@ -36,9 +36,6 @@ import kotlin.math.roundToInt
 
 // What the two stats screens, the month in detail and Trends, write and draw alike.
 
-/** [amount] in [currency]'s format, then the code. */
-fun amountWithCode(amount: Double, currency: String): String = "${amount.format(currency)} $currency"
-
 /** [day]'s date, without its weekday. */
 @Composable
 @ReadOnlyComposable

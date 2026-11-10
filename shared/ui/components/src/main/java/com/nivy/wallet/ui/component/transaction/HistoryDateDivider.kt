@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,19 +16,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nivy.wallet.NivyComponentPreview
-import com.nivy.wallet.utils.format
-import com.nivy.wallet.utils.formatLocal
-import com.nivy.ui.R
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.shown
+import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
 import com.nivy.ui.time.TimeFormatter
+import com.nivy.wallet.NivyComponentPreview
+import com.nivy.wallet.utils.amountAndCode
+import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatLocal
 import java.time.LocalDate
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberBodyLarge
 
 @Composable
 internal fun HistoryDateDivider(
@@ -87,7 +88,7 @@ internal fun HistoryDateDivider(
 
         val cashflow = income - expenses
         Text(
-            text = "${if (cashflow > 0) "+" else ""}${cashflow.format(baseCurrency)} $baseCurrency",
+            text = (if (cashflow > 0) "+" else "") + amountAndCode(cashflow, baseCurrency),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 // Readable on light pages; the text color in minimal colors.
                 color = if (cashflow > 0) incomeGreen(MaterialTheme.colorScheme.background).shown() else Gray,

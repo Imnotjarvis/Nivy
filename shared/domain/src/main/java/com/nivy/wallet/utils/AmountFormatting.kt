@@ -71,6 +71,20 @@ fun formatGainPercent(gain: Double, invested: Double): String? =
 
 private const val Percent = 100
 
+/** What shows in an amount's place while amounts are hidden. */
+const val HiddenAmount = "****"
+
+/**
+ * [amount] as the app writes one: in [currency]'s format, or, with [shorten], shortened from 100k
+ * on (1.25m). Without its code; [amountAndCode] adds it.
+ */
+fun formatAmount(amount: Double, currency: String, shorten: Boolean = false): String =
+    if (shorten && shouldShortAmount(amount)) shortenAmount(amount) else amount.format(currency)
+
+/** [amount] as the app writes one, then [currency]'s code: the code always after the number. */
+fun amountAndCode(amount: Double, currency: String, shorten: Boolean = false): String =
+    "${formatAmount(amount, currency, shorten)} $currency"
+
 fun Double.format(currencyCode: String): String {
     return this.format(NivyCurrency.fromCode(currencyCode))
 }

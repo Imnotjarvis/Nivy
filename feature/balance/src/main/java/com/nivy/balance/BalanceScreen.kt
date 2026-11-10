@@ -55,6 +55,7 @@ import com.nivy.wallet.ui.theme.components.NivyDividerLine
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.horizontalSwipeListener
 import com.nivy.wallet.utils.rememberSwipeListenerState
@@ -272,7 +273,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
             Spacer(Modifier.height(4.dp))
 
             Text(
-                text = "${currentBalance.format(currency)} $currency",
+                text = amountAndCode(currentBalance, currency),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal
@@ -283,7 +284,7 @@ private fun ColumnScope.BalanceAfterPlannedPayments(
 
             val plusSign = if (plannedPaymentsAmount >= 0) "+" else ""
             Text(
-                text = "${plusSign}${plannedPaymentsAmount.format(currency)} $currency",
+                text = plusSign + amountAndCode(plannedPaymentsAmount, currency),
                 style = MaterialTheme.typography.numberLabelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold

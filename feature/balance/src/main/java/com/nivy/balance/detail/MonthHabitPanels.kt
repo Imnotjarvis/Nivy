@@ -30,13 +30,13 @@ import com.nivy.wallet.ui.component.ShareRows
 import com.nivy.wallet.ui.component.SplitBar
 import com.nivy.wallet.ui.component.Stat
 import com.nivy.wallet.ui.component.StatTiles
-import com.nivy.wallet.ui.component.amountWithCode
 import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.ui.component.categoryColor
 import com.nivy.wallet.ui.component.dayLabel
 import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.component.weekdayName
 import com.nivy.wallet.ui.component.wholeOrCents
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatDecimals
 import java.time.DayOfWeek
@@ -75,7 +75,7 @@ internal fun UnusualPanel(unusual: Unusual, currency: String) {
                             stringResource(R.string.month_biggest_since, category, sinceName(since, purchase.day))
                         else -> stringResource(R.string.month_biggest_any_since, sinceName(since, purchase.day))
                     },
-                    value = amountWithCode(purchase.amount, currency),
+                    value = amountAndCode(purchase.amount, currency),
                 )
             }
             unusual.categories.forEachIndexed { index, item ->
@@ -94,7 +94,7 @@ internal fun UnusualPanel(unusual: Unusual, currency: String) {
                             stringResource(R.string.month_usually_higher, usual, currency, item.beaten, item.months)
                         else -> stringResource(R.string.month_usually_lower, usual, currency, item.beaten, item.months)
                     },
-                    value = amountWithCode(item.amount, currency),
+                    value = amountAndCode(item.amount, currency),
                     valueColor = if (item.higher) expenseRed(panel) else incomeGreen(panel),
                 )
             }
@@ -118,7 +118,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
             add(
                 Stat(
                     stringResource(R.string.month_spent_a_day),
-                    amountWithCode(habits.perDay, currency),
+                    amountAndCode(habits.perDay, currency),
                     pluralStringResource(R.plurals.month_on_average_days, habits.days, habits.days),
                 )
             )
@@ -135,7 +135,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                 add(
                     Stat(
                         stringResource(R.string.month_at_this_pace),
-                        amountWithCode(habits.perDay * habits.daysInMonth, currency),
+                        amountAndCode(habits.perDay * habits.daysInMonth, currency),
                         stringResource(R.string.month_spent_by, dayLabel(lastDay)),
                     )
                 )
@@ -148,7 +148,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                 add(
                     Stat(
                         stringResource(R.string.month_biggest_expense),
-                        amountWithCode(it.amount, currency),
+                        amountAndCode(it.amount, currency),
                         "$what, ${dayLabel(it.day)}"
                     )
                 )
@@ -163,7 +163,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
             add(
                 Stat(
                     stringResource(R.string.month_typical_purchase),
-                    amountWithCode(habits.median, currency),
+                    amountAndCode(habits.median, currency),
                     stringResource(R.string.month_average_amount, habits.average.format(currency), currency),
                 )
             )
@@ -321,7 +321,7 @@ internal fun FixedFlexiblePanel(habits: Habits, currency: String) {
             dot = fixedColor,
             title = stringResource(R.string.month_fixed),
             note = pluralStringResource(R.plurals.month_planned_payments, habits.fixed.count, habits.fixed.count),
-            value = amountWithCode(habits.fixed.amount, currency),
+            value = amountAndCode(habits.fixed.amount, currency),
             trailing = percent(habits.fixed.amount / total),
         )
         Spacer(Modifier.height(12.dp))
@@ -329,7 +329,7 @@ internal fun FixedFlexiblePanel(habits: Habits, currency: String) {
             dot = flexibleColor,
             title = stringResource(R.string.month_flexible),
             note = pluralStringResource(R.plurals.month_other_purchases, habits.flexible.count, habits.flexible.count),
-            value = amountWithCode(habits.flexible.amount, currency),
+            value = amountAndCode(habits.flexible.amount, currency),
             trailing = percent(habits.flexible.amount / total),
         )
     }
@@ -348,7 +348,7 @@ internal fun CategoriesPanel(habits: Habits, currency: String, previous: Pace?) 
             InfoRow(
                 dot = categoryColor(change.category),
                 title = change.category?.name?.value ?: stringResource(R.string.unspecified),
-                value = amountWithCode(change.amount, currency),
+                value = amountAndCode(change.amount, currency),
                 trailing = when {
                     previous == null -> null
                     change.change == null -> stringResource(R.string.month_new)
@@ -381,7 +381,7 @@ internal fun PlacesPanel(habits: Habits, currency: String) {
                     (place.total / place.visits).format(currency),
                     currency
                 ),
-                value = amountWithCode(place.total, currency),
+                value = amountAndCode(place.total, currency),
             )
         }
     }

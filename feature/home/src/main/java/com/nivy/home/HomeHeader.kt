@@ -16,50 +16,51 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.State
-import androidx.compose.ui.graphics.graphicsLayer
-import com.nivy.design.system.motion.appearTween
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
-import com.nivy.wallet.LocalPeriodState
-import com.nivy.wallet.data.model.TimePeriod
-import com.nivy.wallet.ui.component.transaction.TransactionsDividerLine
+import com.nivy.design.system.colors.Gray
+import com.nivy.design.system.colors.expenseRed
+import com.nivy.design.system.colors.incomeGreen
+import com.nivy.design.system.colors.shown
+import com.nivy.design.system.motion.appearTween
+import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.design.system.typography.numberTitleLarge
 import com.nivy.design.utils.clickableNoIndication
-import com.nivy.wallet.utils.format
 import com.nivy.design.utils.rememberInteractionSource
-import com.nivy.wallet.utils.horizontalSwipeListener
-import com.nivy.wallet.utils.rememberSwipeListenerState
-import com.nivy.wallet.utils.springBounce
+import com.nivy.home.usecase.Glance
 import com.nivy.navigation.PieChartStatisticScreen
 import com.nivy.navigation.navigation
 import com.nivy.ui.R
-import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.shown
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
+import com.nivy.wallet.LocalPeriodState
+import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.ui.component.transaction.TransactionsDividerLine
 import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1
+import com.nivy.wallet.utils.HiddenAmount
+import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.horizontalSwipeListener
+import com.nivy.wallet.utils.rememberSwipeListenerState
+import com.nivy.wallet.utils.springBounce
 import kotlin.math.absoluteValue
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberBodyLarge
-import com.nivy.design.system.colors.incomeGreen
-import com.nivy.design.system.colors.expenseRed
-import com.nivy.design.system.typography.numberTitleLarge
-import com.nivy.home.usecase.Glance
 
 /**
  * How Home's header collapses as the list scrolls, and expands back at its top. The menu button
@@ -389,7 +390,7 @@ private fun RowScope.HeaderCard(
             if (hidden) {
                 // Like the hidden balance: tapping shows the amount for a few seconds.
                 Text(
-                    text = "****",
+                    text = HiddenAmount,
                     style = MaterialTheme.typography.numberTitleLarge.copy(
                         color = amountColor,
                         fontWeight = FontWeight.Bold,

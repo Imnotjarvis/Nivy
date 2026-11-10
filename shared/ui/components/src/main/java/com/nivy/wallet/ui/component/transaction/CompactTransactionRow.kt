@@ -31,15 +31,15 @@ import com.nivy.data.temp.migration.getTransactionType
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.categoryColor
 import com.nivy.design.system.colors.expenseRed
-import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.colors.incomeGreen
+import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.shapes.PillShape
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.ui.R
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.nivy.wallet.ui.theme.components.NivyIcon
-import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.amountAndCode
 
 /**
  * A transaction in one row, like the compact account and category cards: its category's icon,
@@ -123,7 +123,7 @@ fun CompactTransactionRow(
 
         val value = transaction.getFromValue()
         Text(
-            text = "${amountPrefix(type)}${value.amount.value.format(value.asset.code)} ${value.asset.code}",
+            text = amountPrefix(type) + amountAndCode(value.amount.value, value.asset.code),
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = when (type) {
                     TransactionType.INCOME -> incomeGreen(page)

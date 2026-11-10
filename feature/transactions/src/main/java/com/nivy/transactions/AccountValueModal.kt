@@ -26,18 +26,19 @@ import com.nivy.data.model.primitive.NonNegativeDouble
 import com.nivy.design.system.colors.Gray
 import com.nivy.domain.RootScreen
 import com.nivy.ui.R
-import com.nivy.ui.time.TimeFormatter
-import com.nivy.wallet.ui.theme.modal.NivyModal
-import com.nivy.wallet.ui.theme.modal.ModalAddSave
-import com.nivy.wallet.ui.theme.modal.ModalDelete
-import com.nivy.wallet.ui.theme.modal.ModalTitle
-import com.nivy.wallet.ui.theme.modal.dialogData
-import com.nivy.wallet.ui.theme.modal.edit.AccountSettingRow
-import com.nivy.wallet.ui.theme.modal.edit.AmountModal
-import com.nivy.wallet.utils.format
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
+import com.nivy.ui.time.TimeFormatter
+import com.nivy.wallet.ui.theme.modal.ModalAddSave
+import com.nivy.wallet.ui.theme.modal.ModalDelete
+import com.nivy.wallet.ui.theme.modal.ModalTitle
+import com.nivy.wallet.ui.theme.modal.NivyModal
+import com.nivy.wallet.ui.theme.modal.dialogData
+import com.nivy.wallet.ui.theme.modal.edit.AccountSettingRow
+import com.nivy.wallet.ui.theme.modal.edit.AmountModal
+import com.nivy.wallet.utils.amountAndCode
+import com.nivy.wallet.utils.format
 import java.time.LocalTime
 import java.util.UUID
 
@@ -133,7 +134,7 @@ fun BoxWithConstraintsScope.AccountValueModal(
 
         AccountSettingRow(
             label = stringResource(R.string.investments),
-            value = amount?.let { "${it.format(currency)} $currency" } ?: "",
+            value = amount?.let { amountAndCode(it, currency) } ?: "",
             testTag = "account_value_amount",
             onClick = { amountModalVisible = true },
         )
@@ -142,7 +143,7 @@ fun BoxWithConstraintsScope.AccountValueModal(
 
         AccountSettingRow(
             label = stringResource(R.string.cash),
-            value = cash?.let { "${it.format(currency)} $currency" } ?: stringResource(R.string.cash_not_set),
+            value = cash?.let { amountAndCode(it, currency) } ?: stringResource(R.string.cash_not_set),
             testTag = "account_value_cash",
             onClick = { cashModalVisible = true },
         )

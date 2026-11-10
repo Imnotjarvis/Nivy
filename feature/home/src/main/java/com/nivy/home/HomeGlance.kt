@@ -40,9 +40,8 @@ import com.nivy.home.usecase.Glance
 import com.nivy.home.usecase.NextPayment
 import com.nivy.ui.R
 import com.nivy.wallet.ui.component.transaction.label
-import com.nivy.wallet.utils.format
-import com.nivy.wallet.utils.shortenAmount
-import com.nivy.wallet.utils.shouldShortAmount
+import com.nivy.wallet.utils.HiddenAmount
+import com.nivy.wallet.utils.formatAmount
 import kotlin.math.roundToInt
 
 /** What the glance can show, most urgent first. */
@@ -106,7 +105,7 @@ internal fun HomeGlance(
 
             GlanceFact.SpentToday -> GlanceLine(
                 label = stringResource(R.string.glance_spent_today),
-                number = amount(glance.spentToday.toDouble(), glance.baseCurrency),
+                number = formatAmount(glance.spentToday.toDouble(), glance.baseCurrency, shorten = true),
                 unit = glance.baseCurrency,
                 color = expenseRed(background),
             )
@@ -129,7 +128,7 @@ private fun NextPaymentLine(payment: NextPayment, hideIncome: Boolean) {
             1 -> stringResource(R.string.glance_due_tomorrow)
             else -> pluralStringResource(R.plurals.glance_due_in_days, payment.daysLeft, payment.daysLeft)
         },
-        number = if (hidden) "****" else amount(payment.amount, payment.currency),
+        number = if (hidden) HiddenAmount else formatAmount(payment.amount, payment.currency, shorten = true),
         unit = if (hidden) "" else payment.currency,
         color = when (payment.type) {
             TransactionType.INCOME -> incomeGreen(background)
@@ -188,7 +187,3 @@ private const val ComeMillis = 120
 private fun <T> leave() = tween<T>(LeaveMillis, easing = FastOutSlowInEasing)
 
 private fun <T> come() = tween<T>(ComeMillis, delayMillis = LeaveMillis, easing = FastOutSlowInEasing)
-
-/** As the income and expense cards write amounts: shortened from 100k up. */
-private fun amount(value: Double, currency: String): String =
-    if (shouldShortAmount(value)) shortenAmount(value) else value.format(currency)
