@@ -70,7 +70,7 @@ class MonthDetailUseCase @Inject constructor(
 
             val paid = paid(range.from(), minOf(range.to(), now), inBalance)
             val expenses = paid.filterIsInstance<Expense>()
-            val spends = expenses.filter { it.isPurchase() }.map { spend(it, rates, names) }
+            val spends = expenses.filter { it.isPurchase() }.mapNotNull { spend(it, rates, names) }
             val income = paid.filterIsInstance<Income>().sumOf { rates.inBase(it.value) }
             val outgoing = expenses.sumOf { rates.inBase(it.value) }
 
@@ -189,7 +189,7 @@ class MonthDetailUseCase @Inject constructor(
         val range = before.toRange(startDayOfMonth, timeConverter, timeProvider)
         val spends = paid(range.from(), range.to(), accounts).filterIsInstance<Expense>()
             .filter { it.isPurchase() }
-            .map { spend(it, rates, names) }
+            .mapNotNull { spend(it, rates, names) }
         return Triple(before, spends, days(range))
     }
 
@@ -294,7 +294,7 @@ class MonthDetailUseCase @Inject constructor(
         if (ranges.isEmpty()) return emptyList()
         val spends = paid(ranges.first().from(), ranges.last().to(), accounts).filterIsInstance<Expense>()
             .filter { it.isPurchase() }
-            .map { spend(it, rates, names) }
+            .mapNotNull { spend(it, rates, names) }
         return ranges.map { range ->
             val days = days(range)
             val inMonth = days.toSet()
@@ -331,8 +331,9 @@ class MonthDetailUseCase @Inject constructor(
         )
     }
 
-    private suspend fun spend(expense: Expense, rates: BaseCurrencyRates, names: Names) = Spend(
-        amount = rates.inBase(expense.value),
+    // A purchase without a rate to the base currency is left out, not counted as one of nothing.
+    private suspend fun spend(expense: Expense, rates: BaseCurrencyRates, names: Names): Spend? = Spend(
+        amount = rates.inBaseOrNull(expense.value) ?: return null,
         day = expense.time.localDate(),
         made = with(timeConverter) { (expense.metadata.purchaseDateTime ?: expense.time).toLocalDateTime() },
         title = expense.title?.value,

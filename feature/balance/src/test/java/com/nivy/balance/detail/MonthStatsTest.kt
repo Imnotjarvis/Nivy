@@ -104,6 +104,11 @@ class MonthStatsTest {
     }
 
     @Test
+    fun `purchases that add up to nothing tell no habits`() {
+        habits(listOf(spend(3, 12, "Lunch", EatingOut, 0.0))).shouldBeNull()
+    }
+
+    @Test
     fun `free to spend is what's left a day for the month to end even`() {
         val free = freeToSpend(
             income = 1_650.0,
