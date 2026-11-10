@@ -94,9 +94,10 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
         if (actual > 0) {
             val today = Offset(x(actual - 1), y(balances[actual - 1]))
             if (actual < balances.size) {
+                // From the "Today" under the chart up to today's point, clear of the balance over it.
                 drawLine(
                     guide.copy(alpha = GuideAlpha),
-                    Offset(today.x, top - PointRing.toPx()),
+                    today,
                     Offset(today.x, bottom),
                     strokeWidth = 1.dp.toPx(),
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dot.toPx(), Dot.toPx())),
