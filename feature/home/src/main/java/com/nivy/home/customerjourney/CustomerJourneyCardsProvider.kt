@@ -1,7 +1,6 @@
 package com.nivy.home.customerjourney
 
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
@@ -20,24 +19,13 @@ class CustomerJourneyCardsProvider @Inject constructor(
   private val transactionRepository: TransactionRepository,
   private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
   private val appPreferences: AppPreferences,
-  private val timeProvider: TimeProvider,
 ) {
 
   suspend fun loadCards(): List<CustomerJourneyCardModel> {
     val trnCount = transactionRepository.countHappenedTransactions().value
     val plannedPaymentsCount = plannedPaymentRuleRepository.count().value
-    val deps = CustomerJourneyDeps(
-      timeProvider = timeProvider,
-    )
-
     return ACTIVE_CARDS
-      .filter {
-        it.condition(
-          trnCount,
-          plannedPaymentsCount,
-          deps
-        ) && !isCardDismissed(it)
-      }
+      .filter { it.condition(trnCount, plannedPaymentsCount) && !isCardDismissed(it) }
   }
 
   private suspend fun isCardDismissed(cardData: CustomerJourneyCardModel): Boolean {
@@ -58,7 +46,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun adjustBalanceCard() = CustomerJourneyCardModel(
       id = "adjust_balance",
-      condition = { trnCount, _, _ ->
+      condition = { trnCount, _ ->
         trnCount == 0L
       },
       title = R.string.adjust_initial_balance,
@@ -74,7 +62,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun addPlannedPaymentCard() = CustomerJourneyCardModel(
       id = "add_planned_payment",
-      condition = { trnCount, plannedPaymentCount, _ ->
+      condition = { trnCount, plannedPaymentCount ->
         trnCount >= 1 && plannedPaymentCount == 0L
       },
       title = R.string.create_first_planned_payment,
@@ -95,7 +83,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun didYouKnowPinAddTransactionWidgetCard() = CustomerJourneyCardModel(
       id = "add_transaction_widget",
-      condition = { trnCount, _, _ ->
+      condition = { trnCount, _ ->
         trnCount >= 3
       },
       title = R.string.did_you_know,
@@ -111,7 +99,7 @@ class CustomerJourneyCardsProvider @Inject constructor(
 
     fun didYouKnowExpensesPieChart() = CustomerJourneyCardModel(
       id = "expenses_pie_chart",
-      condition = { trnCount, _, _ ->
+      condition = { trnCount, _ ->
         trnCount >= 7
       },
       title = R.string.did_you_know,

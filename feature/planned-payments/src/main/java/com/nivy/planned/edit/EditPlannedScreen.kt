@@ -128,16 +128,14 @@ internal fun BoxWithConstraintsScope.UI(
             onTitleChanged = { onEvent(EditPlannedScreenEvent.OnTitleChanged(it)) },
         )
 
-        if (state.transactionType != TransactionType.TRANSFER) {
-            Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(32.dp))
 
-            Category(
-                category = state.category,
-                onChooseCategory = {
-                    onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
-                }
-            )
-        }
+        Category(
+            category = state.category,
+            onChooseCategory = {
+                onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
+            }
+        )
 
         Spacer(Modifier.height(32.dp))
 
@@ -220,7 +218,7 @@ internal fun BoxWithConstraintsScope.UI(
                 modifier = Modifier.testTag("editPlannedScreen_set"),
                 enabled = state.canSave,
             ) {
-                onEvent(EditPlannedScreenEvent.OnSave())
+                onEvent(EditPlannedScreenEvent.OnSave)
             }
         },
 
@@ -232,7 +230,7 @@ internal fun BoxWithConstraintsScope.UI(
         onAmountChanged = {
             onEvent(EditPlannedScreenEvent.OnAmountChanged(it))
             when {
-                shouldFocusCategory(state.category, state.transactionType) -> {
+                shouldFocusCategory(state.category) -> {
                     onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
                 }
 
@@ -254,7 +252,7 @@ internal fun BoxWithConstraintsScope.UI(
                     )
                 }
 
-                shouldFocusTitle(titleTextFieldValue, state.transactionType) -> {
+                shouldFocusTitle(titleTextFieldValue) -> {
                     titleFocus.requestFocus()
                 }
             }
@@ -370,11 +368,11 @@ internal fun BoxWithConstraintsScope.UI(
             )
 
             when {
-                shouldFocusCategory(state.category, state.transactionType) -> {
+                shouldFocusCategory(state.category) -> {
                     onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
                 }
 
-                shouldFocusTitle(titleTextFieldValue, state.transactionType) -> {
+                shouldFocusTitle(titleTextFieldValue) -> {
                     titleFocus.requestFocus()
                 }
             }
@@ -385,15 +383,9 @@ internal fun BoxWithConstraintsScope.UI(
     )
 }
 
-private fun shouldFocusCategory(
-    category: Category?,
-    type: TransactionType,
-): Boolean = category == null && type != TransactionType.TRANSFER
+private fun shouldFocusCategory(category: Category?): Boolean = category == null
 
-private fun shouldFocusTitle(
-    titleTextFieldValue: TextFieldValue,
-    type: TransactionType,
-): Boolean = titleTextFieldValue.text.isBlank() && type != TransactionType.TRANSFER
+private fun shouldFocusTitle(titleTextFieldValue: TextFieldValue): Boolean = titleTextFieldValue.text.isBlank()
 
 private fun shouldFocusRecurring(
     startDate: LocalDateTime?,

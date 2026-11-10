@@ -41,8 +41,7 @@ data class EditTransactionScreen(
 data class TransactionsScreen(
     val accountId: UUID? = null,
     val categoryId: UUID? = null,
-    val unspecifiedCategory: Boolean? = false,
-    val transactionType: TransactionType? = null,
+    val unspecifiedCategory: Boolean = false,
     val accountIdFilterList: List<UUID> = persistentListOf(),
     val transactions: List<Transaction> = persistentListOf()
 ) : Screen {

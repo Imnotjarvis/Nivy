@@ -7,39 +7,31 @@ import androidx.compose.runtime.setValue
 import com.nivy.data.model.Account
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.primitive.PositiveDouble
-import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.domain.data.CustomExchangeRateState
 import javax.inject.Inject
 
 /** The rate of a transfer to another currency, and the amount the other account receives. */
 class TransferExchangeRate @Inject constructor(
-    private val currencyRepository: CurrencyRepository,
     private val exchangeUseCase: ExchangeUseCase,
 ) {
-    suspend fun baseCurrency(): String = currencyRepository.getBaseCurrency().code
-
     /**
      * The rate card of a transfer from [fromAcc] to [toAcc]; null when one of them isn't chosen or
      * both have the same currency. The rate is the [exchangeRate] entered, else the card's own for
-     * the same two currencies, else the market's. [baseUserCurrency] is read only for a missing
-     * account, and [enteredAmount] once the rate is known.
+     * the same two currencies, else the market's. [enteredAmount] is read once the rate is known.
      */
     suspend fun exchangeRateState(
         customExchangeRateState: CustomExchangeRateState,
         toAcc: Account?,
         fromAcc: Account?,
-        baseUserCurrency: () -> String,
         exchangeRate: Double?,
         resetRate: Boolean,
         enteredAmount: () -> Double,
     ): CustomExchangeRateState? {
-        val toAccCurrencyCode = toAcc?.asset?.code ?: baseUserCurrency()
-        val fromAccCurrencyCode = fromAcc?.asset?.code ?: baseUserCurrency()
-
-        if (toAcc == null || fromAcc == null || (toAccCurrencyCode == fromAccCurrencyCode)) {
-            return null
-        }
+        if (toAcc == null || fromAcc == null) return null
+        val toAccCurrencyCode = toAcc.asset.code
+        val fromAccCurrencyCode = fromAcc.asset.code
+        if (toAccCurrencyCode == fromAccCurrencyCode) return null
 
         val exRate = exchangeRate
             ?: customExchangeRateState.exchangeRate?.takeIf {
@@ -104,12 +96,6 @@ internal class RateCard(private val transferExchangeRate: TransferExchangeRate) 
     var state by mutableStateOf(CustomExchangeRateState())
         private set
 
-    private lateinit var baseCurrency: String
-
-    suspend fun loadBaseCurrency() {
-        baseCurrency = transferExchangeRate.baseCurrency()
-    }
-
     /**
      * The card [transaction] from [account] to [toAccount] opens with: at the rate of its two
      * amounts, or at the market's while it has none.
@@ -142,7 +128,6 @@ internal class RateCard(private val transferExchangeRate: TransferExchangeRate) 
             customExchangeRateState = state,
             toAcc = to,
             fromAcc = from,
-            baseUserCurrency = { baseCurrency },
             exchangeRate = exchangeRate,
             resetRate = resetRate,
             enteredAmount = amount,

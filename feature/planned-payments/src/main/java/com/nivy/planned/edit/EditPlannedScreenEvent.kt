@@ -29,7 +29,7 @@ sealed interface EditPlannedScreenEvent {
     data class OnSetTransactionType(val newTransactionType: TransactionType) :
         EditPlannedScreenEvent
 
-    data class OnSave(val closeScreen: Boolean = true) : EditPlannedScreenEvent
+    data object OnSave : EditPlannedScreenEvent
     data object OnDelete : EditPlannedScreenEvent
     data class OnEditCategory(val updatedCategory: Category) : EditPlannedScreenEvent
     data class OnCreateCategory(val data: CreateCategoryData) : EditPlannedScreenEvent

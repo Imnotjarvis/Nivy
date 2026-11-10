@@ -85,7 +85,7 @@ internal fun Header(
         // Only an account, or a category of the person's, can be edited or deleted: not the
         // Unspecified page, nor the account transfers Reports opens.
         val editable = (account != null || category != null) &&
-            screen.unspecifiedCategory != true && screen.transactions.none { it is Transfer }
+            !screen.unspecifiedCategory && screen.transactions.none { it is Transfer }
 
         ItemStatisticToolbar(
             contrastColor = contrastColor,

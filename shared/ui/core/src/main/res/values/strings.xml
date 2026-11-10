@@ -134,7 +134,6 @@
     <string name="repeats_every">Repeats every %1$d %2$s</string>
     <string name="deleted">deleted</string>
     <string name="planned_for_uppercase">"Planned for "</string>
-    <string name="null_text">null</string>
     <string name="starts_date">"Starts %1$s "</string>
     <string name="add_payment">Add payment</string>
     <string name="one_time_payments">One-time payments</string>

@@ -42,7 +42,6 @@ import com.nivy.wallet.ui.theme.modal.ModalSet
 import com.nivy.wallet.ui.theme.modal.ModalTitle
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
-import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.nivy.wallet.ui.theme.components.SelectableOptionRow
@@ -189,7 +188,6 @@ internal fun BoxWithConstraintsScope.UI(
 
     SortModal(
         initialType = state.sortOrder,
-        items = state.sortOrderItems,
         visible = state.sortModalVisible,
         dismiss = {
             onEvent(CategoriesScreenEvent.OnSortOrderModalVisible(visible = false))
@@ -200,15 +198,12 @@ internal fun BoxWithConstraintsScope.UI(
     )
 }
 
-@Suppress("UnusedParameter")
 @Composable
 private fun BoxWithConstraintsScope.SortModal(
-    items: ImmutableList<SortOrder>,
     visible: Boolean,
     initialType: SortOrder,
     dismiss: () -> Unit,
     onSortOrderChange: (SortOrder) -> Unit,
-    modifier: Modifier = Modifier,
     title: String = stringResource(R.string.sort_by),
     id: UUID = UUID.randomUUID()
 ) {
@@ -237,7 +232,7 @@ private fun BoxWithConstraintsScope.SortModal(
 
         Spacer(Modifier.height(32.dp))
 
-        items.forEach {
+        SortOrder.entries.forEach {
             SelectableOptionRow(
                 modifier = Modifier.height(64.dp),
                 text = it.displayName,

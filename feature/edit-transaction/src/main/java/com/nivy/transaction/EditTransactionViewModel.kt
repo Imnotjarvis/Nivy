@@ -118,8 +118,6 @@ class EditTransactionViewModel @Inject constructor(
         viewModelScope.launch {
             editMode = screen.initialTransactionId != null
 
-            rateCard.loadBaseCurrency()
-
             val tagList = async { transactionTags.getAllTags() }
 
             val getAccounts = accountRepository.findAll()
@@ -318,8 +316,8 @@ class EditTransactionViewModel @Inject constructor(
         }
     }
 
-    private fun onDueDateChanged(newDueDate: LocalDateTime?) {
-        val newDueDateUtc = with(timeConverter) { newDueDate?.toUTC() }
+    private fun onDueDateChanged(newDueDate: LocalDateTime) {
+        val newDueDateUtc = with(timeConverter) { newDueDate.toUTC() }
         loadedTransaction = loadedTransaction().copy(
             dueDate = newDueDateUtc
         )

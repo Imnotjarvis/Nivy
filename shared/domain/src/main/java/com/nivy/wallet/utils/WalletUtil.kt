@@ -1,25 +1,10 @@
 package com.nivy.wallet.utils
 
+/** "+" before a total that is only income; nothing before expenses, or a mix of both. */
 fun balancePrefix(
     income: Double,
     expenses: Double
-): String? {
-    return when {
-        expenses != 0.0 && income != 0.0 -> {
-            null
-        }
-
-        expenses < 0.0 && income == 0.0 -> {
-            "-"
-        }
-
-        income > 0.0 && expenses == 0.0 -> {
-            "+"
-        }
-
-        else -> null
-    }
-}
+): String? = "+".takeIf { income > 0.0 && expenses == 0.0 }
 
 fun compactBalancePrefix(
     income: Double = 0.0,

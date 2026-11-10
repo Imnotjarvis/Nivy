@@ -447,7 +447,7 @@ class TransactionsViewModel @Inject constructor(
 
     fun start(
         screen: TransactionsScreen,
-        timePeriod: TimePeriod? = periodState.selected,
+        timePeriod: TimePeriod = periodState.selected,
         reset: Boolean = true,
     ) {
         if (reset) {
@@ -458,7 +458,7 @@ class TransactionsViewModel @Inject constructor(
         // a month chosen after another would show the other one's figures.
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
-            period.value = timePeriod ?: periodState.selected
+            period.value = timePeriod
 
             val baseCurrencyValue = currencyRepository.getBaseCurrency().code
             baseCurrency.value = baseCurrencyValue
@@ -485,10 +485,9 @@ class TransactionsViewModel @Inject constructor(
                         screen.accountIdFilterList
                     )
                 }
-                // unspecifiedCategory==false is explicitly checked to accommodate for a temp
-                // AccountTransfers Category during Reports Screen
+                // The pie chart's account transfers slice also has a category id: it's "unspecified".
                 screen.categoryId != null && screen.transactions.isNotEmpty() &&
-                        screen.unspecifiedCategory == false -> {
+                        !screen.unspecifiedCategory -> {
                     val pageCategory = categoryRepository.findById(CategoryId(screen.categoryId!!))
                         ?: return@launch backFromGonePage()
                     categoryPeriodLoader.initForCategoryWithTransactions(
@@ -499,7 +498,7 @@ class TransactionsViewModel @Inject constructor(
                     )
                 }
 
-                screen.unspecifiedCategory == true && screen.categoryId != null &&
+                screen.unspecifiedCategory && screen.categoryId != null &&
                         screen.transactions.isNotEmpty() -> {
                     categoryPeriodLoader.initForAccountTransfersCategory(
                         categoryLoadState,
@@ -508,7 +507,7 @@ class TransactionsViewModel @Inject constructor(
                     )
                 }
 
-                screen.unspecifiedCategory == true && screen.transactions.isNotEmpty() -> {
+                screen.unspecifiedCategory && screen.transactions.isNotEmpty() -> {
                     categoryPeriodLoader.initForUnspecifiedWithTransactions(
                         categoryLoadState,
                         screen.accountIdFilterList,
@@ -516,7 +515,7 @@ class TransactionsViewModel @Inject constructor(
                     )
                 }
 
-                screen.unspecifiedCategory == true -> {
+                screen.unspecifiedCategory -> {
                     categoryPeriodLoader.initForUnspecifiedCategory(categoryLoadState)
                 }
 

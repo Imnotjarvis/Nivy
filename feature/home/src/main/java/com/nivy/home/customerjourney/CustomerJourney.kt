@@ -132,28 +132,25 @@ private fun CustomerJourneyCard(
 
         Spacer(Modifier.height(32.dp))
 
-        val cta = cardData.cta
-        if (cta != null) {
-            NivyButton(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(horizontal = 20.dp)
-                    .testTag("cta_prompt_${cardData.id}"),
-                text = stringResource(cta),
-                iconStart = cardData.ctaIcon,
-                iconTint = cardData.background,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = cardData.background,
-                    fontWeight = FontWeight.Bold
-                ),
-                padding = 8.dp,
-                backgroundColor = readableOn(cardData.background)
-            ) {
-                onCTA()
-            }
-
-            Spacer(Modifier.height(20.dp))
+        NivyButton(
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(horizontal = 20.dp)
+                .testTag("cta_prompt_${cardData.id}"),
+            text = stringResource(cardData.cta),
+            iconStart = cardData.ctaIcon,
+            iconTint = cardData.background,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = cardData.background,
+                fontWeight = FontWeight.Bold
+            ),
+            padding = 8.dp,
+            backgroundColor = readableOn(cardData.background)
+        ) {
+            onCTA()
         }
+
+        Spacer(Modifier.height(20.dp))
     }
 }
 
