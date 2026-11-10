@@ -197,12 +197,8 @@ private fun ColumnScope.TagList(
     onTagDeSelected: (Tag) -> Unit = {},
     onTagLongClick: (Tag) -> Unit = {}
 ) {
-    val tagListWithAddNewTag: List<Any> by remember(transactionTags) {
-        if (selectOnlyMode) {
-            mutableStateOf(transactionTags)
-        } else {
-            mutableStateOf(listOf(AddNewTag()) + transactionTags)
-        }
+    val tagListWithAddNewTag: List<Any> = remember(transactionTags, selectOnlyMode) {
+        if (selectOnlyMode) transactionTags else listOf(AddNewTag()) + transactionTags
     }
 
     WrapContentRow(

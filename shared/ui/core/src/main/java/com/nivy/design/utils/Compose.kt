@@ -28,12 +28,6 @@ fun Modifier.thenIf(
     }
 }
 
-fun Modifier.thenWhen(
-    logic: Modifier.() -> Modifier?
-): Modifier {
-    return this.logic() ?: this
-}
-
 @Composable
 fun rememberInteractionSource(): MutableInteractionSource = remember { MutableInteractionSource() }
 

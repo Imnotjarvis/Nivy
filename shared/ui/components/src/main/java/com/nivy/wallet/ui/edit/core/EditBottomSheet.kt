@@ -102,13 +102,11 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     )
     val percentCollapsed = 1f - percentExpanded
 
-    val showConvertedAmountText by remember(type, convertedAmount, convertedAmountCurrencyCode) {
+    val showConvertedAmountText = remember(type, convertedAmount, convertedAmountCurrencyCode) {
         if (type == TransactionType.TRANSFER && convertedAmount != null && convertedAmountCurrencyCode != null) {
-            mutableStateOf(
-                "${convertedAmount.format(convertedAmountCurrencyCode)} $convertedAmountCurrencyCode"
-            )
+            "${convertedAmount.format(convertedAmountCurrencyCode)} $convertedAmountCurrencyCode"
         } else {
-            mutableStateOf(null)
+            null
         }
     }
 
@@ -193,10 +191,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             },
         )
 
-        val lastSpacer = lerp(20f, 8f, percentCollapsed)
-        if (lastSpacer > 0) {
-            Spacer(Modifier.height(lastSpacer.dp))
-        }
+        Spacer(Modifier.height(lerp(20f, 8f, percentCollapsed).dp))
 //
         // system stuff + keyboard padding
         Spacer(Modifier.height(densityScope { bottomBarHeight.toDp() }))

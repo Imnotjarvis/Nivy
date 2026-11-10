@@ -135,18 +135,14 @@ data class HSVSpec(
     val v: Float
 )
 
+// This color with its hue kept and the saturation and value given.
 private fun Color.hsv(
-    h: Float? = null,
     s: Float,
     v: Float
 ): Color {
     val hsv = FloatArray(HsvComponents)
     val color: Int = this.toArgb()
     android.graphics.Color.colorToHSV(color, hsv)
-
-    if (h != null) {
-        hsv[0] = h
-    }
 
     hsv[1] = s
     hsv[2] = v

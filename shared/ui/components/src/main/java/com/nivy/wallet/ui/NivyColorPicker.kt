@@ -41,11 +41,6 @@ import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 
-private data class NivyColor(
-    val color: Color,
-    val premium: Boolean
-)
-
 @Suppress("ParameterNaming")
 @Composable
 fun ColumnScope.NivyColorPicker(
@@ -64,28 +59,12 @@ fun ColumnScope.NivyColorPicker(
 
     Spacer(Modifier.height(16.dp))
 
-    val freeNivyColors = NIVY_COLOR_PICKER_COLORS_FREE
-        .map {
-            NivyColor(
-                color = it,
-                premium = false
-            )
-        }
-
-    val premiumNivyColors = NIVY_COLOR_PICKER_COLORS_PREMIUM
-        .map {
-            NivyColor(
-                color = it,
-                premium = true
-            )
-        }
-
     // In minimal colors, the greys: a color saved before shows as the grey nearest its own, which
     // stays saved until another is picked.
     val nivyColors = if (ColorMode.minimal) {
-        NIVY_COLOR_PICKER_GREYS.map { NivyColor(color = it, premium = false) }
+        NIVY_COLOR_PICKER_GREYS
     } else {
-        freeNivyColors + premiumNivyColors
+        NIVY_COLOR_PICKER_COLORS_FREE + NIVY_COLOR_PICKER_COLORS_PREMIUM
     }
     val shownColor = if (ColorMode.minimal) nearestGrey(selectedColor) else selectedColor
 
@@ -96,7 +75,7 @@ fun ColumnScope.NivyColorPicker(
         LaunchedEffect(Unit) {
             // java.lang.IllegalStateException: pending composition has not been applied
 
-            val selectedColorIndex = nivyColors.indexOfFirst { it.color == shownColor }
+            val selectedColorIndex = nivyColors.indexOfFirst { it == shownColor }
             if (selectedColorIndex != -1) {
                 coroutineScope.launch {
                     listState.scrollToItem(
@@ -119,11 +98,9 @@ fun ColumnScope.NivyColorPicker(
         ) { index ->
             ColorItem(
                 index = index,
-                nivyColor = nivyColors[index],
+                color = nivyColors[index],
                 selectedColor = shownColor,
-                onSelected = {
-                    onColorSelected(it.color)
-                }
+                onSelected = onColorSelected
             )
         }
     }
@@ -133,11 +110,10 @@ fun ColumnScope.NivyColorPicker(
 @Suppress("ParameterNaming")
 private fun ColorItem(
     index: Int,
-    nivyColor: NivyColor,
+    color: Color,
     selectedColor: Color,
-    onSelected: (NivyColor) -> Unit
+    onSelected: (Color) -> Unit
 ) {
-    val color = nivyColor.color
     val selected = color == selectedColor
     val minimal = ColorMode.minimal
     val ink = MaterialTheme.colorScheme.onSurface
@@ -164,9 +140,9 @@ private fun ColorItem(
                 border(width = 4.dp, color = color.dynamicContrast(), PillShape)
             }
             .clickable(onClick = {
-                onSelected(nivyColor)
+                onSelected(color)
             })
-            .testTag("color_item_${nivyColor.color.value}"),
+            .testTag("color_item_${color.value}"),
     )
 
     Spacer(Modifier.width(if (selected) 16.dp else 24.dp))

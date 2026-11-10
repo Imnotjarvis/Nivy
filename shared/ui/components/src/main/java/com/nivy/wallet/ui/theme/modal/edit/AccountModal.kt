@@ -73,7 +73,6 @@ data class AccountModalData(
     val balance: Double,
     val creditCards: List<CreditCard>? = emptyList(),
     val adjustBalanceMode: Boolean = false,
-    val forceNonZeroBalance: Boolean = false,
     val autoFocusKeyboard: Boolean = true,
     val id: UUID = UUID.randomUUID()
 )
@@ -122,8 +121,6 @@ fun BoxWithConstraintsScope.AccountModal(
         mutableStateOf(false)
     }
 
-    val forceNonZeroBalance = shown?.forceNonZeroBalance ?: false
-
     NivyModal(
         modifier = modifier,
         id = shown?.id,
@@ -133,7 +130,7 @@ fun BoxWithConstraintsScope.AccountModal(
         primaryAction = {
             ModalAddSave(
                 item = shown?.account,
-                enabled = nameTextFieldValue.text.isNotNullOrBlank() && (!forceNonZeroBalance || amount > 0)
+                enabled = nameTextFieldValue.text.isNotNullOrBlank()
             ) {
                 save(
                     account = account,

@@ -25,7 +25,6 @@ fun ProgressBar(
     percent: Double,
     modifier: Modifier = Modifier,
     notFilledColor: Color = MaterialTheme.colorScheme.surface,
-    positiveProgress: Boolean = true
 ) {
     Spacer(
         modifier = modifier
@@ -34,16 +33,10 @@ fun ProgressBar(
             .drawBehind {
                 drawRect(
                     color = when {
-                        percent <= 0.25 -> {
-                            if (positiveProgress) Palette.Red else Green
-                        }
-                        percent <= 0.50 -> {
-                            if (positiveProgress) Orange else Nivy
-                        }
-                        percent <= 0.75 -> {
-                            if (positiveProgress) Nivy else Orange
-                        }
-                        else -> if (positiveProgress) Green else Palette.Red
+                        percent <= 0.25 -> Palette.Red
+                        percent <= 0.50 -> Orange
+                        percent <= 0.75 -> Nivy
+                        else -> Green
                     },
                     size = size.copy(
                         width = (size.width * percent).toFloat()
