@@ -100,7 +100,8 @@ class BackupDataUseCaseAndroidTest {
         // file as the app writes one (UTF-16)
         val text = InstrumentationRegistry.getInstrumentation().targetContext.assets
             .open("backups/nivy-2026-11.json").bufferedReader().use { it.readText() }
-        val inFile = json.decodeFromString<NivyCompleteData>(text).tables()
+        // The cash account it holds without a currency comes in with the backup's, EUR.
+        val inFile = json.decodeFromString<NivyCompleteData>(text).tables().withCashInEuros()
         val file = tempAndroidFile("nivy-backup", ".json").apply { writeText(text, Charsets.UTF_16) }
 
         // when
@@ -248,3 +249,7 @@ private val NivyBackupBalances = mapOf(
     "aaaaaaaa-0000-4000-8000-000000000005" to 1000.0, // Brokerage
     "aaaaaaaa-0000-4000-8000-000000000006" to 500.0, // Old savings, archived
 )
+
+/** [this], with the accounts it holds without a currency in euros, the backup's base currency. */
+private fun NivyCompleteData.withCashInEuros() =
+    copy(accounts = accounts.map { if (it.currency == null) it.copy(currency = "EUR") else it })

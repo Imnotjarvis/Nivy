@@ -228,7 +228,8 @@ class BackupDataUseCaseTest {
     fun `a Nivy backup comes back whole, and so does the backup made of it`() = runTest {
         // given: a backup written by hand, with every kind of row a Nivy backup carries
         val file = testResource("backups/nivy-2026-11.json").readText()
-        val inFile = json.decodeFromString<NivyCompleteData>(file).tables()
+        // The cash account it holds without a currency comes in with the backup's, EUR.
+        val inFile = json.decodeFromString<NivyCompleteData>(file).tables().withCashInEuros()
 
         // when
         val restored = Wallet()
@@ -325,6 +326,23 @@ class BackupDataUseCaseTest {
             appPreferences.showNotifications() shouldBe false
             appPreferences.hideCurrentBalance() shouldBe true
         }
+
+    @Test
+    fun `a backup's account without a currency takes the backup's base currency`() = runTest {
+        // given
+        val accountDao = FakeAccountDao()
+        val useCase = newBackupDataUseCase(accountDao = accountDao)
+        val backup = NivyCompleteData(
+            accounts = listOf(AccountEntity(name = "Cash", currency = null, color = 2)),
+            settings = listOf(SettingsBackup(theme = Theme.AUTO, currency = "EUR", bufferAmount = 0.0, name = "")),
+        )
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then
+        accountDao.findAll().single().currency shouldBe "EUR"
+    }
 
     @Test
     fun `two same-named accounts in a backup stay two accounts`() = runTest {
@@ -650,3 +668,7 @@ private val NivyBackupBalances = mapOf(
     "aaaaaaaa-0000-4000-8000-000000000005" to 1000.0, // Brokerage
     "aaaaaaaa-0000-4000-8000-000000000006" to 500.0, // Old savings, archived
 )
+
+/** [this], with the accounts it holds without a currency in euros, the backup's base currency. */
+private fun NivyCompleteData.withCashInEuros() =
+    copy(accounts = accounts.map { if (it.currency == null) it.copy(currency = "EUR") else it })

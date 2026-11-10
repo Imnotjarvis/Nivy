@@ -32,6 +32,8 @@ import com.nivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
 import com.nivy.data.db.dao.write.WriteTagDao
 import com.nivy.data.db.dao.write.WriteTransactionDao
+import com.nivy.data.db.entity.AccountEntity
+import com.nivy.data.db.hasCurrency
 import com.nivy.data.db.keepTransfersOfDeletedAccounts
 import com.nivy.data.file.FileSystem
 import com.nivy.data.preferences.AppPreferences
@@ -299,7 +301,10 @@ class BackupDataUseCase @Inject constructor(
             transactionWriter.saveMany(completeData.transactions)
             onProgress(ImportProgress.TRANSACTIONS_SAVED)
 
-            accountWriter.saveMany(completeData.accounts)
+            // An account the backup holds without a currency takes the backup's base currency, as
+            // the app that wrote it showed it, not whatever the base currency is when it's read.
+            val currency = completeData.settings.firstOrNull()?.currency ?: appPreferences.baseCurrency()
+            accountWriter.saveMany(completeData.accounts.map { it.withCurrency(currency) })
             budgetWriter.saveMany(completeData.budgets)
             categoryWriter.saveMany(completeData.categories)
             onProgress(ImportProgress.BUDGETS_AND_CATEGORIES_SAVED)
@@ -320,6 +325,9 @@ class BackupDataUseCase @Inject constructor(
             onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }
+
+    private fun AccountEntity.withCurrency(currency: String?): AccountEntity =
+        if (currency == null || hasCurrency()) this else copy(currency = currency)
 
     /** The settings a backup carries, applied once its data is in. */
     private suspend fun applySettings(completeData: NivyCompleteData) {
