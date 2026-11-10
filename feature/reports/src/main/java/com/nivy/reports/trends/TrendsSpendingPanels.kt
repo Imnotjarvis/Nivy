@@ -221,7 +221,7 @@ internal fun FixedFlexiblePanel(
         },
     ) {
         StackedBars(
-            series = listOf(months.map { it.fixed }, months.map { it.expense - it.fixed }),
+            series = listOf(months.map { it.fixed }, months.map { it.flexible }),
             colors = listOf(fixedColor, flexibleColor),
             selected = selected,
             height = BarsHeight,

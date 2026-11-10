@@ -28,9 +28,10 @@ class MonthStatsTest {
 
         habits.spent shouldBe (352.85 plusOrMinus Cent)
         habits.perDay shouldBe (39.21 plusOrMinus Cent)
-        habits.purchases shouldBe 17
-        habits.median shouldBe (10.99 plusOrMinus Cent)
-        habits.average shouldBe (20.76 plusOrMinus Cent)
+        // The habit tiles count the purchases made by choice: not Spotify's and Netflix's.
+        habits.purchases shouldBe 15
+        habits.median shouldBe (9.60 plusOrMinus Cent)
+        habits.average shouldBe (327.87 / 15 plusOrMinus Cent)
         habits.biggest?.title shouldBe "Home goods"
         habits.savedShare!! shouldBe ((1_650.0 - 352.85) / 1_650.0 plusOrMinus Cent)
     }
@@ -41,12 +42,12 @@ class MonthStatsTest {
 
         habits.busiest shouldBe DayOfWeek.THURSDAY
         habits.byWeekday[DayOfWeek.THURSDAY.ordinal] shouldBe (130.30 plusOrMinus Cent)
-        // Three weekend days at 154.30 in all, six weekdays at 198.55.
-        habits.weekendRatio!! shouldBe (154.30 / 3 / (198.55 / 6) plusOrMinus Cent)
+        // Three weekend days at 154.30 in all, six weekdays at 173.57 without the subscriptions.
+        habits.weekendRatio!! shouldBe (154.30 / 3 / (173.57 / 6) plusOrMinus Cent)
         habits.noSpendDays shouldBe 2
-        // Morning, afternoon, evening, night.
-        val amounts = habits.timeOfDay!!.map { it * 352.85 }
-        amounts[0] shouldBe (66.98 plusOrMinus Cent)
+        // Morning, afternoon, evening, night, of the purchases made by choice.
+        val amounts = habits.timeOfDay!!.map { it * 327.87 }
+        amounts[0] shouldBe (42.00 plusOrMinus Cent)
         amounts[1] shouldBe (136.66 plusOrMinus Cent)
         amounts[2] shouldBe (136.31 plusOrMinus Cent)
         amounts[Night] shouldBe (12.90 plusOrMinus Cent)
@@ -59,16 +60,16 @@ class MonthStatsTest {
         val habits = habits(untimed)!!
 
         habits.timeOfDay!!.sum() shouldBe (1.0 plusOrMinus Cent)
-        habits.timeOfDay[Night] shouldBe (12.90 / 352.85 plusOrMinus Cent)
+        habits.timeOfDay[Night] shouldBe (12.90 / 327.87 plusOrMinus Cent)
     }
 
     @Test
     fun `sizes and small purchases, in bands from the edges`() {
         val habits = november()!!
 
-        habits.sizes.map { it.count } shouldBe listOf(4, 7, 4, 2, 0)
-        habits.small.count shouldBe 11
-        habits.small.share shouldBe (78.24 / 352.85 plusOrMinus Cent)
+        habits.sizes.map { it.count } shouldBe listOf(4, 5, 4, 2, 0)
+        habits.small.count shouldBe 9
+        habits.small.share shouldBe (53.26 / 327.87 plusOrMinus Cent)
     }
 
     @Test
@@ -98,6 +99,32 @@ class MonthStatsTest {
         habits.topPlace!!.name shouldBe "Bar Roma"
         habits.topPlace.visits shouldBe 6
         habits.places.map { it.name } shouldBe listOf("Bar Roma", "Lidl", "Uber", "Bakery")
+    }
+
+    @Test
+    fun `a day with only a bill or a subscription is a day without spending`() {
+        val habits = habits(Purchases + spend(3, 9, "Gym", Leisure, 35.0, recurring = true))!!
+
+        // The 3rd and the 6th.
+        habits.noSpendDays shouldBe 2
+    }
+
+    @Test
+    fun `days without spending count from the first paid transaction's day`() {
+        val habits = habits(Purchases, trackedSince = LocalDate.of(2026, 11, 4))!!
+
+        // Of the 4th to the 9th, the 6th.
+        habits.noSpendDays shouldBe 1
+        habits.trackedDays shouldBe 6
+    }
+
+    @Test
+    fun `a month of bills and subscriptions only has no typical purchase`() {
+        val habits = habits(listOf(spend(2, 7, "Spotify", Subscriptions, 10.99, recurring = true)))!!
+
+        habits.purchases shouldBe 0
+        habits.median.shouldBeNull()
+        habits.fixed.amount shouldBe (10.99 + 745.55 plusOrMinus Cent)
     }
 
     @Test
@@ -176,9 +203,10 @@ class MonthStatsTest {
 
     private fun november(): Habits? = habits(Purchases)
 
-    private fun habits(spends: List<Flow>): Habits? = habits(
+    private fun habits(spends: List<Flow>, trackedSince: LocalDate? = null): Habits? = habits(
         spends = spends,
         elapsed = (1..9).map { LocalDate.of(2026, 11, it) },
+        trackedSince = trackedSince,
         daysInMonth = 30,
         income = 1_650.0,
         outgoing = spends.sumOf { it.amount },

@@ -65,11 +65,14 @@ data class MonthTrend(
     val expense: Double,
     // At the month's end, or now for the current month.
     val netWorth: Double,
-    // Of the expenses, the bills and subscriptions that planned payments made.
+    // Of the purchases, the bills and subscriptions that planned payments made: loans' money isn't one.
     val fixed: Double,
     val habits: MonthHabits,
 ) {
     val saved: Double get() = income - expense
+
+    // Of the purchases, those made by choice: with [fixed], what fixed and flexible split.
+    val flexible: Double get() = habits.spent
 
     // Of the income, the share saved; null without income.
     val savingsRate: Double? get() = if (income > 0) saved / income else null

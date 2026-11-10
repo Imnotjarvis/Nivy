@@ -160,19 +160,26 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                     stringResource(R.string.month_a_day, (habits.purchases.toDouble() / habits.days).formatDecimals(1)),
                 )
             )
-            add(
-                Stat(
-                    stringResource(R.string.month_typical_purchase),
-                    amountAndCode(habits.median, currency),
-                    stringResource(R.string.month_average_amount, habits.average.format(currency), currency),
+            val median = habits.median
+            val average = habits.average
+            if (median != null && average != null) {
+                add(
+                    Stat(
+                        stringResource(R.string.month_typical_purchase),
+                        amountAndCode(median, currency),
+                        stringResource(R.string.month_average_amount, average.format(currency), currency),
+                    )
                 )
-            )
+            }
             habits.busiest?.let {
                 add(
                     Stat(
                         stringResource(R.string.month_busiest_day),
                         weekdayName(it, TextStyle.FULL),
-                        stringResource(R.string.month_of_spending, percent(habits.byWeekday.max() / habits.spent)),
+                        stringResource(
+                            R.string.month_of_spending,
+                            percent(habits.byWeekday.max() / habits.chosenSpent),
+                        ),
                     )
                 )
             }
@@ -189,7 +196,7 @@ internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, o
                 Stat(
                     stringResource(R.string.month_no_spend_days),
                     "${habits.noSpendDays}",
-                    pluralStringResource(R.plurals.month_of_days_so_far, habits.days, habits.days),
+                    pluralStringResource(R.plurals.month_of_days_so_far, habits.trackedDays, habits.trackedDays),
                 )
             )
             add(

@@ -10,8 +10,12 @@ import com.nivy.wallet.domain.pure.spending.DayParts
 import com.nivy.wallet.domain.pure.spending.EveningPart
 import com.nivy.wallet.domain.pure.spending.Flow
 import com.nivy.wallet.domain.pure.spending.Weekend
+import com.nivy.wallet.domain.pure.spending.chosen
+import com.nivy.wallet.domain.pure.spending.fixed
 import com.nivy.wallet.domain.pure.spending.median
+import com.nivy.wallet.domain.pure.spending.noSpendDays
 import com.nivy.wallet.domain.pure.spending.percentile
+import com.nivy.wallet.domain.pure.spending.trackedSince
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -96,22 +100,21 @@ internal fun monthTrend(
     val days = month.days.toSet()
     val inMonth = flows.filter { it.day in days }
     val expenses = inMonth.filter { !it.income }
-    val purchases = expenses.filter { it.habit }
+    val purchases = expenses.chosen()
     val timed = purchases.filter { it.timed }
-    val tracked = month.days.filter { !it.isBefore(trackedSince) && !it.isAfter(today) }
-    val spendDays = purchases.map { it.day }.toSet()
+    val tracked = month.days.trackedSince(trackedSince).filter { !it.isAfter(today) }
     return MonthTrend(
         period = month.period,
         complete = month.complete,
         income = inMonth.filter { it.income }.sumOf { it.amount },
         expense = expenses.sumOf { it.amount },
         netWorth = netWorth,
-        fixed = expenses.filter { it.recurring }.sumOf { it.amount },
+        fixed = expenses.fixed().sumOf { it.amount },
         habits = MonthHabits(
             purchases = purchases.size,
             spent = purchases.sumOf { it.amount },
             typical = median(purchases.map { it.amount }),
-            noSpendDays = tracked.count { it !in spendDays },
+            noSpendDays = noSpendDays(tracked, purchases),
             days = tracked.size,
             weekend = purchases.filter { it.made.dayOfWeek in Weekend }.sumOf { it.amount },
             small = purchases.filter { it.amount < smallEdge }.sumOf { it.amount },

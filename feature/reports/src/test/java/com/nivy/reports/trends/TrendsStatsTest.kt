@@ -57,6 +57,17 @@ class TrendsStatsTest {
     }
 
     @Test
+    fun `fixed and flexible are purchases only, and a planned loan repayment is neither`() {
+        val repayment = spend(Oct(15), 200.0, recurring = true, purchase = false)
+
+        val trend = monthTrend(October, OctoberFlows + repayment, 5_000.0, 15.0, Today, LongAgo)
+
+        trend.fixed shouldBe 550.0
+        // The groceries and the coffee.
+        trend.flexible shouldBe 24.0
+    }
+
+    @Test
     fun `days before the app was used aren't days without spending, nor is the month full`() {
         val trend = monthTrend(October, OctoberFlows, 0.0, 15.0, Today, trackedSince = LocalDate.of(2026, 10, 5))
 
