@@ -9,6 +9,7 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Budget
 import com.nivy.data.model.BudgetId
+import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.PositiveValue
@@ -211,6 +212,33 @@ class PieChartStatisticViewModelTest {
         }
     }
 
+    @Test
+    fun `a tap on the Unspecified slice selects it, its card first, and a second tap clears it`() {
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byCategory
+        val selectUnspecified = PieChartStatisticEvent.OnCategoryClicked(SelectedCategory(category = null))
+
+        viewModel.runTest(events = listOf(start, selectUnspecified)) {
+            selectedCategory shouldBe SelectedCategory(category = null)
+            categoryAmounts.map { it.category } shouldBe listOf(null, groceriesCategory)
+        }
+        viewModel.runTest(events = listOf(selectUnspecified)) {
+            selectedCategory shouldBe null
+            categoryAmounts.map { it.category } shouldBe listOf(groceriesCategory, null)
+        }
+    }
+
+    @Test
+    fun `a tap off the slices clears the selection, Unspecified's too`() {
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byCategory
+        val selectUnspecified = PieChartStatisticEvent.OnCategoryClicked(SelectedCategory(category = null))
+        val tapOffTheSlices = PieChartStatisticEvent.OnCategoryClicked(null)
+
+        viewModel.runTest(events = listOf(start, selectUnspecified, tapOffTheSlices)) {
+            selectedCategory shouldBe null
+            categoryAmounts.map { it.category } shouldBe listOf(groceriesCategory, null)
+        }
+    }
+
     private val start = PieChartStatisticEvent.OnStart(PieChartStatisticScreen(type = TransactionType.EXPENSE))
     private val card = account(AccountId(UUID.randomUUID())).copy(name = NotBlankTrimmedString.unsafe("Card"))
 
@@ -221,6 +249,24 @@ class PieChartStatisticViewModelTest {
             categoryAmounts = persistentListOf(),
             accountAmounts = persistentListOf(AccountAmount(account(bank), 70.0), AccountAmount(card, 20.0)),
             accountsCovered = 2,
+        )
+
+    private val groceriesCategory = Category(
+        id = groceries,
+        name = NotBlankTrimmedString.unsafe("Groceries"),
+        color = ColorInt(0),
+        icon = null,
+        orderNum = 0.0,
+    )
+
+    // Groceries took 70.00 EUR of the month's expenses; 20.00 EUR went without a category.
+    private val byCategory
+        get() = PieChartData(
+            totalAmount = 90.0,
+            categoryAmounts = persistentListOf(
+                CategoryAmount(groceriesCategory, 70.0),
+                CategoryAmount(null, 20.0, isCategoryUnspecified = true),
+            ),
         )
 
     private fun budget(name: String, categories: List<CategoryId>) = Budget(
