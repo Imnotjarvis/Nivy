@@ -341,8 +341,7 @@ class NivyRoomDatabaseMigrationTest {
     @Test
     fun migrateAll() {
         // given:
-        // Create earliest version of the database:
-        // for Ivy Wallet versions below 106 are broken :/
+        // Create the oldest version the migrations start from (docs/database.md).
         helper.createDatabase(TestDb, 106).apply {
             close()
         }

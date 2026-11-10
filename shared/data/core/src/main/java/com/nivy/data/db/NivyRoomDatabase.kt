@@ -44,7 +44,6 @@ import com.nivy.data.db.entity.PlannedPaymentRuleEntity
 import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.db.entity.TransactionEntity
-import com.nivy.data.db.migration.Migration105to106_TrnRecurringRules
 import com.nivy.data.db.migration.Migration106to107_Wishlist
 import com.nivy.data.db.migration.Migration107to108_Sync
 import com.nivy.data.db.migration.Migration108to109_Users
@@ -128,8 +127,8 @@ abstract class NivyRoomDatabase : RoomDatabase() {
     companion object {
         const val DB_NAME = "ivywallet.db"
 
+        // From version 106, the oldest database a migration can start from: see docs/database.md.
         fun migrations() = arrayOf(
-            Migration105to106_TrnRecurringRules(),
             Migration106to107_Wishlist(),
             Migration107to108_Sync(),
             Migration108to109_Users(),
