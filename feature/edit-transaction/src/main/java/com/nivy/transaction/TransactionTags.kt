@@ -6,7 +6,6 @@ import com.nivy.data.model.primitive.AssociationId
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.mapper.TagMapper
-import com.nivy.wallet.utils.toLowerCaseLocal
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
@@ -27,7 +26,7 @@ class TransactionTags @Inject constructor(
 
     /** Saves a tag named [name] and returns all tags, or null when the name is blank. */
     suspend fun saveTag(name: String): ImmutableList<Tag>? =
-        NotBlankTrimmedString.from(name.toLowerCaseLocal())
+        NotBlankTrimmedString.from(name.lowercase())
             .map {
                 val tag = with(tagMapper) { createNewTag(name = it) }
                 tagRepository.save(tag)
@@ -49,7 +48,7 @@ class TransactionTags @Inject constructor(
 
     /** The tags with [query] in their name, or all of them when it's blank. */
     suspend fun searchTags(query: String): ImmutableList<Tag> =
-        NotBlankTrimmedString.from(query.toLowerCaseLocal()).fold(
+        NotBlankTrimmedString.from(query.lowercase()).fold(
             ifLeft = { tagRepository.findAll().toImmutableList() },
             ifRight = { tagRepository.findByText(text = it.value).toImmutableList() },
         )

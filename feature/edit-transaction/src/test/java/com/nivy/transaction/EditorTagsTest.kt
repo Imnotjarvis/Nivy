@@ -84,6 +84,25 @@ class EditorTagsTest {
     }
 
     @Test
+    fun `a search typed quickly runs once, for what was typed last`() = runTest {
+        // given
+        coEvery { transactionTags.searchTags("w") } returns persistentListOf(holiday, work)
+        coEvery { transactionTags.searchTags("wo") } returns persistentListOf(work)
+        val tags = editorTags()
+
+        // when "w", then "wo" before the search waits out
+        tags.onEvent(TagEvent.OnTagSearch("w"))
+        advanceTimeBy(100)
+        tags.onEvent(TagEvent.OnTagSearch("wo"))
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 0) { transactionTags.searchTags("w") }
+        coVerify(exactly = 1) { transactionTags.searchTags("wo") }
+        tags.all shouldBe persistentListOf(work)
+    }
+
+    @Test
     fun `an added tag is saved and listed, then what follows an added tag runs`() = runTest {
         // given
         coEvery { transactionTags.saveTag("Work") } returns persistentListOf(holiday, work)
