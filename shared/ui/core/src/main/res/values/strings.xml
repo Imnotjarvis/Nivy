@@ -258,6 +258,30 @@
     </plurals>
     <string name="month_versus">vs %1$s</string>
     <string name="month_new">new</string>
+    <!-- The net worth screen's outlook: what the rest of the month likely holds -->
+    <string name="month_likely">Likely</string>
+    <string name="month_likely_lowest">Likely lowest %1$s %2$s, around %3$s</string>
+    <string name="month_stays_above">Likely stays above %1$s %2$s</string>
+    <string name="month_usually_a_day">You usually spend %1$s %2$s a day</string>
+    <string name="month_likely_left">At your usual pace, about %1$s %2$s left by %3$s</string>
+    <string name="month_likely_short">At your usual pace, about %1$s %2$s short by %3$s</string>
+    <string name="month_likely_range">Likely %1$s to %2$s %3$s</string>
+    <string name="month_likely_range_short">Likely %1$s to %2$s %3$s short</string>
+    <string name="month_likely_range_either">Likely %1$s %3$s short to %2$s %3$s left</string>
+    <string name="month_likely_by">Likely %1$s %2$s by %3$s</string>
+    <string name="month_likely_more">%1$s, %2$s %3$s more than %4$s</string>
+    <string name="month_likely_less">%1$s, %2$s %3$s less than %4$s</string>
+    <string name="month_likely_spent">Likely spent</string>
+    <string name="month_by_day">by %1$s</string>
+    <string name="month_out_of_the_ordinary">Out of the ordinary</string>
+    <string name="month_usually_highest">Usually %1$s %2$s by now, the highest in %3$d months</string>
+    <string name="month_usually_lowest">Usually %1$s %2$s by now, the lowest in %3$d months</string>
+    <string name="month_usually_higher">Usually %1$s %2$s by now, higher than %3$d of the last %4$d months</string>
+    <string name="month_usually_lower">Usually %1$s %2$s by now, lower than %3$d of the last %4$d months</string>
+    <string name="month_biggest_in">your biggest %1$s purchase in %2$d months</string>
+    <string name="month_biggest_any_in">your biggest purchase in %1$d months</string>
+    <string name="month_biggest_since">your biggest %1$s purchase since %2$s</string>
+    <string name="month_biggest_any_since">your biggest purchase since %1$s</string>
     <string name="month_same">same</string>
     <string name="month_places">Places you go back to</string>
     <string name="month_place_note">%1$d times, %2$s %3$s each</string>
@@ -525,6 +549,18 @@
     <string name="trends_biggest_changes">Biggest changes</string>
     <string name="trends_last_three_months">last 3 months</string>
     <string name="trends_from">from %1$s %2$s</string>
+    <!-- Trends' outlook and habit shifts -->
+    <string name="trends_likely">Likely</string>
+    <string name="trends_likely_milestone">%1$s %2$s likely by %3$s</string>
+    <string name="trends_likely_between">Likely %1$s to %2$s</string>
+    <string name="trends_likely_or_later">Likely %1$s or later</string>
+    <string name="trends_likely_end">By %1$s, likely %2$s %3$s</string>
+    <string name="trends_habit_shifts">Habit shifts</string>
+    <string name="trends_full_months">full months</string>
+    <string name="trends_up_since">Up since %1$s, from %2$s to %3$s %4$s a month</string>
+    <string name="trends_down_since">Down since %1$s, from %2$s to %3$s %4$s a month</string>
+    <string name="trends_rising">Rising steadily, about %1$s %2$s more each month</string>
+    <string name="trends_falling">Falling steadily, about %1$s %2$s less each month</string>
     <string name="trends_a_month_plain">a month</string>
     <string name="trends_fixed_grew">Fixed costs grew %1$s %2$s</string>
     <string name="trends_fixed_fell">Fixed costs fell %1$s %2$s</string>

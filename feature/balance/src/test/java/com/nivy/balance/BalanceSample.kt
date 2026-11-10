@@ -7,11 +7,14 @@ import com.nivy.balance.detail.Holding
 import com.nivy.balance.detail.Holdings
 import com.nivy.balance.detail.MonthDetail
 import com.nivy.balance.detail.Pace
+import com.nivy.balance.detail.PastMonth
 import com.nivy.balance.detail.Spend
 import com.nivy.balance.detail.Upcoming
 import com.nivy.balance.detail.habits
 import com.nivy.balance.detail.lowestAhead
+import com.nivy.balance.detail.monthOutlook
 import com.nivy.balance.detail.runway
+import com.nivy.balance.detail.unusual
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeProvider
@@ -29,16 +32,20 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.util.SizeEdgesInEuros
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.YearMonth
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.random.Random
 
 /**
  * The net worth screen on November 9th, 2026, a Monday, for its screenshots: nine days of a
- * month's purchases and the planned payments still to come, figured as the screen figures them.
+ * month's purchases and the planned payments still to come, after a made-up year's, figured as the
+ * screen figures them.
  */
 internal object BalanceSample {
     /** November 9, 2026, noon, in UTC. */
@@ -100,11 +107,58 @@ internal object BalanceSample {
         Upcoming(Days[27], "Cloud storage", Subscriptions, CreditCard, TransactionType.EXPENSE, -2.99),
     )
 
+    // January to October, the same every time: everyday purchases, bills and subscriptions, a sofa
+    // in March, and more rides than lately.
+    private val Past: List<Spend> = run {
+        val random = Random(23)
+        generateSequence(LocalDate.of(2026, 1, 1)) { it.plusDays(1) }
+            .takeWhile { it.isBefore(Days.first()) }
+            .flatMap { day ->
+                val weekend = day.dayOfWeek == DayOfWeek.SATURDAY || day.dayOfWeek == DayOfWeek.SUNDAY
+                buildList {
+                    if (day.dayOfMonth == 2) add(spend(day, 7, "Spotify", Subscriptions, 10.99, recurring = true))
+                    if (day.dayOfMonth == 4) add(spend(day, 6, "Netflix", Subscriptions, 13.99, recurring = true))
+                    if (day.dayOfMonth == 10) add(spend(day, 8, "Gym", Leisure, 35.0, recurring = true))
+                    if (day.dayOfMonth == 18) {
+                        add(spend(day, 9, "Electricity", Bills, 40.0 + random.nextInt(30), recurring = true))
+                    }
+                    if (day.dayOfMonth == 25) add(spend(day, 9, "Rent", Housing, 550.0, recurring = true))
+                    if (day.dayOfMonth == 28) add(spend(day, 3, "Cloud storage", Subscriptions, 2.99, recurring = true))
+                    if (day == LocalDate.of(2026, 3, 21)) add(spend(day, 15, "Sofa", Shopping, 480.0))
+                    if (random.nextInt(3) == 0) {
+                        val title = if (random.nextBoolean()) "Lidl" else "Bakery"
+                        add(spend(day, 18, title, Groceries, 6.0 + random.nextInt(30)))
+                    }
+                    if (!weekend && random.nextInt(100) < 35) {
+                        add(spend(day, 8, "Bar Roma", EatingOut, 2.5 + random.nextInt(3)))
+                    }
+                    if (weekend && random.nextInt(100) < 18) {
+                        add(spend(day, 20, "Trattoria", EatingOut, 22.0 + random.nextInt(30)))
+                    }
+                    if (random.nextInt(100) < 45) add(spend(day, 9, "Uber", Transport, 12.0 + random.nextInt(18)))
+                    if (random.nextInt(12) == 0) add(spend(day, 16, "Home goods", Shopping, 20.0 + random.nextInt(90)))
+                    if (day.dayOfWeek == DayOfWeek.FRIDAY && random.nextInt(3) == 0) {
+                        add(spend(day, 21, "Cinema", Leisure, 12.0 + random.nextInt(12)))
+                    }
+                }
+            }.toList()
+    }
+
     // What October's purchases came to on each of its days.
-    private val October = listOf(
-        42.10, 18.40, 0.0, 61.25, 12.80, 96.40, 25.10, 0.0, 154.15, 33.60, 8.20, 0.0, 47.90, 22.35, 11.80, 74.60,
-        0.0, 29.40, 15.75, 0.0, 38.20, 66.10, 9.90, 0.0, 120.45, 14.30, 0.0, 27.80, 31.25, 18.60, 45.95,
-    )
+    private val October = (1..31).map { day ->
+        Past.filter { it.day == LocalDate.of(2026, 10, day) }.sumOf { it.amount }
+    }
+
+    // The everyday spending of each day from August to yesterday, which the outlook draws on.
+    private val History: Map<LocalDate, Double> =
+        generateSequence(LocalDate.of(2026, 8, 1)) { it.plusDays(1) }.takeWhile { it.isBefore(Today) }
+            .associateWith { day -> (Past + Purchases).filter { it.day == day && !it.recurring }.sumOf { it.amount } }
+
+    private val PastMonths = (1..10).map { month ->
+        val inMonth = YearMonth.of(2026, month)
+        val days = (1..inMonth.lengthOfMonth()).map(inMonth::atDay)
+        PastMonth(inMonth, days, Past.filter { YearMonth.from(it.day) == inMonth })
+    }
 
     private val Detail: MonthDetail = run {
         val spentByDay = Days.map { day -> Purchases.filter { it.day == day }.sumOf { it.amount } }
@@ -116,6 +170,7 @@ internal object BalanceSample {
         val spent = Purchases.sumOf { it.amount }
         val plannedExpenses = ComingUp.filter { it.type == TransactionType.EXPENSE }.map { -it.amount }
         val left = Income + 60.0 - spent - plannedExpenses.sum()
+        val free = FreeToSpend(perDay = left / 21, daysLeft = 21, spent = spent, left = left)
         val elapsed = Days.take(9)
         val holdings = listOf(
             Holding(MainBank, 6_240.30),
@@ -130,7 +185,7 @@ internal object BalanceSample {
             actualDays = elapsed.size,
             sinceStart = balances[8] - StartBalance,
             lowest = lowestAhead(Days, balances, elapsed.size),
-            freeToSpend = FreeToSpend(perDay = left / 21, daysLeft = 21, spent = spent, left = left),
+            freeToSpend = free,
             comingUp = ComingUp.take(5).toImmutableList(),
             moreComingUp = ComingUp.size - 5,
             spentByDay = spentByDay.toImmutableList(),
@@ -148,13 +203,9 @@ internal object BalanceSample {
                 income = Income,
                 outgoing = spent,
                 plannedExpenses = plannedExpenses,
-                previous = mapOf(
-                    Groceries to 72.90,
-                    EatingOut to 34.80,
-                    Transport to 46.20,
-                    Subscriptions to 24.98,
-                    Leisure to 24.0,
-                ),
+                previous = Past.filter { it.day.monthValue == 10 && it.day.dayOfMonth <= 9 }
+                    .groupBy { it.category }
+                    .mapValues { (_, inCategory) -> inCategory.sumOf { it.amount } },
                 edges = SizeEdgesInEuros,
             ),
             holdings = Holdings(
@@ -164,8 +215,25 @@ internal object BalanceSample {
             ),
             runway = runway(
                 netWorth = holdings.sumOf { it.amount },
-                monthlySpending = listOf(1_240.0, 1_105.60, 1_312.80)
+                monthlySpending = (8..10).map { month ->
+                    Past.filter { it.day.monthValue == month }.sumOf { it.amount }
+                },
             ),
+            outlook = monthOutlook(
+                days = Days,
+                actualDays = elapsed.size,
+                balances = balances,
+                spentSoFar = spent,
+                planned = (elapsed.size - 1 until Days.size).map { index ->
+                    ComingUp.filter { it.type == TransactionType.EXPENSE && !it.day.isAfter(Days[index]) }
+                        .filter { it.day.isAfter(Today) }
+                        .sumOf { -it.amount }
+                },
+                history = History,
+                free = free,
+                random = Random(Today.toEpochDay()),
+            ),
+            unusual = unusual(Purchases, elapsed.size, PastMonths, atLeast = 10.0),
         )
     }
 
@@ -187,10 +255,21 @@ internal object BalanceSample {
         amount: Double,
         recurring: Boolean = false,
         account: Account = MainBank,
+    ) = spend(LocalDate.of(2026, 11, day), hour, title, category, amount, recurring, account)
+
+    @Suppress("LongParameterList")
+    private fun spend(
+        day: LocalDate,
+        hour: Int,
+        title: String,
+        category: Category,
+        amount: Double,
+        recurring: Boolean = false,
+        account: Account = MainBank,
     ) = Spend(
         amount = amount,
-        day = LocalDate.of(2026, 11, day),
-        made = LocalDateTime.of(2026, 11, day, hour, 0),
+        day = day,
+        made = day.atTime(hour, 0),
         title = title,
         category = category,
         account = account,

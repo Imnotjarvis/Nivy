@@ -32,6 +32,8 @@ import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -79,6 +81,7 @@ class MonthDetailUseCaseTest {
             val (from, to) = firstArg<Instant>() to secondArg<Instant>()
             transactions.filter { !it.settled && it.time in from..to }
         }
+        coEvery { findFirstPaidTime() } answers { transactions.filter { it.settled }.minOfOrNull { it.time } }
     }
 
     // The wallet's balance is 10,000 euros before any of these, plus what was paid by then in
@@ -106,7 +109,7 @@ class MonthDetailUseCaseTest {
     private val useCase = MonthDetailUseCase(
         transactionRepository = transactionRepository,
         accountRepository = mockk<AccountRepository> { coEvery { findAll() } answers { accounts.toList() } },
-        categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns listOf(Shopping) },
+        categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns listOf(Shopping, Groceries) },
         walletBalanceUseCase = walletBalanceUseCase,
         accountBalanceUseCase = accountBalanceUseCase,
         exchangeUseCase = exchangeUseCase,
@@ -263,6 +266,8 @@ class MonthDetailUseCaseTest {
         detail.plannedDays shouldBe emptySet()
         detail.habits!!.purchases shouldBe 2
         detail.pace!!.previousMonth shouldBe Month.fromMonthValue(9)
+        detail.outlook.shouldBeNull()
+        detail.unusual.shouldBeNull()
     }
 
     @Test
@@ -278,6 +283,89 @@ class MonthDetailUseCaseTest {
         detail.habits.shouldBeNull()
         detail.pace.shouldBeNull()
         detail.freeToSpend.shouldBeNull()
+    }
+
+    @Test
+    fun `the outlook spends ahead as the everyday days before did, on top of what's planned`() = runTest {
+        // given 10 euros of everyday spending each day from October 2nd to yesterday, and a bill
+        transactions.removeAll { it is Expense && it.settled && it.time.isBefore(at(9, 0)) }
+        transactions += (2..31).map { day -> expense(day = day, month = 10, amount = 10.0, title = "Bakery") }
+        transactions += (1..8).map { day -> expense(day = day, amount = 10.0, title = "Bakery") }
+        transactions += expense(day = 15, month = 10, amount = 40.0, title = "Phone", recurring = true)
+
+        // when
+        val detail = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR")
+
+        // then every day ahead spends the 10 euros, and the bill was no everyday spending
+        val outlook = detail.outlook!!
+        outlook.perDay shouldBe (10.0 plusOrMinus Cent)
+        outlook.balances.size shouldBe 22
+        outlook.balances.first().likely shouldBe (detail.balances[8] plusOrMinus Cent)
+        outlook.balances.forEachIndexed { step, band ->
+            band.likely shouldBe (detail.balances[8 + step] - 10.0 * step plusOrMinus Cent)
+            band.low shouldBe (band.likely plusOrMinus Cent)
+            band.high shouldBe (band.likely plusOrMinus Cent)
+        }
+        // So far 80 of everyday spending and 20 on the card today; the fine overdue, the gym and the
+        // card's bill to come.
+        val spentSoFar = 80.0 + 20.0
+        outlook.spending.first().likely shouldBe (spentSoFar + 15.0 plusOrMinus Cent)
+        outlook.spending.last().likely shouldBe (spentSoFar + 15.0 + 35.0 + 550.0 + 210.0 plusOrMinus Cent)
+        outlook.left!!.likely shouldBe (detail.freeToSpend!!.left - 210.0 plusOrMinus Cent)
+        outlook.lowest!!.day shouldBe LocalDate.of(2026, 11, 30)
+    }
+
+    @Test
+    fun `the outlook spreads as the days before did, and holds still all day`() = runTest {
+        // when
+        val outlook = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR").outlook!!
+
+        // then
+        outlook.balances.forEach { band ->
+            band.low shouldBeLessThanOrEqualTo band.likely
+            band.likely shouldBeLessThanOrEqualTo band.high
+        }
+        outlook.balances.last().high shouldBeLessThan outlook.balances.last().low + 1_000.0
+        useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR").outlook shouldBe outlook
+    }
+
+    @Test
+    fun `there's no outlook without four weeks since the first paid transaction`() = runTest {
+        // given nothing paid before November
+        transactions.removeAll { it.time.isBefore(at(1, 0)) }
+
+        // when
+        val detail = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR")
+
+        // then
+        detail.outlook.shouldBeNull()
+    }
+
+    @Test
+    fun `what stands out is set against the months since the first paid transaction`() = runTest {
+        // given, from May 1st to October, 50 euros of groceries by the 9th and small purchases
+        transactions.removeAll { it.time.isBefore(at(1, 0)) }
+        transactions += (5..10).flatMap { month ->
+            listOf(
+                expense(day = 1, month = month, amount = 50.0, title = "Lidl", category = Groceries),
+                expense(day = 12, month = month, amount = 40.0, title = "Lidl", category = Groceries),
+                expense(day = 4, month = month, amount = 30.0 + month, title = "Shoes", category = Shopping),
+                expense(day = 20, month = month, amount = 20.0, title = "Socks", category = Shopping),
+            )
+        }
+        // and, by November 9th, 120 euros of groceries in purchases of the usual size
+        transactions += (5..8).map { day -> expense(day = day, amount = 30.0, title = "Lidl", category = Groceries) }
+
+        // when
+        val unusual = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR").unusual!!
+
+        // then groceries took more than by the 9th of any of the 6 months; the 130.30 of home goods
+        // are the biggest shopping in all of them, and the shopping this month, so it shows alone
+        unusual.categories shouldBe listOf(
+            UnusualCategory(Groceries, 120.0, usual = 50.0, beaten = 6, months = 6, higher = true)
+        )
+        unusual.purchases.map { it.title to it.since } shouldBe listOf("Home goods" to null)
+        unusual.purchases.single().months shouldBe 6
     }
 
     private companion object {
@@ -300,6 +388,13 @@ class MonthDetailUseCaseTest {
             color = ColorInt(0),
             icon = null,
             orderNum = 0.0,
+        )
+        val Groceries = Category(
+            id = CategoryId(UUID(9L, 2L)),
+            name = NotBlankTrimmedString.unsafe("Groceries"),
+            color = ColorInt(0),
+            icon = null,
+            orderNum = 1.0,
         )
 
         /** November 9, 2026, noon, in UTC: a Monday. */
@@ -345,6 +440,7 @@ class MonthDetailUseCaseTest {
             bought: Instant? = null,
             loan: Boolean = false,
             paid: Boolean = true,
+            recurring: Boolean = false,
         ) = Expense(
             id = TransactionId(UUID.randomUUID()),
             title = NotBlankTrimmedString.unsafe(title),
@@ -352,7 +448,11 @@ class MonthDetailUseCaseTest {
             category = category?.id,
             time = at(day, hour, month),
             settled = paid,
-            metadata = Metadata.copy(purchaseDateTime = bought, loanId = if (loan) UUID(7L, 7L) else null),
+            metadata = Metadata.copy(
+                purchaseDateTime = bought,
+                loanId = if (loan) UUID(7L, 7L) else null,
+                recurringRuleId = if (recurring) UUID(8L, 8L) else null,
+            ),
             tags = emptyList(),
             value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
             account = account.id,
