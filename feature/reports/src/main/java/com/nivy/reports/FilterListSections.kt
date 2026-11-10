@@ -41,7 +41,7 @@ fun ColumnScope.TagsFilter(
 ) {
     FilterTitleText(
         text = stringResource(R.string.tags_optional),
-        active = false
+        active = filter != null && (filter.includedTags.isNotEmpty() || filter.excludedTags.isNotEmpty())
     )
 
     Spacer(Modifier.height(12.dp))

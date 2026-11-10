@@ -71,6 +71,10 @@ data class ChoosePeriodModalData(
     val period: TimePeriod
 )
 
+/**
+ * Picks a period. [appWide]: the period chosen is also the one the app's screens show, as Home's
+ * and the account pages' choice is; a period that's a filter's own leaves theirs alone.
+ */
 @SuppressLint("ComposeModifierMissing")
 @Suppress("ParameterNaming")
 @Composable
@@ -79,6 +83,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
 
     dismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    appWide: Boolean = true,
     onPeriodSelected: (TimePeriod) -> Unit
 ) {
     // Closing clears the data: the dialog keeps showing the last while it fades out.
@@ -101,7 +106,7 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
                 enabled = period != null && period!!.isValid()
             ) {
                 if (period != null) {
-                    periodState.select(period!!)
+                    if (appWide) periodState.select(period!!)
                     dismiss()
                     onPeriodSelected(period!!)
                 }
