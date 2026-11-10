@@ -169,11 +169,14 @@ class OnboardingRouter(
     }
 
     suspend fun categoriesSkip(baseCurrency: NivyCurrency?) {
-        completeOnboarding(baseCurrency = baseCurrency)
-
+        // The starter categories first: completing shows Home, then waits for the exchange rates,
+        // which offline takes the download's timeouts, and a process closed meanwhile would leave
+        // a wallet with no categories and onboarding done.
         ioThread {
             starterData.preloadCategories()
         }
+
+        completeOnboarding(baseCurrency = baseCurrency)
     }
     // ------------------------------------- Step 5 -------------------------------------------------
 
