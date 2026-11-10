@@ -4,6 +4,8 @@ import androidx.compose.runtime.Immutable
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.spending.BiggestPurchase
+import com.nivy.wallet.domain.pure.spending.DayAmount
 import kotlinx.collections.immutable.ImmutableList
 import java.time.LocalDate
 import java.time.YearMonth
@@ -142,9 +144,6 @@ data class SpendingCalendar(
     val top: DayAmount?,
 )
 
-@Immutable
-data class DayAmount(val day: LocalDate, val amount: Double)
-
 /** The range's records; each null without one. */
 @Immutable
 data class Records(
@@ -158,9 +157,6 @@ data class Records(
 
 @Immutable
 data class MonthAmount(val period: TimePeriod, val amount: Double)
-
-@Immutable
-data class BiggestPurchase(val amount: Double, val title: String?, val category: Category?, val day: LocalDate)
 
 /** The days from [from] to [to], both counted. */
 @Immutable

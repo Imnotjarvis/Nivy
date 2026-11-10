@@ -1,37 +1,17 @@
 package com.nivy.balance.detail
 
-import androidx.compose.runtime.Immutable
-import com.nivy.data.model.Account
 import com.nivy.data.model.Category
+import com.nivy.wallet.domain.pure.spending.BiggestPurchase
+import com.nivy.wallet.domain.pure.spending.DayAmount
+import com.nivy.wallet.domain.pure.spending.DayParts
+import com.nivy.wallet.domain.pure.spending.Flow
+import com.nivy.wallet.domain.pure.spending.Weekend
+import com.nivy.wallet.domain.pure.spending.median
 import com.nivy.wallet.domain.pure.util.SmallPurchaseEdgeIndex
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-
-/**
- * A purchase, in the base currency: the [day] it counts on, the moment it was [made] (for a card,
- * when it was bought, not when it's charged), and what it was. [recurring] when a planned payment
- * made it: a bill or a subscription.
- */
-@Immutable
-internal data class Spend(
-    val amount: Double,
-    val day: LocalDate,
-    val made: LocalDateTime,
-    val title: String?,
-    val category: Category?,
-    val account: Account?,
-    val recurring: Boolean,
-)
-
-// The weekend, as most calendars have it.
-private val Weekend = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
-
-// The parts of the day, from the hour each starts: morning, afternoon, evening, night.
-private val DayParts = listOf(6 until 12, 12 until 18, 18 until 24, 0 until 6)
 
 // At most this many categories and places are listed.
 private const val ListedCategories = 6
@@ -44,7 +24,7 @@ private const val ListedPlaces = 4
  * what each category took over as many days of the month before.
  */
 internal fun habits(
-    spends: List<Spend>,
+    spends: List<Flow>,
     elapsed: List<LocalDate>,
     daysInMonth: Int,
     income: Double,
@@ -69,9 +49,9 @@ internal fun habits(
         days = elapsed.size,
         daysInMonth = daysInMonth,
         savedShare = if (income > 0) (income - outgoing) / income else null,
-        biggest = spends.maxBy { it.amount }.let { Biggest(it.amount, it.title, it.category, it.day) },
+        biggest = spends.maxBy { it.amount }.let { BiggestPurchase(it.amount, it.title, it.category, it.day) },
         purchases = spends.size,
-        median = median(amounts),
+        median = checkNotNull(median(amounts)) { "a month with spending has purchases" },
         average = spent / spends.size,
         byWeekday = byWeekday.toImmutableList(),
         busiest = DayOfWeek.entries[byWeekday.indexOf(byWeekday.max())],
@@ -93,13 +73,8 @@ internal fun habits(
     )
 }
 
-private fun median(sorted: List<Double>): Double {
-    val middle = sorted.size / 2
-    return if (sorted.size % 2 == 1) sorted[middle] else (sorted[middle - 1] + sorted[middle]) / 2
-}
-
 // A weekend day's spending over a weekday's, each on average over the days of its kind so far.
-private fun weekendRatio(spends: List<Spend>, elapsed: List<LocalDate>): Double? {
+private fun weekendRatio(spends: List<Flow>, elapsed: List<LocalDate>): Double? {
     val weekendDays = elapsed.count { it.dayOfWeek in Weekend }
     val weekdays = elapsed.size - weekendDays
     if (weekendDays == 0 || weekdays == 0) return null
@@ -110,15 +85,15 @@ private fun weekendRatio(spends: List<Spend>, elapsed: List<LocalDate>): Double?
 
 // Purchases made at midnight sharp have no time of their own, as imported ones often don't: they
 // stay out, and without any timed purchase there's no time of day to tell.
-private fun timeOfDay(spends: List<Spend>): ImmutableList<Double>? {
-    val timed = spends.filter { it.made.toLocalTime() != LocalTime.MIDNIGHT }
+private fun timeOfDay(spends: List<Flow>): ImmutableList<Double>? {
+    val timed = spends.filter { it.timed }
     val total = timed.sumOf { it.amount }
     if (total <= 0) return null
     return DayParts.map { hours -> timed.filter { it.made.hour in hours }.sumOf { it.amount } / total }
         .toImmutableList()
 }
 
-private fun sizeBands(spends: List<Spend>, spent: Double, edges: List<Double>): List<SizeBand> {
+private fun sizeBands(spends: List<Flow>, spent: Double, edges: List<Double>): List<SizeBand> {
     val bounds = listOf(0.0) + edges
     return bounds.mapIndexed { index, from ->
         val to = edges.getOrNull(index)
@@ -128,7 +103,7 @@ private fun sizeBands(spends: List<Spend>, spent: Double, edges: List<Double>): 
 }
 
 // The month's categories, the largest first, each with its change from the month before.
-private fun categoryChanges(spends: List<Spend>, previous: Map<Category?, Double>): List<CategoryChange> =
+private fun categoryChanges(spends: List<Flow>, previous: Map<Category?, Double>): List<CategoryChange> =
     spends.groupBy { it.category }
         .map { (category, inCategory) ->
             val amount = inCategory.sumOf { it.amount }
@@ -139,7 +114,7 @@ private fun categoryChanges(spends: List<Spend>, previous: Map<Category?, Double
         .take(ListedCategories)
 
 // The places gone back to, by the purchases' titles, whatever their case: the most visited first.
-private fun places(spends: List<Spend>): List<Place> =
+private fun places(spends: List<Flow>): List<Place> =
     spends.filter { !it.title.isNullOrBlank() }
         .groupBy { it.title.orEmpty().trim().lowercase() }
         .values

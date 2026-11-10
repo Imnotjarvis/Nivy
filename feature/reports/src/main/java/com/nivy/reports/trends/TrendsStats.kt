@@ -1,14 +1,20 @@
 package com.nivy.reports.trends
 
-import androidx.compose.runtime.Immutable
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.forecast.line
+import com.nivy.wallet.domain.pure.spending.BiggestPurchase
+import com.nivy.wallet.domain.pure.spending.DayAmount
+import com.nivy.wallet.domain.pure.spending.DayParts
+import com.nivy.wallet.domain.pure.spending.EveningPart
+import com.nivy.wallet.domain.pure.spending.Flow
+import com.nivy.wallet.domain.pure.spending.Weekend
+import com.nivy.wallet.domain.pure.spending.median
+import com.nivy.wallet.domain.pure.spending.percentile
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.abs
@@ -16,23 +22,6 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.pow
-
-/**
- * A paid income or expense of the accounts in the balance, in the base currency: the [day] it
- * counts on, and the moment it was [made] (for a card, when it was bought, not when it's charged).
- * [purchase] for an expense that isn't a loan's money; [recurring] when a planned payment made it.
- */
-@Immutable
-internal data class Flow(
-    val amount: Double,
-    val income: Boolean,
-    val day: LocalDate,
-    val made: LocalDateTime,
-    val title: String?,
-    val category: Category?,
-    val recurring: Boolean,
-    val purchase: Boolean,
-)
 
 /** A month of the trends: its period, its days, and whether it's over. */
 internal data class MonthSpan(val period: TimePeriod, val days: List<LocalDate>, val complete: Boolean)
@@ -53,13 +42,6 @@ private const val MilestoneMonthsAtMost = 120
 
 // The weeks of the spending calendar, at most.
 private const val CalendarWeeks = 26
-
-// The weekend, as most calendars have it.
-private val Weekend = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
-
-/** The parts of the day, from the hour each starts: morning, afternoon, evening, night. */
-internal val DayParts = listOf(6 until 12, 12 until 18, 18 until 24, 0 until 6)
-internal const val EveningPart = 2
 
 // The quartiles the spending calendar's darker days start from.
 private val CalendarLevels = listOf(0.25, 0.5, 0.75)
@@ -85,7 +67,7 @@ internal fun trends(
     val trend = months.mapIndexed { index, month ->
         monthTrend(month, inRange, netWorth[index], smallEdge, today, trackedSince)
     }
-    val pace = if (netWorth.size > 1) fit(netWorth).first else 0.0
+    val pace = if (netWorth.size > 1) line(netWorth).first else 0.0
     val current = months.lastOrNull()?.period?.let { YearMonth.of(it.year ?: today.year, it.month?.monthValue ?: 1) }
     return TrendsDetail(
         months = trend.toImmutableList(),
@@ -143,7 +125,7 @@ internal fun monthTrend(
 /** The net worth for the next months, along the line that best fits [netWorth]'s months. */
 internal fun forecast(netWorth: List<Double>, ahead: Int = ForecastMonths): List<Double> {
     if (netWorth.size < 2) return emptyList()
-    val (slope, _) = fit(netWorth)
+    val (slope, _) = line(netWorth)
     return (1..ahead).map { netWorth.last() + slope * it }
 }
 
@@ -165,18 +147,9 @@ internal fun milestone(netWorth: Double, pace: Double, now: YearMonth): Mileston
  */
 internal fun trendChange(values: List<Double>): Double? {
     if (values.size < 2) return null
-    val (slope, start) = fit(values)
+    val (slope, start) = line(values)
     if (start <= 0) return null
     return slope * (values.size - 1) / start
-}
-
-// The least-squares line through [values], one a step: its slope, and its value at the first.
-private fun fit(values: List<Double>): Pair<Double, Double> {
-    val middle = (values.size - 1) / 2.0
-    val mean = values.average()
-    val spread = values.indices.sumOf { (it - middle).pow(2) }
-    val slope = if (spread > 0) values.indices.sumOf { (it - middle) * (values[it] - mean) } / spread else 0.0
-    return slope to mean - slope * middle
 }
 
 /** Each account's balance at each month's end, debts as nothing: the largest now, then the rest. */
@@ -282,7 +255,7 @@ internal fun spendingCalendar(
     val top = calendar.zip(amounts).filter { (_, amount) -> amount != null && amount > 0 }
         .maxByOrNull { (_, amount) -> amount ?: 0.0 }
         ?.let { (day, amount) -> DayAmount(day, amount ?: 0.0) }
-    val levels = if (spending.isEmpty()) emptyList() else CalendarLevels.map { quantile(spending, it) }
+    val levels = if (spending.isEmpty()) emptyList() else CalendarLevels.map { percentile(spending, it) }
     return SpendingCalendar(
         start = start,
         amounts = amounts.toImmutableList(),
@@ -346,25 +319,3 @@ private fun cheapestWeek(days: List<LocalDate>, byDay: Map<LocalDate, List<Flow>
 }
 
 private const val DaysInWeek = 7
-
-// A purchase made at midnight sharp has no time of its own, as imported ones often don't.
-private val Flow.timed: Boolean get() = made.toLocalTime() != LocalTime.MIDNIGHT
-
-// The habits are the purchases made by choice: a planned payment's bill or subscription is paid
-// when it's due, on whatever day and at whatever time, and would take over the patterns.
-private val Flow.habit: Boolean get() = purchase && !recurring
-
-private fun median(values: List<Double>): Double? {
-    if (values.isEmpty()) return null
-    val sorted = values.sorted()
-    val middle = sorted.size / 2
-    return if (sorted.size % 2 == 1) sorted[middle] else (sorted[middle - 1] + sorted[middle]) / 2
-}
-
-// The value [share] of the way through the [sorted] values, between neighbors.
-private fun quantile(sorted: List<Double>, share: Double): Double {
-    val position = share * (sorted.size - 1)
-    val below = floor(position).toInt()
-    val above = ceil(position).toInt()
-    return sorted[below] + (sorted[above] - sorted[below]) * (position - below)
-}

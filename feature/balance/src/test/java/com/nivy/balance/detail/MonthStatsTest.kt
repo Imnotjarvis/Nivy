@@ -8,6 +8,8 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.wallet.domain.pure.spending.DayAmount
+import com.nivy.wallet.domain.pure.spending.Flow
 import com.nivy.wallet.domain.pure.util.SizeEdgesInEuros
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
@@ -174,7 +176,7 @@ class MonthStatsTest {
 
     private fun november(): Habits? = habits(Purchases)
 
-    private fun habits(spends: List<Spend>): Habits? = habits(
+    private fun habits(spends: List<Flow>): Habits? = habits(
         spends = spends,
         elapsed = (1..9).map { LocalDate.of(2026, 11, it) },
         daysInMonth = 30,
@@ -230,14 +232,16 @@ class MonthStatsTest {
         )
 
         fun spend(day: Int, hour: Int, title: String, category: Category, amount: Double, recurring: Boolean = false) =
-            Spend(
+            Flow(
                 amount = amount,
+                income = false,
                 day = LocalDate.of(2026, 11, day),
                 made = LocalDateTime.of(2026, 11, day, hour, 0),
                 title = title,
                 category = category,
                 account = Bank,
                 recurring = recurring,
+                purchase = true,
             )
 
         fun category(name: String, n: Long) = Category(

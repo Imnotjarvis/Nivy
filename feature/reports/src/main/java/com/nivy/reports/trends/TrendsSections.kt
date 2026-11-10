@@ -46,6 +46,9 @@ import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.forecast.Shift
+import com.nivy.wallet.domain.pure.spending.DayParts
+import com.nivy.wallet.domain.pure.spending.EveningPart
 import com.nivy.wallet.ui.component.AxisLabels
 import com.nivy.wallet.ui.component.ChartPanel
 import com.nivy.wallet.ui.component.GroupTitle
@@ -59,10 +62,9 @@ import com.nivy.wallet.ui.component.StatTiles
 import com.nivy.wallet.ui.component.evenly
 import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.theme.components.BalanceRow
-import com.nivy.wallet.domain.pure.forecast.Shift
 import com.nivy.wallet.utils.format
-import java.time.DayOfWeek
 import java.text.DecimalFormat
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle

@@ -5,6 +5,8 @@ import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.wallet.data.model.Month
+import com.nivy.wallet.domain.pure.spending.BiggestPurchase
+import com.nivy.wallet.domain.pure.spending.DayAmount
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -65,9 +67,6 @@ data class MonthDetail(
     }
 }
 
-@Immutable
-data class DayAmount(val day: LocalDate, val amount: Double)
-
 /**
  * What can still be spent each of the [daysLeft] days for the month to end even: what came in
  * and is still due to, less what was spent and is still due to be paid. [left] is below zero once
@@ -107,7 +106,7 @@ data class Habits(
     val daysInMonth: Int,
     // Of what came in, the share not spent; null when nothing came in.
     val savedShare: Double?,
-    val biggest: Biggest?,
+    val biggest: BiggestPurchase?,
     val purchases: Int,
     val median: Double,
     val average: Double,
@@ -130,9 +129,6 @@ data class Habits(
 ) {
     val perDay: Double get() = if (days > 0) spent / days else 0.0
 }
-
-@Immutable
-data class Biggest(val amount: Double, val title: String?, val category: Category?, val day: LocalDate)
 
 /** The purchases [under] an amount: how many, and their share of the spending. */
 @Immutable

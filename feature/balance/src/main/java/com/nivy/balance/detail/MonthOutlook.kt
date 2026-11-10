@@ -6,6 +6,7 @@ import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.domain.pure.forecast.band
 import com.nivy.wallet.domain.pure.forecast.bandsByStep
 import com.nivy.wallet.domain.pure.forecast.simulateDays
+import com.nivy.wallet.domain.pure.spending.Flow
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
@@ -107,7 +108,7 @@ data class UnusualPurchase(
 )
 
 /** A month before: its [days], and its [spends]. */
-internal data class PastMonth(val month: YearMonth, val days: List<LocalDate>, val spends: List<Spend>)
+internal data class PastMonth(val month: YearMonth, val days: List<LocalDate>, val spends: List<Flow>)
 
 /**
  * What stands out in the month's [spends] by its [elapsed] days, against the [past] months, oldest
@@ -116,7 +117,7 @@ internal data class PastMonth(val month: YearMonth, val days: List<LocalDate>, v
  * the same day in 9 months in 10, by 3 times [atLeast] and a quarter or more, unless one of those
  * purchases makes most of it. Null with less than [MinPastMonths] months, or nothing to tell.
  */
-internal fun unusual(spends: List<Spend>, elapsed: Int, past: List<PastMonth>, atLeast: Double): Unusual? {
+internal fun unusual(spends: List<Flow>, elapsed: Int, past: List<PastMonth>, atLeast: Double): Unusual? {
     if (past.size < MinPastMonths) return null
     val everyday = spends.filter { !it.recurring }
     val earlier = past.flatMap { it.spends }.filter { !it.recurring }
