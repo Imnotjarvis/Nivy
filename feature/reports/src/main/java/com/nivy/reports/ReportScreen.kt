@@ -430,7 +430,7 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
 
             upcomingExpanded = true,
             overdueExpanded = true,
-            filter = ReportFilter.emptyFilter("BGN"),
+            filter = ReportFilter.emptyFilter(),
             loading = false,
             accounts = persistentListOf(
                 acc1,

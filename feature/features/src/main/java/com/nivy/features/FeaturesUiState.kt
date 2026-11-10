@@ -11,7 +11,7 @@ sealed interface FeatureItemViewState {
         val key: String,
         val name: String,
         val enabled: Boolean,
-        val description: String?,
+        val description: String,
     ) : FeatureItemViewState
 
     data class FeatureHeaderViewState(val name: String) : FeatureItemViewState

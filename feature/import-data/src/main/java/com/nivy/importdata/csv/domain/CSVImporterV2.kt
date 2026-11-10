@@ -16,7 +16,6 @@ import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
@@ -212,18 +211,12 @@ class CSVImporterV2 @Inject constructor(
             baseCurrency = baseCurrency,
             accountNameString = accountName,
             currencyRawString = accountCurrency,
-            color = null,
-            icon = null,
-            orderNum = null,
         ) ?: return null
         val toAccount = toAccountName?.let {
             mapAccount(
                 baseCurrency = baseCurrency,
                 accountNameString = it,
                 currencyRawString = toAccountCurrency,
-                color = null,
-                icon = null,
-                orderNum = null,
             ) ?: return null
         }
 
@@ -232,9 +225,6 @@ class CSVImporterV2 @Inject constructor(
                 value = row.extractValue(optionalFields.category),
                 metadata = optionalFields.category.metadata
             ),
-            color = null,
-            icon = null,
-            orderNum = null,
         )
         val title = parseText(
             row.extractValue(optionalFields.title),
@@ -273,9 +263,6 @@ class CSVImporterV2 @Inject constructor(
     private suspend fun mapAccount(
         baseCurrency: String,
         accountNameString: String?,
-        color: Int?,
-        icon: String?,
-        orderNum: Double?,
         currencyRawString: String?,
     ): Account? {
         if (accountNameString == null || accountNameString.isBlank()) return null
@@ -286,7 +273,7 @@ class CSVImporterV2 @Inject constructor(
         }
 
         // create new account
-        val colorArgb = color ?: when {
+        val colorArgb = when {
             accountNameString.lowercase().contains("cash") -> {
                 Palette.Green
             }
@@ -309,11 +296,11 @@ class CSVImporterV2 @Inject constructor(
                     mapCurrency(baseCurrency = baseCurrency, currencyCode = currencyRawString)
                 ).bind(),
                 color = ColorInt(colorArgb),
-                icon = icon?.let(IconAsset::from)?.getOrNull(),
+                icon = null,
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                orderNum = orderNum ?: accountDao.findMaxOrderNum().nextOrderNum(),
+                orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull() ?: return null
         accountRepository.save(newAccount)
@@ -333,12 +320,7 @@ class CSVImporterV2 @Inject constructor(
         }
     }
 
-    private suspend fun mapCategory(
-        categoryNameString: String?,
-        color: Int?,
-        icon: String?,
-        orderNum: Double?
-    ): Category? {
+    private suspend fun mapCategory(categoryNameString: String?): Category? {
         if (categoryNameString == null || categoryNameString.isBlank()) return null
 
         val existingCategory = categories.firstOrNull {
@@ -349,7 +331,7 @@ class CSVImporterV2 @Inject constructor(
         }
 
         // create new category
-        val colorArgb = color ?: NIVY_COLOR_PICKER_COLORS_FREE.getOrElse(newCategoryColorIndex++) {
+        val colorArgb = NIVY_COLOR_PICKER_COLORS_FREE.getOrElse(newCategoryColorIndex++) {
             newCategoryColorIndex = 0
             NIVY_COLOR_PICKER_COLORS_FREE.first()
         }.toArgb()
@@ -359,8 +341,8 @@ class CSVImporterV2 @Inject constructor(
                 id = CategoryId(UUID.randomUUID()),
                 name = NotBlankTrimmedString.from(categoryNameString).bind(),
                 color = ColorInt(colorArgb),
-                icon = icon?.let(IconAsset::from)?.getOrNull(),
-                orderNum = orderNum ?: categoryRepository.findMaxOrderNum().nextOrderNum(),
+                icon = null,
+                orderNum = categoryRepository.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull()
 

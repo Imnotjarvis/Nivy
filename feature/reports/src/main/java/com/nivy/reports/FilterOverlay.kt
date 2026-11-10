@@ -94,9 +94,7 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
     val setLocalFilter = { newFilter: ReportFilter ->
         localFilter = newFilter
     }
-    val baseFilter = remember(baseCurrency) {
-        ReportFilter.emptyFilter(baseCurrency = baseCurrency)
-    }
+    val baseFilter = remember { ReportFilter.emptyFilter() }
     val nonNullFilter = { currentFilter: ReportFilter? ->
         currentFilter ?: baseFilter
     }
@@ -359,7 +357,6 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
     }
 
     AddKeywordModal(
-        keyword = "",
         visible = includeKeywordModalShown,
         dismiss = { includeKeywordModalShown = false }
     ) { keyword ->
@@ -371,7 +368,6 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
     }
 
     AddKeywordModal(
-        keyword = "",
         visible = excludeKeywordModalShown,
         dismiss = { excludeKeywordModalShown = false }
     ) { keyword ->
@@ -493,7 +489,7 @@ private fun Preview() {
                 ),
             ),
 
-            filter = ReportFilter.emptyFilter("BGN").copy(
+            filter = ReportFilter.emptyFilter().copy(
                 accounts = listOf(
                     acc1,
                     acc2

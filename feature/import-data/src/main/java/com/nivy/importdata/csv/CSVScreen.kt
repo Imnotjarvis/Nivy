@@ -72,7 +72,6 @@ fun CSVScreen(
             result = ui.importResult,
             isManualCsvImport = true,
             launchedFromOnboarding = screen.launchedFromOnboarding,
-            onTryAgain = null,
             onFinish = {
                 viewModel.onEvent(
                     CSVEvent.FinishImport(

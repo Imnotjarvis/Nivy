@@ -81,7 +81,6 @@ class FilterOverlayPaparazziTest(
                 period = TimePeriod(month = Month.fromMonthValue(11), year = 2026),
                 accounts = listOf(Bank),
                 categories = listOf(Food),
-                currency = "EUR",
                 minAmount = null,
                 maxAmount = null,
                 includeKeywords = emptyList(),

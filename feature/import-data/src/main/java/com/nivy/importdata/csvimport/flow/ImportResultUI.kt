@@ -44,7 +44,6 @@ internal fun ImportResultUI(
     result: ImportResult,
     launchedFromOnboarding: Boolean,
     isManualCsvImport: Boolean = false,
-    onTryAgain: (() -> Unit)? = null,
     onFinish: () -> Unit,
 ) {
     val nav = navigation()
@@ -159,20 +158,6 @@ internal fun ImportResultUI(
             enabled = true
         ) {
             onFinish()
-        }
-
-        if (onTryAgain != null) {
-            Spacer(Modifier.height(12.dp))
-
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                onClick = onTryAgain,
-                enabled = true
-            ) {
-                Text(text = stringResource(R.string.try_again))
-            }
         }
 
         Spacer(Modifier.height(16.dp))

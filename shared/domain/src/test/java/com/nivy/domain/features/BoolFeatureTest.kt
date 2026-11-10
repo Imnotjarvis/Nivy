@@ -9,17 +9,25 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class BoolFeatureTest {
+    private fun compact(defaultValue: Boolean) = BoolFeature(
+        key = "compact",
+        group = FeatureGroup.Other,
+        name = "Compact",
+        description = "A compact layout",
+        defaultValue = defaultValue,
+    )
+
     private fun stored(key: String, enabled: Boolean) =
         flowOf(preferencesOf(DatastoreKeys.nivyFeature(key) to enabled))
 
     @Test
     fun `before anything is read, a screen starts from the default`() {
-        BoolFeature(key = "compact", defaultValue = false).initialValue shouldBe false
+        compact(defaultValue = false).initialValue shouldBe false
     }
 
     @Test
     fun `once the stored value is read, screens opened later start from it`() = runTest {
-        val feature = BoolFeature(key = "compact", defaultValue = false)
+        val feature = compact(defaultValue = false)
 
         feature.enabledFlow(stored("compact", enabled = true)).first()
 
@@ -28,7 +36,7 @@ class BoolFeatureTest {
 
     @Test
     fun `a feature never stored reads as its default`() = runTest {
-        val feature = BoolFeature(key = "compact", defaultValue = true)
+        val feature = compact(defaultValue = true)
 
         feature.enabledFlow(flowOf(preferencesOf())).first() shouldBe true
         feature.initialValue shouldBe true

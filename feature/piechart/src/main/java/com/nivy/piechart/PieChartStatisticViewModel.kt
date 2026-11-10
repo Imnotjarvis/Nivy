@@ -66,7 +66,6 @@ class PieChartStatisticViewModel @Inject constructor(
     private var selectedCategory by mutableStateOf<SelectedCategory?>(null)
     private var accountIdFilterList by mutableStateOf<ImmutableList<UUID>>(persistentListOf())
     private var showCloseButtonOnly by mutableStateOf(false)
-    private var filterExcluded by mutableStateOf(false)
     private var transactions by mutableStateOf<ImmutableList<Transaction>>(persistentListOf())
     private var choosePeriodModal by mutableStateOf<ChoosePeriodModalData?>(null)
     private var budgetPage by mutableStateOf<BudgetPage?>(null)
@@ -88,7 +87,6 @@ class PieChartStatisticViewModel @Inject constructor(
             selectedCategory = selectedCategory,
             accountIdFilterList = accountIdFilterList,
             showCloseButtonOnly = showCloseButtonOnly,
-            filterExcluded = filterExcluded,
             transactions = transactions,
             choosePeriodModal = choosePeriodModal,
             budgetPage = budgetPage,
@@ -145,7 +143,6 @@ class PieChartStatisticViewModel @Inject constructor(
                 // The budget's own accounts: the chart then counts all its expenses, as the budget does.
                 accountIdFilterList = budgetExpenses?.map { it.account.value }?.distinct()?.toImmutableList()
                     ?: screen.accountList,
-                filterExclude = screen.filterExcluded,
                 transactions = budgetExpenses?.toImmutableList() ?: screen.transactions,
                 transfersAsIncomeExpenseValue = screen.treatTransfersAsIncomeExpense
             )
@@ -156,11 +153,10 @@ class PieChartStatisticViewModel @Inject constructor(
         period: TimePeriod,
         type: TransactionType,
         accountIdFilterList: ImmutableList<UUID>,
-        filterExclude: Boolean,
         transactions: ImmutableList<Transaction>,
         transfersAsIncomeExpenseValue: Boolean
     ) {
-        initialise(period, type, accountIdFilterList, filterExclude, transactions)
+        initialise(period, type, accountIdFilterList, transactions)
         treatTransfersAsIncomeExpense = transfersAsIncomeExpenseValue
         load(periodValue = period)
     }
@@ -169,7 +165,6 @@ class PieChartStatisticViewModel @Inject constructor(
         periodValue: TimePeriod,
         type: TransactionType,
         accountIdFilterListValue: ImmutableList<UUID>,
-        filterExcludedValue: Boolean,
         transactionsValue: ImmutableList<Transaction>
     ) {
         val baseCurrencyValue = currencyRepository.getBaseCurrency().code
@@ -177,7 +172,6 @@ class PieChartStatisticViewModel @Inject constructor(
         period = periodValue
         transactionType = type
         accountIdFilterList = accountIdFilterListValue
-        filterExcluded = filterExcludedValue
         transactions = transactionsValue
         showCloseButtonOnly = transactionsValue.isNotEmpty() || budgetPage != null
         baseCurrency = baseCurrencyValue

@@ -39,7 +39,6 @@ import com.nivy.navigation.rememberOnBack
 @ExperimentalFoundationApi
 @Composable
 internal fun BoxWithConstraintsScope.ImportFrom(
-    hasSkip: Boolean,
     launchedFromOnboarding: Boolean,
 
     onSkip: () -> Unit = {},
@@ -54,7 +53,7 @@ internal fun BoxWithConstraintsScope.ImportFrom(
         stickyHeader {
             val onBack = rememberOnBack()
             OnboardingToolbar(
-                hasSkip = hasSkip,
+                hasSkip = launchedFromOnboarding,
                 onBack = { onBack() },
                 onSkip = onSkip
             )
@@ -161,8 +160,7 @@ private fun ImportOption(
 private fun Preview() {
     com.nivy.wallet.NivyPreview {
         ImportFrom(
-            hasSkip = true,
-            launchedFromOnboarding = false,
+            launchedFromOnboarding = true,
         )
     }
 }

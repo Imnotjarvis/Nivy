@@ -74,7 +74,7 @@ class PieChartStatisticViewModelTest {
     )
 
     private val pieChartUseCase = mockk<PieChartUseCase> {
-        coEvery { pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns
+        coEvery { pieChart(any(), any(), any(), any(), any(), any(), any()) } returns
             PieChartData(totalAmount = 0.0, categoryAmounts = persistentListOf())
     }
     private val transactionRepository = mockk<TransactionRepository> {
@@ -139,7 +139,7 @@ class PieChartStatisticViewModelTest {
     fun `a month chosen after another stays chosen, even when the other one's load ends last`() {
         // December's chart comes slowly: January is chosen, and comes, before it does.
         val december = CompletableDeferred<Unit>()
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
             val month = secondArg<FromToTimeRange>().from!!.atZone(ZoneId.of("UTC")).monthValue
             if (month == 12) december.await()
             PieChartData(totalAmount = month.toDouble(), categoryAmounts = persistentListOf())
@@ -165,7 +165,7 @@ class PieChartStatisticViewModelTest {
 
     @Test
     fun `split by account where the chart covers more than one, and the split is remembered`() {
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byAccount
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } returns byAccount
 
         viewModel.runTest(events = listOf(start, PieChartStatisticEvent.OnBreakdownSelected(Breakdown.Accounts))) {
             showBreakdownToggle shouldBe true
@@ -178,7 +178,7 @@ class PieChartStatisticViewModelTest {
     @Test
     fun `the chart opens split as last chosen`() {
         coEvery { appPreferences.pieChartByAccount() } returns true
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byAccount
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } returns byAccount
 
         viewModel.runTest(events = listOf(start)) {
             breakdown shouldBe Breakdown.Accounts
@@ -188,7 +188,7 @@ class PieChartStatisticViewModelTest {
     @Test
     fun `with one account, the chart splits by category, whatever was chosen`() {
         coEvery { appPreferences.pieChartByAccount() } returns true
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } returns
             byAccount.copy(accountsCovered = 1)
 
         viewModel.runTest(events = listOf(start)) {
@@ -199,7 +199,7 @@ class PieChartStatisticViewModelTest {
 
     @Test
     fun `a tapped account is selected, its card first, and a second tap clears it`() {
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byAccount
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } returns byAccount
         val selectCard = PieChartStatisticEvent.OnAccountClicked(card)
 
         viewModel.runTest(events = listOf(start, selectCard)) {
@@ -214,7 +214,7 @@ class PieChartStatisticViewModelTest {
 
     @Test
     fun `a tap on the Unspecified slice selects it, its card first, and a second tap clears it`() {
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byCategory
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } returns byCategory
         val selectUnspecified = PieChartStatisticEvent.OnCategoryClicked(SelectedCategory(category = null))
 
         viewModel.runTest(events = listOf(start, selectUnspecified)) {
@@ -229,7 +229,7 @@ class PieChartStatisticViewModelTest {
 
     @Test
     fun `a tap off the slices clears the selection, Unspecified's too`() {
-        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any(), any()) } returns byCategory
+        coEvery { pieChartUseCase.pieChart(any(), any(), any(), any(), any(), any(), any()) } returns byCategory
         val selectUnspecified = PieChartStatisticEvent.OnCategoryClicked(SelectedCategory(category = null))
         val tapOffTheSlices = PieChartStatisticEvent.OnCategoryClicked(null)
 

@@ -272,8 +272,6 @@ class ReportViewModel @Inject constructor(
 
             val tempBalance = calculateBalance(historyIncomeExpense).toDouble()
 
-            val accountFilterIdList = async { reportFilter.accounts.map { it.id.value } }
-
             // Due today counts as upcoming, earlier days as overdue, as everywhere else.
             val upcomingTransactionsList = transactionsList.filterUpcoming(timeProvider)
                 .sortedBy { it.time }
@@ -305,7 +303,7 @@ class ReportViewModel @Inject constructor(
                 // All of them: the filter lists every account to pick from.
                 accounts = accountRepository.findAll().toImmutableList(),
                 reportFilter = reportFilter,
-                accountIdFilters = accountFilterIdList.await().toImmutableList(),
+                accountIdFilters = reportFilter.accounts.map { it.id.value }.toImmutableList(),
                 transactions = settledTransactions,
                 balanceValue = tempBalance
             )
@@ -552,10 +550,6 @@ class ReportViewModel @Inject constructor(
         reloadReport()
     }
 
-    private suspend fun reloadReport() {
-        withContext(dispatchers.main) {
-            start()
-            setFilter(filter)
-        }
-    }
+    // start() reads the data again and applies the filter to it.
+    private fun reloadReport() = start()
 }

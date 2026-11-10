@@ -59,7 +59,6 @@ class PieChartUseCase @Inject constructor(
         type: TransactionType,
         accountIdFilterList: List<UUID>,
         treatTransferAsIncExp: Boolean = false,
-        showAccountTransfersCategory: Boolean = treatTransferAsIncExp,
         existingTransactions: List<Transaction> = emptyList(),
         // Only [existingTransactions], even none, as on a budget's page: no others of the range.
         onlyExisting: Boolean = false,
@@ -85,7 +84,7 @@ class PieChartUseCase @Inject constructor(
         val categoryAmounts = addAccountTransfersCategory(
             type = type,
             accountIdFilterList = accountIdFilterList,
-            showAccountTransfersCategory = showAccountTransfersCategory,
+            showAccountTransfersCategory = treatTransferAsIncExp,
             incomeExpenseTransfer = incomeExpenseTransfer,
             categoryAmounts = categoryAmounts(
                 baseCurrency = baseCurrency,

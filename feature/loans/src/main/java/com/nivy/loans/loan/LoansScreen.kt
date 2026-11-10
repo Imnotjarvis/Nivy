@@ -392,7 +392,6 @@ private val testDateTime = LocalDateTime.of(2023, 4, 20, 0, 35)
 @Composable
 private fun Preview(theme: Theme = Theme.LIGHT) {
     val state = LoanScreenState(
-        baseCurrency = "BGN",
         selectedTab = LoanTab.PENDING,
         completedLoans = persistentListOf(
             DisplayLoan(
@@ -429,8 +428,6 @@ private fun Preview(theme: Theme = Theme.LIGHT) {
         totalOwedAmount = "1500.0 INR",
         loanModalData = null,
         reorderModalVisible = false,
-        selectedAccount = null,
-        paidOffLoanVisibility = true,
         dateTime = Instant.now()
     )
     NivyPreview(theme) {

@@ -164,13 +164,11 @@ private fun FeatureRow(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.W700
                 )
-                if (feature.description != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = feature.description,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = feature.description,
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
             Spacer(modifier = Modifier.width(8.dp))
             Switch(checked = feature.enabled, onCheckedChange = { onToggleClick() })

@@ -32,7 +32,6 @@ sealed interface CSVEvent {
     data class MapDescription(val index: Int, val name: String) : CSVEvent
 
     data object Continue : CSVEvent
-    data object ResetState : CSVEvent
 
     data class FinishImport(
         val launchedFromOnboarding: Boolean,

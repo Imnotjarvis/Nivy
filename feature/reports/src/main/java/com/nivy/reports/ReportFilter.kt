@@ -13,7 +13,6 @@ data class ReportFilter(
     val period: TimePeriod?,
     val accounts: List<Account>,
     val categories: List<Category>,
-    val currency: String,
     val minAmount: Double?,
     val maxAmount: Double?,
     val includeKeywords: List<String>,
@@ -23,14 +22,11 @@ data class ReportFilter(
 
 ) {
     companion object {
-        fun emptyFilter(
-            baseCurrency: String
-        ) = ReportFilter(
+        fun emptyFilter() = ReportFilter(
             trnTypes = emptyList(),
             period = null,
             accounts = emptyList(),
             categories = emptyList(),
-            currency = baseCurrency,
             includeKeywords = emptyList(),
             excludeKeywords = emptyList(),
             minAmount = null,
