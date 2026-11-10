@@ -2,6 +2,7 @@ package com.nivy.budgets
 
 import arrow.core.Some
 import com.nivy.base.model.AccountType
+import com.nivy.base.model.Theme
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
@@ -20,7 +21,6 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
-import com.nivy.base.model.Theme
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
 import com.nivy.data.repository.AccountRepository
@@ -28,6 +28,7 @@ import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.navigation.BudgetScreen
 import com.nivy.ui.testing.ComposeViewModelTest
@@ -100,6 +101,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
             },
             timeProvider = FixedTime,
             timeConverter = TestTimeConverter(),
+            userWrites = UserWrites(mockk(relaxed = true)),
         )
     }
 

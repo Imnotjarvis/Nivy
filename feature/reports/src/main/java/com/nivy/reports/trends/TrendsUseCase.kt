@@ -3,13 +3,7 @@ package com.nivy.reports.trends
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
-import com.nivy.data.model.AccountId
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
-import com.nivy.data.model.Transaction
-import com.nivy.data.model.Transfer
+import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
@@ -17,6 +11,7 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.spending.toFlow
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
@@ -70,8 +65,8 @@ class TrendsUseCase @Inject constructor(
             val included = accounts.filter { it.includeInBalance }.map { it.id }.toSet()
             val categories = categoryRepository.findAll().associateBy { it.id }
             val flows = transactionRepository.findAllBetween(from, now)
-                .filter { it.settled && it.accountId() in included }
-                .mapNotNull { flow(it, rates, categories) }
+                .filter { it.settled && it.getFromAccount() in included }
+                .mapNotNull { it.toFlow(rates, timeConverter, categories) }
 
             // Each account's balance at each month's end, or now for the current month: over the
             // range, and over the months before the current one the outlook draws on.
@@ -85,7 +80,7 @@ class TrendsUseCase @Inject constructor(
             val balances = held.map { (account, values) -> account to values.takeLast(count) }
             val worth = ends.indices.map { index -> held.sumOf { (_, values) -> values[index] } }
             val trackedSince = firstPaid?.let { with(timeConverter) { it.toLocalDate() } } ?: today
-            val perEuro = rates.factor(Euro) ?: 1.0
+            val perEuro = rates.factor(AssetCode.EUR) ?: 1.0
 
             val detail = trends(
                 months = months.map { it.first },
@@ -125,48 +120,15 @@ class TrendsUseCase @Inject constructor(
             ?: AllMonthsAtMost
     }
 
-    // An amount without a rate to the base currency is left out, not counted as one of nothing.
-    private suspend fun flow(
-        transaction: Transaction,
-        rates: BaseCurrencyRates,
-        categories: Map<CategoryId, Category>,
-    ) =
-        when (transaction) {
-            is Income -> rates.inBaseOrNull(transaction.value)
-                ?.let { transaction.toFlow(it, income = true, categories) }
-            is Expense -> rates.inBaseOrNull(transaction.value)
-                ?.let { transaction.toFlow(it, income = false, categories) }
-            is Transfer -> null
-        }
-
-    private fun Transaction.toFlow(amount: Double, income: Boolean, categories: Map<CategoryId, Category>) = Flow(
-        amount = amount,
-        income = income,
-        day = with(timeConverter) { time.toLocalDate() },
-        made = with(timeConverter) { (metadata.purchaseDateTime ?: time).toLocalDateTime() },
-        title = title?.value,
-        category = category?.let(categories::get),
-        recurring = metadata.recurringRuleId != null,
-        // A loan's money isn't a purchase.
-        purchase = !income && metadata.loanId == null && metadata.loanRecordId == null,
-    )
-
     private fun days(range: FromToTimeRange): List<LocalDate> = with(timeConverter) {
         val last = range.to().toLocalDate()
         generateSequence(range.from().toLocalDate()) { it.plusDays(1) }.takeWhile { !it.isAfter(last) }.toList()
     }
 
     private companion object {
-        val Euro = AssetCode.unsafe("EUR")
         const val ChangeMonthsBack = 6
 
         // A habit shift moves a category by 10 euros a month or more.
         const val ShiftEuros = 10.0
     }
-}
-
-private fun Transaction.accountId(): AccountId = when (this) {
-    is Income -> account
-    is Expense -> account
-    is Transfer -> fromAccount
 }

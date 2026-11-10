@@ -17,7 +17,7 @@ class BudgetRepository @Inject constructor(
 ) {
     /** Sorted by [Budget.orderNum]. Budgets that aren't valid are left out. */
     suspend fun findAll(): List<Budget> = withContext(dispatchersProvider.io) {
-        budgetDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+        budgetDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
     }
 
     suspend fun findMaxOrderNum(): Double = withContext(dispatchersProvider.io) {
@@ -34,5 +34,9 @@ class BudgetRepository @Inject constructor(
 
     suspend fun deleteById(id: BudgetId): Unit = withContext(dispatchersProvider.io) {
         writeBudgetDao.deleteById(id.value)
+    }
+
+    suspend fun deleteAll(): Unit = withContext(dispatchersProvider.io) {
+        writeBudgetDao.deleteAll()
     }
 }

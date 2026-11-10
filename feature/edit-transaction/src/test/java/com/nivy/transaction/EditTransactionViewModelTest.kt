@@ -9,6 +9,7 @@ import com.nivy.base.model.TransactionType
 import com.nivy.base.refreshWidget
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
@@ -18,6 +19,8 @@ import com.nivy.data.model.CreditCardId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.Tag
+import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
@@ -34,6 +37,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
@@ -100,6 +104,25 @@ class EditTransactionViewModelTest {
     private val nav = mockk<Navigation>(relaxed = true)
     private val toaster = mockk<Toaster>(relaxed = true)
     private val loanTransactionsUseCase = mockk<LoanTransactionsUseCase>(relaxed = true)
+    private val tagRepository = mockk<TagRepository>(relaxUnitFun = true) {
+        coEvery { findAll() } returns emptyList()
+        coEvery { findByAssociatedId(any<AssociationId>()) } returns emptyList()
+    }
+
+    // The database transaction's block runs as it is; writes says, for each write in turn,
+    // whether it was made within one.
+    private var inTransaction = false
+    private val writes = mutableListOf<Boolean>()
+    private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            inTransaction = true
+            return try {
+                block()
+            } finally {
+                inTransaction = false
+            }
+        }
+    }
 
     private lateinit var viewModel: EditTransactionViewModel
 
@@ -140,6 +163,7 @@ class EditTransactionViewModelTest {
                 dueTransactionsUseCase = mockk(relaxed = true),
                 timeProvider = FixedTime,
                 dispatchers = TestDispatchersProvider,
+                databaseTransaction = databaseTransaction,
             ),
             nav = nav,
             appPreferences = mockk<AppPreferences>(relaxed = true) {
@@ -154,13 +178,7 @@ class EditTransactionViewModelTest {
             categoryRepository = categoryRepository,
             accountRepository = accountRepository,
             transactionRepo = transactionRepo,
-            transactionTags = TransactionTags(
-                tagRepository = mockk<TagRepository> {
-                    coEvery { findAll() } returns emptyList()
-                    coEvery { findByAssociatedId(any<AssociationId>()) } returns emptyList()
-                },
-                tagMapper = mockk(relaxed = true),
-            ),
+            transactionTags = TransactionTags(tagRepository = tagRepository, tagMapper = mockk(relaxed = true)),
             features = features,
             timeConverter = timeConverter,
             timeProvider = FixedTime,
@@ -170,6 +188,7 @@ class EditTransactionViewModelTest {
                 timeProvider = FixedTime,
             ),
             creditCardRepository = creditCardRepository,
+            userWrites = UserWrites(mockk(relaxed = true)),
             // The view model's background work runs where it's started, so a test sees it done.
             dispatchers = TestDispatchersProvider,
         )
@@ -321,6 +340,43 @@ class EditTransactionViewModelTest {
 
         coVerify(exactly = 0) { transactionRepo.save(any()) }
         coVerify { toaster.show(R.string.msg_no_loan_exchange_rate, any()) }
+    }
+
+    @Test
+    fun `a loan's transaction and its loan are saved in one database transaction`() {
+        val payment = lunch().run { copy(metadata = metadata.copy(loanId = UUID.randomUUID())) }
+        coEvery { transactionRepo.findById(payment.id) } returns payment
+        coEvery { loanTransactionsUseCase.updateFromTransaction(any()) } answers { writes += inTransaction }
+        coEvery { transactionRepo.save(any()) } answers { writes += inTransaction }
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = payment.id.value, type = TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(30.0))
+
+        writes shouldBe listOf(true, true)
+    }
+
+    @Test
+    fun `a duplicate and its tags are saved in one database transaction`() {
+        val original = lunch()
+        val work = Tag(
+            id = TagId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe("work"),
+            description = null,
+            color = ColorInt(0),
+            icon = null,
+            orderNum = 0.0,
+            creationTimestamp = Instant.EPOCH,
+        )
+        coEvery { transactionRepo.findById(original.id) } returns original
+        coEvery { tagRepository.findByAssociatedId(AssociationId(original.id.value)) } returns listOf(work)
+        coEvery { tagRepository.findByIds(listOf(work.id)) } returns listOf(work)
+        coEvery { transactionRepo.save(any()) } answers { writes += inTransaction }
+        coEvery { tagRepository.associateTagToEntity(any(), work.id) } answers { writes += inTransaction }
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = original.id.value, type = TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.Duplicate)
+
+        writes shouldBe listOf(true, true)
     }
 
     @Test

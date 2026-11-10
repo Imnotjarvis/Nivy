@@ -1,10 +1,10 @@
 package com.nivy.wallet.domain.pure.forecast
 
+import com.nivy.wallet.domain.pure.spending.percentile
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.floor
@@ -33,7 +33,7 @@ const val ForecastRuns = 2_000
  * outcomes in 10, as the 10th and 90th would on a history known in full.
  */
 fun band(values: DoubleArray): Band {
-    val sorted = values.sortedArray()
+    val sorted = values.sortedArray().asList()
     return Band(percentile(sorted, LowShare), percentile(sorted, Half), percentile(sorted, HighShare))
 }
 
@@ -168,8 +168,8 @@ fun shift(values: List<Double>, atLeast: Double): Shift? {
     }
 }
 
-// The least-squares line through [values], one a step: its slope, and its value at the first.
-private fun line(values: List<Double>): Pair<Double, Double> {
+/** The least-squares line through [values], one a step: its slope, and its value at the first. */
+fun line(values: List<Double>): Pair<Double, Double> {
     val middle = (values.size - 1) / 2.0
     val mean = values.average()
     val spread = values.indices.sumOf { (it - middle).pow(2) }
@@ -194,7 +194,7 @@ private fun Random.gaussian(): Double = sqrt(-TwoUnits * ln(1.0 - nextDouble()))
 // How far a smoothed bootstrap moves the [values] it draws: Silverman's rule of thumb.
 private fun kernelWidth(values: List<Double>): Double {
     if (values.size < 2) return 0.0
-    val sorted = values.sorted().toDoubleArray()
+    val sorted = values.sorted()
     val mean = values.average()
     val deviation = sqrt(values.sumOf { (it - mean).pow(2) } / (values.size - 1))
     val quartiles = (percentile(sorted, UpperQuartile) - percentile(sorted, LowerQuartile)) / QuartilesPerDeviation
@@ -221,14 +221,6 @@ private class Pool(entries: List<Pair<Double, Double>>) {
         val index = if (found >= 0) found else -found - 1
         return amounts[index.coerceAtMost(amounts.lastIndex)]
     }
-}
-
-private fun percentile(sorted: DoubleArray, share: Double): Double {
-    if (sorted.isEmpty()) return 0.0
-    val at = share * (sorted.size - 1)
-    val below = floor(at).toInt()
-    val above = ceil(at).toInt()
-    return sorted[below] + (sorted[above] - sorted[below]) * (at - below)
 }
 
 // A band's edges, and its middle.

@@ -23,6 +23,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
@@ -106,6 +107,7 @@ class EditPlannedViewModelTest {
         transactionRepository = transactionRepository,
         timeConverter = TestTimeConverter(),
         creditCardRepository = mockk<CreditCardRepository> { coEvery { findAll() } returns listOf(visaCard) },
+        userWrites = UserWrites(mockk(relaxed = true)),
     )
 
     private val firstOfDecember = LocalDateTime.of(2026, 12, 1, 9, 0)

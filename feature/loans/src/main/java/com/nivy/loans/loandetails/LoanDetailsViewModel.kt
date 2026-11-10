@@ -21,25 +21,26 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.nivy.domain.usecase.loan.NoLoanExchangeRate
-import com.nivy.ui.R
-import com.nivy.wallet.domain.logic.AccountCreator
+import com.nivy.loans.LoanModalData
 import com.nivy.loans.LoanProgress
 import com.nivy.loans.loan.data.DisplayLoanRecord
-import com.nivy.loans.progress
 import com.nivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.nivy.loans.loandetails.events.LoanDetailsScreenEvent
 import com.nivy.loans.loandetails.events.LoanModalEvent
 import com.nivy.loans.loandetails.events.LoanRecordModalEvent
+import com.nivy.loans.progress
 import com.nivy.navigation.LoanDetailsScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
 import com.nivy.ui.time.impl.DateTimePicker
+import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateLoanRecordData
 import com.nivy.wallet.domain.logic.model.EditLoanRecordData
-import com.nivy.loans.LoanModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -66,6 +67,7 @@ class LoanDetailsViewModel @Inject constructor(
     private val dateTimePicker: DateTimePicker,
     private val dispatchers: DispatchersProvider,
     private val toaster: Toaster,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<LoanDetailsScreenState, LoanDetailsScreenEvent>() {
 
     private val baseCurrency = mutableStateOf("")
@@ -301,19 +303,16 @@ class LoanDetailsViewModel @Inject constructor(
     fun editLoan(loan: Loan, createLoanTransaction: Boolean = false) {
         viewModelScope.launch {
             val oldAccount = this@LoanDetailsViewModel.loan.value?.account
-            // Before the loan: when a record can't be converted, the loan stays as it was.
-            try {
-                loanTransactionsUseCase.recalculateRecords(loan, oldAccount = oldAccount)
+            // When a record can't be converted to the new account's currency, the loan stays as it was.
+            val saved = try {
+                userWrites.run(R.string.msg_change_not_saved) {
+                    loanTransactionsUseCase.saveLoan(loan, oldAccount, createTransaction = createLoanTransaction)
+                }
             } catch (ignored: NoLoanExchangeRate) {
-                waitModalVisible.value = false
                 toaster.show(R.string.msg_no_loan_exchange_rate)
-                return@launch
+                false
             }
-            loanRepository.save(loan)
-            loanTransactionsUseCase.syncLoanTransaction(loan, create = createLoanTransaction)
-            // A changed type turns the records' income into expenses and the other way round.
-            loanTransactionsUseCase.syncRecordTransactions(loan)
-            load(loanId = loan.id.value)
+            if (saved) load(loanId = loan.id.value)
             // Shown while an account change recalculates the records; nothing else hides it.
             waitModalVisible.value = false
         }
@@ -322,10 +321,8 @@ class LoanDetailsViewModel @Inject constructor(
     private fun deleteLoan() {
         val loan = loan.value ?: return
         viewModelScope.launch {
-            loanTransactionsUseCase.deleteLoanTransactions(loan.id)
-            loanRepository.deleteById(loan.id)
-            // close screen
-            nav.back()
+            val deleted = userWrites.run(R.string.msg_change_not_saved) { loanTransactionsUseCase.deleteLoan(loan.id) }
+            if (deleted) nav.back()
         }
     }
 
@@ -356,13 +353,14 @@ class LoanDetailsViewModel @Inject constructor(
                 toaster.show(R.string.msg_no_loan_exchange_rate)
                 return@launch
             }
-            loanRepository.saveRecord(withConvertedAmount)
-            loanTransactionsUseCase.syncLoanRecordTransaction(
-                loan = loan,
-                record = withConvertedAmount,
-                create = data.createLoanRecordTransaction,
-            )
-            load(loanId = loan.id.value)
+            val saved = userWrites.run(R.string.msg_change_not_saved) {
+                loanTransactionsUseCase.saveRecord(
+                    loan = loan,
+                    record = withConvertedAmount,
+                    createTransaction = data.createLoanRecordTransaction,
+                )
+            }
+            if (saved) load(loanId = loan.id.value)
         }
     }
 
@@ -382,22 +380,24 @@ class LoanDetailsViewModel @Inject constructor(
                 toaster.show(R.string.msg_no_loan_exchange_rate)
                 return@launch
             }
-            loanRepository.saveRecord(record)
-            loanTransactionsUseCase.syncLoanRecordTransaction(
-                loan = loan,
-                record = record,
-                create = editLoanRecordData.createLoanRecordTransaction,
-            )
-            load(loanId = loan.id.value)
+            val saved = userWrites.run(R.string.msg_change_not_saved) {
+                loanTransactionsUseCase.saveRecord(
+                    loan = loan,
+                    record = record,
+                    createTransaction = editLoanRecordData.createLoanRecordTransaction,
+                )
+            }
+            if (saved) load(loanId = loan.id.value)
         }
     }
 
     private fun deleteLoanRecord(loanRecord: LoanRecord) {
         val loanId = loan.value?.id ?: return
         viewModelScope.launch {
-            loanRepository.deleteRecordById(loanRecord.id)
-            loanTransactionsUseCase.deleteLoanRecordTransaction(loanRecord.id)
-            load(loanId = loanId.value)
+            val deleted = userWrites.run(R.string.msg_change_not_saved) {
+                loanTransactionsUseCase.deleteRecord(loanRecord.id)
+            }
+            if (deleted) load(loanId = loanId.value)
         }
     }
 

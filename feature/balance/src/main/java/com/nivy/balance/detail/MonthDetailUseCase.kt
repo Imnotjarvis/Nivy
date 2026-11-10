@@ -12,6 +12,7 @@ import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
+import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
@@ -19,10 +20,12 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.spending.toFlow
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import com.nivy.wallet.domain.pure.spending.Flow
 import com.nivy.wallet.domain.pure.util.roundNicely
 import com.nivy.wallet.domain.pure.util.sizeEdges
 import kotlinx.collections.immutable.toImmutableList
@@ -69,7 +72,7 @@ class MonthDetailUseCase @Inject constructor(
 
             val paid = paid(range.from(), minOf(range.to(), now), inBalance)
             val expenses = paid.filterIsInstance<Expense>()
-            val spends = expenses.filter { it.isPurchase() }.mapNotNull { spend(it, rates, names) }
+            val spends = purchases(paid, rates, names)
             val income = paid.filterIsInstance<Income>().sumOf { rates.inBase(it.value) }
             val outgoing = expenses.sumOf { rates.inBase(it.value) }
 
@@ -156,7 +159,7 @@ class MonthDetailUseCase @Inject constructor(
                             .groupBy { it.category }
                             .mapValues { (_, inCategory) -> inCategory.sumOf { it.amount } }
                     }.orEmpty(),
-                    edges = sizeEdges(rates.factor(Euro) ?: 1.0),
+                    edges = sizeEdges(rates.factor(AssetCode.EUR) ?: 1.0),
                 ),
                 holdings = holdings,
                 runway = runway(holdings.netWorth, monthlySpending(startDayOfMonth, inBalance, rates)),
@@ -172,7 +175,7 @@ class MonthDetailUseCase @Inject constructor(
     private suspend fun paid(from: Instant, to: Instant, accounts: List<Account>): List<Transaction> {
         if (to.isBefore(from)) return emptyList()
         val ids = accounts.map { it.id }.toSet()
-        return transactionRepository.findAllBetween(from, to).filter { it.settled && it.accountId() in ids }
+        return transactionRepository.findAllBetween(from, to).filter { it.settled && it.getFromAccount() in ids }
     }
 
     // The month before [period]: itself, its purchases and its days.
@@ -182,13 +185,11 @@ class MonthDetailUseCase @Inject constructor(
         accounts: List<Account>,
         rates: BaseCurrencyRates,
         names: Names,
-    ): Triple<TimePeriod, List<Spend>, List<LocalDate>>? {
+    ): Triple<TimePeriod, List<Flow>, List<LocalDate>>? {
         val month = period.month ?: return null
         val before = month.incrementMonthPeriod(-1L, period.year ?: timeProvider.localDateNow().year)
         val range = before.toRange(startDayOfMonth, timeConverter, timeProvider)
-        val spends = paid(range.from(), range.to(), accounts).filterIsInstance<Expense>()
-            .filter { it.isPurchase() }
-            .mapNotNull { spend(it, rates, names) }
+        val spends = purchases(paid(range.from(), range.to(), accounts), rates, names)
         return Triple(before, spends, days(range))
     }
 
@@ -202,7 +203,7 @@ class MonthDetailUseCase @Inject constructor(
         days: List<LocalDate>,
         actualDays: Int,
         balances: List<Double>,
-        spends: List<Spend>,
+        spends: List<Flow>,
         due: List<Transaction>,
         free: FreeToSpend?,
         accounts: List<Account>,
@@ -234,7 +235,7 @@ class MonthDetailUseCase @Inject constructor(
         first: LocalDate?,
         period: TimePeriod,
         startDayOfMonth: Int,
-        spends: List<Spend>,
+        spends: List<Flow>,
         elapsed: Int,
         accounts: List<Account>,
         rates: BaseCurrencyRates,
@@ -245,7 +246,7 @@ class MonthDetailUseCase @Inject constructor(
             spends = spends,
             elapsed = elapsed,
             past = pastMonths(period, startDayOfMonth, first, accounts, rates, names),
-            atLeast = roundNicely(UnusualEuros * (rates.factor(Euro) ?: 1.0)),
+            atLeast = roundNicely(UnusualEuros * (rates.factor(AssetCode.EUR) ?: 1.0)),
         )
     }
 
@@ -288,9 +289,7 @@ class MonthDetailUseCase @Inject constructor(
             }
             .filter { !it.from().localDate().isBefore(first) }
         if (ranges.isEmpty()) return emptyList()
-        val spends = paid(ranges.first().from(), ranges.last().to(), accounts).filterIsInstance<Expense>()
-            .filter { it.isPurchase() }
-            .mapNotNull { spend(it, rates, names) }
+        val spends = purchases(paid(ranges.first().from(), ranges.last().to(), accounts), rates, names)
         return ranges.map { range ->
             val days = days(range)
             val inMonth = days.toSet()
@@ -327,22 +326,11 @@ class MonthDetailUseCase @Inject constructor(
         )
     }
 
-    // A purchase without a rate to the base currency is left out, not counted as one of nothing.
-    private suspend fun spend(expense: Expense, rates: BaseCurrencyRates, names: Names): Spend? = Spend(
-        amount = rates.inBaseOrNull(expense.value) ?: return null,
-        day = expense.time.localDate(),
-        made = with(timeConverter) { (expense.metadata.purchaseDateTime ?: expense.time).toLocalDateTime() },
-        title = expense.title?.value,
-        category = expense.category?.let(names.categories::get),
-        account = names.accounts[expense.account],
-        recurring = expense.metadata.recurringRuleId != null,
-    )
-
     private suspend fun upcoming(transaction: Transaction, rates: BaseCurrencyRates, names: Names) = Upcoming(
         day = transaction.time.localDate(),
         title = transaction.title?.value,
         category = transaction.category?.let(names.categories::get),
-        account = names.accounts[transaction.accountId()],
+        account = names.accounts[transaction.getFromAccount()],
         type = when (transaction) {
             is Income -> TransactionType.INCOME
             is Expense -> TransactionType.EXPENSE
@@ -366,10 +354,14 @@ class MonthDetailUseCase @Inject constructor(
 
     private fun Instant.localDate(): LocalDate = with(timeConverter) { toLocalDate() }
 
+    // The purchases among the [transactions], as flows in the base currency.
+    private suspend fun purchases(transactions: List<Transaction>, rates: BaseCurrencyRates, names: Names): List<Flow> =
+        transactions.filterIsInstance<Expense>().filter { it.isPurchase() }
+            .mapNotNull { it.toFlow(rates, timeConverter, names.categories, names.accounts) }
+
     private class Names(val accounts: Map<AccountId, Account>, val categories: Map<CategoryId, Category>)
 
     private companion object {
-        val Euro = AssetCode.unsafe("EUR")
         const val ComingUpListed = 5
         const val RunwayMonths = 3
 
@@ -384,14 +376,8 @@ class MonthDetailUseCase @Inject constructor(
 // A loan's money isn't a purchase.
 private fun Expense.isPurchase(): Boolean = metadata.loanId == null && metadata.loanRecordId == null
 
-private fun Transaction.accountId(): AccountId = when (this) {
-    is Income -> account
-    is Expense -> account
-    is Transfer -> fromAccount
-}
-
 // What the [spends] came to on each of the [days].
-private fun spentOn(days: List<LocalDate>, spends: List<Spend>): List<Double> =
+private fun spentOn(days: List<LocalDate>, spends: List<Flow>): List<Double> =
     days.map { day -> spends.filter { it.day == day }.sumOf { it.amount } }
 
 private fun List<Double>.runningReduceOrEmpty(): List<Double> = if (isEmpty()) this else runningReduce(Double::plus)

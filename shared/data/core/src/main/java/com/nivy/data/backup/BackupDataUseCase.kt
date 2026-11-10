@@ -3,17 +3,15 @@ package com.nivy.data.backup
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.nivy.base.file.unzip
-import com.nivy.base.file.zip
+import arrow.core.getOrElse
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
 import com.nivy.data.db.DatabaseTransaction
-import com.nivy.data.db.keepTransfersOfDeletedAccounts
 import com.nivy.data.db.dao.read.AccountDao
+import com.nivy.data.db.dao.read.AccountValueDao
 import com.nivy.data.db.dao.read.BudgetDao
 import com.nivy.data.db.dao.read.CategoryDao
-import com.nivy.data.db.dao.read.AccountValueDao
 import com.nivy.data.db.dao.read.CreditCardDao
 import com.nivy.data.db.dao.read.ExchangeRatesDao
 import com.nivy.data.db.dao.read.LoanDao
@@ -23,9 +21,9 @@ import com.nivy.data.db.dao.read.TagAssociationDao
 import com.nivy.data.db.dao.read.TagDao
 import com.nivy.data.db.dao.read.TransactionDao
 import com.nivy.data.db.dao.write.WriteAccountDao
+import com.nivy.data.db.dao.write.WriteAccountValueDao
 import com.nivy.data.db.dao.write.WriteBudgetDao
 import com.nivy.data.db.dao.write.WriteCategoryDao
-import com.nivy.data.db.dao.write.WriteAccountValueDao
 import com.nivy.data.db.dao.write.WriteCreditCardDao
 import com.nivy.data.db.dao.write.WriteExchangeRatesDao
 import com.nivy.data.db.dao.write.WriteLoanDao
@@ -34,6 +32,9 @@ import com.nivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
 import com.nivy.data.db.dao.write.WriteTagDao
 import com.nivy.data.db.dao.write.WriteTransactionDao
+import com.nivy.data.db.entity.AccountEntity
+import com.nivy.data.db.hasCurrency
+import com.nivy.data.db.keepTransfersOfDeletedAccounts
 import com.nivy.data.file.FileSystem
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
@@ -46,10 +47,9 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
-import kotlin.coroutines.cancellation.CancellationException
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 // How far the backup import is (0 to 1) after each of its stages.
 private object ImportProgress {
@@ -102,8 +102,12 @@ class BackupDataUseCase @Inject constructor(
     ) {
         val jsonString = generateJsonBackup()
         val file = createJsonDataFile(jsonString)
-        zip(context = context, zipFileUri, listOf(file))
-        clearCacheDir()
+        // Only the backup's own temporary file goes, whether the zip was written or not.
+        try {
+            fileSystem.zip(zipFileUri, listOf(file))
+        } finally {
+            file.delete()
+        }
     }
 
     private fun createJsonDataFile(jsonString: String): File {
@@ -182,17 +186,15 @@ class BackupDataUseCase @Inject constructor(
         backupFileUri: Uri,
         onProgress: suspend (progressPercent: Double) -> Unit
     ): ImportResult = withContext(dispatchersProvider.io) {
-        // A zip with the JSON inside, or the JSON itself: what fails to unzip is read as the JSON.
-        fun readAsJson(): String? = fileSystem.read(backupFileUri, Charsets.UTF_16).getOrNull()
-
+        val unzipped = File(context.cacheDir, "backup" + System.currentTimeMillis())
         return@withContext try {
-            val jsonString = try {
-                extractAndReadBackupZip(backupFileUri, onProgress)
-            } catch (ignored: IOException) {
-                readAsJson()
-            } catch (ignored: IllegalStateException) {
-                readAsJson()
-            } ?: ""
+            // A zip with the JSON inside, or the JSON itself; a file either refuses or can't be
+            // read says why.
+            val jsonString = if (fileSystem.isZip(backupFileUri)) {
+                extractAndReadBackupZip(backupFileUri, unzipped, onProgress)
+            } else {
+                fileSystem.read(backupFileUri, Charsets.UTF_16).getOrElse { throw it.e }
+            }
 
             importJson(jsonString, onProgress)
         } catch (e: CancellationException) {
@@ -209,7 +211,8 @@ class BackupDataUseCase @Inject constructor(
                 error = e.message ?: e.javaClass.simpleName,
             )
         } finally {
-            clearCacheDir()
+            // Only what this import unzipped goes.
+            unzipped.deleteRecursively()
             // Whatever happened, what's in memory may not match the database any more.
             dataObserver.post(DataWriteEvent.AllDataChange)
         }
@@ -217,14 +220,12 @@ class BackupDataUseCase @Inject constructor(
 
     private suspend fun extractAndReadBackupZip(
         backupFileUri: Uri,
+        folder: File,
         onProgress: suspend (progressPercent: Double) -> Unit
-    ): String? {
-        val folderName = "backup" + System.currentTimeMillis()
-        val cacheFolderPath = File(context.cacheDir, folderName)
+    ): String {
+        fileSystem.unzip(backupFileUri, folder)
 
-        unzip(context, backupFileUri, cacheFolderPath)
-
-        val filesArray = cacheFolderPath.listFiles()
+        val filesArray = folder.listFiles()
 
         onProgress(ImportProgress.UNZIPPED)
 
@@ -242,7 +243,7 @@ class BackupDataUseCase @Inject constructor(
             error("Didn't unzip exactly one file.")
         }
 
-        return fileSystem.read(filesList[0].toUri(), Charsets.UTF_16).getOrNull()
+        return fileSystem.read(filesList[0].toUri(), Charsets.UTF_16).getOrElse { throw it.e }
     }
 
     suspend fun importJson(
@@ -300,7 +301,10 @@ class BackupDataUseCase @Inject constructor(
             transactionWriter.saveMany(completeData.transactions)
             onProgress(ImportProgress.TRANSACTIONS_SAVED)
 
-            accountWriter.saveMany(completeData.accounts)
+            // An account the backup holds without a currency takes the backup's base currency, as
+            // the app that wrote it showed it, not whatever the base currency is when it's read.
+            val currency = completeData.settings.firstOrNull()?.currency ?: appPreferences.baseCurrency()
+            accountWriter.saveMany(completeData.accounts.map { it.withCurrency(currency) })
             budgetWriter.saveMany(completeData.budgets)
             categoryWriter.saveMany(completeData.categories)
             onProgress(ImportProgress.BUDGETS_AND_CATEGORIES_SAVED)
@@ -321,6 +325,9 @@ class BackupDataUseCase @Inject constructor(
             onProgress(ImportProgress.EVERYTHING_SAVED)
         }
     }
+
+    private fun AccountEntity.withCurrency(currency: String?): AccountEntity =
+        if (currency == null || hasCurrency()) this else copy(currency = currency)
 
     /** The settings a backup carries, applied once its data is in. */
     private suspend fun applySettings(completeData: NivyCompleteData) {
@@ -387,9 +394,5 @@ class BackupDataUseCase @Inject constructor(
         }
 
         return (name.substring(lastIndexOf).equals(".json", true))
-    }
-
-    private fun clearCacheDir() {
-        context.cacheDir.deleteRecursively()
     }
 }

@@ -6,15 +6,15 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import arrow.core.toOption
-import com.nivy.base.time.TimeConverter
-import com.nivy.base.time.TimeProvider
 import com.nivy.base.model.AccountType
 import com.nivy.base.threading.DispatchersProvider
+import com.nivy.base.time.TimeConverter
+import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
-import com.nivy.data.model.AccountValue
 import com.nivy.data.model.AccountId
-import com.nivy.data.model.CategoryId
+import com.nivy.data.model.AccountValue
 import com.nivy.data.model.Category
+import com.nivy.data.model.CategoryId
 import com.nivy.data.model.CreditCard
 import com.nivy.data.model.Transaction
 import com.nivy.data.preferences.AppPreferences
@@ -23,6 +23,7 @@ import com.nivy.data.repository.AccountValueRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.account.AccountIncomeExpenseUseCase
@@ -30,14 +31,15 @@ import com.nivy.domain.usecase.account.AccountTransactionsUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
-import com.nivy.wallet.PeriodState
-import com.nivy.wallet.data.model.TimePeriod
-import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.navigation.Navigation
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
+import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.data.model.toCloseTimeRange
 import com.nivy.wallet.domain.data.TransactionHistoryItem
+import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.pure.exchange.ExchangeData
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
@@ -76,6 +78,7 @@ class TransactionsViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val features: Features,
+    private val userWrites: UserWrites,
     private val dispatchers: DispatchersProvider,
     private val nav: Navigation,
 ) : ComposeViewModel<TransactionsState, TransactionsEvent>() {
@@ -355,13 +358,15 @@ class TransactionsViewModel @Inject constructor(
 
     private fun delete(screen: TransactionsScreen) {
         viewModelScope.launch {
-            when {
-                screen.accountId != null -> {
-                    accountCategoryDeletion.deleteAccount(screen.accountId!!)
-                }
+            userWrites.run(R.string.msg_change_not_saved) {
+                when {
+                    screen.accountId != null -> {
+                        accountCategoryDeletion.deleteAccount(screen.accountId!!)
+                    }
 
-                screen.categoryId != null -> {
-                    accountCategoryDeletion.deleteCategory(screen.categoryId!!)
+                    screen.categoryId != null -> {
+                        accountCategoryDeletion.deleteCategory(screen.categoryId!!)
+                    }
                 }
             }
         }
@@ -402,25 +407,25 @@ class TransactionsViewModel @Inject constructor(
 
     private fun saveValue(screen: TransactionsScreen, value: AccountValue) {
         viewModelScope.launch {
-            accountValueRepository.save(value)
-            start(screen = screen, timePeriod = period.value, reset = false)
+            if (userWrites.run(R.string.msg_change_not_saved) { accountValueRepository.save(value) }) {
+                start(screen = screen, timePeriod = period.value, reset = false)
+            }
         }
     }
 
     private fun deleteValue(screen: TransactionsScreen, value: AccountValue) {
         viewModelScope.launch {
-            accountValueRepository.deleteById(value.id)
-            start(screen = screen, timePeriod = period.value, reset = false)
+            if (userWrites.run(R.string.msg_change_not_saved) { accountValueRepository.deleteById(value.id) }) {
+                start(screen = screen, timePeriod = period.value, reset = false)
+            }
         }
     }
 
     private fun payOrGet(screen: TransactionsScreen, transaction: Transaction) {
         viewModelScope.launch {
-            dueTransactionsUseCase.pay(transaction)
-            start(
-                screen = screen,
-                reset = false
-            )
+            if (userWrites.run(R.string.msg_change_not_saved) { dueTransactionsUseCase.pay(transaction) }) {
+                start(screen = screen, reset = false)
+            }
         }
     }
 
@@ -430,11 +435,9 @@ class TransactionsViewModel @Inject constructor(
 
     private fun skipTransactions(screen: TransactionsScreen, transactions: List<Transaction>) {
         viewModelScope.launch {
-            dueTransactionsUseCase.skip(transactions)
-            start(
-                screen = screen,
-                reset = false
-            )
+            if (userWrites.run(R.string.msg_change_not_saved) { dueTransactionsUseCase.skip(transactions) }) {
+                start(screen = screen, reset = false)
+            }
         }
     }
 

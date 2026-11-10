@@ -10,6 +10,9 @@ import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.spending.DayAmount
+import com.nivy.wallet.domain.pure.spending.EveningPart
+import com.nivy.wallet.domain.pure.spending.Flow
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -306,6 +309,7 @@ class TrendsStatsTest {
             made = made,
             title = title,
             category = category,
+            account = null,
             recurring = recurring,
             purchase = purchase,
         )
@@ -317,6 +321,7 @@ class TrendsStatsTest {
             made = day.atTime(9, 0),
             title = null,
             category = null,
+            account = null,
             recurring = false,
             purchase = false,
         )

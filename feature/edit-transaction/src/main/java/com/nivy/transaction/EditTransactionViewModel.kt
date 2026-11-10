@@ -15,8 +15,8 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
-import com.nivy.data.model.CreditCard
 import com.nivy.data.model.CategoryId
+import com.nivy.data.model.CreditCard
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.pickable
 import com.nivy.data.preferences.AppPreferences
@@ -24,14 +24,16 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TransactionRepository
-import com.nivy.domain.usecase.creditcard.minChargeShift
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
-import com.nivy.wallet.data.EditTransactionDisplayLoan
-import com.nivy.wallet.domain.logic.AccountCreator
+import com.nivy.domain.usecase.creditcard.minChargeShift
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.MainScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
+import com.nivy.wallet.data.EditTransactionDisplayLoan
+import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import com.nivy.wallet.domain.logic.model.CreateAccountData
@@ -43,13 +45,13 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 
 @Stable
 @HiltViewModel
@@ -72,6 +74,7 @@ class EditTransactionViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val transactionDateTimePicker: TransactionDateTimePicker,
     private val creditCardRepository: CreditCardRepository,
+    private val userWrites: UserWrites,
     private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<EditTransactionViewState, EditTransactionViewEvent>() {
 
@@ -106,6 +109,7 @@ class EditTransactionViewModel @Inject constructor(
 
     private val tags = EditorTags(
         transactionTags = transactionTags,
+        userWrites = userWrites,
         scope = viewModelScope,
         transactionId = { loadedTransaction().id },
         afterTagAdd = { saveIfEditMode() },
@@ -405,10 +409,10 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun delete() {
         viewModelScope.launch {
-            loadedTransaction?.let {
-                transactionRepo.deleteById(TransactionId(it.id))
+            val deleted = userWrites.run(R.string.msg_change_not_saved) {
+                loadedTransaction?.let { transactionRepo.deleteById(TransactionId(it.id)) }
             }
-            closeScreen()
+            if (deleted) closeScreen()
         }
     }
 

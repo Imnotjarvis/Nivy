@@ -1,9 +1,11 @@
 package com.nivy.domain.usecase.planned
 
+import android.database.sqlite.SQLiteFullException
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CreditCardId
@@ -19,6 +21,7 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.model.primitive.PositiveInt
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.TransactionRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
@@ -38,6 +41,23 @@ class PlannedPaymentsGeneratorTest {
         coEvery { findAllByRecurringRuleId(any()) } answers { stored.toList() }
         coEvery { deletedByRecurringRuleIdAndNoDateTime(any()) } answers { stored.removeAll { !it.settled } }
         coEvery { save(any()) } answers { stored += firstArg<Transaction>() }
+        coEvery { saveMany(any()) } answers { stored += firstArg<List<Transaction>>() }
+    }
+
+    // Rolls back as the database does: a block cut short leaves the stored transactions as they were.
+    private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            val before = stored.toList()
+            var done = false
+            try {
+                return block().also { done = true }
+            } finally {
+                if (!done) {
+                    stored.clear()
+                    stored += before
+                }
+            }
+        }
     }
     private val accountRepository = mockk<AccountRepository> {
         coEvery { findById(Cash.id) } returns Cash
@@ -46,7 +66,8 @@ class PlannedPaymentsGeneratorTest {
         every { utcNow() } returns date(2026, 1, 1)
         every { getZoneId() } returns ZoneOffset.UTC
     }
-    private val generator = PlannedPaymentsGenerator(transactionRepository, accountRepository, timeProvider)
+    private val generator =
+        PlannedPaymentsGenerator(transactionRepository, accountRepository, timeProvider, databaseTransaction)
 
     @Test
     fun `monthly dates keep the start date's day after a short month`() = runTest {
@@ -112,6 +133,28 @@ class PlannedPaymentsGeneratorTest {
 
         // then
         unpaidDates().first() shouldBe date(2026, 1, 1)
+    }
+
+    @Test
+    fun `an edit cut short leaves the payments as they were`() = runTest {
+        // given: a rule with its payments, and a database that takes only two more
+        val rule = monthlyFrom(date(2026, 1, 1))
+        generator.generate(rule, previous = null)
+        val before = stored.toList()
+        var saves = 0
+        coEvery { transactionRepository.save(any()) } answers {
+            if (++saves > 2) throw SQLiteFullException("database or disk is full")
+            stored += firstArg<Transaction>()
+        }
+        coEvery { transactionRepository.saveMany(any()) } throws SQLiteFullException("database or disk is full")
+
+        // when
+        shouldThrow<SQLiteFullException> {
+            generator.generate(rule.copy(amount = PositiveDouble.unsafe(12.0)), previous = rule)
+        }
+
+        // then
+        stored shouldBe before
     }
 
     @Test

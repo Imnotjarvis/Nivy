@@ -1,11 +1,13 @@
 package com.nivy.transaction
 
 import android.content.Context
+import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.nivy.base.Toaster
 import com.nivy.base.model.TransactionType
 import com.nivy.base.refreshWidget
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Account
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
@@ -15,7 +17,6 @@ import com.nivy.domain.usecase.loan.NoLoanExchangeRate
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.CustomExchangeRateState
-import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +38,7 @@ class TransactionSaving @Inject constructor(
     private val dueTransactionsUseCase: DueTransactionsUseCase,
     private val dispatchers: DispatchersProvider,
     private val timeProvider: TimeProvider,
+    private val databaseTransaction: DatabaseTransaction,
 ) {
     fun validTransaction(
         scope: CoroutineScope,
@@ -108,20 +110,22 @@ class TransactionSaving @Inject constructor(
     }
 
     /**
-     * Saves [draft] on its card's charge date, after its loan, which [loanUpdating] is told about;
-     * false when it isn't a valid transaction.
+     * Saves [draft] on its card's charge date, after its loan, which [loanUpdating] is told about,
+     * in one database transaction; false when it isn't a valid transaction.
      */
     internal suspend fun save(draft: TransactionDraft, loanUpdating: (Boolean) -> Unit): Boolean {
         val transaction = draft.toDomain(transactionMapper) ?: return false
-        if (transaction.metadata.loanId != null) {
-            loanUpdating(true)
-            try {
-                loanTransactionsUseCase.updateFromTransaction(transaction)
-            } finally {
-                loanUpdating(false)
+        databaseTransaction.run {
+            if (transaction.metadata.loanId != null) {
+                loanUpdating(true)
+                try {
+                    loanTransactionsUseCase.updateFromTransaction(transaction)
+                } finally {
+                    loanUpdating(false)
+                }
             }
+            transactionRepo.save(creditCardChargeUseCase.dated(transaction))
         }
-        transactionRepo.save(creditCardChargeUseCase.dated(transaction))
 
         context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         return true
@@ -142,9 +146,11 @@ class TransactionSaving @Inject constructor(
             )
             .toDomain(transactionMapper)
             ?: return false
-        transactionRepo.save(creditCardChargeUseCase.dated(copy))
-
-        copyTags()
+        // One database transaction: the copy isn't left without its tags.
+        databaseTransaction.run {
+            transactionRepo.save(creditCardChargeUseCase.dated(copy))
+            copyTags()
+        }
 
         context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         return true

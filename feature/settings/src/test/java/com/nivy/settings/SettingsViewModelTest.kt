@@ -1,23 +1,25 @@
 package com.nivy.settings
 
+import android.database.sqlite.SQLiteFullException
 import android.net.Uri
 import arrow.core.None
 import arrow.core.Some
 import arrow.core.left
 import arrow.core.right
-import com.nivy.base.model.AppLockDelay
 import com.nivy.base.Toaster
+import com.nivy.base.model.AppLockDelay
+import com.nivy.data.file.FileSystem
 import com.nivy.data.model.Budget
 import com.nivy.data.model.BudgetId
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
-import com.nivy.data.file.FileSystem
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.RootScreen
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.csv.ExportCsvUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
@@ -72,6 +74,7 @@ class SettingsViewModelTest {
             timeProvider = mockk(relaxed = true),
             toaster = toaster,
             dateFormatState = mockk(relaxed = true),
+            userWrites = UserWrites(toaster),
         )
     }
 
@@ -102,6 +105,21 @@ class SettingsViewModelTest {
             )
             appPreferences.setBaseCurrency("USD")
         }
+    }
+
+    @Test
+    fun `budgets the database refuses keep the base currency, and the failure shows`() {
+        coEvery { budgetRepository.findAll() } returns listOf(budget(100.0))
+        coEvery { exchangeUseCase.convert(any<PositiveValue>(), Usd) } answers {
+            Some(PositiveValue(PositiveDouble.unsafe(firstArg<PositiveValue>().amount.value * 2), Usd))
+        }
+        coEvery { budgetRepository.saveMany(any()) } throws SQLiteFullException("database or disk is full")
+
+        viewModel.onEvent(SettingsEvent.SetCurrency("USD"))
+
+        coVerify(timeout = Timeout) { toaster.show(R.string.msg_change_not_saved, any()) }
+        coVerify(exactly = 0) { appPreferences.setBaseCurrency(any()) }
+        coVerify(exactly = 0) { syncExchangeRates.sync(any()) }
     }
 
     @Test

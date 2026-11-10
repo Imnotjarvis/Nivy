@@ -1,21 +1,23 @@
 package com.nivy.data.backup
 
+import android.content.Context
+import arrow.core.left
+import arrow.core.right
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.di.KotlinxSerializationModule
-import com.nivy.data.DataObserver
+import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
+import com.nivy.data.DataObserver
 import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.fake.FakeAccountDao
+import com.nivy.data.db.dao.fake.FakeAccountValueDao
 import com.nivy.data.db.dao.fake.FakeBudgetDao
 import com.nivy.data.db.dao.fake.FakeCategoryDao
-import com.nivy.data.db.dao.fake.FakeAccountValueDao
 import com.nivy.data.db.dao.fake.FakeCreditCardDao
 import com.nivy.data.db.dao.fake.FakeExchangeRatesDao
 import com.nivy.data.db.dao.fake.FakeLoanDao
 import com.nivy.data.db.dao.fake.FakeLoanRecordDao
 import com.nivy.data.db.dao.fake.FakePlannedPaymentDao
-import com.nivy.data.preferences.AppPreferences
-import com.nivy.data.preferences.InMemoryPreferencesDataStore
 import com.nivy.data.db.dao.fake.FakeTagAssociationDao
 import com.nivy.data.db.dao.fake.FakeTagDao
 import com.nivy.data.db.dao.fake.FakeTransactionDao
@@ -23,22 +25,37 @@ import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.AccountValueEntity
 import com.nivy.data.db.entity.CreditCardEntity
 import com.nivy.data.db.entity.TransactionEntity
+import com.nivy.data.file.FileSystem
+import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
+import com.nivy.data.preferences.InMemoryPreferencesDataStore
 import com.nivy.data.testResource
-import com.nivy.base.model.Theme
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import java.time.Instant
 import java.util.UUID
 
 class BackupDataUseCaseTest {
     private val json = KotlinxSerializationModule.provideJson()
+
+    @get:Rule
+    val cache = TemporaryFolder()
+
+    // The app's cache directory is the temporary folder.
+    private val context = mockk<Context>(relaxed = true) { every { cacheDir } answers { cache.root } }
 
     /** The fakes have no transactions; the block simply runs. */
     private class FakeDatabaseTransaction : DatabaseTransaction(mockk(), mockk()) {
@@ -59,6 +76,7 @@ class BackupDataUseCaseTest {
         creditCardDao: FakeCreditCardDao = FakeCreditCardDao(),
         accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
         exchangeRatesDao: FakeExchangeRatesDao = FakeExchangeRatesDao(),
+        fileSystem: FileSystem = mockk(relaxed = true),
     ): BackupDataUseCase {
         return BackupDataUseCase(
             accountDao = accountDao,
@@ -76,11 +94,11 @@ class BackupDataUseCaseTest {
             loanRecordWriter = loanRecordDao,
             plannedPaymentRuleWriter = plannedPaymentDao,
 
-            context = mockk(relaxed = true),
+            context = context,
             appPreferences = appPreferences,
             json = json,
             dispatchersProvider = TestDispatchersProvider,
-            fileSystem = mockk(relaxed = true),
+            fileSystem = fileSystem,
             dataObserver = DataObserver(),
             tagsReader = tagDao,
             tagsWriter = tagDao,
@@ -126,6 +144,82 @@ class BackupDataUseCaseTest {
     }
 
     @Test
+    fun `a zip refused for what it holds says why, and isn't read as the JSON`() = runTest {
+        // given: an archive with an entry that would land outside its folder
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { isZip(any()) } returns true
+            every { unzip(any(), any()) } throws IOException(ZipSlip)
+            every { read(any(), any()) } returns "not JSON".right()
+        }
+
+        // when
+        val result = newBackupDataUseCase(fileSystem = fileSystem).importBackupFile(mockk(), onProgress = {})
+
+        // then
+        result.error shouldBe ZipSlip
+    }
+
+    @Test
+    fun `a backup that can't be read says why`() = runTest {
+        // given
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { isZip(any()) } returns false
+            every { read(any(), any()) } returns FileSystem.Failure.FileNotFound(FileNotFoundException(NoFile)).left()
+        }
+
+        // when
+        val result = newBackupDataUseCase(fileSystem = fileSystem).importBackupFile(mockk(), onProgress = {})
+
+        // then
+        result.error shouldBe NoFile
+    }
+
+    @Test
+    fun `an import deletes the files it unzipped, and nothing else in the cache`() = runTest {
+        // given
+        cache.newFile("thumbnail.png")
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { isZip(any()) } returns true
+            every { unzip(any(), any()) } answers {
+                secondArg<File>().apply { mkdirs() }.resolve("backup.json").writeText("{}")
+            }
+            every { read(any(), any()) } returns "{}".right()
+        }
+
+        // when
+        newBackupDataUseCase(fileSystem = fileSystem).importBackupFile(mockk(), onProgress = {})
+
+        // then
+        cache.root.list()!!.toList() shouldBe listOf("thumbnail.png")
+    }
+
+    @Test
+    fun `an export deletes its own temporary file, and nothing else in the cache`() = runTest {
+        // given
+        cache.newFile("thumbnail.png")
+
+        // when
+        newBackupDataUseCase().exportToFile(mockk())
+
+        // then
+        cache.root.list()!!.toList() shouldBe listOf("thumbnail.png")
+    }
+
+    @Test
+    fun `an export that fails leaves no backup behind in the cache`() = runTest {
+        // given
+        val fileSystem = mockk<FileSystem>(relaxed = true) {
+            every { zip(any(), any()) } throws IOException("No space left on device")
+        }
+
+        // when
+        shouldThrow<IOException> { newBackupDataUseCase(fileSystem = fileSystem).exportToFile(mockk()) }
+
+        // then
+        cache.root.list()!!.toList() shouldBe emptyList()
+    }
+
+    @Test
     fun `backup compatibility with 450 (150)`() = runTest {
         backupTestCase("450-150")
     }
@@ -134,7 +228,8 @@ class BackupDataUseCaseTest {
     fun `a Nivy backup comes back whole, and so does the backup made of it`() = runTest {
         // given: a backup written by hand, with every kind of row a Nivy backup carries
         val file = testResource("backups/nivy-2026-11.json").readText()
-        val inFile = json.decodeFromString<NivyCompleteData>(file).tables()
+        // The cash account it holds without a currency comes in with the backup's, EUR.
+        val inFile = json.decodeFromString<NivyCompleteData>(file).tables().withCashInEuros()
 
         // when
         val restored = Wallet()
@@ -231,6 +326,23 @@ class BackupDataUseCaseTest {
             appPreferences.showNotifications() shouldBe false
             appPreferences.hideCurrentBalance() shouldBe true
         }
+
+    @Test
+    fun `a backup's account without a currency takes the backup's base currency`() = runTest {
+        // given
+        val accountDao = FakeAccountDao()
+        val useCase = newBackupDataUseCase(accountDao = accountDao)
+        val backup = NivyCompleteData(
+            accounts = listOf(AccountEntity(name = "Cash", currency = null, color = 2)),
+            settings = listOf(SettingsBackup(theme = Theme.AUTO, currency = "EUR", bufferAmount = 0.0, name = "")),
+        )
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then
+        accountDao.findAll().single().currency shouldBe "EUR"
+    }
 
     @Test
     fun `two same-named accounts in a backup stay two accounts`() = runTest {
@@ -520,6 +632,11 @@ class BackupDataUseCaseTest {
         val balance = transactionDao.balance(bank.id, Instant.EPOCH, Instant.parse("3000-01-01T00:00:00Z"))
         balance shouldBe -46.0 // -60 + 24 - 10
     }
+
+    private companion object {
+        const val ZipSlip = "Zip entry outside the destination folder: ../databases/x.json"
+        const val NoFile = "The provider gave no file to open"
+    }
 }
 
 /** The rows, each table in a fixed order. Settings are checked on their own. */
@@ -551,3 +668,7 @@ private val NivyBackupBalances = mapOf(
     "aaaaaaaa-0000-4000-8000-000000000005" to 1000.0, // Brokerage
     "aaaaaaaa-0000-4000-8000-000000000006" to 500.0, // Old savings, archived
 )
+
+/** [this], with the accounts it holds without a currency in euros, the backup's base currency. */
+private fun NivyCompleteData.withCashInEuros() =
+    copy(accounts = accounts.map { if (it.currency == null) it.copy(currency = "EUR") else it })

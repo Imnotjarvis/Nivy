@@ -15,6 +15,7 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.spending.Flow
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.Instant
@@ -188,6 +189,7 @@ internal object TrendsSample {
         made = day.atTime(hour, 0),
         title = title,
         category = category,
+        account = null,
         recurring = recurring,
         purchase = true,
     )
@@ -199,6 +201,7 @@ internal object TrendsSample {
         made = day.atTime(9, 0),
         title = "Salary",
         category = null,
+        account = null,
         recurring = false,
         purchase = false,
     )

@@ -11,6 +11,7 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.fake.fakeRepositoryMemoFactory
 import com.nivy.data.repository.mapper.CategoryMapper
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
@@ -19,6 +20,7 @@ import io.mockk.runs
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import timber.log.Timber
 import java.util.UUID
 
 class CategoryRepositoryTest {
@@ -48,6 +50,39 @@ class CategoryRepositoryTest {
 
         // then
         res shouldBe emptyList()
+    }
+
+    @Test
+    fun `a row the mapper refuses is left out, and why is logged`() = runTest {
+        // given
+        val logged = mutableListOf<String>()
+        val tree = object : Timber.Tree() {
+            override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                logged += message
+            }
+        }
+        Timber.plant(tree)
+        coEvery { categoryDao.findAll() } returns listOf(
+            CategoryEntity(
+                name = "",
+                color = 42,
+                icon = null,
+                orderNum = 0.0,
+                isDeleted = false,
+                id = UUID.randomUUID(),
+            )
+        )
+
+        try {
+            // when
+            val res = repository.findAll()
+
+            // then
+            res shouldBe emptyList()
+            logged.single() shouldContain NotBlankTrimmedString.from("").leftOrNull()!!
+        } finally {
+            Timber.uproot(tree)
+        }
     }
 
     @Test

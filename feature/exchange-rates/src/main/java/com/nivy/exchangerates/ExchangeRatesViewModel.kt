@@ -17,6 +17,7 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.nivy.exchangerates.data.RateUi
 import com.nivy.ui.ComposeViewModel
@@ -35,6 +36,7 @@ class ExchangeRatesViewModel @Inject constructor(
     private val exchangeRatesRepo: ExchangeRatesRepository,
     private val dispatchers: DispatchersProvider,
     private val toaster: Toaster,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<RatesState, RatesEvent>() {
     private var searchQuery by mutableStateOf("")
     private var baseCurrency by mutableStateOf<AssetCode?>(null)
@@ -94,15 +96,17 @@ class ExchangeRatesViewModel @Inject constructor(
     private suspend fun handleRemoveOverride(event: RatesEvent.RemoveOverride) {
         withContext(dispatchers.io) {
             either {
-                exchangeRatesRepo.deleteByBaseCurrencyAndCurrency(
-                    baseCurrency = AssetCode.from(event.rate.from).bind(),
-                    currency = AssetCode.from(event.rate.to).bind()
-                )
-            }.onRight {
+                AssetCode.from(event.rate.from).bind() to AssetCode.from(event.rate.to).bind()
+            }.onRight { (from, to) ->
+                val removed = userWrites.run(R.string.msg_rate_not_removed) {
+                    exchangeRatesRepo.deleteByBaseCurrencyAndCurrency(baseCurrency = from, currency = to)
+                }
                 // Sync to fetch the real rate
-                baseCurrency?.let { base ->
-                    syncExchangeRatesUseCase.sync(base)
-                        .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
+                if (removed) {
+                    baseCurrency?.let { base ->
+                        syncExchangeRatesUseCase.sync(base)
+                            .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
+                    }
                 }
             }.onLeft { toaster.show(R.string.msg_rate_not_removed) }
         }
@@ -131,7 +135,7 @@ class ExchangeRatesViewModel @Inject constructor(
                     manualOverride = true
                 )
             }.onRight {
-                exchangeRatesRepo.save(it)
+                userWrites.run(R.string.msg_rate_not_saved) { exchangeRatesRepo.save(it) }
             }.onLeft { toaster.show(R.string.msg_rate_not_saved) }
         }
     }

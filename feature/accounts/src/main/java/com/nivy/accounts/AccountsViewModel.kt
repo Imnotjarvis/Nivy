@@ -17,12 +17,14 @@ import com.nivy.data.DataWriteEvent
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
+import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.LoadTimer
+import com.nivy.ui.R
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.AccountData
 import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.ui.ComposeViewModel
-import com.nivy.ui.LoadTimer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
@@ -43,6 +45,7 @@ class AccountsViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val dispatchers: DispatchersProvider,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<AccountsState, AccountsEvent>() {
     private var baseCurrency by mutableStateOf("")
     private var accountsData by mutableStateOf(listOf<AccountData>())
@@ -116,9 +119,11 @@ class AccountsViewModel @Inject constructor(
 
     // One write: the change it reports reloads the list once, not once per account.
     private suspend fun reorder(newOrder: List<AccountData>) {
-        accountRepository.saveMany(
-            newOrder.mapIndexed { index, accountData -> accountData.account.copy(orderNum = index.toDouble()) }
-        )
+        userWrites.run(R.string.msg_change_not_saved) {
+            accountRepository.saveMany(
+                newOrder.mapIndexed { index, accountData -> accountData.account.copy(orderNum = index.toDouble()) }
+            )
+        }
     }
 
     private var loadJob: Job? = null

@@ -24,11 +24,11 @@ class LoanRepository @Inject constructor(
 ) {
     /** Sorted by [Loan.orderNum]. */
     suspend fun findAll(): List<Loan> = withContext(dispatchersProvider.io) {
-        loanDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+        loanDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
     }
 
     suspend fun findById(id: LoanId): Loan? = withContext(dispatchersProvider.io) {
-        loanDao.findById(id.value)?.let { with(mapper) { it.toDomain() }.getOrNull() }
+        loanDao.findById(id.value)?.let { with(mapper) { it.toDomain() }.orLogged() }
     }
 
     suspend fun findMaxOrderNum(): Double = withContext(dispatchersProvider.io) {
@@ -51,12 +51,12 @@ class LoanRepository @Inject constructor(
     suspend fun findRecordsByLoanId(loanId: LoanId): List<LoanRecord> =
         withContext(dispatchersProvider.io) {
             loanRecordDao.findAllByLoanId(loanId.value)
-                .mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+                .mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
         }
 
     suspend fun findRecordById(id: LoanRecordId): LoanRecord? =
         withContext(dispatchersProvider.io) {
-            loanRecordDao.findById(id.value)?.let { with(mapper) { it.toDomain() }.getOrNull() }
+            loanRecordDao.findById(id.value)?.let { with(mapper) { it.toDomain() }.orLogged() }
         }
 
     suspend fun saveRecord(value: LoanRecord): Unit = withContext(dispatchersProvider.io) {
@@ -65,5 +65,11 @@ class LoanRepository @Inject constructor(
 
     suspend fun deleteRecordById(id: LoanRecordId): Unit = withContext(dispatchersProvider.io) {
         writeLoanRecordDao.deleteById(id.value)
+    }
+
+    /** Deletes every loan and every record. */
+    suspend fun deleteAll(): Unit = withContext(dispatchersProvider.io) {
+        writeLoanRecordDao.deleteAll()
+        writeLoanDao.deleteAll()
     }
 }

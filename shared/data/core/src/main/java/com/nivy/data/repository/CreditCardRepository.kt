@@ -18,17 +18,17 @@ class CreditCardRepository @Inject constructor(
     private val dispatchersProvider: DispatchersProvider,
 ) {
     suspend fun findAll(): List<CreditCard> = withContext(dispatchersProvider.io) {
-        creditCardDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+        creditCardDao.findAll().mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
     }
 
     suspend fun findById(id: CreditCardId): CreditCard? = withContext(dispatchersProvider.io) {
-        creditCardDao.findById(id.value)?.let { with(mapper) { it.toDomain() }.getOrNull() }
+        creditCardDao.findById(id.value)?.let { with(mapper) { it.toDomain() }.orLogged() }
     }
 
     suspend fun findByAccount(accountId: AccountId): List<CreditCard> =
         withContext(dispatchersProvider.io) {
             creditCardDao.findByAccountId(accountId.value)
-                .mapNotNull { with(mapper) { it.toDomain() }.getOrNull() }
+                .mapNotNull { with(mapper) { it.toDomain() }.orLogged() }
         }
 
     /**

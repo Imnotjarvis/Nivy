@@ -9,6 +9,7 @@ import com.nivy.base.Toaster
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.resource.ResourceProvider
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.file.FileSystem
@@ -36,6 +37,7 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.RootScreen
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.csv.ExportCsvUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
@@ -53,13 +55,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import com.nivy.base.threading.DispatchersProvider
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import java.io.IOException
 import java.math.BigDecimal
@@ -69,6 +69,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 
 class ReportViewModelTest {
 
@@ -141,6 +142,7 @@ class ReportViewModelTest {
         resourceProvider = mockk<ResourceProvider> { every { getString(any()) } returns "Unspecified" },
         dispatchers = dispatchers,
         toaster = toaster,
+        userWrites = UserWrites(toaster),
     )
 
     /** The report's own "Unspecified" category, for transactions without one. */

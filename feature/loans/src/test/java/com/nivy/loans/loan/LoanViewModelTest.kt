@@ -13,8 +13,8 @@ import com.nivy.data.model.Loan
 import com.nivy.data.model.LoanId
 import com.nivy.data.model.LoanRecord
 import com.nivy.data.model.LoanRecordId
-import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -22,6 +22,7 @@ import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.utils.format
@@ -85,6 +86,7 @@ class LoanViewModelTest {
         timeProvider = FixedTime,
         dateTimePicker = mockk(relaxed = true),
         dispatchers = TestDispatchersProvider,
+        userWrites = UserWrites(mockk(relaxed = true)),
     )
 
     @Before

@@ -25,7 +25,7 @@ class AccountRepository @Inject constructor(
         id = id,
         findByIdOperation = {
             accountDao.findById(id.value)?.let {
-                with(mapper) { it.toDomain() }.getOrNull()
+                with(mapper) { it.toDomain() }.orLogged()
             }
         }
     )
@@ -33,7 +33,7 @@ class AccountRepository @Inject constructor(
     suspend fun findAll(): List<Account> = memo.findAll(
         findAllOperation = {
             accountDao.findAll().mapNotNull {
-                with(mapper) { it.toDomain() }.getOrNull()
+                with(mapper) { it.toDomain() }.orLogged()
             }
         },
         sortMemo = { sortedBy(Account::orderNum) }

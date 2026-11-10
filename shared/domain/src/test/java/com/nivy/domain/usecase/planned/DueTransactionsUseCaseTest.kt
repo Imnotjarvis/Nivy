@@ -1,10 +1,11 @@
 package com.nivy.domain.usecase.planned
 
+import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Expense
-import com.nivy.base.model.IntervalType
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
@@ -42,6 +43,19 @@ class DueTransactionsUseCaseTest {
         coEvery { dated(any()) } answers { firstArg() }
     }
 
+    // The database transaction's block runs as it is; inTransaction says when.
+    private var inTransaction = false
+    private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            inTransaction = true
+            return try {
+                block()
+            } finally {
+                inTransaction = false
+            }
+        }
+    }
+
     private val useCase = DueTransactionsUseCase(
         transactionRepository = transactionRepository,
         plannedPaymentRuleRepository = plannedPaymentRuleRepository,
@@ -50,6 +64,7 @@ class DueTransactionsUseCaseTest {
         plannedPaymentsGenerator = plannedPaymentsGenerator,
         creditCardChargeUseCase = creditCardChargeUseCase,
         timeProvider = timeProvider,
+        databaseTransaction = databaseTransaction,
     )
 
     init {
@@ -74,6 +89,36 @@ class DueTransactionsUseCaseTest {
         expense.time shouldBe Now
         expense.metadata.paidForDateTime shouldBe DueTime
         paid shouldBe expense
+    }
+
+    @Test
+    fun `paying saves the payment and the rule's next occurrences in one database transaction`() = runTest {
+        // given
+        val writes = mutableListOf<Boolean>()
+        coEvery { transactionRepository.save(any()) } answers { writes += inTransaction }
+        coEvery { plannedPaymentsGenerator.topUp(MonthlyRule) } answers { writes += inTransaction }
+
+        // when
+        useCase.pay(expense(rule = MonthlyRule.id, settled = false))
+
+        // then
+        writes shouldBe listOf(true, true)
+    }
+
+    @Test
+    fun `skipping deletes the payments and a one-time rule in one database transaction`() = runTest {
+        // given
+        val writes = mutableListOf<Boolean>()
+        coEvery { transactionRepository.deleteById(any()) } answers { writes += inTransaction }
+        coEvery { plannedPaymentRuleRepository.deleteById(OneTimeRule.id) } answers { writes += inTransaction }
+
+        // when
+        useCase.skip(
+            listOf(expense(rule = MonthlyRule.id, settled = false), expense(rule = OneTimeRule.id, settled = false))
+        )
+
+        // then
+        writes shouldBe listOf(true, true, true)
     }
 
     @Test

@@ -1,7 +1,9 @@
 package com.nivy.domain.usecase.loan
 
 import com.nivy.base.model.LoanRecordType
+import com.nivy.base.model.LoanType
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
@@ -11,7 +13,6 @@ import com.nivy.data.model.Loan
 import com.nivy.data.model.LoanId
 import com.nivy.data.model.LoanRecord
 import com.nivy.data.model.LoanRecordId
-import com.nivy.base.model.LoanType
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
@@ -39,7 +40,8 @@ import javax.inject.Inject
  * Keeps loans, their records and the transactions that moved their money in step.
  *
  * A loan or record can have one transaction, in the account it names: an income when the money
- * came in (borrowing, or getting a lent amount back) and an expense when it went out.
+ * came in (borrowing, or getting a lent amount back) and an expense when it went out. Each change
+ * below is one database transaction: cut short, nothing of it stays.
  */
 class LoanTransactionsUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
@@ -50,12 +52,55 @@ class LoanTransactionsUseCase @Inject constructor(
     private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
     private val creditCardChargeUseCase: CreditCardChargeUseCase,
+    private val databaseTransaction: DatabaseTransaction,
 ) {
+    /**
+     * Saves [loan] and what follows from it: its records converted to its currency when its
+     * account moved from [oldAccount], its transaction made or removed as [createTransaction]
+     * asks, and its records' transactions in line with its type.
+     *
+     * @throws NoLoanExchangeRate when a record can't be converted; nothing changes.
+     */
+    suspend fun saveLoan(loan: Loan, oldAccount: AccountId?, createTransaction: Boolean) {
+        databaseTransaction.run {
+            recalculateRecords(loan, oldAccount)
+            loanRepository.save(loan)
+            syncLoanTransaction(loan, create = createTransaction)
+            // A changed type turns the records' income into expenses and the other way round.
+            syncRecordTransactions(loan)
+        }
+    }
+
+    /** Deletes [loan], with its records and the transactions that moved their money. */
+    suspend fun deleteLoan(loan: LoanId) {
+        databaseTransaction.run {
+            deleteLoanTransactions(loan)
+            loanRepository.findRecordsByLoanId(loan).forEach { loanRepository.deleteRecordById(it.id) }
+            loanRepository.deleteById(loan)
+        }
+    }
+
+    /** Saves [record] of [loan], its transaction made, updated or removed as [createTransaction] asks. */
+    suspend fun saveRecord(loan: Loan, record: LoanRecord, createTransaction: Boolean) {
+        databaseTransaction.run {
+            loanRepository.saveRecord(record)
+            syncLoanRecordTransaction(loan, record, create = createTransaction)
+        }
+    }
+
+    /** Deletes [record] and its transaction. */
+    suspend fun deleteRecord(record: LoanRecordId) {
+        databaseTransaction.run {
+            loanRepository.deleteRecordById(record)
+            deleteLoanRecordTransaction(record)
+        }
+    }
+
     /**
      * Creates or updates the loan's transaction when [create] is true and the loan has an
      * account, and deletes it when [create] is false.
      */
-    suspend fun syncLoanTransaction(loan: Loan, create: Boolean) {
+    internal suspend fun syncLoanTransaction(loan: Loan, create: Boolean) {
         val existing = transactionRepository.findLoanTransaction(loan.id.value)
         if (!create) {
             existing?.let { transactionRepository.deleteById(it.id) }
@@ -78,7 +123,7 @@ class LoanTransactionsUseCase @Inject constructor(
      * Creates or updates the record's transaction when [create] is true and the record has an
      * account, and deletes it when [create] is false.
      */
-    suspend fun syncLoanRecordTransaction(loan: Loan, record: LoanRecord, create: Boolean) {
+    internal suspend fun syncLoanRecordTransaction(loan: Loan, record: LoanRecord, create: Boolean) {
         val existing = transactionRepository.findLoanRecordTransaction(record.id.value)
         if (!create) {
             existing?.let { transactionRepository.deleteById(it.id) }
@@ -102,7 +147,7 @@ class LoanTransactionsUseCase @Inject constructor(
      * Brings the records' existing transactions in line with [loan]: whether a record is income or
      * an expense depends on the loan's type. Records without a transaction keep having none.
      */
-    suspend fun syncRecordTransactions(loan: Loan) {
+    internal suspend fun syncRecordTransactions(loan: Loan) {
         loanRepository.findRecordsByLoanId(loan.id).forEach { record ->
             if (transactionRepository.findLoanRecordTransaction(record.id.value) != null) {
                 syncLoanRecordTransaction(loan, record, create = true)
@@ -110,12 +155,12 @@ class LoanTransactionsUseCase @Inject constructor(
         }
     }
 
-    suspend fun deleteLoanTransactions(loan: LoanId) {
+    private suspend fun deleteLoanTransactions(loan: LoanId) {
         transactionRepository.findAllByLoanId(loan.value)
             .forEach { transactionRepository.deleteById(it.id) }
     }
 
-    suspend fun deleteLoanRecordTransaction(record: LoanRecordId) {
+    private suspend fun deleteLoanRecordTransaction(record: LoanRecordId) {
         transactionRepository.findLoanRecordTransaction(record.value)
             ?.let { transactionRepository.deleteById(it.id) }
     }
@@ -155,7 +200,7 @@ class LoanTransactionsUseCase @Inject constructor(
      * Converts the loan's records to its currency after its account changed from [oldAccount]: all
      * of them, or none when one can't be ([NoLoanExchangeRate]).
      */
-    suspend fun recalculateRecords(loan: Loan, oldAccount: AccountId?) {
+    internal suspend fun recalculateRecords(loan: Loan, oldAccount: AccountId?) {
         if (oldAccount == loan.account || currencyOf(oldAccount) == currencyOf(loan.account)) return
 
         loanRepository.findRecordsByLoanId(loan.id)
@@ -179,10 +224,12 @@ class LoanTransactionsUseCase @Inject constructor(
     suspend fun updateFromTransaction(transaction: Transaction) {
         val loanId = transaction.metadata.loanId?.let(::LoanId) ?: return
         val recordId = transaction.metadata.loanRecordId?.let(::LoanRecordId)
-        if (recordId == null) {
-            updateLoan(loanId, transaction)
-        } else {
-            updateLoanRecord(loanId, recordId, transaction)
+        databaseTransaction.run {
+            if (recordId == null) {
+                updateLoan(loanId, transaction)
+            } else {
+                updateLoanRecord(loanId, recordId, transaction)
+            }
         }
     }
 

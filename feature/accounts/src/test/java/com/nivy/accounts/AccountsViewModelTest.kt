@@ -13,6 +13,7 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.AccountRepository
+import com.nivy.domain.UserWrites
 import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
@@ -72,6 +73,7 @@ class AccountsViewModelTest {
             timeProvider = FixedTime,
             timeConverter = TestTimeConverter(),
             dispatchers = TestDispatchersProvider,
+            userWrites = UserWrites(mockk(relaxed = true)),
         )
     }
 

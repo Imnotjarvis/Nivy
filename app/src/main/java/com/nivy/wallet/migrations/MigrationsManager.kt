@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.nivy.data.datastore.dataStore
+import com.nivy.wallet.migrations.impl.AccountsWithoutCurrencyMigration
 import com.nivy.wallet.migrations.impl.DisableGitHubAutoBackupMigration
 import com.nivy.wallet.migrations.impl.KeepTransfersWithDeletedAccountsMigration
 import dagger.Lazy
@@ -23,11 +24,13 @@ class MigrationsManager @Inject constructor(
     private val context: Context,
     private val disableGitHubAutoBackupMigration: Lazy<DisableGitHubAutoBackupMigration>,
     private val keepTransfersWithDeletedAccountsMigration: Lazy<KeepTransfersWithDeletedAccountsMigration>,
+    private val accountsWithoutCurrencyMigration: Lazy<AccountsWithoutCurrencyMigration>,
 ) {
     private val migrations by lazy {
         listOf(
             disableGitHubAutoBackupMigration.get(),
             keepTransfersWithDeletedAccountsMigration.get(),
+            accountsWithoutCurrencyMigration.get(),
         )
     }
 

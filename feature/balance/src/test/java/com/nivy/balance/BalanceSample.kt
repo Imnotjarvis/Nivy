@@ -8,7 +8,6 @@ import com.nivy.balance.detail.Holdings
 import com.nivy.balance.detail.MonthDetail
 import com.nivy.balance.detail.Pace
 import com.nivy.balance.detail.PastMonth
-import com.nivy.balance.detail.Spend
 import com.nivy.balance.detail.Upcoming
 import com.nivy.balance.detail.habits
 import com.nivy.balance.detail.lowestAhead
@@ -29,6 +28,7 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.spending.Flow
 import com.nivy.wallet.domain.pure.util.SizeEdgesInEuros
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
@@ -109,7 +109,7 @@ internal object BalanceSample {
 
     // January to October, the same every time: everyday purchases, bills and subscriptions, a sofa
     // in March, and more rides than lately.
-    private val Past: List<Spend> = run {
+    private val Past: List<Flow> = run {
         val random = Random(23)
         generateSequence(LocalDate.of(2026, 1, 1)) { it.plusDays(1) }
             .takeWhile { it.isBefore(Days.first()) }
@@ -264,14 +264,16 @@ internal object BalanceSample {
         amount: Double,
         recurring: Boolean = false,
         account: Account = MainBank,
-    ) = Spend(
+    ) = Flow(
         amount = amount,
+        income = false,
         day = day,
         made = day.atTime(hour, 0),
         title = title,
         category = category,
         account = account,
         recurring = recurring,
+        purchase = true,
     )
 
     private fun category(name: String, color: Color, icon: String, n: Long) = Category(

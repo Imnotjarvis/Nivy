@@ -19,6 +19,8 @@ class AccountMapper @Inject constructor(
         Account(
             id = AccountId(id),
             name = NotBlankTrimmedString.from(name).bind(),
+            // An account stored without a currency is given the base currency for good, by a
+            // migration and by the backup import; until then, it's read in the base currency.
             asset = currency?.let(AssetCode::from)?.getOrNull()
                 ?: currencyRepository.getBaseCurrency(),
             color = ColorInt(color),

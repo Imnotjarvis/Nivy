@@ -32,7 +32,7 @@ class ExchangeRatesRepository @Inject constructor(
     fun findAll(): Flow<List<ExchangeRate>> =
         exchangeRatesDao.findAll().map { entities ->
             entities.mapNotNull {
-                with(mapper) { it.toDomain().getOrNull() }
+                with(mapper) { it.toDomain().orLogged() }
             }
         }.flowOn(dispatchers.io)
 
@@ -42,14 +42,14 @@ class ExchangeRatesRepository @Inject constructor(
             exchangeRatesDao.findByBaseCurrencyAndCurrency(
                 baseCurrency = baseCurrency.code,
                 currency = currency.code
-            )?.let { with(mapper) { it.toDomain().getOrNull() } }
+            )?.let { with(mapper) { it.toDomain().orLogged() } }
         }
 
     suspend fun findAllManuallyOverridden(): List<ExchangeRate> =
         withContext(dispatchers.io) {
             exchangeRatesDao.findAllManuallyOverridden()
                 .mapNotNull {
-                    with(mapper) { it.toDomain().getOrNull() }
+                    with(mapper) { it.toDomain().orLogged() }
                 }
         }
 

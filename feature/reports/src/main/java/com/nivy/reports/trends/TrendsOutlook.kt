@@ -9,6 +9,7 @@ import com.nivy.wallet.domain.pure.forecast.bandsByStep
 import com.nivy.wallet.domain.pure.forecast.reach
 import com.nivy.wallet.domain.pure.forecast.shift
 import com.nivy.wallet.domain.pure.forecast.simulateMonths
+import com.nivy.wallet.domain.pure.spending.Flow
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.time.YearMonth

@@ -1,11 +1,13 @@
 package com.nivy.domain.usecase.loan
 
-import com.nivy.base.model.AccountType
 import arrow.core.None
 import arrow.core.Some
+import com.nivy.base.model.AccountType
 import com.nivy.base.model.LoanRecordType
+import com.nivy.base.model.LoanType
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
@@ -18,7 +20,6 @@ import com.nivy.data.model.Loan
 import com.nivy.data.model.LoanId
 import com.nivy.data.model.LoanRecord
 import com.nivy.data.model.LoanRecordId
-import com.nivy.base.model.LoanType
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
@@ -57,6 +58,21 @@ class LoanTransactionsUseCaseTest {
     private val timeProvider = mockk<TimeProvider>()
     private val creditCardRepository = mockk<CreditCardRepository>()
 
+    // The database transaction's block runs as it is; inTransaction says when, and writes says,
+    // for each write in turn, whether it was made within one.
+    private var inTransaction = false
+    private val writes = mutableListOf<Boolean>()
+    private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
+        override suspend fun <R> run(block: suspend () -> R): R {
+            inTransaction = true
+            return try {
+                block()
+            } finally {
+                inTransaction = false
+            }
+        }
+    }
+
     private val useCase = LoanTransactionsUseCase(
         transactionRepository = transactionRepository,
         loanRepository = loanRepository,
@@ -66,6 +82,7 @@ class LoanTransactionsUseCaseTest {
         exchangeUseCase = exchangeUseCase,
         timeProvider = timeProvider,
         creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, TestTimeConverter()),
+        databaseTransaction = databaseTransaction,
     )
 
     init {
@@ -77,6 +94,12 @@ class LoanTransactionsUseCaseTest {
         coEvery { transactionRepository.findLoanTransaction(any()) } returns null
         coEvery { transactionRepository.findLoanRecordTransaction(any()) } returns null
         coEvery { timeProvider.utcNow() } returns Now
+        coEvery { transactionRepository.save(any()) } answers { writes += inTransaction }
+        coEvery { transactionRepository.deleteById(any()) } answers { writes += inTransaction }
+        coEvery { loanRepository.save(any()) } answers { writes += inTransaction }
+        coEvery { loanRepository.deleteById(any()) } answers { writes += inTransaction }
+        coEvery { loanRepository.saveRecord(any()) } answers { writes += inTransaction }
+        coEvery { loanRepository.deleteRecordById(any()) } answers { writes += inTransaction }
     }
 
     @Test
@@ -286,6 +309,110 @@ class LoanTransactionsUseCaseTest {
         coVerify(exactly = 1) { transactionRepository.save(capture(saved)) }
         saved.captured.shouldBeInstanceOf<Income>().metadata.loanRecordId shouldBe repaid.id.value
     }
+
+    @Test
+    fun `saving a loan converts its records, then saves it and its transactions, in one database transaction`() =
+        runTest {
+            // given: the loan moves from BGN to EUR; more was borrowed in BGN, with an income
+            val loan = BorrowedLoan.copy(account = EurAccount.id)
+            val more = record(type = LoanRecordType.INCREASE, account = BgnAccount.id)
+            coEvery { loanRepository.findRecordsByLoanId(loan.id) } returns listOf(more)
+            coEvery { transactionRepository.findLoanRecordTransaction(more.id.value) } returns
+                mockk<Income>(relaxed = true)
+            coEvery { exchangeUseCase.convert(PositiveValue(more.amount, Bgn), to = Eur) } returns
+                Some(PositiveValue(PositiveDouble.unsafe(51.0), Eur))
+
+            // when
+            useCase.saveLoan(loan, oldAccount = BgnAccount.id, createTransaction = true)
+
+            // then: the record, the loan, its transaction and the record's
+            coVerify { loanRepository.saveRecord(more.copy(convertedAmount = PositiveDouble.unsafe(51.0))) }
+            coVerify { loanRepository.save(loan) }
+            writes shouldBe listOf(true, true, true, true)
+        }
+
+    @Test
+    fun `deleting a loan deletes its transactions, its records and the loan, in one database transaction`() =
+        runTest {
+            // given
+            val repaid = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+            coEvery { transactionRepository.findAllByLoanId(BorrowedLoan.id.value) } returns
+                listOf(mockk<Expense>(relaxed = true))
+            coEvery { loanRepository.findRecordsByLoanId(BorrowedLoan.id) } returns listOf(repaid)
+
+            // when
+            useCase.deleteLoan(BorrowedLoan.id)
+
+            // then
+            coVerify { loanRepository.deleteRecordById(repaid.id) }
+            coVerify { loanRepository.deleteById(BorrowedLoan.id) }
+            writes shouldBe listOf(true, true, true)
+        }
+
+    @Test
+    fun `saving a record saves it and its transaction in one database transaction`() = runTest {
+        // given
+        val repaid = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+
+        // when
+        useCase.saveRecord(BorrowedLoan, repaid, createTransaction = true)
+
+        // then
+        coVerify { loanRepository.saveRecord(repaid) }
+        writes shouldBe listOf(true, true)
+    }
+
+    @Test
+    fun `deleting a record deletes it and its transaction in one database transaction`() = runTest {
+        // given
+        val repaid = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+        coEvery { transactionRepository.findLoanRecordTransaction(repaid.id.value) } returns
+            mockk<Expense>(relaxed = true)
+
+        // when
+        useCase.deleteRecord(repaid.id)
+
+        // then
+        coVerify { loanRepository.deleteRecordById(repaid.id) }
+        writes shouldBe listOf(true, true)
+    }
+
+    @Test
+    fun `an edited loan transaction updates the loan and converts its records in one database transaction`() =
+        runTest {
+            // given: the loan's income moves to the EUR account
+            coEvery { timeProvider.getZoneId() } returns java.time.ZoneOffset.UTC
+            coEvery { loanRepository.findById(BorrowedLoan.id) } returns BorrowedLoan
+            val repaid = record(type = LoanRecordType.DECREASE, account = BgnAccount.id)
+            coEvery { loanRepository.findRecordsByLoanId(BorrowedLoan.id) } returns listOf(repaid)
+            coEvery { exchangeUseCase.convert(PositiveValue(repaid.amount, Bgn), to = Eur) } returns
+                Some(PositiveValue(PositiveDouble.unsafe(51.0), Eur))
+            val borrowed = Income(
+                id = TransactionId(UUID.randomUUID()),
+                title = BorrowedLoan.name,
+                description = null,
+                category = LoansCategory.id,
+                time = Now,
+                settled = true,
+                metadata = TransactionMetadata(
+                    recurringRuleId = null,
+                    paidForDateTime = null,
+                    loanId = BorrowedLoan.id.value,
+                    loanRecordId = null,
+                    purchaseDateTime = null,
+                ),
+                tags = emptyList(),
+                value = PositiveValue(PositiveDouble.unsafe(250.0), Eur),
+                account = EurAccount.id,
+            )
+
+            // when
+            useCase.updateFromTransaction(borrowed)
+
+            // then: the record converted, then the loan
+            coVerify { loanRepository.save(match { it.account == EurAccount.id }) }
+            writes shouldBe listOf(true, true)
+        }
 
     private fun record(type: LoanRecordType, account: AccountId) = LoanRecord(
         id = LoanRecordId(UUID.randomUUID()),
