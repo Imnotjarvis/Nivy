@@ -88,7 +88,13 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
         findByIdOperation: suspend (TID) -> T?
     ): T? {
         return items[id] ?: mutex.withLock {
-            items[id] ?: withContext(dispatchers.io) { findByIdOperation(id) }?.also(::memoize)
+            when {
+                items[id] != null -> items[id]
+                // With the whole table held, an id it hasn't is one the database hasn't either: rows
+                // naming a deleted account would otherwise each ask the database for it.
+                findAllMemoized -> null
+                else -> withContext(dispatchers.io) { findByIdOperation(id) }?.also(::memoize)
+            }
         }
     }
 

@@ -61,7 +61,6 @@ class CategoryRepositoryTest {
                 color = 42,
                 icon = null,
                 orderNum = 0.0,
-                isSynced = true,
                 isDeleted = false,
                 id = id1
             ),
@@ -70,7 +69,6 @@ class CategoryRepositoryTest {
                 color = 42,
                 icon = null,
                 orderNum = 1.0,
-                isSynced = true,
                 isDeleted = false,
                 id = UUID.randomUUID()
             ),
@@ -79,7 +77,6 @@ class CategoryRepositoryTest {
                 color = 42,
                 icon = null,
                 orderNum = 2.0,
-                isSynced = true,
                 isDeleted = false,
                 id = id3
             )
@@ -129,7 +126,6 @@ class CategoryRepositoryTest {
             color = 42,
             icon = null,
             orderNum = 0.0,
-            isSynced = true,
             isDeleted = false,
             id = id
         )
@@ -156,7 +152,6 @@ class CategoryRepositoryTest {
             color = 42,
             icon = null,
             orderNum = 1.0,
-            isSynced = true,
             isDeleted = false,
             id = UUID.randomUUID()
         )
@@ -216,7 +211,6 @@ class CategoryRepositoryTest {
                     color = 42,
                     icon = null,
                     orderNum = 3.0,
-                    isSynced = true,
                     isDeleted = false,
                     id = id
                 )
@@ -267,7 +261,6 @@ class CategoryRepositoryTest {
                         color = 42,
                         icon = null,
                         orderNum = 3.0,
-                        isSynced = true,
                         isDeleted = false,
                         id = id1
                     ),
@@ -277,7 +270,6 @@ class CategoryRepositoryTest {
                         color = 42,
                         icon = null,
                         orderNum = 4.0,
-                        isSynced = true,
                         isDeleted = false,
                         id = id2
                     ),
@@ -287,7 +279,6 @@ class CategoryRepositoryTest {
                         color = 42,
                         icon = null,
                         orderNum = 5.0,
-                        isSynced = true,
                         isDeleted = false,
                         id = id3
                     )

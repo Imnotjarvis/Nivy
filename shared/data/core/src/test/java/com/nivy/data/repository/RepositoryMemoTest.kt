@@ -46,6 +46,41 @@ class RepositoryMemoTest {
     }
 
     @Test
+    fun `with the whole table held, an id it hasn't is not looked up in the database`() = runTest {
+        // given a memo that has read the whole table
+        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>(
+            getDataWriteSaveEvent = { DataWriteEvent.SaveTags(emptyList()) },
+            getDateWriteDeleteEvent = { DataWriteEvent.DeleteTags(DeleteOperation.All) },
+        )
+        val held = Item(ItemId(UUID.randomUUID()))
+        memo.findAll(findAllOperation = { listOf(held) }, sortMemo = { toList() })
+
+        // when an id it hasn't is asked for, as each transaction of a deleted account asks for it
+        var lookups = 0
+        val found = memo.findById(ItemId(UUID.randomUUID())) {
+            lookups++
+            null
+        }
+
+        // then the memo answers, without the database
+        found shouldBe null
+        lookups shouldBe 0
+        memo.findById(held.id) { error("the memo should answer this") } shouldBe held
+    }
+
+    @Test
+    fun `before the whole table is read, an id the memo hasn't comes from the database`() = runTest {
+        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>(
+            getDataWriteSaveEvent = { DataWriteEvent.SaveTags(emptyList()) },
+            getDateWriteDeleteEvent = { DataWriteEvent.DeleteTags(DeleteOperation.All) },
+        )
+        val stored = Item(ItemId(UUID.randomUUID()))
+
+        memo.findById(stored.id) { stored } shouldBe stored
+        memo.findById(stored.id) { error("the memo should answer this") } shouldBe stored
+    }
+
+    @Test
     fun `a row deleted while findAll is reading the table does not come back`() = runTest {
         // given a read of the whole table that is still in progress
         val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>(

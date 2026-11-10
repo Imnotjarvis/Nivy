@@ -63,7 +63,6 @@ class AccountMapperTest {
             icon = "icon",
             includeInBalance = includeInBalance,
             orderNum = 3.14,
-            isSynced = true,
             isDeleted = false,
             id = ModelFixtures.AccountId.value,
         )
@@ -154,7 +153,6 @@ class AccountMapperTest {
             color = 42,
             icon = "icon",
             includeInBalance = true,
-            isSynced = true,
             isDeleted = false,
             id = UUID.randomUUID(),
         )

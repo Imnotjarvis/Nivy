@@ -41,7 +41,6 @@ class AccountMapper @Inject constructor(
             type = type,
             archived = archived,
             id = id.value,
-            isSynced = true, // TODO: Delete this
         )
     }
 }
