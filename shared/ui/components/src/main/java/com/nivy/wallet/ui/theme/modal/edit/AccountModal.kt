@@ -39,8 +39,6 @@ import com.nivy.wallet.ui.iconName
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.utils.isNotNullOrBlank
 import com.nivy.design.utils.selectEndTextFieldValue
-import com.nivy.wallet.utils.toLowerCaseLocal
-import com.nivy.wallet.utils.toUpperCaseLocal
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.wallet.domain.logic.model.CreateAccountData
@@ -543,7 +541,7 @@ private fun AccountCurrency(
         Spacer(Modifier.width(24.dp))
 
         Text(
-            text = currencyCode.toUpperCaseLocal(),
+            text = currencyCode.uppercase(),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
@@ -554,7 +552,7 @@ private fun AccountCurrency(
 
         val currencyName = NivyCurrency.fromCode(currencyCode)?.name ?: ""
         Text(
-            text = "-$currencyName".toLowerCaseLocal(),
+            text = "-$currencyName".lowercase(),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.SemiBold

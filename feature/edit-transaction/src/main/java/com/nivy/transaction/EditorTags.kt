@@ -11,11 +11,10 @@ import com.nivy.transaction.EditTransactionViewEvent.TagEvent
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
@@ -24,7 +23,7 @@ private const val SearchDebounceMillis = 500L
 /**
  * The editor's tags: those the tag dialog lists, and the ids of the transaction's own. The dialog's
  * changes are saved as they're made, on [io], with [transactionId] the transaction they're linked
- * to. [afterTagAdd] runs after the dialog adds a tag.
+ * to; what's shown changes on [scope]'s thread. [afterTagAdd] runs after the dialog adds a tag.
  */
 @Stable
 internal class EditorTags(
@@ -32,7 +31,7 @@ internal class EditorTags(
     private val scope: CoroutineScope,
     private val transactionId: () -> UUID,
     private val afterTagAdd: () -> Unit,
-    private val io: CoroutineContext = Dispatchers.IO,
+    private val io: CoroutineContext,
 ) {
     var all by mutableStateOf<ImmutableList<Tag>>(persistentListOf())
         private set
@@ -66,46 +65,46 @@ internal class EditorTags(
     }
 
     private fun create(name: String) {
-        scope.launch(io) {
-            transactionTags.saveTag(name)?.let { all = it }
+        scope.launch {
+            withContext(io) { transactionTags.saveTag(name) }?.let { all = it }
 
             afterTagAdd()
         }
     }
 
     private fun associate(tag: Tag) {
-        scope.launch(io) {
+        scope.launch {
             val associatedId = AssociationId(transactionId())
-            associated = transactionTags.associateTag(associatedId, tag)
+            associated = withContext(io) { transactionTags.associateTag(associatedId, tag) }
         }
     }
 
     private fun removeAssociation(tag: Tag) {
-        scope.launch(io) {
+        scope.launch {
             val associatedId = AssociationId(transactionId())
-            associated = transactionTags.removeTagAssociation(associatedId, tag)
+            associated = withContext(io) { transactionTags.removeTagAssociation(associatedId, tag) }
         }
     }
 
+    // Each keystroke replaces the search still waiting: only what was typed last is searched, once
+    // typing pauses.
     private fun search(query: String) {
-        scope.launch(io) {
-            searchJob?.cancelAndJoin()
-            delay(SearchDebounceMillis) // Debounce effect
-            searchJob = launch(io) {
-                all = transactionTags.searchTags(query)
-            }
+        searchJob?.cancel()
+        searchJob = scope.launch {
+            delay(SearchDebounceMillis)
+            all = withContext(io) { transactionTags.searchTags(query) }
         }
     }
 
     private fun delete(tag: Tag) {
-        scope.launch(io) {
-            all = transactionTags.deleteTag(tag)
+        scope.launch {
+            all = withContext(io) { transactionTags.deleteTag(tag) }
         }
     }
 
     private fun update(tag: Tag) {
-        scope.launch(io) {
-            all = transactionTags.updateTag(tag)
+        scope.launch {
+            all = withContext(io) { transactionTags.updateTag(tag) }
         }
     }
 }

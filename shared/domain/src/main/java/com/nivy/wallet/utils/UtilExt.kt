@@ -23,10 +23,6 @@ fun getDefaultFIATCurrency(): Currency =
         ?: Currency.getInstance("usd") ?: Currency.getAvailableCurrencies().firstOrNull()
         ?: Currency.getInstance("EUR")
 
-fun String.toUpperCaseLocal() = this.uppercase(Locale.getDefault())
-
-fun String.toLowerCaseLocal() = this.lowercase(Locale.getDefault())
-
 fun String.capitalizeLocal(): String = this.replaceFirstChar {
     if (it.isLowerCase()) {
         it.titlecase(

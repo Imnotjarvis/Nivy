@@ -36,7 +36,6 @@ import com.nivy.data.model.Account
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.model.AccountBalance
 import com.nivy.wallet.ui.previewAccount
-import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.onboarding.components.OnboardingProgressSlider
 import com.nivy.onboarding.components.OnboardingToolbar
 import com.nivy.onboarding.components.Suggestions
@@ -155,8 +154,8 @@ internal fun BoxWithConstraintsScope.OnboardingAccounts(
 
                 Suggestions(
                     suggestions = suggestions.filter { suggestion ->
-                        accounts.map { it.account.name.value.toLowerCaseLocal() }
-                            .contains(suggestion.name.toLowerCaseLocal()).not()
+                        accounts.map { it.account.name.value.lowercase() }
+                            .contains(suggestion.name.lowercase()).not()
                     },
                     onAddSuggestion = {
                         onCreateAccount(it as CreateAccountData)

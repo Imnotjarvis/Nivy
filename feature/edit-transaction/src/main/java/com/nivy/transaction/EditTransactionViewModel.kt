@@ -109,6 +109,7 @@ class EditTransactionViewModel @Inject constructor(
         scope = viewModelScope,
         transactionId = { loadedTransaction().id },
         afterTagAdd = { saveIfEditMode() },
+        io = dispatchers.io,
     )
     private val titleSuggestions = TitleSuggestions(smartTitleSuggestionsLogic, features, viewModelScope, dispatchers)
     private val rateCard = RateCard(transferExchangeRate)

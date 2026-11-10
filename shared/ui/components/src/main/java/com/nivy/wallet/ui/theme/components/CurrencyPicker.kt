@@ -45,7 +45,6 @@ import com.nivy.wallet.NivyComponentPreview
 import com.nivy.design.utils.isKeyboardVisible
 import com.nivy.design.utils.keyboardHeight
 import com.nivy.design.utils.hideKeyboard
-import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.design.system.colors.Green
@@ -108,7 +107,7 @@ fun CurrencyPicker(
         Spacer(Modifier.height(20.dp))
 
         CurrencyList(
-            searchQueryLowercase = searchTextFieldValue.text.toLowerCaseLocal(),
+            searchQueryLowercase = searchTextFieldValue.text.lowercase(),
             selectedCurrency = selectedCurrency,
             lastItemSpacer = if (includeKeyboardShownInsetSpacer) {
                 keyboardShownInsetDp + lastItemSpacer
@@ -267,11 +266,7 @@ private fun CurrencyList(
     onCurrencySelected: (NivyCurrency) -> Unit
 ) {
     val currencies = NivyCurrency.getAvailable()
-        .filter {
-            searchQueryLowercase.isBlank() ||
-                it.code.toLowerCaseLocal().startsWith(searchQueryLowercase) ||
-                it.name.toLowerCaseLocal().startsWith(searchQueryLowercase)
-        }
+        .matching(searchQueryLowercase)
         .sortedBy { it.code }
         .sortedBy { it.isCrypto }
 
@@ -424,3 +419,10 @@ private fun Preview() {
 private data class LetterDivider(
     val letter: String
 )
+
+/** The currencies whose code or name starts with [query], whatever the case; all of them while it's blank. */
+internal fun List<NivyCurrency>.matching(query: String): List<NivyCurrency> = filter {
+    query.isBlank() ||
+        it.code.startsWith(query.trim(), ignoreCase = true) ||
+        it.name.startsWith(query.trim(), ignoreCase = true)
+}

@@ -53,6 +53,13 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import com.nivy.base.threading.DispatchersProvider
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
+import kotlin.coroutines.CoroutineContext
 import org.junit.Test
 import java.io.IOException
 import java.math.BigDecimal
@@ -96,7 +103,19 @@ class ReportViewModelTest {
     private val exportCsvUseCase = mockk<ExportCsvUseCase>()
     private val toaster = mockk<Toaster>(relaxed = true)
 
-    private val viewModel = ReportViewModel(
+    private val tagRepository = mockk<TagRepository> {
+        coEvery { findAll() } returns emptyList()
+        coEvery { findByText(any()) } returns emptyList()
+        coEvery { findByAllAssociatedIdForTagId(any()) } answers {
+            firstArg<List<TagId>>().associateWith { tag ->
+                tagged[tag].orEmpty().map { TagAssociation(tag, AssociationId(it.value)) }
+            }
+        }
+    }
+
+    private val viewModel = reportViewModel(TestDispatchersProvider)
+
+    private fun reportViewModel(dispatchers: DispatchersProvider) = ReportViewModel(
         dueTransactionsUseCase = mockk(relaxed = true),
         transactionRepository = mockk<TransactionRepository> {
             coEvery { findAll() } answers { transactions }
@@ -114,20 +133,13 @@ class ReportViewModelTest {
         },
         transactionsIncomeExpenseUseCase = TransactionsIncomeExpenseUseCase(exchangeUseCase, TestDispatchersProvider),
         currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
-        tagRepository = mockk<TagRepository> {
-            coEvery { findAll() } returns emptyList()
-            coEvery { findByAllAssociatedIdForTagId(any()) } answers {
-                firstArg<List<TagId>>().associateWith { tag ->
-                    tagged[tag].orEmpty().map { TagAssociation(tag, AssociationId(it.value)) }
-                }
-            }
-        },
+        tagRepository = tagRepository,
         exportCsvUseCase = exportCsvUseCase,
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),
         resourceProvider = mockk<ResourceProvider> { every { getString(any()) } returns "Unspecified" },
-        dispatchers = TestDispatchersProvider,
+        dispatchers = dispatchers,
         toaster = toaster,
     )
 
@@ -165,6 +177,34 @@ class ReportViewModelTest {
 
     private fun report(vararg events: ReportScreenEvent, verify: ReportScreenState.() -> Unit) =
         viewModel.runTest(events = events.toList(), verify = verify)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `a tag search typed quickly runs once, for what was typed last`() {
+        val dispatcher = StandardTestDispatcher()
+        Dispatchers.setMain(dispatcher)
+        try {
+            val viewModel = reportViewModel(
+                object : DispatchersProvider {
+                    override val main: CoroutineContext = dispatcher
+                    override val io: CoroutineContext = dispatcher
+                    override val default: CoroutineContext = dispatcher
+                }
+            )
+
+            // when "w", then "wo" before the search waits out
+            viewModel.onEvent(ReportScreenEvent.OnTagSearch("w"))
+            dispatcher.scheduler.advanceTimeBy(100)
+            viewModel.onEvent(ReportScreenEvent.OnTagSearch("wo"))
+            dispatcher.scheduler.advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 0) { tagRepository.findByText("w") }
+            coVerify(exactly = 1) { tagRepository.findByText("wo") }
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
 
     @Test
     fun `an export that can't write its file says so, and shares nothing`() {

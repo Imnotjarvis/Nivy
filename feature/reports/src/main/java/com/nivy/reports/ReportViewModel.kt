@@ -47,7 +47,6 @@ import com.nivy.wallet.PeriodState
 import com.nivy.wallet.domain.pure.transaction.filterOverdue
 import com.nivy.wallet.domain.pure.transaction.filterUpcoming
 import com.nivy.wallet.utils.getISOFormattedDateTime
-import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.TransactionHistoryItem
@@ -61,7 +60,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -188,22 +186,18 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    private suspend fun onTagSearch(query: String) {
-        withContext(dispatchers.io) {
-            tagSearchJob?.cancelAndJoin()
-            delay(tagSearchDebounceTimeInMills) // Debounce effect
-            tagSearchJob = launch(dispatchers.io) {
-                NotBlankTrimmedString.from(query.toLowerCaseLocal())
-                    .fold(
-                        ifRight = {
-                            allTags =
-                                tagRepository.findByText(text = it.value).toImmutableList()
-                        },
-                        ifLeft = {
-                            allTags = tagRepository.findAll().toImmutableList()
-                        }
-                    )
-            }
+    // Each keystroke replaces the search still waiting: only what was typed last is searched, once
+    // typing pauses.
+    private fun onTagSearch(query: String) {
+        tagSearchJob?.cancel()
+        tagSearchJob = viewModelScope.launch(dispatchers.io) {
+            delay(tagSearchDebounceTimeInMills)
+            allTags = NotBlankTrimmedString.from(query.lowercase())
+                .fold(
+                    ifRight = { tagRepository.findByText(text = it.value) },
+                    ifLeft = { tagRepository.findAll() },
+                )
+                .toImmutableList()
         }
     }
 
@@ -490,7 +484,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private fun String.containsLowercase(anotherString: String): Boolean {
-        return this.toLowerCaseLocal().contains(anotherString.toLowerCaseLocal())
+        return this.lowercase().contains(anotherString.lowercase())
     }
 
     private fun calculateBalance(incomeExpenseTransferPair: IncomeExpenseTransferPair): BigDecimal {

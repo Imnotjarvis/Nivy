@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nivy.design.utils.thenWhen
 import com.nivy.wallet.NivyComponentPreview
-import com.nivy.wallet.utils.toLowerCaseLocal
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 
@@ -199,7 +198,7 @@ fun getCustomIconId(
         val iconNameNormalized = iconName
             .replace(" ", "")
             .trim()
-            .toLowerCaseLocal()
+            .lowercase()
 
         val itemId = context.resources.getIdentifier(
             "ic_custom_${iconNameNormalized}_$size",
@@ -243,7 +242,7 @@ fun fallbackToNewIconFormat(
         val iconNameNormalized = iconName
             .replace(" ", "")
             .trim()
-            .toLowerCaseLocal()
+            .lowercase()
 
         val iconId = context.resources.getIdentifier(
             iconNameNormalized,

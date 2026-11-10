@@ -27,7 +27,6 @@ import com.nivy.design.system.colors.NIVY_COLOR_PICKER_COLORS_FREE
 import com.nivy.importdata.csv.ImportantFields
 import com.nivy.importdata.csv.OptionalFields
 import com.nivy.importdata.csv.TransferFields
-import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.wallet.domain.pure.util.nextOrderNum
 import com.nivy.design.system.colors.Palette
@@ -262,7 +261,7 @@ class CSVImporterV2 @Inject constructor(
     }
 
     /** How an account's name is matched: whatever the case and the spaces around it. */
-    private fun nameKey(name: String): String = name.trim().toLowerCaseLocal()
+    private fun nameKey(name: String): String = name.trim().lowercase()
 
     /** The currency of the account named [name]: its own if it exists, else the one it'd be made in. */
     private fun assetOf(name: String, currencyRawString: String?, baseCurrency: String): AssetCode? =
@@ -288,11 +287,11 @@ class CSVImporterV2 @Inject constructor(
 
         // create new account
         val colorArgb = color ?: when {
-            accountNameString.toLowerCaseLocal().contains("cash") -> {
+            accountNameString.lowercase().contains("cash") -> {
                 Palette.Green
             }
 
-            accountNameString.toLowerCaseLocal().contains("revolut") -> {
+            accountNameString.lowercase().contains("revolut") -> {
                 Palette.NivyDark
             }
 
@@ -343,7 +342,7 @@ class CSVImporterV2 @Inject constructor(
         if (categoryNameString == null || categoryNameString.isBlank()) return null
 
         val existingCategory = categories.firstOrNull {
-            categoryNameString.toLowerCaseLocal() == it.name.value.toLowerCaseLocal()
+            categoryNameString.lowercase() == it.name.value.lowercase()
         }
         if (existingCategory != null) {
             return existingCategory

@@ -39,7 +39,6 @@ import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.wallet.NivyPreview
-import com.nivy.wallet.utils.toLowerCaseLocal
 import com.nivy.onboarding.components.OnboardingProgressSlider
 import com.nivy.onboarding.components.OnboardingToolbar
 import com.nivy.onboarding.components.Suggestions
@@ -153,8 +152,8 @@ internal fun BoxWithConstraintsScope.OnboardingCategories(
 
                 Suggestions(
                     suggestions = suggestions.filter { suggestion ->
-                        categories.map { it.name.value.toLowerCaseLocal() }
-                            .contains(suggestion.name.toLowerCaseLocal()).not()
+                        categories.map { it.name.value.lowercase() }
+                            .contains(suggestion.name.lowercase()).not()
                     },
                     onAddSuggestion = {
                         onCreateCategory(it as CreateCategoryData)
