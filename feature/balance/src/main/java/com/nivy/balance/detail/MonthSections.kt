@@ -1,21 +1,31 @@
 package com.nivy.balance.detail
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
@@ -50,9 +60,11 @@ import com.nivy.wallet.ui.component.Stat
 import com.nivy.wallet.ui.component.StatTiles
 import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.component.transaction.label
+import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.utils.format
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.abs
@@ -70,7 +82,7 @@ internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, mo
             if (detail.today != null) stringResource(R.string.month_this_month) else month?.displayName().orEmpty()
         )
         detail.freeToSpend?.let {
-            FreeToSpendPanel(it, currency, month)
+            FreeToSpendPanel(it, currency, month, detail.outlook, detail.days.lastOrNull())
             Spacer(Modifier.height(16.dp))
         }
         DayByDayPanel(detail, currency)
@@ -84,13 +96,17 @@ internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, mo
         }
         detail.pace?.let {
             Spacer(Modifier.height(16.dp))
-            PacePanel(it, currency, month)
+            PacePanel(it, currency, month, detail.outlook, detail.days)
         }
     }
 
     detail.habits?.let { habits ->
         GroupTitle(stringResource(R.string.month_your_habits))
-        HabitTiles(habits, currency, detail.days.lastOrNull())
+        detail.unusual?.let {
+            UnusualPanel(it, currency)
+            Spacer(Modifier.height(16.dp))
+        }
+        HabitTiles(habits, currency, detail.days.lastOrNull(), detail.outlook)
         Spacer(Modifier.height(16.dp))
         WhenYouSpendPanel(habits)
         Spacer(Modifier.height(16.dp))
@@ -133,11 +149,12 @@ private fun BigNumber(text: String, color: Color = MaterialTheme.colorScheme.onS
 }
 
 @Composable
-private fun Subtext(text: String) {
+private fun Subtext(text: String, small: Boolean = false) {
     Text(
         modifier = Modifier.padding(horizontal = 8.dp),
         text = text,
-        style = MaterialTheme.typography.bodyMedium.copy(color = Gray),
+        style = (if (small) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium)
+            .copy(color = Gray),
     )
 }
 
@@ -154,7 +171,13 @@ private fun weekdayName(day: DayOfWeek, style: TextStyle): String = day.getDispl
 // ---- This month
 
 @Composable
-private fun FreeToSpendPanel(free: FreeToSpend, currency: String, month: Month?) {
+internal fun FreeToSpendPanel(
+    free: FreeToSpend,
+    currency: String,
+    month: Month?,
+    outlook: MonthOutlook? = null,
+    lastDay: LocalDate? = null,
+) {
     val panel = MaterialTheme.colorScheme.surfaceVariant
     ChartPanel(
         modifier = Modifier.testTag("month_free_to_spend"),
@@ -173,7 +196,13 @@ private fun FreeToSpendPanel(free: FreeToSpend, currency: String, month: Month?)
                 )
             )
             Spacer(Modifier.height(16.dp))
-            ProgressBar(free.spent / (free.spent + free.left).coerceAtLeast(Double.MIN_VALUE), Nivy)
+            val whole = (free.spent + free.left).coerceAtLeast(Double.MIN_VALUE)
+            val likely = outlook?.left?.let { free.left - it.likely }
+            if (likely != null) {
+                SpendBar(free.spent / whole, (free.spent + likely) / whole, Nivy)
+            } else {
+                ProgressBar(free.spent / whole, Nivy)
+            }
         } else {
             BigNumber("-${money(-free.left, currency)}", expenseRed(panel))
             Spacer(Modifier.height(4.dp))
@@ -195,11 +224,49 @@ private fun FreeToSpendPanel(free: FreeToSpend, currency: String, month: Month?)
                 LegendText(stringResource(R.string.month_left_amount, free.left.format(currency), currency))
             }
         }
+        val left = outlook?.left
+        if (left != null && lastDay != null) {
+            Spacer(Modifier.height(16.dp))
+            Row(modifier = Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                LegendDot(
+                    color = Nivy.copy(alpha = LikelyAlpha),
+                    label = stringResource(R.string.month_usually_a_day, approx(outlook.perDay), currency),
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            PanelNote(
+                text = if (left.likely >= 0) {
+                    stringResource(R.string.month_likely_left, approx(left.likely), currency, dateLabel(lastDay))
+                } else {
+                    stringResource(R.string.month_likely_short, approx(-left.likely), currency, dateLabel(lastDay))
+                },
+                color = if (left.likely >= 0) incomeGreen(panel) else expenseRed(panel),
+            )
+            Spacer(Modifier.height(2.dp))
+            Subtext(
+                when {
+                    left.low >= 0 -> rangeText(left, currency)
+                    left.high < 0 -> stringResource(
+                        R.string.month_likely_range_short,
+                        approx(-left.high),
+                        approx(-left.low),
+                        currency,
+                    )
+                    else -> stringResource(
+                        R.string.month_likely_range_either,
+                        approx(-left.low),
+                        approx(left.high),
+                        currency,
+                    )
+                },
+                small = true,
+            )
+        }
     }
 }
 
 @Composable
-private fun DayByDayPanel(detail: MonthDetail, currency: String) {
+internal fun DayByDayPanel(detail: MonthDetail, currency: String) {
     val planned = detail.actualDays < detail.days.size
     ChartPanel(
         title = stringResource(R.string.month_day_by_day),
@@ -208,6 +275,10 @@ private fun DayByDayPanel(detail: MonthDetail, currency: String) {
             if (planned) {
                 Spacer(Modifier.width(12.dp))
                 LegendDot(color = Orange, label = stringResource(R.string.month_planned))
+            }
+            if (detail.outlook != null) {
+                Spacer(Modifier.width(12.dp))
+                LegendDot(color = Nivy.copy(alpha = LikelyAlpha), label = stringResource(R.string.month_likely))
             }
         },
     ) {
@@ -224,7 +295,25 @@ private fun DayByDayPanel(detail: MonthDetail, currency: String) {
                 add(1f to dateLabel(detail.days.last()))
             }
         )
-        detail.lowest?.let { lowest ->
+        val likelyLowest = detail.outlook?.lowest
+        if (likelyLowest != null) {
+            Spacer(Modifier.height(12.dp))
+            PanelNote(
+                stringResource(
+                    if (likelyLowest.day == detail.days.last()) {
+                        R.string.month_likely_by
+                    } else {
+                        R.string.month_likely_lowest
+                    },
+                    approx(likelyLowest.likely),
+                    currency,
+                    dateLabel(likelyLowest.day),
+                ),
+            )
+            Spacer(Modifier.height(2.dp))
+            Subtext(stringResource(R.string.month_stays_above, approx(likelyLowest.low), currency), small = true)
+        }
+        detail.lowest?.takeIf { likelyLowest == null }?.let { lowest ->
             Spacer(Modifier.height(12.dp))
             PanelNote(
                 stringResource(
@@ -295,7 +384,13 @@ private fun SpentEachDayPanel(detail: MonthDetail, currency: String) {
 }
 
 @Composable
-private fun PacePanel(pace: Pace, currency: String, month: Month?) {
+internal fun PacePanel(
+    pace: Pace,
+    currency: String,
+    month: Month?,
+    outlook: MonthOutlook? = null,
+    days: List<LocalDate> = emptyList(),
+) {
     val panel = MaterialTheme.colorScheme.surfaceVariant
     val previousName = pace.previousMonth?.displayName().orEmpty()
     ChartPanel(
@@ -306,8 +401,9 @@ private fun PacePanel(pace: Pace, currency: String, month: Month?) {
             LegendDot(color = Gray, label = previousName.take(ShortMonth))
         },
     ) {
-        PaceChart(pace)
-        val count = maxOf(pace.previous.size, pace.current.size)
+        val ahead = outlook?.spending?.takeIf { days.isNotEmpty() }
+        PaceChart(pace, ahead, days.size)
+        val count = maxOf(pace.previous.size, pace.current.size, if (ahead != null) days.size else 0)
         val day = pace.current.lastIndex
         AxisLabels(
             buildList {
@@ -331,13 +427,166 @@ private fun PacePanel(pace: Pace, currency: String, month: Month?) {
                 color = if (difference >= 0) incomeGreen(panel) else expenseRed(panel),
             )
         }
+        val end = ahead?.lastOrNull()
+        if (end != null) {
+            Spacer(Modifier.height(12.dp))
+            val previousTotal = pace.previous.lastOrNull()
+            val likely = stringResource(R.string.month_likely_by, approx(end.likely), currency, dateLabel(days.last()))
+            PanelNote(
+                text = if (previousTotal != null && previousTotal > 0) {
+                    val difference = end.likely - previousTotal
+                    if (difference >= 0) {
+                        stringResource(R.string.month_likely_more, likely, approx(difference), currency, previousName)
+                    } else {
+                        stringResource(R.string.month_likely_less, likely, approx(-difference), currency, previousName)
+                    }
+                } else {
+                    likely
+                },
+            )
+            Spacer(Modifier.height(2.dp))
+            Subtext(rangeText(end, currency), small = true)
+        }
+    }
+}
+
+// 8 runs in 10 between the band's edges.
+@Composable
+@ReadOnlyComposable
+private fun rangeText(band: Band, currency: String): String =
+    stringResource(R.string.month_likely_range, approx(band.low), approx(band.high), currency)
+
+/** A track filled to [spent], from 0 to 1, and lighter on to [likely]. */
+@Composable
+private fun SpendBar(spent: Double, likely: Double, color: Color) {
+    val track = MaterialTheme.colorScheme.surface
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .height(12.dp)
+    ) {
+        val radius = CornerRadius(size.height / 2)
+        drawRoundRect(track, size = size, cornerRadius = radius)
+        drawRoundRect(
+            color.copy(alpha = LikelyAlpha),
+            size = Size(likely.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
+            cornerRadius = radius,
+        )
+        drawRoundRect(
+            color,
+            size = Size(spent.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
+            cornerRadius = radius,
+        )
     }
 }
 
 // ---- Habits
 
+/**
+ * What stands out in the month so far: categories that took more, or less, than by this day in 9
+ * of the last months in 10, then purchases bigger than their category's for months.
+ */
 @Composable
-private fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?) {
+internal fun UnusualPanel(unusual: Unusual, currency: String) {
+    val panel = MaterialTheme.colorScheme.surfaceVariant
+    ChartPanel(
+        modifier = Modifier.testTag("month_unusual"),
+        title = stringResource(R.string.month_out_of_the_ordinary),
+        legend = {},
+    ) {
+        Column {
+            unusual.purchases.forEachIndexed { index, purchase ->
+                if (index > 0) Spacer(Modifier.height(16.dp))
+                val category = purchase.category?.name?.value
+                val since = purchase.since
+                FindingRow(
+                    dot = categoryColor(purchase.category),
+                    title = purchase.title ?: category ?: stringResource(R.string.unspecified),
+                    note = "${dateLabel(purchase.day)}, " + when {
+                        since == null && category != null ->
+                            stringResource(R.string.month_biggest_in, category, purchase.months)
+                        since == null -> stringResource(R.string.month_biggest_any_in, purchase.months)
+                        category != null ->
+                            stringResource(R.string.month_biggest_since, category, sinceName(since, purchase.day))
+                        else -> stringResource(R.string.month_biggest_any_since, sinceName(since, purchase.day))
+                    },
+                    value = money(purchase.amount, currency),
+                )
+            }
+            unusual.categories.forEachIndexed { index, item ->
+                if (index > 0 || unusual.purchases.isNotEmpty()) Spacer(Modifier.height(16.dp))
+                val name = item.category?.name?.value ?: stringResource(R.string.unspecified)
+                val usual = approx(item.usual)
+                FindingRow(
+                    dot = categoryColor(item.category),
+                    title = name,
+                    note = when {
+                        item.beaten == item.months && item.higher ->
+                            stringResource(R.string.month_usually_highest, usual, currency, item.months)
+                        item.beaten == item.months ->
+                            stringResource(R.string.month_usually_lowest, usual, currency, item.months)
+                        item.higher ->
+                            stringResource(R.string.month_usually_higher, usual, currency, item.beaten, item.months)
+                        else -> stringResource(R.string.month_usually_lower, usual, currency, item.beaten, item.months)
+                    },
+                    value = money(item.amount, currency),
+                    valueColor = if (item.higher) expenseRed(panel) else incomeGreen(panel),
+                )
+            }
+        }
+    }
+}
+
+// The month a purchase is the biggest since, with its year when it's another than the purchase's.
+@Composable
+@ReadOnlyComposable
+private fun sinceName(since: YearMonth, day: LocalDate): String {
+    val name = Month.fromMonthValue(since.monthValue).displayName()
+    return if (since.year == day.year) name else "$name ${since.year}"
+}
+
+/** A row of what stands out: a [dot], a [title] over a [note] of up to two lines, and a [value]. */
+@Composable
+private fun FindingRow(
+    dot: Color,
+    title: String,
+    note: String,
+    value: String,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Row(modifier = Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.Top) {
+        Box(
+            Modifier
+                .padding(top = 6.dp)
+                .size(10.dp)
+                .background(dot, MaterialTheme.shapes.extraSmall)
+        )
+        Spacer(Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                ),
+            )
+            Text(
+                text = note,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelSmall.copy(color = Gray),
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(text = value, maxLines = 1, style = MaterialTheme.typography.bodyMedium.copy(color = valueColor))
+    }
+}
+
+@Composable
+internal fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?, outlook: MonthOutlook? = null) {
     StatTiles(
         modifier = Modifier.testTag("month_habit_tiles"),
         stats = buildList {
@@ -348,7 +597,16 @@ private fun HabitTiles(habits: Habits, currency: String, lastDay: LocalDate?) {
                     pluralStringResource(R.plurals.month_on_average_days, habits.days, habits.days),
                 )
             )
-            if (lastDay != null && habits.days < habits.daysInMonth) {
+            val likely = outlook?.spending?.lastOrNull()
+            if (lastDay != null && likely != null) {
+                add(
+                    Stat(
+                        stringResource(R.string.month_likely_spent),
+                        "${approx(likely.likely)} $currency",
+                        stringResource(R.string.month_by_day, dateLabel(lastDay)),
+                    )
+                )
+            } else if (lastDay != null && habits.days < habits.daysInMonth) {
                 add(
                     Stat(
                         stringResource(R.string.month_at_this_pace),
@@ -684,6 +942,7 @@ private fun categoryColor(category: Category?): Color = category?.color?.value?.
 private fun compact(amount: Double): String = if (amount == floor(amount)) "%,.0f".format(amount) else amount.format(2)
 
 private const val EdgeRoom = 0.12f
+private const val LikelyAlpha = 0.35f
 private val RankWidth = 24.dp
 private const val DaysInWeek = 7
 private const val ShortMonth = 3

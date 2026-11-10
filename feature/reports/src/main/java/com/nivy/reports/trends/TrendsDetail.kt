@@ -45,6 +45,10 @@ data class TrendsDetail(
     val punchCard: ImmutableList<ImmutableList<Double>>?,
     val calendar: SpendingCalendar?,
     val records: Records,
+    // The net worth ahead, simulated from the range's months.
+    val outlook: NetWorthOutlook? = null,
+    // How categories' spending shifted over the range's full months, the biggest shifts first.
+    val shifts: ImmutableList<HabitShift> = kotlinx.collections.immutable.persistentListOf(),
 )
 
 /** A month of the trends. */

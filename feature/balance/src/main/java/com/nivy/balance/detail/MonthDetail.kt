@@ -39,6 +39,10 @@ data class MonthDetail(
     val habits: Habits?,
     val holdings: Holdings,
     val runway: Runway?,
+    // What the rest of the month likely holds, while it's the current month.
+    val outlook: MonthOutlook? = null,
+    // What stands out in the month so far.
+    val unusual: Unusual? = null,
 ) {
     companion object {
         val Empty = MonthDetail(

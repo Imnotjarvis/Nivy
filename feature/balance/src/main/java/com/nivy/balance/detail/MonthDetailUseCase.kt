@@ -23,6 +23,7 @@ import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import com.nivy.wallet.domain.pure.util.roundNicely
 import com.nivy.wallet.domain.pure.util.sizeEdges
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
@@ -30,7 +31,9 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 import javax.inject.Inject
+import kotlin.random.Random
 
 /**
  * The net worth screen's [MonthDetail] of a period, from the accounts in the balance, amounts in
@@ -97,6 +100,22 @@ class MonthDetailUseCase @Inject constructor(
                 .sortedBy { it.time }
             val previous = previousMonth(period, startDayOfMonth, inBalance, rates, names)
             val holdings = holdings(inBalance, rates)
+            val free = if (today != null) {
+                freeToSpend(
+                    income = income,
+                    plannedIncome = dueInPeriod.filterIsInstance<Income>().sumOf { rates.inBase(it.value) },
+                    spent = outgoing,
+                    plannedExpenses = plannedExpenses.sum(),
+                    daysLeft = days.size - elapsed.size,
+                )
+            } else {
+                null
+            }
+            // The history the forecasts draw on starts with the first paid transaction.
+            val first = today?.let { transactionRepository.findFirstPaidTime()?.localDate() }
+            val outlook = outlook(today, first, days, elapsed.size, balances, spends, due, free, inBalance, rates)
+            val unusual =
+                unusualSoFar(today, first, period, startDayOfMonth, spends, elapsed.size, inBalance, rates, names)
 
             MonthDetail(
                 days = days.toImmutableList(),
@@ -109,17 +128,7 @@ class MonthDetailUseCase @Inject constructor(
                     null
                 },
                 lowest = if (today != null) lowestAhead(days, balances, elapsed.size) else null,
-                freeToSpend = if (today != null) {
-                    freeToSpend(
-                        income = income,
-                        plannedIncome = dueInPeriod.filterIsInstance<Income>().sumOf { rates.inBase(it.value) },
-                        spent = outgoing,
-                        plannedExpenses = plannedExpenses.sum(),
-                        daysLeft = days.size - elapsed.size,
-                    )
-                } else {
-                    null
-                },
+                freeToSpend = free,
                 comingUp = ahead.take(ComingUpListed).map { upcoming(it, rates, names) }.toImmutableList(),
                 moreComingUp = (ahead.size - ComingUpListed).coerceAtLeast(0),
                 spentByDay = spentOn(days, spends).toImmutableList(),
@@ -152,6 +161,8 @@ class MonthDetailUseCase @Inject constructor(
                 ),
                 holdings = holdings,
                 runway = runway(holdings.netWorth, monthlySpending(startDayOfMonth, inBalance, rates)),
+                outlook = outlook,
+                unusual = unusual,
             )
         }
 
@@ -180,6 +191,115 @@ class MonthDetailUseCase @Inject constructor(
             .filter { it.isPurchase() }
             .map { spend(it, rates, names) }
         return Triple(before, spends, days(range))
+    }
+
+    /**
+     * While the month runs, to its [today], what it likely holds still: from the everyday spending
+     * since the [first] paid transaction's day, the [spends] so far and the purchases [due].
+     */
+    @Suppress("LongParameterList")
+    private suspend fun outlook(
+        today: LocalDate?,
+        first: LocalDate?,
+        days: List<LocalDate>,
+        actualDays: Int,
+        balances: List<Double>,
+        spends: List<Spend>,
+        due: List<Transaction>,
+        free: FreeToSpend?,
+        accounts: List<Account>,
+        rates: BaseCurrencyRates,
+    ): MonthOutlook? {
+        if (today == null || first == null) return null
+        val planned = due.filterIsInstance<Expense>().filter { it.isPurchase() }
+            .map { it.time to rates.inBase(it.value) }
+        return monthOutlook(
+            days = days,
+            actualDays = actualDays,
+            balances = balances,
+            spentSoFar = spends.sumOf { it.amount },
+            planned = (actualDays - 1 until days.size).map { index ->
+                val end = endOf(days[index])
+                planned.filter { (time, _) -> !time.isAfter(end) }.sumOf { it.second }
+            },
+            history = everydayHistory(today, first, accounts, rates),
+            free = free,
+            // The same runs all day, so the figures hold still while the day's data does.
+            random = Random(today.toEpochDay()),
+        )
+    }
+
+    // While the month runs, to its [today], what stands out in its [spends] so far against the months
+    // since the [first] paid transaction's day.
+    @Suppress("LongParameterList")
+    private suspend fun unusualSoFar(
+        today: LocalDate?,
+        first: LocalDate?,
+        period: TimePeriod,
+        startDayOfMonth: Int,
+        spends: List<Spend>,
+        elapsed: Int,
+        accounts: List<Account>,
+        rates: BaseCurrencyRates,
+        names: Names,
+    ): Unusual? {
+        if (today == null || first == null) return null
+        return unusual(
+            spends = spends,
+            elapsed = elapsed,
+            past = pastMonths(period, startDayOfMonth, first, accounts, rates, names),
+            atLeast = roundNicely(UnusualEuros * (rates.factor(Euro) ?: 1.0)),
+        )
+    }
+
+    /**
+     * The everyday purchases' total on each day of the last weeks before [today], from the [first]
+     * paid transaction's day on, days without any at nothing. A planned payment's bill, or a loan's
+     * money, isn't everyday spending.
+     */
+    private suspend fun everydayHistory(
+        today: LocalDate,
+        first: LocalDate,
+        accounts: List<Account>,
+        rates: BaseCurrencyRates,
+    ): Map<LocalDate, Double> {
+        val from = maxOf(today.minusDays(HistoryDays), first)
+        val byDay = paid(startOf(from), startOf(today).minusMillis(1), accounts)
+            .filterIsInstance<Expense>()
+            .filter { it.isPurchase() && it.metadata.recurringRuleId == null }
+            .groupBy { it.time.localDate() }
+            .mapValues { (_, inDay) -> inDay.sumOf { rates.inBase(it.value) } }
+        return generateSequence(from) { it.plusDays(1) }.takeWhile { it.isBefore(today) }
+            .associateWith { byDay[it] ?: 0.0 }
+    }
+
+    // The months before [period], oldest first, those that began on or after the [first] paid
+    // transaction's day: each one's days and purchases.
+    @Suppress("LongParameterList")
+    private suspend fun pastMonths(
+        period: TimePeriod,
+        startDayOfMonth: Int,
+        first: LocalDate,
+        accounts: List<Account>,
+        rates: BaseCurrencyRates,
+        names: Names,
+    ): List<PastMonth> {
+        val month = period.month ?: return emptyList()
+        val year = period.year ?: timeProvider.localDateNow().year
+        val ranges = (PastMonthsCounted downTo 1)
+            .map { back ->
+                month.incrementMonthPeriod(-back.toLong(), year).toRange(startDayOfMonth, timeConverter, timeProvider)
+            }
+            .filter { !it.from().localDate().isBefore(first) }
+        if (ranges.isEmpty()) return emptyList()
+        val spends = paid(ranges.first().from(), ranges.last().to(), accounts).filterIsInstance<Expense>()
+            .filter { it.isPurchase() }
+            .map { spend(it, rates, names) }
+        return ranges.map { range ->
+            val days = days(range)
+            val inMonth = days.toSet()
+            PastMonth(YearMonth.from(days.first()), days, spends.filter { it.day in inMonth })
+        }
     }
 
     // What went out in each of the last full months before the current one.
@@ -245,6 +365,8 @@ class MonthDetailUseCase @Inject constructor(
 
     private fun endOf(day: LocalDate): Instant = with(timeConverter) { day.atTime(LocalTime.MAX).toUTC() }
 
+    private fun startOf(day: LocalDate): Instant = with(timeConverter) { day.atStartOfDay().toUTC() }
+
     private fun Instant.localDate(): LocalDate = with(timeConverter) { toLocalDate() }
 
     private class Names(val accounts: Map<AccountId, Account>, val categories: Map<CategoryId, Category>)
@@ -253,6 +375,12 @@ class MonthDetailUseCase @Inject constructor(
         val Euro = AssetCode.unsafe("EUR")
         const val ComingUpListed = 5
         const val RunwayMonths = 3
+
+        // The outlook draws on the days of the last 13 weeks; unusual spending is set against the
+        // last 12 months, by 10 euros or more.
+        const val HistoryDays = 91L
+        const val PastMonthsCounted = 12
+        const val UnusualEuros = 10.0
     }
 }
 

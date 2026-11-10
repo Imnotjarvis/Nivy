@@ -29,11 +29,17 @@ import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.ui.R
+import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.utils.format
+import java.text.DecimalFormat
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * The month's balance, a day a step: as it was up to today, then, dashed, as planned payments
- * will take it. Today and the month's last day are marked, with their balances.
+ * will take it. Today and the month's last day are marked, with their balances. With an outlook,
+ * the balance ahead is also drawn as likely, less the everyday spending to come, in a band that 8
+ * runs in 10 stay within.
  */
 @Composable
 internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
@@ -48,20 +54,24 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
     )
     val balances = detail.balances
     val actual = detail.actualDays
+    // Only while the month runs: it has days so far and days ahead.
+    val outlook = detail.outlook
     val todayText = balances.getOrNull(actual - 1)?.let { measurer.measure(it.format(currency), label) }
     val endText = if (actual < balances.size) measurer.measure(balances.last().format(currency), label) else null
+    val likelyText = outlook?.balances?.lastOrNull()?.let { measurer.measure(approx(it.likely), label) }
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .height(if (outlook != null) 184.dp else 160.dp)
             .testTag("month_balance_chart")
     ) {
         if (balances.size < 2) return@Canvas
-        val margin = (balances.max() - balances.min()).coerceAtLeast(1.0) * ChartMargin
-        val min = balances.min() - margin
-        val max = balances.max() + margin
+        val values = balances + outlook?.balances?.flatMap { listOf(it.low, it.high) }.orEmpty()
+        val margin = (values.max() - values.min()).coerceAtLeast(1.0) * ChartMargin
+        val min = values.min() - margin
+        val max = values.max() + margin
         val top = LabelSpace.toPx()
-        val bottom = size.height - PointRing.toPx()
+        val bottom = size.height - PointRing.toPx() - (likelyText?.let { it.size.height + LabelGap.toPx() } ?: 0f)
         fun x(index: Int) = index / (balances.size - 1f) * size.width
         fun y(value: Double) = top + ((max - value) / (max - min)).toFloat() * (bottom - top)
 
@@ -79,36 +89,9 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
             drawPath(area, Brush.verticalGradient(listOf(line.copy(alpha = AreaAlpha), Color.Transparent), top, bottom))
             drawPath(path, line, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
+        if (outlook != null) likelyAhead(outlook.balances, actual - 1, ::x, ::y, line, ring, likelyText)
         if (actual < balances.size) {
-            // Ahead, the balance holds until a planned payment's day, then steps to it.
-            val from = (actual - 1).coerceAtLeast(0)
-            val path = Path().apply {
-                moveTo(x(from), y(balances[from]))
-                for (index in from + 1 until balances.size) {
-                    lineTo(x(index), y(balances[index - 1]))
-                    lineTo(x(index), y(balances[index]))
-                }
-            }
-            drawPath(
-                path,
-                planned,
-                style = Stroke(
-                    PlannedWidth.toPx(),
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dash.toPx(), Dash.toPx())),
-                ),
-            )
-            point(Offset(x(balances.lastIndex), y(balances.last())), planned, ring)
-            endText?.let { text ->
-                drawText(
-                    text,
-                    topLeft = Offset(
-                        size.width - text.size.width,
-                        y(balances.last()) - text.size.height - LabelGap.toPx()
-                    )
-                )
-            }
+            plannedAhead(balances, (actual - 1).coerceAtLeast(0), ::x, ::y, planned, ring, endText)
         }
         if (actual > 0) {
             val today = Offset(x(actual - 1), y(balances[actual - 1]))
@@ -199,9 +182,12 @@ internal fun DailyBars(detail: MonthDetail, average: Double?, currency: String) 
     }
 }
 
-/** What was spent by each day, added up: this month so far over the whole month before. */
+/**
+ * What was spent by each day, added up: this month so far over the whole month before. With the
+ * [ahead] bands, from today to the month's [days], the month's likely spending to its end too.
+ */
 @Composable
-internal fun PaceChart(pace: Pace) {
+internal fun PaceChart(pace: Pace, ahead: List<Band>? = null, days: Int = 0) {
     val now = expenseRed(MaterialTheme.colorScheme.surfaceVariant)
     val before = Gray
     val ring = MaterialTheme.colorScheme.surfaceVariant
@@ -211,9 +197,9 @@ internal fun PaceChart(pace: Pace) {
             .height(110.dp)
             .testTag("month_pace_chart")
     ) {
-        val count = maxOf(pace.previous.size, pace.current.size)
+        val count = maxOf(pace.previous.size, pace.current.size, if (ahead != null) days else 0)
         if (count < 2) return@Canvas
-        val highest = maxOf(pace.previous.lastOrNull() ?: 0.0, pace.current.last())
+        val highest = maxOf(pace.previous.lastOrNull() ?: 0.0, pace.current.last(), ahead?.lastOrNull()?.high ?: 0.0)
         val max = highest.takeIf { it > 0 }?.times(BarHeadroom) ?: 1.0
         val top = PointRing.toPx()
         val bottom = size.height - PointRing.toPx()
@@ -230,6 +216,8 @@ internal fun PaceChart(pace: Pace) {
                 style = Stroke(PlannedWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
             )
         }
+        val day = pace.current.lastIndex
+        if (ahead != null && ahead.size > 1) likelyAhead(ahead, day, ::x, ::y, now, ring, label = null, small = true)
         if (pace.current.size > 1) {
             drawPath(
                 path(pace.current),
@@ -237,11 +225,92 @@ internal fun PaceChart(pace: Pace) {
                 style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
             )
         }
-        val day = pace.current.lastIndex
         pace.previous.getOrNull(day)?.let { point(Offset(x(day), y(it)), before, ring, small = true) }
         point(Offset(x(day), y(pace.current.last())), now, ring)
     }
 }
+
+/** A forecast's amount, as round as it deserves: to 10 from 100 on, whole below. */
+internal fun approx(amount: Double): String {
+    val step = if (abs(amount) >= ApproxFrom) ApproxStep else 1.0
+    return DecimalFormat("#,##0").format((amount / step).roundToInt() * step)
+}
+
+/**
+ * The [balances] from the step [from] on, as planned: each holds until a planned payment's day, then
+ * steps to it. The last is marked, with [label] over it.
+ */
+@Suppress("LongParameterList")
+private fun DrawScope.plannedAhead(
+    balances: List<Double>,
+    from: Int,
+    x: (Int) -> Float,
+    y: (Double) -> Float,
+    color: Color,
+    ring: Color,
+    label: TextLayoutResult?,
+) {
+    val path = Path().apply {
+        moveTo(x(from), y(balances[from]))
+        for (index in from + 1 until balances.size) {
+            lineTo(x(index), y(balances[index - 1]))
+            lineTo(x(index), y(balances[index]))
+        }
+    }
+    drawPath(
+        path,
+        color,
+        style = Stroke(
+            PlannedWidth.toPx(),
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dash.toPx(), Dash.toPx())),
+        ),
+    )
+    val end = Offset(x(balances.lastIndex), y(balances.last()))
+    point(end, color, ring)
+    label?.let { drawText(it, topLeft = Offset(size.width - it.size.width, end.y - it.size.height - LabelGap.toPx())) }
+}
+
+/**
+ * From the step [from] on, [bands] a step: the band 8 runs in 10 stay within, the likely line
+ * through it, dotted, and its end, marked, with [label] under it.
+ */
+@Suppress("LongParameterList")
+private fun DrawScope.likelyAhead(
+    bands: List<Band>,
+    from: Int,
+    x: (Int) -> Float,
+    y: (Double) -> Float,
+    color: Color,
+    ring: Color,
+    label: TextLayoutResult?,
+    small: Boolean = false,
+) {
+    val band = Path().apply {
+        moveTo(x(from), y(bands[0].high))
+        for (step in 1..bands.lastIndex) lineTo(x(from + step), y(bands[step].high))
+        for (step in bands.lastIndex downTo 0) lineTo(x(from + step), y(bands[step].low))
+        close()
+    }
+    drawPath(band, color.copy(alpha = BandAlpha))
+    val likely = Path().apply {
+        moveTo(x(from), y(bands[0].likely))
+        for (step in 1..bands.lastIndex) lineTo(x(from + step), y(bands[step].likely))
+    }
+    drawPath(likely, color, style = dotted())
+    val end = Offset(x(from + bands.lastIndex), y(bands.last().likely))
+    point(end, color, ring, small)
+    label?.let { drawText(it, topLeft = Offset(size.width - it.size.width, end.y + LabelGap.toPx())) }
+}
+
+// What's likely, dotted: apart from what's planned, dashed, in minimal colors too.
+private fun DrawScope.dotted() = Stroke(
+    LikelyWidth.toPx(),
+    cap = StrokeCap.Round,
+    join = StrokeJoin.Round,
+    pathEffect = PathEffect.dashPathEffect(floatArrayOf(DotLength, LikelyGap.toPx())),
+)
 
 // A point on a line, in a ring of the panel's color that parts it from the line.
 private fun DrawScope.point(center: Offset, color: Color, ring: Color, small: Boolean = false) {
@@ -256,6 +325,12 @@ private fun DrawScope.labelAbove(text: TextLayoutResult, point: Offset) {
 }
 
 private const val ChartMargin = 0.15
+private const val BandAlpha = 0.2f
+private const val DotLength = 0.01f
+private val LikelyWidth = 3.dp
+private val LikelyGap = 6.dp
+private const val ApproxFrom = 100.0
+private const val ApproxStep = 10.0
 private const val AreaAlpha = 0.25f
 private const val GuideAlpha = 0.5f
 private const val IdleAlpha = 0.25f

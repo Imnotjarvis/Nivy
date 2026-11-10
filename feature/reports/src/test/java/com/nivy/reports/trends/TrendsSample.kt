@@ -15,6 +15,7 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -68,13 +69,15 @@ internal object TrendsSample {
     private val Months = (11L downTo 0L).map { span(Current.minusMonths(it)) }
     private val ChangeMonths = (6L downTo 1L).map { span(Current.minusMonths(it)) }
 
-    // A year's salaries, bills and purchases: eating out grows over the year, transport shrinks.
+    // A year's salaries, bills and purchases: lunches out from May, a gym from June, cheaper groceries
+    // from July, and fewer rides month by month.
     private val Flows: List<Flow> = run {
         val random = Random(11)
         val first = Months.first().days.first()
         generateSequence(first) { it.plusDays(1) }.takeWhile { !it.isAfter(Today) }.flatMap { day ->
             val month = Months.indexOfFirst { day in it.days }
             val weekend = day.dayOfWeek == DayOfWeek.SATURDAY || day.dayOfWeek == DayOfWeek.SUNDAY
+            val cheaper = !day.isBefore(LocalDate.of(2026, 7, 1))
             buildList {
                 if (day.dayOfMonth == 1) add(income(day, 1_650.0))
                 if (day == LocalDate.of(2026, 3, 15)) add(income(day, 500.0))
@@ -82,6 +85,9 @@ internal object TrendsSample {
                 if (day.dayOfMonth == 2) add(spend(day, 7, "Spotify", Subscriptions, 10.99, recurring = true))
                 if (day.dayOfMonth == 3) add(spend(day, 9, "Rent", Housing, 550.0, recurring = true))
                 if (day.dayOfMonth == 4) add(spend(day, 6, "Netflix", Subscriptions, 13.99, recurring = true))
+                if (day.dayOfMonth == 6 && !day.isBefore(LocalDate.of(2026, 6, 1))) {
+                    add(spend(day, 7, "Gym", Leisure, 34.90, recurring = true))
+                }
                 if (day.dayOfMonth == 15) {
                     add(
                         spend(day, 9, "Electricity", Bills, 40.0 + random.nextInt(30), recurring = true)
@@ -89,26 +95,21 @@ internal object TrendsSample {
                 }
                 if (day == LocalDate.of(2026, 3, 14)) add(spend(day, 16, "Laptop", Shopping, 1_240.0))
                 if (random.nextInt(3) == 0) {
-                    add(
-                        spend(
-                            day,
-                            18 + random.nextInt(2),
-                            if (random.nextBoolean()) "Lidl" else "Bakery",
-                            Groceries,
-                            12.0 + random.nextInt(38)
-                        )
-                    )
+                    val amount = if (cheaper) 6.0 + random.nextInt(14) else 12.0 + random.nextInt(38)
+                    val title = if (random.nextBoolean()) "Lidl" else "Bakery"
+                    add(spend(day, 18 + random.nextInt(2), title, Groceries, amount))
                 }
-                if (!weekend && random.nextInt(100) < 30 + 2 * month) {
+                if (!weekend && random.nextInt(100) < 30) {
                     add(spend(day, 8, "Bar Roma", EatingOut, 2.5 + random.nextInt(3)))
                 }
-                if (weekend && random.nextInt(100) < 25 + 3 * month) {
-                    add(spend(day, 20 + random.nextInt(2), "Trattoria", EatingOut, 25.0 + random.nextInt(45)))
+                if (!weekend && !day.isBefore(LocalDate.of(2026, 5, 1)) && random.nextInt(100) < 45) {
+                    add(spend(day, 13, "Lunch place", EatingOut, 9.0 + random.nextInt(6)))
                 }
-                if (random.nextInt(100) < 24 - month) {
-                    add(
-                        spend(day, 7 + random.nextInt(16), "Uber", Transport, 9.0 + random.nextInt(16))
-                    )
+                if (weekend && random.nextInt(100) < 30) {
+                    add(spend(day, 20 + random.nextInt(2), "Trattoria", EatingOut, 25.0 + random.nextInt(20)))
+                }
+                if (random.nextInt(100) < 60 - 4 * month) {
+                    add(spend(day, 7 + random.nextInt(16), "Bus", Transport, 6.0 + random.nextInt(6)))
                 }
                 if (random.nextInt(25) == 0) {
                     add(
@@ -128,7 +129,7 @@ internal object TrendsSample {
     private val Balances: List<Pair<Account, List<Double>>> = run {
         val saved = Months.map { month -> month.days.toSet().let { days -> Flows.filter { it.day in days } } }
             .map { inMonth -> inMonth.sumOf { if (it.income) it.amount else -it.amount } }
-        val netWorth = saved.runningFold(9_200.0) { worth, month -> worth + month + 35.0 }.drop(1)
+        val netWorth = saved.runningFold(8_600.0) { worth, month -> worth + month + 35.0 }.drop(1)
         val savings = Months.indices.map { 2_800.0 + 150.0 * it }
         val revolut = Months.indices.map { 250.0 + 12.5 * it + (it % 3) * 20.0 }
         val cash = Months.indices.map { 340.0 + (it % 4) * 25.0 }
@@ -147,16 +148,28 @@ internal object TrendsSample {
         )
     }
 
+    private val NetWorth = Months.indices.map { index -> Balances.sumOf { (_, values) -> values[index] } }
+
     val Detail: TrendsDetail = trends(
         months = Months,
         changeMonths = ChangeMonths,
         flows = Flows,
-        netWorth = Months.indices.map { index -> Balances.sumOf { (_, values) -> values[index] } },
+        netWorth = NetWorth,
         balances = Balances,
         today = Today,
         trackedSince = LocalDate.of(2024, 3, 1),
         smallEdge = 15.0,
-    )
+    ).let { detail ->
+        detail.copy(
+            outlook = netWorthOutlook(
+                start = NetWorth.last(),
+                changes = (1 until Months.size).filter { Months[it].complete }.map { NetWorth[it] - NetWorth[it - 1] },
+                now = Current,
+                random = Random(Today.toEpochDay()),
+            ),
+            shifts = habitShifts(detail.months, Months, Flows, atLeast = 10.0).toImmutableList(),
+        )
+    }
 
     /** A year of trends, July marked, as a tap on its slot leaves it. */
     val State = TrendsState(baseCurrency = "EUR", range = TrendsRange.Year, detail = Detail, selectedIndex = 7)

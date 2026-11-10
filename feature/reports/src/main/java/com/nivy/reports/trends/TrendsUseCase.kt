@@ -20,11 +20,15 @@ import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import com.nivy.wallet.domain.pure.util.roundNicely
 import com.nivy.wallet.domain.pure.util.smallPurchaseEdge
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
+import kotlin.random.Random
 
 /**
  * The [TrendsDetail] of a range of months up to the current one. Income, expenses and habits are
@@ -69,23 +73,47 @@ class TrendsUseCase @Inject constructor(
                 .filter { it.settled && it.accountId() in included }
                 .mapNotNull { flow(it, rates, categories) }
 
-            // Each account's balance at each month's end, or now for the current month.
-            val balances = accounts.map { account ->
-                account to months.map { (_, bounds) ->
+            // Each account's balance at each month's end, or now for the current month: over the
+            // range, and over the months before the current one the outlook draws on.
+            val ends = (maxOf(count, OutlookMonths + 1) - 1 downTo 0).map(::month)
+            val held = accounts.map { account ->
+                account to ends.map { (_, bounds) ->
                     val at = ClosedTimeRange.to(minOf(bounds.to(), now))
                     rates.inBase(accountBalanceUseCase.balance(account, at).balance.toDouble(), account.asset)
                 }
             }
+            val balances = held.map { (account, values) -> account to values.takeLast(count) }
+            val worth = ends.indices.map { index -> held.sumOf { (_, values) -> values[index] } }
+            val trackedSince = firstPaid?.let { with(timeConverter) { it.toLocalDate() } } ?: today
+            val perEuro = rates.factor(Euro) ?: 1.0
 
-            trends(
+            val detail = trends(
                 months = months.map { it.first },
                 changeMonths = changeMonths.map { it.first },
                 flows = flows,
-                netWorth = months.indices.map { index -> balances.sumOf { (_, values) -> values[index] } },
+                netWorth = worth.takeLast(count),
                 balances = balances,
                 today = today,
-                trackedSince = firstPaid?.let { with(timeConverter) { it.toLocalDate() } } ?: today,
-                smallEdge = smallPurchaseEdge(rates.factor(Euro) ?: 1.0),
+                trackedSince = trackedSince,
+                smallEdge = smallPurchaseEdge(perEuro),
+            )
+            // How the net worth moved in each complete month that began once the app was in use.
+            val changes = ends.indices.drop(1)
+                .filter { index ->
+                    val (span, _) = ends[index]
+                    span.complete && !span.days.first().isBefore(trackedSince)
+                }
+                .map { index -> worth[index] - worth[index - 1] }
+            detail.copy(
+                // The same runs all day, so the figures hold still while the day's data does.
+                outlook = netWorthOutlook(
+                    start = worth.last(),
+                    changes = changes.takeLast(OutlookMonths),
+                    now = YearMonth.of(current.year ?: today.year, requireNotNull(current.month).monthValue),
+                    random = Random(today.toEpochDay()),
+                ),
+                shifts = habitShifts(detail.months, months.map { it.first }, flows, roundNicely(ShiftEuros * perEuro))
+                    .toImmutableList(),
             )
         }
 
@@ -128,6 +156,9 @@ class TrendsUseCase @Inject constructor(
     private companion object {
         val Euro = AssetCode.unsafe("EUR")
         const val ChangeMonthsBack = 6
+
+        // A habit shift moves a category by 10 euros a month or more.
+        const val ShiftEuros = 10.0
     }
 }
 

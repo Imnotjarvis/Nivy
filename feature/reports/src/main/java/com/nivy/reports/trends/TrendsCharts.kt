@@ -35,6 +35,7 @@ import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
+import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.ui.component.percent
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -67,9 +68,9 @@ private fun DrawScope.slot(index: Int, count: Int, color: Color) {
 }
 
 /**
- * The net worth month by month and, dashed, the months [forecast] at the same pace. Over the
- * chosen month, a bubble tells its net worth and how it moved in that month: [bubble] gives its
- * lines.
+ * The net worth month by month and, dashed, the months [forecast] at the same pace; or, with an
+ * [outlook], the months ahead as likely, in a band that 8 runs in 10 stay within. Over the chosen
+ * month, a bubble tells its net worth and how it moved in that month: [bubble] gives its lines.
  */
 @Composable
 internal fun NetWorthChart(
@@ -78,6 +79,7 @@ internal fun NetWorthChart(
     selected: Int,
     bubble: List<Pair<String, BubbleLine>>,
     onSelect: (Int) -> Unit,
+    outlook: List<Band>? = null,
 ) {
     val line = Nivy
     val highlight = MaterialTheme.colorScheme.surface
@@ -99,7 +101,7 @@ internal fun NetWorthChart(
         ),
     )
     val texts = bubble.map { (text, kind) -> measurer.measure(text, styles.getValue(kind)) }
-    val count = values.size + forecast.size
+    val count = values.size + (outlook?.size ?: forecast.size)
     val select by rememberUpdatedState(onSelect)
     Canvas(
         modifier = Modifier
@@ -113,7 +115,7 @@ internal fun NetWorthChart(
         val bubbleHeight = texts.sumOf { it.size.height } + 2 * padding
         val top = bubbleHeight + BubbleGap.toPx()
         val bottom = size.height - PointRing.toPx()
-        val all = values + forecast
+        val all = values + (outlook?.flatMap { listOf(it.low, it.high) } ?: forecast)
         val margin = (all.max() - all.min()).coerceAtLeast(1.0) * ChartMargin
         val min = all.min() - margin
         val max = all.max() + margin
@@ -136,7 +138,31 @@ internal fun NetWorthChart(
             drawPath(area, Brush.verticalGradient(listOf(line.copy(alpha = AreaAlpha), Color.Transparent), top, bottom))
             drawPath(actual, line, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
-        if (forecast.isNotEmpty()) {
+        if (outlook != null && outlook.isNotEmpty()) {
+            val last = values.lastIndex
+            val band = Path().apply {
+                moveTo(x(last), y(values.last()))
+                outlook.forEachIndexed { index, month -> lineTo(x(values.size + index), y(month.high)) }
+                for (index in outlook.indices.reversed()) lineTo(x(values.size + index), y(outlook[index].low))
+                close()
+            }
+            drawPath(band, line.copy(alpha = FanAlpha))
+            val likely = Path().apply {
+                moveTo(x(last), y(values.last()))
+                outlook.forEachIndexed { index, month -> lineTo(x(values.size + index), y(month.likely)) }
+            }
+            drawPath(
+                likely,
+                line,
+                style = Stroke(
+                    LikelyWidth.toPx(),
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(DotLength, LikelyGap.toPx())),
+                ),
+            )
+            drawCircle(line, SmallPoint.toPx(), Offset(x(values.size + outlook.lastIndex), y(outlook.last().likely)))
+        } else if (forecast.isNotEmpty()) {
             val ahead = Path().apply {
                 moveTo(x(values.lastIndex), y(values.last()))
                 forecast.forEachIndexed { index, value -> lineTo(x(values.size + index), y(value)) }
@@ -519,6 +545,10 @@ private const val ChartMargin = 0.1
 private const val Headroom = 1.08
 private const val AreaAlpha = 0.25f
 private const val ForecastAlpha = 0.45f
+private const val FanAlpha = 0.2f
+private const val DotLength = 0.01f
+private val LikelyWidth = 3.dp
+private val LikelyGap = 6.dp
 private const val GuideAlpha = 0.5f
 private const val BandAlpha = 0.9f
 private const val BarFraction = 0.55f

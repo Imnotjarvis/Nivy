@@ -6,6 +6,8 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Category
+import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
@@ -24,6 +26,7 @@ import com.nivy.domain.usecase.account.AccountBalanceDetails
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
+import com.nivy.wallet.domain.pure.forecast.Shift
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -35,7 +38,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.YearMonth
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class TrendsUseCaseTest {
@@ -43,7 +48,7 @@ class TrendsUseCaseTest {
     private val savings = account("Savings", includeInBalance = false)
 
     private var firstPaid: Instant? = Instant.parse("2025-06-01T10:00:00Z")
-    private val transactions = listOf(
+    private val transactions = mutableListOf(
         income(bank, 1_000.0, "2026-11-05T10:00:00Z"),
         income(savings, 500.0, "2026-11-06T10:00:00Z"),
         expense(bank, 200.0, "2026-10-20T10:00:00Z"),
@@ -51,8 +56,10 @@ class TrendsUseCaseTest {
         expense(bank, 80.0, "2026-11-10T10:00:00Z", settled = false),
     )
 
-    // What a balance is asked at; the bank answers with the month's number, the savings with 100.
+    // What a balance is asked at; the bank answers with the month's number, or [bankAt] says, the
+    // savings with 100.
     private val asked = mutableListOf<Pair<Account, Instant>>()
+    private var bankAt: (Instant) -> Double = { it.atOffset(ZoneOffset.UTC).monthValue.toDouble() }
 
     private val useCase = TrendsUseCase(
         transactionRepository = mockk<TransactionRepository> {
@@ -63,13 +70,13 @@ class TrendsUseCaseTest {
             }
         },
         accountRepository = mockk<AccountRepository> { coEvery { findAll() } returns listOf(bank, savings) },
-        categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns emptyList() },
+        categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns listOf(Groceries) },
         accountBalanceUseCase = mockk<AccountBalanceUseCase> {
             coEvery { balance(any(), any()) } answers {
                 val account = firstArg<Account>()
                 val at = secondArg<ClosedTimeRange>().to
                 asked += account to at
-                val balance = if (account == bank) at.atOffset(ZoneOffset.UTC).monthValue.toDouble() else 100.0
+                val balance = if (account == bank) bankAt(at) else 100.0
                 AccountBalanceDetails(account, BigDecimal.valueOf(balance))
             }
         },
@@ -84,11 +91,57 @@ class TrendsUseCaseTest {
         // when
         val trends = useCase.trends(TrendsRange.Year, startDayOfMonth = 1, baseCurrency = Eur)
 
-        // then: December 2025 to November 2026
+        // then: December 2025 to November 2026, after November 2025's end, which the outlook needs
+        // for December's change
         trends.months.map { it.netWorth } shouldBe (listOf(12.0) + (1..11).map { it.toDouble() }).map { it + 100.0 }
         asked.map { it.first }.toSet() shouldBe setOf(bank, savings)
-        asked.first().second.atOffset(ZoneOffset.UTC).toLocalDate() shouldBe LocalDate.of(2025, 12, 31)
+        asked.first().second.atOffset(ZoneOffset.UTC).toLocalDate() shouldBe LocalDate.of(2025, 11, 30)
         asked.last().second shouldBe FixedTime.utcNow()
+    }
+
+    @Test
+    fun `the outlook moves the net worth as the last 12 complete months did, whatever the range`() = runTest {
+        // given a bank that gains 50 every month
+        bankAt = { at ->
+            val month = YearMonth.from(at.atOffset(ZoneOffset.UTC))
+            1_000.0 + 50.0 * ChronoUnit.MONTHS.between(YearMonth.of(2025, 1), month)
+        }
+
+        // when
+        val outlook = useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur).outlook!!
+
+        // then: 2,200 now, 50 more each month ahead, and 2,500 reached in May
+        outlook.months.map { it.likely } shouldBe listOf(2_250.0, 2_300.0, 2_350.0)
+        outlook.months.forEach { it.low shouldBe it.high }
+        outlook.milestone shouldBe LikelyMilestone(
+            amount = 2_500.0,
+            likely = YearMonth.of(2027, 5),
+            early = YearMonth.of(2027, 5),
+            late = YearMonth.of(2027, 5),
+        )
+        // A quarter's trends still read the 13 month ends before now.
+        asked.first().second.atOffset(ZoneOffset.UTC).toLocalDate() shouldBe LocalDate.of(2025, 11, 30)
+    }
+
+    @Test
+    fun `habit shifts come from the range's full months`() = runTest {
+        // given 100 of groceries each month to May, then 200
+        transactions += (0..10).map { back ->
+            val month = YearMonth.of(2026, 10).minusMonths(back.toLong())
+            val amount = if (month.isBefore(YearMonth.of(2026, 6))) 100.0 else 200.0
+            expense(bank, amount, "$month-12T10:00:00Z", category = Groceries)
+        }
+
+        // when
+        val trends = useCase.trends(TrendsRange.Year, startDayOfMonth = 1, baseCurrency = Eur)
+
+        // then
+        val shift = trends.shifts.single()
+        shift.category shouldBe Groceries
+        shift.shift shouldBe Shift.Step(at = 6, before = 100.0, after = 200.0)
+        shift.periods[6].month?.monthValue shouldBe 6
+        // A quarter shows no shifts: it has too few full months.
+        useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur).shifts shouldBe emptyList()
     }
 
     @Test
@@ -149,11 +202,17 @@ class TrendsUseCaseTest {
         account = account.id,
     )
 
-    private fun expense(account: Account, amount: Double, time: String, settled: Boolean = true): Transaction = Expense(
+    private fun expense(
+        account: Account,
+        amount: Double,
+        time: String,
+        settled: Boolean = true,
+        category: Category? = null,
+    ): Transaction = Expense(
         id = TransactionId(UUID.randomUUID()),
         title = null,
         description = null,
-        category = null,
+        category = category?.id,
         time = Instant.parse(time),
         settled = settled,
         metadata = Metadata,
@@ -193,6 +252,13 @@ class TrendsUseCaseTest {
 
     private companion object {
         val Eur = AssetCode.unsafe("EUR")
+        val Groceries = Category(
+            id = CategoryId(UUID(9L, 1L)),
+            name = NotBlankTrimmedString.unsafe("Groceries"),
+            color = ColorInt(0),
+            icon = null,
+            orderNum = 0.0,
+        )
         val Metadata = TransactionMetadata(
             recurringRuleId = null,
             paidForDateTime = null,
