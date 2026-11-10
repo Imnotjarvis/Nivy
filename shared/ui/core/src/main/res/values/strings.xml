@@ -645,6 +645,7 @@
     <string name="msg_account_not_saved">Couldn\'t save the account</string>
     <string name="msg_category_not_saved">Couldn\'t save the category</string>
     <string name="msg_import_failed">Couldn\'t import the file, so nothing was imported</string>
+    <string name="csv_file_not_read">Couldn\'t read the file as CSV</string>
     <string name="msg_exchange_rates_not_downloaded">Couldn\'t download the exchange rates</string>
     <string name="msg_source_account_destination_account_same_for_transfer">Select a different destination account for the transfer</string>
     <string name="tags_optional">Tags (optional)</string>

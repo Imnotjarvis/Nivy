@@ -132,7 +132,12 @@ class CSVImporterV2 @Inject constructor(
         )
     }
 
-    // Each `?: return null` skips a row missing a required field.
+    /**
+     * The row as a transaction, or null when it's missing a required field or can't be one. The
+     * row is read and checked in full before an account or a category is made for it, so a row
+     * that's refused leaves none behind.
+     */
+    // Each `?: return null` refuses the row.
     @Suppress("ReturnCount")
     private suspend fun mapToTransaction(
         baseCurrency: String,
@@ -145,28 +150,7 @@ class CSVImporterV2 @Inject constructor(
             value = row.extractValue(importantFields.type),
             metadata = importantFields.type.metadata,
         ) ?: return null
-
-        val toAccount = if (type == TransactionType.TRANSFER) {
-            mapAccount(
-                baseCurrency = baseCurrency,
-                accountNameString = parseText(
-                    value = row.extractValue(transferFields.toAccount),
-                    metadata = transferFields.toAccount.metadata
-                ),
-                currencyRawString = parseText(
-                    value = row.extractValue(transferFields.toAccountCurrency),
-                    metadata = transferFields.toAccountCurrency.metadata
-                ) ?: parseText(
-                    value = row.extractValue(importantFields.accountCurrency),
-                    metadata = importantFields.accountCurrency.metadata,
-                ),
-                color = null,
-                icon = null,
-                orderNum = null,
-            )
-        } else {
-            null
-        }
+        val transfer = type == TransactionType.TRANSFER
 
         // A transfer's Amount is what leaves the account; To Amount, if any, is what arrives.
         val csvAmount = parseAmount(
@@ -180,7 +164,7 @@ class CSVImporterV2 @Inject constructor(
             return null
         }
 
-        val toAmount = if (type == TransactionType.TRANSFER) {
+        val toAmount = if (transfer) {
             parseAmount(
                 value = row.extractValue(transferFields.toAmount),
                 metadata = transferFields.toAmount.metadata
@@ -194,24 +178,55 @@ class CSVImporterV2 @Inject constructor(
             importantFields.date.metadata
         ) ?: return null
 
+        val accountName = parseText(
+            value = row.extractValue(importantFields.account),
+            metadata = importantFields.account.metadata
+        )?.takeIf { it.isNotBlank() } ?: return null
+        val accountCurrency = parseText(
+            value = row.extractValue(importantFields.accountCurrency),
+            metadata = importantFields.accountCurrency.metadata
+        )
+        val toAccountName = if (transfer) {
+            parseText(
+                value = row.extractValue(transferFields.toAccount),
+                metadata = transferFields.toAccount.metadata
+            )?.takeIf { it.isNotBlank() } ?: return null
+        } else {
+            null
+        }
+        val toAccountCurrency = parseText(
+            value = row.extractValue(transferFields.toAccountCurrency),
+            metadata = transferFields.toAccountCurrency.metadata
+        ) ?: accountCurrency
+
+        if (toAccountName != null) {
+            // A transfer to the account it leaves isn't one.
+            if (nameKey(toAccountName) == nameKey(accountName)) return null
+            // Between two currencies, what arrives isn't what left: without a To Amount, the row
+            // is skipped and listed rather than taken one for one.
+            val currencies = assetOf(accountName, accountCurrency, baseCurrency) to
+                assetOf(toAccountName, toAccountCurrency, baseCurrency)
+            if (toAmount == null && currencies.first != currencies.second) return null
+        }
+
         val account = mapAccount(
             baseCurrency = baseCurrency,
-            accountNameString = parseText(
-                value = row.extractValue(importantFields.account),
-                metadata = importantFields.account.metadata
-            ),
-            currencyRawString = parseText(
-                value = row.extractValue(importantFields.accountCurrency),
-                metadata = importantFields.accountCurrency.metadata
-            ),
+            accountNameString = accountName,
+            currencyRawString = accountCurrency,
             color = null,
             icon = null,
             orderNum = null,
         ) ?: return null
-
-        // Between two currencies, what arrives isn't what left: without a To Amount, the row
-        // is skipped and listed rather than taken one for one.
-        if (toAccount != null && toAmount == null && toAccount.asset != account.asset) return null
+        val toAccount = toAccountName?.let {
+            mapAccount(
+                baseCurrency = baseCurrency,
+                accountNameString = it,
+                currencyRawString = toAccountCurrency,
+                color = null,
+                icon = null,
+                orderNum = null,
+            ) ?: return null
+        }
 
         val category = mapCategory(
             categoryNameString = parseText(
@@ -246,6 +261,14 @@ class CSVImporterV2 @Inject constructor(
         )
     }
 
+    /** How an account's name is matched: whatever the case and the spaces around it. */
+    private fun nameKey(name: String): String = name.trim().toLowerCaseLocal()
+
+    /** The currency of the account named [name]: its own if it exists, else the one it'd be made in. */
+    private fun assetOf(name: String, currencyRawString: String?, baseCurrency: String): AssetCode? =
+        accounts.firstOrNull { nameKey(name) == nameKey(it.name.value) }?.asset
+            ?: AssetCode.from(mapCurrency(baseCurrency = baseCurrency, currencyCode = currencyRawString)).getOrNull()
+
     // Each early return either finds the account or gives up on the row.
     @Suppress("ReturnCount")
     private suspend fun mapAccount(
@@ -258,9 +281,7 @@ class CSVImporterV2 @Inject constructor(
     ): Account? {
         if (accountNameString == null || accountNameString.isBlank()) return null
 
-        val existingAccount = accounts.firstOrNull {
-            accountNameString.trim().toLowerCaseLocal() == it.name.value.toLowerCaseLocal()
-        }
+        val existingAccount = accounts.firstOrNull { nameKey(accountNameString) == nameKey(it.name.value) }
         if (existingAccount != null) {
             return existingAccount
         }
