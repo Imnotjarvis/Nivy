@@ -12,7 +12,7 @@ import com.nivy.navigation.OnboardingScreen
 import com.nivy.onboarding.steps.OnboardingAccounts
 import com.nivy.onboarding.steps.OnboardingCategories
 import com.nivy.onboarding.steps.OnboardingSetCurrency
-import com.nivy.onboarding.steps.OnboardingSplashLogin
+import com.nivy.onboarding.steps.OnboardingSplashWelcome
 import com.nivy.onboarding.steps.OnboardingType
 import com.nivy.onboarding.viewmodel.OnboardingViewModel
 import com.nivy.wallet.domain.data.NivyCurrency
@@ -38,8 +38,8 @@ fun BoxWithConstraintsScope.OnboardingScreen(screen: OnboardingScreen) {
         )
     }
 
-    // Back goes to the previous step; on the login step it leaves the app.
-    BackHandler(enabled = state != OnboardingState.LOGIN) {
+    // Back goes to the previous step; on the welcome step it leaves the app.
+    BackHandler(enabled = state != OnboardingState.WELCOME) {
         viewModel.onBack()
     }
 
@@ -73,10 +73,10 @@ private fun BoxWithConstraintsScope.UI(
     onEvent: (OnboardingEvent) -> Unit = {}
 ) {
     when (onboardingState) {
-        OnboardingState.SPLASH, OnboardingState.LOGIN -> {
-            OnboardingSplashLogin(
+        OnboardingState.SPLASH, OnboardingState.WELCOME -> {
+            OnboardingSplashWelcome(
                 onboardingState = onboardingState,
-                onSkip = { onEvent(OnboardingEvent.LoginOfflineAccount) }
+                onStart = { onEvent(OnboardingEvent.GetStarted) }
             )
         }
 

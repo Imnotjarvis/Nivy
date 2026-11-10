@@ -112,7 +112,6 @@ class AppPreferences @Inject constructor(
     suspend fun setBaseCurrency(code: String) = set(BaseCurrency, code)
     suspend fun setTheme(theme: Theme) = set(ThemeName, theme.name)
     suspend fun setBufferAmount(amount: Double) = set(BufferAmount, amount)
-    suspend fun setUserName(name: String) = set(UserName, name)
 
     // Home screen cards the user dismissed, by card id.
     suspend fun isCardDismissed(cardId: String): Boolean = get(cardDismissedKey(cardId), false)

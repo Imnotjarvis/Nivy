@@ -10,23 +10,22 @@ import com.nivy.wallet.domain.pure.spending.DayParts
 import com.nivy.wallet.domain.pure.spending.EveningPart
 import com.nivy.wallet.domain.pure.spending.Flow
 import com.nivy.wallet.domain.pure.spending.Weekend
+import com.nivy.wallet.domain.pure.spending.chosen
+import com.nivy.wallet.domain.pure.spending.fixed
 import com.nivy.wallet.domain.pure.spending.median
+import com.nivy.wallet.domain.pure.spending.noSpendDays
 import com.nivy.wallet.domain.pure.spending.percentile
+import com.nivy.wallet.domain.pure.spending.trackedSince
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.log10
-import kotlin.math.pow
 
 /** A month of the trends: its period, its days, and whether it's over. */
 internal data class MonthSpan(val period: TimePeriod, val days: List<LocalDate>, val complete: Boolean)
 
-/** The net worth months ahead of the current one that the trends forecast. */
+/** The net worth months ahead of the current one that the outlook forecasts. */
 internal const val ForecastMonths = 3
 
 // At most this many accounts and categories are drawn on their own, the others together.
@@ -36,9 +35,6 @@ private const val ListedChanges = 5
 
 // The categories' change compares the last of these months with as many before them.
 private const val ChangeMonths = 3
-
-// A milestone further than this many months away isn't told.
-private const val MilestoneMonthsAtMost = 120
 
 // The weeks of the spending calendar, at most.
 private const val CalendarWeeks = 26
@@ -67,12 +63,8 @@ internal fun trends(
     val trend = months.mapIndexed { index, month ->
         monthTrend(month, inRange, netWorth[index], smallEdge, today, trackedSince)
     }
-    val pace = if (netWorth.size > 1) line(netWorth).first else 0.0
-    val current = months.lastOrNull()?.period?.let { YearMonth.of(it.year ?: today.year, it.month?.monthValue ?: 1) }
     return TrendsDetail(
         months = trend.toImmutableList(),
-        forecast = forecast(netWorth).toImmutableList(),
-        milestone = if (current != null) milestone(netWorth.lastOrNull() ?: 0.0, pace, current) else null,
         accounts = accountSeries(balances).toImmutableList(),
         categories = categorySeries(months, inRange).toImmutableList(),
         changes = categoryShifts(changeMonths.filter { !it.days.first().isBefore(trackedSince) }, flows)
@@ -96,22 +88,21 @@ internal fun monthTrend(
     val days = month.days.toSet()
     val inMonth = flows.filter { it.day in days }
     val expenses = inMonth.filter { !it.income }
-    val purchases = expenses.filter { it.habit }
+    val purchases = expenses.chosen()
     val timed = purchases.filter { it.timed }
-    val tracked = month.days.filter { !it.isBefore(trackedSince) && !it.isAfter(today) }
-    val spendDays = purchases.map { it.day }.toSet()
+    val tracked = month.days.trackedSince(trackedSince).filter { !it.isAfter(today) }
     return MonthTrend(
         period = month.period,
         complete = month.complete,
         income = inMonth.filter { it.income }.sumOf { it.amount },
         expense = expenses.sumOf { it.amount },
         netWorth = netWorth,
-        fixed = expenses.filter { it.recurring }.sumOf { it.amount },
+        fixed = expenses.fixed().sumOf { it.amount },
         habits = MonthHabits(
             purchases = purchases.size,
             spent = purchases.sumOf { it.amount },
             typical = median(purchases.map { it.amount }),
-            noSpendDays = tracked.count { it !in spendDays },
+            noSpendDays = noSpendDays(tracked, purchases),
             days = tracked.size,
             weekend = purchases.filter { it.made.dayOfWeek in Weekend }.sumOf { it.amount },
             small = purchases.filter { it.amount < smallEdge }.sumOf { it.amount },
@@ -120,25 +111,6 @@ internal fun monthTrend(
         ),
         full = month.complete && !month.days.first().isBefore(trackedSince),
     )
-}
-
-/** The net worth for the next months, along the line that best fits [netWorth]'s months. */
-internal fun forecast(netWorth: List<Double>, ahead: Int = ForecastMonths): List<Double> {
-    if (netWorth.size < 2) return emptyList()
-    val (slope, _) = line(netWorth)
-    return (1..ahead).map { netWorth.last() + slope * it }
-}
-
-/**
- * The next round net worth above [netWorth] (a step of half its power of ten: 15,000 above
- * 12,147), and the month it's reached at [pace] a month from [now]; null when it's not reached.
- */
-internal fun milestone(netWorth: Double, pace: Double, now: YearMonth): Milestone? {
-    if (pace <= 0 || netWorth < 1) return null
-    val step = 10.0.pow(floor(log10(netWorth))) / 2
-    val next = (floor(netWorth / step) + 1) * step
-    val months = ceil((next - netWorth) / pace).toLong()
-    return if (months <= MilestoneMonthsAtMost) Milestone(next, now.plusMonths(months)) else null
 }
 
 /**

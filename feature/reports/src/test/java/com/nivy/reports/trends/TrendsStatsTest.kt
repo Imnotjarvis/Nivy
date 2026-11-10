@@ -19,7 +19,6 @@ import io.kotest.matchers.shouldBe
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 import java.util.UUID
 
 class TrendsStatsTest {
@@ -57,6 +56,17 @@ class TrendsStatsTest {
     }
 
     @Test
+    fun `fixed and flexible are purchases only, and a planned loan repayment is neither`() {
+        val repayment = spend(Oct(15), 200.0, recurring = true, purchase = false)
+
+        val trend = monthTrend(October, OctoberFlows + repayment, 5_000.0, 15.0, Today, LongAgo)
+
+        trend.fixed shouldBe 550.0
+        // The groceries and the coffee.
+        trend.flexible shouldBe 24.0
+    }
+
+    @Test
     fun `days before the app was used aren't days without spending, nor is the month full`() {
         val trend = monthTrend(October, OctoberFlows, 0.0, 15.0, Today, trackedSince = LocalDate.of(2026, 10, 5))
 
@@ -73,23 +83,6 @@ class TrendsStatsTest {
         trend.habits.days shouldBe 9
         trend.complete shouldBe false
         trend.full shouldBe false
-    }
-
-    @Test
-    fun `the forecast follows the net worth's line, a month a step`() {
-        forecast(listOf(100.0, 200.0, 300.0)) shouldBe listOf(400.0, 500.0, 600.0)
-        forecast(listOf(100.0)) shouldBe emptyList()
-    }
-
-    @Test
-    fun `the next milestone is a round amount above, reached at the pace`() {
-        milestone(12_147.82, pace = 212.48, now = YearMonth.of(2026, 11)) shouldBe
-            Milestone(15_000.0, YearMonth.of(2028, 1))
-        milestone(8_109.55, pace = 500.0, now = YearMonth.of(2026, 11)) shouldBe
-            Milestone(8_500.0, YearMonth.of(2026, 12))
-        milestone(12_147.82, pace = -10.0, now = YearMonth.of(2026, 11)).shouldBeNull()
-        // Not within ten years.
-        milestone(12_147.82, pace = 1.0, now = YearMonth.of(2026, 11)).shouldBeNull()
     }
 
     @Test

@@ -116,8 +116,9 @@ class MonthDetailUseCase @Inject constructor(
             } else {
                 null
             }
-            // The history the forecasts draw on starts with the first paid transaction.
-            val first = today?.let { transactionRepository.findFirstPaidTime()?.localDate() }
+            // The first paid transaction's day: the history the forecasts draw on starts with it,
+            // and the days before it weren't tracked.
+            val first = transactionRepository.findFirstPaidTime()?.localDate()
             val outlook = outlook(today, first, days, elapsed.size, balances, spends, due, free, history, rates)
             val unusual =
                 unusualSoFar(today, first, period, startDayOfMonth, spends, elapsed.size, history, rates, names)
@@ -152,7 +153,7 @@ class MonthDetailUseCase @Inject constructor(
                 habits = habits(
                     spends = spends,
                     elapsed = elapsed,
-                    daysInMonth = days.size,
+                    trackedSince = first,
                     income = income,
                     outgoing = outgoing,
                     plannedExpenses = plannedExpenses,

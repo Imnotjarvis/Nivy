@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -228,84 +227,6 @@ internal fun AppSwitch(
         }
 
         Spacer(Modifier.width(16.dp))
-    }
-}
-
-@Composable
-internal fun AccountCard(
-    nameLocalAccount: String?,
-    onCardClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.extraLarge)
-            .clickable {
-                onCardClick()
-            }
-    ) {
-        Spacer(Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("settings_profile_card"),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(Modifier.width(24.dp))
-
-            Text(
-                text = stringResource(R.string.account_uppercase),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Black
-                )
-            )
-        }
-
-        Spacer(Modifier.height(4.dp))
-
-        AccountCardLocalAccount(
-            name = nameLocalAccount,
-        )
-
-        Spacer(Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun AccountCardLocalAccount(
-    name: String?
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(20.dp))
-        Icon(
-            modifier = Modifier.size(48.dp).padding(4.dp),
-            painter = painterResource(id = R.drawable.ic_local_account),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        Text(
-            modifier = Modifier
-                .weight(1f)
-                .testTag("local_account_name"),
-            text = if (!name.isNullOrBlank()) name else stringResource(R.string.anonymous),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        Spacer(Modifier.width(12.dp))
     }
 }
 

@@ -18,6 +18,10 @@ updates:
       # newer Kotlin than detekt 1.23 runs on. 0.4.11-0.4.24 work, but their new and changed
       # checks flag 168 places that pass today. Revisit when moving to detekt 2.
       - dependency-name: 'io.nlopez.compose.rules:detekt'
+      # KSP 2.3.13 failed this build: Hilt's processing couldn't resolve HiltViewModel (#155), a
+      # regression its release notes own (google/ksp#3286). The next KSP comes as usual.
+      - dependency-name: 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin'
+        versions: ['2.3.13']
 
   - package-ecosystem: github-actions
     directory: /

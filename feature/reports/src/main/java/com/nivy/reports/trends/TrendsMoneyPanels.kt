@@ -51,18 +51,11 @@ internal fun NetWorthPanel(
             if (outlook != null) {
                 Spacer(Modifier.width(12.dp))
                 LegendDot(color = Nivy.copy(alpha = LikelyLegendAlpha), label = stringResource(R.string.trends_likely))
-            } else if (detail.forecast.isNotEmpty()) {
-                Spacer(Modifier.width(12.dp))
-                LegendDot(
-                    color = Nivy.copy(alpha = ForecastLegendAlpha),
-                    label = stringResource(R.string.trends_forecast)
-                )
             }
         },
     ) {
         NetWorthChart(
             values = months.map { it.netWorth },
-            forecast = detail.forecast,
             selected = selected,
             bubble = buildList {
                 add(monthYear(chosen.period) to BubbleLine.Label)
@@ -81,7 +74,7 @@ internal fun NetWorthPanel(
             onSelect = onSelect,
             outlook = outlook?.months,
         )
-        val ahead = ahead(months.last().period, outlook?.months?.size ?: detail.forecast.size)
+        val ahead = ahead(months.last().period, outlook?.months?.size ?: 0)
         val periods = months.map { it.period } + ahead
         val axis = monthAxis(periods)
         AxisLabels(axis, selectedIndex = selected.takeIf { axis.size == periods.size })
@@ -130,19 +123,6 @@ internal fun NetWorthPanel(
                     Spacer(Modifier.height(2.dp))
                     SmallNote(it)
                 }
-            }
-        } else {
-            detail.milestone?.let { milestone ->
-                Spacer(Modifier.height(12.dp))
-                PanelNote(
-                    text = stringResource(
-                        R.string.trends_milestone,
-                        milestone.amount.format(currency),
-                        currency,
-                        yearMonthName(milestone.by),
-                    ),
-                    color = Gray,
-                )
             }
         }
     }
@@ -256,5 +236,4 @@ internal fun SavingsRatePanel(
     }
 }
 
-private const val ForecastLegendAlpha = 0.45f
 private const val LikelyLegendAlpha = 0.35f

@@ -53,14 +53,14 @@ import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-internal fun BoxWithConstraintsScope.OnboardingSplashLogin(
+internal fun BoxWithConstraintsScope.OnboardingSplashWelcome(
     onboardingState: OnboardingState,
-    onSkip: () -> Unit,
+    onStart: () -> Unit,
 ) {
     var internalSwitch by remember { mutableStateOf(true) }
 
     val transition = updateTransition(
-        targetState = if (!internalSwitch) OnboardingState.LOGIN else onboardingState,
+        targetState = if (!internalSwitch) OnboardingState.WELCOME else onboardingState,
         label = "Splash"
     )
 
@@ -148,11 +148,11 @@ internal fun BoxWithConstraintsScope.OnboardingSplashLogin(
                     val placeable = measurable.measure(constraints)
 
                     val xSplash = screenSize.width / 2f - placeable.width / 2
-                    val xLogin = 24.dp.toPx()
+                    val xWelcome = 24.dp.toPx()
 
                     layout(placeable.width, placeable.height) {
                         placeable.placeRelative(
-                            x = lerp(xSplash, xLogin, percentTransition).roundToInt(),
+                            x = lerp(xSplash, xWelcome, percentTransition).roundToInt(),
                             y = 0,
                         )
                     }
@@ -193,9 +193,9 @@ internal fun BoxWithConstraintsScope.OnboardingSplashLogin(
             )
         )
 
-        LoginSection(
+        WelcomeSection(
             percentTransition = percentTransition,
-            onSkip = onSkip
+            onStart = onStart
         )
     }
 }
@@ -209,10 +209,10 @@ private fun Modifier.animateXCenterToLeft(
 
         layout(placeable.width, placeable.height) {
             val xSplash = screenWidth / 2f - placeable.width / 2
-            val xLogin = 32.dp.toPx()
+            val xWelcome = 32.dp.toPx()
 
             placeable.placeRelative(
-                x = lerp(xSplash, xLogin, percentTransition).roundToInt(),
+                x = lerp(xSplash, xWelcome, percentTransition).roundToInt(),
                 y = 0
             )
         }
@@ -220,9 +220,9 @@ private fun Modifier.animateXCenterToLeft(
 }
 
 @Composable
-private fun LoginSection(
+private fun WelcomeSection(
     percentTransition: Float,
-    onSkip: () -> Unit
+    onStart: () -> Unit
 ) {
     if (percentTransition > 0.01f) {
         Column(
@@ -232,17 +232,17 @@ private fun LoginSection(
             Spacer(Modifier.height(16.dp))
             Spacer(Modifier.weight(1f))
 
-            LocalAccountExplanation()
+            KeptOnThisPhone()
 
             Spacer(Modifier.height(16.dp))
 
-            LoginButton(
-                icon = R.drawable.ic_local_account,
-                text = stringResource(R.string.continue_offline),
+            StartButton(
+                icon = R.drawable.ic_arrow_right,
+                text = stringResource(R.string.get_started),
                 textColor = MaterialTheme.colorScheme.onSurface,
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
             ) {
-                onSkip()
+                onStart()
             }
 
             Spacer(Modifier.weight(3f))
@@ -252,10 +252,10 @@ private fun LoginSection(
 }
 
 @Composable
-private fun LocalAccountExplanation() {
+private fun KeptOnThisPhone() {
     Text(
         modifier = Modifier.padding(start = 32.dp),
-        text = stringResource(R.string.enter_with_offline_account),
+        text = stringResource(R.string.kept_on_this_phone),
         style = MaterialTheme.typography.labelMedium.copy(
             color = Gray,
             fontWeight = FontWeight.ExtraBold
@@ -266,7 +266,7 @@ private fun LocalAccountExplanation() {
 
     Text(
         modifier = Modifier.padding(start = 32.dp, end = 32.dp),
-        text = stringResource(R.string.your_data_will_be_saved_only_locally),
+        text = stringResource(R.string.your_data_stays_on_this_device),
         style = MaterialTheme.typography.labelMedium.copy(
             color = Gray,
             fontWeight = FontWeight.Medium
@@ -275,7 +275,7 @@ private fun LocalAccountExplanation() {
 }
 
 @Composable
-private fun LoginButton(
+private fun StartButton(
     @DrawableRes icon: Int,
     text: String,
     textColor: Color,
@@ -319,9 +319,9 @@ private fun LoginButton(
 @Composable
 private fun Preview() {
     NivyPreview {
-        OnboardingSplashLogin(
+        OnboardingSplashWelcome(
             onboardingState = OnboardingState.SPLASH,
-            onSkip = {}
+            onStart = {}
         )
     }
 }

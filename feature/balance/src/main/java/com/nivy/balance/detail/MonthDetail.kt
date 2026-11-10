@@ -101,15 +101,20 @@ data class Pace(
 /** How the money went, from the month's purchases so far. */
 @Immutable
 data class Habits(
+    // Every purchase's, bills and subscriptions included.
     val spent: Double,
+    // The purchases made by choice's, which the habit tiles' shares are of.
+    val chosenSpent: Double,
     val days: Int,
-    val daysInMonth: Int,
+    // The days so far from the first paid transaction's, which the no-spend days count over.
+    val trackedDays: Int,
     // Of what came in, the share not spent; null when nothing came in.
     val savedShare: Double?,
     val biggest: BiggestPurchase?,
     val purchases: Int,
-    val median: Double,
-    val average: Double,
+    // Of the purchases made by choice: none without any.
+    val median: Double?,
+    val average: Double?,
     // What was spent on each weekday, Monday first.
     val byWeekday: ImmutableList<Double>,
     val busiest: DayOfWeek?,

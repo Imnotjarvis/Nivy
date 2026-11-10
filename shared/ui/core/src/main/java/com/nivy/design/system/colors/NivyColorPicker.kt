@@ -3,7 +3,8 @@ package com.nivy.design.system.colors
 import androidx.compose.ui.graphics.Color
 
 // The colors offered when picking an account or category color: the saved values, as they are.
-val NIVY_COLOR_PICKER_COLORS_FREE = with(Palette) {
+// The hues first, then their light and dark shades.
+val NIVY_COLOR_PICKER_HUES = with(Palette) {
     listOf(
         // Primary
         Nivy, Purple1, Purple2, Blue, Blue2, Blue3,
@@ -12,7 +13,7 @@ val NIVY_COLOR_PICKER_COLORS_FREE = with(Palette) {
     )
 }
 
-val NIVY_COLOR_PICKER_COLORS_PREMIUM = with(Palette) {
+val NIVY_COLOR_PICKER_SHADES = with(Palette) {
     listOf(
         // Light
         NivyLight, Purple1Light, Purple2Light, BlueLight, Blue2Light, Blue3Light,

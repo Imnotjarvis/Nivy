@@ -199,7 +199,7 @@ internal object BalanceSample {
             habits = habits(
                 spends = Purchases,
                 elapsed = elapsed,
-                daysInMonth = Days.size,
+                trackedSince = null,
                 income = Income,
                 outgoing = spent,
                 plannedExpenses = plannedExpenses,

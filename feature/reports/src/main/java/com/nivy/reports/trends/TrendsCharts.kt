@@ -68,14 +68,13 @@ private fun DrawScope.slot(index: Int, count: Int, color: Color) {
 }
 
 /**
- * The net worth month by month and, dashed, the months [forecast] at the same pace; or, with an
- * [outlook], the months ahead as likely, in a band that 8 runs in 10 stay within. Over the chosen
- * month, a bubble tells its net worth and how it moved in that month: [bubble] gives its lines.
+ * The net worth month by month and, with an [outlook], the months ahead as likely, in a band that
+ * 8 runs in 10 stay within. Over the chosen month, a bubble tells its net worth and how it moved in
+ * that month: [bubble] gives its lines.
  */
 @Composable
 internal fun NetWorthChart(
     values: List<Double>,
-    forecast: List<Double>,
     selected: Int,
     bubble: List<Pair<String, BubbleLine>>,
     onSelect: (Int) -> Unit,
@@ -101,7 +100,7 @@ internal fun NetWorthChart(
         ),
     )
     val texts = bubble.map { (text, kind) -> measurer.measure(text, styles.getValue(kind)) }
-    val count = values.size + (outlook?.size ?: forecast.size)
+    val count = values.size + (outlook?.size ?: 0)
     val select by rememberUpdatedState(onSelect)
     Canvas(
         modifier = Modifier
@@ -115,7 +114,7 @@ internal fun NetWorthChart(
         val bubbleHeight = texts.sumOf { it.size.height } + 2 * padding
         val top = bubbleHeight + BubbleGap.toPx()
         val bottom = size.height - PointRing.toPx()
-        val all = values + (outlook?.flatMap { listOf(it.low, it.high) } ?: forecast)
+        val all = values + (outlook?.flatMap { listOf(it.low, it.high) } ?: emptyList())
         val margin = (all.max() - all.min()).coerceAtLeast(1.0) * ChartMargin
         val min = all.min() - margin
         val max = all.max() + margin
@@ -162,20 +161,6 @@ internal fun NetWorthChart(
                 ),
             )
             drawCircle(line, SmallPoint.toPx(), Offset(x(values.size + outlook.lastIndex), y(outlook.last().likely)))
-        } else if (forecast.isNotEmpty()) {
-            val ahead = Path().apply {
-                moveTo(x(values.lastIndex), y(values.last()))
-                forecast.forEachIndexed { index, value -> lineTo(x(values.size + index), y(value)) }
-            }
-            drawPath(
-                ahead,
-                line.copy(alpha = ForecastAlpha),
-                style = Stroke(
-                    LineWidth.toPx(),
-                    cap = StrokeCap.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(Dash.toPx(), Dash.toPx())),
-                ),
-            )
         }
         values.forEachIndexed { index, value ->
             if (index != selected) drawCircle(line, SmallPoint.toPx(), Offset(x(index), y(value)))
@@ -543,7 +528,6 @@ internal fun CalendarGrid(calendar: SpendingCalendar, shades: List<Color>) {
 private const val ChartMargin = 0.1
 private const val Headroom = 1.08
 private const val AreaAlpha = 0.25f
-private const val ForecastAlpha = 0.45f
 private const val FanAlpha = 0.2f
 private const val DotLength = 0.01f
 private val LikelyWidth = 3.dp

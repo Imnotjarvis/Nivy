@@ -8,7 +8,6 @@ import com.nivy.wallet.domain.pure.spending.BiggestPurchase
 import com.nivy.wallet.domain.pure.spending.DayAmount
 import kotlinx.collections.immutable.ImmutableList
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 
 /** How far back the trends look: a number of months, or all of them. */
@@ -33,8 +32,6 @@ const val AllMonthsAtMost = 60
 data class TrendsDetail(
     val months: ImmutableList<MonthTrend>,
     // The net worth for the next months, at the range's pace.
-    val forecast: ImmutableList<Double>,
-    val milestone: Milestone?,
     // What each account held at each month's end, the largest first, then the others together.
     val accounts: ImmutableList<AccountSeries>,
     // What each category took each month, the largest first, then the others together.
@@ -65,11 +62,14 @@ data class MonthTrend(
     val expense: Double,
     // At the month's end, or now for the current month.
     val netWorth: Double,
-    // Of the expenses, the bills and subscriptions that planned payments made.
+    // Of the purchases, the bills and subscriptions that planned payments made: loans' money isn't one.
     val fixed: Double,
     val habits: MonthHabits,
 ) {
     val saved: Double get() = income - expense
+
+    // Of the purchases, those made by choice: with [fixed], what fixed and flexible split.
+    val flexible: Double get() = habits.spent
 
     // Of the income, the share saved; null without income.
     val savingsRate: Double? get() = if (income > 0) saved / income else null
@@ -96,10 +96,6 @@ data class MonthHabits(
     val evening: Double,
     val timed: Double,
 )
-
-/** A round net worth ahead, and the month it's reached at the range's pace. */
-@Immutable
-data class Milestone(val amount: Double, val by: YearMonth)
 
 /** An account's balance at each month's end; null for the other accounts together. */
 @Immutable

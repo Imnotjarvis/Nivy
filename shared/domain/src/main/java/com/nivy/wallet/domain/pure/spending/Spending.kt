@@ -71,3 +71,21 @@ fun percentile(sorted: List<Double>, share: Double): Double {
     val above = ceil(at).toInt()
     return sorted[below] + (sorted[above] - sorted[below]) * (at - below)
 }
+
+// The rules every stats screen counts by: a tile with the same name counts the same things on each.
+
+/** The purchases made by choice: what the habit tiles count, without bills, subscriptions or loans' money. */
+fun List<Flow>.chosen(): List<Flow> = filter { it.habit }
+
+/** The fixed part of the purchases: the bills and subscriptions planned payments made. Loans' money isn't one. */
+fun List<Flow>.fixed(): List<Flow> = filter { it.purchase && it.recurring }
+
+/** The days from [since], the day of the first paid transaction, on: those before weren't tracked. */
+fun List<LocalDate>.trackedSince(since: LocalDate?): List<LocalDate> =
+    if (since == null) this else filter { !it.isBefore(since) }
+
+/** The [days] without a purchase made by choice: a day with only a bill or a subscription is one. */
+fun noSpendDays(days: List<LocalDate>, flows: List<Flow>): Int {
+    val spendDays = flows.chosen().map { it.day }.toSet()
+    return days.count { it !in spendDays }
+}
