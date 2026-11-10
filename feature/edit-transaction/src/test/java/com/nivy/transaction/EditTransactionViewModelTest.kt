@@ -34,6 +34,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
@@ -170,6 +171,7 @@ class EditTransactionViewModelTest {
                 timeProvider = FixedTime,
             ),
             creditCardRepository = creditCardRepository,
+            userWrites = UserWrites(mockk(relaxed = true)),
             // The view model's background work runs where it's started, so a test sees it done.
             dispatchers = TestDispatchersProvider,
         )

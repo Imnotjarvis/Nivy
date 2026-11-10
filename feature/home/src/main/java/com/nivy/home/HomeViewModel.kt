@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.base.model.Theme
 import com.nivy.base.model.next
+import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.db.dao.read.TransactionDao
@@ -19,6 +20,7 @@ import com.nivy.data.preferences.AppSettings
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
@@ -31,6 +33,12 @@ import com.nivy.home.usecase.HistoryWithDateDividersUseCase
 import com.nivy.home.usecase.HomeGlanceUseCase
 import com.nivy.home.usecase.OverdueTransactionsUseCase
 import com.nivy.home.usecase.UpcomingTransactionsUseCase
+import com.nivy.navigation.BalanceScreen
+import com.nivy.navigation.MainScreen
+import com.nivy.navigation.Navigation
+import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.LoadTimer
+import com.nivy.ui.R
 import com.nivy.wallet.MainScreenState
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.ThemeState
@@ -39,12 +47,6 @@ import com.nivy.wallet.data.DueSection
 import com.nivy.wallet.data.model.MainTab
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toUTCCloseTimeRange
-import com.nivy.navigation.BalanceScreen
-import com.nivy.navigation.MainScreen
-import com.nivy.navigation.Navigation
-import com.nivy.base.threading.DispatchersProvider
-import com.nivy.ui.ComposeViewModel
-import com.nivy.ui.LoadTimer
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
@@ -89,6 +91,7 @@ class HomeViewModel @Inject constructor(
     private val timeConverter: TimeConverter,
     private val features: Features,
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
+    private val userWrites: UserWrites,
     private val dispatchers: DispatchersProvider,
 ) : ComposeViewModel<HomeState, HomeEvent>() {
     private var currentTheme by mutableStateOf(Theme.AUTO)
@@ -369,8 +372,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun payOrGetPlanned(transaction: Transaction) {
-        dueTransactionsUseCase.pay(transaction)
-        reload()
+        if (userWrites.run(R.string.msg_change_not_saved) { dueTransactionsUseCase.pay(transaction) }) reload()
     }
 
     private suspend fun skipPlanned(transaction: Transaction) {
@@ -378,8 +380,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun skipAllPlanned(transactions: List<Transaction>) {
-        dueTransactionsUseCase.skip(transactions)
-        reload()
+        if (userWrites.run(R.string.msg_change_not_saved) { dueTransactionsUseCase.skip(transactions) }) reload()
     }
 
     private suspend fun dismissCustomerJourneyCard(card: CustomerJourneyCardModel) {

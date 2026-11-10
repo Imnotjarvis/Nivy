@@ -1,6 +1,7 @@
 package com.nivy.loans.loandetails
 
 import com.nivy.base.TestDispatchersProvider
+import com.nivy.base.Toaster
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.LoanRecordType
 import com.nivy.base.model.LoanType
@@ -14,9 +15,6 @@ import com.nivy.data.model.LoanRecord
 import com.nivy.data.model.LoanRecordId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.primitive.AssetCode
-import com.nivy.ui.R
-import com.nivy.domain.usecase.loan.NoLoanExchangeRate
-import com.nivy.base.Toaster
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -24,13 +22,16 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
+import com.nivy.domain.usecase.loan.NoLoanExchangeRate
 import com.nivy.loans.LoanProgress
 import com.nivy.loans.loandetails.events.DeleteLoanModalEvent
 import com.nivy.loans.loandetails.events.LoanModalEvent
 import com.nivy.loans.loandetails.events.LoanRecordModalEvent
 import com.nivy.navigation.LoanDetailsScreen
 import com.nivy.navigation.Navigation
+import com.nivy.ui.R
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.domain.logic.model.CreateLoanRecordData
 import com.nivy.wallet.domain.logic.model.EditLoanRecordData
@@ -108,6 +109,7 @@ class LoanDetailsViewModelTest {
         dateTimePicker = mockk(relaxed = true),
         dispatchers = TestDispatchersProvider,
         toaster = toaster,
+        userWrites = UserWrites(toaster),
     ).also { it.screen = LoanDetailsScreen(loanId = loan.id.value) }
 
     @Test

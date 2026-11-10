@@ -1,14 +1,15 @@
 package com.nivy.exchangerates
 
 import arrow.core.left
-import com.nivy.exchangerates.data.RateUi
 import arrow.core.right
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.Toaster
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.nivy.exchangerates.data.RateUi
 import com.nivy.ui.R
 import com.nivy.ui.testing.runTest
 import io.kotest.matchers.shouldBe
@@ -32,6 +33,7 @@ class ExchangeRatesViewModelTest {
             exchangeRatesRepo = mockk<ExchangeRatesRepository> { every { findAll() } returns flowOf(emptyList()) },
             dispatchers = TestDispatchersProvider,
             toaster = toaster,
+            userWrites = UserWrites(toaster),
         )
 
         viewModel.runTest {
@@ -53,6 +55,7 @@ class ExchangeRatesViewModelTest {
             },
             dispatchers = TestDispatchersProvider,
             toaster = toaster,
+            userWrites = UserWrites(toaster),
         )
 
         viewModel.runTest(events = listOf(RatesEvent.UpdateRate(RateUi("EUR", "USD", 1.08), newRate = 0.0))) {}

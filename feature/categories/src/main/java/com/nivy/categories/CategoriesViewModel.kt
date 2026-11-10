@@ -14,18 +14,20 @@ import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.category.CategoryIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsInRangeUseCase
+import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.wallet.utils.ioThread
-import com.nivy.ui.ComposeViewModel
 import com.nivy.wallet.domain.data.SortOrder
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
+import com.nivy.wallet.utils.ioThread
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -51,6 +53,7 @@ class CategoriesViewModel @Inject constructor(
     private val features: Features,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<CategoriesScreenState, CategoriesScreenEvent>() {
 
     private val baseCurrency = mutableStateOf("")
@@ -172,11 +175,14 @@ class CategoriesViewModel @Inject constructor(
         val sortedList = newOrder.inOrder(sortOrder).toImmutableList()
 
         if (sortOrder == SortOrder.DEFAULT) {
-            ioThread {
-                sortedList.forEachIndexed { index, categoryData ->
-                    categoryRepository.save(categoryData.category.copy(orderNum = index.toDouble()))
+            val saved = userWrites.run(R.string.msg_change_not_saved) {
+                ioThread {
+                    sortedList.forEachIndexed { index, categoryData ->
+                        categoryRepository.save(categoryData.category.copy(orderNum = index.toDouble()))
+                    }
                 }
             }
+            if (!saved) return
         }
 
         appPreferences.setCategorySortOrder(sortOrder.orderNum)

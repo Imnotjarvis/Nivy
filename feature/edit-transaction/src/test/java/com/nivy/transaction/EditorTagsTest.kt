@@ -1,11 +1,15 @@
 package com.nivy.transaction
 
+import android.database.sqlite.SQLiteFullException
+import com.nivy.base.Toaster
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
 import com.nivy.data.model.primitive.AssociationId
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.domain.UserWrites
 import com.nivy.transaction.EditTransactionViewEvent.TagEvent
+import com.nivy.ui.R
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,10 +33,12 @@ class EditorTagsTest {
     private val holiday = tag("Holiday")
     private val work = tag("Work")
     private val transactionTags = mockk<TransactionTags>()
+    private val toaster = mockk<Toaster>(relaxed = true)
     private var tagsAdded = 0
 
     private fun TestScope.editorTags() = EditorTags(
         transactionTags = transactionTags,
+        userWrites = UserWrites(toaster),
         scope = this,
         transactionId = { transaction },
         afterTagAdd = { tagsAdded++ },
@@ -51,6 +57,24 @@ class EditorTagsTest {
         // then
         tags.all shouldBe persistentListOf(holiday, work)
         tags.associated shouldBe persistentListOf(holiday.id)
+    }
+
+    @Test
+    fun `a tag the database refuses shows that it failed, and the list stays`() = runTest {
+        // given
+        coEvery { transactionTags.associatedTagIds(AssociationId(transaction)) } returns persistentListOf()
+        coEvery { transactionTags.saveTag("trip") } throws SQLiteFullException("database or disk is full")
+        val tags = editorTags()
+        tags.show(all = persistentListOf(holiday, work), transaction = transaction)
+
+        // when
+        tags.onEvent(TagEvent.SaveTag("trip"))
+        advanceUntilIdle()
+
+        // then
+        tags.all shouldBe persistentListOf(holiday, work)
+        tagsAdded shouldBe 0
+        coVerify { toaster.show(R.string.msg_change_not_saved, any()) }
     }
 
     @Test

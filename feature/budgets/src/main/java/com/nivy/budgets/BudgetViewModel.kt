@@ -27,13 +27,15 @@ import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.navigation.BudgetScreen
+import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
-import com.nivy.ui.ComposeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -56,6 +58,7 @@ class BudgetViewModel @Inject constructor(
     private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<BudgetScreenState, BudgetScreenEvent>() {
 
     private val baseCurrency = mutableStateOf("")
@@ -202,44 +205,35 @@ class BudgetViewModel @Inject constructor(
         amount: PositiveDouble,
         categories: List<CategoryId>,
         accounts: List<AccountId>,
-    ) {
-        viewModelScope.launch {
-            budgetRepository.save(
-                Budget(
-                    id = BudgetId(UUID.randomUUID()),
-                    name = name,
-                    amount = amount,
-                    categories = categories,
-                    accounts = accounts,
-                    orderNum = budgetRepository.findMaxOrderNum() + 1,
-                )
+    ) = change {
+        budgetRepository.save(
+            Budget(
+                id = BudgetId(UUID.randomUUID()),
+                name = name,
+                amount = amount,
+                categories = categories,
+                accounts = accounts,
+                orderNum = budgetRepository.findMaxOrderNum() + 1,
             )
-            start()
-        }
+        )
     }
 
-    private fun editBudget(budget: Budget) {
-        viewModelScope.launch {
-            budgetRepository.save(budget)
-            start()
-        }
+    private fun editBudget(budget: Budget) = change { budgetRepository.save(budget) }
+
+    private fun deleteBudget(budget: Budget) = change { budgetRepository.deleteById(budget.id) }
+
+    private fun reorder(newOrder: List<DisplayBudget>) = change {
+        budgetRepository.saveMany(
+            newOrder.mapIndexed { index, item ->
+                item.budget.copy(orderNum = index.toDouble())
+            }
+        )
     }
 
-    private fun deleteBudget(budget: Budget) {
+    // A change the person made, then the budgets as they are now; a failure is shown instead.
+    private fun change(write: suspend () -> Unit) {
         viewModelScope.launch {
-            budgetRepository.deleteById(budget.id)
-            start()
-        }
-    }
-
-    private fun reorder(newOrder: List<DisplayBudget>) {
-        viewModelScope.launch {
-            budgetRepository.saveMany(
-                newOrder.mapIndexed { index, item ->
-                    item.budget.copy(orderNum = index.toDouble())
-                }
-            )
-            start()
+            if (userWrites.run(R.string.msg_change_not_saved, write)) start()
         }
     }
 }

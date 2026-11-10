@@ -36,24 +36,25 @@ import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.temp.migration.getTransactionType
 import com.nivy.data.temp.migration.getValue
+import com.nivy.design.system.colors.Gray
 import com.nivy.domain.RootScreen
+import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
 import com.nivy.domain.usecase.csv.ExportCsvUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
-import com.nivy.wallet.PeriodState
-import com.nivy.wallet.domain.pure.transaction.filterOverdue
-import com.nivy.wallet.domain.pure.transaction.filterUpcoming
-import com.nivy.wallet.utils.getISOFormattedDateTime
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
+import com.nivy.wallet.PeriodState
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.pure.data.IncomeExpenseTransferPair
 import com.nivy.wallet.domain.pure.exchange.ExchangeData
+import com.nivy.wallet.domain.pure.transaction.filterOverdue
+import com.nivy.wallet.domain.pure.transaction.filterUpcoming
 import com.nivy.wallet.domain.pure.util.orZero
-import com.nivy.design.system.colors.Gray
+import com.nivy.wallet.utils.getISOFormattedDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -87,6 +88,7 @@ class ReportViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
     private val dispatchers: DispatchersProvider,
     private val toaster: Toaster,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<ReportScreenState, ReportScreenEvent>() {
     private val unSpecifiedCategory =
         Category(
@@ -529,8 +531,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private suspend fun payOrGet(transaction: Transaction) {
-        dueTransactionsUseCase.pay(transaction)
-        reloadReport()
+        if (userWrites.run(R.string.msg_change_not_saved) { dueTransactionsUseCase.pay(transaction) }) reloadReport()
     }
 
     private fun setFilterOverlayVisibleValue(visible: Boolean) {
@@ -546,8 +547,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private suspend fun skipTransactions(transactions: List<Transaction>) {
-        dueTransactionsUseCase.skip(transactions)
-        reloadReport()
+        if (userWrites.run(R.string.msg_change_not_saved) { dueTransactionsUseCase.skip(transactions) }) reloadReport()
     }
 
     // start() reads the data again and applies the filter to it.

@@ -7,10 +7,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.ivy.widget.balance.WalletBalanceWidgetReceiver
+import com.nivy.base.Toaster
 import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.Theme
 import com.nivy.base.model.next
-import com.nivy.base.Toaster
 import com.nivy.base.refreshWidget
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.backup.BackupDataUseCase
@@ -20,29 +21,29 @@ import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.RootScreen
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.csv.ExportCsvUseCase
 import com.nivy.domain.usecase.data.DeleteAllDataUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
-import com.nivy.ui.time.DateFormatState
-import com.nivy.wallet.ThemeState
-import com.nivy.wallet.utils.getISOFormattedDateTime
-import com.nivy.wallet.utils.ioThread
-import com.nivy.wallet.utils.uiThread
 import com.nivy.navigation.Navigation
 import com.nivy.navigation.OnboardingScreen
 import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
+import com.nivy.ui.time.DateFormatState
+import com.nivy.wallet.ThemeState
 import com.nivy.wallet.domain.usecase.StartDayOfMonthUseCase
-import com.ivy.widget.balance.WalletBalanceWidgetReceiver
+import com.nivy.wallet.utils.getISOFormattedDateTime
+import com.nivy.wallet.utils.ioThread
+import com.nivy.wallet.utils.uiThread
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-import timber.log.Timber
 import kotlinx.coroutines.CancellationException
-import com.nivy.ui.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
 @Stable
 @HiltViewModel
@@ -62,6 +63,7 @@ class SettingsViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val toaster: Toaster,
     private val dateFormatState: DateFormatState,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<SettingsState, SettingsEvent>() {
 
     private val currencyCode = mutableStateOf("")
@@ -185,18 +187,26 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setCurrency(newCurrency: String) {
+        val previous = currencyCode.value
         currencyCode.value = newCurrency
 
         viewModelScope.launch {
-            ioThread {
+            val switched = ioThread {
                 // Before the switch: the stored rates are relative to the old base currency.
-                AssetCode.from(newCurrency).onRight { convertBudgets(to = it) }
-                appPreferences.setBaseCurrency(newCurrency)
-                AssetCode.from(newCurrency).onRight {
-                    syncExchangeRatesUseCase.sync(it)
-                        .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
+                val converted = userWrites.run(R.string.msg_change_not_saved) {
+                    AssetCode.from(newCurrency).onRight { convertBudgets(to = it) }
                 }
+                if (converted) {
+                    appPreferences.setBaseCurrency(newCurrency)
+                    AssetCode.from(newCurrency).onRight {
+                        syncExchangeRatesUseCase.sync(it)
+                            .onLeft { toaster.show(R.string.msg_exchange_rates_not_downloaded) }
+                    }
+                }
+                converted
             }
+            // The base currency stays as it was, and the screen shows it again.
+            if (!switched) currencyCode.value = previous
         }
     }
 

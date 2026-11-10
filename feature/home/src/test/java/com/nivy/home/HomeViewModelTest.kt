@@ -1,13 +1,24 @@
 package com.nivy.home
 
+import android.database.sqlite.SQLiteFullException
 import com.nivy.base.TestDispatchersProvider
+import com.nivy.base.Toaster
 import com.nivy.base.model.Theme
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.model.AccountId
+import com.nivy.data.model.Expense
+import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.TransactionId
+import com.nivy.data.model.TransactionMetadata
 import com.nivy.data.model.primitive.AssetCode
+import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.domain.usecase.wallet.WalletIncomeExpenseUseCase
 import com.nivy.home.usecase.Glance
@@ -18,6 +29,7 @@ import com.nivy.home.usecase.OverdueTransactionsUseCase
 import com.nivy.home.usecase.UpcomingTransactions
 import com.nivy.home.usecase.UpcomingTransactionsUseCase
 import com.nivy.navigation.Navigation
+import com.nivy.ui.R
 import com.nivy.ui.testing.ComposeViewModelTest
 import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
@@ -40,6 +52,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.util.UUID
 
 class HomeViewModelTest : ComposeViewModelTest() {
     private val monthsTransactions = persistentListOf<TransactionHistoryItem>(
@@ -50,6 +63,8 @@ class HomeViewModelTest : ComposeViewModelTest() {
     // The balance reads every transaction there is: it comes when this completes.
     private val balance = CompletableDeferred<BigDecimal>()
     private val syncExchangeRates = mockk<SyncExchangeRatesUseCase>(relaxed = true)
+    private val dueTransactions = mockk<DueTransactionsUseCase>(relaxed = true)
+    private val toaster = mockk<Toaster>(relaxed = true)
     private val historyWithDateDividers = mockk<HistoryWithDateDividersUseCase> {
         coEvery { history(any(), any()) } returns monthsTransactions
     }
@@ -59,7 +74,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
         themeState = ThemeState(),
         mainScreenState = mockk(relaxed = true),
         nav = Navigation(),
-        dueTransactionsUseCase = mockk(relaxed = true),
+        dueTransactionsUseCase = dueTransactions,
         customerJourneyLogic = mockk { coEvery { loadCards() } returns emptyList() },
         historyWithDateDividersUseCase = historyWithDateDividers,
         walletIncomeExpenseUseCase = mockk<WalletIncomeExpenseUseCase> {
@@ -96,6 +111,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),
         syncExchangeRatesUseCase = syncExchangeRates,
+        userWrites = UserWrites(toaster),
         dispatchers = TestDispatchersProvider,
     )
 
@@ -126,6 +142,17 @@ class HomeViewModelTest : ComposeViewModelTest() {
             balance shouldBe BigDecimal("1234.50")
             balanceLoaded shouldBe true
         }
+    }
+
+    @Test
+    fun `a payment the database refuses shows that it failed, and Home stays`() {
+        coEvery { dueTransactions.pay(any()) } throws SQLiteFullException("database or disk is full")
+
+        viewModel.runTest(events = listOf(HomeEvent.PayOrGetPlanned(DueRent))) {
+            history shouldBe monthsTransactions
+        }
+
+        coVerify { toaster.show(R.string.msg_change_not_saved) }
     }
 
     @Test
@@ -174,6 +201,26 @@ class HomeViewModelTest : ComposeViewModelTest() {
     }
 
     private companion object {
+        // A planned payment due today.
+        val DueRent = Expense(
+            id = TransactionId(UUID.randomUUID()),
+            title = NotBlankTrimmedString.unsafe("Rent"),
+            description = null,
+            category = null,
+            time = Instant.parse("2026-11-06T09:00:00Z"),
+            settled = false,
+            metadata = TransactionMetadata(
+                recurringRuleId = null,
+                paidForDateTime = null,
+                loanId = null,
+                loanRecordId = null,
+                purchaseDateTime = null,
+            ),
+            tags = emptyList(),
+            value = PositiveValue(PositiveDouble.unsafe(800.0), AssetCode.unsafe("EUR")),
+            account = AccountId(UUID.randomUUID()),
+        )
+
         val TodaysGlance = Glance(
             overdue = 2,
             spentToday = BigDecimal("12.40"),

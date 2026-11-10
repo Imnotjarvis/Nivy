@@ -10,14 +10,14 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
+import com.nivy.base.model.AccountType
+import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
-import com.nivy.data.model.CreditCard
 import com.nivy.data.model.CategoryId
-import com.nivy.base.model.AccountType
-import com.nivy.base.model.IntervalType
+import com.nivy.data.model.CreditCard
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
@@ -30,11 +30,13 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
-import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
+import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
@@ -42,7 +44,6 @@ import com.nivy.wallet.ui.theme.modal.RecurringRuleModalData
 import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.UUID
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -50,6 +51,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 @Stable
@@ -65,6 +67,7 @@ class EditPlannedViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val timeConverter: TimeConverter,
     private val creditCardRepository: CreditCardRepository,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<EditPlannedScreenState, EditPlannedScreenEvent>() {
 
     private val saveMutex = Mutex()
@@ -329,14 +332,16 @@ class EditPlannedViewModel @Inject constructor(
         viewModelScope.launch {
             // Edit mode saves on every keystroke. Generating deletes the unpaid payments and adds
             // them again, so overlapping runs would leave duplicates: one run at a time, in order.
-            saveMutex.withLock {
-                // The rule as it was, so that the payments already skipped stay so.
-                val previous = plannedPaymentRuleRepository.findById(rule.id)
-                plannedPaymentRuleRepository.save(rule)
-                plannedPaymentsGenerator.generate(rule, previous = previous)
+            val saved = saveMutex.withLock {
+                userWrites.run(R.string.msg_change_not_saved) {
+                    // The rule as it was, so that the payments already skipped stay so.
+                    val previous = plannedPaymentRuleRepository.findById(rule.id)
+                    plannedPaymentRuleRepository.save(rule)
+                    plannedPaymentsGenerator.generate(rule, previous = previous)
+                }
             }
 
-            if (closeScreen) {
+            if (saved && closeScreen) {
                 nav.back()
             }
         }
@@ -370,11 +375,13 @@ class EditPlannedViewModel @Inject constructor(
     private fun delete() {
         viewModelScope.launch {
             deleteTransactionModalVisible = false
-            ruleId?.let {
-                plannedPaymentRuleRepository.deleteById(it)
-                transactionRepository.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId = it.value)
+            val deleted = userWrites.run(R.string.msg_change_not_saved) {
+                ruleId?.let {
+                    plannedPaymentRuleRepository.deleteById(it)
+                    transactionRepository.deletedByRecurringRuleIdAndNoDateTime(recurringRuleId = it.value)
+                }
             }
-            nav.back()
+            if (deleted) nav.back()
         }
     }
 

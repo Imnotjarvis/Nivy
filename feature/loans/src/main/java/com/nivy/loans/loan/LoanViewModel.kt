@@ -9,17 +9,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
-import com.nivy.wallet.domain.pure.account.startingAccount
+import com.nivy.base.model.LoanType
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
-import com.nivy.data.model.pickable
 import com.nivy.data.model.Account
 import com.nivy.data.model.Loan
 import com.nivy.data.model.LoanId
 import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.pickable
 import com.nivy.data.model.primitive.AssetCode
-import com.nivy.base.model.LoanType
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
@@ -28,30 +27,33 @@ import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.LoanRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
+import com.nivy.loans.LoanModalData
+import com.nivy.loans.loan.data.DisplayLoan
+import com.nivy.loans.progress
+import com.nivy.ui.ComposeViewModel
+import com.nivy.ui.R
+import com.nivy.ui.time.impl.DateTimePicker
 import com.nivy.wallet.domain.logic.AccountCreator
+import com.nivy.wallet.domain.logic.model.CreateAccountData
+import com.nivy.wallet.domain.logic.model.CreateLoanData
+import com.nivy.wallet.domain.pure.account.startingAccount
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatDecimals
 import com.nivy.wallet.utils.getDefaultFIATCurrency
 import com.nivy.wallet.utils.ioThread
-import com.nivy.loans.loan.data.DisplayLoan
-import com.nivy.loans.progress
-import com.nivy.ui.ComposeViewModel
-import com.nivy.ui.time.impl.DateTimePicker
-import com.nivy.wallet.domain.logic.model.CreateAccountData
-import com.nivy.wallet.domain.logic.model.CreateLoanData
-import com.nivy.loans.LoanModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlin.math.abs
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.math.abs
 
 private const val Percent = 100
 
@@ -69,6 +71,7 @@ class LoanViewModel @Inject constructor(
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
     private val dispatchers: DispatchersProvider,
+    private val userWrites: UserWrites,
 ) : ComposeViewModel<LoanScreenState, LoanScreenEvent>() {
 
     private var baseCurrencyCode by mutableStateOf(getDefaultFIATCurrency().currencyCode)
@@ -251,18 +254,22 @@ class LoanViewModel @Inject constructor(
                     orderNum = loanRepository.findMaxOrderNum() + 1,
                 )
             }.getOrNull() ?: return@launch
-            loanRepository.save(loan)
-            loanTransactionsUseCase.syncLoanTransaction(loan, create = data.createLoanTransaction)
-            start()
+            val saved = userWrites.run(R.string.msg_change_not_saved) {
+                loanRepository.save(loan)
+                loanTransactionsUseCase.syncLoanTransaction(loan, create = data.createLoanTransaction)
+            }
+            if (saved) start()
         }
     }
 
     private fun reorder(newOrder: List<DisplayLoan>) {
         viewModelScope.launch {
-            loanRepository.saveMany(
-                newOrder.mapIndexed { index, item -> item.loan.copy(orderNum = index.toDouble()) }
-            )
-            start()
+            val saved = userWrites.run(R.string.msg_change_not_saved) {
+                loanRepository.saveMany(
+                    newOrder.mapIndexed { index, item -> item.loan.copy(orderNum = index.toDouble()) }
+                )
+            }
+            if (saved) start()
         }
     }
 

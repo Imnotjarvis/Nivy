@@ -7,6 +7,8 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Category
+import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
@@ -21,6 +23,7 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.account.AccountBalanceDetails
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.account.AccountIncomeExpense
@@ -29,11 +32,8 @@ import com.nivy.domain.usecase.account.AccountTransactionsUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
-import com.nivy.navigation.TransactionsScreen
-import io.mockk.verify
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.Category
 import com.nivy.navigation.Navigation
+import com.nivy.navigation.TransactionsScreen
 import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
@@ -47,6 +47,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -147,6 +148,7 @@ class TransactionsViewModelTest {
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         features = mockk(relaxed = true),
+        userWrites = UserWrites(mockk(relaxed = true)),
         dispatchers = TestDispatchersProvider,
         nav = nav,
     )
