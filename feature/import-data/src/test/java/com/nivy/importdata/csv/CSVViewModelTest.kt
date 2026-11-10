@@ -119,7 +119,7 @@ class CSVViewModelTest {
     }
 
     @Test
-    fun `a file that can't be read shows nothing`() {
+    fun `a file that can't be read shows nothing, and says so`() {
         // given
         unreadable = true
 
@@ -128,6 +128,23 @@ class CSVViewModelTest {
             // then
             csv shouldBe null
             columns shouldBe null
+        }
+        coVerify { toaster.show(R.string.csv_file_not_read, any()) }
+    }
+
+    @Test
+    fun `another file picked starts with no column mapped`() {
+        // given a file with its columns mapped, and one with other columns picked after it
+        csv(pickedAndMapped + CSVEvent.MapTitle(4, "Title"))
+        file = "Account,Title,Date,Type,Amount\nBank,Coffee,01/11/2026 10:00,Expense,12.50\n"
+
+        // when
+        csv(CSVEvent.FilePicked(uri)) {
+            // then
+            important?.amount?.index shouldBe NoColumn
+            important?.account?.index shouldBe NoColumn
+            optional?.title?.index shouldBe NoColumn
+            continueEnabled shouldBe false
         }
     }
 
@@ -196,6 +213,21 @@ class CSVViewModelTest {
     }
 
     @Test
+    fun `an import that brought in less than half the rows isn't a success for onboarding either`() {
+        // given 1 of 10 rows imported: the result page says it failed
+        coEvery { csvImporter.import(any(), any(), any(), any(), any()) } returns
+            imported.copy(rowsFound = 10, transactionsImported = 1)
+        val onboarding = mockk<OnboardingViewModel>(relaxed = true)
+        csv(pickedAndMapped + CSVEvent.Continue)
+
+        // when
+        csv(CSVEvent.FinishImport(launchedFromOnboarding = true, onboardingViewModel = onboarding))
+
+        // then
+        verify(exactly = 1) { onboarding.importFinished(success = false) }
+    }
+
+    @Test
     fun `finishing an import started from the settings leaves the import screen only`() {
         // given
         val onboarding = mockk<OnboardingViewModel>(relaxed = true)
@@ -210,6 +242,9 @@ class CSVViewModelTest {
     }
 
     private companion object {
+        /** A field no column is mapped to. */
+        const val NoColumn = -1
+
         val BankExport = """
             Date,Amount,Type,Account,Title
             01/11/2026 10:00, 12.50 ,Expense,Bank,"Coffee, croissant"

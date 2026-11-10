@@ -10,4 +10,10 @@ data class ImportResult(
     val failedRows: ImmutableList<CSVRow>,
     /** Why nothing was imported, when the import failed as a whole. */
     val error: String? = null,
-)
+) {
+    /**
+     * Whether the import went well: more than half the rows came in. The result page says so, and
+     * onboarding takes the wallet as restored only then.
+     */
+    val succeeded: Boolean get() = transactionsImported > 0 && transactionsImported * 2 > rowsFound
+}

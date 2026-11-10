@@ -81,7 +81,7 @@ class ImportViewModel @Inject constructor(
         onboardingViewModel: OnboardingViewModel
     ) {
         if (screen.launchedFromOnboarding) {
-            val importSuccess = importResult.value?.transactionsImported?.let { it > 0 } ?: false
+            val importSuccess = importResult.value?.succeeded ?: false
             onboardingViewModel.importFinished(
                 success = importSuccess
             )

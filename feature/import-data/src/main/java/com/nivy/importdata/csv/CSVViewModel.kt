@@ -54,8 +54,45 @@ class CSVViewModel @Inject constructor(
     private var csv by mutableStateOf<ImmutableList<CSVRow>?>(null)
 
     // region Important fields
-    private var amount by mutableStateOf(
-        ColumnMapping(
+    private var amount by mutableStateOf(Initial.amount)
+    private var type by mutableStateOf(Initial.type)
+    private var date by mutableStateOf(Initial.date)
+    private var account by mutableStateOf(Initial.account)
+    private var accountCurrency by mutableStateOf(Initial.accountCurrency)
+    // endregion
+
+    // region Transfer fields
+    private var toAccount by mutableStateOf(Initial.toAccount)
+    private var toAccountCurrency by mutableStateOf(Initial.toAccountCurrency)
+    private var toAmount by mutableStateOf(Initial.toAmount)
+    // endregion
+
+    // region Optional fields
+    private var category by mutableStateOf(Initial.category)
+    private var title by mutableStateOf(Initial.title)
+    private var description by mutableStateOf(Initial.description)
+    // endregion
+
+    private var uiState by mutableStateOf<UIState>(UIState.Idle)
+
+    // A new file starts with nothing mapped: the last one's columns may be elsewhere in it.
+    private fun resetMappings() {
+        amount = Initial.amount
+        type = Initial.type
+        date = Initial.date
+        account = Initial.account
+        accountCurrency = Initial.accountCurrency
+        toAccount = Initial.toAccount
+        toAccountCurrency = Initial.toAccountCurrency
+        toAmount = Initial.toAmount
+        category = Initial.category
+        title = Initial.title
+        description = Initial.description
+    }
+
+    /** The mappings a file starts with: no column chosen. */
+    private object Initial {
+        val amount = ColumnMapping(
             nivyColumn = R.string.csv_column_amount,
             helpInfo = R.string.csv_column_amount_help,
             name = "",
@@ -63,9 +100,8 @@ class CSVViewModel @Inject constructor(
             metadata = 1,
             required = true,
         )
-    )
-    private var type by mutableStateOf(
-        ColumnMapping(
+
+        val type = ColumnMapping(
             nivyColumn = R.string.csv_column_type,
             helpInfo = R.string.csv_column_type_help,
             name = "",
@@ -77,9 +113,8 @@ class CSVViewModel @Inject constructor(
                 transfer = null,
             )
         )
-    )
-    private var date by mutableStateOf(
-        ColumnMapping(
+
+        val date = ColumnMapping(
             nivyColumn = R.string.csv_column_date,
             helpInfo = R.string.csv_column_date_help,
             name = "",
@@ -87,9 +122,8 @@ class CSVViewModel @Inject constructor(
             required = true,
             metadata = DateMetadata.DateFirst
         )
-    )
-    private var account by mutableStateOf(
-        ColumnMapping(
+
+        val account = ColumnMapping(
             nivyColumn = R.string.csv_column_account,
             helpInfo = R.string.csv_column_account_help,
             name = "",
@@ -97,9 +131,8 @@ class CSVViewModel @Inject constructor(
             required = true,
             metadata = Unit,
         )
-    )
-    private var accountCurrency by mutableStateOf(
-        ColumnMapping(
+
+        val accountCurrency = ColumnMapping(
             nivyColumn = R.string.csv_column_account_currency,
             helpInfo = R.string.csv_column_account_currency_help,
             name = "",
@@ -107,12 +140,8 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = Unit,
         )
-    )
-    // endregion
 
-    // region Transfer fields
-    private var toAccount by mutableStateOf(
-        ColumnMapping(
+        val toAccount = ColumnMapping(
             nivyColumn = R.string.csv_column_to_account,
             helpInfo = R.string.csv_column_to_account_help,
             name = "",
@@ -120,9 +149,8 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = Unit,
         )
-    )
-    private var toAccountCurrency by mutableStateOf(
-        ColumnMapping(
+
+        val toAccountCurrency = ColumnMapping(
             nivyColumn = R.string.csv_column_to_account_currency,
             helpInfo = R.string.csv_column_to_account_currency_help,
             name = "",
@@ -130,9 +158,8 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = Unit,
         )
-    )
-    private var toAmount by mutableStateOf(
-        ColumnMapping(
+
+        val toAmount = ColumnMapping(
             nivyColumn = R.string.csv_column_to_amount,
             helpInfo = R.string.csv_column_to_amount_help,
             name = "",
@@ -140,12 +167,8 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = 1,
         )
-    )
-    // endregion
 
-    // region Optional fields
-    private var category by mutableStateOf(
-        ColumnMapping(
+        val category = ColumnMapping(
             nivyColumn = R.string.csv_column_category,
             helpInfo = R.string.csv_column_category_help,
             name = "",
@@ -153,9 +176,8 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = Unit,
         )
-    )
-    private var title by mutableStateOf(
-        ColumnMapping(
+
+        val title = ColumnMapping(
             nivyColumn = R.string.csv_column_title,
             helpInfo = R.string.csv_column_title_help,
             name = "",
@@ -163,9 +185,8 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = Unit,
         )
-    )
-    private var description by mutableStateOf(
-        ColumnMapping(
+
+        val description = ColumnMapping(
             nivyColumn = R.string.csv_column_description,
             helpInfo = R.string.csv_column_description_help,
             name = "",
@@ -173,10 +194,7 @@ class CSVViewModel @Inject constructor(
             required = false,
             metadata = Unit,
         )
-    )
-    // endregion
-
-    private var uiState by mutableStateOf<UIState>(UIState.Idle)
+    }
 
     @Composable
     fun uiState(): CSVState {
@@ -415,6 +433,7 @@ class CSVViewModel @Inject constructor(
     // region Import CSV
     private suspend fun handleFilePicked(event: CSVEvent.FilePicked): Unit =
         withContext(dispatchers.io) {
+            resetMappings()
             importCSV(uri = event.uri, semicolons = false)
             if (columns?.values?.size?.let { it < MinColumns } == true) {
                 importCSV(uri = event.uri, semicolons = true)
@@ -422,6 +441,7 @@ class CSVViewModel @Inject constructor(
             csv = csv?.map { row ->
                 row.copy(values = row.values.map { it.trim() })
             }?.toImmutableList()
+            if (csv == null) toaster.show(R.string.csv_file_not_read)
         }
 
     private fun importCSV(uri: Uri, semicolons: Boolean) {
@@ -513,8 +533,7 @@ class CSVViewModel @Inject constructor(
 
     private fun handleFinishImport(event: CSVEvent.FinishImport) {
         if (event.launchedFromOnboarding) {
-            val importSuccess = (uiState as? UIState.Result)?.importResult
-                ?.transactionsImported?.let { it > 0 } ?: false
+            val importSuccess = (uiState as? UIState.Result)?.importResult?.succeeded ?: false
             event.onboardingViewModel.importFinished(
                 success = importSuccess
             )
@@ -529,6 +548,7 @@ class CSVViewModel @Inject constructor(
         uiState = UIState.Idle
         csv = null
         columns = null
+        resetMappings()
     }
 
     // region Boiler-plate

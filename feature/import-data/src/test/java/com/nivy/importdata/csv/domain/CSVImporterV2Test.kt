@@ -34,9 +34,15 @@ class CSVImporterV2Test {
     private val savings = account("Savings", "EUR")
     private val dollars = account("Dollars", "USD")
 
+    private val accounts = mutableListOf(bank, savings, dollars)
     private val accountRepository = mockk<AccountRepository> {
-        coEvery { findAll() } returns listOf(bank, savings, dollars)
-        listOf(bank, savings, dollars).forEach { coEvery { findById(it.id) } returns it }
+        coEvery { findAll() } answers { accounts.toList() }
+        coEvery { save(any()) } answers { accounts += firstArg<Account>() }
+        // The id may reach the answer as the value class or as its UUID.
+        coEvery { findById(any()) } answers {
+            val id = firstArg<Any>()
+            accounts.find { it.id == id || it.id.value == id }
+        }
     }
     private val saved = mutableListOf<Transaction>()
 
@@ -55,7 +61,7 @@ class CSVImporterV2Test {
             coEvery { save(capture(saved)) } answers { savedInTransaction += inTransaction }
         },
         transactionMapper = TransactionMapper(accountRepository),
-        accountDao = mockk(),
+        accountDao = mockk { coEvery { findMaxOrderNum() } returns 2.0 },
         categoryRepository = mockk { coEvery { findAll() } returns emptyList() },
         currencyRepository = mockk { coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR") },
         accountRepository = accountRepository,
@@ -95,6 +101,39 @@ class CSVImporterV2Test {
         import(transfer(from = "Bank", to = "Savings", amount = "100", toAmount = ""))
 
         (saved.single() as Transfer).toValue.amount.value shouldBe 100.0
+    }
+
+    @Test
+    fun `a row that's refused creates none of its accounts`() = runTest {
+        // a transfer of nothing, to an account the wallet doesn't have yet
+        val result = import(transfer(from = "Bank", to = "Brokerage", amount = "0", toAmount = ""))
+
+        result.transactionsImported shouldBe 0
+        result.accountsImported shouldBe 0
+        result.failedRows.single().index shouldBe 2
+        accounts.map { it.name.value } shouldBe listOf("Bank", "Savings", "Dollars")
+    }
+
+    @Test
+    fun `a transfer to the account it leaves creates no account either`() = runTest {
+        val result = import(transfer(from = "Wallet", to = "wallet", amount = "10", toAmount = ""))
+
+        result.accountsImported shouldBe 0
+        result.failedRows.single().index shouldBe 2
+        accounts.map { it.name.value } shouldBe listOf("Bank", "Savings", "Dollars")
+    }
+
+    @Test
+    fun `a row on an account the wallet doesn't have creates it, once`() = runTest {
+        val result = import(
+            transfer(from = "Bank", to = "Brokerage", amount = "100", toAmount = ""),
+            transfer(from = "Bank", to = "brokerage", amount = "50", toAmount = ""),
+        )
+
+        result.transactionsImported shouldBe 2
+        result.accountsImported shouldBe 1
+        val brokerage = accounts.single { it.name.value == "Brokerage" }
+        saved.map { (it as Transfer).toAccount } shouldBe listOf(brokerage.id, brokerage.id)
     }
 
     private suspend fun import(vararg rows: List<String>) = importer.import(
