@@ -2,7 +2,6 @@ package com.nivy.data.repository
 
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
-import com.nivy.data.DeleteOperation
 import com.nivy.data.model.sync.Identifiable
 import com.nivy.data.model.sync.UniqueId
 import com.nivy.data.repository.fake.fakeRepositoryMemoFactory
@@ -23,10 +22,7 @@ class RepositoryMemoTest {
     fun `after AllDataChange the memo reads the database again`() = runTest {
         // given a memo that has read everything once
         val dataObserver = DataObserver()
-        val memo = fakeRepositoryMemoFactory(dataObserver).createMemo<Item, ItemId>(
-            getDataWriteSaveEvent = { DataWriteEvent.AllDataChange },
-            getDateWriteDeleteEvent = { DataWriteEvent.AllDataChange },
-        )
+        val memo = fakeRepositoryMemoFactory(dataObserver).createMemo<Item, ItemId>()
         var reads = 0
         val readAll: suspend () -> List<Item> = {
             reads++
@@ -48,10 +44,7 @@ class RepositoryMemoTest {
     @Test
     fun `with the whole table held, an id it hasn't is not looked up in the database`() = runTest {
         // given a memo that has read the whole table
-        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>(
-            getDataWriteSaveEvent = { DataWriteEvent.SaveTags(emptyList()) },
-            getDateWriteDeleteEvent = { DataWriteEvent.DeleteTags(DeleteOperation.All) },
-        )
+        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>()
         val held = Item(ItemId(UUID.randomUUID()))
         memo.findAll(findAllOperation = { listOf(held) }, sortMemo = { toList() })
 
@@ -70,10 +63,7 @@ class RepositoryMemoTest {
 
     @Test
     fun `before the whole table is read, an id the memo hasn't comes from the database`() = runTest {
-        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>(
-            getDataWriteSaveEvent = { DataWriteEvent.SaveTags(emptyList()) },
-            getDateWriteDeleteEvent = { DataWriteEvent.DeleteTags(DeleteOperation.All) },
-        )
+        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>()
         val stored = Item(ItemId(UUID.randomUUID()))
 
         memo.findById(stored.id) { stored } shouldBe stored
@@ -83,10 +73,7 @@ class RepositoryMemoTest {
     @Test
     fun `a row deleted while findAll is reading the table does not come back`() = runTest {
         // given a read of the whole table that is still in progress
-        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>(
-            getDataWriteSaveEvent = { DataWriteEvent.SaveTags(emptyList()) },
-            getDateWriteDeleteEvent = { DataWriteEvent.DeleteTags(DeleteOperation.All) },
-        )
+        val memo = fakeRepositoryMemoFactory().createMemo<Item, ItemId>()
         val kept = Item(ItemId(UUID.randomUUID()))
         val deleted = Item(ItemId(UUID.randomUUID()))
         val readStarted = CompletableDeferred<Unit>()

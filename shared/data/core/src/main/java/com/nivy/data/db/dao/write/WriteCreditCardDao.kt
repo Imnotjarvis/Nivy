@@ -10,9 +10,6 @@ import java.util.UUID
 @Dao
 interface WriteCreditCardDao {
     @Upsert
-    suspend fun save(value: CreditCardEntity)
-
-    @Upsert
     suspend fun saveMany(values: List<CreditCardEntity>)
 
     /**

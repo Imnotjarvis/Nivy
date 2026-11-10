@@ -57,13 +57,7 @@ class AccountsViewModel @Inject constructor(
         viewModelScope.launch {
             dataObserver.writeEvents.collectLatest { event ->
                 when (event) {
-                    is DataWriteEvent.AccountChange -> {
-                        onStart()
-                    }
-
-                    else -> {
-                        // do nothing
-                    }
+                    DataWriteEvent.AccountsChanged, DataWriteEvent.AllDataChange -> onStart()
                 }
             }
         }

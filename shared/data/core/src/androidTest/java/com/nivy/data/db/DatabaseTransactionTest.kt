@@ -62,8 +62,7 @@ class DatabaseTransactionTest {
         val observer = DataObserver()
         // An account repository's memo, which has read the (empty) table once.
         val memo = fakeRepositoryMemoFactory(observer).createMemo<Account, AccountId>(
-            getDataWriteSaveEvent = DataWriteEvent::SaveAccounts,
-            getDateWriteDeleteEvent = DataWriteEvent::DeleteAccounts,
+            writeEvent = DataWriteEvent.AccountsChanged,
         )
         memo.findAll(findAllOperation = { emptyList() }, sortMemo = { toList() })
         val cash = Account(

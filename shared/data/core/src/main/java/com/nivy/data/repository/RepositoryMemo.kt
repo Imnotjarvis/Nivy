@@ -4,7 +4,6 @@ import com.nivy.base.di.AppCoroutineScope
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
-import com.nivy.data.DeleteOperation
 import com.nivy.data.model.sync.Identifiable
 import com.nivy.data.model.sync.UniqueId
 import kotlinx.coroutines.CoroutineScope
@@ -21,15 +20,14 @@ class RepositoryMemoFactory @Inject constructor(
     private val dispatchers: DispatchersProvider,
     @AppCoroutineScope private val appScope: CoroutineScope,
 ) {
+    /** A memo whose writes post [writeEvent], when something reacts to them. */
     fun <T : Identifiable<TID>, TID : UniqueId> createMemo(
-        getDataWriteSaveEvent: (List<T>) -> DataWriteEvent,
-        getDateWriteDeleteEvent: (DeleteOperation<TID>) -> DataWriteEvent
+        writeEvent: DataWriteEvent? = null,
     ): RepositoryMemo<T, TID> = RepositoryMemo(
         dataObserver = dataObserver,
         dispatchers = dispatchers,
         appScope = appScope,
-        getDataWriteSaveEvent = getDataWriteSaveEvent,
-        getDataWriteDeleteEvent = getDateWriteDeleteEvent,
+        writeEvent = writeEvent,
     )
 }
 
@@ -37,14 +35,13 @@ class RepositoryMemoFactory @Inject constructor(
  * A repository's in-memory copy of its table, read from the database once and kept current by
  * the repository's own writes. Readers on any thread see a consistent map; the reads that fill
  * it and the writes that change it take turns, so a row deleted while [findAll] is reading the
- * table can't be put back by it. Writes announce themselves through [DataObserver] once done.
+ * table can't be put back by it. Writes post the memo's write event, if it has one, once done.
  */
 class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor(
     private val dataObserver: DataObserver,
     private val dispatchers: DispatchersProvider,
     appScope: CoroutineScope,
-    private val getDataWriteSaveEvent: (List<T>) -> DataWriteEvent,
-    private val getDataWriteDeleteEvent: (DeleteOperation<TID>) -> DataWriteEvent,
+    private val writeEvent: DataWriteEvent?,
 ) {
 
     private val _memo = ConcurrentHashMap<TID, T>()
@@ -111,7 +108,7 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
             withContext(dispatchers.io) { writeOperation(value) }
             memoize(value)
         }
-        dataObserver.post(getDataWriteSaveEvent(listOf(value)))
+        announceWrite()
     }
 
     suspend fun saveMany(
@@ -122,7 +119,7 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
             withContext(dispatchers.io) { writeOperation(values) }
             memoize(values)
         }
-        dataObserver.post(getDataWriteSaveEvent(values))
+        announceWrite()
     }
 
     suspend fun deleteById(
@@ -133,7 +130,7 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
             _memo.remove(id)
             withContext(dispatchers.io) { deleteByIdOperation(id) }
         }
-        dataObserver.post(getDataWriteDeleteEvent(DeleteOperation.Just(listOf(id))))
+        announceWrite()
     }
 
     suspend fun deleteAll(
@@ -143,7 +140,11 @@ class RepositoryMemo<T : Identifiable<TID>, TID : UniqueId> internal constructor
             _memo.clear()
             withContext(dispatchers.io) { deleteAllOperation() }
         }
-        dataObserver.post(getDataWriteDeleteEvent(DeleteOperation.All))
+        announceWrite()
+    }
+
+    private suspend fun announceWrite() {
+        writeEvent?.let { dataObserver.post(it) }
     }
 
     private suspend fun invalidate() {

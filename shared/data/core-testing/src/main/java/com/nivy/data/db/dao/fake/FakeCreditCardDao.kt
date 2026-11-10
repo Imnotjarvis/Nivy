@@ -18,13 +18,11 @@ class FakeCreditCardDao : CreditCardDao, WriteCreditCardDao {
     override suspend fun findByAccountId(accountId: UUID): List<CreditCardEntity> =
         findAll().filter { it.accountId == accountId }
 
-    override suspend fun save(value: CreditCardEntity) {
-        items.removeIf { it.id == value.id }
-        items.add(value)
-    }
-
     override suspend fun saveMany(values: List<CreditCardEntity>) {
-        values.forEach { save(it) }
+        values.forEach { value ->
+            items.removeIf { it.id == value.id }
+            items.add(value)
+        }
     }
 
     override suspend fun unlinkTransactions(id: UUID) = Unit

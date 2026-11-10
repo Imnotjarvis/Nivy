@@ -357,7 +357,7 @@ class BackupDataUseCaseTest {
             id = UUID.randomUUID(),
         )
         accountDao.save(bank)
-        creditCardDao.save(visa)
+        creditCardDao.saveMany(listOf(visa))
         transactionDao.save(
             TransactionEntity(accountId = bank.id, type = TransactionType.EXPENSE, amount = 5.0, creditCardId = visa.id)
         )

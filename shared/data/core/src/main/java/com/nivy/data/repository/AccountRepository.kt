@@ -19,10 +19,7 @@ class AccountRepository @Inject constructor(
     private val dispatchersProvider: DispatchersProvider,
     memoFactory: RepositoryMemoFactory,
 ) {
-    private val memo = memoFactory.createMemo(
-        getDataWriteSaveEvent = DataWriteEvent::SaveAccounts,
-        getDateWriteDeleteEvent = DataWriteEvent::DeleteAccounts
-    )
+    private val memo = memoFactory.createMemo<Account, AccountId>(writeEvent = DataWriteEvent.AccountsChanged)
 
     suspend fun findById(id: AccountId): Account? = memo.findById(
         id = id,
