@@ -38,7 +38,7 @@ detekt = "1.23.8" # https://detekt.dev/docs/gettingstarted/gradle/
 bouncycastle = "1.86"
 
 [libraries]
-android-gradle-plugin = { module = "com.android.tools.build:gradle", version = "9.4.0" }
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version = "9.5.1" }
 
 # Kotlin
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
