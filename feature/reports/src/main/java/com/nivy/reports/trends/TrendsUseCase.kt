@@ -125,14 +125,17 @@ class TrendsUseCase @Inject constructor(
             ?: AllMonthsAtMost
     }
 
+    // An amount without a rate to the base currency is left out, not counted as one of nothing.
     private suspend fun flow(
         transaction: Transaction,
         rates: BaseCurrencyRates,
         categories: Map<CategoryId, Category>,
     ) =
         when (transaction) {
-            is Income -> transaction.toFlow(rates.inBase(transaction.value), income = true, categories)
-            is Expense -> transaction.toFlow(rates.inBase(transaction.value), income = false, categories)
+            is Income -> rates.inBaseOrNull(transaction.value)
+                ?.let { transaction.toFlow(it, income = true, categories) }
+            is Expense -> rates.inBaseOrNull(transaction.value)
+                ?.let { transaction.toFlow(it, income = false, categories) }
             is Transfer -> null
         }
 

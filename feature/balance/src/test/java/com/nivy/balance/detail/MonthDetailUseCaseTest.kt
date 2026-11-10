@@ -250,6 +250,23 @@ class MonthDetailUseCaseTest {
     }
 
     @Test
+    fun `a month spent only where there's no rate tells no habits`() = runTest {
+        // given every purchase this month made in dollars, with no rate to euros
+        val travel = account("Travel", n = 4, currency = "USD")
+        accounts += travel
+        held[travel] = 100.0
+        transactions.removeAll { it is Expense && it.settled }
+        transactions += expense(day = 3, amount = 12.0, title = "Lunch", account = travel)
+        transactions += expense(day = 4, amount = 30.0, title = "Groceries", account = travel)
+
+        // when
+        val detail = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR")
+
+        // then
+        detail.habits shouldBe null
+    }
+
+    @Test
     fun `a month gone by has no today, nothing coming up and nothing left to spend`() = runTest {
         // when
         val detail = useCase.detail(October, startDayOfMonth = 1, baseCurrency = "EUR")

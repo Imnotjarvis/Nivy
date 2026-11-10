@@ -1,5 +1,6 @@
 package com.nivy.reports.trends
 
+import arrow.core.None
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
 import com.nivy.base.time.TimeProvider
@@ -80,7 +81,9 @@ class TrendsUseCaseTest {
                 AccountBalanceDetails(account, BigDecimal.valueOf(balance))
             }
         },
-        exchangeUseCase = mockk<ExchangeUseCase>(),
+        exchangeUseCase = mockk<ExchangeUseCase> {
+            coEvery { convert(any<PositiveValue>(), any()) } returns None
+        },
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         dispatchers = TestDispatchersProvider,
@@ -142,6 +145,19 @@ class TrendsUseCaseTest {
         shift.periods[6].month?.monthValue shouldBe 6
         // A quarter shows no shifts: it has too few full months.
         useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur).shifts shouldBe emptyList()
+    }
+
+    @Test
+    fun `an amount in a currency without a rate is left out, not counted as nothing`() = runTest {
+        // given a purchase in dollars, with no rate to euros, beside October's 200 euros
+        transactions += expense(bank, 50.0, "2026-10-22T10:00:00Z").let { (it as Expense).copy(value = usd(50.0)) }
+
+        // when
+        val trends = useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur)
+
+        // then
+        trends.months.map { it.expense } shouldBe listOf(0.0, 200.0, 0.0)
+        trends.habits.typical shouldBe 200.0
     }
 
     @Test
@@ -237,6 +253,8 @@ class TrendsUseCaseTest {
     )
 
     private fun eur(amount: Double) = PositiveValue(PositiveDouble.unsafe(amount), Eur)
+
+    private fun usd(amount: Double) = PositiveValue(PositiveDouble.unsafe(amount), AssetCode.unsafe("USD"))
 
     private fun account(name: String, includeInBalance: Boolean) = Account(
         id = AccountId(UUID.randomUUID()),

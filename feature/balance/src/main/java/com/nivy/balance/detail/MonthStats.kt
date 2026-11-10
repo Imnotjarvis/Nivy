@@ -54,8 +54,9 @@ internal fun habits(
     previous: Map<Category?, Double>,
     edges: List<Double>,
 ): Habits? {
-    if (spends.isEmpty() || elapsed.isEmpty()) return null
     val spent = spends.sumOf { it.amount }
+    // Nothing spent tells no habits: every share of it would be 0 over 0.
+    if (spent <= 0 || elapsed.isEmpty()) return null
     val amounts = spends.map { it.amount }.sorted()
     val byWeekday = DayOfWeek.entries.map { weekday ->
         spends.filter { it.made.dayOfWeek == weekday }.sumOf { it.amount }
