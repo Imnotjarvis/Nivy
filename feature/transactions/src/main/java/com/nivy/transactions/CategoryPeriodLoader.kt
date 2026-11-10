@@ -18,7 +18,6 @@ import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
-import com.nivy.data.repository.CategoryRepository
 import com.nivy.design.system.colors.RedLight
 import com.nivy.domain.usecase.transaction.TransactionsIncomeExpenseUseCase
 import com.nivy.domain.usecase.transaction.TransactionsWithDateDividersUseCase
@@ -36,7 +35,6 @@ import javax.inject.Inject
 
 /** Loads a category's totals, history and due transactions in the period into the page's state. */
 class CategoryPeriodLoader @Inject constructor(
-    private val categoryRepository: CategoryRepository,
     private val periodState: PeriodState,
     private val categoryLogic: CategoryTransactionsLogic,
     private val transactionsWithDateDividersUseCase: TransactionsWithDateDividersUseCase,
@@ -47,13 +45,11 @@ class CategoryPeriodLoader @Inject constructor(
 ) {
     internal suspend fun initForCategory(
         state: CategoryLoadState,
-        categoryId: UUID,
+        pageCategory: Category,
         accountFilterList: List<UUID>,
     ) = with(state) {
         val accountFilterSet = accountFilterList.toSet()
-        val initialCategory = ioThread {
-            categoryRepository.findById(CategoryId(categoryId)) ?: error("category not found")
-        }
+        val initialCategory = pageCategory
         category.value = initialCategory
         val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
@@ -82,10 +78,11 @@ class CategoryPeriodLoader @Inject constructor(
 
     internal suspend fun initForCategoryWithTransactions(
         state: CategoryLoadState,
-        categoryId: UUID,
+        pageCategory: Category,
         accountFilterList: List<UUID>,
         transactions: List<Transaction>,
     ) = with(state) {
+        val categoryId = pageCategory.id.value
         computationThread {
             initWithTransactions.value = true
 
@@ -94,9 +91,7 @@ class CategoryPeriodLoader @Inject constructor(
             }
 
             val accountFilterSet = accountFilterList.toSet()
-            val initialCategory = ioThread {
-                categoryRepository.findById(CategoryId(categoryId)) ?: error("category not found")
-            }
+            val initialCategory = pageCategory
             category.value = initialCategory
             val range =
                 period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
