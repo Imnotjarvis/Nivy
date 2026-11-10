@@ -58,11 +58,16 @@ fun localGroupingSeparator(): String {
 }
 
 // Display Formatting
-fun Double.format(digits: Int) = "%.${digits}f".format(this)
+/** The number with [digits] decimals and no grouping: for a share or a rate, not an amount. */
+fun Double.formatDecimals(digits: Int) = "%.${digits}f".format(this)
 
 /** [gain] as a share of [invested], signed, to one decimal: +6.2%; null when nothing is invested. */
 fun formatGainPercent(gain: Double, invested: Double): String? =
-    if (invested > 0) (gain / invested * Percent).let { (if (it > 0) "+" else "") + it.format(1) + "%" } else null
+    if (invested > 0) {
+        (gain / invested * Percent).let { (if (it > 0) "+" else "") + it.formatDecimals(1) + "%" }
+    } else {
+        null
+    }
 
 private const val Percent = 100
 
@@ -132,7 +137,7 @@ private fun formatShortenedNumber(
     extension: String,
 ): String {
     return if (hasSignificantDecimalPart(number)) {
-        "${number.format(2)}$extension"
+        "${number.formatDecimals(2)}$extension"
     } else {
         "${number.toInt()}$extension"
     }

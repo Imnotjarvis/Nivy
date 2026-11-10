@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Gray
 import com.nivy.wallet.ui.theme.components.ItemIconM
@@ -179,7 +179,7 @@ private fun PercentText(
 ) {
     Text(
         text = if (totalAmount != 0.0) {
-            stringResource(R.string.percent, ((amount / totalAmount) * 100).format(2))
+            stringResource(R.string.percent, ((amount / totalAmount) * 100).formatDecimals(2))
         } else {
             stringResource(R.string.percent, "0")
         },

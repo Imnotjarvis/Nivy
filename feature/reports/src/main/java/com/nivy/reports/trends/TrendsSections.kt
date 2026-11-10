@@ -995,7 +995,7 @@ private fun approx(amount: Double): String {
 
 // An amount without its decimals when it's whole, as a size's edge.
 private fun compact(amount: Double): String =
-    if (amount == amount.roundToInt().toDouble()) "%,d".format(amount.roundToInt()) else amount.format(2)
+    if (amount == amount.roundToInt().toDouble()) "%,d".format(amount.roundToInt()) else "%,.2f".format(amount)
 
 private fun shadeAlpha(level: Int) = ShadeBase + ShadeStep * level
 

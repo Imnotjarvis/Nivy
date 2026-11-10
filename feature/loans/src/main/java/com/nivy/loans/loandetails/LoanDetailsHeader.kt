@@ -25,6 +25,7 @@ import com.nivy.wallet.humanReadableType
 import com.nivy.wallet.ui.component.ItemStatisticToolbar
 import com.nivy.design.utils.clickableNoIndication
 import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import com.nivy.design.utils.rememberInteractionSource
 import com.nivy.design.utils.StatusBarDarkText
 import com.nivy.loans.LoanProgress
@@ -275,7 +276,7 @@ private fun LoanInfoCard(
         ) {
             Text(
                 modifier = Modifier.testTag("percent_paid"),
-                text = "${progress.percentPaid.times(100).format(2)}%",
+                text = "${progress.percentPaid.times(100).formatDecimals(2)}%",
                 style = MaterialTheme.typography.numberTitleLarge.copy(
                     color = contrastColor,
                     fontWeight = FontWeight.ExtraBold
@@ -337,7 +338,7 @@ private fun LoanInfoCard(
             ) {
                 Text(
                     modifier = Modifier.testTag("loan_interest_percent_paid"),
-                    text = "${progress.interestPercentPaid.times(100).format(2)}%",
+                    text = "${progress.interestPercentPaid.times(100).formatDecimals(2)}%",
                     style = MaterialTheme.typography.numberTitleLarge.copy(
                         color = contrastColor,
                         fontWeight = FontWeight.ExtraBold

@@ -50,7 +50,6 @@ import com.nivy.base.model.TransactionType
 import com.nivy.design.utils.rememberInteractionSource
 import com.nivy.wallet.utils.rememberSwipeListenerState
 import com.nivy.ui.R
-import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.GreenDark
 import com.nivy.design.system.colors.GreenLight
@@ -106,13 +105,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     val showConvertedAmountText by remember(type, convertedAmount, convertedAmountCurrencyCode) {
         if (type == TransactionType.TRANSFER && convertedAmount != null && convertedAmountCurrencyCode != null) {
             mutableStateOf(
-                "${
-                    convertedAmount.format(
-                        NivyCurrency.getDecimalPlaces(
-                            convertedAmountCurrencyCode
-                        )
-                    )
-                } $convertedAmountCurrencyCode"
+                "${convertedAmount.format(convertedAmountCurrencyCode)} $convertedAmountCurrencyCode"
             )
         } else {
             mutableStateOf(null)

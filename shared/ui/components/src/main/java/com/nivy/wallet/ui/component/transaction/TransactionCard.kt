@@ -36,7 +36,6 @@ import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
 import com.nivy.ui.time.TimeFormatter
-import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.upcomingOrange
@@ -193,10 +192,7 @@ fun TransactionCard(
         if (transaction is Transfer && toAccountCurrency != transactionCurrency) {
             Text(
                 modifier = Modifier.padding(start = 68.dp),
-                text = "${
-                    transaction.toValue.amount.value
-                        .format(NivyCurrency.getDecimalPlaces(toAccountCurrency))
-                } $toAccountCurrency",
+                text = "${transaction.toValue.amount.value.format(toAccountCurrency)} $toAccountCurrency",
                 style = MaterialTheme.typography.numberBodyLarge.copy(
                     color = Gray,
                     fontWeight = FontWeight.Normal

@@ -87,6 +87,24 @@ class EditTransactionPaparazziTest(
     }
 
     @Test
+    fun `snapshot a large transfer with an exchange rate`() = shot {
+        Editor(
+            type = TransactionType.TRANSFER,
+            title = "Savings",
+            amount = 1_250.0,
+            category = null,
+            toAccount = Revolut,
+            exchangeRate = CustomExchangeRateState(
+                showCard = true,
+                fromCurrencyCode = "EUR",
+                toCurrencyCode = "USD",
+                exchangeRate = 1.08,
+                convertedAmount = 1_350.0,
+            ),
+        )
+    }
+
+    @Test
     fun `snapshot the category dialog`() = shot {
         Editor(TransactionType.EXPENSE, "Groceries at Lidl", 42.5, Groceries)
         ChooseCategoryModal(

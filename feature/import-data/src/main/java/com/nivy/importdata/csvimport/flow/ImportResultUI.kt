@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.nivy.data.backup.CSVRow
 import com.nivy.data.backup.ImportResult
 import com.nivy.importdata.csv.Spacer8
-import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import com.nivy.navigation.CSVScreen
 import com.nivy.navigation.navigation
 import com.nivy.ui.R
@@ -200,7 +200,7 @@ private fun SuccessSectionUI(
 
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = "${successPercent.format(2)}%",
+            text = "${successPercent.formatDecimals(2)}%",
             style = MaterialTheme.typography.numberHeadlineMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Normal
@@ -263,7 +263,7 @@ private fun FailedSectionUI(
 
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = "${(100 - successPercent).format(2)}%",
+            text = "${(100 - successPercent).formatDecimals(2)}%",
             style = MaterialTheme.typography.numberHeadlineMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Normal

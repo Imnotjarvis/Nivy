@@ -44,6 +44,7 @@ import com.nivy.domain.di.FeaturesEntryPoint
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.utils.amountToDoubleOrNull
 import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import com.nivy.wallet.utils.formatInputAmount
 import com.nivy.wallet.utils.formatInt
 import com.nivy.design.utils.hideKeyboard
@@ -83,7 +84,7 @@ fun BoxWithConstraintsScope.AmountModal(
                 initialAmount?.takeIf { it != 0.0 }?.format(currency)
                     ?: ""
             } else {
-                initialAmount?.takeIf { it != 0.0 }?.format(decimalCountMax)
+                initialAmount?.takeIf { it != 0.0 }?.formatDecimals(decimalCountMax)
                     ?: ""
             }
         )

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.utils.amountToDoubleOrNull
 import com.nivy.wallet.utils.format
+import com.nivy.wallet.utils.formatDecimals
 import com.nivy.wallet.utils.formatInputAmount
 import com.nivy.wallet.utils.localDecimalSeparator
 import com.nivy.wallet.utils.normalizeExpression
@@ -184,7 +185,7 @@ internal fun BoxWithConstraintsScope.CalculatorModal(
 
 /** As the amount field shows it: the currency's format, or [decimalCountMax] decimals without one. */
 internal fun Double.formatAmount(currency: String, decimalCountMax: Int): String =
-    if (currency.isNotEmpty()) format(currency) else format(decimalCountMax)
+    if (currency.isNotEmpty()) format(currency) else formatDecimals(decimalCountMax)
 
 private fun handleOperator(expression: String, operator: String): String {
     return if (expression.isNotEmpty() && expression.last().isOperator()) {
