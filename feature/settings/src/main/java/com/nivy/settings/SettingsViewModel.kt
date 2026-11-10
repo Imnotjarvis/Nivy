@@ -1,18 +1,15 @@
 package com.nivy.settings
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.nivy.base.Toaster
 import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.Theme
 import com.nivy.base.model.next
-import com.nivy.base.refreshWidget
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.backup.BackupDataUseCase
 import com.nivy.data.model.PositiveValue
@@ -37,7 +34,6 @@ import com.nivy.wallet.utils.getISOFormattedDateTime
 import com.nivy.wallet.utils.ioThread
 import com.nivy.wallet.utils.uiThread
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -59,7 +55,6 @@ class SettingsViewModel @Inject constructor(
     private val budgetRepository: BudgetRepository,
     private val exchangeUseCase: ExchangeUseCase,
     private val exportCsvUseCase: ExportCsvUseCase,
-    @ApplicationContext private val context: Context,
     private val timeProvider: TimeProvider,
     private val toaster: Toaster,
     private val dateFormatState: DateFormatState,
@@ -296,7 +291,6 @@ class SettingsViewModel @Inject constructor(
 
         viewModelScope.launch {
             appPreferences.setAppLockEnabled(lock)
-            context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         }
     }
 

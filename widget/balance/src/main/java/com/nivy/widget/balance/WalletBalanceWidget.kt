@@ -1,9 +1,6 @@
 package com.nivy.widget.balance
 
 import android.content.Context
-import android.icu.text.DecimalFormat
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
@@ -15,10 +12,9 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import com.nivy.base.model.TransactionType
 import com.nivy.domain.AppStarter
+import com.nivy.wallet.utils.formatAmount
 import com.nivy.wallet.utils.shortenAmount
 import kotlin.math.abs
-
-private const val THOUSAND = 1000
 
 object PrefsKey {
     const val APP_LOCKED = "appLocked"
@@ -28,21 +24,21 @@ object PrefsKey {
     const val EXPENSE = "expense_v2"
 }
 
+/** How the widget writes [amount]: as the app does, in [currency]'s format, shortened from 100k on. */
+internal fun widgetAmount(amount: Double, currency: String): String = formatAmount(amount, currency, shorten = true)
+
+/**
+ * Income or expenses in the widget's chips: shortened from 1,000 on (12.35k), as the pie chart's
+ * header does, so that they keep to one line; below, as the app writes amounts (80.50).
+ */
+internal fun chipAmount(amount: Double, currency: String): String =
+    if (abs(amount) >= ChipShortenFrom) shortenAmount(amount) else formatAmount(amount, currency)
+
+private const val ChipShortenFrom = 1_000
+
 class WalletBalanceWidget(
     private val getAppStarter: () -> AppStarter,
 ) : GlanceAppWidget() {
-    @Composable
-    fun formatBalance(balance: Double): String {
-        val formattedBalance = remember(balance) {
-            if (abs(balance) < THOUSAND) {
-                DecimalFormat("###,###.##").format(balance)
-            } else {
-                shortenAmount(balance)
-            }
-        }
-        return formattedBalance
-    }
-
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             val prefs = currentState<Preferences>()
@@ -54,10 +50,10 @@ class WalletBalanceWidget(
 
             WalletBalanceWidgetContent(
                 appLocked = appLocked,
-                balance = formatBalance(balance),
+                balance = widgetAmount(balance, currency),
                 currency = currency,
-                income = shortenAmount(income),
-                expense = shortenAmount(expense),
+                income = chipAmount(income, currency),
+                expense = chipAmount(expense, currency),
                 // Activity actions, so a tap opens the app directly instead of going through a
                 // broadcast receiver.
                 onIncomeClick = actionStartActivity(

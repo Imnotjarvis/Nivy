@@ -1,10 +1,7 @@
 package com.nivy.transaction
 
-import android.content.Context
-import com.ivy.widget.balance.WalletBalanceWidgetReceiver
 import com.nivy.base.Toaster
 import com.nivy.base.model.TransactionType
-import com.nivy.base.refreshWidget
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.db.DatabaseTransaction
@@ -17,7 +14,6 @@ import com.nivy.domain.usecase.loan.NoLoanExchangeRate
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.CustomExchangeRateState
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -28,8 +24,6 @@ import javax.inject.Inject
 
 /** Checks and saves what the editor entered, a copy of it, or the payment of a planned one. */
 class TransactionSaving @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
     private val toaster: Toaster,
     private val transactionRepo: TransactionRepository,
     private val transactionMapper: TransactionMapper,
@@ -131,8 +125,6 @@ class TransactionSaving @Inject constructor(
             transactionRepo.save(creditCardChargeUseCase.dated(transaction))
             linkTags()
         }
-
-        context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         return true
     }
 
@@ -156,8 +148,6 @@ class TransactionSaving @Inject constructor(
             transactionRepo.save(creditCardChargeUseCase.dated(copy))
             copyTags()
         }
-
-        context.refreshWidget(WalletBalanceWidgetReceiver::class.java)
         return true
     }
 

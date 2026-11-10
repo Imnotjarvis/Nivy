@@ -1,5 +1,6 @@
 plugins {
     id("nivy.widget")
+    id("nivy.paparazzi")
 }
 
 android {
@@ -14,4 +15,7 @@ dependencies {
     implementation(projects.shared.ui.navigation)
 
     implementation(projects.shared.ui.components)
+    implementation(libs.androidx.work)
+
+    testImplementation(projects.shared.ui.testing)
 }

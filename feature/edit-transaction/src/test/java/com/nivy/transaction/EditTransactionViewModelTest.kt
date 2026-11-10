@@ -6,7 +6,6 @@ import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.Toaster
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
-import com.nivy.base.refreshWidget
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.db.DatabaseTransaction
@@ -49,13 +48,9 @@ import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -129,9 +124,6 @@ class EditTransactionViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        // No home screen widgets to refresh.
-        mockkStatic("com.nivy.base.WidgetRefreshKt")
-        every { any<Context>().refreshWidget(any()) } just Runs
 
         coEvery { accountRepository.findAll() } returns persistentListOf(bank, wallet, dollars, amexAccount)
         val timeConverter = TestTimeConverter()
@@ -154,7 +146,6 @@ class EditTransactionViewModelTest {
                 },
             ),
             transactionSaving = TransactionSaving(
-                context = context,
                 toaster = toaster,
                 transactionRepo = transactionRepo,
                 transactionMapper = TransactionMapper(accountRepository),

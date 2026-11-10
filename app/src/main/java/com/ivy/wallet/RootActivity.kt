@@ -192,7 +192,6 @@ class RootActivity : AppCompatActivity(), RootScreen {
         setupActivityForResultLaunchers()
         AddTransactionWidget.updateBroadcast(this)
         AddTransactionWidgetCompact.updateBroadcast(this)
-        WalletBalanceWidgetReceiver.updateBroadcast(this)
     }
 
     // By default blocks follow the screen's rounded corners: their radius less the margin blocks keep
@@ -333,7 +332,11 @@ class RootActivity : AppCompatActivity(), RootScreen {
     override fun onStop() {
         super.onStop()
         // A rotation or a theme change recreates the activity: that's not leaving the app either.
-        if (!isChangingConfigurations) viewModel.onAppHidden()
+        if (!isChangingConfigurations) {
+            viewModel.onAppHidden()
+            // Whatever was written meanwhile, the balance widget shows it once the app is left.
+            WalletBalanceWidgetReceiver.updateBroadcast(this)
+        }
     }
 
     private fun authenticateWithOSBiometricsModal(
