@@ -6,9 +6,7 @@ import arrow.core.Some
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.data.model.ExchangeRate
 import com.nivy.data.model.PositiveValue
-import com.nivy.data.model.Value
 import com.nivy.data.model.primitive.AssetCode
-import com.nivy.data.model.primitive.NonZeroDouble
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
@@ -60,35 +58,6 @@ class ExchangeUseCaseTest {
     @Test
     fun `missing rate fails`() = runTest {
         useCase.convert(positive(10.0, GBP), to = BGN) shouldBe None
-    }
-
-    @Test
-    fun `signed value keeps its sign`() = runTest {
-        val res = useCase.convert(Value(NonZeroDouble.unsafe(-100.0), BGN), to = EUR)
-
-        res.getOrNull()?.amount?.value.shouldNotBeNull() shouldBe (-51.0 plusOrMinus Tolerance)
-    }
-
-    @Test
-    fun `sums values and reports the ones that failed`() = runTest {
-        // when
-        val res = useCase.convert(
-            values = mapOf(
-                BGN to NonZeroDouble.unsafe(100.0),
-                EUR to NonZeroDouble.unsafe(51.0),
-                GBP to NonZeroDouble.unsafe(5.0),
-            ),
-            to = BGN,
-        )
-
-        // then
-        res.exchanged.getOrNull()?.amount?.value.shouldNotBeNull() shouldBe (200.0 plusOrMinus Tolerance)
-        res.exchangeErrors shouldBe setOf(GBP)
-    }
-
-    @Test
-    fun `nothing to sum is none`() = runTest {
-        useCase.convert(values = emptyMap(), to = BGN) shouldBe ExchangeResult(None, emptySet())
     }
 
     private fun Option<PositiveValue>.amountOrNull(): Double? = getOrNull()?.amount?.value

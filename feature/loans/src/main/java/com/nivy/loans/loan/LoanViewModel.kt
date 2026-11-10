@@ -17,12 +17,11 @@ import com.nivy.data.model.pickable
 import com.nivy.data.model.Account
 import com.nivy.data.model.Loan
 import com.nivy.data.model.LoanId
-import com.nivy.data.model.Value
+import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.base.model.LoanType
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NonZeroDouble
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.preferences.AppPreferences
@@ -47,6 +46,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlin.math.abs
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -286,13 +286,17 @@ class LoanViewModel @Inject constructor(
         accounts: List<Account>,
     ): Account? = accounts.startingAccount(appPreferences.lastSelectedAccountId()?.let(UUID::fromString))
 
-    /** The amount in the base currency, or 0 when there's no rate for it, as budgets count it. */
+    /**
+     * The amount in the base currency, or 0 when there's no rate for it, as budgets count it. An
+     * amount below zero, a loan paid back beyond its total, stays below zero.
+     */
     private suspend fun inBaseCurrency(amount: Double, currencyCode: String): Double {
-        val nonZero = NonZeroDouble.from(amount).getOrNull() ?: return 0.0
-        return exchangeUseCase.convert(
-            Value(amount = nonZero, asset = AssetCode.unsafe(currencyCode)),
+        val size = PositiveDouble.from(abs(amount)).getOrNull() ?: return 0.0
+        val converted = exchangeUseCase.convert(
+            PositiveValue(amount = size, asset = AssetCode.unsafe(currencyCode)),
             to = AssetCode.unsafe(defaultCurrencyCode),
-        ).getOrNull()?.amount?.value ?: 0.0
+        ).getOrNull()?.amount?.value ?: return 0.0
+        return if (amount < 0) -converted else converted
     }
 
     private fun findCurrencyCode(accounts: List<Account>, accountId: UUID?): String {

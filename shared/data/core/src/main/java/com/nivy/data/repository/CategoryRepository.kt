@@ -1,7 +1,6 @@
 package com.nivy.data.repository
 
 import com.nivy.base.threading.DispatchersProvider
-import com.nivy.data.DataWriteEvent
 import com.nivy.data.db.dao.read.CategoryDao
 import com.nivy.data.db.dao.write.WriteCategoryDao
 import com.nivy.data.model.Category
@@ -19,10 +18,7 @@ class CategoryRepository @Inject constructor(
     private val dispatchersProvider: DispatchersProvider,
     memoFactory: RepositoryMemoFactory,
 ) {
-    private val memo = memoFactory.createMemo(
-        getDataWriteSaveEvent = DataWriteEvent::SaveCategories,
-        getDateWriteDeleteEvent = DataWriteEvent::DeleteCategories,
-    )
+    private val memo = memoFactory.createMemo<Category, CategoryId>()
 
     suspend fun findAll(): List<Category> = memo.findAll(
         findAllOperation = {
@@ -55,14 +51,6 @@ class CategoryRepository @Inject constructor(
     ) {
         writeCategoryDao.save(
             with(mapper) { it.toEntity() }
-        )
-    }
-
-    suspend fun saveMany(values: List<Category>): Unit = memo.saveMany(
-        values = values,
-    ) {
-        writeCategoryDao.saveMany(
-            values.map { with(mapper) { it.toEntity() } }
         )
     }
 

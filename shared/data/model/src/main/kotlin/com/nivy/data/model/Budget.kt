@@ -21,8 +21,8 @@ data class Budget(
     val amount: PositiveDouble,
     val categories: List<CategoryId>,
     val accounts: List<AccountId>,
-    override val orderNum: Double,
-) : Identifiable<BudgetId>, Reorderable
+    val orderNum: Double,
+) : Identifiable<BudgetId>
 
 /** Its expenses among [transactions]: of its accounts and categories, all of them when it has none. */
 fun Budget.expensesIn(transactions: List<Transaction>): List<Expense> = transactions

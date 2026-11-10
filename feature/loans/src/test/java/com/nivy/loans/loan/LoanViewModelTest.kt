@@ -14,11 +14,10 @@ import com.nivy.data.model.LoanId
 import com.nivy.data.model.LoanRecord
 import com.nivy.data.model.LoanRecordId
 import com.nivy.data.model.primitive.AssetCode
+import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.NonZeroDouble
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
-import com.nivy.data.model.Value
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CurrencyRepository
@@ -77,9 +76,9 @@ class LoanViewModelTest {
         accountCreator = mockk(relaxed = true),
         loanTransactionsUseCase = mockk(relaxed = true),
         exchangeUseCase = mockk<ExchangeUseCase> {
-            coEvery { convert(any<Value>(), any()) } answers { Some(firstArg()) }
-            coEvery { convert(Value(NonZeroDouble.unsafe(100.0), Usd), to = Eur) } returns
-                Some(Value(NonZeroDouble.unsafe(50.0), Eur))
+            coEvery { convert(any<PositiveValue>(), any()) } answers { Some(firstArg()) }
+            coEvery { convert(PositiveValue(PositiveDouble.unsafe(100.0), Usd), to = Eur) } returns
+                Some(PositiveValue(PositiveDouble.unsafe(50.0), Eur))
         },
         accountRepository = mockk<AccountRepository> { coEvery { findAll() } returns listOf(bank, oldDollars) },
         timeConverter = TestTimeConverter(),

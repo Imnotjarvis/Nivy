@@ -1,12 +1,5 @@
 package com.nivy.data
 
-import com.nivy.data.model.Account
-import com.nivy.data.model.AccountId
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.Tag
-import com.nivy.data.model.TagId
-import com.nivy.data.model.sync.UniqueId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import javax.inject.Inject
@@ -22,23 +15,14 @@ class DataObserver @Inject constructor() {
     }
 }
 
+/** Writes that others react to; no write announces what it wrote, as no one reads it. */
 sealed interface DataWriteEvent {
-    data object AllDataChange : AccountChange, CategoryChange
+    /** Accounts were saved or deleted: the accounts tab loads them again. */
+    data object AccountsChanged : DataWriteEvent
 
-    sealed interface AccountChange : DataWriteEvent
-    data class SaveAccounts(val accounts: List<Account>) : AccountChange
-    data class DeleteAccounts(val operation: DeleteOperation<AccountId>) : AccountChange
-
-    sealed interface CategoryChange : DataWriteEvent
-    data class SaveCategories(val categories: List<Category>) : CategoryChange
-    data class DeleteCategories(val operation: DeleteOperation<CategoryId>) : CategoryChange
-
-    sealed interface TagChange : DataWriteEvent
-    data class SaveTags(val tags: List<Tag>) : TagChange
-    data class DeleteTags(val operation: DeleteOperation<TagId>) : TagChange
-}
-
-sealed interface DeleteOperation<out Id : UniqueId> {
-    data object All : DeleteOperation<Nothing>
-    data class Just<Id : UniqueId>(val ids: List<Id>) : DeleteOperation<Id>
+    /**
+     * Every table was rewritten underneath the repositories, by a backup restored, all data
+     * deleted or a database transaction: memos read the database again, as the accounts tab does.
+     */
+    data object AllDataChange : DataWriteEvent
 }

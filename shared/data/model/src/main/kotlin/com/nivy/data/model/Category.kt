@@ -15,5 +15,5 @@ data class Category(
     val name: NotBlankTrimmedString,
     val color: ColorInt,
     val icon: IconAsset?,
-    override val orderNum: Double,
-) : Identifiable<CategoryId>, Reorderable
+    val orderNum: Double,
+) : Identifiable<CategoryId>

@@ -11,7 +11,7 @@ import com.nivy.base.time.impl.DeviceTimeProvider
 import com.nivy.data.db.NivyRoomDatabase
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
-import com.nivy.data.remote.impl.RemoteExchangeRatesDataSourceImpl
+import com.nivy.data.remote.RemoteExchangeRatesDataSource
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.mapper.ExchangeRateMapper
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
@@ -62,7 +62,7 @@ class SyncExchangeRatesUseCaseTest {
         val json = KotlinxSerializationModule.provideJson()
         val client = HttpClient(
             MockEngine { request ->
-                // As written in RemoteExchangeRatesDataSourceImpl, should the "@" come encoded.
+                // As written in RemoteExchangeRatesDataSource, should the "@" come encoded.
                 val url = request.url.toString().replace("%40", "@")
                 requests += url
                 if (url in down) {
@@ -79,7 +79,7 @@ class SyncExchangeRatesUseCaseTest {
             exchangeRatesDao = db.exchangeRatesDao,
             writeExchangeRatesDao = db.writeExchangeRatesDao,
             mapper = ExchangeRateMapper(),
-            remoteExchangeRatesDataSource = RemoteExchangeRatesDataSourceImpl(ktorClient = { client }),
+            remoteExchangeRatesDataSource = RemoteExchangeRatesDataSource(ktorClient = { client }),
             dispatchers = TestDispatchersProvider,
         )
 
@@ -148,7 +148,7 @@ class SyncExchangeRatesUseCaseTest {
     private companion object {
         const val EurToUsd = 1.0842
 
-        /** The servers asked, in order (RemoteExchangeRatesDataSourceImpl). */
+        /** The servers asked, in order (RemoteExchangeRatesDataSource). */
         val Urls = listOf(
             "https://currency-api.pages.dev/v1/currencies/eur.json",
             "https://currency-api.pages.dev/v1/currencies/eur.min.json",

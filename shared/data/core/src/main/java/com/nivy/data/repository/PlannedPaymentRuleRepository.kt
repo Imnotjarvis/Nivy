@@ -6,8 +6,6 @@ import com.nivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
-import com.nivy.data.model.primitive.NonNegativeLong
-import com.nivy.data.model.primitive.toNonNegative
 import com.nivy.data.repository.mapper.PlannedPaymentRuleMapper
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -32,8 +30,8 @@ class PlannedPaymentRuleRepository @Inject constructor(
                 ?.let { with(mapper) { it.toDomain() }.getOrNull() }
         }
 
-    suspend fun count(): NonNegativeLong = withContext(dispatchersProvider.io) {
-        plannedPaymentRuleDao.countPlannedPayments().toNonNegative()
+    suspend fun count(): Long = withContext(dispatchersProvider.io) {
+        plannedPaymentRuleDao.countPlannedPayments()
     }
 
     suspend fun save(value: PlannedPaymentRule): Unit = withContext(dispatchersProvider.io) {

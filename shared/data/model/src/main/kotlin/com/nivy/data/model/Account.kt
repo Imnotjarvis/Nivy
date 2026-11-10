@@ -24,8 +24,8 @@ data class Account(
     val includeInBalance: Boolean,
     val type: AccountType,
     val archived: Boolean,
-    override val orderNum: Double,
-) : Identifiable<AccountId>, Reorderable
+    val orderNum: Double,
+) : Identifiable<AccountId>
 
 /** The accounts to choose from: not the archived ones, unless already [selected]. */
 fun List<Account>.pickable(selected: Collection<AccountId?> = emptyList()): List<Account> =

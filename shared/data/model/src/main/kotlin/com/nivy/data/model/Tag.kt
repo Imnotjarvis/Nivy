@@ -16,9 +16,9 @@ data class Tag(
     val description: String?,
     val color: ColorInt,
     val icon: IconAsset?,
-    override val orderNum: Double,
+    val orderNum: Double,
     val creationTimestamp: Instant,
-) : Identifiable<TagId>, Reorderable
+) : Identifiable<TagId>
 
 data class TagAssociation(
     override val id: TagId,

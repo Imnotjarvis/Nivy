@@ -29,8 +29,8 @@ data class Loan(
     val account: AccountId?,
     val note: NotBlankTrimmedString?,
     val dateTime: LocalDateTime?,
-    override val orderNum: Double,
-) : Identifiable<LoanId>, Reorderable
+    val orderNum: Double,
+) : Identifiable<LoanId>
 
 @JvmInline
 value class LoanRecordId(override val value: UUID) : UniqueId

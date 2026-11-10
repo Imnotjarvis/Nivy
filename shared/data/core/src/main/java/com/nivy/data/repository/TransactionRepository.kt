@@ -11,8 +11,6 @@ import com.nivy.data.model.TagId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.primitive.AssociationId
-import com.nivy.data.model.primitive.NonNegativeLong
-import com.nivy.data.model.primitive.toNonNegative
 import com.nivy.data.repository.mapper.TransactionMapper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -273,8 +271,8 @@ class TransactionRepository @Inject constructor(
         transactionDao.findFirstDateTime()
     }
 
-    suspend fun countHappenedTransactions(): NonNegativeLong = withContext(dispatchersProvider.io) {
-        transactionDao.countHappenedTransactions().toNonNegative()
+    suspend fun countHappenedTransactions(): Long = withContext(dispatchersProvider.io) {
+        transactionDao.countHappenedTransactions()
     }
 
     suspend fun findLoanTransaction(loanId: UUID): Transaction? =

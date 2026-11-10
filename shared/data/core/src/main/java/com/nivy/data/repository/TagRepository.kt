@@ -1,7 +1,6 @@
 package com.nivy.data.repository
 
 import com.nivy.base.threading.DispatchersProvider
-import com.nivy.data.DataWriteEvent
 import com.nivy.data.db.dao.read.TagAssociationDao
 import com.nivy.data.db.dao.read.TagDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
@@ -28,10 +27,7 @@ class TagRepository @Inject constructor(
     private val dispatchersProvider: DispatchersProvider,
     memoFactory: RepositoryMemoFactory,
 ) {
-    private val memo = memoFactory.createMemo(
-        getDataWriteSaveEvent = DataWriteEvent::SaveTags,
-        getDateWriteDeleteEvent = DataWriteEvent::DeleteTags,
-    )
+    private val memo = memoFactory.createMemo<Tag, TagId>()
 
     suspend fun findByIds(ids: List<TagId>): List<Tag> = memo.findByIds(
         ids = ids,
