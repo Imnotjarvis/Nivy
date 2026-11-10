@@ -236,7 +236,7 @@ class EditTransactionViewModel @Inject constructor(
 
         updateCurrency(account = selectedAccount)
 
-        rateCard.show(transaction, accounts, account, currency)
+        rateCard.show(transaction, account = account, toAccount = toAccount, currency = currency)
 
         displayLoanHelper = transactionLoanDisplay.getDisplayLoanHelper(trans = transaction)
     }

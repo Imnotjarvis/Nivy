@@ -216,6 +216,26 @@ class EditTransactionViewModelTest {
     }
 
     @Test
+    fun `a transfer opened on its destination receives the converted amount`() {
+        // What an investment page's "Add transfer" opens: the destination is set, the source isn't.
+        viewModel.start(
+            EditTransactionScreen(
+                initialTransactionId = null,
+                type = TransactionType.TRANSFER,
+                toAccountId = dollars.id.value,
+            )
+        )
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(100.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val transfer = saved().shouldBeInstanceOf<Transfer>()
+        transfer.fromAccount shouldBe bank.id
+        transfer.fromValue shouldBe PositiveValue(PositiveDouble.unsafe(100.0), Eur)
+        transfer.toAccount shouldBe dollars.id
+        transfer.toValue shouldBe PositiveValue(PositiveDouble.unsafe(200.0), Usd)
+    }
+
+    @Test
     fun `a transfer to the same account isn't saved, and says why`() {
         viewModel.start(newTransaction(TransactionType.TRANSFER, bank))
         viewModel.onEvent(EditTransactionViewEvent.OnToAccountChanged(bank))

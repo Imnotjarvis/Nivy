@@ -21,8 +21,9 @@ class TransferExchangeRate @Inject constructor(
 
     /**
      * The rate card of a transfer from [fromAcc] to [toAcc]; null when one of them isn't chosen or
-     * both have the same currency. [baseUserCurrency] is read only for a missing account, and
-     * [enteredAmount] once the rate is known.
+     * both have the same currency. The rate is the [exchangeRate] entered, else the card's own for
+     * the same two currencies, else the market's. [baseUserCurrency] is read only for a missing
+     * account, and [enteredAmount] once the rate is known.
      */
     suspend fun exchangeRateState(
         customExchangeRateState: CustomExchangeRateState,
@@ -41,19 +42,17 @@ class TransferExchangeRate @Inject constructor(
         }
 
         val exRate = exchangeRate
-            ?: if (isCustomExchangeRateCurrencyCodeMatchingWithSourceAndDestinationAccountCurrencyCode(
+            ?: customExchangeRateState.exchangeRate?.takeIf {
+                !resetRate && isCustomExchangeRateCurrencyCodeMatchingWithSourceAndDestinationAccountCurrencyCode(
                     customExchangeRateState = customExchangeRateState,
                     toAccCurrencyCode = toAccCurrencyCode,
                     fromAccCurrencyCode = fromAccCurrencyCode
-                ) && !resetRate
-            ) {
-                customExchangeRateState.exchangeRate
-            } else {
-                exchangeUseCase.convert(
-                    PositiveValue(PositiveDouble.unsafe(1.0), fromAcc.asset),
-                    to = toAcc.asset
-                ).getOrNull()?.amount?.value
+                )
             }
+            ?: exchangeUseCase.convert(
+                PositiveValue(PositiveDouble.unsafe(1.0), fromAcc.asset),
+                to = toAcc.asset
+            ).getOrNull()?.amount?.value
 
         val amount = enteredAmount()
 
@@ -77,21 +76,22 @@ class TransferExchangeRate @Inject constructor(
     }
 }
 
-/** The rate card a transfer opens with: the rate of its two amounts, shown if the currencies differ. */
-internal fun displayedExchangeRateState(
+/**
+ * The rate card a transfer opens with: the rate of its two amounts, shown if the currencies differ.
+ * A transfer without amounts yet, as a new one opened on its destination, has no rate of its own.
+ */
+private fun displayedExchangeRateState(
     transaction: TransactionDraft,
-    accounts: List<Account>,
     account: Account?,
+    toAccount: Account?,
     currency: String,
 ): CustomExchangeRateState = if (transaction.toAccountId == null) {
     CustomExchangeRateState()
 } else {
-    val exchangeRate = transaction.toAmount / transaction.amount
-    val toAccountCurrency =
-        accounts.find { acc -> acc.id.value == transaction.toAccountId }?.asset?.code
+    val toAccountCurrency = toAccount?.asset?.code
     CustomExchangeRateState(
         showCard = toAccountCurrency != account?.asset?.code,
-        exchangeRate = exchangeRate,
+        exchangeRate = (transaction.toAmount / transaction.amount).takeIf { it.isFinite() && it > 0 },
         convertedAmount = transaction.toAmount,
         toCurrencyCode = toAccountCurrency,
         fromCurrencyCode = currency
@@ -110,9 +110,21 @@ internal class RateCard(private val transferExchangeRate: TransferExchangeRate) 
         baseCurrency = transferExchangeRate.baseCurrency()
     }
 
-    /** The card [transaction] opens with, at the rate of its two amounts. */
-    fun show(transaction: TransactionDraft, accounts: List<Account>, account: Account?, currency: String) {
-        state = displayedExchangeRateState(transaction, accounts, account, currency)
+    /**
+     * The card [transaction] from [account] to [toAccount] opens with: at the rate of its two
+     * amounts, or at the market's while it has none.
+     */
+    suspend fun show(transaction: TransactionDraft, account: Account?, toAccount: Account?, currency: String) {
+        state = displayedExchangeRateState(transaction, account, toAccount, currency)
+        if (state.showCard && state.exchangeRate == null) {
+            update(
+                from = account,
+                to = toAccount,
+                amount = { transaction.amount },
+                exchangeRate = null,
+                resetRate = true,
+            )
+        }
     }
 
     /**
