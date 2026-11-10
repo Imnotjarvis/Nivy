@@ -382,6 +382,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_STREAM, fileUri)
                 type = "text/csv"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             },
             null
         )
@@ -394,6 +395,7 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_STREAM, fileUri)
                 type = "application/zip"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             },
             null
         )

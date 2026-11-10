@@ -28,6 +28,10 @@
          matching detekt rule, ViewModelInjection, is off in config/detekt/config.yml). -->
     <issue id="ComposeViewModelInjection" severity="ignore" />
 
+    <!-- From Android 18 the system no longer grants a sent file's read access on its own: a share
+         intent without the flag hands the receiving app a file it can't open. -->
+    <issue id="MissingExplicitUriGrant" severity="error" />
+
     <!-- Logos and illustrations sized by the layouts that show them, and imported icon paths. -->
     <issue id="IconLocation" severity="ignore" />
     <issue id="VectorPath" severity="ignore" />
