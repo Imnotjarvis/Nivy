@@ -420,10 +420,6 @@ class CSVViewModel @Inject constructor(
                 )
             }
 
-            CSVEvent.ResetState -> {
-                uiState = UIState.Idle
-            }
-
             is CSVEvent.FinishImport -> {
                 handleFinishImport(event)
             }

@@ -81,9 +81,6 @@ class LoanViewModel @Inject constructor(
     private var dateTime by mutableStateOf<Instant>(timeProvider.utcNow())
     private var selectedTab by mutableStateOf(LoanTab.PENDING)
 
-    /** If true paid off loans will be visible */
-    private var paidOffLoanVisibility by mutableStateOf(true)
-
     /** Contains all loans including both paidOff and pending*/
     private var allLoans: ImmutableList<DisplayLoan> = persistentListOf()
     private var defaultCurrencyCode = ""
@@ -97,14 +94,11 @@ class LoanViewModel @Inject constructor(
         }
 
         return LoanScreenState(
-            baseCurrency = baseCurrencyCode,
             accounts = accounts,
-            selectedAccount = selectedAccount,
             loanModalData = loanModalData,
             reorderModalVisible = reorderModalVisible,
-            totalOweAmount = getTotalOweAmount(totalOweAmount, defaultCurrencyCode),
-            totalOwedAmount = getTotalOwedAmount(totalOwedAmount, defaultCurrencyCode),
-            paidOffLoanVisibility = paidOffLoanVisibility,
+            totalOweAmount = totalText(totalOweAmount, defaultCurrencyCode),
+            totalOwedAmount = totalText(totalOwedAmount, defaultCurrencyCode),
             dateTime = dateTime,
             selectedTab = selectedTab,
             completedLoans = completedLoans,
@@ -145,10 +139,6 @@ class LoanViewModel @Inject constructor(
 
             is LoanScreenEvent.OnCreateAccount -> {
                 createAccount(event.accountData)
-            }
-
-            LoanScreenEvent.OnTogglePaidOffLoanVisibility -> {
-                updatePaidOffLoanVisibility()
             }
 
             is LoanScreenEvent.OnChangeDate -> {
@@ -213,21 +203,9 @@ class LoanViewModel @Inject constructor(
         }
     }
 
-    private fun getTotalOwedAmount(totalOwedAmount: Double, currCode: String): String {
-        return if (totalOwedAmount != 0.0) {
-            "${totalOwedAmount.format(currCode)} $currCode"
-        } else {
-            ""
-        }
-    }
-
-    private fun getTotalOweAmount(totalOweAmount: Double, currCode: String): String {
-        return if (totalOweAmount != 0.0) {
-            "${totalOweAmount.format(currCode)} $currCode"
-        } else {
-            ""
-        }
-    }
+    // A total for the header, or nothing when it's zero.
+    private fun totalText(total: Double, currCode: String): String =
+        if (total != 0.0) "${total.format(currCode)} $currCode" else ""
 
     private suspend fun initialiseAccounts() {
         val accountsList = accountRepository.findAll().pickable().toImmutableList()
@@ -238,43 +216,22 @@ class LoanViewModel @Inject constructor(
         }
     }
 
+    // This screen's dialog only adds loans: the date and time it changes are the new loan's.
     private fun handleChangeDate() {
-        dateTimePicker.pickDate(
-            initialDate = loanModalData?.loan?.dateTime?.let {
-                with(timeConverter) { it.toUTC() }
-            } ?: dateTime
-        ) { localDate ->
-            val localTime = loanModalData?.loan?.dateTime?.let {
-                with(timeConverter) { it.toLocalTime() }
-            } ?: with(timeConverter) { dateTime.toLocalTime() }
-
-            updateDateTime(localDate.atTime(localTime))
+        dateTimePicker.pickDate(initialDate = dateTime) { localDate ->
+            updateDateTime(localDate.atTime(with(timeConverter) { dateTime.toLocalTime() }))
         }
     }
 
     private fun handleChangeTime() {
-        dateTimePicker.pickTime(
-            initialTime = loanModalData?.loan?.dateTime?.let {
-                with(timeConverter) { it.toLocalTime() }
-            } ?: with(timeConverter) { dateTime.toLocalTime() }
-        ) { localTime ->
-            val localDate = loanModalData?.loan?.dateTime?.let {
-                with(timeConverter) { it.toLocalDate() }
-            } ?: with(timeConverter) { dateTime.toLocalDate() }
-
-            updateDateTime(localDate.atTime(localTime))
+        dateTimePicker.pickTime(initialTime = with(timeConverter) { dateTime.toLocalTime() }) { localTime ->
+            updateDateTime(with(timeConverter) { dateTime.toLocalDate() }.atTime(localTime))
         }
     }
 
     private fun updateDateTime(newDateTime: LocalDateTime) {
-        val newDateTimeUtc = with(timeConverter) { newDateTime.toUTC() }
-        loanModalData?.let { currentData ->
-            loanModalData = currentData.copy(
-                loan = currentData.loan?.copy(
-                    dateTime = newDateTime
-                )
-            )
-            dateTime = newDateTimeUtc
+        if (loanModalData != null) {
+            dateTime = with(timeConverter) { newDateTime.toUTC() }
         }
     }
 
@@ -342,9 +299,5 @@ class LoanViewModel @Inject constructor(
         return accountId?.let {
             accounts.find { account -> account.id.value == it }?.asset?.code
         } ?: defaultCurrencyCode
-    }
-
-    private fun updatePaidOffLoanVisibility() {
-        paidOffLoanVisibility = paidOffLoanVisibility.not()
     }
 }

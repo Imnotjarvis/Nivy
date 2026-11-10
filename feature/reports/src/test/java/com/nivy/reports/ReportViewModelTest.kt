@@ -166,7 +166,6 @@ class ReportViewModelTest {
         period = period,
         accounts = accounts,
         categories = categories,
-        currency = "EUR",
         minAmount = minAmount,
         maxAmount = maxAmount,
         includeKeywords = includeKeywords,

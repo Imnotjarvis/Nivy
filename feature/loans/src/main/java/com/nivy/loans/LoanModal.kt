@@ -38,7 +38,6 @@ import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.ui.theme.components.AccountsRow
 import com.nivy.wallet.ui.theme.components.DateTimeRow
 import com.nivy.wallet.ui.theme.modal.ChooseIconModal
-import com.nivy.wallet.ui.theme.modal.CurrencyModal
 import com.nivy.wallet.ui.theme.modal.DeleteModal
 import com.nivy.wallet.ui.theme.modal.ModalAddSave
 import com.nivy.wallet.ui.theme.modal.ModalAmountSection
@@ -50,7 +49,6 @@ import com.nivy.wallet.utils.isNotNullOrBlank
 import com.nivy.design.utils.selectEndTextFieldValue
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
-import com.nivy.wallet.domain.data.NivyCurrency
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateLoanData
 import com.nivy.design.system.colors.Palette
@@ -130,7 +128,6 @@ fun BoxWithConstraintsScope.LoanModal(
 
     var accountChangeModal by remember { mutableStateOf(false) }
     var amountModalVisible by remember { mutableStateOf(false) }
-    var currencyModalVisible by remember { mutableStateOf(false) }
     var chooseIconModalVisible by remember(shown?.id) {
         mutableStateOf(false)
     }
@@ -312,15 +309,6 @@ fun BoxWithConstraintsScope.LoanModal(
         dismiss = { amountModalVisible = false }
     ) { newAmount ->
         amount = newAmount
-    }
-
-    CurrencyModal(
-        title = stringResource(R.string.choose_currency),
-        initialCurrency = NivyCurrency.fromCode(currencyCode),
-        visible = currencyModalVisible,
-        dismiss = { currencyModalVisible = false }
-    ) {
-        currencyCode = it
     }
 
     AccountModal(

@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
-import com.nivy.domain.features.BoolFeature
-import com.nivy.domain.features.FeatureGroup
 import com.nivy.ui.ComposeViewModel
 import com.nivy.domain.features.Features
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,29 +32,18 @@ class FeaturesViewModel @Inject constructor(
     @Composable
     fun getFeatures(): ImmutableList<FeatureItemViewState> {
         return buildList {
-            val groups: Map<FeatureGroup?, BoolFeature> =
-                features.allFeatures
-                    .associateBy { it.group }
-                    .toSortedMap(compareBy { it?.name })
-
-            groups.forEach { group ->
-                add(
-                    FeatureItemViewState.FeatureHeaderViewState(
-                        name = group.key?.name ?: "Undefined"
-                    )
-                )
-                val featuresByGroup: List<FeatureItemViewState> = features
-                    .allFeatures
-                    .filter { it.group?.name == group.key?.name }
-                    .map {
+            features.allFeatures.groupBy { it.group }.toSortedMap(compareBy { it.name }).forEach { (group, flags) ->
+                add(FeatureItemViewState.FeatureHeaderViewState(name = group.name))
+                flags.forEach {
+                    add(
                         FeatureItemViewState.FeatureToggleViewState(
                             key = it.key,
-                            name = it.name ?: it.key,
+                            name = it.name,
                             description = it.description,
                             enabled = it.asEnabledState()
                         )
-                    }
-                addAll(featuresByGroup)
+                    )
+                }
             }
         }.toImmutableList()
     }
@@ -69,9 +56,8 @@ class FeaturesViewModel @Inject constructor(
 
     private fun toggleFeature(event: FeaturesUiEvent.ToggleFeature) {
         viewModelScope.launch {
-            val feature = features.allFeatures.find { feature -> feature.key == event.key }
-            val enabled = feature?.enabledFlow(context)?.first() ?: false
-            feature?.set(context, !enabled)
+            val feature = features.allFeatures.find { feature -> feature.key == event.key } ?: return@launch
+            feature.set(context, !feature.enabledFlow(context).first())
         }
     }
 }

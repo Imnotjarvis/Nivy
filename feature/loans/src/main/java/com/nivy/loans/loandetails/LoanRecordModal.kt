@@ -133,7 +133,6 @@ fun BoxWithConstraintsScope.LoanRecordModal(
             ModalAddSave(
                 item = initialRecord,
                 enabled = amount > 0 && selectedAcc != null
-                // enabled = amount > 0 && ((createLoanRecordTrans && selectedAcc != null) || !createLoanRecordTrans)
             ) {
                 accountChangeConformationModal =
                     initialRecord != null && shown.selectedAccount != null &&

@@ -127,7 +127,6 @@ private fun Preview_Expense() {
             selectedCategory = null,
             accountIdFilterList = persistentListOf(),
             choosePeriodModal = null,
-            filterExcluded = false,
             showCloseButtonOnly = false,
             transactions = persistentListOf()
         )
@@ -219,7 +218,6 @@ private fun Preview_Income() {
             selectedCategory = null,
             accountIdFilterList = persistentListOf(),
             choosePeriodModal = null,
-            filterExcluded = false,
             showCloseButtonOnly = false,
             transactions = persistentListOf()
         )
@@ -270,7 +268,6 @@ fun BudgetPageUiTest(isDark: Boolean) {
                 selectedCategory = null,
                 accountIdFilterList = persistentListOf(),
                 showCloseButtonOnly = true,
-                filterExcluded = false,
                 transactions = expenses.toImmutableList(),
                 choosePeriodModal = null,
                 budgetPage = BudgetPage(

@@ -200,7 +200,6 @@ internal fun Header(
                             PieChartStatisticScreen(
                                 type = TransactionType.INCOME,
                                 accountList = persistentListOf(account.id.value),
-                                filterExcluded = false,
                                 treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
                             )
                         )
@@ -212,7 +211,6 @@ internal fun Header(
                             PieChartStatisticScreen(
                                 type = TransactionType.EXPENSE,
                                 accountList = persistentListOf(account.id.value),
-                                filterExcluded = false,
                                 treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense
                             )
                         )

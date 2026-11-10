@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.map
 @Immutable
 class BoolFeature(
     val key: String,
-    val group: FeatureGroup? = null,
-    val name: String? = null,
-    val description: String? = null,
+    val group: FeatureGroup,
+    val name: String,
+    val description: String,
     private val defaultValue: Boolean
 ) {
     // The value last read or set. A screen starts from it: starting from the default, a screen
@@ -35,17 +35,14 @@ class BoolFeature(
     @Composable
     fun asEnabledState(): Boolean {
         val context = LocalContext.current
-        val featureFlag = remember { enabledFlow(context) }
-            .collectAsState(initialValue).value
-        return featureFlag ?: defaultValue
+        return remember { enabledFlow(context) }.collectAsState(initialValue).value
     }
 
-    suspend fun isEnabled(appContext: Context): Boolean =
-        enabledFlow(appContext).first() ?: defaultValue
+    suspend fun isEnabled(appContext: Context): Boolean = enabledFlow(appContext).first()
 
-    fun enabledFlow(appContext: Context): Flow<Boolean?> = enabledFlow(appContext.dataStore.data)
+    fun enabledFlow(appContext: Context): Flow<Boolean> = enabledFlow(appContext.dataStore.data)
 
-    internal fun enabledFlow(preferences: Flow<Preferences>): Flow<Boolean?> = preferences.map {
+    internal fun enabledFlow(preferences: Flow<Preferences>): Flow<Boolean> = preferences.map {
         (it[featureKey] ?: defaultValue).also { enabled -> lastKnown = enabled }
     }
 

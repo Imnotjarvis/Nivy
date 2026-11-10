@@ -30,14 +30,14 @@ import androidx.compose.runtime.LaunchedEffect
 @Suppress("ParameterNaming")
 @Composable
 fun BoxWithConstraintsScope.AddKeywordModal(
-    keyword: String,
     visible: Boolean,
     dismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    id: UUID = UUID.randomUUID(),
     onKeywordChanged: (String) -> Unit
 ) {
-    var modalKeyword by remember { mutableStateOf(selectEndTextFieldValue(keyword)) }
+    var modalKeyword by remember { mutableStateOf(selectEndTextFieldValue("")) }
+    // One id for the dialog's life: a new one on each keystroke registered its back handler again.
+    val id = remember { UUID.randomUUID() }
 
     NivyModal(
         modifier = modifier,
@@ -91,7 +91,6 @@ private fun Preview() {
     NivyPreview {
         AddKeywordModal(
             visible = true,
-            keyword = "",
             dismiss = {}
         ) {
         }

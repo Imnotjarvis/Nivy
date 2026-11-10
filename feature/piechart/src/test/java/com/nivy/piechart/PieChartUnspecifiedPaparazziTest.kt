@@ -59,7 +59,6 @@ class PieChartUnspecifiedPaparazziTest(
                         selectedCategory = SelectedCategory(category = null),
                         accountIdFilterList = persistentListOf(),
                         showCloseButtonOnly = false,
-                        filterExcluded = false,
                         transactions = persistentListOf(),
                         choosePeriodModal = null,
                     )

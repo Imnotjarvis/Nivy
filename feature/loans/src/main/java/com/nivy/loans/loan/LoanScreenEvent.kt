@@ -14,7 +14,4 @@ sealed interface LoanScreenEvent {
     data object OnLoanModalDismiss : LoanScreenEvent
     data object OnChangeDate : LoanScreenEvent
     data object OnChangeTime : LoanScreenEvent
-
-    /** Toggles paid off loans visibility */
-    data object OnTogglePaidOffLoanVisibility : LoanScreenEvent
 }

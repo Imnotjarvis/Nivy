@@ -23,7 +23,6 @@ data class PieChartStatisticState(
     val selectedCategory: SelectedCategory?,
     val accountIdFilterList: ImmutableList<UUID>,
     val showCloseButtonOnly: Boolean,
-    val filterExcluded: Boolean,
     val transactions: ImmutableList<Transaction>,
     val choosePeriodModal: ChoosePeriodModalData?,
     val budgetPage: BudgetPage? = null,

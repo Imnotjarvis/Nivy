@@ -74,7 +74,6 @@ private fun BoxWithConstraintsScope.UI(
     when (importStep) {
         ImportStep.IMPORT_FROM -> {
             ImportFrom(
-                hasSkip = screen.launchedFromOnboarding,
                 launchedFromOnboarding = screen.launchedFromOnboarding,
                 onSkip = onSkip,
                 onNivyBackup = onChooseNivyBackup
