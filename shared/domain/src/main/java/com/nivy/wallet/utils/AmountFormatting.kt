@@ -13,9 +13,9 @@ private const val CryptoDecimals = 9
 // A decimal part this small or smaller rounds away at two decimals.
 private const val SignificantDecimalPart = 0.009
 
-const val MILLION = 1000000
-const val N_100K = 100000
-const val THOUSAND = 1000
+private const val MILLION = 1000000
+private const val N_100K = 100000
+private const val THOUSAND = 1000
 
 fun String.amountToDoubleOrNull(): Double? {
     return this.normalizeAmount().toDoubleOrNull()
@@ -25,7 +25,7 @@ fun String.amountToDouble(): Double {
     return this.normalizeAmount().toDouble()
 }
 
-fun String.normalizeAmount(): String {
+private fun String.normalizeAmount(): String {
     return this.removeGroupingSeparator()
         .normalizeDecimalSeparator()
         .toAsciiDigits()
@@ -41,11 +41,11 @@ fun String.normalizeExpression(): String {
 private fun String.toAsciiDigits(): String =
     map { if (it.isDigit()) '0' + it.digitToInt() else it }.joinToString("")
 
-fun String.removeGroupingSeparator(): String {
+private fun String.removeGroupingSeparator(): String {
     return replace(localGroupingSeparator(), "")
 }
 
-fun String.normalizeDecimalSeparator(): String {
+private fun String.normalizeDecimalSeparator(): String {
     return replace(localDecimalSeparator(), ".")
 }
 
@@ -53,7 +53,7 @@ fun localDecimalSeparator(): String {
     return DecimalFormatSymbols.getInstance().decimalSeparator.toString()
 }
 
-fun localGroupingSeparator(): String {
+private fun localGroupingSeparator(): String {
     return DecimalFormatSymbols.getInstance().groupingSeparator.toString()
 }
 
@@ -95,7 +95,7 @@ fun Double.format(currency: NivyCurrency?): String {
     }
 }
 
-fun Double.formatCrypto(): String {
+private fun Double.formatCrypto(): String {
     val pattern = "###,###,##0.${"0".repeat(CryptoDecimals)}"
     val format = DecimalFormat(pattern)
     val numberStringWithZeros = format.format(this)
@@ -143,7 +143,7 @@ private fun formatShortenedNumber(
     }
 }
 
-fun hasSignificantDecimalPart(number: Double): Boolean {
+private fun hasSignificantDecimalPart(number: Double): Boolean {
     // TODO: Review, might cause trouble when integrating crypto
     val intPart = number.toInt()
     return abs(number - intPart) >= SignificantDecimalPart
@@ -157,7 +157,7 @@ fun formatInt(number: Long): String {
     return DecimalFormat("#,###,###,###").format(number)
 }
 
-fun Long.length() = when (this) {
+private fun Long.length() = when (this) {
     0L -> 1
     else -> log10(abs(toDouble())).toInt() + 1
 }

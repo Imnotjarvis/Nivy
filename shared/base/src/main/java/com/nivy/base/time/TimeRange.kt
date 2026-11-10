@@ -3,7 +3,7 @@ package com.nivy.base.time
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-const val SafeOffsetDays = 365 * 10L
+private const val SafeOffsetDays = 365 * 10L
 
 val INSTANT_MIN_SAFE: Instant
     get() = Instant.ofEpochMilli(Long.MIN_VALUE)

@@ -71,7 +71,7 @@ fun BoxWithConstraintsScope.HomeTab() {
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.HomeUi(
+private fun BoxWithConstraintsScope.HomeUi(
     uiState: HomeState,
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier,
@@ -203,7 +203,7 @@ fun BoxWithConstraintsScope.HomeUi(
 @Suppress("LongParameterList")
 @ExperimentalAnimationApi
 @Composable
-fun HomeLazyColumn(
+private fun HomeLazyColumn(
     hideBalance: Boolean,
     hideIncome: Boolean,
     onSetExpand: (Boolean) -> Unit,

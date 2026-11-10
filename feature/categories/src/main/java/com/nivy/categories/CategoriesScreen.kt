@@ -202,7 +202,7 @@ internal fun BoxWithConstraintsScope.UI(
 
 @Suppress("UnusedParameter")
 @Composable
-fun BoxWithConstraintsScope.SortModal(
+private fun BoxWithConstraintsScope.SortModal(
     items: ImmutableList<SortOrder>,
     visible: Boolean,
     initialType: SortOrder,

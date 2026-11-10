@@ -52,7 +52,7 @@ private const val ChangeMonths = 3
 private const val MilestoneMonthsAtMost = 120
 
 // The weeks of the spending calendar, at most.
-internal const val CalendarWeeks = 26
+private const val CalendarWeeks = 26
 
 // The weekend, as most calendars have it.
 private val Weekend = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)

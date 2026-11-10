@@ -77,7 +77,7 @@ fun ColumnScope.TagsFilter(
 }
 
 @Composable
-fun ColumnScope.TagFilter(
+private fun ColumnScope.TagFilter(
     selectedTags: ImmutableList<TagId>,
     onTagButtonClick: () -> Unit,
     @Suppress("UnusedParameter") modifier: Modifier = Modifier

@@ -56,8 +56,8 @@ private const val QuarterTurn = 90.0
 // In minimal colors, the gap between slices.
 private const val GapWidthDp = 3f
 
-const val PIE_CHART_RADIUS_DP = 128
-const val RADIUS_DP = 112f
+private const val PIE_CHART_RADIUS_DP = 128
+private const val RADIUS_DP = 112f
 
 /** A slice of the chart: what it stands for, a category or an account, in its color, for its amount. */
 @Immutable

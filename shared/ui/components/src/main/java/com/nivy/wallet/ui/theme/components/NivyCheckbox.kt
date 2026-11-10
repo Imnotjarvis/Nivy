@@ -22,7 +22,7 @@ import com.nivy.wallet.NivyComponentPreview
 
 // A Material3 checkbox in Nivy's colors: a green box with a white check, a gray outline when off.
 @Composable
-fun NivyCheckbox(
+private fun NivyCheckbox(
     checked: Boolean,
     modifier: Modifier = Modifier,
     onCheckedChange: (checked: Boolean) -> Unit

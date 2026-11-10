@@ -45,7 +45,7 @@ import kotlin.math.sqrt
  * gestures keep the first [onSelect] for as long as [count] holds, so it should read the latest
  * callback, as one from rememberUpdatedState does: a new one would end a drag.
  */
-internal fun Modifier.monthSlots(count: Int, onSelect: (Int) -> Unit): Modifier {
+private fun Modifier.monthSlots(count: Int, onSelect: (Int) -> Unit): Modifier {
     fun slot(x: Float, width: Int) = (x / width * count).toInt().coerceIn(0, count - 1)
     return this
         .pointerInput(count) { detectTapGestures { onSelect(slot(it.x, size.width)) } }

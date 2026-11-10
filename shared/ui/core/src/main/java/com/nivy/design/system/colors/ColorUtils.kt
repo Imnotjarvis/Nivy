@@ -108,21 +108,21 @@ fun Color.dynamicContrast(): Color {
     }
 }
 
-fun Color.lighten(): Color {
+private fun Color.lighten(): Color {
     return this.hsv(
         s = LightenedSaturation,
         v = 1f
     )
 }
 
-fun Color.darken(): Color {
+private fun Color.darken(): Color {
     return this.hsv(
         s = DarkenedSaturation,
         v = DarkenedValue
     )
 }
 
-fun Color.toHSVSpec(): HSVSpec {
+private fun Color.toHSVSpec(): HSVSpec {
     val hsv = FloatArray(HsvComponents)
     val color: Int = this.toArgb()
     android.graphics.Color.colorToHSV(color, hsv)
@@ -135,7 +135,7 @@ data class HSVSpec(
     val v: Float
 )
 
-fun Color.hsv(
+private fun Color.hsv(
     h: Float? = null,
     s: Float,
     v: Float

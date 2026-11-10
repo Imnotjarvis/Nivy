@@ -152,7 +152,7 @@ internal fun TransactionHeaderRow(
 }
 
 @Composable
-fun CategoryBadgeDisplay(
+private fun CategoryBadgeDisplay(
     category: Category,
     nav: Navigation,
 ) {

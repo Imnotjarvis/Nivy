@@ -257,7 +257,7 @@ private fun CategoryButton(
 }
 
 @Composable
-fun AddNewButton(
+private fun AddNewButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {

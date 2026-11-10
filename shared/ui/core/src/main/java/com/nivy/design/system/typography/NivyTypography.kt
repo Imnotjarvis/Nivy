@@ -11,7 +11,7 @@ import com.nivy.ui.R
 
 // Nivy sets everything, text and numbers alike, in JetBrains Mono. It stops at ExtraBold, so
 // the Black headings use that.
-val JetBrainsMono = FontFamily(
+private val JetBrainsMono = FontFamily(
     Font(R.font.jetbrainsmono_light, FontWeight.Light),
     Font(R.font.jetbrainsmono_regular, FontWeight.Normal),
     Font(R.font.jetbrainsmono_medium, FontWeight.Medium),

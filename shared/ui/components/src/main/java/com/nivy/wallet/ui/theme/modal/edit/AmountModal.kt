@@ -224,7 +224,7 @@ private fun AmountCurrency(
 }
 
 @Composable
-fun AmountInput(
+private fun AmountInput(
     currency: String,
     amount: String,
     decimalCountMax: Int = 2,
@@ -428,7 +428,7 @@ internal fun AmountKeyboard(
 
 @Composable
 @Suppress("ParameterNaming")
-fun CircleNumberButton(
+private fun CircleNumberButton(
     forCalculator: Boolean,
     value: String,
     onNumberPressed: (String) -> Unit,

@@ -61,7 +61,7 @@ import java.util.UUID
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.shapes.ShapeTop
 
-const val SWIPE_UP_EXPANDED_THRESHOLD = 200
+private const val SWIPE_UP_EXPANDED_THRESHOLD = 200
 
 @Suppress("LongMethod", "LongParameterList", "ParameterNaming")
 @Composable
