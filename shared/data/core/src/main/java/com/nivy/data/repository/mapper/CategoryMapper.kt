@@ -26,7 +26,6 @@ class CategoryMapper @Inject constructor() {
             color = color.value,
             icon = icon?.id,
             orderNum = orderNum,
-            isSynced = true,
             id = id.value
         )
     }

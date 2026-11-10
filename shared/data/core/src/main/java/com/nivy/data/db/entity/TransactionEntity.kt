@@ -62,6 +62,8 @@ data class TransactionEntity(
     @SerialName("paidForDateTime")
     @Serializable(with = KSerializerInstant::class)
     val paidForDateTime: Instant? = null,
+    // Left from sync: nothing reads it, and only a backup writes it. The column and its backup key
+    // stay, for the backups that have it.
     @SerialName("attachmentUrl")
     val attachmentUrl: String? = null,
     // This refers to the loan id that is linked with a transaction

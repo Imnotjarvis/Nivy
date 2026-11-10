@@ -160,13 +160,11 @@ class TransactionMapper @Inject constructor(
             dueDate = time.takeIf { !settled },
             paidForDateTime = metadata.paidForDateTime,
             recurringRuleId = metadata.recurringRuleId,
-            attachmentUrl = null,
             loanId = metadata.loanId,
             loanRecordId = metadata.loanRecordId,
             purchaseDateTime = metadata.purchaseDateTime,
             chargeShift = metadata.chargeShift,
             creditCardId = metadata.creditCard?.value,
-            isSynced = true,
             isDeleted = false,
             id = id.value
         )
