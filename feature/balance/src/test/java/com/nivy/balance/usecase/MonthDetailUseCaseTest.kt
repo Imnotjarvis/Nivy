@@ -1,7 +1,10 @@
-package com.nivy.balance.detail
+package com.nivy.balance.usecase
 
 import arrow.core.None
 import arrow.core.Some
+import com.nivy.balance.detail.Holding
+import com.nivy.balance.detail.Runway
+import com.nivy.balance.detail.UnusualCategory
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType

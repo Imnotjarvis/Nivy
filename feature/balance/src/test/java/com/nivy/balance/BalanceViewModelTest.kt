@@ -1,7 +1,7 @@
 package com.nivy.balance
 
 import com.nivy.balance.detail.MonthDetail
-import com.nivy.balance.detail.MonthDetailUseCase
+import com.nivy.balance.usecase.MonthDetailUseCase
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.primitive.AssetCode

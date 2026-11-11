@@ -32,5 +32,10 @@ Changes that aren't about the schema (a setting to rewrite, files to tidy) go in
 `app/src/main/java/com/nivy/wallet/migrations/`: a `Migration` with a key, listed in
 `MigrationsManager`. They run two seconds after launch. Each is marked done in the preferences
 only once it succeeds, so one that fails runs again on the next launch. Write each one so that
-running it twice does no harm: deleting all data clears the preferences, and the marks with them
-(all but the legacy settings migration's), so the data migrations run again on the next launch.
+running it twice does no harm: deleting all data clears the preferences, and the marks with them,
+so the data migrations run again on the next launch.
+
+One of them drops the `settings` table, where versions before DataStore kept the settings. The
+schema no longer has it, but a database that had it kept it, for `LegacySettingsMigration`,
+DataStore's own, to copy its values on the first read; the data migrations start after that read.
+That the values were copied is the one mark deleting all data keeps: they aren't to come back.

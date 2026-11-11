@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.balance.detail.MonthDetail
-import com.nivy.balance.detail.MonthDetailUseCase
+import com.nivy.balance.usecase.MonthDetailUseCase
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.repository.CurrencyRepository

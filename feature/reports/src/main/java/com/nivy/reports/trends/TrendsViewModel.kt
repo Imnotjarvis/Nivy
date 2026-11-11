@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.reports.usecase.TrendsUseCase
 import com.nivy.ui.ComposeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job

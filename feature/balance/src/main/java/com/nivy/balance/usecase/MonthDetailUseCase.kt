@@ -1,5 +1,20 @@
-package com.nivy.balance.detail
+package com.nivy.balance.usecase
 
+import com.nivy.balance.detail.FreeToSpend
+import com.nivy.balance.detail.Holding
+import com.nivy.balance.detail.Holdings
+import com.nivy.balance.detail.MonthDetail
+import com.nivy.balance.detail.MonthOutlook
+import com.nivy.balance.detail.Pace
+import com.nivy.balance.detail.PastMonth
+import com.nivy.balance.detail.Unusual
+import com.nivy.balance.detail.Upcoming
+import com.nivy.balance.detail.freeToSpend
+import com.nivy.balance.detail.habits
+import com.nivy.balance.detail.lowestAhead
+import com.nivy.balance.detail.monthOutlook
+import com.nivy.balance.detail.runway
+import com.nivy.balance.detail.unusual
 import com.nivy.base.model.TransactionType
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter

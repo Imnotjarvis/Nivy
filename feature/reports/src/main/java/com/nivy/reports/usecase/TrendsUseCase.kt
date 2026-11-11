@@ -1,4 +1,4 @@
-package com.nivy.reports.trends
+package com.nivy.reports.usecase
 
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
@@ -12,6 +12,14 @@ import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.spending.paidBetween
 import com.nivy.domain.usecase.spending.toFlow
+import com.nivy.reports.trends.AllMonthsAtMost
+import com.nivy.reports.trends.MonthSpan
+import com.nivy.reports.trends.OutlookMonths
+import com.nivy.reports.trends.TrendsDetail
+import com.nivy.reports.trends.TrendsRange
+import com.nivy.reports.trends.habitShifts
+import com.nivy.reports.trends.netWorthOutlook
+import com.nivy.reports.trends.trends
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange

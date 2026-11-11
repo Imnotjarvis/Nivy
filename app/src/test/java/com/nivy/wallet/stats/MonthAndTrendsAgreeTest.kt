@@ -1,7 +1,7 @@
 package com.nivy.wallet.stats
 
 import arrow.core.None
-import com.nivy.balance.detail.MonthDetailUseCase
+import com.nivy.balance.usecase.MonthDetailUseCase
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
 import com.nivy.base.time.TimeProvider
@@ -25,7 +25,7 @@ import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.reports.trends.TrendsRange
-import com.nivy.reports.trends.TrendsUseCase
+import com.nivy.reports.usecase.TrendsUseCase
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
 import io.kotest.matchers.doubles.plusOrMinus
