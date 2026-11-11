@@ -31,7 +31,6 @@ import com.nivy.ui.R
 import com.nivy.wallet.domain.pure.forecast.Shift
 import com.nivy.wallet.ui.component.AxisLabels
 import com.nivy.wallet.ui.component.ChartPanel
-import com.nivy.wallet.ui.component.FindingRow
 import com.nivy.wallet.ui.component.InfoRow
 import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.LegendDot
@@ -121,9 +120,10 @@ internal fun ShiftsPanel(shifts: List<HabitShift>, currency: String) {
                 val shift = item.shift
                 val up = shift.after > shift.before
                 val color = categoryColor(item.category)
-                FindingRow(
+                InfoRow(
                     dot = color,
                     title = item.category?.name?.value ?: stringResource(R.string.unspecified),
+                    noteLines = 2,
                     note = when (shift) {
                         is Shift.Step -> stringResource(
                             if (up) R.string.trends_up_since else R.string.trends_down_since,

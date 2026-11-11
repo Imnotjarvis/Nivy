@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.balance.detail.MonthDetail
-import com.nivy.balance.detail.MonthDetailUseCase
+import com.nivy.balance.usecase.MonthDetailUseCase
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.repository.CurrencyRepository
@@ -111,7 +111,9 @@ class BalanceViewModel @Inject constructor(
         return atEnd.toDouble() - currentBalance
     }
 
+    // A period chosen in the dialog is the one the app's screens show from then on.
     private fun setTimePeriod(timePeriod: TimePeriod) {
+        periodState.select(timePeriod)
         start(timePeriod = timePeriod)
     }
 

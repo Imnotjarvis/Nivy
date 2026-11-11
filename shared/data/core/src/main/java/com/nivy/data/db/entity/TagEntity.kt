@@ -21,13 +21,17 @@ data class TagEntity(
 
     @SerialName("name")
     val name: String,
+
+    @Deprecated(UnusedTagColumn)
     @SerialName("description")
     val description: String?,
-
+    @Deprecated(UnusedTagColumn)
     @SerialName("color")
     val color: Int,
+    @Deprecated(UnusedTagColumn)
     @SerialName("icon")
     val icon: String?,
+    @Deprecated(UnusedTagColumn)
     @SerialName("orderNum")
     val orderNum: Double,
 
@@ -44,3 +48,6 @@ data class TagEntity(
     @Serializable(with = KSerializerInstant::class)
     val lastSyncedTime: Instant
 )
+
+private const val UnusedTagColumn =
+    "Never set or read: every tag has the same. Kept for the backups and databases that have it"

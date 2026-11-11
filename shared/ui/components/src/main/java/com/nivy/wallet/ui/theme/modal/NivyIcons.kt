@@ -499,6 +499,3 @@ internal val NivyIconSections = listOf(
         ),
     ),
 )
-
-/** Every icon the picker lists, in order. */
-internal val NivyIconNames: List<String> get() = NivyIconSections.flatMap { it.icons }

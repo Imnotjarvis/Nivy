@@ -24,7 +24,7 @@ class AccountIncomeExpenseUseCase @Inject constructor(
         account: com.nivy.data.model.Account,
         range: ClosedTimeRange? = null,
         includeTransfersInCalc: Boolean = false,
-    ): AccountIncomeExpense = withContext(dispatchers.io) {
+    ): IncomeExpensePair = withContext(dispatchers.io) {
         val id = account.id.value
         val transactions = accountTransactionsUseCase.transactions(
             accountId = id,
@@ -34,19 +34,11 @@ class AccountIncomeExpenseUseCase @Inject constructor(
             transactions.fold(BigDecimal.ZERO) { total, transaction -> total + value(transaction, id) }
 
         val transfers = includeTransfersInCalc
-        AccountIncomeExpense(
-            account = account,
-            incomeExpensePair = IncomeExpensePair(
-                income = sum(AccountValueFunctions::income) +
-                    if (transfers) sum(AccountValueFunctions::transferIncome) else BigDecimal.ZERO,
-                expense = sum(AccountValueFunctions::expense) +
-                    if (transfers) sum(AccountValueFunctions::transferExpense) else BigDecimal.ZERO,
-            )
+        IncomeExpensePair(
+            income = sum(AccountValueFunctions::income) +
+                if (transfers) sum(AccountValueFunctions::transferIncome) else BigDecimal.ZERO,
+            expense = sum(AccountValueFunctions::expense) +
+                if (transfers) sum(AccountValueFunctions::transferExpense) else BigDecimal.ZERO,
         )
     }
 }
-
-data class AccountIncomeExpense(
-    val account: com.nivy.data.model.Account,
-    val incomeExpensePair: IncomeExpensePair
-)

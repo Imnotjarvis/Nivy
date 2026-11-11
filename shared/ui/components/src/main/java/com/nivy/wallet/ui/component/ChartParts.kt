@@ -221,9 +221,12 @@ fun SplitBar(parts: List<Pair<Double, Color>>, modifier: Modifier = Modifier) {
     }
 }
 
-/** A track filled to [fraction], from 0 to 1. */
+/** How strong the fill of what's likely is, on a [ProgressBar] and in its legend. */
+const val LikelyFillAlpha = 0.35f
+
+/** A track filled to [fraction], from 0 to 1, and lighter on to [likely] when there's one. */
 @Composable
-fun ProgressBar(fraction: Double, color: Color, modifier: Modifier = Modifier) {
+fun ProgressBar(fraction: Double, color: Color, modifier: Modifier = Modifier, likely: Double? = null) {
     val track = MaterialTheme.colorScheme.surface
     Canvas(
         modifier = modifier
@@ -231,19 +234,22 @@ fun ProgressBar(fraction: Double, color: Color, modifier: Modifier = Modifier) {
             .padding(horizontal = 8.dp)
             .height(12.dp)
     ) {
-        drawRoundRect(track, size = size, cornerRadius = CornerRadius(size.height / 2))
-        drawRoundRect(
-            color,
-            size = Size(fraction.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
-            cornerRadius = CornerRadius(size.height / 2),
+        val radius = CornerRadius(size.height / 2)
+        fun fill(share: Double, fillColor: Color) = drawRoundRect(
+            fillColor,
+            size = Size(share.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
+            cornerRadius = radius,
         )
+        drawRoundRect(track, size = size, cornerRadius = radius)
+        if (likely != null) fill(likely, color.copy(alpha = LikelyFillAlpha))
+        fill(fraction, color)
     }
 }
 
 /**
  * A row of a list in a panel: a [dot] of color or a short [lead], [leadWidth] wide, a [title] over
- * a [note], a [value], and a [trailing] share or change. A title or a note too long ends in an
- * ellipsis.
+ * a [note] of up to [noteLines] lines, a [value], and a [trailing] share or change. A title or a
+ * note too long ends in an ellipsis. With a note of several lines the row lines up at its top.
  */
 @Composable
 fun InfoRow(
@@ -251,6 +257,7 @@ fun InfoRow(
     value: String,
     modifier: Modifier = Modifier,
     note: String? = null,
+    noteLines: Int = 1,
     lead: String? = null,
     leadWidth: Dp = 56.dp,
     dot: Color? = null,
@@ -258,10 +265,16 @@ fun InfoRow(
     trailing: String? = null,
     trailingColor: Color = Gray,
 ) {
-    Row(modifier = modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    val fromTop = noteLines > 1
+    Row(
+        modifier = modifier.padding(horizontal = 8.dp),
+        verticalAlignment = if (fromTop) Alignment.Top else Alignment.CenterVertically,
+    ) {
         if (dot != null) {
             Box(
                 Modifier
+                    // Beside the title's line, when the row lines up at its top.
+                    .padding(top = if (fromTop) 6.dp else 0.dp)
                     .size(10.dp)
                     .background(dot, MaterialTheme.shapes.extraSmall)
             )
@@ -288,7 +301,7 @@ fun InfoRow(
             if (note != null) {
                 Text(
                     text = note,
-                    maxLines = 1,
+                    maxLines = noteLines,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.labelSmall.copy(color = Gray),
                 )

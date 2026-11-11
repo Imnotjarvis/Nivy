@@ -107,7 +107,7 @@ fun CurrencyPicker(
         Spacer(Modifier.height(20.dp))
 
         CurrencyList(
-            searchQueryLowercase = searchTextFieldValue.text.lowercase(),
+            searchQuery = searchTextFieldValue.text,
             selectedCurrency = selectedCurrency,
             lastItemSpacer = if (includeKeyboardShownInsetSpacer) {
                 keyboardShownInsetDp + lastItemSpacer
@@ -260,13 +260,13 @@ private fun SelectedCurrencyCard(
 @Composable
 @Suppress("ParameterNaming")
 private fun CurrencyList(
-    searchQueryLowercase: String,
+    searchQuery: String,
     selectedCurrency: NivyCurrency,
     lastItemSpacer: Dp,
     onCurrencySelected: (NivyCurrency) -> Unit
 ) {
     val currencies = NivyCurrency.getAvailable()
-        .matching(searchQueryLowercase)
+        .matching(searchQuery)
         .sortedBy { it.code }
         .sortedBy { it.isCrypto }
 
@@ -287,7 +287,7 @@ private fun CurrencyList(
         currenciesWithLetters.add(currency)
     }
 
-    val listState = remember(searchQueryLowercase, selectedCurrency) {
+    val listState = remember(searchQuery, selectedCurrency) {
         LazyListState(
             firstVisibleItemIndex = 0,
             firstVisibleItemScrollOffset = 0
@@ -421,8 +421,9 @@ private data class LetterDivider(
 )
 
 /** The currencies whose code or name starts with [query], whatever the case; all of them while it's blank. */
-internal fun List<NivyCurrency>.matching(query: String): List<NivyCurrency> = filter {
-    query.isBlank() ||
-        it.code.startsWith(query.trim(), ignoreCase = true) ||
-        it.name.startsWith(query.trim(), ignoreCase = true)
+internal fun List<NivyCurrency>.matching(query: String): List<NivyCurrency> {
+    val start = query.trim()
+    return filter {
+        start.isEmpty() || it.code.startsWith(start, ignoreCase = true) || it.name.startsWith(start, ignoreCase = true)
+    }
 }

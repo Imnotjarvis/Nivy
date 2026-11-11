@@ -56,7 +56,7 @@ fun BoxWithConstraintsScope.NivyNavGraph(screen: Screen?) {
         }
 
         is MainScreen -> MainScreen()
-        is OnboardingScreen -> OnboardingScreen(screen = screen)
+        is OnboardingScreen -> OnboardingScreen()
         is ExchangeRatesScreen -> ExchangeRatesScreen()
         is EditTransactionScreen -> EditTransactionScreen(screen = screen)
         is TransactionsScreen -> TransactionsScreen(screen = screen)

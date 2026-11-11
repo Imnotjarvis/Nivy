@@ -250,12 +250,12 @@ class BackupDataUseCase @Inject constructor(
         jsonString: String,
         onProgress: suspend (Double) -> Unit = {},
     ): ImportResult {
-        val modifiedJsonString = accommodateExistingAccountsAndCategories(jsonString)
+        val (backup, text) = onExistingAccountsAndCategories(jsonString)
         // Older versions marked rows as deleted, for cloud sync, instead of deleting them, and
         // their backups still carry those rows. They stay out: nothing should come back to life.
-        val completeData = json.decodeFromString<NivyCompleteData>(modifiedJsonString)
-            .withoutSoftDeletedRows()
-            .withLegacyCards(json.decodeFromString<LegacyCardAccounts>(modifiedJsonString).accounts)
+        val completeData = backup.withoutSoftDeletedRows()
+            // Read again only for a backup without cards of its own: it may hold them the old way.
+            .withLegacyCards { json.decodeFromString<LegacyCardAccounts>(text).accounts }
 
         onProgress(ImportProgress.PARSED)
         insertDataToDb(completeData = completeData, onProgress = onProgress)
@@ -285,11 +285,21 @@ class BackupDataUseCase @Inject constructor(
         tagAssociations = tagAssociations.filterNot { it.isDeleted },
     )
 
-    private suspend fun accommodateExistingAccountsAndCategories(jsonString: String): String {
-        val nivyCompleteData = json.decodeFromString<NivyCompleteData>(jsonString)
-        return getReplacementPairs(nivyCompleteData).fold(jsonString) { acc, (backupId, existingId) ->
+    /**
+     * The backup, with the text it was decoded from. An account or a category named like an
+     * existing one lands on it: its id is replaced in the text itself, so that whatever holds the
+     * id follows (a card made from an old card account has its account's id), and the text is
+     * decoded again. With no such name, as in every restore into an empty wallet, the backup is
+     * decoded once.
+     */
+    private suspend fun onExistingAccountsAndCategories(jsonString: String): Pair<NivyCompleteData, String> {
+        val backup = json.decodeFromString<NivyCompleteData>(jsonString)
+        val pairs = getReplacementPairs(backup)
+        if (pairs.isEmpty()) return backup to jsonString
+        val onExisting = pairs.fold(jsonString) { acc, (backupId, existingId) ->
             acc.replace(backupId.toString(), existingId.toString())
         }
+        return json.decodeFromString<NivyCompleteData>(onExisting) to onExisting
     }
 
     /** Every write in one transaction: a failure anywhere leaves the wallet as it was. */

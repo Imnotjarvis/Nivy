@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
@@ -39,6 +38,11 @@ import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.ui.component.percent
 import kotlin.math.abs
 import kotlin.math.sqrt
+import com.nivy.wallet.ui.component.ChartPointRing
+import com.nivy.wallet.ui.component.LikelyBandAlpha
+import com.nivy.wallet.ui.component.likelyStroke
+import com.nivy.wallet.ui.component.lineOverArea
+import com.nivy.wallet.ui.component.pointInRing
 
 /**
  * The slot under a tap, or a drag across, a chart of [count] equal slots goes to [onSelect]. The
@@ -113,7 +117,7 @@ internal fun NetWorthChart(
         val padding = BubblePadding.toPx()
         val bubbleHeight = texts.sumOf { it.size.height } + 2 * padding
         val top = bubbleHeight + BubbleGap.toPx()
-        val bottom = size.height - PointRing.toPx()
+        val bottom = size.height - ChartPointRing.toPx()
         val all = values + (outlook?.flatMap { listOf(it.low, it.high) } ?: emptyList())
         val margin = (all.max() - all.min()).coerceAtLeast(1.0) * ChartMargin
         val min = all.min() - margin
@@ -123,19 +127,8 @@ internal fun NetWorthChart(
         fun y(value: Double) = top + ((max - value) / (max - min)).toFloat() * (bottom - top)
 
         slot(selected, count, highlight)
-        val actual = Path().apply {
-            moveTo(x(0), y(values[0]))
-            for (index in 1..values.lastIndex) lineTo(x(index), y(values[index]))
-        }
         if (values.size > 1) {
-            val area = Path().apply {
-                addPath(actual)
-                lineTo(x(values.lastIndex), bottom)
-                lineTo(x(0), bottom)
-                close()
-            }
-            drawPath(area, Brush.verticalGradient(listOf(line.copy(alpha = AreaAlpha), Color.Transparent), top, bottom))
-            drawPath(actual, line, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            lineOverArea(values.indices.map { Offset(x(it), y(values[it])) }, line, top, bottom)
         }
         if (outlook != null && outlook.isNotEmpty()) {
             val last = values.lastIndex
@@ -145,21 +138,12 @@ internal fun NetWorthChart(
                 for (index in outlook.indices.reversed()) lineTo(x(values.size + index), y(outlook[index].low))
                 close()
             }
-            drawPath(band, line.copy(alpha = FanAlpha))
+            drawPath(band, line.copy(alpha = LikelyBandAlpha))
             val likely = Path().apply {
                 moveTo(x(last), y(values.last()))
                 outlook.forEachIndexed { index, month -> lineTo(x(values.size + index), y(month.likely)) }
             }
-            drawPath(
-                likely,
-                line,
-                style = Stroke(
-                    LikelyWidth.toPx(),
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(DotLength, LikelyGap.toPx())),
-                ),
-            )
+            drawPath(likely, line, style = likelyStroke())
             drawCircle(line, SmallPoint.toPx(), Offset(x(values.size + outlook.lastIndex), y(outlook.last().likely)))
         }
         values.forEachIndexed { index, value ->
@@ -172,8 +156,7 @@ internal fun NetWorthChart(
             Offset(point.x, bottom),
             GuideWidth.toPx()
         )
-        drawCircle(ring, PointRing.toPx(), point)
-        drawCircle(line, Point.toPx(), point)
+        pointInRing(point, line, ring)
         bubble(texts, point.x, highlight)
     }
 }
@@ -356,8 +339,8 @@ internal fun RateLine(rates: List<Double?>, average: Double?, selected: Int, onS
     ) {
         val known = rates.filterNotNull()
         if (known.isEmpty()) return@Canvas
-        val top = (chosen?.size?.height ?: 0) + LabelGap.toPx() + PointRing.toPx()
-        val bottom = size.height - PointRing.toPx()
+        val top = (chosen?.size?.height ?: 0) + LabelGap.toPx() + ChartPointRing.toPx()
+        val bottom = size.height - ChartPointRing.toPx()
         val max = maxOf(known.max(), 0.0) + RateMargin
         val min = minOf(known.min(), 0.0) - RateMargin
         val width = size.width / rates.size
@@ -384,8 +367,7 @@ internal fun RateLine(rates: List<Double?>, average: Double?, selected: Int, onS
             val color = if (rate < 0) below else line
             val center = Offset(x(index), y(rate))
             if (index == selected) {
-                drawCircle(panel, PointRing.toPx(), center)
-                drawCircle(color, Point.toPx(), center)
+                pointInRing(center, color, panel)
             } else {
                 drawCircle(color, SmallPoint.toPx(), center)
             }
@@ -527,11 +509,6 @@ internal fun CalendarGrid(calendar: SpendingCalendar, shades: List<Color>) {
 
 private const val ChartMargin = 0.1
 private const val Headroom = 1.08
-private const val AreaAlpha = 0.25f
-private const val FanAlpha = 0.2f
-private const val DotLength = 0.01f
-private val LikelyWidth = 3.dp
-private val LikelyGap = 6.dp
 private const val GuideAlpha = 0.5f
 private const val BandAlpha = 0.9f
 private const val BarFraction = 0.55f
@@ -544,13 +521,10 @@ private val RateHeight = 130.dp
 private val PunchHeight = 200.dp
 private val MaxCell = 20.dp
 private val SlotRadius = 8.dp
-private val LineWidth = 3.dp
 private val RateWidth = 2.5.dp
 private val GuideWidth = 1.dp
 private val AverageWidth = 1.5.dp
 private val Dash = 4.dp
-private val Point = 4.5.dp
-private val PointRing = 7.dp
 private val SmallPoint = 3.dp
 private val BubblePadding = 8.dp
 private val BubbleRadius = 12.dp

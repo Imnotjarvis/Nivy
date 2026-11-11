@@ -65,7 +65,6 @@ class PieChartBreakdownPaparazziTest(
                         selectedCategory = null,
                         accountIdFilterList = persistentListOf(),
                         showCloseButtonOnly = false,
-                        transactions = persistentListOf(),
                         choosePeriodModal = null,
                         breakdown = breakdown,
                         showBreakdownToggle = true,

@@ -20,7 +20,6 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceDetails
-import com.nivy.domain.usecase.account.AccountIncomeExpense
 import com.nivy.wallet.data.model.CreditCardUse
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
@@ -62,7 +61,7 @@ class AccountDataUseCaseTest {
             coEvery { balance(any(), any()) } returns AccountBalanceDetails(bank, BigDecimal.ZERO)
         },
         accountIncomeExpenseUseCase = mockk {
-            coEvery { incomeExpense(any(), any(), any()) } returns AccountIncomeExpense(bank, IncomeExpensePair.zero())
+            coEvery { incomeExpense(any(), any(), any()) } returns IncomeExpensePair.zero()
         },
         creditCardRepository = creditCardRepository,
         transactionRepository = transactionRepository,

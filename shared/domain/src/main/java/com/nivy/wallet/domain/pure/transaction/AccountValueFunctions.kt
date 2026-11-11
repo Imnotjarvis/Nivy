@@ -21,20 +21,11 @@ object AccountValueFunctions {
         }
     }
 
-    private fun Transfer.handleTransfer(accountId: UUID): BigDecimal {
-        return if (this.getAccountId() == accountId) {
-            if (this.toAccount.value != accountId) {
-                // transfer to another account
-                getValue().negate()
-            } else {
-                // transfer to self
-                toValue.amount.value.toBigDecimal().minus(getValue())
-            }
-        } else {
-            // potential transfer to account?
-            this.toAccount.value.takeIf { it == accountId } ?: return BigDecimal.ZERO
-            this.toValue.amount.value.toBigDecimal()
-        }
+    // Out of the account, or into it. A transfer to its own account can't be read (TransactionMapper).
+    private fun Transfer.handleTransfer(accountId: UUID): BigDecimal = when (accountId) {
+        getAccountId() -> getValue().negate()
+        toAccount.value -> toValue.amount.value.toBigDecimal()
+        else -> BigDecimal.ZERO
     }
 
     fun income(

@@ -107,7 +107,6 @@ class DeleteAllDataTest {
             dataObserver = dataObserver,
             dataStore = dataStore,
             databaseTransaction = databaseTransaction,
-            db = db,
             accountRepository = accountRepository,
             transactionRepository = TransactionRepository(
                 mapper = TransactionMapper(accountRepository),
@@ -173,12 +172,10 @@ class DeleteAllDataTest {
     }
 
     @Test
-    fun everyTableEndsUpEmptyAndTheOldSettingsTableGoes(): Unit = runBlocking {
-        // given: a row in every table, and the old settings table
+    fun everyTableEndsUpEmptyAndTheSettingsAreForgotten(): Unit = runBlocking {
+        // given: a row in every table, and a setting
         fillEveryTable()
         tables().forEach { it.shouldNotBeEmpty() }
-        db.openHelper.writableDatabase.execSQL("CREATE TABLE settings (theme TEXT, currency TEXT)")
-        db.openHelper.writableDatabase.execSQL("INSERT INTO settings VALUES ('DARK', 'EUR')")
         dataStore.edit { it[stringPreferencesKey("currency")] = "EUR" }
 
         // when
@@ -186,9 +183,6 @@ class DeleteAllDataTest {
 
         // then
         tables().forEach { it.shouldBeEmpty() }
-        db.openHelper.readableDatabase
-            .query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'settings'")
-            .use { it.count shouldBe 0 }
         dataStore.data.first().asMap() shouldBe mapOf(Pair(LegacySettingsMigration.Migrated, true))
     }
 

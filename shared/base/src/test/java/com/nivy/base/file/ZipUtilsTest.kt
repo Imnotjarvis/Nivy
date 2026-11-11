@@ -28,6 +28,24 @@ class ZipUtilsTest {
     }
 
     @Test
+    fun `zipped files come back as they were, each under its own name`() {
+        // Given
+        val backup = temp.newFile("backup.json").apply { writeText("{\"accounts\":[]}") }
+        val notes = temp.newFile("notes.txt").apply { writeText("hello") }
+        val zip = File(temp.root, "backup.zip")
+        val destination = File(temp.root, "out")
+
+        // When
+        zip(FileOutputStream(zip), listOf(backup, notes))
+        unzip(FileInputStream(zip), destination)
+
+        // Then
+        destination.list()?.sorted() shouldBe listOf("backup.json", "notes.txt")
+        File(destination, "backup.json").readText() shouldBe "{\"accounts\":[]}"
+        File(destination, "notes.txt").readText() shouldBe "hello"
+    }
+
+    @Test
     fun `unzipping a file the provider gives none for fails`() {
         // Given: a provider that gives no file for the uri, then
         shouldThrow<FileNotFoundException> { unzip(open = { null }, File(temp.root, "out")) }

@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nivy.design.utils.thenIf
 import com.nivy.domain.RootScreen
+import com.nivy.importdata.csv.domain.dividedByTen
+import com.nivy.importdata.csv.domain.multipliedByTen
 import com.nivy.importdata.csvimport.flow.ImportProcessing
 import com.nivy.importdata.csvimport.flow.ImportResultUI
 import com.nivy.navigation.CSVScreen
@@ -405,15 +407,7 @@ private fun AmountMetadata(
 ) {
     Text(text = stringResource(R.string.csv_multiplier), style = MaterialTheme.typography.bodyLarge)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = {
-            onMetaChange(
-                when {
-                    multiplier < 0 -> multiplier * 10
-                    multiplier == 1 -> -10
-                    else -> multiplier / 10
-                }
-            )
-        }) {
+        Button(onClick = { onMetaChange(dividedByTen(multiplier)) }) {
             Text(text = "/10")
         }
         Spacer8(horizontal = true)
@@ -427,16 +421,7 @@ private fun AmountMetadata(
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer8(horizontal = true)
-        Button(onClick = {
-            onMetaChange(
-                when {
-                    multiplier == -10 -> 1
-                    multiplier == -1 -> 10
-                    multiplier > 0 -> multiplier * 10
-                    else -> multiplier / 10
-                }
-            )
-        }) {
+        Button(onClick = { onMetaChange(multipliedByTen(multiplier)) }) {
             Text(text = "*10")
         }
     }

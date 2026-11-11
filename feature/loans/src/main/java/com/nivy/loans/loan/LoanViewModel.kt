@@ -41,7 +41,6 @@ import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateLoanData
 import com.nivy.wallet.domain.pure.account.startingAccount
 import com.nivy.wallet.utils.amountAndCode
-import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatDecimals
 import com.nivy.wallet.utils.getDefaultFIATCurrency
 import com.nivy.wallet.utils.ioThread
@@ -194,8 +193,8 @@ class LoanViewModel @Inject constructor(
                             loanTotalAmount = progress.total,
                             amountPaid = progress.paid,
                             currencyCode = currCode,
-                            formattedDisplayText = "${progress.paid.format(currCode)} $currCode / " +
-                                "${progress.total.format(currCode)} $currCode " +
+                            formattedDisplayText = "${amountAndCode(progress.paid, currCode)} / " +
+                                "${amountAndCode(progress.total, currCode)} " +
                                 "(${progress.percentPaid.times(Percent).formatDecimals(2)}%)",
                             percentPaid = progress.percentPaid,
                             paidOff = progress.paidOff,

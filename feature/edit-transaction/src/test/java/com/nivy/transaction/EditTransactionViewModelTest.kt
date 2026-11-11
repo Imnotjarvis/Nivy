@@ -1,6 +1,7 @@
 package com.nivy.transaction
 
 import android.content.Context
+import android.database.sqlite.SQLiteException
 import arrow.core.Some
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.Toaster
@@ -42,9 +43,11 @@ import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
 import com.nivy.domain.usecase.loan.NoLoanExchangeRate
+import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.R
+import com.nivy.ui.testing.runTest
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -99,6 +102,7 @@ class EditTransactionViewModelTest {
     private val nav = mockk<Navigation>(relaxed = true)
     private val toaster = mockk<Toaster>(relaxed = true)
     private val loanTransactionsUseCase = mockk<LoanTransactionsUseCase>(relaxed = true)
+    private val dueTransactionsUseCase = mockk<DueTransactionsUseCase>(relaxed = true)
     private val tagRepository = mockk<TagRepository>(relaxUnitFun = true) {
         coEvery { findAll() } returns emptyList()
         coEvery { findByAssociatedId(any<AssociationId>()) } returns emptyList()
@@ -151,7 +155,7 @@ class EditTransactionViewModelTest {
                 transactionMapper = TransactionMapper(accountRepository),
                 loanTransactionsUseCase = loanTransactionsUseCase,
                 creditCardChargeUseCase = CreditCardChargeUseCase(creditCardRepository, timeConverter),
-                dueTransactionsUseCase = mockk(relaxed = true),
+                dueTransactionsUseCase = dueTransactionsUseCase,
                 timeProvider = FixedTime,
                 dispatchers = TestDispatchersProvider,
                 databaseTransaction = databaseTransaction,
@@ -179,7 +183,7 @@ class EditTransactionViewModelTest {
                 timeProvider = FixedTime,
             ),
             creditCardRepository = creditCardRepository,
-            userWrites = UserWrites(mockk(relaxed = true)),
+            userWrites = UserWrites(toaster),
             // The view model's background work runs where it's started, so a test sees it done.
             dispatchers = TestDispatchersProvider,
         )
@@ -352,10 +356,6 @@ class EditTransactionViewModelTest {
         val work = Tag(
             id = TagId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("work"),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
         coEvery { transactionRepo.findById(original.id) } returns original
@@ -375,10 +375,6 @@ class EditTransactionViewModelTest {
         val work = Tag(
             id = TagId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("work"),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
         coEvery { tagRepository.findByIds(listOf(work.id)) } returns listOf(work)
@@ -423,6 +419,70 @@ class EditTransactionViewModelTest {
 
         coVerify { toaster.show(R.string.msg_transaction_not_saved, any()) }
         verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `a planned payment the database refuses to pay says so, and the screen stays open`() {
+        val planned = lunch().copy(settled = false)
+        coEvery { transactionRepo.findById(planned.id) } returns planned
+        coEvery { dueTransactionsUseCase.pay(any()) } throws SQLiteException("database or disk is full")
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = planned.id.value, type = TransactionType.EXPENSE))
+        viewModel.onEvent(EditTransactionViewEvent.OnPayPlannedPayment)
+
+        coVerify { toaster.show(R.string.msg_change_not_saved, any()) }
+        verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `Save on a planned payment's change turns the button back into Pay`() {
+        val planned = lunch().copy(settled = false)
+        coEvery { transactionRepo.findById(planned.id) } returns planned
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = planned.id.value, type = TransactionType.EXPENSE))
+        viewModel.runTest(
+            events = listOf(
+                EditTransactionViewEvent.OnAmountChanged(30.0),
+                EditTransactionViewEvent.Save(closeScreen = false),
+            )
+        ) {
+            hasChanges shouldBe false
+        }
+    }
+
+    @Test
+    fun `Save on a planned payment's change that can't be saved leaves it on Save, and disabled`() {
+        val planned = lunch().copy(settled = false)
+        coEvery { transactionRepo.findById(planned.id) } returns planned
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = planned.id.value, type = TransactionType.EXPENSE))
+        viewModel.runTest(
+            events = listOf(
+                EditTransactionViewEvent.OnAmountChanged(0.0),
+                EditTransactionViewEvent.Save(closeScreen = false),
+            )
+        ) {
+            hasChanges shouldBe true
+            canSave shouldBe false
+        }
+    }
+
+    @Test
+    fun `Add and Save are enabled once there's an amount`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+
+        viewModel.runTest(events = listOf(EditTransactionViewEvent.OnAmountChanged(25.0))) {
+            canSave shouldBe true
+        }
+    }
+
+    @Test
+    fun `Add is disabled without an amount`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+
+        viewModel.runTest {
+            canSave shouldBe false
+        }
     }
 
     @Test

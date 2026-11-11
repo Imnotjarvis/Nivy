@@ -63,6 +63,23 @@ class CategoryIncomeExpenseUseCaseTest {
         unspecified.expense.toDouble() shouldBe (12.0 plusOrMinus Cent)
     }
 
+    @Test
+    fun `an expense in a currency without a rate counts as nothing`() = runTest {
+        val bank = home.account("Bank")
+        val pounds = home.account("Pounds", currency = "GBP")
+        home.expense(bank, 40.0, category = food.id.value)
+        home.expense(pounds, 25.0, category = food.id.value)
+
+        val food = useCase.incomeExpense(
+            transactions = home.transactions.findAll(),
+            accountFilterList = listOf(bank, pounds),
+            category = food,
+            baseCurrency = Euros,
+        )
+
+        food.expense.toDouble() shouldBe (40.0 plusOrMinus Cent)
+    }
+
     private fun category(name: String) = Category(
         id = CategoryId(UUID.randomUUID()),
         name = NotBlankTrimmedString.unsafe(name),

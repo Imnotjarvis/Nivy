@@ -46,6 +46,19 @@ class DueTransactionsInfoUseCaseTest {
         upcoming.dueIncomeExpense.income.toDouble() shouldBe (1_500.0 plusOrMinus Cent)
     }
 
+    @Test
+    fun `a payment due in a currency without a rate is listed, and counts as nothing`() = runTest {
+        val bank = home.account("Bank")
+        val pounds = home.account("Pounds", currency = "GBP")
+        home.planned(bank, TransactionType.EXPENSE, 50.0, due = Nov20)
+        home.planned(pounds, TransactionType.EXPENSE, 80.0, due = Nov25)
+
+        val upcoming = useCase.info(november, Euros) { due, today -> due.isAfter(today) }
+
+        upcoming.dueTrns.size shouldBe 2
+        upcoming.dueIncomeExpense.expense.toDouble() shouldBe (50.0 plusOrMinus Cent)
+    }
+
     private companion object {
         const val Cent = 0.005
         val Nov5: Instant = Instant.parse("2026-11-05T09:00:00Z")

@@ -13,8 +13,8 @@ import timber.log.Timber
  * Copies the settings from the database's old `settings` table into DataStore, once.
  *
  * It reads the database file directly because DataStore runs it before its first read, which
- * can come before Room opens the database. The table itself stays in the file: the database
- * schema no longer uses it, and DeleteAllDataUseCase drops it.
+ * can come before Room opens the database. The table itself stays in the file until then: the
+ * database schema no longer uses it, and [LegacySettingsTable] drops it afterwards.
  */
 class LegacySettingsMigration(private val context: Context) : DataMigration<Preferences> {
 
@@ -42,7 +42,7 @@ class LegacySettingsMigration(private val context: Context) : DataMigration<Pref
             SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READONLY)
                 .use(::readFirstSettingsRow)
         } catch (e: SQLiteException) {
-            // no settings table: a fresh install, or the user deleted all data
+            // no settings table: a fresh install, or one that copied them and dropped the table
             Timber.i(e, "No legacy settings to migrate")
             null
         }
@@ -68,7 +68,7 @@ class LegacySettingsMigration(private val context: Context) : DataMigration<Pref
     )
 
     companion object {
-        /** Kept by DeleteAllDataUseCase, so the copy doesn't run again. */
+        /** Kept when all data is deleted, so the copy doesn't run again. */
         val Migrated = booleanPreferencesKey("settings_migrated_from_database")
     }
 }

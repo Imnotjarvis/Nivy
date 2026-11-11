@@ -182,8 +182,6 @@ dependencies {
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
-    implementation(libs.bundles.room)
-
     implementation(libs.timber)
     implementation(libs.androidx.work)
 

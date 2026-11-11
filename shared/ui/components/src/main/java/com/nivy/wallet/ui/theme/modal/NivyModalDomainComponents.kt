@@ -24,10 +24,10 @@ fun ModalAmountSection(
     label: String,
     currency: String,
     amount: Double,
+    amountPaddingTop: Dp,
+    amountPaddingBottom: Dp,
     modifier: Modifier = Modifier,
     header: (@Composable () -> Unit)? = null,
-    amountPaddingTop: Dp = 48.dp,
-    amountPaddingBottom: Dp = 48.dp,
     showAmountModal: () -> Unit
 ) {
     Column(

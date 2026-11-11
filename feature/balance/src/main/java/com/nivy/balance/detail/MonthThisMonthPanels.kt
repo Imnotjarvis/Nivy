@@ -1,9 +1,7 @@
 package com.nivy.balance.detail
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,9 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +32,7 @@ import com.nivy.wallet.ui.component.InfoRow
 import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.LegendDot
 import com.nivy.wallet.ui.component.LegendText
+import com.nivy.wallet.ui.component.LikelyFillAlpha
 import com.nivy.wallet.ui.component.PanelNote
 import com.nivy.wallet.ui.component.ProgressBar
 import com.nivy.wallet.ui.component.approxAmount
@@ -77,11 +73,7 @@ internal fun FreeToSpendPanel(
             Spacer(Modifier.height(16.dp))
             val whole = (free.spent + free.left).coerceAtLeast(Double.MIN_VALUE)
             val likely = outlook?.left?.let { free.left - it.likely }
-            if (likely != null) {
-                SpendBar(free.spent / whole, (free.spent + likely) / whole, Nivy)
-            } else {
-                ProgressBar(free.spent / whole, Nivy)
-            }
+            ProgressBar(free.spent / whole, Nivy, likely = likely?.let { (free.spent + it) / whole })
         } else {
             BigNumber("-${amountAndCode(-free.left, currency)}", expenseRed(panel))
             Spacer(Modifier.height(4.dp))
@@ -108,7 +100,7 @@ internal fun FreeToSpendPanel(
             Spacer(Modifier.height(16.dp))
             Row(modifier = Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 LegendDot(
-                    color = Nivy.copy(alpha = LikelyAlpha),
+                    color = Nivy.copy(alpha = LikelyFillAlpha),
                     label = stringResource(R.string.month_usually_a_day, approxAmount(outlook.perDay), currency),
                 )
             }
@@ -157,7 +149,7 @@ internal fun DayByDayPanel(detail: MonthDetail, currency: String) {
             }
             if (detail.outlook != null) {
                 Spacer(Modifier.width(12.dp))
-                LegendDot(color = Nivy.copy(alpha = LikelyAlpha), label = stringResource(R.string.month_likely))
+                LegendDot(color = Nivy.copy(alpha = LikelyFillAlpha), label = stringResource(R.string.month_likely))
             }
         },
     ) {
@@ -348,32 +340,6 @@ internal fun PacePanel(
 private fun rangeText(band: Band, currency: String): String =
     stringResource(R.string.month_likely_range, approxAmount(band.low), approxAmount(band.high), currency)
 
-/** A track filled to [spent], from 0 to 1, and lighter on to [likely]. */
-@Composable
-private fun SpendBar(spent: Double, likely: Double, color: Color) {
-    val track = MaterialTheme.colorScheme.surface
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .height(12.dp)
-    ) {
-        val radius = CornerRadius(size.height / 2)
-        drawRoundRect(track, size = size, cornerRadius = radius)
-        drawRoundRect(
-            color.copy(alpha = LikelyAlpha),
-            size = Size(likely.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
-            cornerRadius = radius,
-        )
-        drawRoundRect(
-            color,
-            size = Size(spent.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
-            cornerRadius = radius,
-        )
-    }
-}
-
 private const val EdgeRoom = 0.12f
-private const val LikelyAlpha = 0.35f
 private const val DaysInWeek = 7
 private const val ShortMonth = 3

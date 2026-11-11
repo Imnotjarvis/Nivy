@@ -10,8 +10,10 @@ class IconPickerLinesTest {
 
     @Test
     fun `every icon listed has its place in a row, once and in order`() {
-        rows.flatMap { it.icons } shouldContainExactly NivyIconNames
-        NivyIconNames.size shouldBe 379
+        val listed = NivyIconSections.flatMap { it.icons }
+
+        rows.flatMap { it.icons } shouldContainExactly listed
+        listed.size shouldBe 379
     }
 
     @Test

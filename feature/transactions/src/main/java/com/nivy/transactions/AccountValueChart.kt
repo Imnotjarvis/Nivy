@@ -12,11 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
@@ -29,6 +26,7 @@ import com.nivy.ui.R
 import com.nivy.wallet.ui.component.ChartPanel
 import com.nivy.wallet.ui.component.LegendDot
 import kotlinx.collections.immutable.ImmutableList
+import com.nivy.wallet.ui.component.lineOverArea
 
 /**
  * An investment account's value at each month's end, as the net worth line on Trends, over the money
@@ -105,23 +103,7 @@ private fun ValueLines(points: ImmutableList<ValuePoint>) {
         )
 
         val values = points.mapIndexed { index, point -> Offset(x(index), y(point.value)) }
-        val line = Path().apply {
-            values.forEachIndexed { index, point ->
-                if (index == 0) moveTo(point.x, point.y) else lineTo(point.x, point.y)
-            }
-        }
-        val area = Path().apply {
-            addPath(line)
-            lineTo(values.last().x, size.height)
-            lineTo(values.first().x, size.height)
-            close()
-        }
-        drawPath(area, brush = Brush.verticalGradient(listOf(Nivy.copy(alpha = AreaAlpha), Color.Transparent)))
-        drawPath(
-            line,
-            color = Nivy,
-            style = Stroke(width = LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
-        )
+        lineOverArea(values, Nivy)
         values.forEachIndexed { index, point ->
             val radius = if (index == values.lastIndex) PointRadius * 2 else PointRadius
             drawCircle(Nivy, radius = radius.toPx(), center = point)
@@ -129,9 +111,7 @@ private fun ValueLines(points: ImmutableList<ValuePoint>) {
     }
 }
 
-private const val AreaAlpha = 0.25f
 private const val MonthLabelLength = 3
 private val PointRadius = 3.dp
-private val LineWidth = 3.dp
 private val DashWidth = 2.dp
 private val Dash = 5.dp

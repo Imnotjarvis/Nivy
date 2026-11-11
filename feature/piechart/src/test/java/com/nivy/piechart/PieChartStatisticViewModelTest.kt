@@ -32,6 +32,7 @@ import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.utils.ioThread
 import io.kotest.matchers.shouldBe
@@ -94,7 +95,12 @@ class PieChartStatisticViewModelTest {
         timeConverter = TestTimeConverter(),
         accountRepository = mockk { coEvery { findAll() } returns listOf(account(bank)) },
         categoryRepository = mockk { coEvery { findAll() } returns emptyList() },
-        transactionsWithDateDividersUseCase = mockk { coEvery { withDateDividers(any(), any()) } returns emptyList() },
+        // The list under the chart: its rows, without the days' headers.
+        transactionsWithDateDividersUseCase = mockk {
+            coEvery { withDateDividers(any(), any()) } answers {
+                secondArg<List<Transaction>>().map { TransactionHistoryEntry(it) }
+            }
+        },
         features = mockk(relaxed = true),
         transactionRepository = transactionRepository,
         dispatchers = TestDispatchersProvider,
@@ -114,14 +120,14 @@ class PieChartStatisticViewModelTest {
     @Test
     fun `a budget's page shows its expenses as they are now, without one deleted since`() {
         viewModel.runTest(events = listOf(PieChartStatisticEvent.OnStart(food))) {
-            transactions shouldBe listOf(lunch, dinner)
+            history shouldBe listOf(lunch, dinner).map { TransactionHistoryEntry(it) }
         }
 
         // The dinner is deleted from the page; back on it, the page shows again.
         stored = listOf(lunch)
 
         viewModel.runTest(events = listOf(PieChartStatisticEvent.OnStart(food))) {
-            transactions shouldBe listOf(lunch)
+            history shouldBe listOf(lunch).map { TransactionHistoryEntry(it) }
         }
     }
 
@@ -130,7 +136,7 @@ class PieChartStatisticViewModelTest {
         stored = listOf(lunch, expense(800.0, "2026-11-01T09:00:00Z", rent))
 
         viewModel.runTest(events = listOf(PieChartStatisticEvent.OnStart(food))) {
-            transactions shouldBe listOf(lunch)
+            history shouldBe listOf(lunch).map { TransactionHistoryEntry(it) }
         }
         coVerify { transactionRepository.findAllBetween(november.from, november.to) }
     }

@@ -73,6 +73,21 @@ class WalletNumbersTest {
         month.expense.toDouble() shouldBe (60.0 plusOrMinus Cent)
     }
 
+    @Test
+    fun `income and expenses in a currency without a rate count as nothing`() = runTest {
+        val bank = home.account("Bank")
+        val pounds = home.account("Pounds", currency = "GBP")
+        home.income(bank, 100.0)
+        home.expense(bank, 10.0)
+        home.income(pounds, 50.0)
+        home.expense(pounds, 20.0)
+
+        val month = incomeExpense.incomeExpense(Euros, home.accounts.findAll(), november)
+
+        month.income.toDouble() shouldBe (100.0 plusOrMinus Cent)
+        month.expense.toDouble() shouldBe (10.0 plusOrMinus Cent)
+    }
+
     private companion object {
         const val Cent = 0.005
     }

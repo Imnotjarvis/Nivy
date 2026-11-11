@@ -186,6 +186,7 @@ private fun BoxWithConstraintsScope.Editor(
             toAccount = toAccount,
             category = category,
             amount = amount,
+            canSave = amount > 0.0,
             hasChanges = false,
             displayLoanHelper = EditTransactionDisplayLoan(),
             backgroundProcessingStarted = false,
@@ -209,7 +210,7 @@ private object FixedTime : TimeProvider {
 
 // Stored colors are the palette's own: minimal colors turn them grey where they're drawn.
 private val Bank = previewAccount("Bank", color = Palette.Blue, icon = "bank", currency = "EUR")
-private val Revolut = previewAccount("Revolut", color = Palette.Purple, icon = "revolut", currency = "USD")
+private val Revolut = previewAccount("Revolut", color = Palette.Nivy, icon = "revolut", currency = "USD")
 
 private val Groceries = category("Groceries", Palette.Green, "groceries")
 private val Salary = category("Salary", Palette.Yellow, "work")
@@ -230,9 +231,5 @@ private fun category(name: String, color: Color, icon: String) = Category(
 private fun tag(name: String) = Tag(
     id = TagId(UUID.nameUUIDFromBytes(name.toByteArray())),
     name = NotBlankTrimmedString.unsafe(name),
-    description = null,
-    color = ColorInt(Palette.Nivy.toArgb()),
-    icon = null,
-    orderNum = 0.0,
     creationTimestamp = Instant.parse("2026-01-01T00:00:00Z"),
 )

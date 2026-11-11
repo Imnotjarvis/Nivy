@@ -10,8 +10,10 @@ import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
 import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.getFromValue
+import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.wallet.domain.pure.spending.Flow
+import java.time.Instant
 
 /**
  * This transaction as a flow, in the base currency; null for a transfer, which stays within the
@@ -41,3 +43,10 @@ suspend fun Transaction.toFlow(
         )
     }
 }
+
+/**
+ * The transactions the stats screens count, from [from] to [to]: the paid ones, out of or into one
+ * of the [accounts], which are those in the balance.
+ */
+suspend fun TransactionRepository.paidBetween(from: Instant, to: Instant, accounts: Set<AccountId>): List<Transaction> =
+    findAllBetween(from, to).filter { it.settled && it.getFromAccount() in accounts }

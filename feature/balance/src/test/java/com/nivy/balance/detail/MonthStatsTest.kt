@@ -209,7 +209,7 @@ class MonthStatsTest {
         trackedSince = trackedSince,
         income = 1_650.0,
         outgoing = spends.sumOf { it.amount },
-        plannedExpenses = listOf(35.0, 120.55, 40.0, 550.0),
+        plannedFixed = listOf(35.0, 120.55, 40.0, 550.0),
         previous = mapOf(Groceries to 72.90, EatingOut to 34.80, Transport to 46.20, Subscriptions to 24.98),
         edges = SizeEdgesInEuros,
     )

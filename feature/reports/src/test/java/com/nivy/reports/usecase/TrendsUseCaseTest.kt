@@ -1,4 +1,4 @@
-package com.nivy.reports.trends
+package com.nivy.reports.usecase
 
 import arrow.core.None
 import com.nivy.base.TestDispatchersProvider
@@ -26,6 +26,8 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceDetails
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.reports.trends.LikelyMilestone
+import com.nivy.reports.trends.TrendsRange
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.forecast.Shift
 import io.kotest.matchers.shouldBe

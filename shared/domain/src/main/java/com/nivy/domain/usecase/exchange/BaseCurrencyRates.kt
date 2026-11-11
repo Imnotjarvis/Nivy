@@ -16,13 +16,17 @@ class BaseCurrencyRates(private val exchangeUseCase: ExchangeUseCase, private va
     private val factors = mutableMapOf<AssetCode, Double?>()
 
     /** What one of [currency] is worth in the base currency, or null without a rate. */
-    suspend fun factor(currency: AssetCode): Double? = factors.getOrPut(currency) {
-        if (currency == base) {
-            1.0
-        } else {
-            exchangeUseCase.convert(PositiveValue(PositiveDouble.unsafe(1.0), currency), to = base)
-                .getOrNull()?.amount?.value
+    suspend fun factor(currency: AssetCode): Double? {
+        // Not getOrPut: it takes a null it holds for a missing key, and would ask again each time.
+        if (currency !in factors) {
+            factors[currency] = if (currency == base) {
+                1.0
+            } else {
+                exchangeUseCase.convert(PositiveValue(PositiveDouble.unsafe(1.0), currency), to = base)
+                    .getOrNull()?.amount?.value
+            }
         }
+        return factors[currency]
     }
 
     suspend fun inBase(value: PositiveValue): Double = inBase(value.amount.value, value.asset)

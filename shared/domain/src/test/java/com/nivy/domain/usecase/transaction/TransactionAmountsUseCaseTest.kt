@@ -14,6 +14,7 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -25,11 +26,9 @@ class TransactionAmountsUseCaseTest {
     private val useCase = TransactionAmountsUseCase(exchangeUseCase)
 
     init {
-        coEvery { exchangeUseCase.convert(any<PositiveValue>(), Usd) } answers {
-            val value = firstArg<PositiveValue>()
-            if (value.asset == Usd) Some(value) else None
-        }
-        coEvery { exchangeUseCase.convert(value(10.0, Eur), Usd) } returns Some(value(11.0, Usd))
+        // A euro is 1.25 dollars; the lev has no rate.
+        coEvery { exchangeUseCase.convert(value(1.0, Eur), Usd) } returns Some(value(1.25, Usd))
+        coEvery { exchangeUseCase.convert(value(1.0, Bgn), Usd) } returns None
     }
 
     @Test
@@ -38,7 +37,17 @@ class TransactionAmountsUseCaseTest {
         val total = useCase.total(listOf(expense(10.0, Eur), income(5.0, Usd)), Usd)
 
         // then
-        total shouldBe 16.0
+        total shouldBe 17.5
+    }
+
+    @Test
+    fun `a currency's rate is read once, however many amounts are in it`() = runTest {
+        // when
+        val total = useCase.total(listOf(expense(10.0, Eur), expense(4.0, Eur), income(2.0, Eur)), Usd)
+
+        // then
+        total shouldBe 20.0
+        coVerify(exactly = 1) { exchangeUseCase.convert(any<PositiveValue>(), any()) }
     }
 
     @Test
@@ -68,7 +77,7 @@ class TransactionAmountsUseCaseTest {
         )
 
         // then
-        balance shouldBe 89.0
+        balance shouldBe 87.5
     }
 
     private fun value(amount: Double, asset: AssetCode) =
