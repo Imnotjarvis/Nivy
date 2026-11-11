@@ -48,5 +48,7 @@ The tests build real SQLite files with Cashew's tables (`CashewFile`, from the t
 in `src/test/resources/cashew/schema-*.sql`, written from Cashew's own schema dumps) and read them
 with JDBC, as the app reads them with Android's SQLite. A file from an older Cashew reads without
 the columns it didn't have yet. The files write rows as Cashew does: its `skip_paid` is set on every
-ordinary transaction, and only means skipped on a planned one that isn't paid. When Cashew's schema changes, add its tables as `schema-<version>.sql`
-and read a file of it in `CashewReaderTest`.
+ordinary transaction, and only means skipped on a planned one that isn't paid.
+
+When Cashew's schema changes, add its tables as `schema-<version>.sql` and read a file of it in
+`CashewReaderTest`.
