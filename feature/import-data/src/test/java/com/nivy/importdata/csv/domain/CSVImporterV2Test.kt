@@ -5,6 +5,7 @@ import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Expense
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
@@ -147,6 +148,18 @@ class CSVImporterV2Test {
         saved.map { (it as Transfer).toAccount } shouldBe listOf(brokerage.id, brokerage.id)
     }
 
+    @Test
+    fun `a file written as Cashew writes it imports, dates to the millisecond and three decimals after a point`() =
+        runTest {
+            val result = import(
+                expense(date = "2026-10-05 13:00:00.000", amount = "-12.0"),
+                expense(date = "2026-10-06 09:30:00.000", amount = "-4.125"),
+            )
+
+            result.transactionsImported shouldBe 2
+            saved.map { (it as Expense).value.amount.value } shouldBe listOf(12.0, 4.125)
+        }
+
     private suspend fun import(vararg rows: List<String>) = importer.import(
         csv = (listOf(Header) + rows).map(::CSVRow),
         importantFields = ImportantFields(
@@ -182,6 +195,8 @@ class CSVImporterV2Test {
 
     private fun transfer(from: String, to: String, amount: String, toAmount: String) =
         listOf("2026-10-05 10:00", "Transfer", amount, from, to, toAmount)
+
+    private fun expense(date: String, amount: String) = listOf(date, "Expense", amount, "Bank", "", "")
 
     private fun <M> column(index: Int, metadata: M) = ColumnMapping(
         nivyColumn = 0,

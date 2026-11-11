@@ -50,6 +50,28 @@ class ParseFieldsTest {
     }
 
     @Test
+    fun `a column's amounts that can only be decimal tell how its others read`() {
+        decimalSeparatorOf(listOf("-12.0", "-4.125")) shouldBe '.'
+        decimalSeparatorOf(listOf("1.234", "12,50")) shouldBe ','
+        decimalSeparatorOf(listOf("1,234.56", "0,125")) shouldBe null // they disagree
+        decimalSeparatorOf(listOf("1,234", "5", "")) shouldBe null // none tells
+
+        parseAmount("-4.125", metadata = 1, decimalSeparator = '.') shouldBe 4.125
+        parseAmount("4,125", metadata = 1, decimalSeparator = '.') shouldBe 4125.0
+        parseAmount("1.234.567", metadata = 1, decimalSeparator = '.') shouldBe 1234567.0
+        parseAmount("12,5", metadata = 1, decimalSeparator = '.') shouldBe 12.5
+    }
+
+    @Test
+    fun `a time with fractions of a second is read to the second`() {
+        // As Cashew writes every date
+        parseDate("2026-10-05 13:00:00.000", DateMetadata.DateFirst) shouldBe LocalDateTime.of(2026, 10, 5, 13, 0)
+        parseDate("2026-10-05 13:07:09.123456", DateMetadata.MonthFirst) shouldBe
+            LocalDateTime.of(2026, 10, 5, 13, 7, 9)
+        parseDate("05/10/2026 13:07:09,5", DateMetadata.DateFirst) shouldBe LocalDateTime.of(2026, 10, 5, 13, 7, 9)
+    }
+
+    @Test
     fun `day-first files still read year-first dates as ISO`() {
         parseDate("2024-03-05", DateMetadata.DateFirst) shouldBe LocalDateTime.of(2024, 3, 5, 0, 0)
         parseDate("2024-03-25 10:30", DateMetadata.DateFirst) shouldBe LocalDateTime.of(2024, 3, 25, 10, 30)

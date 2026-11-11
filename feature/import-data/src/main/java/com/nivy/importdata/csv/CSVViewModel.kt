@@ -13,6 +13,8 @@ import com.nivy.base.Toaster
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.importdata.csv.domain.CSVImporterV2
 import com.nivy.importdata.csv.domain.SAMPLE_SIZE
+import com.nivy.importdata.csv.domain.decimalSeparatorOf
+import com.nivy.importdata.csv.domain.extractValue
 import com.nivy.importdata.csv.domain.parseAmount
 import com.nivy.importdata.csv.domain.parseDate
 import com.nivy.importdata.csv.domain.parseStatus
@@ -237,7 +239,7 @@ class CSVViewModel @Inject constructor(
                 if (sampleCSV != null) {
                     ImportantFields(
                         amount = amount,
-                        amountStatus = sampleCSV.parseStatus(amount, ::parseAmount),
+                        amountStatus = sampleCSV.parseStatus(amount, amountParser(amount)),
                         type = type,
                         typeStatus = sampleCSV.parseStatus(type, ::parseTransactionType),
                         date = date,
@@ -256,6 +258,12 @@ class CSVViewModel @Inject constructor(
             }
             value = result
         }.value
+    }
+
+    /** Reads the sample's amounts as the import does: with the decimal separator the whole column uses. */
+    private fun amountParser(column: ColumnMapping<Int>): (String, Int) -> Double? {
+        val decimal = decimalSeparatorOf(csv.orEmpty().drop(1).map { it.extractValue(column) })
+        return { value, multiplier -> parseAmount(value, multiplier, decimal) }
     }
 
     @Composable
@@ -278,7 +286,7 @@ class CSVViewModel @Inject constructor(
                             ::parseText
                         ),
                         toAmount = toAmount,
-                        toAmountStatus = sampleCSV.parseStatus(toAmount, ::parseAmount)
+                        toAmountStatus = sampleCSV.parseStatus(toAmount, amountParser(toAmount))
                     )
                 } else {
                     null

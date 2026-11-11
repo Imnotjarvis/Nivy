@@ -34,38 +34,68 @@ fun dividedByTen(multiplier: Int): Int = when {
     else -> multiplier * MultiplierStep
 }
 
+/**
+ * The amount in [value], scaled by the [metadata] multiplier. [decimalSeparator] is the one the
+ * amount's column uses, when known ([decimalSeparatorOf]): it settles "4.125", which alone reads
+ * as 4,125.
+ */
 fun parseAmount(
     value: String,
-    metadata: Int // the multiplier
+    metadata: Int, // the multiplier
+    decimalSeparator: Char? = null,
 ): Double? = tryParse {
     val multiplier = when {
         metadata in AmountMultipliers -> metadata.toDouble()
         -metadata in AmountMultipliers -> 1.0 / -metadata
         else -> 1.0
     }
-    val double = parsePositiveDouble(value) ?: return@tryParse null
+    val double = parsePositiveDouble(value, decimalSeparator) ?: return@tryParse null
     abs(double * multiplier)
 }
 
 /**
- * Reads amounts written with either decimal separator: "12,50", "1 234,56", "1.234,56",
- * "1,234.56". Spaces and apostrophes group thousands. The last ',' or '.' is the decimal one
- * when the other kind comes before it, or when it isn't followed by exactly three digits;
- * otherwise it groups thousands ("1,234"), unless only a zero comes before it ("0,125").
+ * The decimal separator of a column of amounts: the one its amounts use where it can only be the
+ * decimal one ("12.0", "12,50", "1,234.56"). Null when no amount tells, or when they disagree.
  */
-private fun parsePositiveDouble(string: String): Double? {
-    val number = string.filter { it.isDigit() || it == '.' || it == ',' }
+fun decimalSeparatorOf(values: List<String>): Char? =
+    values.mapNotNull { surelyDecimal(digitsAndSeparators(it)) }.distinct().singleOrNull()
+
+private fun digitsAndSeparators(string: String): String = string.filter { it.isDigit() || it == '.' || it == ',' }
+
+/**
+ * The last ',' or '.' of [number] when it can only be the decimal one: the other kind comes
+ * before it, or it's alone and either isn't followed by exactly three digits or has only a zero
+ * before it ("0,125"). Null when there's none, or when it may group thousands ("1,234").
+ */
+private fun surelyDecimal(number: String): Char? {
+    val index = number.indexOfLast { it == '.' || it == ',' }
+    if (index == -1) return null
+    val separator = number[index]
+    val integerPart = number.substring(0, index)
+    val fraction = number.substring(index + 1)
+    val decimal = integerPart.any { !it.isDigit() && it != separator } ||
+        number.count { it == separator } == 1 &&
+        (fraction.length != THOUSANDS_GROUP || integerPart.trimStart('0').isEmpty())
+    return separator.takeIf { decimal }
+}
+
+/**
+ * Reads amounts written with either decimal separator: "12,50", "1 234,56", "1.234,56",
+ * "1,234.56". Spaces and apostrophes group thousands. The last ',' or '.' is the decimal one when
+ * it can only be ([surelyDecimal]), or when it's alone and the column's [decimalSeparator];
+ * otherwise it groups thousands ("1,234").
+ */
+private fun parsePositiveDouble(string: String, decimalSeparator: Char?): Double? {
+    val number = digitsAndSeparators(string)
     val decimalIndex = number.indexOfLast { it == '.' || it == ',' }
     if (decimalIndex == -1) return number.toDoubleOrNull()
 
     val separator = number[decimalIndex]
-    val integerPart = number.substring(0, decimalIndex)
-    val fraction = number.substring(decimalIndex + 1)
-    val isDecimal = integerPart.any { !it.isDigit() && it != separator } ||
-        number.count { it == separator } == 1 &&
-        (fraction.length != THOUSANDS_GROUP || integerPart.trimStart('0').isEmpty())
+    val isDecimal = surelyDecimal(number) != null ||
+        separator == decimalSeparator && number.count { it == separator } == 1
 
-    val digits = integerPart.filter { it.isDigit() }
+    val digits = number.substring(0, decimalIndex).filter { it.isDigit() }
+    val fraction = number.substring(decimalIndex + 1)
     return if (isDecimal) "$digits.$fraction".toDoubleOrNull() else (digits + fraction).toDoubleOrNull()
 }
 
@@ -104,7 +134,7 @@ fun parseDate(
     value: String,
     metadata: DateMetadata
 ): LocalDateTime? = tryParse {
-    val cleanedValue = value.filter {
+    val cleanedValue = value.replace(FractionOfSecond, "$1").filter {
         it.isLetterOrDigit() || it == '-' || it == '/' || it == ':' || it == ' '
     }
 
@@ -124,6 +154,9 @@ fun parseDate(
     }
     null
 }
+
+// What follows the seconds ("13:00:00.000", as Cashew writes every date): the time is read to the second.
+private val FractionOfSecond = Regex("""(\d:\d{2})[.,]\d{1,9}(?!\d)""")
 
 private fun possibleDateFormats(metadata: DateMetadata): List<String> {
     return when (metadata) {
