@@ -112,11 +112,15 @@ internal class ImportCashewUseCase @Inject constructor(
                 )
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: NotCashewData) {
+                notCashew(e)
+            } catch (e: SQLiteException) {
+                // Not a database at all.
+                notCashew(e)
             } catch (e: Exception) {
                 // The database is as it was: the import's writes are one transaction.
                 Timber.e(e, "Cashew import failed")
-                val notCashew = e is NotCashewData || e is SQLiteException
-                failed(if (notCashew) context.getString(R.string.cashew_not_data_file) else e.message ?: e.javaClass.simpleName)
+                failed(e.message ?: e.javaClass.simpleName)
             } finally {
                 // The copy, and the files SQLite may have made beside it.
                 listOf("", "-journal", "-wal", "-shm").forEach { File(file.path + it).delete() }
@@ -179,6 +183,11 @@ internal class ImportCashewUseCase @Inject constructor(
         categoriesImported = categories.size,
         failedRows = persistentListOf(),
     )
+
+    private fun notCashew(e: Exception): CashewImportResult {
+        Timber.w(e, "Not a Cashew data file")
+        return failed(context.getString(R.string.cashew_not_data_file))
+    }
 
     private fun failed(error: String) = CashewImportResult(
         result = ImportResult(

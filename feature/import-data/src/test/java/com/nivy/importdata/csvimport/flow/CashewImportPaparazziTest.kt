@@ -61,7 +61,10 @@ class CashewImportPaparazziTest(
                         leftOut = listOf(
                             LeftOut(
                                 Reason.NoAmount,
-                                listOf(Item("Free coffee", LocalDate.of(2026, 3, 8)), Item("Refund", LocalDate.of(2026, 6, 2))),
+                                listOf(
+                                    Item("Free coffee", LocalDate.of(2026, 3, 8)),
+                                    Item("Refund", LocalDate.of(2026, 6, 2))
+                                ),
                             ),
                             LeftOut(Reason.EndsInCashew, listOf(Item("Gym", LocalDate.of(2027, 3, 1)))),
                             LeftOut(Reason.Budget, listOf(Item("Weekly groceries"), Item("Salary"))),

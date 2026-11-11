@@ -25,14 +25,15 @@ private fun CashewPlanner.budget(cashew: CashewBudget, order: Double): Budget? {
     val ofWhatsSpent = !cashew.income && !cashew.addedTransactionsOnly && !cashew.archived
     val categories = budgetCategories(cashew)
     val amount = budgetAmount(cashew)
+    val kept = monthly && ofWhatsSpent && categories != null && cashew.amount > 0
     return when {
-        !monthly || !ofWhatsSpent || categories == null || cashew.amount <= 0 -> null.also { leave(Reason.Budget, item) }
+        !kept -> null.also { leave(Reason.Budget, item) }
         amount == null -> null.also { leave(Reason.BudgetWithoutRate, item) }
         else -> Budget(
             id = BudgetId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe(name),
             amount = amount,
-            categories = categories,
+            categories = categories.orEmpty(),
             accounts = cashew.walletPks?.mapNotNull { accounts[it]?.id }?.distinct().orEmpty(),
             orderNum = order,
         ).also { if (cashew.pk in data.limitedBudgets) leave(Reason.CategoryLimits, item) }
@@ -76,7 +77,7 @@ internal fun CashewPlanner.planRates(): List<ExchangeRate> {
     val base = wallet.baseCurrency
     val baseRate = cashewRate(base) ?: return emptyList()
     return accounts.values.map { it.asset }.distinct()
-        .filter { asset -> asset != base && wallet.manualRates.none { it.baseCurrency == base && it.currency == asset } }
+        .filter { asset -> asset != base && !wallet.hasManualRate(base, asset) }
         .mapNotNull { asset ->
             cashewRate(asset, setByHand = true)
                 ?.let { PositiveDouble.from(it / baseRate).getOrNull() }
@@ -94,5 +95,8 @@ internal fun CashewPlanner.cashewRate(asset: AssetCode, setByHand: Boolean = fal
     val rates = if (setByHand) data.settings.customRates else data.settings.rates + data.settings.customRates
     return keys.firstNotNullOfOrNull { rates[it] } ?: if (asset == AssetCode.USD && !setByHand) 1.0 else null
 }
+
+private fun NivyWallet.hasManualRate(base: AssetCode, currency: AssetCode): Boolean =
+    manualRates.any { it.baseCurrency == base && it.currency == currency }
 
 private const val DefaultBudgetName = "Budget"

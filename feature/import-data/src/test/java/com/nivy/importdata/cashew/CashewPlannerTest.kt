@@ -164,12 +164,23 @@ class CashewPlannerTest {
             wallet("w1", "Bank", currency = "eur")
             wallet("w2", "Dollars", currency = "usd")
             transaction(
-                "in", 108.0, wallet = "w2", category = "0", name = "Dollars Transfer In",
-                note = "Transferred Balance\nBank → Dollars", date = "2026-10-05T10:00:31Z",
+                "in",
+                108.0,
+                wallet = "w2",
+                category = "0",
+                name = "Dollars Transfer In",
+                note = "Transferred Balance\nBank → Dollars",
+                date = "2026-10-05T10:00:31Z",
             )
             transaction(
-                "out", -100.0, wallet = "w1", category = "0", paired = "in", name = "Bank Transfer Out",
-                note = "Transferred Balance\nBank → Dollars", date = "2026-10-05T10:00:30Z",
+                "out",
+                -100.0,
+                wallet = "w1",
+                category = "0",
+                paired = "in",
+                name = "Bank Transfer Out",
+                note = "Transferred Balance\nBank → Dollars",
+                date = "2026-10-05T10:00:30Z",
             )
         }
 
@@ -213,7 +224,10 @@ class CashewPlannerTest {
             wallet("w1", "Bank")
             transaction("t1", 1500.0, category = "0", date = "2026-01-10T09:00:00Z")
             transaction(
-                "t2", -20.5, category = "0", note = "Updated Total Balance\nBank: 1,479.50 €",
+                "t2",
+                -20.5,
+                category = "0",
+                note = "Updated Total Balance\nBank: 1,479.50 €",
                 date = "2026-10-01T09:00:00Z",
             )
         }

@@ -103,7 +103,11 @@ private fun BoxWithConstraintsScope.UI(
         ImportStep.LOADING -> {
             ImportProcessing(
                 progressPercent = importProgressPercent,
-                text = if (source == ImportSource.CASHEW) R.string.importing_the_cashew_file else R.string.importing_the_csv_file,
+                text = if (source == ImportSource.CASHEW) {
+                    R.string.importing_the_cashew_file
+                } else {
+                    R.string.importing_the_csv_file
+                },
             )
         }
 

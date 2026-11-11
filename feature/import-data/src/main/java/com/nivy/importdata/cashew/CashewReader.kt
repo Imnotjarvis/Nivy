@@ -12,10 +12,11 @@ import java.time.Instant
 /** Cashew's database, a table at a time. */
 internal interface CashewTables {
     /**
-     * The rows of [table], each its columns' values by name: a number, a text or null. None when
-     * the database has no such table.
+     * Each row of [table] as [read] makes it from the row's values by column: a number, a text or
+     * null. None when the database has no such table. A row is read and let go: a table of many
+     * thousand transactions is never in memory twice.
      */
-    fun rows(table: String): List<Map<String, Any?>>
+    fun <T> rows(table: String, read: (Map<String, Any?>) -> T): List<T>
 }
 
 /** The file isn't Cashew's: it has none of the tables Cashew's data file has. */
@@ -28,21 +29,19 @@ internal class NotCashewData : IllegalArgumentException("Not a Cashew data file"
  * @throws NotCashewData when the database has no wallets.
  */
 internal fun readCashew(tables: CashewTables): CashewData {
-    val wallets = tables.rows("wallets").map { Row(it).wallet() }
+    val wallets = tables.rows("wallets") { Row(it).wallet() }
     if (wallets.isEmpty()) throw NotCashewData()
     return CashewData(
         wallets = wallets,
-        categories = tables.rows("categories").map { Row(it).category() },
-        transactions = tables.rows("transactions").map { Row(it).transaction() },
-        objectives = tables.rows("objectives").map { Row(it).objective() },
-        budgets = tables.rows("budgets").map { Row(it).budget() },
-        limitedBudgets = tables.rows("category_budget_limits").mapTo(HashSet()) { Row(it).text("budget_fk") },
+        categories = tables.rows("categories") { Row(it).category() },
+        transactions = tables.rows("transactions") { Row(it).transaction() },
+        objectives = tables.rows("objectives") { Row(it).objective() },
+        budgets = tables.rows("budgets") { Row(it).budget() },
+        limitedBudgets = tables.rows("category_budget_limits") { Row(it).text("budget_fk") }.toSet(),
         // Cashew writes its settings in the database's first row when it exports the file.
-        settings = tables.rows("app_settings")
-            .map(::Row)
-            .sortedBy { it.long("settings_pk") }
-            .firstOrNull()
-            ?.let { settings(it.text("settings_j_s_o_n")) }
+        settings = tables.rows("app_settings") { Row(it).long("settings_pk") to Row(it).text("settings_j_s_o_n") }
+            .minByOrNull { (pk, _) -> pk }
+            ?.let { (_, json) -> settings(json) }
             ?: NoSettings,
     )
 }

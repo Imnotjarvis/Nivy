@@ -60,7 +60,8 @@ class ImportViewModelTest {
         coEvery { import(backup, any()) } returns fromCashew
     }
 
-    private val viewModel = ImportViewModel(nav = nav, backupDataUseCase = backupDataUseCase, importCashew = importCashew)
+    private val viewModel =
+        ImportViewModel(nav = nav, backupDataUseCase = backupDataUseCase, importCashew = importCashew)
 
     @Before
     fun setUp() {

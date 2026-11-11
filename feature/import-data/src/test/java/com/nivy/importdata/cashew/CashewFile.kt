@@ -29,8 +29,12 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
     fun wallet(pk: String, name: String, currency: String? = "eur", colour: String? = null, order: Int = 0) =
         insert(
             "wallets",
-            "wallet_pk" to pk, "name" to name, "currency" to currency, "colour" to colour,
-            "order" to order, "date_created" to Created,
+            "wallet_pk" to pk,
+            "name" to name,
+            "currency" to currency,
+            "colour" to colour,
+            "order" to order,
+            "date_created" to Created,
         )
 
     fun category(
@@ -42,8 +46,13 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
         main: String? = null,
     ) = insert(
         "categories",
-        "category_pk" to pk, "name" to name, "colour" to colour, "icon_name" to icon, "order" to order,
-        "main_category_pk" to main, "date_created" to Created,
+        "category_pk" to pk,
+        "name" to name,
+        "colour" to colour,
+        "icon_name" to icon,
+        "order" to order,
+        "main_category_pk" to main,
+        "date_created" to Created,
     )
 
     @Suppress("LongParameterList") // one per column a test sets
@@ -116,12 +125,17 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
 
     fun categoryLimit(pk: String, budget: String, category: String) = insert(
         "category_budget_limits",
-        "category_limit_pk" to pk, "budget_fk" to budget, "category_fk" to category, "amount" to 10.0,
+        "category_limit_pk" to pk,
+        "budget_fk" to budget,
+        "category_fk" to category,
+        "amount" to 10.0,
     )
 
     fun settings(json: String) = insert(
         "app_settings",
-        "settings_pk" to 0, "settings_j_s_o_n" to json, "date_updated" to Created,
+        "settings_pk" to 0,
+        "settings_j_s_o_n" to json,
+        "date_updated" to Created,
     )
 
     private fun insert(table: String, vararg values: Pair<String, Any?>) {
@@ -158,17 +172,20 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
 
 /** Cashew's tables read with JDBC, as the app reads them with Android's SQLite. */
 internal class JdbcCashewTables(private val connection: Connection) : CashewTables {
-    override fun rows(table: String): List<Map<String, Any?>> {
+    override fun <T> rows(table: String, read: (Map<String, Any?>) -> T): List<T> {
         val exists = connection.prepareStatement(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?"
-        ).use { it.setString(1, table); it.executeQuery().use { result -> result.next() } }
+        ).use {
+            it.setString(1, table)
+            it.executeQuery().use { result -> result.next() }
+        }
         if (!exists) return emptyList()
         return connection.createStatement().use { statement ->
             statement.executeQuery("SELECT * FROM \"$table\"").use { result ->
                 val meta = result.metaData
                 buildList {
                     while (result.next()) {
-                        add((1..meta.columnCount).associate { meta.getColumnName(it) to result.getObject(it) })
+                        add(read((1..meta.columnCount).associate { meta.getColumnName(it) to result.getObject(it) }))
                     }
                 }
             }

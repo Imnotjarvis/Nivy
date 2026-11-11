@@ -4,8 +4,8 @@ import com.nivy.base.model.IntervalType
 import com.nivy.base.model.LoanRecordType
 import com.nivy.base.model.LoanType
 import com.nivy.base.model.TransactionType
-import com.nivy.data.model.Expense
 import com.nivy.data.model.ExchangeRate
+import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.PositiveDouble
@@ -62,7 +62,9 @@ class CashewPlannedAndLoansTest {
 
         // then
         plan.plannedPayments.single().interval?.type shouldBe IntervalType.MONTH
-        plan.leftOut shouldBe listOf(LeftOut(Reason.EndsInCashew, listOf(LeftOut.Item("Music", LocalDate.of(2027, 3, 1)))))
+        plan.leftOut shouldBe listOf(
+            LeftOut(Reason.EndsInCashew, listOf(LeftOut.Item("Music", LocalDate.of(2027, 3, 1)))),
+        )
     }
 
     @Test
@@ -89,12 +91,20 @@ class CashewPlannedAndLoansTest {
             wallet("w1", "Bank")
             category("c1", "Bills")
             transaction(
-                "u1", -80.0, name = "Dentist", type = CashewType.Upcoming, paid = false,
+                "u1",
+                -80.0,
+                name = "Dentist",
+                type = CashewType.Upcoming,
+                paid = false,
                 date = "2026-12-01T09:00:00Z",
             )
             transaction(
-                "u2", -45.0, name = "Plumber", type = CashewType.Upcoming,
-                date = "2026-10-03T09:00:00Z", dueDate = "2026-10-02T09:00:00Z",
+                "u2",
+                -45.0,
+                name = "Plumber",
+                type = CashewType.Upcoming,
+                date = "2026-10-03T09:00:00Z",
+                dueDate = "2026-10-02T09:00:00Z",
             )
         }
 
@@ -119,8 +129,14 @@ class CashewPlannedAndLoansTest {
             wallet("w2", "Savings")
             transaction("in", 100.0, wallet = "w2", category = "0", paid = false, type = CashewType.Repetitive)
             transaction(
-                "out", -100.0, wallet = "w1", category = "0", paired = "in", paid = false,
-                type = CashewType.Repetitive, name = "Savings",
+                "out",
+                -100.0,
+                wallet = "w1",
+                category = "0",
+                paired = "in",
+                paid = false,
+                type = CashewType.Repetitive,
+                name = "Savings",
             )
         }
 
@@ -137,8 +153,13 @@ class CashewPlannedAndLoansTest {
             category("c1", "Loans", colour = "0xff9c27b0")
             transaction("l1", -200.0, name = "Anna", type = CashewType.Credit, date = "2026-09-01T10:00:00Z")
             transaction(
-                "l2", -50.0, name = "Marco", type = CashewType.Credit, paid = false,
-                date = "2026-08-01T10:00:00Z", modified = "2026-09-15T18:00:00Z",
+                "l2",
+                -50.0,
+                name = "Marco",
+                type = CashewType.Credit,
+                paid = false,
+                date = "2026-08-01T10:00:00Z",
+                modified = "2026-09-15T18:00:00Z",
             )
             transaction("d1", 300.0, name = "Bank of Mum", type = CashewType.Debt, date = "2026-07-01T10:00:00Z")
         }
@@ -306,7 +327,7 @@ class CashewPlannedAndLoansTest {
         paid: Boolean = true,
         end: String? = null,
     ) = transaction(
-            pk, -9.99, name = "Music", type = CashewType.Subscription, repeat = CashewRepeat.Monthly,
-            repeatEvery = 1, date = date, dueDate = due, paid = paid, endDate = end,
-        )
+        pk, -9.99, name = "Music", type = CashewType.Subscription, repeat = CashewRepeat.Monthly,
+        repeatEvery = 1, date = date, dueDate = due, paid = paid, endDate = end,
+    )
 }

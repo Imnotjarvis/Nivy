@@ -97,7 +97,8 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
             rates = planRates(),
             found = found,
             imported = imported,
-            leftOut = leftOut.map { (reason, items) -> LeftOut(reason, items) },
+            // A loan with several payments without a rate is named once.
+            leftOut = leftOut.map { (reason, items) -> LeftOut(reason, items.distinct()) },
         )
     }
 
@@ -132,7 +133,9 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
     private fun planCategories() {
         val byName = wallet.categories.uniqueBy { nameKey(it.name.value) }.toMutableMap()
         var order = (wallet.categories.maxOfOrNull { it.orderNum } ?: -1.0) + 1
-        val (mains, subs) = data.categories.filter { it.pk != BalanceCorrection }.partition { it.mainCategoryPk == null }
+        val (mains, subs) = data.categories
+            .filter { it.pk != BalanceCorrection }
+            .partition { it.mainCategoryPk == null }
         mains.sortedBy { it.order }.forEachIndexed { index, cashew ->
             val name = NotBlankTrimmedString.from(cashew.name).getOrNull() ?: return@forEachIndexed
             categories[cashew.pk] = byName.getOrPut(nameKey(name.value)) {
@@ -216,7 +219,8 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
     private fun add(transaction: Transaction, vararg rows: CashewTransaction) {
         transactions += transaction
         imported += rows.size
-        tagsOf(rows.first()).forEach { tagLinks += TagAssociation(id = it, associatedId = AssociationId(transaction.id.value)) }
+        val linked = AssociationId(transaction.id.value)
+        tagsOf(rows.first()).forEach { tagLinks += TagAssociation(id = it, associatedId = linked) }
     }
 
     /** A note as a description; none for the ones Cashew writes itself on a transfer or a correction. */

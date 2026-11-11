@@ -73,7 +73,10 @@ class ImportViewModel @Inject internal constructor(
                     _importResult.value = imported.result
                 } else {
                     _cashewResult.value = null
-                    _importResult.value = backupDataUseCase.importBackupFile(backupFileUri = fileUri, onProgress = onProgress)
+                    _importResult.value = backupDataUseCase.importBackupFile(
+                        backupFileUri = fileUri,
+                        onProgress = onProgress,
+                    )
                 }
                 _importStep.value = ImportStep.RESULT
             }

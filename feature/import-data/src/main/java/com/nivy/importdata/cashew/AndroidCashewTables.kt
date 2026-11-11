@@ -5,17 +5,16 @@ import android.database.sqlite.SQLiteDatabase
 
 /** Cashew's tables in [database], read with Android's SQLite. */
 internal class AndroidCashewTables(private val database: SQLiteDatabase) : CashewTables {
-    override fun rows(table: String): List<Map<String, Any?>> {
+    override fun <T> rows(table: String, read: (Map<String, Any?>) -> T): List<T> {
         val exists = database.rawQuery(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
             arrayOf(table),
         ).use { it.moveToFirst() }
         if (!exists) return emptyList()
         return database.rawQuery("SELECT * FROM \"$table\"", null).use { cursor ->
+            val columns = cursor.columnNames
             buildList {
-                while (cursor.moveToNext()) {
-                    add((0 until cursor.columnCount).associate { cursor.getColumnName(it) to cursor.value(it) })
-                }
+                while (cursor.moveToNext()) add(read(columns.indices.associate { columns[it] to cursor.value(it) }))
             }
         }
     }

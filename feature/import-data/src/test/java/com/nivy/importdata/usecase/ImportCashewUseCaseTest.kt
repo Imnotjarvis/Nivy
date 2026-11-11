@@ -15,9 +15,7 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.preferences.AppPreferences
-import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.BudgetRepository
-import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
@@ -148,12 +146,19 @@ class ImportCashewUseCaseTest {
             transaction("t1", -3.5, subCategory = "c2", date = "2026-10-01T08:00:00Z")
             transaction("t2", 2000.0, wallet = "w2", date = "2026-10-02T08:00:00Z")
             transaction(
-                "s1", -9.99, type = CashewType.Subscription, repeat = CashewRepeat.Monthly, repeatEvery = 1,
-                paid = false, date = "2026-11-05T08:00:00Z",
+                "s1",
+                -9.99,
+                type = CashewType.Subscription,
+                repeat = CashewRepeat.Monthly,
+                repeatEvery = 1,
+                paid = false,
+                date = "2026-11-05T08:00:00Z",
             )
             transaction("l1", -50.0, type = CashewType.Credit, paid = false)
             budget("b1", "Food", 300.0)
-            settings("""{"selectedWalletPk":"w1","customCurrencyAmounts":{"usd":1.1},"cachedCurrencyExchange":{"eur":0.9}}""")
+            settings(
+                """{"selectedWalletPk":"w1","customCurrencyAmounts":{"usd":1.1},"cachedCurrencyExchange":{"eur":0.9}}"""
+            )
         }
 
         // when

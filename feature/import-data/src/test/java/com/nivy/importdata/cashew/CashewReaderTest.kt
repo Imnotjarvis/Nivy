@@ -22,17 +22,32 @@ class CashewReaderTest {
             category("c1", "Dining", colour = "0xffe91e63", icon = "cutlery.png", order = 2)
             category("c2", "Coffee", main = "c1")
             transaction(
-                pk = "t1", amount = -4.125, name = "Lunch", note = "With Anna", subCategory = "c2",
-                date = "2026-10-05T13:00:00Z", dueDate = "2026-10-04T00:00:00Z", goal = "g1",
+                pk = "t1",
+                amount = -4.125,
+                name = "Lunch",
+                note = "With Anna",
+                subCategory = "c2",
+                date = "2026-10-05T13:00:00Z",
+                dueDate = "2026-10-04T00:00:00Z",
+                goal = "g1",
             )
             transaction(
-                pk = "t2", amount = -9.99, paid = false, type = CashewType.Subscription,
-                repeat = CashewRepeat.Monthly, repeatEvery = 1, endDate = "2027-03-01T00:00:00Z",
+                pk = "t2",
+                amount = -9.99,
+                paid = false,
+                type = CashewType.Subscription,
+                repeat = CashewRepeat.Monthly,
+                repeatEvery = 1,
+                endDate = "2027-03-01T00:00:00Z",
             )
             objective("g1", "Holiday")
             objective("l1", "Car", loan = true, income = true)
             budget(
-                "b1", "Food", 300.0, wallets = """["w1"]""", categories = """["c1"]""",
+                "b1",
+                "Food",
+                300.0,
+                wallets = """["w1"]""",
+                categories = """["c1"]""",
                 excluded = """[]""",
             )
             categoryLimit("cl1", budget = "b1", category = "c1")
