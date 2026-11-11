@@ -72,7 +72,9 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
         repeatEvery: Int? = null,
         dueDate: String? = null,
         endDate: String? = null,
-        skipped: Boolean = false,
+        // As Cashew writes it: set on every ordinary transaction it makes, not on a correction's half,
+        // and on a planned occurrence once it's skipped.
+        skipPaid: Boolean = type == null && category != "0",
         goal: String? = null,
         loan: String? = null,
         modified: String? = null,
@@ -83,7 +85,7 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
         "paid" to paid, "type" to type?.ordinal, "sub_category_fk" to subCategory,
         "paired_transaction_fk" to paired, "reoccurrence" to repeat?.ordinal, "period_length" to repeatEvery,
         "original_date_due" to dueDate?.let(::seconds), "end_date" to endDate?.let(::seconds),
-        "skip_paid" to skipped, "objective_fk" to goal, "objective_loan_fk" to loan,
+        "skip_paid" to skipPaid, "objective_fk" to goal, "objective_loan_fk" to loan,
         "date_time_modified" to modified?.let(::seconds),
     )
 
