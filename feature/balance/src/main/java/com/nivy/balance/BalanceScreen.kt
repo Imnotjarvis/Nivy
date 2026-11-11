@@ -55,6 +55,7 @@ import com.nivy.wallet.ui.theme.components.NivyDividerLine
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModal
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
+import com.nivy.wallet.ui.theme.wallet.backToThisMonth
 import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.horizontalSwipeListener
@@ -98,7 +99,8 @@ internal fun BoxWithConstraintsScope.UI(
                 choosePeriodModal = ChoosePeriodModalData(
                     period = state.period
                 )
-            }
+            },
+            onSelectPeriod = { onEvent(BalanceEvent.OnSetPeriod(it)) },
         )
 
         Spacer(Modifier.height(24.dp))
@@ -149,6 +151,7 @@ private fun TopBar(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onShowChoosePeriodModal: () -> Unit,
+    onSelectPeriod: (TimePeriod) -> Unit,
 ) {
     val nav = navigation()
     Row(
@@ -177,6 +180,8 @@ private fun TopBar(
                 timeProvider = LocalTimeProvider.current,
                 timeFormatter = LocalTimeFormatter.current,
             ),
+            onClear = backToThisMonth(period, onSelectPeriod),
+            clearLabel = stringResource(R.string.month_this_month),
             onClick = onShowChoosePeriodModal,
         )
     }

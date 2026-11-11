@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import com.nivy.design.utils.thenIf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,7 @@ import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
+import com.nivy.wallet.ui.theme.components.ClearIcon
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import androidx.compose.material3.MaterialTheme
 
@@ -40,6 +42,8 @@ fun PeriodSelector(
     onNextMonth: () -> Unit,
     // Null where there's no other period to choose: the label then isn't a button.
     onShowChoosePeriodModal: (() -> Unit)?,
+    // Null while the period is this month, or where it can't change: no × then.
+    onThisMonth: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -97,6 +101,10 @@ fun PeriodSelector(
                     fontWeight = FontWeight.Bold
                 )
             )
+
+            if (onThisMonth != null) {
+                ClearIcon(onClear = onThisMonth, label = stringResource(R.string.month_this_month))
+            }
         }
 
         Spacer(Modifier.weight(1f))
@@ -118,6 +126,17 @@ fun PeriodSelector(
     }
 }
 
+/**
+ * Goes back to this month, the period the screens start on, through [select]: what a period's ×
+ * does. None while [period] is this month, so the × shows only when there's somewhere to go back.
+ */
+@Composable
+fun backToThisMonth(period: TimePeriod, select: (TimePeriod) -> Unit): (() -> Unit)? {
+    val thisMonth = TimePeriod.currentMonth(LocalPeriodState.current.startDayOfMonth, LocalTimeProvider.current)
+    if (period == thisMonth) return null
+    return { select(thisMonth) }
+}
+
 @Preview
 @Composable
 private fun Preview() {
@@ -129,7 +148,8 @@ private fun Preview() {
             ), // preview
             onPreviousMonth = { },
             onNextMonth = { },
-            onShowChoosePeriodModal = {}
+            onShowChoosePeriodModal = {},
+            onThisMonth = null,
         )
     }
 }

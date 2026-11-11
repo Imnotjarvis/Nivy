@@ -20,7 +20,8 @@ class PeriodState @Inject constructor(
     var selected: TimePeriod = TimePeriod.currentMonth(startDayOfMonth, timeProvider)
         private set
 
-    // Until the user picks a period, the selection is the current month, whichever it is now.
+    // Until the user picks a period other than this month, the selection is the current month,
+    // whichever it is now.
     private var pickedByUser = false
 
     fun setStartDayOfMonth(day: Int) {
@@ -41,7 +42,7 @@ class PeriodState @Inject constructor(
 
     fun select(period: TimePeriod) {
         selected = period
-        pickedByUser = true
+        pickedByUser = period != TimePeriod.currentMonth(startDayOfMonth, timeProvider)
     }
 
     /** Selects the month [increment] months away from [month] of [year], and returns it. */

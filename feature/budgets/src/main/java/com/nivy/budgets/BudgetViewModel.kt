@@ -121,6 +121,8 @@ class BudgetViewModel @Inject constructor(
 
             is BudgetScreenEvent.OnNextMonth -> selectMonth(increment = 1)
 
+            is BudgetScreenEvent.OnThisMonth -> selectThisMonth()
+
             is BudgetScreenEvent.OnSetSavingsGoal -> setSavingsGoal(event.amount)
         }
     }
@@ -172,6 +174,12 @@ class BudgetViewModel @Inject constructor(
         val month = period.value?.month ?: return
         val year = period.value?.year ?: timeProvider.localDateNow().year
         period.value = month.incrementMonthPeriod(increment, year)
+        start()
+    }
+
+    // The current month again, as Budgets shows until the user goes to another.
+    private fun selectThisMonth() {
+        period.value = null
         start()
     }
 

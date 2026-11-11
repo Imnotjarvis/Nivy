@@ -22,6 +22,7 @@ import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.nivy.wallet.ui.theme.modal.DeleteConfirmationModal
 import com.nivy.wallet.ui.theme.modal.DeleteModal
 import com.nivy.wallet.ui.theme.wallet.PeriodSelector
+import com.nivy.wallet.ui.theme.wallet.backToThisMonth
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -32,6 +33,7 @@ internal fun LazyListScope.choosePeriodModal(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
+    onSetPeriod: (TimePeriod) -> Unit,
 ) {
     item {
         Box {
@@ -50,7 +52,8 @@ internal fun LazyListScope.choosePeriodModal(
                             )
                         )
                     }
-                }
+                },
+                onThisMonth = if (initWithTransactions) null else backToThisMonth(period, onSetPeriod),
             )
         }
     }

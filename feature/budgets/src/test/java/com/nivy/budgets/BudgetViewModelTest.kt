@@ -215,6 +215,13 @@ class BudgetViewModelTest : ComposeViewModelTest() {
     }
 
     @Test
+    fun `back to this month from another, it shows the current month`() {
+        openBudgets(BudgetScreenEvent.OnPreviousMonth, BudgetScreenEvent.OnThisMonth) {
+            period?.month shouldBe Month.fromMonthValue(11)
+        }
+    }
+
+    @Test
     fun `Budgets opened anew shows the current month`() {
         openBudgets(BudgetScreenEvent.OnPreviousMonth, BudgetScreenEvent.OnOpen(BudgetScreen())) {
             period?.month shouldBe Month.fromMonthValue(11)

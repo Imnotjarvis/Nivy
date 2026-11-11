@@ -76,6 +76,7 @@ class HomePaparazziTest(
                             onShowMonthModal = {},
                             onSelectNextMonth = {},
                             onSelectPreviousMonth = {},
+                            onSelectPeriod = {},
                             firstGlanceFact = row.fact,
                         )
                     }
@@ -104,6 +105,7 @@ class HomePaparazziTest(
                         onShowMonthModal = {},
                         onSelectNextMonth = {},
                         onSelectPreviousMonth = {},
+                        onSelectPeriod = {},
                     )
                     HomeSearchBar(pull = pull) {}
                     CashFlowInfo(
