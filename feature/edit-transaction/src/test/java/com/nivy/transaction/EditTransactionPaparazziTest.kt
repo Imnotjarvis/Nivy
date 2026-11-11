@@ -186,6 +186,7 @@ private fun BoxWithConstraintsScope.Editor(
             toAccount = toAccount,
             category = category,
             amount = amount,
+            canSave = amount > 0.0,
             hasChanges = false,
             displayLoanHelper = EditTransactionDisplayLoan(),
             backgroundProcessingStarted = false,

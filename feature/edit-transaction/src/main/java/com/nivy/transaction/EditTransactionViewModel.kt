@@ -172,6 +172,7 @@ class EditTransactionViewModel @Inject constructor(
             toAccount = toAccount,
             category = category,
             amount = amount,
+            canSave = amount > 0.0,
             hasChanges = hasChanges,
             displayLoanHelper = displayLoanHelper,
             backgroundProcessingStarted = backgroundProcessingStarted,
@@ -209,8 +210,7 @@ class EditTransactionViewModel @Inject constructor(
 
             is EditTransactionViewEvent.OnTitleChanged -> onTitleChanged(event.newTitle)
             is EditTransactionViewEvent.OnToAccountChanged -> onToAccountChanged(event.newAccount)
-            is EditTransactionViewEvent.Save -> save(event.closeScreen)
-            is EditTransactionViewEvent.SetHasChanges -> setHasChanges(event.hasChangesValue)
+            is EditTransactionViewEvent.Save -> onSave(event.closeScreen)
             is EditTransactionViewEvent.UpdateExchangeRate -> updateExchangeRate(event.exRate)
             is EditTransactionViewEvent.TagEvent -> tags.onEvent(event)
         }
@@ -396,7 +396,10 @@ class EditTransactionViewModel @Inject constructor(
 
     private fun onPayPlannedPayment() {
         viewModelScope.launch {
-            val paidTransaction = transactionSaving.pay(loadedTransaction()) ?: return@launch
+            var paid: TransactionDraft? = null
+            userWrites.run(R.string.msg_change_not_saved) { paid = transactionSaving.pay(loadedTransaction()) }
+            // Nothing to pay, or it couldn't be: the screen stays as it is.
+            val paidTransaction = paid ?: return@launch
             loadedTransaction = paidTransaction
             paidHistory = paidTransaction.paidFor
             dueDate = paidTransaction.dueDate
@@ -471,7 +474,14 @@ class EditTransactionViewModel @Inject constructor(
         }
     }
 
-    private fun save(closeScreen: Boolean = true) {
+    // The Save button. On a planned payment it stays open, and its changes count as saved: the
+    // button is Pay again, unless what's entered can't be saved.
+    private fun onSave(closeScreen: Boolean) {
+        if (save(closeScreen) && !closeScreen) hasChanges = false
+    }
+
+    /** False when what's entered can't be saved; why is shown, unless it's the missing amount. */
+    private fun save(closeScreen: Boolean = true): Boolean {
         val valid = transactionSaving.validTransaction(
             scope = viewModelScope,
             transactionType = transactionType,
@@ -480,18 +490,16 @@ class EditTransactionViewModel @Inject constructor(
             amount = amount,
             customExchangeRateState = rateCard.state,
         )
-        if (!valid) {
-            return
-        }
         // A double tap would save twice and go back twice.
-        if (closeScreen && closingSave?.isActive == true) return
-
-        val job = viewModelScope.launch {
-            // Edit mode saves on every change: one save at a time, in order, so a slow one can't
-            // land after a newer one and undo it.
-            saveMutex.withLock { saveInternal(closeScreen = closeScreen) }
+        if (valid && !(closeScreen && closingSave?.isActive == true)) {
+            val job = viewModelScope.launch {
+                // Edit mode saves on every change: one save at a time, in order, so a slow one
+                // can't land after a newer one and undo it.
+                saveMutex.withLock { saveInternal(closeScreen = closeScreen) }
+            }
+            if (closeScreen) closingSave = job
         }
-        if (closeScreen) closingSave = job
+        return valid
     }
 
     private var closingSave: Job? = null
@@ -527,11 +535,6 @@ class EditTransactionViewModel @Inject constructor(
         if (saved && closeScreen) {
             closeScreen()
         }
-    }
-
-    @JvmName("setHasChangesMethod")
-    private fun setHasChanges(hasChangesValue: Boolean) {
-        hasChanges = hasChangesValue
     }
 
     private fun closeScreen() {
