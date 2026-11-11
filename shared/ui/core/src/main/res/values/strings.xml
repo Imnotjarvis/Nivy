@@ -146,9 +146,6 @@
     <string name="transactions">transactions</string>
     <string name="home">Home</string>
     <string name="add_planned_payment">Add planned payment</string>
-    <string name="add_income_uppercase">Add income</string>
-    <string name="add_expense_uppercase">Add expense</string>
-    <string name="account_transfer">Account transfer</string>
     <string name="skip">Skip</string>
     <string name="add_new">Add new</string>
     <string name="enter">Enter</string>
