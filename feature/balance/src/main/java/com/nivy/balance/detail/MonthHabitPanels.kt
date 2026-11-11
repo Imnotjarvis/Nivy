@@ -19,7 +19,6 @@ import com.nivy.design.system.colors.incomeGreen
 import com.nivy.ui.R
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.ui.component.ChartPanel
-import com.nivy.wallet.ui.component.FindingRow
 import com.nivy.wallet.ui.component.InfoRow
 import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.LabeledBars
@@ -64,9 +63,10 @@ internal fun UnusualPanel(unusual: Unusual, currency: String) {
                 if (index > 0) Spacer(Modifier.height(16.dp))
                 val category = purchase.category?.name?.value
                 val since = purchase.since
-                FindingRow(
+                InfoRow(
                     dot = categoryColor(purchase.category),
                     title = purchase.title ?: category ?: stringResource(R.string.unspecified),
+                    noteLines = 2,
                     note = "${dayLabel(purchase.day)}, " + when {
                         since == null && category != null ->
                             stringResource(R.string.month_biggest_in, category, purchase.months)
@@ -82,9 +82,10 @@ internal fun UnusualPanel(unusual: Unusual, currency: String) {
                 if (index > 0 || unusual.purchases.isNotEmpty()) Spacer(Modifier.height(16.dp))
                 val name = item.category?.name?.value ?: stringResource(R.string.unspecified)
                 val usual = approxAmount(item.usual)
-                FindingRow(
+                InfoRow(
                     dot = categoryColor(item.category),
                     title = name,
+                    noteLines = 2,
                     note = when {
                         item.beaten == item.months && item.higher ->
                             stringResource(R.string.month_usually_highest, usual, currency, item.months)
