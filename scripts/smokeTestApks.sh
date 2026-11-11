@@ -78,11 +78,18 @@ find_text() {
     return 1
 }
 
-# Swipes down the middle of the screen, from 30% of its height to 75%: a finger going back.
+# Swipes down the middle of the screen, from 30% of its height to 75%: a finger going back. A move
+# at a time, each its own event: a drag counts the moves, not the jump to where the finger lifts,
+# and "input swipe" on a busy emulator can send few moves and leave most of the way to the lift.
 swipe_down() {
-    local width height
+    local width height x percent
     read -r width height < <(adb shell wm size | tail -1 | grep -oE '[0-9]+x[0-9]+' | tr x ' ')
-    adb shell input swipe $((width / 2)) $((height * 3 / 10)) $((width / 2)) $((height * 3 / 4)) 400
+    x=$((width / 2))
+    adb shell input motionevent DOWN "$x" $((height * 30 / 100))
+    for percent in 40 50 60 70 75; do
+        adb shell input motionevent MOVE "$x" $((height * percent / 100))
+    done
+    adb shell input motionevent UP "$x" $((height * 75 / 100))
 }
 
 # Waits for the screen showing $3, screenshots it as $OUT/<apk>-$2.png and checks the app, then
@@ -93,7 +100,8 @@ step() {
     if ! find_text "$shows" >/dev/null; then
         adb exec-out screencap -p > "$OUT/$name-$step.png"
         cp "$OUT/screen.xml" "$OUT/$name-$step.xml" 2>/dev/null
-        echo "FAIL [$name] $step: no \"$shows\" on screen"
+        echo "FAIL [$name] $step: no \"$shows\" on screen, which shows:"
+        grep -oE '(text|content-desc)="[^"]+"' "$OUT/screen.xml" 2>/dev/null | sort -u | head -30 | sed 's/^/    /'
         return 1
     fi
     adb exec-out screencap -p > "$OUT/$name-$step.png"
