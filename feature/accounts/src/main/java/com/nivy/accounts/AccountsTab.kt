@@ -18,6 +18,7 @@ import com.nivy.domain.usecase.account.invested
 import com.nivy.wallet.ui.displayName
 import com.nivy.wallet.ui.iconName
 import com.nivy.wallet.ui.theme.components.ListItem
+import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatGainPercent
 import kotlinx.collections.immutable.ImmutableList
@@ -280,7 +281,7 @@ private fun AccountCard(
             val used = usedAmount.format(currency)
             val amounts = card.creditLimit?.let {
                 stringResource(R.string.credit_used_of_limit, used, it.value.format(currency), currency)
-            } ?: "$used $currency"
+            } ?: amountAndCode(usedAmount, currency)
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
