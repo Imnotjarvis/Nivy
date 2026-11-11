@@ -202,7 +202,7 @@ internal object BalanceSample {
                 trackedSince = null,
                 income = Income,
                 outgoing = spent,
-                plannedExpenses = plannedExpenses,
+                plannedFixed = plannedExpenses,
                 previous = Past.filter { it.day.monthValue == 10 && it.day.dayOfMonth <= 9 }
                     .groupBy { it.category }
                     .mapValues { (_, inCategory) -> inCategory.sumOf { it.amount } },

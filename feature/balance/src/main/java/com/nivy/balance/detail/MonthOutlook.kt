@@ -7,6 +7,7 @@ import com.nivy.wallet.domain.pure.forecast.band
 import com.nivy.wallet.domain.pure.forecast.bandsByStep
 import com.nivy.wallet.domain.pure.forecast.simulateDays
 import com.nivy.wallet.domain.pure.spending.Flow
+import com.nivy.wallet.domain.pure.spending.median
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
@@ -137,7 +138,7 @@ internal fun unusual(spends: List<Flow>, elapsed: Int, past: List<PastMonth>, at
             val sameDays = month.days.take(elapsed).toSet()
             month.spends.filter { !it.recurring && it.category == category && it.day in sameDays }.sumOf { it.amount }
         }
-        val usual = before.sorted().let { (it[(it.size - 1) / 2] + it[it.size / 2]) / 2 }
+        val usual = median(before) ?: return@mapNotNull null
         val apart = abs(amount - usual) >= maxOf(Big * atLeast, ApartShare * usual)
         val less = before.count { it < amount }
         val more = before.count { it > amount }

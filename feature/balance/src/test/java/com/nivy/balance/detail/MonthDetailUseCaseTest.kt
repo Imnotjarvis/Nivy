@@ -88,7 +88,7 @@ class MonthDetailUseCaseTest {
     // The wallet's balance is 10,000 euros before any of these, plus what was paid by then in
     // the accounts in the balance.
     private val walletBalanceUseCase = mockk<WalletBalanceUseCase> {
-        coEvery { balance(any(), any(), any()) } answers {
+        coEvery { balance(any(), any()) } answers {
             val to = secondArg<ClosedTimeRange?>()?.to ?: Instant.MAX
             val included = accounts.filter { it.includeInBalance }.map { it.id }.toSet()
             val paid = transactions.filter { it.settled && !it.time.isAfter(to) && it.account() in included }
