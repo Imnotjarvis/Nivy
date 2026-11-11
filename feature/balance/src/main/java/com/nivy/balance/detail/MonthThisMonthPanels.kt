@@ -49,7 +49,6 @@ import kotlin.math.abs
 internal fun FreeToSpendPanel(
     free: FreeToSpend,
     currency: String,
-    month: Month?,
     outlook: MonthOutlook? = null,
     lastDay: LocalDate? = null,
 ) {
@@ -62,14 +61,7 @@ internal fun FreeToSpendPanel(
         if (free.left >= 0) {
             BigNumber(stringResource(R.string.month_per_day, free.perDay.format(currency), currency))
             Spacer(Modifier.height(4.dp))
-            Subtext(
-                pluralStringResource(
-                    R.plurals.month_days_left_even,
-                    free.daysLeft,
-                    free.daysLeft,
-                    month?.displayName().orEmpty(),
-                )
-            )
+            Subtext(pluralStringResource(R.plurals.month_days_left_even, free.daysLeft, free.daysLeft))
             Spacer(Modifier.height(16.dp))
             val whole = (free.spent + free.left).coerceAtLeast(Double.MIN_VALUE)
             val likely = outlook?.left?.let { free.left - it.likely }
@@ -116,7 +108,12 @@ internal fun FreeToSpendPanel(
             Spacer(Modifier.height(2.dp))
             Subtext(
                 when {
-                    left.low >= 0 -> rangeText(left, currency)
+                    left.low >= 0 -> stringResource(
+                        R.string.month_likely_range_left,
+                        approxAmount(left.low),
+                        approxAmount(left.high),
+                        currency,
+                    )
                     left.high < 0 -> stringResource(
                         R.string.month_likely_range_short,
                         approxAmount(-left.high),

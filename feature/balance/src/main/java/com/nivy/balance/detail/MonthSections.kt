@@ -46,7 +46,7 @@ internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, mo
             if (detail.today != null) stringResource(R.string.month_this_month) else month?.displayName().orEmpty()
         )
         detail.freeToSpend?.let {
-            FreeToSpendPanel(it, currency, month, detail.outlook, detail.days.lastOrNull())
+            FreeToSpendPanel(it, currency, detail.outlook, detail.days.lastOrNull())
             Spacer(Modifier.height(16.dp))
         }
         DayByDayPanel(detail, currency)
