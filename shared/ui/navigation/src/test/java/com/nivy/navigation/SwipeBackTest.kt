@@ -12,14 +12,15 @@ class SwipeBackTest {
     private var somewhereToGoBack = true
     private var leavesTheScreen = true
     private var wentBack = 0
+    private var ticks = 0
     private val swipe = SwipeBack(
         distancePx = 160f,
-        flickPx = 1_000f,
         canGoBack = { somewhereToGoBack },
         goBack = {
             wentBack++
             leavesTheScreen
         },
+        onReachPoint = { ticks++ },
     )
 
     @Test
@@ -37,39 +38,60 @@ class SwipeBackTest {
     }
 
     @Test
-    fun `let go far enough down, it goes back from where it is`() = runTest(Frames) {
-        swipe.drag(170f)
+    fun `the screen stops at the point however far the finger goes, with one tick`() {
+        swipe.drag(100f)
+        swipe.drag(150f)
+        swipe.onPostScroll(Offset.Zero, Offset(0f, 50f), NestedScrollSource.UserInput)
 
-        swipe.release(velocity = 0f)
-
-        wentBack shouldBe 1
-        swipe.offsetPx shouldBe 170f
+        swipe.offsetPx shouldBe 160f
+        ticks shouldBe 1
     }
 
     @Test
-    fun `let go before that, it slides back into place`() = runTest(Frames) {
+    fun `past the point, the screen comes up once the finger is back above it`() {
+        swipe.drag(300f)
+
+        swipe.drag(-100f)
+        swipe.offsetPx shouldBe 160f
+
+        swipe.drag(-60f)
+        swipe.offsetPx shouldBe 140f
+    }
+
+    @Test
+    fun `back above the point and down to it again, it ticks again`() {
+        swipe.drag(170f)
+        swipe.drag(-30f)
+        swipe.drag(30f)
+
+        ticks shouldBe 2
+    }
+
+    @Test
+    fun `let go at the point, it goes back from there`() = runTest(Frames) {
+        swipe.drag(250f)
+
+        swipe.release()
+
+        wentBack shouldBe 1
+        swipe.offsetPx shouldBe 160f
+    }
+
+    @Test
+    fun `let go before it, it slides back into place`() = runTest(Frames) {
         swipe.drag(100f)
 
-        swipe.release(velocity = 0f)
+        swipe.release()
 
         wentBack shouldBe 0
         swipe.offsetPx shouldBe 0f
     }
 
     @Test
-    fun `a flick down goes back before that`() = runTest(Frames) {
-        swipe.drag(60f)
+    fun `a flick before the point doesn't go back`() = runTest(Frames) {
+        swipe.drag(100f)
 
-        swipe.release(velocity = 1_500f)
-
-        wentBack shouldBe 1
-    }
-
-    @Test
-    fun `a flick of a few pixels doesn't`() = runTest(Frames) {
-        swipe.drag(20f)
-
-        swipe.release(velocity = 3_000f)
+        swipe.onPreFling(Velocity(0f, 5_000f))
 
         wentBack shouldBe 0
         swipe.offsetPx shouldBe 0f
@@ -80,7 +102,7 @@ class SwipeBackTest {
         leavesTheScreen = false
         swipe.drag(170f)
 
-        swipe.release(velocity = 0f)
+        swipe.release()
 
         wentBack shouldBe 1
         swipe.offsetPx shouldBe 0f
