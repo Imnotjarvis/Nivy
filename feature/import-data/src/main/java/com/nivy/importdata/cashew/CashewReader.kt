@@ -83,7 +83,9 @@ private fun Row.transaction() = CashewTransaction(
     endDate = instantOrNull("end_date"),
     type = longOrNull("type")?.let { CashewType.entries.getOrNull(it.toInt()) },
     paid = bool("paid"),
-    skipped = bool("skip_paid"),
+    // Cashew sets skip_paid on every ordinary transaction it makes. Only a planned one that isn't
+    // paid is skipped by it, as Cashew's own lists read it.
+    skipped = bool("skip_paid") && longOrNull("type") != null && !bool("paid"),
     goalPk = textOrNull("objective_fk"),
     loanPk = textOrNull("objective_loan_fk"),
 )

@@ -135,12 +135,36 @@ class CashewPlannerTest {
     }
 
     @Test
+    fun `ordinary transactions come over, with the skip mark Cashew sets on each`() {
+        // when
+        val plan = plan {
+            wallet("w1", "Bank")
+            category("c1", "Dining")
+            transaction("t1", -12.0, name = "Lunch", skipPaid = true)
+            transaction("t2", 1500.0, name = "Salary", skipPaid = true, date = "2026-10-01T09:00:00Z")
+        }
+
+        // then
+        plan.transactions.map { it.title?.value } shouldBe listOf("Salary", "Lunch")
+        plan.found shouldBe 2
+        plan.imported shouldBe 2
+    }
+
+    @Test
     fun `what Cashew doesn't count stays out, and what can't come over is listed`() {
         // when
         val plan = plan {
             wallet("w1", "Bank")
             category("c1", "Dining")
-            transaction("t1", -10.0, name = "Skipped", skipped = true, paid = false)
+            transaction(
+                "t1",
+                -10.0,
+                name = "Skipped",
+                type = CashewType.Subscription,
+                repeat = CashewRepeat.Monthly,
+                paid = false,
+                skipPaid = true,
+            )
             transaction("t2", -10.0, name = "Not paid", paid = false, date = "2026-10-07T10:00:00Z")
             transaction("t3", 0.0, name = "Free coffee", date = "2026-10-08T10:00:00Z")
             transaction("t4", -10.0, name = "Elsewhere", wallet = "gone", date = "2026-10-09T10:00:00Z")

@@ -59,6 +59,7 @@ internal data class CashewTransaction(
     val endDate: Instant?,
     val type: CashewType?,
     val paid: Boolean,
+    /** A planned occurrence skipped instead of paid. */
     val skipped: Boolean,
     /** The goal it counts towards. */
     val goalPk: String?,

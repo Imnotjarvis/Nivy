@@ -99,6 +99,25 @@ class CashewReaderTest {
     }
 
     @Test
+    fun `skip_paid, which Cashew sets on every ordinary transaction, skips only a planned one not paid`() {
+        // given
+        val file = cashew().apply {
+            wallet("w1", "Bank")
+            category("c1", "Dining")
+            transaction("ordinary", -5.0)
+            transaction("skipped", -9.99, type = CashewType.Subscription, paid = false, skipPaid = true)
+            transaction("paid", -9.99, type = CashewType.Subscription, paid = true, skipPaid = true)
+        }
+
+        // when
+        val transactions = readCashew(file.tables).transactions
+
+        // then
+        transactions.associate { it.pk to it.skipped } shouldBe
+            mapOf("ordinary" to false, "skipped" to true, "paid" to false)
+    }
+
+    @Test
     fun `a file from an older Cashew reads without the columns it didn't have yet`() {
         // given version 44: no pairs for transfers, no long-term loans
         val file = cashew(version = 44).apply {
