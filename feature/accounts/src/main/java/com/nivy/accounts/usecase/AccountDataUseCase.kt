@@ -2,7 +2,7 @@ package com.nivy.accounts.usecase
 
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
-import com.nivy.data.model.Expense
+import com.nivy.data.model.getFromValue
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TransactionRepository
@@ -79,7 +79,7 @@ class AccountDataUseCase @Inject constructor(
         )
     }
 
-    // A card's purchases are dated on the day it charges them: the ones ahead are what it owes.
+    // A card's purchases and transfers are dated on the day it charges them: the ones ahead are what it owes.
     private suspend fun creditCardUses(
         acc: com.nivy.data.model.Account,
     ): ImmutableList<CreditCardUse> {
@@ -87,11 +87,10 @@ class AccountDataUseCase @Inject constructor(
         if (cards.isEmpty()) return persistentListOf()
         val pending = transactionRepository
             .findAllByAccountAndBetween(acc.id, timeProvider.utcNow(), nivyMaxTime())
-            .filterIsInstance<Expense>()
         return cards.map { card ->
             CreditCardUse(
                 card = card,
-                used = pending.filter { it.metadata.creditCard == card.id }.sumOf { it.value.amount.value },
+                used = pending.filter { it.metadata.creditCard == card.id }.sumOf { it.getFromValue().amount.value },
             )
         }.toImmutableList()
     }

@@ -13,6 +13,7 @@ import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
@@ -88,6 +89,16 @@ class AccountDataUseCaseTest {
     }
 
     @Test
+    fun `a transfer paid with a card counts in what the card owes`() = runTest {
+        coEvery { transactionRepository.findAllByAccountAndBetween(bank.id, Now, nivyMaxTime()) } returns listOf(
+            expense(30.0, visa.id),
+            transfer(120.0, visa.id),
+        )
+
+        accountsData().single().creditCards shouldBe listOf(CreditCardUse(amex, 0.0), CreditCardUse(visa, 150.0))
+    }
+
+    @Test
     fun `an account without cards owes nothing on cards`() = runTest {
         coEvery { creditCardRepository.findByAccount(bank.id) } returns emptyList()
 
@@ -131,6 +142,20 @@ class AccountDataUseCaseTest {
         metadata = metadata(card = null),
         value = PositiveValue(PositiveDouble.unsafe(amount), Eur),
         account = bank.id,
+    )
+
+    private fun transfer(amount: Double, card: CreditCardId): Transaction = Transfer(
+        id = TransactionId(UUID.randomUUID()),
+        title = null,
+        description = null,
+        category = null,
+        time = Instant.parse("2026-12-15T12:00:00Z"),
+        settled = true,
+        metadata = metadata(card),
+        fromAccount = bank.id,
+        fromValue = PositiveValue(PositiveDouble.unsafe(amount), Eur),
+        toAccount = AccountId(UUID.randomUUID()),
+        toValue = PositiveValue(PositiveDouble.unsafe(amount), Eur),
     )
 
     private fun metadata(card: CreditCardId?) = TransactionMetadata(

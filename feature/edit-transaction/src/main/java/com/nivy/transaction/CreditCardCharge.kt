@@ -12,19 +12,19 @@ import kotlinx.collections.immutable.toImmutableList
 import java.time.Instant
 import java.time.LocalDateTime
 
-/** The cards of the account an expense can be paid with. */
+/** The cards of the account an expense or a transfer can be paid with. */
 internal fun accountCreditCards(
     transactionType: TransactionType,
     allCreditCards: List<CreditCard>,
     account: Account?,
 ): ImmutableList<CreditCard> =
-    if (transactionType == TransactionType.EXPENSE) {
+    if (transactionType != TransactionType.INCOME) {
         allCreditCards.filter { it.account == account?.id }.toImmutableList()
     } else {
         persistentListOf()
     }
 
-/** When the card charges the expense, if it's paid with a credit card and not planned. */
+/** When the card charges the expense or transfer, if it's paid with a credit card and not planned. */
 internal fun chargeDate(
     transactionType: TransactionType,
     dueDate: Instant?,
@@ -32,7 +32,7 @@ internal fun chargeDate(
     chargeShift: Int,
     purchase: () -> LocalDateTime,
 ): LocalDateTime? {
-    if (transactionType != TransactionType.EXPENSE || dueDate != null) return null
+    if (transactionType == TransactionType.INCOME || dueDate != null) return null
     return creditCard?.chargeDateTime(purchase(), chargeShift)
 }
 

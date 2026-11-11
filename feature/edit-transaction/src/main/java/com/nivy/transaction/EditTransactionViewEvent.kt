@@ -25,11 +25,11 @@ data class EditTransactionViewState(
     val description: String?,
     val dateTime: Instant?,
     val dueDate: Instant?,
-    // The credit cards of the expense's account, one of which it can be paid with; none otherwise.
+    // The credit cards of the expense's or transfer's account, one of which it can be paid with; none otherwise.
     val creditCards: ImmutableList<CreditCard>,
     // The card it's paid with; null when it's paid from the account.
     val creditCard: CreditCard?,
-    // When the credit card charges this expense; null when it isn't paid with one.
+    // When the credit card charges this expense or transfer; null when it isn't paid with one.
     val chargeDate: LocalDateTime?,
     // Whether the charge can move a month earlier without falling on or before the purchase.
     val canMoveChargeEarlier: Boolean,
