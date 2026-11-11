@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import com.nivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nivy.design.utils.thenIf
@@ -131,6 +132,7 @@ fun PeriodSelector(
  * does. None while [period] is this month, so the × shows only when there's somewhere to go back.
  */
 @Composable
+@ReadOnlyComposable
 fun backToThisMonth(period: TimePeriod, select: (TimePeriod) -> Unit): (() -> Unit)? {
     val thisMonth = TimePeriod.currentMonth(LocalPeriodState.current.startDayOfMonth, LocalTimeProvider.current)
     if (period == thisMonth) return null
