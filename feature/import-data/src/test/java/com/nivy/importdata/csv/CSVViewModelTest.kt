@@ -160,6 +160,23 @@ class CSVViewModelTest {
     }
 
     @Test
+    fun `the sample reads a file written as Cashew writes it as the import will`() {
+        // given dates to the millisecond, and an amount with three decimals among amounts with one
+        file = """
+            account,amount,currency,title,date
+            Bank,-12.0,EUR,Lunch,2026-10-05 13:00:00.000
+            Bank,-4.125,EUR,Coffee,2026-10-06 09:30:00.000
+        """.trimIndent()
+
+        // when
+        csv(CSVEvent.FilePicked(uri), CSVEvent.MapAmount(1, "amount"), CSVEvent.MapDate(4, "date")) {
+            // then
+            important?.amountStatus shouldBe MappingStatus(listOf("12.0", "4.125"), success = true)
+            important?.dateStatus shouldBe MappingStatus(listOf("2026-10-05T13:00", "2026-10-06T09:30"), success = true)
+        }
+    }
+
+    @Test
     fun `a column that reads nothing shows it, and continuing waits for the four it needs`() {
         // when
         csv(pickedAndMapped + CSVEvent.MapAmount(3, "Account")) {

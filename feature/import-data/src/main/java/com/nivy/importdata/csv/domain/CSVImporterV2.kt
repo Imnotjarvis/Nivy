@@ -82,6 +82,12 @@ class CSVImporterV2 @Inject constructor(
 
         val failedRows = mutableListOf<CSVRow>()
 
+        // Each amount column's decimal separator, from its amounts that can only be decimal.
+        val decimals = AmountDecimals(
+            amount = decimalSeparatorOf(rows.map { it.extractValue(importantFields.amount) }),
+            toAmount = decimalSeparatorOf(rows.map { it.extractValue(transferFields.toAmount) }),
+        )
+
         val transactions = rows.mapIndexedNotNull { index, row ->
             val progressPercent = if (rowsCount > 0) {
                 index / rowsCount.toDouble()
@@ -93,6 +99,7 @@ class CSVImporterV2 @Inject constructor(
             // A row the mapper rejects (e.g. a transfer to its own account) failed too.
             val transaction = mapToTransaction(
                 baseCurrency = baseCurrency,
+                decimals = decimals,
                 importantFields = importantFields,
                 transferFields = transferFields,
                 optionalFields = optionalFields,
@@ -138,6 +145,7 @@ class CSVImporterV2 @Inject constructor(
     @Suppress("ReturnCount")
     private suspend fun mapToTransaction(
         baseCurrency: String,
+        decimals: AmountDecimals,
         row: CSVRowNew,
         importantFields: ImportantFields,
         transferFields: TransferFields,
@@ -152,7 +160,8 @@ class CSVImporterV2 @Inject constructor(
         // A transfer's Amount is what leaves the account; To Amount, if any, is what arrives.
         val csvAmount = parseAmount(
             value = row.extractValue(importantFields.amount),
-            metadata = importantFields.amount.metadata
+            metadata = importantFields.amount.metadata,
+            decimalSeparator = decimals.amount,
         ) ?: return null
         val amount = csvAmount.absoluteValue
 
@@ -163,7 +172,8 @@ class CSVImporterV2 @Inject constructor(
         val toAmount = if (transfer) {
             parseAmount(
                 value = row.extractValue(transferFields.toAmount),
-                metadata = transferFields.toAmount.metadata
+                metadata = transferFields.toAmount.metadata,
+                decimalSeparator = decimals.toAmount,
             )
         } else {
             null
@@ -247,6 +257,9 @@ class CSVImporterV2 @Inject constructor(
             description = description
         )
     }
+
+    /** The decimal separator of the Amount and To Amount columns, when their amounts tell. */
+    private data class AmountDecimals(val amount: Char?, val toAmount: Char?)
 
     /** How an account's name is matched: whatever the case and the spaces around it. */
     private fun nameKey(name: String): String = name.trim().lowercase()
