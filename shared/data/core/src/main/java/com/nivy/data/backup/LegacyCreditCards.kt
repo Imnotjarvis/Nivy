@@ -38,12 +38,13 @@ data class LegacyCardAccount(
 /**
  * The backup with the cards of its credit card accounts, when it's from before credit cards had
  * their own table: as the database migration does, each card takes its account's id, and the
- * account's expenses and planned expenses are paid with it.
+ * account's expenses and planned expenses are paid with it. [legacy] is asked only for a backup
+ * without cards of its own.
  */
-fun NivyCompleteData.withLegacyCards(legacy: List<LegacyCardAccount>): NivyCompleteData {
+fun NivyCompleteData.withLegacyCards(legacy: () -> List<LegacyCardAccount>): NivyCompleteData {
     if (creditCards.isNotEmpty()) return this
     val accountIds = accounts.map { it.id }.toSet()
-    val cards = legacy.mapNotNull { account ->
+    val cards = legacy().mapNotNull { account ->
         val chargeDay = account.chargeDay
         if (account.type != AccountType.CREDIT_CARD || chargeDay == null || account.id !in accountIds) {
             return@mapNotNull null
