@@ -10,6 +10,7 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.AccountRepository
+import com.nivy.domain.UserWrites
 import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.utils.ioThread
@@ -30,12 +31,12 @@ class AccountCreatorTest {
     private val toaster = mockk<Toaster>(relaxed = true)
     private val creator = AccountCreator(
         adjustAccountBalanceUseCase = mockk(relaxed = true),
-        accountDao = mockk { coEvery { findMaxOrderNum() } returns 0.0 },
         accountRepository = mockk<AccountRepository> {
+            coEvery { findMaxOrderNum() } returns 0.0
             coEvery { save(any()) } throws SQLiteException("disk I/O error")
         },
         creditCardRepository = mockk(relaxed = true),
-        toaster = toaster,
+        userWrites = UserWrites(toaster),
     )
 
     @Before

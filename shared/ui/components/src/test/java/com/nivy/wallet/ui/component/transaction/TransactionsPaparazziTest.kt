@@ -15,7 +15,6 @@ import com.nivy.data.model.AccountId
 import com.nivy.data.model.Transfer
 import com.nivy.data.model.TransactionMetadata
 import com.nivy.data.model.primitive.AssetCode
-import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.design.system.colors.Palette
@@ -173,10 +172,6 @@ class TransactionsPaparazziTest(
         val Holiday = Tag(
             id = TagId(UUID(0, 20)),
             name = NotBlankTrimmedString.unsafe("Holiday"),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
 

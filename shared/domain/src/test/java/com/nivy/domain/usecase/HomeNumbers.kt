@@ -19,7 +19,6 @@ import com.nivy.data.model.AccountId
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
 import com.nivy.data.model.primitive.AssociationId
-import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
@@ -128,10 +127,6 @@ internal class HomeNumbers {
         val tag = Tag(
             id = TagId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe(name),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
         tags.save(tag)

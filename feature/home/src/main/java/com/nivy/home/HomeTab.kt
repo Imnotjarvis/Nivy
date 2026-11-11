@@ -88,7 +88,6 @@ private fun BoxWithConstraintsScope.HomeUi(
         mainScreenState.homeMenuExpanded = expanded
     }
 
-    val baseCurrency = uiState.baseData.baseCurrency
     val pullToSearch = rememberPullToSearch()
     val nav = navigation()
 

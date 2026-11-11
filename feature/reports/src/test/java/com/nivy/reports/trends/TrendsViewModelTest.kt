@@ -3,6 +3,7 @@ package com.nivy.reports.trends
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.CurrencyRepository
+import com.nivy.reports.usecase.TrendsUseCase
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod

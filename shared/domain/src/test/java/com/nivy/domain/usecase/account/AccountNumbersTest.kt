@@ -34,11 +34,11 @@ class AccountNumbersTest {
         home.transfer(bank, cash, 300.0)
         home.transfer(cash, bank, 50.0)
 
-        val without = incomeExpense.incomeExpense(bank).incomeExpensePair
+        val without = incomeExpense.incomeExpense(bank)
         without.income.toDouble() shouldBe (1_000.0 plusOrMinus Cent)
         without.expense.toDouble() shouldBe (40.0 plusOrMinus Cent)
 
-        val with = incomeExpense.incomeExpense(bank, includeTransfersInCalc = true).incomeExpensePair
+        val with = incomeExpense.incomeExpense(bank, includeTransfersInCalc = true)
         with.income.toDouble() shouldBe (1_050.0 plusOrMinus Cent)
         with.expense.toDouble() shouldBe (340.0 plusOrMinus Cent)
     }

@@ -1,9 +1,8 @@
-package com.nivy.reports.trends
+package com.nivy.reports.usecase
 
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
-import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
@@ -11,7 +10,16 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.spending.paidBetween
 import com.nivy.domain.usecase.spending.toFlow
+import com.nivy.reports.trends.AllMonthsAtMost
+import com.nivy.reports.trends.MonthSpan
+import com.nivy.reports.trends.OutlookMonths
+import com.nivy.reports.trends.TrendsDetail
+import com.nivy.reports.trends.TrendsRange
+import com.nivy.reports.trends.habitShifts
+import com.nivy.reports.trends.netWorthOutlook
+import com.nivy.reports.trends.trends
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
@@ -20,7 +28,6 @@ import com.nivy.wallet.domain.pure.util.smallPurchaseEdge
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.withContext
 import java.time.Instant
-import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
 import kotlin.random.Random
@@ -52,7 +59,7 @@ class TrendsUseCase @Inject constructor(
                 val period = requireNotNull(current.month)
                     .incrementMonthPeriod(-back.toLong(), current.year ?: today.year)
                 val bounds = period.toRange(startDayOfMonth, timeConverter, timeProvider)
-                return MonthSpan(period, days(bounds), complete = bounds.to().isBefore(now)) to bounds
+                return MonthSpan(period, bounds.days(timeConverter), complete = bounds.to().isBefore(now)) to bounds
             }
 
             val count = range.months ?: monthsSince(firstPaid, ::month)
@@ -64,8 +71,7 @@ class TrendsUseCase @Inject constructor(
             val accounts = accountRepository.findAll()
             val included = accounts.filter { it.includeInBalance }.map { it.id }.toSet()
             val categories = categoryRepository.findAll().associateBy { it.id }
-            val flows = transactionRepository.findAllBetween(from, now)
-                .filter { it.settled && it.getFromAccount() in included }
+            val flows = transactionRepository.paidBetween(from, now, included)
                 .mapNotNull { it.toFlow(rates, timeConverter, categories) }
 
             // Each account's balance at each month's end, or now for the current month: over the
@@ -118,11 +124,6 @@ class TrendsUseCase @Inject constructor(
         if (first == null) return 1
         return (1..AllMonthsAtMost).firstOrNull { count -> !month(count - 1).second.from().isAfter(first) }
             ?: AllMonthsAtMost
-    }
-
-    private fun days(range: FromToTimeRange): List<LocalDate> = with(timeConverter) {
-        val last = range.to().toLocalDate()
-        generateSequence(range.from().toLocalDate()) { it.plusDays(1) }.takeWhile { !it.isAfter(last) }.toList()
     }
 
     private companion object {

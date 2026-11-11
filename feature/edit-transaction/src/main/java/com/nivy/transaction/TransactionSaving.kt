@@ -85,6 +85,8 @@ class TransactionSaving @Inject constructor(
     /**
      * Runs [save] in the background; it returns false when it can't save. Then, or when it fails,
      * the screen says so and stays open with what was entered, instead of closing as if saved.
+     * Any failure ends that way, where UserWrites catches the database's alone: nothing typed
+     * into the editor is to be lost with it.
      */
     @Suppress("TooGenericExceptionCaught")
     suspend fun trySaving(save: suspend () -> Boolean): Boolean {

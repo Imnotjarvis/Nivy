@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nivy.design.system.colors.Purple
+import com.nivy.design.system.colors.Nivy
 import com.nivy.wallet.NivyComponentPreview
 import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.model.CreateAccountData
@@ -145,7 +145,7 @@ private fun Preview() {
             suggestions = listOf(
                 CreateAccountData(name = "Cash", currency = "USD", color = Green, icon = null, balance = 0.0),
                 CreateAccountData(name = "Bank", currency = "USD", color = Red, icon = null, balance = 0.0),
-                CreateAccountData(name = "Revolut", currency = "USD", color = Purple, icon = null, balance = 0.0)
+                CreateAccountData(name = "Revolut", currency = "USD", color = Nivy, icon = null, balance = 0.0)
             ),
             onAddSuggestion = { }
         ) {

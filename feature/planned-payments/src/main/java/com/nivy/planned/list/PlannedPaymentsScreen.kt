@@ -18,7 +18,7 @@ import com.nivy.data.model.CategoryId
 import com.nivy.base.model.IntervalType
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
-import com.nivy.design.system.colors.Purple
+import com.nivy.design.system.colors.Nivy
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.ui.previewAccount
 import com.nivy.wallet.ui.previewPlannedPaymentRule
@@ -109,7 +109,7 @@ private fun Preview() {
         val account = previewAccount("Cash", color = Green, currency = "BGN")
         val food = Category(
             name = NotBlankTrimmedString.unsafe("Food"),
-            color = ColorInt(Purple.toArgb()),
+            color = ColorInt(Nivy.toArgb()),
             icon = null,
             id = CategoryId(UUID.randomUUID()),
             orderNum = 0.0,

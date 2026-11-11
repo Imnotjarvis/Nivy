@@ -44,6 +44,15 @@ class BaseCurrencyRatesTest {
     }
 
     @Test
+    fun `a currency without a rate is asked for once, as one with a rate is`() = runTest {
+        rates.inBase(1_000.0, Jpy) shouldBe 0.0
+        rates.inBaseOrNull(250.0, Jpy) shouldBe null
+        rates.factor(Jpy) shouldBe null
+
+        coVerify(exactly = 1) { exchangeUseCase.convert(value(1.0, Jpy), Eur) }
+    }
+
+    @Test
     fun `a balance, below zero too, counts at its rate, and is null without one`() = runTest {
         rates.inBaseOrNull(-200.0, Usd) shouldBe -180.0
         rates.inBaseOrNull(-200.0, Jpy) shouldBe null

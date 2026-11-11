@@ -39,6 +39,9 @@ data class EditTransactionViewState(
     val toAccount: Account?,
     val category: Category?,
     val amount: Double,
+    // Add and Save are enabled: without an amount there's nothing to save.
+    val canSave: Boolean,
+    // A planned payment was changed since it was opened: its button is Save, and Pay again once saved.
     val hasChanges: Boolean,
     val displayLoanHelper: EditTransactionDisplayLoan,
     val backgroundProcessingStarted: Boolean,
@@ -69,7 +72,6 @@ sealed interface EditTransactionViewEvent {
     data class EditCategory(val updatedCategory: Category) : EditTransactionViewEvent
     data class CreateAccount(val data: CreateAccountData) : EditTransactionViewEvent
     data class Save(val closeScreen: Boolean) : EditTransactionViewEvent
-    data class SetHasChanges(val hasChangesValue: Boolean) : EditTransactionViewEvent
     data class UpdateExchangeRate(val exRate: Double?) : EditTransactionViewEvent
 
     sealed interface TagEvent : EditTransactionViewEvent {

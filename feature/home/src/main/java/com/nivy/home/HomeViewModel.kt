@@ -393,7 +393,7 @@ class HomeViewModel @Inject constructor(
         val year = period.year ?: timeProvider.localDateNow().year
         val period = month?.let { periodState.selectMonth(it, 1L, year) }
         if (period != null) {
-            setPeriod(period)
+            reload(period)
         }
     }
 
@@ -402,11 +402,13 @@ class HomeViewModel @Inject constructor(
         val year = period.year ?: timeProvider.localDateNow().year
         val period = month?.let { periodState.selectMonth(it, -1L, year) }
         if (period != null) {
-            setPeriod(period)
+            reload(period)
         }
     }
 
+    // A period chosen in the dialog is the one the app's screens show from then on.
     private suspend fun setPeriod(period: TimePeriod) {
+        periodState.select(period)
         reload(period)
     }
 

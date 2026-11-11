@@ -86,7 +86,7 @@ class SettingsViewModel @Inject constructor(
             showNotifications = showNotifications.value,
             hideCurrentBalance = hideCurrentBalance.value,
             treatTransfersAsIncomeExpense = treatTransfersAsIncomeExpense.value,
-            startDateOfMonth = startDateOfMonth.intValue.toString(),
+            startDateOfMonth = startDateOfMonth.intValue,
             dateFormat = dateFormatState.format,
             progressState = progressState.value,
             hideIncome = hideIncome.value,
@@ -326,12 +326,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    // Deletes everything and starts over, from onboarding.
+    // Deletes everything and starts over, from onboarding; refused by the database, nothing is
+    // deleted, and the app stays where it is.
     private fun deleteAllUserData() {
         viewModelScope.launch {
-            deleteAllDataUseCase()
-            nav.resetBackStack()
-            nav.navigateTo(OnboardingScreen)
+            if (userWrites.run(R.string.msg_change_not_saved) { deleteAllDataUseCase() }) {
+                nav.resetBackStack()
+                nav.navigateTo(OnboardingScreen)
+            }
         }
     }
 }

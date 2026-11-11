@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
@@ -32,6 +31,12 @@ import com.nivy.ui.R
 import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.utils.format
+import com.nivy.wallet.ui.component.ChartLineWidth
+import com.nivy.wallet.ui.component.ChartPointRing
+import com.nivy.wallet.ui.component.LikelyBandAlpha
+import com.nivy.wallet.ui.component.likelyStroke
+import com.nivy.wallet.ui.component.lineOverArea
+import com.nivy.wallet.ui.component.pointInRing
 
 /**
  * The month's balance, a day a step: as it was up to today, then, dashed, as planned payments
@@ -69,23 +74,12 @@ internal fun MonthBalanceChart(detail: MonthDetail, currency: String) {
         val min = values.min() - margin
         val max = values.max() + margin
         val top = LabelSpace.toPx()
-        val bottom = size.height - PointRing.toPx() - (likelyText?.let { it.size.height + LabelGap.toPx() } ?: 0f)
+        val bottom = size.height - ChartPointRing.toPx() - (likelyText?.let { it.size.height + LabelGap.toPx() } ?: 0f)
         fun x(index: Int) = index / (balances.size - 1f) * size.width
         fun y(value: Double) = top + ((max - value) / (max - min)).toFloat() * (bottom - top)
 
         if (actual > 0) {
-            val path = Path().apply {
-                moveTo(x(0), y(balances[0]))
-                for (index in 1 until actual) lineTo(x(index), y(balances[index]))
-            }
-            val area = Path().apply {
-                addPath(path)
-                lineTo(x(actual - 1), bottom)
-                lineTo(x(0), bottom)
-                close()
-            }
-            drawPath(area, Brush.verticalGradient(listOf(line.copy(alpha = AreaAlpha), Color.Transparent), top, bottom))
-            drawPath(path, line, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            lineOverArea((0 until actual).map { Offset(x(it), y(balances[it])) }, line, top, bottom)
         }
         if (outlook != null) likelyAhead(outlook.balances, actual - 1, ::x, ::y, line, ring, likelyText)
         if (actual < balances.size) {
@@ -200,8 +194,8 @@ internal fun PaceChart(pace: Pace, ahead: List<Band>? = null, days: Int = 0) {
         if (count < 2) return@Canvas
         val highest = maxOf(pace.previous.lastOrNull() ?: 0.0, pace.current.last(), ahead?.lastOrNull()?.high ?: 0.0)
         val max = highest.takeIf { it > 0 }?.times(BarHeadroom) ?: 1.0
-        val top = PointRing.toPx()
-        val bottom = size.height - PointRing.toPx()
+        val top = ChartPointRing.toPx()
+        val bottom = size.height - ChartPointRing.toPx()
         fun x(index: Int) = index / (count - 1f) * size.width
         fun y(value: Double) = bottom - (value / max).toFloat() * (bottom - top)
         fun path(values: List<Double>) = Path().apply {
@@ -221,7 +215,7 @@ internal fun PaceChart(pace: Pace, ahead: List<Band>? = null, days: Int = 0) {
             drawPath(
                 path(pace.current),
                 now,
-                style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                style = Stroke(ChartLineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
             )
         }
         pace.previous.getOrNull(day)?.let { point(Offset(x(day), y(it)), before, ring, small = true) }
@@ -284,29 +278,20 @@ private fun DrawScope.likelyAhead(
         for (step in bands.lastIndex downTo 0) lineTo(x(from + step), y(bands[step].low))
         close()
     }
-    drawPath(band, color.copy(alpha = BandAlpha))
+    drawPath(band, color.copy(alpha = LikelyBandAlpha))
     val likely = Path().apply {
         moveTo(x(from), y(bands[0].likely))
         for (step in 1..bands.lastIndex) lineTo(x(from + step), y(bands[step].likely))
     }
-    drawPath(likely, color, style = dotted())
+    drawPath(likely, color, style = likelyStroke())
     val end = Offset(x(from + bands.lastIndex), y(bands.last().likely))
     point(end, color, ring, small)
     label?.let { drawText(it, topLeft = Offset(size.width - it.size.width, end.y + LabelGap.toPx())) }
 }
 
-// What's likely, dotted: apart from what's planned, dashed, in minimal colors too.
-private fun DrawScope.dotted() = Stroke(
-    LikelyWidth.toPx(),
-    cap = StrokeCap.Round,
-    join = StrokeJoin.Round,
-    pathEffect = PathEffect.dashPathEffect(floatArrayOf(DotLength, LikelyGap.toPx())),
-)
-
-// A point on a line, in a ring of the panel's color that parts it from the line.
+// A point on a line, in its ring; a smaller one where the line isn't the chart's own.
 private fun DrawScope.point(center: Offset, color: Color, ring: Color, small: Boolean = false) {
-    drawCircle(ring, (if (small) SmallRing else PointRing).toPx(), center)
-    drawCircle(color, (if (small) SmallPoint else Point).toPx(), center)
+    if (small) pointInRing(center, color, ring, SmallPoint, SmallRing) else pointInRing(center, color, ring)
 }
 
 // A label centered over a point, kept inside the chart.
@@ -316,24 +301,16 @@ private fun DrawScope.labelAbove(text: TextLayoutResult, point: Offset) {
 }
 
 private const val ChartMargin = 0.15
-private const val BandAlpha = 0.2f
-private const val DotLength = 0.01f
-private val LikelyWidth = 3.dp
-private val LikelyGap = 6.dp
-private const val AreaAlpha = 0.25f
 private const val GuideAlpha = 0.5f
 private const val IdleAlpha = 0.25f
 private const val DayBarFraction = 0.6f
 private const val BarHeadroom = 1.1
 private val LabelSpace = 28.dp
 private val LabelGap = 8.dp
-private val LineWidth = 3.dp
 private val PlannedWidth = 2.5.dp
 private val AverageWidth = 1.5.dp
 private val Dash = 4.dp
 private val Dot = 2.dp
-private val PointRing = 7.dp
-private val Point = 4.5.dp
 private val SmallRing = 6.dp
 private val SmallPoint = 3.5.dp
 private val SlotRadius = 6.dp

@@ -30,6 +30,8 @@ milliseconds. Tags keep Ivy Wallet's key names, `creationTime` and `lastSyncTime
 - Rows an older version marked as deleted (`isDeleted`, for its cloud sync) are left out.
 - An account or category with the same name as one already in the app (and, for an account, the
   same currency) is merged into it.
+- An account without a currency takes the backup's base currency.
+- A tag's link to a transaction the backup doesn't hold is left out.
 - A backup from before credit cards had their own table gets one card per credit-card account, as
   the database migration does (`LegacyCreditCards.kt`).
 - A transfer to or from an account that's in neither the backup nor the app becomes a plain expense

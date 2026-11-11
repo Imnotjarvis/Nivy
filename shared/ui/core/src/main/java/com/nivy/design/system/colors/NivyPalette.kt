@@ -34,9 +34,8 @@ val Transparent = Color(0x00000000)
  * hues below, which turn grey in minimal colors (see [ColorMode]).
  */
 object Palette {
-    // Hues (Nivy is the brand color; Purple is the same value)
+    // Hues (Nivy is the brand color)
     val Nivy = Color(0xFF6B4DFF)
-    val Purple = Color(0xFF6B4DFF)
     val Purple1 = Color(0xFFC34CFF)
     val Purple2 = Color(0xFFFF4CFF)
     val Blue = Color(0xFF4CC3FF)
@@ -95,7 +94,6 @@ object Palette {
 
 // The hues as drawn.
 val Nivy: Color get() = Palette.Nivy.shown()
-val Purple: Color get() = Palette.Purple.shown()
 val Blue: Color get() = Palette.Blue.shown()
 val Green: Color get() = Palette.Green.shown()
 val Orange: Color get() = Palette.Orange.shown()

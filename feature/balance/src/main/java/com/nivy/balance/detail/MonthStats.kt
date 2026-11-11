@@ -26,9 +26,9 @@ private const val ListedPlaces = 4
  * The habit tiles count the purchases made by choice, as Trends does, and the days without
  * spending from [trackedSince], the first paid transaction's day; what was spent, the fixed part
  * and the categories count every purchase. [outgoing] is all that went out, purchases or not, and
- * [income] all that came in; the planned expenses still due count as fixed, as the bills and
- * subscriptions already paid do. [previous] is what each category took over as many days of the
- * month before.
+ * [income] all that came in; [plannedFixed], the bills and subscriptions still due, count as fixed
+ * as those already paid do. [previous] is what each category took over as many days of the month
+ * before.
  */
 internal fun habits(
     spends: List<Flow>,
@@ -36,7 +36,7 @@ internal fun habits(
     trackedSince: LocalDate?,
     income: Double,
     outgoing: Double,
-    plannedExpenses: List<Double>,
+    plannedFixed: List<Double>,
     previous: Map<Category?, Double>,
     edges: List<Double>,
 ): Habits? {
@@ -77,7 +77,7 @@ internal fun habits(
             ?.let { AccountUse(it.key, it.value.size) },
         timeOfDay = timeOfDay(chosen),
         sizes = sizeBands(chosen, chosenSpent, edges).toImmutableList(),
-        fixed = Portion(fixed.sumOf { it.amount } + plannedExpenses.sum(), fixed.size + plannedExpenses.size),
+        fixed = Portion(fixed.sumOf { it.amount } + plannedFixed.sum(), fixed.size + plannedFixed.size),
         flexible = Portion(chosenSpent, chosen.size),
         categories = categoryChanges(spends, previous).toImmutableList(),
         places = places.take(ListedPlaces).toImmutableList(),

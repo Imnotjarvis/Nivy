@@ -68,7 +68,7 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         hideIncome = uiState.hideIncome,
         progressState = uiState.progressState,
         treatTransfersAsIncomeExpense = uiState.treatTransfersAsIncomeExpense,
-        startDateOfMonth = uiState.startDateOfMonth.toInt(),
+        startDateOfMonth = uiState.startDateOfMonth,
         dateFormat = uiState.dateFormat,
         onSetCurrency = {
             viewModel.onEvent(SettingsEvent.SetCurrency(it))

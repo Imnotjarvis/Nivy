@@ -8,6 +8,7 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.domain.UserWrites
 import com.nivy.ui.R
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import com.nivy.wallet.utils.ioThread
@@ -31,7 +32,7 @@ class CategoryCreatorTest {
             coEvery { findMaxOrderNum() } returns 0.0
             coEvery { save(any()) } throws SQLiteException("disk I/O error")
         },
-        toaster = toaster,
+        userWrites = UserWrites(toaster),
     )
 
     @Before

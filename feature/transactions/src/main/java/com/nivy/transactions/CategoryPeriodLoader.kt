@@ -49,31 +49,30 @@ class CategoryPeriodLoader @Inject constructor(
         accountFilterList: List<UUID>,
     ) = with(state) {
         val accountFilterSet = accountFilterList.toSet()
-        val initialCategory = pageCategory
-        category.value = initialCategory
+        category.value = pageCategory
         val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
         balance.doubleValue = ioThread {
-            categoryLogic.calculateCategoryBalance(initialCategory, range, accountFilterSet)
+            categoryLogic.calculateCategoryBalance(pageCategory, range, accountFilterSet)
         }
 
         income.doubleValue = ioThread {
-            categoryLogic.calculateCategoryIncome(initialCategory, range, accountFilterSet)
+            categoryLogic.calculateCategoryIncome(pageCategory, range, accountFilterSet)
         }
 
         expenses.doubleValue = ioThread {
-            categoryLogic.calculateCategoryExpenses(initialCategory, range, accountFilterSet)
+            categoryLogic.calculateCategoryExpenses(pageCategory, range, accountFilterSet)
         }
 
         history.value = ioThread {
             categoryLogic.historyByCategoryAccountWithDateDividers(
-                initialCategory,
+                pageCategory,
                 range,
                 accountFilterSet = accountFilterList.toSet(),
             ).toImmutableList()
         }
 
-        loadDue(initialCategory, range, accountFilterSet)
+        loadDue(pageCategory, range, accountFilterSet)
     }
 
     internal suspend fun initForCategoryWithTransactions(
@@ -91,8 +90,7 @@ class CategoryPeriodLoader @Inject constructor(
             }
 
             val accountFilterSet = accountFilterList.toSet()
-            val initialCategory = pageCategory
-            category.value = initialCategory
+            category.value = pageCategory
             val range =
                 period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
@@ -106,7 +104,7 @@ class CategoryPeriodLoader @Inject constructor(
 
             balance.doubleValue = ioThread {
                 categoryLogic.calculateCategoryBalance(
-                    initialCategory,
+                    pageCategory,
                     range,
                     accountFilterSet,
                     transactions = trans
@@ -129,14 +127,14 @@ class CategoryPeriodLoader @Inject constructor(
 
             history.value = ioThread {
                 categoryLogic.historyByCategoryAccountWithDateDividers(
-                    initialCategory,
+                    pageCategory,
                     range,
                     accountFilterSet = accountFilterList.toSet(),
                     transactions = trans
                 ).toImmutableList()
             }
 
-            loadDue(initialCategory, range, accountFilterSet)
+            loadDue(pageCategory, range, accountFilterSet)
         }
     }
 

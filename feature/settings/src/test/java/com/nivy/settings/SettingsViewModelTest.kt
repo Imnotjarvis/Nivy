@@ -21,8 +21,11 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.RootScreen
 import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.csv.ExportCsvUseCase
+import com.nivy.domain.usecase.data.DeleteAllDataUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
+import com.nivy.navigation.Navigation
+import com.nivy.navigation.OnboardingScreen
 import com.nivy.ui.R
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,6 +55,8 @@ class SettingsViewModelTest {
     }
     private val toaster = mockk<Toaster>(relaxed = true)
     private val exportCsvUseCase = mockk<ExportCsvUseCase>()
+    private val deleteAllDataUseCase = mockk<DeleteAllDataUseCase>(relaxed = true)
+    private val nav = mockk<Navigation>(relaxed = true)
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -61,8 +66,8 @@ class SettingsViewModelTest {
         viewModel = SettingsViewModel(
             currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
             themeState = mockk(relaxed = true),
-            deleteAllDataUseCase = mockk(relaxed = true),
-            nav = mockk(relaxed = true),
+            deleteAllDataUseCase = deleteAllDataUseCase,
+            nav = nav,
             appPreferences = appPreferences,
             backupDataUseCase = mockk(relaxed = true),
             startDayOfMonthUseCase = mockk(relaxed = true),
@@ -119,6 +124,23 @@ class SettingsViewModelTest {
         coVerify(timeout = Timeout) { toaster.show(R.string.msg_change_not_saved, any()) }
         coVerify(exactly = 0) { appPreferences.setBaseCurrency(any()) }
         coVerify(exactly = 0) { syncExchangeRates.sync(any()) }
+    }
+
+    @Test
+    fun `deleting all data starts over, from onboarding`() {
+        viewModel.onEvent(SettingsEvent.DeleteAllUserData)
+
+        verify(timeout = Timeout) { nav.navigateTo(OnboardingScreen) }
+    }
+
+    @Test
+    fun `deleting all data the database refuses says so, and the app stays where it is`() {
+        coEvery { deleteAllDataUseCase.invoke() } throws SQLiteFullException("database or disk is full")
+
+        viewModel.onEvent(SettingsEvent.DeleteAllUserData)
+
+        coVerify(timeout = Timeout) { toaster.show(R.string.msg_change_not_saved, any()) }
+        verify(exactly = 0) { nav.navigateTo(any()) }
     }
 
     @Test

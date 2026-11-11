@@ -13,7 +13,7 @@ data class SettingsState(
     val hideCurrentBalance: Boolean,
     val hideIncome: Boolean,
     val treatTransfersAsIncomeExpense: Boolean,
-    val startDateOfMonth: String,
+    val startDateOfMonth: Int,
     val dateFormat: DateDisplayFormat,
     val progressState: Boolean,
 )

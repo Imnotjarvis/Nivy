@@ -1,7 +1,10 @@
-package com.nivy.balance.detail
+package com.nivy.balance.usecase
 
 import arrow.core.None
 import arrow.core.Some
+import com.nivy.balance.detail.Holding
+import com.nivy.balance.detail.Runway
+import com.nivy.balance.detail.UnusualCategory
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
@@ -88,7 +91,7 @@ class MonthDetailUseCaseTest {
     // The wallet's balance is 10,000 euros before any of these, plus what was paid by then in
     // the accounts in the balance.
     private val walletBalanceUseCase = mockk<WalletBalanceUseCase> {
-        coEvery { balance(any(), any(), any()) } answers {
+        coEvery { balance(any(), any()) } answers {
             val to = secondArg<ClosedTimeRange?>()?.to ?: Instant.MAX
             val included = accounts.filter { it.includeInBalance }.map { it.id }.toSet()
             val paid = transactions.filter { it.settled && !it.time.isAfter(to) && it.account() in included }

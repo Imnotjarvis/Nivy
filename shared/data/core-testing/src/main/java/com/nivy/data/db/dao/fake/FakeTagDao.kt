@@ -17,7 +17,7 @@ class FakeTagDao(
 ) : TagDao, WriteTagDao {
     private val items = mutableListOf<TagEntity>()
     override suspend fun findAll(): List<TagEntity> {
-        return items.sortedBy { it.orderNum }
+        return items.toList()
     }
 
     override suspend fun findByIds(id: UUID): TagEntity? {

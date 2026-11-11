@@ -38,9 +38,13 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -79,6 +83,7 @@ class BackupDataUseCaseTest {
         accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
         exchangeRatesDao: FakeExchangeRatesDao = FakeExchangeRatesDao(),
         fileSystem: FileSystem = mockk(relaxed = true),
+        json: Json = this.json,
     ): BackupDataUseCase {
         return BackupDataUseCase(
             accountDao = accountDao,
@@ -487,6 +492,75 @@ class BackupDataUseCaseTest {
         // then
         restoredCards.findAll() shouldBe listOf(visa)
         restoredTransactions.findAll().map { it.creditCardId } shouldBe listOf(visa.id)
+    }
+
+    @Test
+    fun `a card with its account's id lands, with what it paid, on the existing account of that name`() = runTest {
+        // given: a card account in the wallet, and a backup of it made elsewhere, whose card has its
+        // account's id, as the cards made from old card accounts do
+        val accountDao = FakeAccountDao()
+        val transactionDao = FakeTransactionDao()
+        val creditCardDao = FakeCreditCardDao()
+        val existing = AccountEntity(name = "Card", color = 1)
+        accountDao.save(existing)
+        val useCase = newBackupDataUseCase(accountDao, transactionDao = transactionDao, creditCardDao = creditCardDao)
+        val inBackup = AccountEntity(name = "Card", color = 2)
+        val backup = NivyCompleteData(
+            accounts = listOf(inBackup),
+            creditCards = listOf(
+                CreditCardEntity(
+                    accountId = inBackup.id,
+                    name = "Card",
+                    chargeDay = 15,
+                    statementClosingDay = null,
+                    creditLimit = null,
+                    id = inBackup.id,
+                )
+            ),
+            transactions = listOf(
+                TransactionEntity(
+                    accountId = inBackup.id,
+                    type = TransactionType.EXPENSE,
+                    amount = 5.0,
+                    creditCardId = inBackup.id,
+                )
+            ),
+        )
+
+        // when
+        useCase.importJson(json.encodeToString(backup))
+
+        // then: the existing account's id, wherever the backup had its own
+        accountDao.findAll().map { it.id } shouldBe listOf(existing.id)
+        creditCardDao.findAll().map { it.id to it.accountId } shouldBe listOf(existing.id to existing.id)
+        transactionDao.findAll().map { it.accountId to it.creditCardId } shouldBe listOf(existing.id to existing.id)
+    }
+
+    @Test
+    fun `a backup restored where nothing has its names is decoded once`() = runTest {
+        // given: a backup with a card of its own, so it isn't read again for cards kept the old way
+        val bank = AccountEntity(name = "Bank", color = 1)
+        val backup = NivyCompleteData(
+            accounts = listOf(bank),
+            creditCards = listOf(
+                CreditCardEntity(
+                    accountId = bank.id,
+                    name = "Visa",
+                    chargeDay = 15,
+                    statementClosingDay = null,
+                    creditLimit = null,
+                    id = UUID.randomUUID(),
+                )
+            ),
+            transactions = listOf(TransactionEntity(accountId = bank.id, type = TransactionType.EXPENSE, amount = 5.0)),
+        )
+        val counted = spyk(json)
+
+        // when
+        newBackupDataUseCase(json = counted).importJson(json.encodeToString(backup))
+
+        // then
+        verify(exactly = 1) { counted.decodeFromString(any<DeserializationStrategy<Any>>(), any()) }
     }
 
     @Test

@@ -250,7 +250,7 @@ class TransactionsViewModel @Inject constructor(
             account = initialAccount,
             range = range.toCloseTimeRange(),
             includeTransfersInCalc = includeTransfersInCalc
-        ).incomeExpensePair
+        )
         income.doubleValue = incomeExpensePair.income.toDouble()
         expenses.doubleValue = incomeExpensePair.expense.toDouble()
 
@@ -312,10 +312,12 @@ class TransactionsViewModel @Inject constructor(
         overdueExpanded.value = expanded
     }
 
+    // A period chosen in the dialog is the one the app's screens show from then on.
     private fun setPeriod(
         screen: TransactionsScreen,
         period: TimePeriod,
     ) {
+        periodState.select(period)
         start(
             screen = screen,
             timePeriod = period,

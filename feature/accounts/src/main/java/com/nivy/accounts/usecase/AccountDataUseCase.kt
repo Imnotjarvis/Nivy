@@ -63,7 +63,7 @@ class AccountDataUseCase @Inject constructor(
             account = acc,
             range = range,
             includeTransfersInCalc = includeTransfersInCalc
-        ).incomeExpensePair
+        )
 
         val creditCards = creditCardUses(acc)
 

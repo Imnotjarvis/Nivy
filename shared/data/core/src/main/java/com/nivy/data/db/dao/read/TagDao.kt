@@ -9,7 +9,7 @@ import java.util.*
 
 @Dao
 interface TagDao {
-    @Query("SELECT * FROM tags ORDER BY orderNum ASC")
+    @Query("SELECT * FROM tags")
     suspend fun findAll(): List<TagEntity>
 
     @Query("SELECT * FROM tags WHERE id = :id")

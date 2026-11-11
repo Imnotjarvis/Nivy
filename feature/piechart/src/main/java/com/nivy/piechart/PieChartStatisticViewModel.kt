@@ -66,7 +66,6 @@ class PieChartStatisticViewModel @Inject constructor(
     private var selectedCategory by mutableStateOf<SelectedCategory?>(null)
     private var accountIdFilterList by mutableStateOf<ImmutableList<UUID>>(persistentListOf())
     private var showCloseButtonOnly by mutableStateOf(false)
-    private var transactions by mutableStateOf<ImmutableList<Transaction>>(persistentListOf())
     private var choosePeriodModal by mutableStateOf<ChoosePeriodModalData?>(null)
     private var budgetPage by mutableStateOf<BudgetPage?>(null)
     private var history by mutableStateOf<ImmutableList<TransactionHistoryItem>>(persistentListOf())
@@ -75,6 +74,11 @@ class PieChartStatisticViewModel @Inject constructor(
     private var showBreakdownToggle by mutableStateOf(false)
     private var accountAmounts by mutableStateOf<ImmutableList<AccountAmount>>(persistentListOf())
     private var selectedAccount by mutableStateOf<Account?>(null)
+
+    // What the chart is given to draw, rather than a period's transactions: a budget's expenses.
+    // No screen reads it; one load sets it and the next ones read it, each on a thread of its own.
+    @Volatile
+    private var transactions: ImmutableList<Transaction> = persistentListOf()
 
     @Composable
     override fun uiState(): PieChartStatisticState {
@@ -87,7 +91,6 @@ class PieChartStatisticViewModel @Inject constructor(
             selectedCategory = selectedCategory,
             accountIdFilterList = accountIdFilterList,
             showCloseButtonOnly = showCloseButtonOnly,
-            transactions = transactions,
             choosePeriodModal = choosePeriodModal,
             budgetPage = budgetPage,
             history = history,

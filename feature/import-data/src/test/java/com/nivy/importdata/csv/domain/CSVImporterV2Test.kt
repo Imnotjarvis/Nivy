@@ -38,6 +38,7 @@ class CSVImporterV2Test {
     private val accountRepository = mockk<AccountRepository> {
         coEvery { findAll() } answers { accounts.toList() }
         coEvery { save(any()) } answers { accounts += firstArg<Account>() }
+        coEvery { findMaxOrderNum() } returns 2.0
         // The id may reach the answer as the value class or as its UUID.
         coEvery { findById(any()) } answers {
             val id = firstArg<Any>()
@@ -61,7 +62,6 @@ class CSVImporterV2Test {
             coEvery { save(capture(saved)) } answers { savedInTransaction += inTransaction }
         },
         transactionMapper = TransactionMapper(accountRepository),
-        accountDao = mockk { coEvery { findMaxOrderNum() } returns 2.0 },
         categoryRepository = mockk { coEvery { findAll() } returns emptyList() },
         currencyRepository = mockk { coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR") },
         accountRepository = accountRepository,
@@ -107,6 +107,17 @@ class CSVImporterV2Test {
     fun `a row that's refused creates none of its accounts`() = runTest {
         // a transfer of nothing, to an account the wallet doesn't have yet
         val result = import(transfer(from = "Bank", to = "Brokerage", amount = "0", toAmount = ""))
+
+        result.transactionsImported shouldBe 0
+        result.accountsImported shouldBe 0
+        result.failedRows.single().index shouldBe 2
+        accounts.map { it.name.value } shouldBe listOf("Bank", "Savings", "Dollars")
+    }
+
+    @Test
+    fun `a row whose amount is too large to be a number creates none of its accounts`() = runTest {
+        // 400 digits read as infinity, which no transaction can hold
+        val result = import(transfer(from = "Bank", to = "Brokerage", amount = "9".repeat(400), toAmount = ""))
 
         result.transactionsImported shouldBe 0
         result.accountsImported shouldBe 0

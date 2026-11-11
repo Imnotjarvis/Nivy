@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -47,6 +48,32 @@ class RunPendingMigrationsTest {
         runPendingMigrations(listOf(cancelled), dataStore)
 
         cancelled.runs shouldBe 2
+    }
+
+    @Test
+    fun `a migration finds the settings read, with what their own migrations copied`() = runTest {
+        // given: settings whose first read copies the old ones, as DataStore's migrations do
+        val copiedOnRead = object : DataStore<Preferences> {
+            var copied = false
+            private val state = MutableStateFlow(emptyPreferences())
+            override val data: Flow<Preferences> = state.onStart { copied = true }
+
+            override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences =
+                transform(state.value).also { state.value = it }
+        }
+        var copiedWhenRun: Boolean? = null
+        val dropsTheOldTable = object : Migration {
+            override val key = "after-the-copy"
+            override suspend fun migrate() {
+                copiedWhenRun = copiedOnRead.copied
+            }
+        }
+
+        // when
+        runPendingMigrations(listOf(dropsTheOldTable), copiedOnRead)
+
+        // then
+        copiedWhenRun shouldBe true
     }
 
     private class CountingMigration(

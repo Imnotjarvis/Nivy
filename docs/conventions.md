@@ -23,6 +23,8 @@ allow only these two links.
   `com.nivy.domain.usecase.<area>` (shared) or in a feature's own `usecase` package. A use case
   takes `DispatchersProvider` rather than using `Dispatchers.IO` itself, so tests run it on
   `TestDispatchersProvider`. The older `*Act` classes are gone; don't bring the pattern back.
+- **Writes:** a change of several rows is one database transaction, `DatabaseTransaction.run { }`,
+  in the use case or repository that makes it: cut short, none of it stays.
 - **Screens:** a `ComposeViewModel` per screen, its state and events next to it.
 - **UI pieces:** a dialog or component that one feature uses lives in that feature;
   `shared:ui:components` holds what two or more use.
@@ -43,6 +45,11 @@ class name (`RootActivity`, `PaymentTileService`, the three widget receivers and
   Interest records stay out of the loan's total.
 - **An account's balance:** the database sums it (`TransactionDao.balance`). Its copy in
   `FakeTransactionDao` passes the same `BalanceCases` as the query.
+- **Many amounts in the base currency:** `BaseCurrencyRates`, which reads each currency's rate
+  once and leaves out what has no rate, as above.
+- **Spending stats:** which purchases a habit tile counts, what's fixed, and which days are
+  tracked or without spending are in `Spending.kt` (`shared:domain`). The net worth screen's month
+  and Trends both count by them; `MonthAndTrendsAgreeTest`, in `app`, puts one month through both.
 
 ## Layout and copy
 
@@ -53,8 +60,9 @@ class name (`RootActivity`, `PaymentTileService`, the three widget receivers and
 - **Corners:** one radius, the corner radius setting (`AppCornerRadius`), which every shape reads.
   A block close inside another one's corners, like a switch's selected half, takes
   `nestedShape(inset)`: the radius less the gap, so the corners stay concentric.
-- **Amounts:** the currency code after the number, everywhere. A small label over an amount is in
-  regular weight and the secondary grey, so the amount leads.
+- **Amounts:** the currency code after the number, everywhere: `amountAndCode` writes both, and
+  `formatAmount` the number alone. A small label over an amount is in regular weight and the
+  secondary grey, so the amount leads.
 - **Copy:** sentence case, no emoji or exclamation marks, and no final period on a label, a
   caption or a one-sentence hint.
 
@@ -70,7 +78,8 @@ package: the entry point and layout, its sections, its dialogs, and its previews
   be thrown. Where any failure has to end the same way (a result, a message), keep the catch-all
   with the reason beside it, and rethrow `CancellationException` in coroutines.
 - A failure of something the user did (a save, an import, a download) is shown, not only
-  logged.
+  logged. A view model writes what the person asked for through `UserWrites.run(message) { }`:
+  when the database refuses, it shows the message, and the screen stays as it was.
 
 ## Checks
 

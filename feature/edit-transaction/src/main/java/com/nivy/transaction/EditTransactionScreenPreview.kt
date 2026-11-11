@@ -45,6 +45,7 @@ private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
                 toAccount = null,
                 category = null,
                 amount = 0.0,
+                canSave = false,
                 hasChanges = false,
                 displayLoanHelper = EditTransactionDisplayLoan(),
                 backgroundProcessingStarted = false,

@@ -3,7 +3,6 @@ package com.nivy.piechart
 import androidx.compose.runtime.Immutable
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
-import com.nivy.data.model.Transaction
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import com.nivy.navigation.BudgetPage
@@ -23,7 +22,6 @@ data class PieChartStatisticState(
     val selectedCategory: SelectedCategory?,
     val accountIdFilterList: ImmutableList<UUID>,
     val showCloseButtonOnly: Boolean,
-    val transactions: ImmutableList<Transaction>,
     val choosePeriodModal: ChoosePeriodModalData?,
     val budgetPage: BudgetPage? = null,
     val history: ImmutableList<TransactionHistoryItem> = persistentListOf(),
