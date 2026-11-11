@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -37,6 +38,7 @@ import com.nivy.wallet.ui.theme.components.BalanceRowMini
 import com.nivy.wallet.ui.theme.components.CircleButtonFilled
 import com.nivy.wallet.ui.theme.components.CloseButton
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
+import com.nivy.wallet.ui.theme.wallet.backToThisMonth
 import androidx.compose.material3.MaterialTheme
 
 @Composable
@@ -51,6 +53,7 @@ internal fun Header(
     onShowMonthModal: () -> Unit,
     onSelectNextMonth: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
+    onSelectPeriod: (com.nivy.wallet.data.model.TimePeriod) -> Unit,
 
     onClose: () -> Unit,
     onAdd: (TransactionType) -> Unit,
@@ -112,6 +115,8 @@ internal fun Header(
                     shortMonth = true,
 
                     ),
+                onClear = backToThisMonth(period, onSelectPeriod),
+                clearLabel = stringResource(R.string.month_this_month),
             ) {
                 onShowMonthModal()
             }

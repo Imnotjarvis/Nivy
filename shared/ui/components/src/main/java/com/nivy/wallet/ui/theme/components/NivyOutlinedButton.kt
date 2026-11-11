@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,6 +41,9 @@ fun NivyOutlinedButton(
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     padding: Dp = 12.dp,
+    // A × at the end, read as [clearLabel], when there's something to clear.
+    onClear: (() -> Unit)? = null,
+    clearLabel: String? = null,
     onClick: () -> Unit,
 ) {
     val pure = MaterialTheme.colorScheme.surface
@@ -79,8 +83,33 @@ fun NivyOutlinedButton(
             ),
         )
 
-        Spacer(Modifier.width(24.dp))
+        if (onClear != null) {
+            ClearIcon(onClear = onClear, label = clearLabel, tint = iconTint)
+        } else {
+            Spacer(Modifier.width(24.dp))
+        }
     }
+}
+
+/**
+ * A ×, a tap of its own in a button whose other taps are the button's: wide, and no taller than its
+ * icon, so the button keeps the height its text gives it.
+ */
+@Composable
+internal fun ClearIcon(
+    onClear: () -> Unit,
+    label: String?,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    NivyIcon(
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable(onClick = onClear)
+            .padding(horizontal = 12.dp),
+        icon = R.drawable.ic_dismiss,
+        tint = tint,
+        contentDescription = label,
+    )
 }
 
 @Composable

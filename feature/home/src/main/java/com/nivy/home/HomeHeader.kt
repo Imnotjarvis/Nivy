@@ -55,6 +55,7 @@ import com.nivy.wallet.ui.theme.components.BalanceRow
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.ui.theme.wallet.AmountCurrencyB1
+import com.nivy.wallet.ui.theme.wallet.backToThisMonth
 import com.nivy.wallet.utils.HiddenAmount
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.horizontalSwipeListener
@@ -78,6 +79,7 @@ internal fun HomeHeader(
     onShowMonthModal: () -> Unit,
     onSelectNextMonth: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
+    onSelectPeriod: (TimePeriod) -> Unit,
     firstGlanceFact: GlanceFact? = null,
 ) {
     Column {
@@ -99,6 +101,7 @@ internal fun HomeHeader(
             onShowMonthModal = onShowMonthModal,
             onSelectNextMonth = onSelectNextMonth,
             onSelectPreviousMonth = onSelectPreviousMonth,
+            onSelectPeriod = onSelectPeriod,
         )
 
         Spacer(Modifier.height(16.dp))
@@ -122,6 +125,7 @@ private fun HeaderStickyRow(
     onShowMonthModal: () -> Unit,
     onSelectNextMonth: () -> Unit,
     onSelectPreviousMonth: () -> Unit,
+    onSelectPeriod: (TimePeriod) -> Unit,
 ) {
     // The glance fades in once loaded, and stays as the list scrolls: today stays in view, with
     // the room the menu button leaves.
@@ -173,6 +177,8 @@ private fun HeaderStickyRow(
                 timeFormatter = LocalTimeFormatter.current,
             ),
             minWidth = 130.dp,
+            onClear = backToThisMonth(period, onSelectPeriod),
+            clearLabel = stringResource(R.string.month_this_month),
         ) {
             onShowMonthModal()
         }

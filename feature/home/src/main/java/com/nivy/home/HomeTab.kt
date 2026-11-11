@@ -114,7 +114,8 @@ private fun BoxWithConstraintsScope.HomeUi(
             },
             onSelectPreviousMonth = {
                 onEvent(HomeEvent.SelectPreviousMonth)
-            }
+            },
+            onSelectPeriod = { onEvent(HomeEvent.SetPeriod(it)) },
         )
 
         HomeSearchBar(pull = pullToSearch) {

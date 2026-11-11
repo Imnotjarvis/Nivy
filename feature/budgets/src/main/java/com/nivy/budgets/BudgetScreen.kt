@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import com.nivy.data.model.pickable
 import com.nivy.budgets.model.DisplayBudget
 import com.nivy.wallet.ui.theme.wallet.PeriodSelector
+import com.nivy.wallet.ui.theme.wallet.backToThisMonth
 import com.nivy.wallet.ui.theme.components.BudgetBattery
 import com.nivy.wallet.ui.theme.components.EmptyState
 import com.nivy.design.utils.clickableNoIndication
@@ -129,6 +130,7 @@ private fun BoxWithConstraintsScope.UI(
                 onPreviousMonth = { onEvent(BudgetScreenEvent.OnPreviousMonth) },
                 onNextMonth = { onEvent(BudgetScreenEvent.OnNextMonth) },
                 onShowChoosePeriodModal = null,
+                onThisMonth = backToThisMonth(state.period) { onEvent(BudgetScreenEvent.OnThisMonth) },
             )
         }
 

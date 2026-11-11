@@ -35,6 +35,7 @@ class PieChartHeaderPaparazziTest(
                     onShowMonthModal = {},
                     onSelectNextMonth = {},
                     onSelectPreviousMonth = {},
+                    onSelectPeriod = {},
                     onClose = {},
                     onAdd = {},
                 )

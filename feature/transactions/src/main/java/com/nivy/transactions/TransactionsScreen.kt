@@ -442,7 +442,8 @@ internal fun BoxWithConstraintsScope.UI(
                 initWithTransactions = initWithTransactions,
                 onPreviousMonth = onPreviousMonth,
                 onNextMonth = onNextMonth,
-                onChoosePeriodModal = onChoosePeriodModal
+                onChoosePeriodModal = onChoosePeriodModal,
+                onSetPeriod = onSetPeriod,
             )
 
             transactions(

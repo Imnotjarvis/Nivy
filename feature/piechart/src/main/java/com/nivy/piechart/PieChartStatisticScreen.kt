@@ -100,6 +100,7 @@ internal fun BoxWithConstraintsScope.UI(
                 onSelectPreviousMonth = {
                     onEvent(PieChartStatisticEvent.OnSelectPreviousMonth)
                 },
+                onSelectPeriod = { onEvent(PieChartStatisticEvent.OnSetPeriod(it)) },
                 showCloseButtonOnly = state.showCloseButtonOnly,
                 onClose = {
                     nav.back()
