@@ -14,6 +14,7 @@ import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.GreenDark
 import com.nivy.design.system.colors.GreenLight
+import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.NivyDark
 import com.nivy.design.system.colors.NivyLight
 import com.nivy.design.system.colors.MediumBlack
@@ -22,7 +23,6 @@ import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.OrangeDark
 import com.nivy.design.system.colors.OrangeLight
 import com.nivy.design.system.colors.Palette
-import com.nivy.design.system.colors.Purple
 import com.nivy.design.system.colors.TrueBlack
 import com.nivy.design.system.colors.White
 import com.nivy.design.system.shapes.AppCornerRadius
@@ -59,7 +59,7 @@ fun NivyMaterial3Theme(
 // Material3 1.3+ blends surfaceContainer into TopAppBar/Switch colors, and an unspecified
 // role there yields an invalid color space ("Invalid ID") and crashes drawing.
 private fun nivyLightColorScheme(): ColorScheme = lightColorScheme(
-    primary = Purple,
+    primary = Nivy,
     onPrimary = White,
     primaryContainer = NivyLight,
     onPrimaryContainer = NivyDark,
@@ -103,7 +103,7 @@ private fun nivyLightColorScheme(): ColorScheme = lightColorScheme(
 )
 
 private fun nivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorScheme(
-    primary = Purple,
+    primary = Nivy,
     onPrimary = White,
     primaryContainer = NivyDark,
     onPrimaryContainer = NivyLight,

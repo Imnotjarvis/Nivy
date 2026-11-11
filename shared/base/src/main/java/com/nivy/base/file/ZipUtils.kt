@@ -7,15 +7,25 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-/** Zips [files] into the file [open] gives, opened for writing, as a content resolver does. */
+/**
+ * Zips [files], each a plain file under its own name, into the file [open] gives, opened for
+ * writing, as a content resolver does.
+ */
 fun zip(open: () -> ParcelFileDescriptor?, files: List<File>) {
-    descriptor(open).use { descriptor ->
-        ZipOutputStream(BufferedOutputStream(FileOutputStream(descriptor.fileDescriptor))).use { outStream ->
-            zip(outStream, files)
+    descriptor(open).use { descriptor -> zip(FileOutputStream(descriptor.fileDescriptor), files) }
+}
+
+/** Zips [files] into [out], and closes it. */
+internal fun zip(out: OutputStream, files: List<File>) {
+    ZipOutputStream(BufferedOutputStream(out)).use { zipped ->
+        files.forEach { file ->
+            zipped.putNextEntry(ZipEntry(file.name))
+            FileInputStream(file).use { it.copyTo(zipped) }
         }
     }
 }
@@ -23,33 +33,6 @@ fun zip(open: () -> ParcelFileDescriptor?, files: List<File>) {
 // The provider can give no file at all for the uri: that's a file not found, not a zip of nothing.
 private fun descriptor(open: () -> ParcelFileDescriptor?): ParcelFileDescriptor =
     open() ?: throw FileNotFoundException("The provider gave no file to open")
-
-private fun zip(
-    outStream: ZipOutputStream,
-    files: List<File>,
-    includeParentFolder: Boolean = false
-) {
-    files.forEach { file ->
-        if (file.isDirectory) {
-            file.mkdir()
-            zip(outStream, file.listFiles()?.toList() ?: emptyList(), includeParentFolder = true)
-        } else {
-            val fileLoc: String =
-                if (file.parent.isNullOrEmpty() || !includeParentFolder) {
-                    file.name
-                } else {
-                    (file.parent!!).substring(
-                        file.parent!!.lastIndexOf("/")
-                    ) + "/" + file.name
-                }
-
-            outStream.putNextEntry(ZipEntry(fileLoc))
-            BufferedInputStream(FileInputStream(file)).use { inStream ->
-                inStream.copyTo(outStream)
-            }
-        }
-    }
-}
 
 /** Unzips the file [open] gives, opened for reading, as a content resolver does, into [location]. */
 fun unzip(open: () -> ParcelFileDescriptor?, location: File) {

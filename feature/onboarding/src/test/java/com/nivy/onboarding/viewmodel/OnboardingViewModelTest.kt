@@ -2,7 +2,6 @@ package com.nivy.onboarding.viewmodel
 
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
-import com.nivy.navigation.OnboardingScreen
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,7 +51,7 @@ class OnboardingViewModelTest {
 
     @Test
     fun `a new install has no savings goal until one is set`() {
-        viewModel.start(OnboardingScreen, isSystemDarkMode = false)
+        viewModel.start(isSystemDarkMode = false)
 
         val settings = slot<AppSettings>()
         coVerify { appPreferences.saveSettings(capture(settings)) }

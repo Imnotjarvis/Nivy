@@ -1,18 +1,15 @@
 package com.nivy.wallet.migrations
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import com.nivy.data.datastore.dataStore
 import com.nivy.wallet.migrations.impl.AccountsWithoutCurrencyMigration
 import com.nivy.wallet.migrations.impl.DisableGitHubAutoBackupMigration
 import com.nivy.wallet.migrations.impl.KeepTransfersWithDeletedAccountsMigration
 import com.nivy.wallet.migrations.impl.LegacySettingsTableMigration
 import com.nivy.wallet.migrations.impl.TagLinksOfDeletedTransactionsMigration
 import dagger.Lazy
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -22,8 +19,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MigrationsManager @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
+    private val dataStore: DataStore<Preferences>,
     private val disableGitHubAutoBackupMigration: Lazy<DisableGitHubAutoBackupMigration>,
     private val keepTransfersWithDeletedAccountsMigration: Lazy<KeepTransfersWithDeletedAccountsMigration>,
     private val accountsWithoutCurrencyMigration: Lazy<AccountsWithoutCurrencyMigration>,
@@ -43,7 +39,7 @@ class MigrationsManager @Inject constructor(
     @Suppress("MagicNumber")
     suspend fun executeMigrations() {
         delay(2_000L) // to not the make the app start slower
-        runPendingMigrations(migrations, context.dataStore)
+        runPendingMigrations(migrations, dataStore)
     }
 }
 

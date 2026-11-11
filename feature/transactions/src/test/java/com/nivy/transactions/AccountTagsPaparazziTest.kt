@@ -96,7 +96,7 @@ class AccountTagsPaparazziTest(
         // Stored colors are the palette's own: minimal colors turn them grey where they're drawn.
         val Bank = previewAccount("Bank", color = Palette.Blue, icon = "bank", currency = "EUR", id = UUID(0, 10))
         val Food = category("Restaurants", Palette.Orange, "restaurant", 1)
-        val Transport = category("Transport", Palette.Purple, "transport", 2)
+        val Transport = category("Transport", Palette.Nivy, "transport", 2)
 
         val Dinner = previewTransaction(
             type = TransactionType.EXPENSE,

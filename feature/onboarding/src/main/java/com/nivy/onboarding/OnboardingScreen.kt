@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nivy.data.model.Category
 import com.nivy.wallet.data.model.AccountBalance
-import com.nivy.navigation.OnboardingScreen
 import com.nivy.onboarding.steps.OnboardingAccounts
 import com.nivy.onboarding.steps.OnboardingCategories
 import com.nivy.onboarding.steps.OnboardingSetCurrency
@@ -24,7 +23,7 @@ import androidx.activity.compose.BackHandler
 
 @ExperimentalFoundationApi
 @Composable
-fun BoxWithConstraintsScope.OnboardingScreen(screen: OnboardingScreen) {
+fun BoxWithConstraintsScope.OnboardingScreen() {
     val viewModel: OnboardingViewModel = viewModel()
 
     val state by viewModel.state
@@ -32,10 +31,7 @@ fun BoxWithConstraintsScope.OnboardingScreen(screen: OnboardingScreen) {
 
     val isSystemDarkTheme = isSystemInDarkTheme()
     LaunchedEffect(Unit) {
-        viewModel.start(
-            screen = screen,
-            isSystemDarkMode = isSystemDarkTheme
-        )
+        viewModel.start(isSystemDarkMode = isSystemDarkTheme)
     }
 
     // Back goes to the previous step; on the welcome step it leaves the app.

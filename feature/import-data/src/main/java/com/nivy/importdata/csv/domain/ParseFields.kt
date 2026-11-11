@@ -12,13 +12,31 @@ import java.time.format.DateTimeParseException
 import kotlin.math.abs
 
 // region Parse amount
-private val AmountMultipliers = setOf(10, 100, 1_000, 10_000)
+// What scales an amount: a positive multiplier multiplies it, a negative one divides it, and 1
+// leaves it as it is.
+private const val MaxAmountMultiplier = 10_000
+private val AmountMultipliers = setOf(10, 100, 1_000, MaxAmountMultiplier)
+
+/** [multiplier] a step of ten up: /100 to /10, /10 to none, none to *10, at most *10,000. */
+fun multipliedByTen(multiplier: Int): Int = when {
+    multiplier >= MaxAmountMultiplier -> MaxAmountMultiplier
+    multiplier == -10 -> 1
+    multiplier < 0 -> multiplier / 10
+    else -> multiplier * 10
+}
+
+/** [multiplier] a step of ten down, at most /10,000. */
+fun dividedByTen(multiplier: Int): Int = when {
+    multiplier <= -MaxAmountMultiplier -> -MaxAmountMultiplier
+    multiplier == 1 -> -10
+    multiplier > 0 -> multiplier / 10
+    else -> multiplier * 10
+}
 
 fun parseAmount(
     value: String,
-    metadata: Int // a broken multiplier
+    metadata: Int // the multiplier
 ): Double? = tryParse {
-    // A positive multiplier multiplies the amount; a negative one divides it.
     val multiplier = when {
         metadata in AmountMultipliers -> metadata.toDouble()
         -metadata in AmountMultipliers -> 1.0 / -metadata

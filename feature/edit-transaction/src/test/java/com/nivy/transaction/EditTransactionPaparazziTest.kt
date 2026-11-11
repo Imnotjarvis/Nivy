@@ -210,7 +210,7 @@ private object FixedTime : TimeProvider {
 
 // Stored colors are the palette's own: minimal colors turn them grey where they're drawn.
 private val Bank = previewAccount("Bank", color = Palette.Blue, icon = "bank", currency = "EUR")
-private val Revolut = previewAccount("Revolut", color = Palette.Purple, icon = "revolut", currency = "USD")
+private val Revolut = previewAccount("Revolut", color = Palette.Nivy, icon = "revolut", currency = "USD")
 
 private val Groceries = category("Groceries", Palette.Green, "groceries")
 private val Salary = category("Salary", Palette.Yellow, "work")

@@ -22,7 +22,6 @@ import com.nivy.wallet.data.model.AccountBalance
 import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.utils.ioThread
 import com.nivy.navigation.Navigation
-import com.nivy.navigation.OnboardingScreen
 import com.nivy.onboarding.OnboardingDetailState
 import com.nivy.onboarding.OnboardingEvent
 import com.nivy.onboarding.OnboardingState
@@ -101,11 +100,11 @@ class OnboardingViewModel @Inject constructor(
         router.onBack(viewModelScope = viewModelScope, restartOnboarding = restartOnboarding)
     }
 
-    fun start(screen: OnboardingScreen, isSystemDarkMode: Boolean) {
+    fun start(isSystemDarkMode: Boolean) {
         viewModelScope.launch {
             initiateSettings(isSystemDarkMode)
 
-            restartOnboarding = { start(screen, isSystemDarkMode) }
+            restartOnboarding = { start(isSystemDarkMode) }
 
             router.splashNext()
         }
