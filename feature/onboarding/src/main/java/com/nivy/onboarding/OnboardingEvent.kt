@@ -10,7 +10,6 @@ sealed interface OnboardingEvent {
 
     data object GetStarted : OnboardingEvent
     data object StartImport : OnboardingEvent
-    data object ImportSkip : OnboardingEvent
     data object StartFresh : OnboardingEvent
     data class SetBaseCurrency(val baseCurrency: NivyCurrency) : OnboardingEvent
     data class EditAccount(val account: Account, val newBalance: Double) : OnboardingEvent
