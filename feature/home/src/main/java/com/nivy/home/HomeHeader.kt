@@ -248,7 +248,8 @@ fun CashFlowInfo(
         val page = MaterialTheme.colorScheme.background
         // Hidden with the income too: with the expenses beside it, it would tell the income.
         if (cashflow != 0.0 && !hideBalance && !hideIncome) {
-            Spacer(Modifier.height(12.dp))
+            // As far from the cards as from the line under the header: 4 here and the 16 above it.
+            Spacer(Modifier.height(20.dp))
 
             Text(
                 modifier = Modifier

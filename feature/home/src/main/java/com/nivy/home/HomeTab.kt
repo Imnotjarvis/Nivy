@@ -332,7 +332,10 @@ private fun HomeLazyColumn(
 @ExperimentalFoundationApi
 @Preview
 @Composable
-private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
+private fun BoxWithConstraintsScope.PreviewHomeTab(
+    isDark: Boolean = false,
+    stats: IncomeExpensePair = IncomeExpensePair.zero(),
+) {
     NivyMaterial3Preview(isDark) {
         HomeUi(
             uiState = HomeState(
@@ -347,7 +350,7 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
                 customerJourneyCards = persistentListOf(),
                 history = persistentListOf(),
                 historyLoaded = true,
-                stats = IncomeExpensePair.zero(),
+                stats = stats,
                 statsLoaded = true,
                 upcoming = DueSection(
                     trns = persistentListOf(),
@@ -370,15 +373,15 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(isDark: Boolean = false) {
     }
 }
 
-/** For screenshot testing */
+/** For screenshot testing: Home with the month's [stats], nothing by default. */
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun HomeUiTest(isDark: Boolean) {
+fun HomeUiTest(isDark: Boolean, stats: IncomeExpensePair = IncomeExpensePair.zero()) {
     val theme = when (isDark) {
         true -> Theme.DARK
         false -> Theme.LIGHT
     }
     NivyPreview(theme) {
-        PreviewHomeTab(isDark)
+        PreviewHomeTab(isDark, stats)
     }
 }

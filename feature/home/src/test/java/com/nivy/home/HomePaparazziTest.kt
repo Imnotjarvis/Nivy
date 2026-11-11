@@ -20,6 +20,7 @@ import com.nivy.home.usecase.NextPayment
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.math.BigDecimal
@@ -35,6 +36,17 @@ class HomePaparazziTest(
     fun `snapshot Home Screen`() {
         snapshot(theme) {
             HomeUiTest(theme == PaparazziTheme.Dark)
+        }
+    }
+
+    // The cash flow line, as far from the cards above it as from the line below it.
+    @Test
+    fun `snapshot Home with the month's cash flow`() {
+        snapshot(theme) {
+            HomeUiTest(
+                isDark = theme == PaparazziTheme.Dark,
+                stats = IncomeExpensePair(income = BigDecimal("2400"), expense = BigDecimal("400")),
+            )
         }
     }
 
