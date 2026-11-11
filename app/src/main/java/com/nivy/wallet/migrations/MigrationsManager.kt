@@ -9,6 +9,7 @@ import com.nivy.data.datastore.dataStore
 import com.nivy.wallet.migrations.impl.AccountsWithoutCurrencyMigration
 import com.nivy.wallet.migrations.impl.DisableGitHubAutoBackupMigration
 import com.nivy.wallet.migrations.impl.KeepTransfersWithDeletedAccountsMigration
+import com.nivy.wallet.migrations.impl.LegacySettingsTableMigration
 import com.nivy.wallet.migrations.impl.TagLinksOfDeletedTransactionsMigration
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,6 +28,7 @@ class MigrationsManager @Inject constructor(
     private val keepTransfersWithDeletedAccountsMigration: Lazy<KeepTransfersWithDeletedAccountsMigration>,
     private val accountsWithoutCurrencyMigration: Lazy<AccountsWithoutCurrencyMigration>,
     private val tagLinksOfDeletedTransactionsMigration: Lazy<TagLinksOfDeletedTransactionsMigration>,
+    private val legacySettingsTableMigration: Lazy<LegacySettingsTableMigration>,
 ) {
     private val migrations by lazy {
         listOf(
@@ -34,6 +36,7 @@ class MigrationsManager @Inject constructor(
             keepTransfersWithDeletedAccountsMigration.get(),
             accountsWithoutCurrencyMigration.get(),
             tagLinksOfDeletedTransactionsMigration.get(),
+            legacySettingsTableMigration.get(),
         )
     }
 
@@ -47,6 +50,9 @@ class MigrationsManager @Inject constructor(
 /**
  * Runs each migration not done yet, and marks it done. One that fails isn't marked: it runs
  * again on the next launch (it used to be marked done all the same, and never ran again).
+ *
+ * The settings are read first, so a migration finds them as DataStore's own migrations left them:
+ * the old settings table's values copied.
  */
 internal suspend fun runPendingMigrations(migrations: List<Migration>, dataStore: DataStore<Preferences>) {
     val data = dataStore.data.firstOrNull()

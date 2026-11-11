@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.data.DataObserver
 import com.nivy.data.db.DatabaseTransaction
-import com.nivy.data.db.NivyRoomDatabase
 import com.nivy.data.preferences.LegacySettingsMigration
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.AccountValueRepository
@@ -23,7 +22,6 @@ import com.nivy.data.repository.TransactionRepository
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -49,7 +47,6 @@ class DeleteAllDataUseCaseTest {
             }
         }
     }
-    private val db = mockk<NivyRoomDatabase>(relaxed = true)
     private val dataStore: DataStore<Preferences> by lazy {
         PreferenceDataStoreFactory.create(produceFile = { File(folder.root, "settings.preferences_pb") })
     }
@@ -60,7 +57,6 @@ class DeleteAllDataUseCaseTest {
             dataObserver = DataObserver(),
             dataStore = dataStore,
             databaseTransaction = databaseTransaction,
-            db = db,
             accountRepository = mockk<AccountRepository> { coEvery { deleteAll() } answers { delete() } },
             transactionRepository = mockk<TransactionRepository> { coEvery { deleteAll() } answers { delete() } },
             categoryRepository = mockk<CategoryRepository> { coEvery { deleteAll() } answers { delete() } },
@@ -87,15 +83,6 @@ class DeleteAllDataUseCaseTest {
 
         // then: all ten repositories' tables
         deletes shouldBe List(10) { true }
-    }
-
-    @Test
-    fun `the old settings table goes too`() = runTest {
-        // when
-        useCase()
-
-        // then
-        verify { db.openHelper.writableDatabase.execSQL("DROP TABLE IF EXISTS settings") }
     }
 
     @Test
