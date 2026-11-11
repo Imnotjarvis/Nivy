@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
@@ -58,6 +57,7 @@ import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
+import com.nivy.wallet.ui.theme.components.BOTTOM_BAR_HEIGHT
 import com.nivy.wallet.ui.theme.components.FAB_BUTTON_SIZE
 import com.nivy.wallet.ui.theme.components.TabsBottomBar
 import com.nivy.wallet.ui.theme.components.BottomBarTab
@@ -160,9 +160,11 @@ internal fun BoxWithConstraintsScope.BottomBar(
     }
 
     // ------------------------------------ BUTTONS--------------------------------------------------
+    // The menu's round buttons come out of the + button's middle.
     val fabStart = bottomBarFabStart()
-    val fabStartX = fabStart.x
-    val fabStartY = fabStart.y
+    val fromFab = ((BOTTOM_BAR_HEIGHT - FAB_BUTTON_SIZE) / 2).toDensityPx()
+    val fabStartX = fabStart.x + fromFab
+    val fabStartY = fabStart.y + fromFab
 
     TransactionButtons(
         buttonsShownPercent = buttonsShownPercent,
@@ -181,8 +183,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
     }
     // + & x button
     BottomBarFab(
+        iconRotation = fabRotation,
         modifier = Modifier
-            .rotate(fabRotation)
             .thenIf(tab == MainTab.HOME) {
                 pointerInput(Unit) {
                     detectDragGestures(
@@ -272,6 +274,7 @@ private fun TransactionButtons(
 
     if (buttonsShownPercent > 0.01f) {
         val buttonLeftX = bH.toDensityPx()
+        val buttonCenterX = screenSize.width / 2f - FAB_BUTTON_SIZE.toDensityPx() / 2
         val buttonRightX = screenSize.width - bH.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
 
         val sideButtonsY = fabStartY - bV.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx()
@@ -327,7 +330,7 @@ private fun TransactionButtons(
             label = stringResource(R.string.add_expense_uppercase),
             shownPercent = buttonsShownPercent,
             start = start,
-            end = Offset(fabStartX, buttonCenterY),
+            end = Offset(buttonCenterX, buttonCenterY),
             clickArea = 1,
             clickAreaWidth = clickAreaWidth,
             onClick = onAddExpense

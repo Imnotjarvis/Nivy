@@ -1,19 +1,22 @@
 package com.nivy.wallet.ui.theme.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,16 +24,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.nivy.design.system.colors.White
-import com.nivy.design.system.colors.pureBlur
+import com.nivy.design.system.colors.gradientCutBackgroundTop
+import com.nivy.design.system.colors.readableTint
+import com.nivy.design.system.shapes.AppCornerRadius
+import com.nivy.design.system.shapes.nestedShape
 import com.nivy.design.utils.LocalScreenSize
 import com.nivy.design.utils.clickableNoIndication
 import com.nivy.design.utils.navigationBarInset
@@ -41,20 +50,32 @@ import kotlin.math.roundToInt
 
 // The bottom bar of the main screen and of Loans, in one place so the two look the same.
 
-/** The + button's size, and that of the round buttons drawn like it. */
+/** The add menu's round buttons, and the size other round buttons drawn like them take. */
 val FAB_BUTTON_SIZE = 56.dp
 
-// How high the + button's bottom sits over the bottom of the screen, above the navigation bar.
-private val FabRaise = 30.dp
+/** How tall the bar's tabs are; the + button beside them is a square as tall. */
+val BOTTOM_BAR_HEIGHT = 64.dp
+
+// The bar keeps the blocks' margin from the screen's edges and from its bottom, above the
+// navigation bar.
+private val BarMargin = AppCornerRadius.ScreenMargin
+
+// Between the tabs and the + button, and around the selected tab inside the tabs.
+private val BarGap = 12.dp
+private val TabInset = 8.dp
+
+private val BarElevation = 8.dp
 
 // Above the screen's content and the bar.
 private const val FabZIndex = 200f
 
 /**
- * The bar along the bottom: a tab at each end and, between them, room for the + button raised
- * over it ([BottomBarFab]). Taps on the bar don't reach what's behind it.
+ * The bar along the bottom, as wide as the screen's blocks: its tabs in a block of their own, the
+ * [start] one and the [end] one, then room for the + button ([BottomBarFab]) beside them. What
+ * scrolls under the bar fades into the page behind it. Taps on the tabs' block don't reach what's
+ * behind it.
  *
- * [contentAlpha] fades the tabs, not the bar's background.
+ * [contentAlpha] fades the tabs, not their block.
  */
 @Composable
 fun BoxWithConstraintsScope.TabsBottomBar(
@@ -63,27 +84,42 @@ fun BoxWithConstraintsScope.TabsBottomBar(
     modifier: Modifier = Modifier,
     contentAlpha: Float = 1f,
 ) {
+    val shape = MaterialTheme.shapes.medium
     Row(
         modifier = modifier
             .fillMaxWidth()
             .align(Alignment.BottomCenter)
-            .background(pureBlur())
-            .alpha(contentAlpha)
+            .gradientCutBackgroundTop(MaterialTheme.colorScheme.background, LocalDensity.current)
             .navigationBarsPadding()
-            .clickableNoIndication(rememberInteractionSource()) {
-                // consume click
-            },
+            .padding(start = BarMargin, end = BarMargin, bottom = BarMargin),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        start()
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .height(BOTTOM_BAR_HEIGHT)
+                .shadow(BarElevation, shape)
+                .background(MaterialTheme.colorScheme.surface, shape)
+                .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, shape)
+                .clickableNoIndication(rememberInteractionSource()) {
+                    // consume click
+                }
+                .padding(TabInset)
+                .alpha(contentAlpha),
+        ) {
+            start()
+            end()
+        }
 
-        Spacer(Modifier.width(FAB_BUTTON_SIZE))
-
-        end()
+        // The + button's place: it's drawn over the bar, where bottomBarFabStart() puts it.
+        Spacer(Modifier.width(BarGap + BOTTOM_BAR_HEIGHT))
     }
 }
 
-/** A tab of [TabsBottomBar]: its icon and, when it's selected, its name beside it. */
+/**
+ * A tab of [TabsBottomBar]: its icon and its name, filled with [selectedColor] when it's
+ * selected.
+ */
 @Composable
 fun RowScope.BottomBarTab(
     @DrawableRes icon: Int,
@@ -93,74 +129,80 @@ fun RowScope.BottomBarTab(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val content = if (selected) readableTint(selectedColor, White) else MaterialTheme.colorScheme.onSurface
     Row(
         modifier = modifier
             .weight(1f)
-            .clip(CircleShape)
+            .fillMaxHeight()
+            .clip(nestedShape(TabInset))
+            .background(if (selected) selectedColor else Color.Transparent)
             .selectable(selected = selected, role = Role.Tab, onClick = onClick)
-            .padding(top = 12.dp, bottom = 16.dp)
             .testTag(name.lowercase()),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        NivyIcon(
-            icon = icon,
-            tint = if (selected) selectedColor else MaterialTheme.colorScheme.onSurface,
-            // An unselected tab shows no name: its icon tells TalkBack which tab it is.
-            contentDescription = name.takeUnless { selected },
-        )
+        NivyIcon(icon = icon, tint = content)
 
-        if (selected) {
-            Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(4.dp))
 
-            Text(
-                text = name,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = selectedColor,
-                    fontWeight = FontWeight.Bold
-                )
+        Text(
+            text = name,
+            maxLines = 1,
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = content,
+                fontWeight = FontWeight.Bold
             )
-        }
+        )
     }
 }
 
-/** Where the + button over [TabsBottomBar] goes: its top left corner, in pixels. */
+/** Where the + button beside [TabsBottomBar]'s tabs goes: its top left corner, in pixels. */
 @Composable
 fun bottomBarFabStart(): Offset {
     val screenSize = LocalScreenSize.current
     return Offset(
-        x = screenSize.width / 2 - FAB_BUTTON_SIZE.toDensityPx() / 2,
+        x = screenSize.width - BarMargin.toDensityPx() - BOTTOM_BAR_HEIGHT.toDensityPx(),
         y = screenSize.height - navigationBarInset() -
-            FabRaise.toDensityPx() - FAB_BUTTON_SIZE.toDensityPx(),
+            BarMargin.toDensityPx() - BOTTOM_BAR_HEIGHT.toDensityPx(),
     )
 }
 
-/** The + button, raised over the middle of [TabsBottomBar], which TalkBack reads as [contentDescription]. */
+/**
+ * The + button beside [TabsBottomBar]'s tabs, as tall as them and with the blocks' corners, which
+ * TalkBack reads as [contentDescription]. [iconRotation] turns the + alone, into an x say.
+ */
 @Composable
 fun BottomBarFab(
     backgroundColor: Color,
     contentDescription: String,
     modifier: Modifier = Modifier,
+    iconRotation: Float = 0f,
     onClick: () -> Unit,
 ) {
     val start = bottomBarFabStart()
-    NivyCircleButton(
+    val shape = MaterialTheme.shapes.medium
+    NivyIcon(
         modifier = Modifier
-            // First, so what follows (a rotation) turns the button where it's drawn.
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
                 layout(placeable.width, placeable.height) {
                     placeable.place(x = start.x.roundToInt(), y = start.y.roundToInt())
                 }
             }
-            .size(FAB_BUTTON_SIZE)
+            .size(BOTTOM_BAR_HEIGHT)
             .zIndex(FabZIndex)
-            .then(modifier),
-        backgroundPadding = 8.dp,
+            .then(modifier)
+            .shadow(BarElevation, shape)
+            .clip(shape)
+            .background(backgroundColor)
+            .clickable(onClick = onClick, role = Role.Button)
+            .padding(FabIconPadding)
+            .rotate(iconRotation),
         icon = R.drawable.ic_add,
-        backgroundColor = backgroundColor,
-        tint = White,
-        contentDescription = contentDescription,
-        onClick = onClick
+        tint = readableTint(backgroundColor, White),
+        contentDescription = contentDescription
     )
 }
+
+// The + fills its button but for this margin, as a round button's icon does.
+private val FabIconPadding = 12.dp
