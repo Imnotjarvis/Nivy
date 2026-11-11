@@ -2,6 +2,7 @@ package com.nivy.balance
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.nivy.balance.detail.BudgetMonth
 import com.nivy.balance.detail.FreeToSpend
 import com.nivy.balance.detail.Holding
 import com.nivy.balance.detail.Holdings
@@ -75,6 +76,7 @@ internal object BalanceSample {
     private val Days = (1..30).map { LocalDate.of(2026, 11, it) }
     private val Today = Days[8]
     private const val Income = 1_650.0
+    private const val TotalBudget = 1_700.0
     private const val StartBalance = 6_812.40
 
     // November's purchases by the 9th.
@@ -169,8 +171,9 @@ internal object BalanceSample {
         }.drop(1)
         val spent = Purchases.sumOf { it.amount }
         val plannedExpenses = ComingUp.filter { it.type == TransactionType.EXPENSE }.map { -it.amount }
-        val left = Income + 60.0 - spent - plannedExpenses.sum()
+        val left = TotalBudget - spent - plannedExpenses.sum()
         val free = FreeToSpend(perDay = left / 21, daysLeft = 21, spent = spent, left = left)
+        fun spentOn(category: Category) = Purchases.filter { it.category == category }.sumOf { it.amount }
         val elapsed = Days.take(9)
         val holdings = listOf(
             Holding(MainBank, 6_240.30),
@@ -186,6 +189,12 @@ internal object BalanceSample {
             sinceStart = balances[8] - StartBalance,
             lowest = lowestAhead(Days, balances, elapsed.size),
             freeToSpend = free,
+            // A total budget, one with room left, and one gone over.
+            budgets = listOf(
+                BudgetMonth("Total", TotalBudget, spent),
+                BudgetMonth("Eating out", 150.0, spentOn(EatingOut)),
+                BudgetMonth("Groceries", 60.0, spentOn(Groceries)),
+            ).toImmutableList(),
             comingUp = ComingUp.take(5).toImmutableList(),
             moreComingUp = ComingUp.size - 5,
             spentByDay = spentByDay.toImmutableList(),

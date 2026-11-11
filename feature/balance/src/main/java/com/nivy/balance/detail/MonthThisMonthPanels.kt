@@ -23,6 +23,8 @@ import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
+import com.nivy.navigation.BudgetScreen
+import com.nivy.navigation.navigation
 import com.nivy.ui.R
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.domain.pure.forecast.Band
@@ -38,6 +40,7 @@ import com.nivy.wallet.ui.component.ProgressBar
 import com.nivy.wallet.ui.component.approxAmount
 import com.nivy.wallet.ui.component.dayLabel
 import com.nivy.wallet.ui.component.transaction.label
+import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import java.time.LocalDate
@@ -61,7 +64,7 @@ internal fun FreeToSpendPanel(
         if (free.left >= 0) {
             BigNumber(stringResource(R.string.month_per_day, free.perDay.format(currency), currency))
             Spacer(Modifier.height(4.dp))
-            Subtext(pluralStringResource(R.plurals.month_days_left_even, free.daysLeft, free.daysLeft))
+            Subtext(pluralStringResource(R.plurals.month_days_left_budget, free.daysLeft, free.daysLeft))
             Spacer(Modifier.height(16.dp))
             val whole = (free.spent + free.left).coerceAtLeast(Double.MIN_VALUE)
             val likely = outlook?.left?.let { free.left - it.likely }
@@ -130,6 +133,27 @@ internal fun FreeToSpendPanel(
                 small = true,
             )
         }
+    }
+}
+
+// Without a total budget there's nothing to spend from: a way to Budgets, to set one.
+@Composable
+internal fun SetBudgetPanel() {
+    val nav = navigation()
+    ChartPanel(
+        modifier = Modifier.testTag("month_set_budget"),
+        title = stringResource(R.string.month_free_to_spend),
+        legend = {},
+    ) {
+        Subtext(stringResource(R.string.month_set_budget))
+        Spacer(Modifier.height(16.dp))
+        NivyOutlinedButton(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = stringResource(R.string.add_budget),
+            iconStart = R.drawable.ic_plus,
+            solidBackground = true,
+            onClick = { nav.navigateTo(BudgetScreen()) },
+        )
     }
 }
 

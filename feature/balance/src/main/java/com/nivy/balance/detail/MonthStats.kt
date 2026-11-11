@@ -17,9 +17,8 @@ import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-// At most this many categories and places are listed.
+// At most this many categories are listed.
 private const val ListedCategories = 6
-private const val ListedPlaces = 4
 
 /**
  * How the money went, from the month's [spends] over its [elapsed] days, or null without any.
@@ -50,7 +49,6 @@ internal fun habits(
     }
     val small = chosen.filter { it.amount < edges[SmallPurchaseEdgeIndex] }
     val fixed = spends.fixed()
-    val places = places(chosen)
     val tracked = elapsed.trackedSince(trackedSince)
     return Habits(
         spent = spent,
@@ -71,7 +69,7 @@ internal fun habits(
             share = if (chosenSpent > 0) small.sumOf { it.amount } / chosenSpent else 0.0,
             under = edges[SmallPurchaseEdgeIndex]
         ),
-        topPlace = places.firstOrNull(),
+        topPlace = places(chosen).firstOrNull(),
         topAccount = chosen.groupBy { it.account }
             .maxByOrNull { it.value.size }
             ?.let { AccountUse(it.key, it.value.size) },
@@ -80,7 +78,6 @@ internal fun habits(
         fixed = Portion(fixed.sumOf { it.amount } + plannedFixed.sum(), fixed.size + plannedFixed.size),
         flexible = Portion(chosenSpent, chosen.size),
         categories = categoryChanges(spends, previous).toImmutableList(),
-        places = places.take(ListedPlaces).toImmutableList(),
     )
 }
 
@@ -138,18 +135,12 @@ private fun places(spends: List<Flow>): List<Place> =
         .sortedWith(compareByDescending<Place> { it.visits }.thenByDescending { it.total })
 
 /**
- * What can be spent a day for the rest of the month to end even, or null when nothing comes in
- * this month or no day is left.
+ * What can be spent a day for the rest of the month to stay within the [budget], once what's
+ * [spent] and the [plannedExpenses] still due are taken from it, or null when no day is left.
  */
-internal fun freeToSpend(
-    income: Double,
-    plannedIncome: Double,
-    spent: Double,
-    plannedExpenses: Double,
-    daysLeft: Int,
-): FreeToSpend? {
-    if (daysLeft <= 0 || income + plannedIncome <= 0) return null
-    val left = income + plannedIncome - spent - plannedExpenses
+internal fun freeToSpend(budget: Double, spent: Double, plannedExpenses: Double, daysLeft: Int): FreeToSpend? {
+    if (daysLeft <= 0) return null
+    val left = budget - spent - plannedExpenses
     return FreeToSpend(perDay = left / daysLeft, daysLeft = daysLeft, spent = spent, left = left)
 }
 

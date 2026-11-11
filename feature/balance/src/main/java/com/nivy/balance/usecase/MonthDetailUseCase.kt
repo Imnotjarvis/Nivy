@@ -1,5 +1,6 @@
 package com.nivy.balance.usecase
 
+import com.nivy.balance.detail.BudgetMonth
 import com.nivy.balance.detail.FreeToSpend
 import com.nivy.balance.detail.Holding
 import com.nivy.balance.detail.Holdings
@@ -27,15 +28,16 @@ import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
+import com.nivy.data.model.expensesIn
 import com.nivy.data.model.getFromAccount
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.AccountRepository
+import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
-import com.nivy.domain.usecase.spending.paidBetween
 import com.nivy.domain.usecase.spending.toFlow
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.wallet.data.model.FromToTimeRange
@@ -65,6 +67,7 @@ class MonthDetailUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
+    private val budgetRepository: BudgetRepository,
     private val walletBalanceUseCase: WalletBalanceUseCase,
     private val accountBalanceUseCase: AccountBalanceUseCase,
     private val exchangeUseCase: ExchangeUseCase,
@@ -96,8 +99,8 @@ class MonthDetailUseCase @Inject constructor(
                 first = transactionRepository.findFirstPaidTime()?.localDate(),
                 rates = rates,
                 names = Names(accounts.associateBy { it.id }, categoryRepository.findAll().associateBy { it.id }),
-                // What the detail looks back on, read once: the months before the period, to its end so far.
-                paid = PaidTransactions(inBalance, lookBackFrom(period, startDayOfMonth, range), upToNow),
+                // What the detail looks back on, read once: the months before the period, to its end.
+                paid = PaidTransactions(inBalance, lookBackFrom(period, startDayOfMonth, range), range.to()),
             )
             val paid = month.paid.between(range.from(), upToNow)
             val spends = month.purchases(paid)
@@ -125,18 +128,22 @@ class MonthDetailUseCase @Inject constructor(
 
             val startOfToday = today?.let { with(timeConverter) { it.atStartOfDay().toUTC() } }
             val dueInPeriod = due.filter { range.includes(it.time) }
-            val plannedExpenses = dueInPeriod.filterIsInstance<Expense>().sumOf { rates.inBase(it.value) }
             val ahead = due.filter { startOfToday == null || !it.time.isBefore(startOfToday) }
                 .sortedBy { it.time }
             val previous = month.previous()
             val holdings = holdings(inBalance, rates)
-            val free = if (today != null) {
+            // The budgets count the month's expenses as Budgets does, of every account. Free to spend
+            // spends from the total one, the first that counts every category.
+            val budgets = budgetRepository.findAll()
+            val inMonth = month.paid.ofEveryAccount(range.from(), range.to())
+            val total = budgets.firstOrNull { it.categories.isEmpty() }
+            val daysLeft = days.size - elapsed.size
+            val free = if (today != null && total != null) {
                 freeToSpend(
-                    income = income,
-                    plannedIncome = dueInPeriod.filterIsInstance<Income>().sumOf { rates.inBase(it.value) },
-                    spent = outgoing,
-                    plannedExpenses = plannedExpenses,
-                    daysLeft = days.size - elapsed.size,
+                    budget = total.amount.value,
+                    spent = total.expensesIn(inMonth).sumOf { rates.inBase(it.value) },
+                    plannedExpenses = total.expensesIn(dueInPeriod).sumOf { rates.inBase(it.value) },
+                    daysLeft = daysLeft,
                 )
             } else {
                 null
@@ -156,6 +163,14 @@ class MonthDetailUseCase @Inject constructor(
                 },
                 lowest = if (today != null) lowestAhead(days, balances, elapsed.size) else null,
                 freeToSpend = free,
+                needsBudget = today != null && total == null && daysLeft > 0,
+                budgets = budgets.map { budget ->
+                    BudgetMonth(
+                        name = budget.name.value,
+                        limit = budget.amount.value,
+                        spent = budget.expensesIn(inMonth).sumOf { rates.inBase(it.value) },
+                    )
+                }.toImmutableList(),
                 comingUp = ahead.take(ComingUpListed).map { month.upcoming(it) }.toImmutableList(),
                 moreComingUp = (ahead.size - ComingUpListed).coerceAtLeast(0),
                 spentByDay = spentOn(days, spends).toImmutableList(),
@@ -197,8 +212,10 @@ class MonthDetailUseCase @Inject constructor(
         walletBalanceUseCase.balance(baseCurrency, range = ClosedTimeRange.to(at)).toDouble()
 
     /**
-     * The paid transactions of the [accounts], read once from [from] to [to] and then sliced in
-     * memory; a range reaching outside it is read on its own.
+     * The paid transactions, read once from [from] to [to] and then sliced in memory; a range
+     * reaching outside it is read on its own. [between] slices those of the [accounts] in the
+     * balance, as the stats screens count them, and [ofEveryAccount] those of every account, as
+     * Budgets does.
      */
     private inner class PaidTransactions(
         accounts: List<Account>,
@@ -208,14 +225,17 @@ class MonthDetailUseCase @Inject constructor(
         private val ids = accounts.map { it.id }.toSet()
         private var held: List<Transaction>? = null
 
-        suspend fun between(start: Instant, end: Instant): List<Transaction> = when {
+        suspend fun between(start: Instant, end: Instant): List<Transaction> =
+            ofEveryAccount(start, end).filter { it.getFromAccount() in ids }
+
+        suspend fun ofEveryAccount(start: Instant, end: Instant): List<Transaction> = when {
             end.isBefore(start) -> emptyList()
             start.isBefore(from) || end.isAfter(to) -> read(start, end)
             else -> (held ?: read(from, to).also { held = it }).filter { it.time in start..end }
         }
 
         private suspend fun read(start: Instant, end: Instant): List<Transaction> =
-            transactionRepository.paidBetween(start, end, ids)
+            transactionRepository.findAllBetween(start, end).filter { it.settled }
     }
 
     // Where the months before [period] that the detail looks back on begin.

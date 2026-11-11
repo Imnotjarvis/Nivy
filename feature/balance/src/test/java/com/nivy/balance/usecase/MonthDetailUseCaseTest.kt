@@ -12,6 +12,8 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Budget
+import com.nivy.data.model.BudgetId
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
@@ -26,6 +28,7 @@ import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
+import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceDetails
@@ -75,6 +78,7 @@ class MonthDetailUseCaseTest {
         income(day = 20, amount = 100.0, title = "Refund", paid = false),
         expense(day = 25, amount = 550.0, title = "Card bill", paid = false),
     )
+    private val budgets = mutableListOf(budget("Total", 1_500.0))
 
     private val transactionRepository = mockk<TransactionRepository> {
         coEvery { findAllBetween(any(), any()) } answers {
@@ -114,6 +118,7 @@ class MonthDetailUseCaseTest {
         transactionRepository = transactionRepository,
         accountRepository = mockk<AccountRepository> { coEvery { findAll() } answers { accounts.toList() } },
         categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns listOf(Shopping, Groceries) },
+        budgetRepository = mockk<BudgetRepository> { coEvery { findAll() } answers { budgets.toList() } },
         walletBalanceUseCase = walletBalanceUseCase,
         accountBalanceUseCase = accountBalanceUseCase,
         exchangeUseCase = exchangeUseCase,
@@ -158,16 +163,61 @@ class MonthDetailUseCaseTest {
     }
 
     @Test
-    fun `free to spend counts all that went out, and all still due this month`() = runTest {
+    fun `free to spend is what's left of the total budget, after what it counts and what's still due`() = runTest {
         // when
         val detail = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR")
 
-        // then: 1,650 in and 100 to come, 450.30 out, the loan's money too, and 600 still due.
+        // then: of the 1,500, 549.30 went out as Budgets counts it, the loan's money and the account
+        // kept apart too, and 600 is still due.
         val free = detail.freeToSpend!!
-        free.spent shouldBe (450.30 plusOrMinus Cent)
-        free.left shouldBe (699.70 plusOrMinus Cent)
+        free.spent shouldBe (549.30 plusOrMinus Cent)
+        free.left shouldBe (350.70 plusOrMinus Cent)
         free.daysLeft shouldBe 21
-        free.perDay shouldBe (699.70 / 21 plusOrMinus Cent)
+        free.perDay shouldBe (350.70 / 21 plusOrMinus Cent)
+        detail.needsBudget shouldBe false
+    }
+
+    @Test
+    fun `a total budget for some accounts counts only theirs`() = runTest {
+        // given
+        budgets[0] = budget("Total", 1_500.0, accounts = listOf(Bank))
+
+        // when
+        val free = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR").freeToSpend!!
+
+        // then: the card's and the account kept apart's purchases left out.
+        free.spent shouldBe (430.30 plusOrMinus Cent)
+        free.left shouldBe (469.70 plusOrMinus Cent)
+    }
+
+    @Test
+    fun `without a total budget there's nothing to spend from, and the month asks for one`() = runTest {
+        // given only a budget for shopping
+        budgets[0] = budget("Shopping", 100.0, categories = listOf(Shopping))
+
+        // when
+        val detail = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR")
+
+        // then
+        detail.freeToSpend.shouldBeNull()
+        detail.needsBudget shouldBe true
+    }
+
+    @Test
+    fun `each budget's spending in the month, in the budgets' order, as Budgets counts it`() = runTest {
+        // given
+        budgets += budget("Shopping", 100.0, categories = listOf(Shopping))
+        budgets += budget("Card", 50.0, accounts = listOf(Card))
+
+        // when
+        val listed = useCase.detail(November, startDayOfMonth = 1, baseCurrency = "EUR").budgets
+
+        // then
+        listed.map { it.name } shouldBe listOf("Total", "Shopping", "Card")
+        listed.map { it.limit } shouldBe listOf(1_500.0, 100.0, 50.0)
+        listed[0].spent shouldBe (549.30 plusOrMinus Cent)
+        listed[1].spent shouldBe (130.30 plusOrMinus Cent)
+        listed[2].spent shouldBe (20.0 plusOrMinus Cent)
     }
 
     @Test
@@ -283,6 +333,7 @@ class MonthDetailUseCaseTest {
         detail.sinceStart.shouldBeNull()
         detail.lowest.shouldBeNull()
         detail.freeToSpend.shouldBeNull()
+        detail.needsBudget shouldBe false
         detail.comingUp shouldBe emptyList()
         detail.plannedDays shouldBe emptySet()
         detail.habits!!.purchases shouldBe 2
@@ -453,6 +504,20 @@ class MonthDetailUseCaseTest {
             type = type,
             archived = false,
             orderNum = n.toDouble(),
+        )
+
+        fun budget(
+            name: String,
+            amount: Double,
+            categories: List<Category> = emptyList(),
+            accounts: List<Account> = emptyList(),
+        ) = Budget(
+            id = BudgetId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe(name),
+            amount = PositiveDouble.unsafe(amount),
+            categories = categories.map { it.id },
+            accounts = accounts.map { it.id },
+            orderNum = 0.0,
         )
 
         fun at(day: Int, hour: Int, month: Int = 11): Instant =

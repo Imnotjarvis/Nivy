@@ -31,6 +31,10 @@ data class MonthDetail(
     // The lowest balance planned ahead, when it's below today's.
     val lowest: DayAmount?,
     val freeToSpend: FreeToSpend?,
+    // The current month with days left, and no total budget for Free to spend to spend from.
+    val needsBudget: Boolean = false,
+    // Each budget, in the budgets' order, with what was spent of it in the month.
+    val budgets: ImmutableList<BudgetMonth> = persistentListOf(),
     val comingUp: ImmutableList<Upcoming>,
     val moreComingUp: Int,
     // What was spent each of [days], none on the days still to come.
@@ -68,12 +72,16 @@ data class MonthDetail(
 }
 
 /**
- * What can still be spent each of the [daysLeft] days for the month to end even: what came in
- * and is still due to, less what was spent and is still due to be paid. [left] is below zero once
- * more went out than came in.
+ * What can still be spent each of the [daysLeft] days to stay within the total budget: the budget,
+ * less what it counts as [spent] and what's still due to be paid. [left] is below zero once that's
+ * more than the budget.
  */
 @Immutable
 data class FreeToSpend(val perDay: Double, val daysLeft: Int, val spent: Double, val left: Double)
+
+/** A budget in the month: its [limit], and what was [spent] of it, as Budgets counts it. */
+@Immutable
+data class BudgetMonth(val name: String, val limit: Double, val spent: Double)
 
 /** A planned payment still to come: income above zero, an expense below. */
 @Immutable
@@ -130,7 +138,6 @@ data class Habits(
     val fixed: Portion,
     val flexible: Portion,
     val categories: ImmutableList<CategoryChange>,
-    val places: ImmutableList<Place>,
 ) {
     val perDay: Double get() = if (days > 0) spent / days else 0.0
 }

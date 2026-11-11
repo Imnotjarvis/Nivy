@@ -18,6 +18,7 @@ import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
+import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceDetails
@@ -91,6 +92,7 @@ class MonthAndTrendsAgreeTest {
         transactionRepository = transactionRepository,
         accountRepository = accountRepository,
         categoryRepository = categoryRepository,
+        budgetRepository = mockk<BudgetRepository> { coEvery { findAll() } returns emptyList() },
         walletBalanceUseCase = mockk<WalletBalanceUseCase> {
             coEvery { balance(any(), any()) } returns BigDecimal.ZERO
         },
