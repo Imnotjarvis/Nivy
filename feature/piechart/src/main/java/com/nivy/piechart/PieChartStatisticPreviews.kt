@@ -22,7 +22,6 @@ import com.nivy.data.model.AccountId
 import com.nivy.data.model.Account
 import com.nivy.base.model.Theme
 import com.nivy.base.model.AccountType
-import com.nivy.wallet.ui.component.transaction.transactions
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color

@@ -15,22 +15,23 @@ import kotlin.math.abs
 // What scales an amount: a positive multiplier multiplies it, a negative one divides it, and 1
 // leaves it as it is.
 private const val MaxAmountMultiplier = 10_000
-private val AmountMultipliers = setOf(10, 100, 1_000, MaxAmountMultiplier)
+private const val MultiplierStep = 10
+private val AmountMultipliers = setOf(MultiplierStep, 100, 1_000, MaxAmountMultiplier)
 
 /** [multiplier] a step of ten up: /100 to /10, /10 to none, none to *10, at most *10,000. */
 fun multipliedByTen(multiplier: Int): Int = when {
     multiplier >= MaxAmountMultiplier -> MaxAmountMultiplier
-    multiplier == -10 -> 1
-    multiplier < 0 -> multiplier / 10
-    else -> multiplier * 10
+    multiplier == -MultiplierStep -> 1
+    multiplier < 0 -> multiplier / MultiplierStep
+    else -> multiplier * MultiplierStep
 }
 
 /** [multiplier] a step of ten down, at most /10,000. */
 fun dividedByTen(multiplier: Int): Int = when {
     multiplier <= -MaxAmountMultiplier -> -MaxAmountMultiplier
-    multiplier == 1 -> -10
-    multiplier > 0 -> multiplier / 10
-    else -> multiplier * 10
+    multiplier == 1 -> -MultiplierStep
+    multiplier > 0 -> multiplier / MultiplierStep
+    else -> multiplier * MultiplierStep
 }
 
 fun parseAmount(
