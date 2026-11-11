@@ -2,7 +2,8 @@
 # Installs each APK on the connected device/emulator as a fresh install and goes through it as a
 # new user does: from the welcome screen through every onboarding step (Get started, Start fresh,
 # the currency, skipping accounts and categories, which adds the starter ones) to Home,
-# allowing the notifications Home asks for. Then it opens the app the way app shortcuts do
+# allowing the notifications Home asks for. From there it opens Cash's page, from Accounts, and
+# swipes it down, which goes back to Accounts. Then it opens the app the way app shortcuts do
 # (straight on the add-transaction screen, waiting for its keypad) and presses back twice, which
 # goes through the OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed()
 # for apps targeting it. It fails if the app process dies, anything lands in the crash log, or a
@@ -34,9 +35,13 @@ check() {
 }
 
 # The first element in this screen dump showing exactly this text, in any case (system dialogs
-# show their buttons in capitals).
+# show their buttons in capitals), or else described so: an icon without a label, such as a tab
+# not selected, as TalkBack reads it.
 node_with_text() {
-    grep -io "<node [^>]*text=\"$2\"[^>]*>" <<< "$1" | head -1
+    local node
+    node=$(grep -io "<node [^>]*text=\"$2\"[^>]*>" <<< "$1" | head -1)
+    [ -n "$node" ] || node=$(grep -io "<node [^>]*content-desc=\"$2\"[^>]*>" <<< "$1" | head -1)
+    printf '%s\n' "$node"
 }
 
 # The bounds "x1 y1 x2 y2" of an element.
@@ -73,6 +78,20 @@ find_text() {
     return 1
 }
 
+# Swipes down the middle of the screen, from 30% of its height to 75%: a finger going back. A move
+# at a time, each its own event: a drag counts the moves, not the jump to where the finger lifts,
+# and "input swipe" on a busy emulator can send few moves and leave most of the way to the lift.
+swipe_down() {
+    local width height x percent
+    read -r width height < <(adb shell wm size | tail -1 | grep -oE '[0-9]+x[0-9]+' | tr x ' ')
+    x=$((width / 2))
+    adb shell input motionevent DOWN "$x" $((height * 30 / 100))
+    for percent in 40 50 60 70 75; do
+        adb shell input motionevent MOVE "$x" $((height * percent / 100))
+    done
+    adb shell input motionevent UP "$x" $((height * 75 / 100))
+}
+
 # Waits for the screen showing $3, screenshots it as $OUT/<apk>-$2.png and checks the app, then
 # taps the element showing $4, when given. When the screen doesn't come, what UI Automator saw
 # of it is kept beside its screenshot.
@@ -81,7 +100,8 @@ step() {
     if ! find_text "$shows" >/dev/null; then
         adb exec-out screencap -p > "$OUT/$name-$step.png"
         cp "$OUT/screen.xml" "$OUT/$name-$step.xml" 2>/dev/null
-        echo "FAIL [$name] $step: no \"$shows\" on screen"
+        echo "FAIL [$name] $step: no \"$shows\" on screen, which shows:"
+        grep -oE '(text|content-desc)="[^"]+"' "$OUT/screen.xml" 2>/dev/null | sort -u | head -30 | sed 's/^/    /'
         return 1
     fi
     adb exec-out screencap -p > "$OUT/$name-$step.png"
@@ -121,6 +141,14 @@ for apk in "$@"; do
         && step "$name" 5-categories "Add categories" "Skip" \
         && step "$name" 6-notifications "Allow" "Allow" \
         && step "$name" 7-home "Home" \
+        || { fail=1; continue; }
+
+    # Only the account's page shows Add income, and only Main shows Accounts, in its bottom bar.
+    step "$name" 7a-accounts "Accounts" "Accounts" \
+        && step "$name" 7b-cash "Cash" "Cash" \
+        && step "$name" 7c-cash-page "Add income" \
+        && swipe_down \
+        && step "$name" 7d-swiped-back "Accounts" \
         || { fail=1; continue; }
 
     adb shell am start -W -n "$PACKAGE/$ACTIVITY" -a "$ADD_TRANSACTION_ACTION" \

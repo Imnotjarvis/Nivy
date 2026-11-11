@@ -47,6 +47,8 @@ import com.nivy.design.utils.densityScope
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.design.utils.thenIf
 import com.nivy.design.utils.uncoveredNavigationBar
+import com.nivy.navigation.rememberSwipeBack
+import com.nivy.navigation.swipeBack
 import com.nivy.wallet.ui.theme.components.ActionsRow
 import com.nivy.wallet.ui.theme.components.CloseButton
 import com.nivy.design.system.colors.gradientCutBackgroundTop
@@ -86,6 +88,16 @@ fun BoxScope.NivyModal(
     val shown by remember { derivedStateOf { progress.value > 0f } }
     if (!visible && !shown) return
 
+    // Swiped down from its sheet, the dialog closes, as Back would close it.
+    val swipe = rememberSwipeBack(
+        canGoBack = { visible },
+        goBack = {
+            hideKeyboard(rootView)
+            dismiss()
+            true
+        },
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -107,6 +119,7 @@ fun BoxScope.NivyModal(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .swipeBack(swipe, dragAnywhere = false)
             .graphicsLayer {
                 translationY = (1f - progress.value) * AppearRiseFraction * size.height
                 alpha = progress.value

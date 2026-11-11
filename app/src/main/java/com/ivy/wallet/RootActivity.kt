@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nivy.NivyNavGraph
@@ -180,7 +181,11 @@ class RootActivity : AppCompatActivity(), RootScreen {
                 isTrueBlack = themeState.theme == Theme.AMOLED_DARK
             ) {
                 val background = MaterialTheme.colorScheme.background
-                LaunchedEffect(background) { recentsCard(background.toArgb()) }
+                LaunchedEffect(background) {
+                    recentsCard(background.toArgb())
+                    // What a screen swiped down uncovers: the window, in the screens' own theme.
+                    window.setBackgroundDrawable(background.toArgb().toDrawable())
+                }
 
                 dateTimePicker.Content()
             }
