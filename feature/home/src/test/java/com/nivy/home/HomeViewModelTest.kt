@@ -35,6 +35,8 @@ import com.nivy.ui.testing.runComposeTest
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.ThemeState
+import com.nivy.wallet.data.model.Month
+import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
@@ -69,8 +71,10 @@ class HomeViewModelTest : ComposeViewModelTest() {
         coEvery { history(any(), any()) } returns monthsTransactions
     }
 
+    private val periodState = PeriodState(FixedTime)
+
     private val viewModel = HomeViewModel(
-        periodState = PeriodState(FixedTime),
+        periodState = periodState,
         themeState = ThemeState(),
         mainScreenState = mockk(relaxed = true),
         nav = Navigation(),
@@ -153,6 +157,17 @@ class HomeViewModelTest : ComposeViewModelTest() {
         }
 
         coVerify { toaster.show(R.string.msg_change_not_saved) }
+    }
+
+    @Test
+    fun `a period chosen for Home is the one the app's screens show`() {
+        val january = TimePeriod(month = Month.monthsList()[0], year = 2027)
+
+        viewModel.runTest(events = listOf(HomeEvent.SetPeriod(january))) {
+            period shouldBe january
+        }
+
+        periodState.selected shouldBe january
     }
 
     @Test

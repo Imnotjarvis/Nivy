@@ -111,7 +111,9 @@ class BalanceViewModel @Inject constructor(
         return atEnd.toDouble() - currentBalance
     }
 
+    // A period chosen in the dialog is the one the app's screens show from then on.
     private fun setTimePeriod(timePeriod: TimePeriod) {
+        periodState.select(timePeriod)
         start(timePeriod = timePeriod)
     }
 

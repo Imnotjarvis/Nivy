@@ -255,6 +255,20 @@ class TransactionsViewModelTest {
     }
 
     @Test
+    fun `a period chosen for a page is the one the app's screens show`() {
+        // given
+        viewModel.start(bankPage)
+        val january = TimePeriod(month = January, year = 2027)
+
+        // when
+        viewModel.runTest(events = listOf(TransactionsEvent.SetPeriod(bankPage, january))) {
+            // then
+            period shouldBe january
+        }
+        periodState.selected shouldBe january
+    }
+
+    @Test
     fun `the previous month's arrow goes back across a year`() {
         // given
         periodState.select(TimePeriod(month = January, year = 2027))

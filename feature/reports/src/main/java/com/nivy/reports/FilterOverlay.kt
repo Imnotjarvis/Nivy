@@ -309,7 +309,6 @@ internal fun BoxWithConstraintsScope.FilterOverlay(
     ChoosePeriodModal(
         modal = choosePeriodModal,
         dismiss = { choosePeriodModal = null },
-        appWide = false,
     ) { selectedPeriod ->
         localFilter = nonNullFilter(localFilter).copy(
             period = selectedPeriod

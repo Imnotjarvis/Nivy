@@ -37,7 +37,6 @@ import com.nivy.domain.RootScreen
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.NivyPreview
-import com.nivy.wallet.LocalPeriodState
 import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.LastNTimeRange
 import com.nivy.wallet.data.model.Month.Companion.fromMonthValue
@@ -71,8 +70,8 @@ data class ChoosePeriodModalData(
 )
 
 /**
- * Picks a period. [appWide]: the period chosen is also the one the app's screens show, as Home's
- * and the account pages' choice is; a period that's a filter's own leaves theirs alone.
+ * Picks a period, and hands it to [onPeriodSelected]. What it's for is the caller's: a screen makes
+ * it the period the app's screens show (PeriodState), a filter keeps it to itself.
  */
 @Suppress("ParameterNaming")
 @Composable
@@ -81,7 +80,6 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
 
     dismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    appWide: Boolean = true,
     onPeriodSelected: (TimePeriod) -> Unit
 ) {
     // Closing clears the data: the dialog keeps showing the last while it fades out.
@@ -90,7 +88,6 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
         mutableStateOf(shown?.period)
     }
 
-    val periodState = LocalPeriodState.current
     val modalScrollState = rememberScrollState()
 
     NivyModal(
@@ -104,7 +101,6 @@ fun BoxWithConstraintsScope.ChoosePeriodModal(
                 enabled = period != null && period!!.isValid()
             ) {
                 if (period != null) {
-                    if (appWide) periodState.select(period!!)
                     dismiss()
                     onPeriodSelected(period!!)
                 }
@@ -246,7 +242,7 @@ private fun ColumnScope.ChooseMonth(
     }
 }
 
-data class MonthYear(
+private data class MonthYear(
     val month: com.nivy.wallet.data.model.Month,
     val year: Int
 ) {

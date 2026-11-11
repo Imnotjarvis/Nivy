@@ -10,6 +10,8 @@ import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
 import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.model.Month
+import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.utils.ioThread
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -34,11 +36,13 @@ class BalanceViewModelTest {
         coEvery { balance(any(), isNull(inverse = true)) } returns BigDecimal(700)
     }
 
+    private val periodState = PeriodState(FixedTime)
+
     private val viewModel = BalanceViewModel(
         dueTransactionsUseCase = mockk<DueTransactionsUseCase> {
             coEvery { dueBalance(any(), any()) } returns -100.0
         },
-        periodState = PeriodState(FixedTime),
+        periodState = periodState,
         currencyRepository = mockk<CurrencyRepository> {
             coEvery { getBaseCurrency() } returns AssetCode.unsafe("EUR")
         },
@@ -68,6 +72,17 @@ class BalanceViewModelTest {
             plannedPaymentsAmount shouldBe -400.0
             balanceAfterPlannedPayments shouldBe 600.0
         }
+    }
+
+    @Test
+    fun `a period chosen for the net worth screen is the one the app's screens show`() {
+        val january = TimePeriod(month = Month.monthsList()[0], year = 2027)
+
+        viewModel.runTest(events = listOf(BalanceEvent.OnSetPeriod(january))) {
+            period shouldBe january
+        }
+
+        periodState.selected shouldBe january
     }
 
     @Test
