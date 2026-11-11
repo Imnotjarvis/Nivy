@@ -102,7 +102,7 @@ class SwipeBack(
     }
 }
 
-/** A [SwipeBack] whose point is 160 dp down, with a light tick when the screen reaches it. */
+/** A [SwipeBack] whose point is 80 dp down, with a light tick when the screen reaches it. */
 @Composable
 fun rememberSwipeBack(canGoBack: () -> Boolean, goBack: () -> Boolean): SwipeBack {
     val density = LocalDensity.current
@@ -130,4 +130,4 @@ fun Modifier.swipeBack(swipe: SwipeBack, dragAnywhere: Boolean): Modifier =
         }
         .graphicsLayer { translationY = swipe.offsetPx }
 
-private val SwipeBackDistance = 160.dp
+private val SwipeBackDistance = 80.dp
