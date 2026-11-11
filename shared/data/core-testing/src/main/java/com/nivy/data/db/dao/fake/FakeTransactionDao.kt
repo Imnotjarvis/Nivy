@@ -108,7 +108,7 @@ class FakeTransactionDao(
         endDate: Instant
     ): List<TransactionEntity> {
         return items.filter {
-            val dateTime = it.dateTime ?: return@filter false
+            val dateTime = it.purchaseDateTime ?: it.dateTime ?: return@filter false
             isBetween(dateTime, startDate, endDate) &&
                     it.toAccountId == toAccountId
         }.sortedByDescending { it.dateTime }
@@ -121,15 +121,17 @@ class FakeTransactionDao(
         endDate: Instant
     ): Double {
         val there = accounts.findAll().map { it.id }.toSet()
-        fun TransactionEntity.counts(): Boolean =
-            dateTime?.let { isBetween(it, startDate, endDate) } == true && amount.isPositiveAndFinite()
+        fun TransactionEntity.counts(at: Instant?): Boolean =
+            at?.let { isBetween(it, startDate, endDate) } == true && amount.isPositiveAndFinite()
 
         val out = items
-            .filter { it.accountId == accountId && it.counts() }
+            .filter { it.accountId == accountId && it.counts(it.dateTime) }
             .filter { it.type != TransactionType.TRANSFER || it.toAccountId != accountId && it.toAccountId in there }
             .sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
         val received = items
-            .filter { it.toAccountId == accountId && it.counts() && it.accountId in there }
+            .filter {
+                it.toAccountId == accountId && it.counts(it.purchaseDateTime ?: it.dateTime) && it.accountId in there
+            }
             .filter { !(it.type == TransactionType.TRANSFER && it.accountId == accountId) }
             .sumOf {
                 when (it.type) {

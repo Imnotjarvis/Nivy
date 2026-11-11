@@ -368,7 +368,7 @@ class EditTransactionViewModel @Inject constructor(
     }
 
     private fun onSetTransactionType(newTransactionType: TransactionType) {
-        // Only an expense is paid with a card.
+        // Another type starts with its own default card, which only an expense has.
         if (newTransactionType != transactionType) {
             creditCard = account?.let { defaultCreditCard(allCreditCards, it, newTransactionType) }
             chargeShift = 0

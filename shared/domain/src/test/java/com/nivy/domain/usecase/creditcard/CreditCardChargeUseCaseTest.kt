@@ -10,6 +10,7 @@ import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -99,6 +100,32 @@ class CreditCardChargeUseCaseTest {
         val purchase = Instant.parse("2026-10-03T18:30:00Z")
 
         val dated = useCase.dated(expense(card.id, time = purchase))
+
+        dated.time shouldBe Instant.parse("2026-11-15T18:30:00Z")
+        dated.metadata.purchaseDateTime shouldBe purchase
+    }
+
+    @Test
+    fun `a transfer paid with a card moves to its charge date and keeps its purchase date`() = runTest {
+        val card = card(chargeDay = 15)
+        coEvery { creditCardRepository.findById(card.id) } returns card
+        val purchase = Instant.parse("2026-10-03T18:30:00Z")
+        val value = PositiveValue(PositiveDouble.unsafe(200.0), Eur)
+        val transfer = Transfer(
+            id = TransactionId(UUID.randomUUID()),
+            title = null,
+            description = null,
+            category = null,
+            time = purchase,
+            settled = true,
+            metadata = metadata(card.id),
+            fromAccount = Bank,
+            fromValue = value,
+            toAccount = AccountId(UUID.randomUUID()),
+            toValue = value,
+        )
+
+        val dated = useCase.dated(transfer)
 
         dated.time shouldBe Instant.parse("2026-11-15T18:30:00Z")
         dated.metadata.purchaseDateTime shouldBe purchase

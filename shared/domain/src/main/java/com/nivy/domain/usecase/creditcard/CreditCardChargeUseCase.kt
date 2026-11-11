@@ -3,7 +3,9 @@ package com.nivy.domain.usecase.creditcard
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.model.CreditCard
 import com.nivy.data.model.Expense
+import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.Transfer
 import com.nivy.data.repository.CreditCardRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -12,29 +14,32 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 /**
- * Dates the expenses paid with a credit card on the day the card charges them, so that they
- * count in that month's balance, budgets and reports. The purchase date stays in the metadata.
+ * Dates the expenses and transfers paid with a credit card on the day the card charges them, so
+ * that they count in that month's balance, budgets and reports. The purchase date stays in the
+ * metadata.
  */
 class CreditCardChargeUseCase @Inject constructor(
     private val creditCardRepository: CreditCardRepository,
     private val timeConverter: TimeConverter,
 ) {
     /**
-     * The [transaction] as it's saved: a paid expense on a credit card moves to its charge date,
-     * moved as the user did. Anything else stays as it is.
+     * The [transaction] as it's saved: a paid expense or transfer on a credit card moves to its
+     * charge date, moved as the user did. Anything else stays as it is.
      */
     suspend fun dated(transaction: Transaction): Transaction {
-        if (transaction !is Expense || !transaction.settled) return transaction
+        if (!transaction.settled) return transaction
         val card = transaction.metadata.creditCard?.let { creditCardRepository.findById(it) }
             ?: return transaction
         val purchase = transaction.metadata.purchaseDateTime ?: transaction.time
         val charge = with(timeConverter) {
             card.chargeDateTime(purchase.toLocalDateTime(), transaction.metadata.chargeShift).toUTC()
         }
-        return transaction.copy(
-            time = charge,
-            metadata = transaction.metadata.copy(purchaseDateTime = purchase),
-        )
+        val metadata = transaction.metadata.copy(purchaseDateTime = purchase)
+        return when (transaction) {
+            is Expense -> transaction.copy(time = charge, metadata = metadata)
+            is Transfer -> transaction.copy(time = charge, metadata = metadata)
+            is Income -> transaction
+        }
     }
 }
 

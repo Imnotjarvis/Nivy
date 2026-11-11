@@ -547,6 +547,35 @@ class EditTransactionViewModelTest {
     }
 
     @Test
+    fun `a transfer can be paid with its account's card, and shows when the card charges it`() {
+        viewModel.start(newTransaction(TransactionType.TRANSFER, bank))
+
+        viewModel.runTest(
+            events = listOf(
+                EditTransactionViewEvent.OnToAccountChanged(wallet),
+                EditTransactionViewEvent.OnCreditCardChanged(visa),
+            )
+        ) {
+            creditCards shouldBe listOf(visa)
+            chargeDate shouldBe LocalDateTime.of(2026, 12, 15, 12, 0)
+        }
+    }
+
+    @Test
+    fun `a transfer paid with a card leaves its account on the day the card charges it`() {
+        viewModel.start(newTransaction(TransactionType.TRANSFER, bank))
+        viewModel.onEvent(EditTransactionViewEvent.OnToAccountChanged(wallet))
+        viewModel.onEvent(EditTransactionViewEvent.OnCreditCardChanged(visa))
+        viewModel.onEvent(EditTransactionViewEvent.OnAmountChanged(25.0))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val transfer = saved().shouldBeInstanceOf<Transfer>()
+        transfer.metadata.creditCard shouldBe visa.id
+        transfer.metadata.purchaseDateTime shouldBe FixedTime.utcNow()
+        transfer.time shouldBe Instant.parse("2026-12-15T12:00:00Z")
+    }
+
+    @Test
     fun `income isn't paid with a card`() {
         viewModel.start(newTransaction(TransactionType.EXPENSE, amexAccount))
         viewModel.onEvent(EditTransactionViewEvent.OnSetTransactionType(TransactionType.INCOME))

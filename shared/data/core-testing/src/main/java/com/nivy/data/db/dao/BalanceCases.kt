@@ -40,6 +40,8 @@ object BalanceCases {
         income(Cash.id, 15.0, day = 12),
         // An income with a receiving account counts there too, as it always has.
         income(Bank.id, 5.0, day = 13).copy(toAccountId = Card.id),
+        // Paid with Bank's card: in Cash from its purchase on the 14th, out of Bank when charged.
+        transfer(Bank.id, 120.0, to = Cash.id, day = 35).copy(purchaseDateTime = day(14)),
         // What can't be read as a transaction counts for nothing: a transfer with an account
         // that isn't there, a transfer to itself, an amount that isn't positive and finite.
         transfer(Bank.id, 50.0, to = Gone, day = 5),
@@ -66,9 +68,10 @@ object BalanceCases {
 
     val cases = listOf(
         Case("Bank: 1,000 - 40 - 300 - 200 + 30 + 5", Bank.id, day(0), day(31), 495.0),
-        Case("Cash: 300 - 30 + 15", Cash.id, day(0), day(31), 285.0),
+        Case("Cash: 300 - 30 + 15 + 120", Cash.id, day(0), day(31), 405.0),
         Case("Card: 180 + 5", Card.id, day(0), day(31), 185.0),
         Case("Bank on the 3rd and the 4th: its two transfers out", Bank.id, day(3), day(4), -500.0),
+        Case("Bank when its card charges the transfer to Cash", Bank.id, day(32), day(36), -120.0),
         Case("an account without transactions", UUID.randomUUID(), day(0), day(31), 0.0),
     )
 

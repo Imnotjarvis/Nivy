@@ -3,6 +3,7 @@ package com.nivy.domain.usecase.account
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.Transfer
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import kotlinx.coroutines.withContext
@@ -23,6 +24,9 @@ class AccountTransactionsUseCase @Inject constructor(
             toAccountId = AccountId(accountId),
             startDate = range.from,
             endDate = range.to
-        )
+        ).map {
+            // A transfer paid with a card came in when it was made; its date is when the card charges it.
+            if (it is Transfer) it.copy(time = it.metadata.purchaseDateTime ?: it.time) else it
+        }
     }
 }

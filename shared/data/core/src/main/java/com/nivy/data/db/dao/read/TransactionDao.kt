@@ -82,9 +82,11 @@ interface TransactionDao {
         endDate: Instant
     ): List<TransactionEntity>
 
+    // A transfer paid with a card is in the receiving account from when it was made.
     @Query(
         "SELECT * FROM transactions " +
-            "WHERE toAccountId = :toAccountId AND dateTime >= :startDate AND dateTime <= :endDate " +
+            "WHERE toAccountId = :toAccountId " +
+            "AND COALESCE(purchaseDateTime, dateTime) BETWEEN :startDate AND :endDate " +
             "ORDER BY dateTime DESC"
     )
     suspend fun findAllToAccountAndBetween(
@@ -96,7 +98,8 @@ interface TransactionDao {
     /**
      * What [accountId]'s transactions dated from [startDate] to [endDate] add up to, summed here rather
      * than read one by one: its incomes in, its expenses and its transfers to other accounts out, the
-     * transfers from other accounts in at what it received. As the transactions are counted when read
+     * transfers from other accounts in at what it received, one paid with a card from when it was
+     * made (its date is when the card charges it). As the transactions are counted when read
      * (TransactionMapper, AccountValueFunctions.balance), what can't be read as one counts for nothing:
      * an amount that isn't positive and finite, a transfer to itself or between accounts not there.
      * A row with a receiving account that isn't a transfer counts there too, as it always has.
@@ -124,7 +127,7 @@ interface TransactionDao {
                 )
                 FROM transactions t
                 WHERE t.toAccountId = :accountId
-                    AND t.dateTime >= :startDate AND t.dateTime <= :endDate
+                    AND COALESCE(t.purchaseDateTime, t.dateTime) BETWEEN :startDate AND :endDate
                     AND t.amount > 0 AND t.amount < 9e999
                     AND t.accountId IN (SELECT id FROM accounts)
                     AND NOT (t.type = 'TRANSFER' AND t.accountId = :accountId)
