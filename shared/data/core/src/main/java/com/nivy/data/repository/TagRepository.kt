@@ -122,6 +122,13 @@ class TagRepository @Inject constructor(
         }
     }
 
+    /** Saves [links] in one write: an import's, for instance. */
+    suspend fun associateMany(links: List<TagAssociation>) {
+        withContext(dispatchersProvider.io) {
+            writeTagAssociationDao.save(links.map { with(mapper) { it.toEntity() } })
+        }
+    }
+
     suspend fun removeTagAssociation(associationId: AssociationId, tagId: TagId) {
         withContext(dispatchersProvider.io) {
             writeTagAssociationDao.deleteId(tagId = tagId.value, associatedId = associationId.value)

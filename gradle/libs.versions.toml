@@ -73,6 +73,8 @@ cashapp-turbine = { module = "app.cash.turbine:turbine", version = "1.2.1" }
 paparazzi-plugin = { module = "app.cash.paparazzi:paparazzi-gradle-plugin", version.ref = "paparazzi" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 google-testparameterinjector = { module = "com.google.testparameterinjector:test-parameter-injector", version = "1.25" }
+# A real SQLite database on the JVM: the Cashew import reads its tests' files with it.
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version = "3.53.4.0" }
 
 # Integartion (Android) testing
 androidx-test-runner = { module = "androidx.test:runner", version = "1.7.0" }

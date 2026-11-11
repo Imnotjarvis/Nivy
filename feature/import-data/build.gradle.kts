@@ -18,4 +18,5 @@ dependencies {
     implementation(libs.bundles.opencsv)
 
     testImplementation(projects.shared.ui.testing)
+    testImplementation(libs.sqlite.jdbc)
 }

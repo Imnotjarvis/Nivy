@@ -27,6 +27,43 @@
     <string name="import_from">Import from</string>
     <string name="nivy">Nivy</string>
     <string name="nivy_backup">Nivy backup</string>
+    <string name="cashew_not_data_file">Not a Cashew data file</string>
+    <string name="cashew">Cashew</string>
+    <string name="cashew_export_steps">Settings > Backups > \"Export Cashew Data File\"</string>
+    <string name="upload_cashew_file">Upload the Cashew data file (SQL)</string>
+    <string name="upload_cashew_file_button">Upload data file</string>
+    <string name="importing_the_cashew_file">Importing the Cashew data file</string>
+    <plurals name="planned_payments_imported">
+        <item quantity="one">%1$d planned payment</item>
+        <item quantity="other">%1$d planned payments</item>
+    </plurals>
+    <plurals name="loans_imported">
+        <item quantity="one">%1$d loan</item>
+        <item quantity="other">%1$d loans</item>
+    </plurals>
+    <plurals name="budgets_imported">
+        <item quantity="one">%1$d budget</item>
+        <item quantity="other">%1$d budgets</item>
+    </plurals>
+    <plurals name="tags_imported">
+        <item quantity="one">%1$d tag</item>
+        <item quantity="other">%1$d tags</item>
+    </plurals>
+    <plurals name="cashew_transactions_not_imported">
+        <item quantity="one">%1$d transaction not imported</item>
+        <item quantity="other">%1$d transactions not imported</item>
+    </plurals>
+    <string name="cashew_left_out">Not as in Cashew</string>
+    <string name="cashew_no_amount">Transactions without an amount, left out</string>
+    <string name="cashew_not_paid">Transactions not paid in Cashew, left out</string>
+    <string name="cashew_no_account">Transactions of a wallet not in the file, left out</string>
+    <string name="cashew_ends_in_cashew">Planned payments that end in Cashew, repeating here until you delete them</string>
+    <string name="cashew_planned_transfer">Planned transfers, left out: Nivy plans incomes and expenses</string>
+    <string name="cashew_cant_repeat">Planned payments with a custom repeat, left out</string>
+    <string name="cashew_budget">Budgets other than monthly spending ones, left out</string>
+    <string name="cashew_category_limits">Budgets whose limits per category didn\'t come over</string>
+    <string name="cashew_budget_without_rate">Budgets in a currency without an exchange rate, left out</string>
+    <string name="cashew_loan_payment_without_rate">Loan payments in another currency, counted without a rate</string>
     <string name="please_wait">Please wait</string>
     <string name="importing_the_csv_file">Importing the CSV file</string>
     <string name="success">Success</string>

@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.nivy.data.backup.BackupDataUseCase
 import com.nivy.data.backup.ImportResult
 import com.nivy.domain.RootScreen
+import com.nivy.importdata.usecase.CashewImportResult
+import com.nivy.importdata.usecase.ImportCashewUseCase
 import com.nivy.navigation.ImportScreen
 import com.nivy.navigation.Navigation
 import com.nivy.onboarding.viewmodel.OnboardingViewModel
@@ -18,12 +20,22 @@ import kotlin.math.roundToInt
 
 private const val Percent = 100
 
-/** Imports a Nivy backup; any CSV file goes through the manual CSV import instead. */
+/** Where the data comes from: the instructions, the import and its result follow it. */
+enum class ImportSource { NIVY, CASHEW }
+
+/**
+ * Imports a Nivy backup or Cashew's data file; any CSV file goes through the manual CSV import
+ * instead.
+ */
 @HiltViewModel
-class ImportViewModel @Inject constructor(
+class ImportViewModel @Inject internal constructor(
     private val nav: Navigation,
-    private val backupDataUseCase: BackupDataUseCase
+    private val backupDataUseCase: BackupDataUseCase,
+    private val importCashew: ImportCashewUseCase,
 ) : ViewModel() {
+    private val _source = MutableLiveData(ImportSource.NIVY)
+    val source = _source.asLiveData()
+
     private val _importStep = MutableLiveData<ImportStep>()
     val importStep = _importStep.asLiveData()
 
@@ -32,6 +44,10 @@ class ImportViewModel @Inject constructor(
 
     private val _importResult = MutableLiveData<ImportResult>()
     val importResult = _importResult.asLiveData()
+
+    /** What Cashew's import brought besides the counts every import has, and what it left out. */
+    private val _cashewResult = MutableLiveData<CashewImportResult?>()
+    val cashewResult = _cashewResult.asLiveData()
 
     fun onBack() {
         when (importStep.value) {
@@ -46,21 +62,33 @@ class ImportViewModel @Inject constructor(
         (context as RootScreen).openFile { fileUri ->
             viewModelScope.launch {
                 _importStep.value = ImportStep.LOADING
-
-                _importResult.value = backupDataUseCase.importBackupFile(
-                    backupFileUri = fileUri
-                ) { progressPercent ->
+                val onProgress: suspend (Double) -> Unit = { progressPercent ->
                     com.nivy.wallet.utils.uiThread {
                         _importProgressPercent.value = (progressPercent * Percent).roundToInt()
                     }
                 }
-
+                if (_source.value == ImportSource.CASHEW) {
+                    val imported = importCashew.import(fileUri, onProgress)
+                    _cashewResult.value = imported
+                    _importResult.value = imported.result
+                } else {
+                    _cashewResult.value = null
+                    _importResult.value = backupDataUseCase.importBackupFile(
+                        backupFileUri = fileUri,
+                        onProgress = onProgress,
+                    )
+                }
                 _importStep.value = ImportStep.RESULT
             }
         }
     }
 
-    fun chooseNivyBackup() {
+    fun chooseNivyBackup() = choose(ImportSource.NIVY)
+
+    fun chooseCashew() = choose(ImportSource.CASHEW)
+
+    private fun choose(source: ImportSource) {
+        _source.value = source
         _importStep.value = ImportStep.INSTRUCTIONS
     }
 

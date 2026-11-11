@@ -74,7 +74,8 @@ class AdjustAccountBalanceUseCase @Inject constructor(
         )
     }
 
-    private companion object {
+    companion object {
+        /** The title of a transaction that adjusts a balance: the Cashew import gives it to Cashew's too. */
         const val AdjustTitle = "Adjust balance"
     }
 }

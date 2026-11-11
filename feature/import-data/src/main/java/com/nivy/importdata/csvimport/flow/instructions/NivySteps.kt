@@ -31,3 +31,26 @@ internal fun NivySteps(
         onUploadClick = onUploadClick
     )
 }
+
+/** Cashew's steps: its data file, the whole of its database, from its Backups settings. */
+@Composable
+internal fun CashewSteps(
+    onUploadClick: () -> Unit
+) {
+    Spacer(Modifier.height(12.dp))
+
+    StepTitle(
+        number = 1,
+        title = stringResource(R.string.export_data),
+        description = stringResource(R.string.cashew_export_steps),
+    )
+
+    Spacer(Modifier.height(36.dp))
+
+    UploadFileStep(
+        stepNumber = 2,
+        text = stringResource(R.string.upload_cashew_file),
+        btnTitle = stringResource(R.string.upload_cashew_file_button),
+        onUploadClick = onUploadClick
+    )
+}

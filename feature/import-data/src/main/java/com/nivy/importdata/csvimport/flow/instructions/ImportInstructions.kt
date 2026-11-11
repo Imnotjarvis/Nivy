@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nivy.importdata.csvimport.ImportSource
+import com.nivy.importdata.csvimport.flow.CashewIcon
 import com.nivy.onboarding.components.OnboardingToolbar
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Nivy
@@ -46,6 +48,7 @@ internal fun BoxWithConstraintsScope.ImportInstructions(
 
     onSkip: () -> Unit,
     onUploadClick: () -> Unit,
+    source: ImportSource = ImportSource.NIVY,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -88,7 +91,7 @@ internal fun BoxWithConstraintsScope.ImportInstructions(
 
             Spacer(Modifier.height(24.dp))
 
-            App()
+            App(source)
 
             Spacer(Modifier.height(24.dp))
 
@@ -109,7 +112,10 @@ internal fun BoxWithConstraintsScope.ImportInstructions(
                 )
             )
 
-            NivySteps(onUploadClick = onUploadClick)
+            when (source) {
+                ImportSource.NIVY -> NivySteps(onUploadClick = onUploadClick)
+                ImportSource.CASHEW -> CashewSteps(onUploadClick = onUploadClick)
+            }
         }
 
         item {
@@ -200,8 +206,9 @@ internal fun StepTitle(
     }
 }
 
+/** The app to open: Nivy with its logo, or Cashew with a document's icon. */
 @Composable
-private fun App() {
+private fun App(source: ImportSource) {
     Row(
         modifier = Modifier.padding(horizontal = 32.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -209,14 +216,14 @@ private fun App() {
         NivyIcon(
             modifier = Modifier
                 .size(48.dp),
-            icon = R.drawable.nivy_logo_square,
-            tint = Color.Unspecified
+            icon = if (source == ImportSource.CASHEW) CashewIcon else R.drawable.nivy_logo_square,
+            tint = if (source == ImportSource.CASHEW) MaterialTheme.colorScheme.onSurface else Color.Unspecified
         )
 
         Spacer(Modifier.width(16.dp))
 
         Text(
-            text = stringResource(R.string.nivy),
+            text = stringResource(if (source == ImportSource.CASHEW) R.string.cashew else R.string.nivy),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = Bold
@@ -232,8 +239,8 @@ private fun Preview() {
     com.nivy.wallet.NivyPreview {
         ImportInstructions(
             hasSkip = true,
-            onSkip = {}
-        ) {
-        }
+            onSkip = {},
+            onUploadClick = {},
+        )
     }
 }

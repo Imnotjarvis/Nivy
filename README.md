@@ -21,7 +21,7 @@ buildSrc/     Gradle convention plugins
 gradle/       version catalog and wrapper
 config/       detekt rules
 scripts/      CI helper scripts
-docs/         notes: installing, the database, the backup format, conventions
+docs/         notes: installing, the database, the backup format, Cashew, conventions
 .github/      CI, CodeQL and dependency workflows, Dependabot
 ```
 
@@ -52,4 +52,5 @@ says what runs when.
 - [Installing](docs/install.md): where to get the APK, versions, building it yourself.
 - [The database](docs/database.md): changing the schema, migrations and their tests.
 - [The backup format](docs/backup-format.md): what a backup holds and how it imports.
+- [Importing from Cashew](docs/cashew-import.md): what of Cashew's data file comes over, and how.
 - [Conventions](docs/conventions.md): where code goes, one rule per number, errors, tests.

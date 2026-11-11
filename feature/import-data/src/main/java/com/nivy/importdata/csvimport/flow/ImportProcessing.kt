@@ -1,5 +1,6 @@
 package com.nivy.importdata.csvimport.flow
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 internal fun ImportProcessing(
-    progressPercent: Int
+    progressPercent: Int,
+    @StringRes text: Int = R.string.importing_the_csv_file,
 ) {
     Column(
         modifier = Modifier
@@ -64,7 +66,7 @@ internal fun ImportProcessing(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(R.string.importing_the_csv_file),
+            text = stringResource(text),
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold

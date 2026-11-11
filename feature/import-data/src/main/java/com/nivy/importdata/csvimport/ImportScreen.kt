@@ -15,6 +15,8 @@ import com.nivy.importdata.csvimport.flow.instructions.ImportInstructions
 import com.nivy.navigation.ImportScreen
 import com.nivy.onboarding.viewmodel.OnboardingViewModel
 import com.nivy.data.backup.ImportResult
+import com.nivy.importdata.usecase.CashewImportResult
+import com.nivy.ui.R
 import androidx.activity.compose.BackHandler
 
 @ExperimentalFoundationApi
@@ -25,6 +27,8 @@ fun BoxWithConstraintsScope.ImportCSVScreen(screen: ImportScreen) {
     val importStep by viewModel.importStep.observeAsState(ImportStep.IMPORT_FROM)
     val importProgressPercent by viewModel.importProgressPercent.observeAsState(0)
     val importResult by viewModel.importResult.observeAsState()
+    val source by viewModel.source.observeAsState(ImportSource.NIVY)
+    val cashewResult by viewModel.cashewResult.observeAsState()
 
     val onboardingViewModel: OnboardingViewModel = viewModel()
 
@@ -39,8 +43,11 @@ fun BoxWithConstraintsScope.ImportCSVScreen(screen: ImportScreen) {
         importStep = importStep,
         importProgressPercent = importProgressPercent,
         importResult = importResult,
+        source = source,
+        cashewResult = cashewResult,
 
         onChooseNivyBackup = viewModel::chooseNivyBackup,
+        onChooseCashew = viewModel::chooseCashew,
         onUploadCSVFile = { viewModel.uploadFile(context) },
         onSkip = {
             viewModel.skip(
@@ -65,8 +72,11 @@ private fun BoxWithConstraintsScope.UI(
     importStep: ImportStep,
     importProgressPercent: Int,
     importResult: ImportResult?,
+    source: ImportSource = ImportSource.NIVY,
+    cashewResult: CashewImportResult? = null,
 
     onChooseNivyBackup: () -> Unit = {},
+    onChooseCashew: () -> Unit = {},
     onUploadCSVFile: () -> Unit = {},
     onSkip: () -> Unit = {},
     onFinish: () -> Unit = {},
@@ -76,7 +86,8 @@ private fun BoxWithConstraintsScope.UI(
             ImportFrom(
                 launchedFromOnboarding = screen.launchedFromOnboarding,
                 onSkip = onSkip,
-                onNivyBackup = onChooseNivyBackup
+                onNivyBackup = onChooseNivyBackup,
+                onCashew = onChooseCashew,
             )
         }
 
@@ -84,13 +95,19 @@ private fun BoxWithConstraintsScope.UI(
             ImportInstructions(
                 hasSkip = screen.launchedFromOnboarding,
                 onSkip = onSkip,
-                onUploadClick = onUploadCSVFile
+                onUploadClick = onUploadCSVFile,
+                source = source,
             )
         }
 
         ImportStep.LOADING -> {
             ImportProcessing(
-                progressPercent = importProgressPercent
+                progressPercent = importProgressPercent,
+                text = if (source == ImportSource.CASHEW) {
+                    R.string.importing_the_cashew_file
+                } else {
+                    R.string.importing_the_csv_file
+                },
             )
         }
 
@@ -98,6 +115,7 @@ private fun BoxWithConstraintsScope.UI(
             ImportResultUI(
                 result = importResult!!,
                 launchedFromOnboarding = screen.launchedFromOnboarding,
+                cashew = cashewResult,
             ) {
                 onFinish()
             }
