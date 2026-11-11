@@ -27,7 +27,7 @@ private fun CashewPlanner.budget(cashew: CashewBudget, order: Double): Budget? {
     val amount = budgetAmount(cashew)
     return when {
         !monthly || !ofWhatsSpent || categories == null || cashew.amount <= 0 -> null.also { leave(Reason.Budget, item) }
-        amount == null -> null.also { leave(Reason.NoRate, item) }
+        amount == null -> null.also { leave(Reason.BudgetWithoutRate, item) }
         else -> Budget(
             id = BudgetId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe(name),

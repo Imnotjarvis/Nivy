@@ -80,7 +80,10 @@ data class LeftOut(val reason: Reason, val items: List<Item>) {
         /** Budgets' spending limits per category. */
         CategoryLimits,
 
-        /** Amounts in another currency without a rate: a budget's, or a loan payment's. */
-        NoRate,
+        /** Budgets in another currency than the base one, without a rate between them. */
+        BudgetWithoutRate,
+
+        /** Loan payments in another currency than their loan's, without a rate: counted as they are. */
+        LoanPaymentWithoutRate,
     }
 }

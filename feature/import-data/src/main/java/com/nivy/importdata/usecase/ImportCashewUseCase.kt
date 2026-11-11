@@ -39,8 +39,18 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-/** An import's counts, as for any import, and what of Cashew's it left out. */
-data class CashewImportResult(val result: ImportResult, val leftOut: List<LeftOut>)
+/**
+ * An import's counts, as for any import, those of what only Cashew's import brings, and what of
+ * Cashew's it left out.
+ */
+data class CashewImportResult(
+    val result: ImportResult,
+    val plannedPayments: Int = 0,
+    val loans: Int = 0,
+    val budgets: Int = 0,
+    val tags: Int = 0,
+    val leftOut: List<LeftOut> = emptyList(),
+)
 
 // How far the import is (0 to 1) after each of its stages.
 private object Progress {
@@ -92,7 +102,14 @@ internal class ImportCashewUseCase @Inject constructor(
                     appPreferences.setBaseCurrency(wallet.baseCurrency.code)
                 }
                 onProgress(1.0)
-                CashewImportResult(result = plan.result(), leftOut = plan.leftOut)
+                CashewImportResult(
+                    result = plan.result(),
+                    plannedPayments = plan.plannedPayments.size,
+                    loans = plan.loans.size,
+                    budgets = plan.budgets.size,
+                    tags = plan.tags.size,
+                    leftOut = plan.leftOut,
+                )
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -172,6 +189,5 @@ internal class ImportCashewUseCase @Inject constructor(
             failedRows = persistentListOf(),
             error = error,
         ),
-        leftOut = emptyList(),
     )
 }

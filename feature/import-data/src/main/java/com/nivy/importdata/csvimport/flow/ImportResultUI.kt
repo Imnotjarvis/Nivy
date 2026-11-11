@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.nivy.data.backup.CSVRow
 import com.nivy.data.backup.ImportResult
 import com.nivy.importdata.csv.Spacer8
+import com.nivy.importdata.usecase.CashewImportResult
 import com.nivy.wallet.utils.formatDecimals
 import com.nivy.navigation.CSVScreen
 import com.nivy.navigation.navigation
@@ -44,6 +46,8 @@ internal fun ImportResultUI(
     result: ImportResult,
     launchedFromOnboarding: Boolean,
     isManualCsvImport: Boolean = false,
+    // A Cashew import's: what else it brought, and what it left out.
+    cashew: CashewImportResult? = null,
     onFinish: () -> Unit,
 ) {
     val nav = navigation()
@@ -99,6 +103,7 @@ internal fun ImportResultUI(
             SuccessSectionUI(
                 result = result,
                 successPercent = successPercent,
+                cashew = cashew,
             )
 
             NivyDividerLine(
@@ -108,9 +113,13 @@ internal fun ImportResultUI(
             FailedSectionUI(
                 result = result,
                 successPercent = successPercent,
+                fromCashew = cashew != null,
             )
 
-            if (!isManualCsvImport) {
+            cashew?.let { CashewLeftOut(it.leftOut) }
+
+            // Cashew's data file holds more than its CSV: no CSV import to fall back on.
+            if (!isManualCsvImport && cashew == null) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
@@ -168,6 +177,7 @@ internal fun ImportResultUI(
 private fun SuccessSectionUI(
     result: ImportResult,
     successPercent: Double,
+    cashew: CashewImportResult?,
 ) {
     Column {
         Text(
@@ -221,6 +231,8 @@ private fun SuccessSectionUI(
             )
         )
 
+        cashew?.let { CashewCounts(it) }
+
         Spacer(Modifier.height(32.dp))
     }
 }
@@ -229,6 +241,7 @@ private fun SuccessSectionUI(
 private fun FailedSectionUI(
     result: ImportResult,
     successPercent: Double,
+    fromCashew: Boolean,
 ) {
     Column {
         Spacer(Modifier.height(32.dp))
@@ -253,12 +266,14 @@ private fun FailedSectionUI(
             )
         )
 
+        val notImported = result.rowsFound - result.transactionsImported
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = stringResource(
-                R.string.rows_from_csv_not_recognized,
-                result.rowsFound - result.transactionsImported
-            ),
+            text = if (fromCashew) {
+                pluralStringResource(R.plurals.cashew_transactions_not_imported, notImported, notImported)
+            } else {
+                stringResource(R.string.rows_from_csv_not_recognized, notImported)
+            },
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = Gray,
                 fontWeight = FontWeight.Bold

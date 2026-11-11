@@ -172,6 +172,10 @@ class ImportCashewUseCaseTest {
             error shouldBe null
             succeeded shouldBe true
         }
+        imported.plannedPayments shouldBe 1
+        imported.loans shouldBe 1
+        imported.budgets shouldBe 1
+        imported.tags shouldBe 1
         imported.leftOut.shouldBeEmpty()
         savedTransactions.single().size shouldBe 2
         // The copy of the file is gone.

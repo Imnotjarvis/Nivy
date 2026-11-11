@@ -140,7 +140,7 @@ private fun CashewPlanner.converted(amount: PositiveDouble, from: Account, to: A
     val converted = cashewRate(to.asset)?.let { toRate ->
         cashewRate(from.asset)?.let { fromRate -> PositiveDouble.from(amount.value * toRate / fromRate).getOrNull() }
     }
-    if (converted == null) leave(Reason.NoRate, LeftOut.Item(loan.name.value))
+    if (converted == null) leave(Reason.LoanPaymentWithoutRate, LeftOut.Item(loan.name.value))
     return converted
 }
 

@@ -43,6 +43,7 @@ internal fun BoxWithConstraintsScope.ImportFrom(
 
     onSkip: () -> Unit = {},
     onNivyBackup: () -> Unit = {},
+    onCashew: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = Modifier
@@ -107,6 +108,15 @@ internal fun BoxWithConstraintsScope.ImportFrom(
         }
 
         item {
+            ImportOption(
+                icon = CashewIcon,
+                tint = MaterialTheme.colorScheme.onSurface,
+                name = stringResource(R.string.cashew),
+                onClick = onCashew
+            )
+        }
+
+        item {
             // last spacer
             Spacer(Modifier.height(96.dp))
         }
@@ -117,11 +127,17 @@ internal fun BoxWithConstraintsScope.ImportFrom(
     )
 }
 
+/** Cashew's data file: a document, not Cashew's own logo. */
+@DrawableRes
+internal val CashewIcon = R.drawable.ic_custom_document_m
+
 @Composable
 private fun ImportOption(
     @DrawableRes icon: Int,
     name: String,
     onClick: () -> Unit,
+    // The Nivy logo has its own colors; a plain icon takes the text's.
+    tint: Color = Color.Unspecified,
 ) {
     Row(
         modifier = Modifier
@@ -138,7 +154,7 @@ private fun ImportOption(
         NivyIcon(
             modifier = Modifier.size(32.dp),
             icon = icon,
-            tint = Color.Unspecified
+            tint = tint
         )
 
         Text(

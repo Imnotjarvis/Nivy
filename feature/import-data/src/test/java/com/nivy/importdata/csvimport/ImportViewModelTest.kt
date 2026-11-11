@@ -6,11 +6,15 @@ import android.os.Looper
 import com.nivy.data.backup.BackupDataUseCase
 import com.nivy.data.backup.ImportResult
 import com.nivy.domain.RootScreen
+import com.nivy.importdata.cashew.LeftOut
+import com.nivy.importdata.usecase.CashewImportResult
+import com.nivy.importdata.usecase.ImportCashewUseCase
 import com.nivy.navigation.ImportScreen
 import com.nivy.navigation.Navigation
 import com.nivy.onboarding.viewmodel.OnboardingViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -47,7 +51,16 @@ class ImportViewModelTest {
         every { (this@mockk as RootScreen).openFile(any()) } answers { firstArg<(Uri) -> Unit>()(backup) }
     }
 
-    private val viewModel = ImportViewModel(nav = nav, backupDataUseCase = backupDataUseCase)
+    private val fromCashew = CashewImportResult(
+        result = restored.copy(rowsFound = 120, transactionsImported = 118),
+        plannedPayments = 4,
+        leftOut = listOf(LeftOut(LeftOut.Reason.NoAmount, listOf(LeftOut.Item("Free coffee")))),
+    )
+    private val importCashew = mockk<ImportCashewUseCase> {
+        coEvery { import(backup, any()) } returns fromCashew
+    }
+
+    private val viewModel = ImportViewModel(nav = nav, backupDataUseCase = backupDataUseCase, importCashew = importCashew)
 
     @Before
     fun setUp() {
@@ -101,6 +114,54 @@ class ImportViewModelTest {
 
         verify(exactly = 0) { onboarding.importFinished(any()) }
         verify(exactly = 1) { nav.back() }
+    }
+
+    @Test
+    fun `choosing Cashew shows its steps, and the file picked is imported as Cashew's`() {
+        // when
+        viewModel.chooseCashew()
+
+        // then
+        viewModel.source.value shouldBe ImportSource.CASHEW
+        viewModel.importStep.value shouldBe ImportStep.INSTRUCTIONS
+
+        // when
+        viewModel.uploadFile(screen)
+
+        // then
+        viewModel.importStep.value shouldBe ImportStep.RESULT
+        viewModel.importResult.value shouldBe fromCashew.result
+        viewModel.cashewResult.value shouldBe fromCashew
+        coVerify(exactly = 0) { backupDataUseCase.importBackupFile(any(), any()) }
+    }
+
+    @Test
+    fun `back from Cashew's steps returns to the choice, and a backup then restores as one`() {
+        // given
+        viewModel.chooseCashew()
+
+        // when
+        viewModel.onBack()
+        viewModel.chooseNivyBackup()
+        viewModel.uploadFile(screen)
+
+        // then
+        viewModel.importResult.value shouldBe restored
+        viewModel.cashewResult.value shouldBe null
+        coVerify(exactly = 0) { importCashew.import(any(), any()) }
+    }
+
+    @Test
+    fun `a Cashew import from onboarding that brought the wallet in finishes it`() {
+        // given
+        viewModel.chooseCashew()
+        viewModel.uploadFile(screen)
+
+        // when
+        viewModel.finish(ImportScreen(launchedFromOnboarding = true), onboarding)
+
+        // then
+        verify(exactly = 1) { onboarding.importFinished(success = true) }
     }
 
     @Test
