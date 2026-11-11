@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -20,11 +21,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.nivy.design.system.motion.AppearRiseFraction
 import com.nivy.design.system.motion.CoveredDimAlpha
 import com.nivy.design.system.motion.appearTween
+import com.nivy.design.utils.thenIf
 
 /**
  * The current screen. A screen opening rises a little from below as it fades in, over the one it
  * covers, which stays still, dims and takes no touches meanwhile; going back, it sinks as it fades
- * out, off the one it uncovers. Other changes are instant.
+ * out, off the one it uncovers. Other changes are instant. Swiped down, a screen goes back
+ * (SwipeBack), and what it uncovers dims as the screen under it will.
  */
 @Composable
 internal fun AnimatedScreens(
@@ -46,14 +49,40 @@ internal fun AnimatedScreens(
     ) { screen ->
         val animation = navigation.animation
         val entering = transition.targetState == EnterExitState.Visible
+        val swipe = rememberScreenSwipeBack(navigation)
         Box(
-            modifier = Modifier.screenAnimation(animation, entering, screenProgress(animation)),
+            modifier = Modifier
+                .screenAnimation(animation, entering, screenProgress(animation))
+                .thenIf(entering) { drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * swipe.progress) } },
             propagateMinConstraints = true,
         ) {
-            content(screen)
+            Box(
+                modifier = Modifier.thenIf(screen.swipesBack) { swipeBack(swipe, dragAnywhere = true) },
+                propagateMinConstraints = true,
+            ) {
+                content(screen)
+            }
         }
     }
 }
+
+// Back, as Back does it: a dialog open on the screen closes first. Left, the screen sinks on from
+// where the finger let it go.
+@Composable
+private fun rememberScreenSwipeBack(navigation: Navigation): SwipeBack {
+    val onBack = rememberOnBack()
+    return rememberSwipeBack(
+        canGoBack = { !navigation.backStackEmpty() },
+        goBack = {
+            val shown = navigation.currentScreen
+            onBack()
+            navigation.currentScreen != shown
+        },
+    )
+}
+
+// Main, the app's home, has nowhere to go back to, and Home pulls down for its search.
+private val Screen?.swipesBack: Boolean get() = this != null && this !is MainScreen
 
 // From 0 to 1 as a screen enters, from 1 to 0 as it leaves; animated only when [animation] is, and
 // part of the screen's transition, so a screen leaving is kept until it's done.

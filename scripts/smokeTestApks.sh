@@ -2,7 +2,8 @@
 # Installs each APK on the connected device/emulator as a fresh install and goes through it as a
 # new user does: from the welcome screen through every onboarding step (Get started, Start fresh,
 # the currency, skipping accounts and categories, which adds the starter ones) to Home,
-# allowing the notifications Home asks for. Then it opens the app the way app shortcuts do
+# allowing the notifications Home asks for. From there it opens Cash's page, from Accounts, and
+# swipes it down, which goes back to Accounts. Then it opens the app the way app shortcuts do
 # (straight on the add-transaction screen, waiting for its keypad) and presses back twice, which
 # goes through the OnBackPressedDispatcher: Android 16 no longer calls Activity.onBackPressed()
 # for apps targeting it. It fails if the app process dies, anything lands in the crash log, or a
@@ -73,6 +74,13 @@ find_text() {
     return 1
 }
 
+# Swipes down the middle of the screen, from 30% of its height to 75%: a finger going back.
+swipe_down() {
+    local width height
+    read -r width height < <(adb shell wm size | tail -1 | grep -oE '[0-9]+x[0-9]+' | tr x ' ')
+    adb shell input swipe $((width / 2)) $((height * 3 / 10)) $((width / 2)) $((height * 3 / 4)) 400
+}
+
 # Waits for the screen showing $3, screenshots it as $OUT/<apk>-$2.png and checks the app, then
 # taps the element showing $4, when given. When the screen doesn't come, what UI Automator saw
 # of it is kept beside its screenshot.
@@ -121,6 +129,14 @@ for apk in "$@"; do
         && step "$name" 5-categories "Add categories" "Skip" \
         && step "$name" 6-notifications "Allow" "Allow" \
         && step "$name" 7-home "Home" \
+        || { fail=1; continue; }
+
+    # Only the account's page shows Add income, and only Main shows Home, in its bottom bar.
+    step "$name" 7a-accounts "Accounts" "Accounts" \
+        && step "$name" 7b-cash "Cash" "Cash" \
+        && step "$name" 7c-cash-page "Add income" \
+        && swipe_down \
+        && step "$name" 7d-swiped-back "Home" \
         || { fail=1; continue; }
 
     adb shell am start -W -n "$PACKAGE/$ACTIVITY" -a "$ADD_TRANSACTION_ACTION" \
