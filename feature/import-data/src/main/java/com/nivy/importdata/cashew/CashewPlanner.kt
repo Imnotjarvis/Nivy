@@ -126,8 +126,8 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
     internal fun currency(key: String?): AssetCode = key?.let { AssetCode.from(it).getOrNull() } ?: wallet.baseCurrency
 
     /**
-     * Main categories come over, those of the same name as one: Cashew keeps an income and an
-     * expense category apart, Nivy doesn't. A subcategory's transactions go to its main category.
+     * Main categories come over, one per name: Cashew can keep an income and an expense category
+     * of the same name, Nivy keeps one. A subcategory's transactions go to its main category.
      */
     private fun planCategories() {
         val byName = wallet.categories.uniqueBy { nameKey(it.name.value) }.toMutableMap()
