@@ -26,7 +26,6 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.account.AccountBalanceDetails
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
-import com.nivy.domain.usecase.account.AccountIncomeExpense
 import com.nivy.domain.usecase.account.AccountIncomeExpenseUseCase
 import com.nivy.domain.usecase.account.AccountTransactionsUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
@@ -85,12 +84,9 @@ class TransactionsViewModelTest {
     }
     private val accountIncomeExpenseUseCase = mockk<AccountIncomeExpenseUseCase> {
         coEvery { incomeExpense(any(), any(), any()) } answers {
-            AccountIncomeExpense(
-                account = firstArg(),
-                incomeExpensePair = IncomeExpensePair(
-                    income = incomeOf(secondArg()).toBigDecimal(),
-                    expense = BigDecimal(30),
-                ),
+            IncomeExpensePair(
+                income = incomeOf(secondArg()).toBigDecimal(),
+                expense = BigDecimal(30),
             )
         }
     }
@@ -238,12 +234,9 @@ class TransactionsViewModelTest {
         coEvery { accountIncomeExpenseUseCase.incomeExpense(any(), any(), any()) } coAnswers {
             val range = secondArg<ClosedTimeRange>()
             if (range.from == Instant.parse("2026-12-01T00:00:00Z")) december.await()
-            AccountIncomeExpense(
-                account = firstArg(),
-                incomeExpensePair = IncomeExpensePair(
-                    income = incomeOf(range).toBigDecimal(),
-                    expense = BigDecimal(30),
-                ),
+            IncomeExpensePair(
+                income = incomeOf(range).toBigDecimal(),
+                expense = BigDecimal(30),
             )
         }
         viewModel.start(bankPage)

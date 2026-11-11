@@ -250,7 +250,7 @@ class TransactionsViewModel @Inject constructor(
             account = initialAccount,
             range = range.toCloseTimeRange(),
             includeTransfersInCalc = includeTransfersInCalc
-        ).incomeExpensePair
+        )
         income.doubleValue = incomeExpensePair.income.toDouble()
         expenses.doubleValue = incomeExpensePair.expense.toDouble()
 

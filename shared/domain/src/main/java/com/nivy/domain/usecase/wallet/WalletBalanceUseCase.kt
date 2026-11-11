@@ -17,15 +17,14 @@ class WalletBalanceUseCase @Inject constructor(
     private val exchangeUseCase: ExchangeUseCase,
     private val dispatchers: DispatchersProvider,
 ) {
-    /** The accounts' balances, those in the balance or all of them, in the [baseCurrency]. */
+    /** The balances of the accounts in the balance, in the [baseCurrency]. */
     suspend fun balance(
         baseCurrency: String,
         range: ClosedTimeRange? = null,
-        withExcluded: Boolean = false,
     ): BigDecimal = withContext(dispatchers.io) {
         val rates = BaseCurrencyRates(exchangeUseCase, AssetCode.unsafe(baseCurrency))
         accountRepository.findAll()
-            .filter { withExcluded || it.includeInBalance }
+            .filter { it.includeInBalance }
             .sumOf { account ->
                 val balance = accountBalanceUseCase.balance(account = account, range = range).balance
                 rates.inBase(balance.toDouble(), account.asset)
