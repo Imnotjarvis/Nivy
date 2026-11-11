@@ -67,6 +67,13 @@ class FileSystem internal constructor(
     /** Unzips the uri's file into [location]. @throws IOException when it can't be read or isn't a backup's. */
     fun unzip(uri: Uri, location: File) = com.nivy.base.file.unzip(open = { openFile(uri, "r") }, location)
 
+    /** Copies the uri's file into [file]. @throws IOException when it can't be read or written. */
+    fun copy(uri: Uri, file: File) {
+        descriptor(uri, mode = "r").use {
+            FileInputStream(it.fileDescriptor).use { input -> FileOutputStream(file).use(input::copyTo) }
+        }
+    }
+
     /** Whether the uri's file starts as a zip archive does; false when it can't be read. */
     fun isZip(uri: Uri): Boolean = try {
         descriptor(uri, mode = "r").use {

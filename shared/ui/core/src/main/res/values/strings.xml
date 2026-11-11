@@ -27,6 +27,7 @@
     <string name="import_from">Import from</string>
     <string name="nivy">Nivy</string>
     <string name="nivy_backup">Nivy backup</string>
+    <string name="cashew_not_data_file">Not a Cashew data file</string>
     <string name="please_wait">Please wait</string>
     <string name="importing_the_csv_file">Importing the CSV file</string>
     <string name="success">Success</string>
