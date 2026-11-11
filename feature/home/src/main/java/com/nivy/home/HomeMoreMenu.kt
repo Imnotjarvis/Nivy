@@ -68,6 +68,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import com.nivy.design.system.motion.AppearRiseFraction
 import com.nivy.design.system.motion.CoveredDimAlpha
+import com.nivy.design.system.motion.PanelSolidAt
 import androidx.compose.ui.graphics.drawOutline
 import com.nivy.design.system.motion.appearTween
 import com.nivy.design.system.shapes.AppCornerRadius
@@ -147,13 +148,13 @@ fun BoxWithConstraintsScope.MoreMenu(
                     drawOutline(
                         outline = ShapeBottom.createOutline(size, layoutDirection, this),
                         color = panelColor,
-                        alpha = (progress.value / SolidAt).coerceIn(0f, 1f),
+                        alpha = (progress.value / PanelSolidAt).coerceIn(0f, 1f),
                     )
                 }
                 .consumeClicks(rememberInteractionSource())
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .graphicsLayer { alpha = ((progress.value - SolidAt) / (1f - SolidAt)).coerceIn(0f, 1f) }
+                .graphicsLayer { alpha = ((progress.value - PanelSolidAt) / (1f - PanelSolidAt)).coerceIn(0f, 1f) }
                 .zIndex(510f)
         ) {
             val modalId = remember {
@@ -218,10 +219,6 @@ fun BoxWithConstraintsScope.MoreMenu(
         }
     }
 }
-
-// How far into its coming the panel is solid, before its content fades in on it: a quarter, about
-// 50 ms.
-private const val SolidAt = 0.25f
 
 /** A panel from the top rounds only its bottom corners, on the app's radius. */
 private val ShapeBottom: Shape

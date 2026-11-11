@@ -23,7 +23,7 @@ internal fun BoxWithConstraintsScope.LoanBottomBar(
     selectTab: (LoanTab) -> Unit,
     onAdd: () -> Unit
 ) {
-    // The main screen's bar: its purple and green, the + button raised in the middle.
+    // The main screen's bar: its purple and green, the + button beside the tabs.
     TabsBottomBar(
         start = {
             BottomBarTab(

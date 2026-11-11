@@ -16,4 +16,10 @@ const val AppearRiseFraction = 0.1f
 /** How dark what a screen or dialog covers gets: Android's dim behind dialogs. */
 const val CoveredDimAlpha = 0.6f
 
+/**
+ * How far into its coming a menu's panel is solid, before its content fades in on it: a quarter,
+ * about 50 ms. Fading in together, the colors behind showed through both, as a flash.
+ */
+const val PanelSolidAt = 0.25f
+
 private const val AppearDurationMillis = 200
