@@ -221,9 +221,12 @@ fun SplitBar(parts: List<Pair<Double, Color>>, modifier: Modifier = Modifier) {
     }
 }
 
-/** A track filled to [fraction], from 0 to 1. */
+/** How strong the fill of what's likely is, on a [ProgressBar] and in its legend. */
+const val LikelyFillAlpha = 0.35f
+
+/** A track filled to [fraction], from 0 to 1, and lighter on to [likely] when there's one. */
 @Composable
-fun ProgressBar(fraction: Double, color: Color, modifier: Modifier = Modifier) {
+fun ProgressBar(fraction: Double, color: Color, modifier: Modifier = Modifier, likely: Double? = null) {
     val track = MaterialTheme.colorScheme.surface
     Canvas(
         modifier = modifier
@@ -231,12 +234,15 @@ fun ProgressBar(fraction: Double, color: Color, modifier: Modifier = Modifier) {
             .padding(horizontal = 8.dp)
             .height(12.dp)
     ) {
-        drawRoundRect(track, size = size, cornerRadius = CornerRadius(size.height / 2))
-        drawRoundRect(
-            color,
-            size = Size(fraction.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
-            cornerRadius = CornerRadius(size.height / 2),
+        val radius = CornerRadius(size.height / 2)
+        fun fill(share: Double, fillColor: Color) = drawRoundRect(
+            fillColor,
+            size = Size(share.coerceIn(0.0, 1.0).toFloat() * size.width, size.height),
+            cornerRadius = radius,
         )
+        drawRoundRect(track, size = size, cornerRadius = radius)
+        if (likely != null) fill(likely, color.copy(alpha = LikelyFillAlpha))
+        fill(fraction, color)
     }
 }
 
