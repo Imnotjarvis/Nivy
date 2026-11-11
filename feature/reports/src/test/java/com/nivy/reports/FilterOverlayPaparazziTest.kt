@@ -100,10 +100,6 @@ class FilterOverlayPaparazziTest(
         val Holiday = Tag(
             id = TagId(UUID(0, 30)),
             name = NotBlankTrimmedString.unsafe("Holiday"),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
     }

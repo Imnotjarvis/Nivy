@@ -8,8 +8,6 @@ import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagAssociation
 import com.nivy.data.model.primitive.AssociationId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.TagId
 import java.time.Instant
@@ -25,22 +23,19 @@ class TagMapper @Inject constructor() {
         Tag(
             id = TagId(id),
             name = NotBlankTrimmedString.from(name).bind(),
-            description = description,
-            color = ColorInt(color),
-            icon = icon?.let(IconAsset::from)?.getOrNull(),
-            orderNum = orderNum,
             creationTimestamp = dateTime,
         )
     }
 
+    // The description, color, icon and order are what every tag has had: nothing ever set them.
     fun Tag.toEntity(): TagEntity {
         return TagEntity(
             id = id.value,
             name = name.value,
-            description = description,
-            color = color.value,
-            icon = icon?.id,
-            orderNum = orderNum,
+            description = null,
+            color = Color.TRANSPARENT,
+            icon = null,
+            orderNum = 0.0,
             dateTime = creationTimestamp,
             lastSyncedTime = Instant.EPOCH,
             isDeleted = false,
@@ -67,10 +62,6 @@ class TagMapper @Inject constructor() {
         return Tag(
             id = tagId,
             name = name,
-            description = null,
-            color = ColorInt(Color.TRANSPARENT),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.now(),
         )
     }

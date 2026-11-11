@@ -5,7 +5,6 @@ import com.nivy.base.Toaster
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
 import com.nivy.data.model.primitive.AssociationId
-import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.domain.UserWrites
 import com.nivy.transaction.EditTransactionViewEvent.TagEvent
@@ -257,9 +256,5 @@ class EditorTagsTest {
 private fun tag(name: String) = Tag(
     id = TagId(UUID.nameUUIDFromBytes(name.toByteArray())),
     name = NotBlankTrimmedString.unsafe(name),
-    description = null,
-    color = ColorInt(0),
-    icon = null,
-    orderNum = 0.0,
     creationTimestamp = Instant.EPOCH,
 )

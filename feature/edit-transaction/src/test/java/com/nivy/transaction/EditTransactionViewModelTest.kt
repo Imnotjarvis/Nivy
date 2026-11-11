@@ -352,10 +352,6 @@ class EditTransactionViewModelTest {
         val work = Tag(
             id = TagId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("work"),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
         coEvery { transactionRepo.findById(original.id) } returns original
@@ -375,10 +371,6 @@ class EditTransactionViewModelTest {
         val work = Tag(
             id = TagId(UUID.randomUUID()),
             name = NotBlankTrimmedString.unsafe("work"),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
         coEvery { tagRepository.findByIds(listOf(work.id)) } returns listOf(work)

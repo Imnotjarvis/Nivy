@@ -141,10 +141,6 @@ class AccountTagsPaparazziTest(
         fun tag(name: String, n: Long) = Tag(
             id = TagId(UUID(0, n)),
             name = NotBlankTrimmedString.unsafe(name),
-            description = null,
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
             creationTimestamp = Instant.EPOCH,
         )
     }

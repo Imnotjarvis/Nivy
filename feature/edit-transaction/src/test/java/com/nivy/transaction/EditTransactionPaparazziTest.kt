@@ -230,9 +230,5 @@ private fun category(name: String, color: Color, icon: String) = Category(
 private fun tag(name: String) = Tag(
     id = TagId(UUID.nameUUIDFromBytes(name.toByteArray())),
     name = NotBlankTrimmedString.unsafe(name),
-    description = null,
-    color = ColorInt(Palette.Nivy.toArgb()),
-    icon = null,
-    orderNum = 0.0,
     creationTimestamp = Instant.parse("2026-01-01T00:00:00Z"),
 )
