@@ -204,13 +204,15 @@
     <string name="month_your_money">Your money</string>
     <string name="month_free_to_spend">Free to spend</string>
     <string name="month_per_day">%1$s %2$s a day</string>
-    <plurals name="month_days_left_even">
-        <item quantity="one">for the %1$d day left, to break even</item>
-        <item quantity="other">for the %1$d days left, to break even</item>
+    <plurals name="month_days_left_budget">
+        <item quantity="one">for the %1$d day left, to stay on budget</item>
+        <item quantity="other">for the %1$d days left, to stay on budget</item>
     </plurals>
-    <string name="month_over">more went out than came in</string>
+    <string name="month_over">over your budget</string>
+    <string name="month_set_budget">Set a total budget to see what you can spend each day</string>
     <string name="month_spent_amount">%1$s %2$s spent</string>
     <string name="month_left_amount">%1$s %2$s left</string>
+    <string name="month_budget_over">%1$s %2$s over</string>
     <string name="month_day_by_day">Day by day</string>
     <string name="month_balance">Balance</string>
     <string name="month_planned">Planned</string>
@@ -317,8 +319,6 @@
     <string name="month_biggest_since">your biggest %1$s purchase since %2$s</string>
     <string name="month_biggest_any_since">your biggest purchase since %1$s</string>
     <string name="month_same">same</string>
-    <string name="month_places">Places you go back to</string>
-    <string name="month_place_note">%1$d times, %2$s %3$s each</string>
     <string name="month_own_and_owe">What you own and owe</string>
     <string name="month_you_owe">You owe</string>
     <string name="month_money_lasts">Your money lasts</string>

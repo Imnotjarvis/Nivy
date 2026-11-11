@@ -49,6 +49,10 @@ internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, mo
             FreeToSpendPanel(it, currency, detail.outlook, detail.days.lastOrNull())
             Spacer(Modifier.height(16.dp))
         }
+        if (detail.needsBudget) {
+            SetBudgetPanel()
+            Spacer(Modifier.height(16.dp))
+        }
         DayByDayPanel(detail, currency)
         if (detail.comingUp.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
@@ -79,9 +83,9 @@ internal fun ColumnScope.MonthSections(detail: MonthDetail, currency: String, mo
         FixedFlexiblePanel(habits, currency)
         Spacer(Modifier.height(16.dp))
         CategoriesPanel(habits, currency, detail.pace?.takeIf { pace -> (pace.previous.lastOrNull() ?: 0.0) > 0 })
-        if (habits.places.isNotEmpty()) {
+        if (detail.budgets.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
-            PlacesPanel(habits, currency)
+            BudgetsPanel(detail.budgets, currency)
         }
     }
 

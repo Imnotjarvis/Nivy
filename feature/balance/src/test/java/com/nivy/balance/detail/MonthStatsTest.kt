@@ -93,12 +93,11 @@ class MonthStatsTest {
     }
 
     @Test
-    fun `places gone back to, whatever the case of their titles, the most visited first`() {
+    fun `the top place is the most visited, whatever the case of its titles`() {
         val habits = habits(Purchases + spend(9, 21, "bar roma", EatingOut, 4.0))!!
 
         habits.topPlace!!.name shouldBe "Bar Roma"
         habits.topPlace.visits shouldBe 6
-        habits.places.map { it.name } shouldBe listOf("Bar Roma", "Lidl", "Uber", "Bakery")
     }
 
     @Test
@@ -138,48 +137,23 @@ class MonthStatsTest {
     }
 
     @Test
-    fun `free to spend is what's left a day for the month to end even`() {
-        val free = freeToSpend(
-            income = 1_650.0,
-            plannedIncome = 0.0,
-            spent = 352.85,
-            plannedExpenses = 745.55,
-            daysLeft = 21
-        )!!
+    fun `free to spend is what's left of the budget a day, after what's spent and still due`() {
+        val free = freeToSpend(budget = 1_500.0, spent = 352.85, plannedExpenses = 600.0, daysLeft = 21)!!
 
-        free.left shouldBe (551.60 plusOrMinus Cent)
-        free.perDay shouldBe (551.60 / 21 plusOrMinus Cent)
+        free.left shouldBe (547.15 plusOrMinus Cent)
+        free.perDay shouldBe (547.15 / 21 plusOrMinus Cent)
     }
 
     @Test
-    fun `once more went out than came in, nothing is left to spend`() {
-        val free = freeToSpend(
-            income = 100.0,
-            plannedIncome = 0.0,
-            spent = 150.0,
-            plannedExpenses = 0.0,
-            daysLeft = 10
-        )!!
+    fun `past the budget, nothing is left to spend`() {
+        val free = freeToSpend(budget = 100.0, spent = 150.0, plannedExpenses = 0.0, daysLeft = 10)!!
 
         free.left shouldBe (-50.0 plusOrMinus Cent)
     }
 
     @Test
-    fun `without income this month or a day left, there's no free to spend`() {
-        freeToSpend(
-            income = 0.0,
-            plannedIncome = 0.0,
-            spent = 10.0,
-            plannedExpenses = 0.0,
-            daysLeft = 10
-        ).shouldBeNull()
-        freeToSpend(
-            income = 100.0,
-            plannedIncome = 0.0,
-            spent = 10.0,
-            plannedExpenses = 0.0,
-            daysLeft = 0
-        ).shouldBeNull()
+    fun `without a day left, there's no free to spend`() {
+        freeToSpend(budget = 100.0, spent = 10.0, plannedExpenses = 0.0, daysLeft = 0).shouldBeNull()
     }
 
     @Test

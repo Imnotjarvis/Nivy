@@ -1,9 +1,12 @@
 package com.nivy.balance.detail
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
@@ -24,6 +27,7 @@ import com.nivy.wallet.ui.component.InfoRows
 import com.nivy.wallet.ui.component.LabeledBars
 import com.nivy.wallet.ui.component.LegendText
 import com.nivy.wallet.ui.component.PanelNote
+import com.nivy.wallet.ui.component.ProgressBar
 import com.nivy.wallet.ui.component.ShareRow
 import com.nivy.wallet.ui.component.ShareRows
 import com.nivy.wallet.ui.component.SplitBar
@@ -38,6 +42,7 @@ import com.nivy.wallet.ui.component.wholeOrCents
 import com.nivy.wallet.utils.amountAndCode
 import com.nivy.wallet.utils.format
 import com.nivy.wallet.utils.formatDecimals
+import kotlinx.collections.immutable.ImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -367,24 +372,40 @@ internal fun CategoriesPanel(habits: Habits, currency: String, previous: Pace?) 
     }
 }
 
+/** Each budget: its limit, a bar of what was spent of it, and what's left of it or over it. */
 @Composable
-internal fun PlacesPanel(habits: Habits, currency: String) {
-    ChartPanel(title = stringResource(R.string.month_places), legend = {}) {
-        InfoRows(habits.places.withIndex().toList()) { (index, place) ->
-            InfoRow(
-                lead = "${index + 1}",
-                leadWidth = RankWidth,
-                title = place.name,
-                note = stringResource(
-                    R.string.month_place_note,
-                    place.visits,
-                    (place.total / place.visits).format(currency),
-                    currency
-                ),
-                value = amountAndCode(place.total, currency),
-            )
+internal fun BudgetsPanel(budgets: ImmutableList<BudgetMonth>, currency: String) {
+    val panel = MaterialTheme.colorScheme.surfaceVariant
+    ChartPanel(title = stringResource(R.string.budgets), legend = {}) {
+        budgets.forEachIndexed { index, budget ->
+            if (index > 0) Spacer(Modifier.height(16.dp))
+            val over = budget.spent > budget.limit
+            InfoRow(title = budget.name, value = amountAndCode(budget.limit, currency))
+            Spacer(Modifier.height(8.dp))
+            ProgressBar(budget.spent / budget.limit, if (over) expenseRed(panel) else Nivy)
+            Spacer(Modifier.height(8.dp))
+            Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                LegendText(stringResource(R.string.month_spent_amount, budget.spent.format(currency), currency))
+                Spacer(Modifier.weight(1f))
+                if (over) {
+                    Text(
+                        text = stringResource(
+                            R.string.month_budget_over,
+                            (budget.spent - budget.limit).format(currency),
+                            currency,
+                        ),
+                        style = MaterialTheme.typography.labelMedium.copy(color = expenseRed(panel)),
+                    )
+                } else {
+                    LegendText(
+                        stringResource(
+                            R.string.month_left_amount,
+                            (budget.limit - budget.spent).format(currency),
+                            currency,
+                        )
+                    )
+                }
+            }
         }
     }
 }
-
-private val RankWidth = 24.dp
