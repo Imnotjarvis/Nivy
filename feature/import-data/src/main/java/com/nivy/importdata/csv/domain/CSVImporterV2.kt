@@ -8,7 +8,6 @@ import com.nivy.base.time.TimeConverter
 import com.nivy.data.backup.CSVRow
 import com.nivy.data.backup.ImportResult
 import com.nivy.data.db.DatabaseTransaction
-import com.nivy.data.db.dao.read.AccountDao
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
@@ -17,6 +16,7 @@ import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
@@ -41,7 +41,6 @@ private const val SavingStartsAt = 0.5
 class CSVImporterV2 @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val transactionMapper: TransactionMapper,
-    private val accountDao: AccountDao,
     private val categoryRepository: CategoryRepository,
     private val currencyRepository: CurrencyRepository,
     private val accountRepository: AccountRepository,
@@ -157,10 +156,9 @@ class CSVImporterV2 @Inject constructor(
         ) ?: return null
         val amount = csvAmount.absoluteValue
 
-        if (amount <= 0) {
-            // Cannot save transactions with zero amount
-            return null
-        }
+        // No transaction without an amount above zero, nor with one too large to be a number: what
+        // the mapper would refuse once the row's accounts were made.
+        if (PositiveDouble.from(amount).isLeft()) return null
 
         val toAmount = if (transfer) {
             parseAmount(
@@ -300,7 +298,7 @@ class CSVImporterV2 @Inject constructor(
                 includeInBalance = true,
                 type = AccountType.OTHER,
                 archived = false,
-                orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
+                orderNum = accountRepository.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull() ?: return null
         accountRepository.save(newAccount)

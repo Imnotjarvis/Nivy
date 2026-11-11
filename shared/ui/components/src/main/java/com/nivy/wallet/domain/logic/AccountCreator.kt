@@ -1,10 +1,7 @@
 package com.nivy.wallet.domain.logic
 
-import android.database.sqlite.SQLiteException
 import androidx.compose.ui.graphics.toArgb
 import arrow.core.raise.either
-import com.nivy.base.Toaster
-import com.nivy.data.db.dao.read.AccountDao
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CreditCard
@@ -14,21 +11,20 @@ import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CreditCardRepository
+import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.account.AdjustAccountBalanceUseCase
 import com.nivy.ui.R
 import com.nivy.wallet.utils.ioThread
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.pure.util.nextOrderNum
-import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 
 class AccountCreator @Inject constructor(
     private val adjustAccountBalanceUseCase: AdjustAccountBalanceUseCase,
-    private val accountDao: AccountDao,
     private val accountRepository: AccountRepository,
     private val creditCardRepository: CreditCardRepository,
-    private val toaster: Toaster,
+    private val userWrites: UserWrites,
 ) {
 
     suspend fun createAccount(
@@ -45,7 +41,7 @@ class AccountCreator @Inject constructor(
                 includeInBalance = data.includeBalance,
                 type = data.type,
                 archived = false,
-                orderNum = accountDao.findMaxOrderNum().nextOrderNum(),
+                orderNum = accountRepository.findMaxOrderNum().nextOrderNum(),
             )
         }.getOrNull() ?: return@saving
         accountRepository.save(account)
@@ -75,14 +71,7 @@ class AccountCreator @Inject constructor(
 
     /** Runs [save] in the background, then [onRefreshUI]; a failure is shown instead. */
     private suspend fun saving(onRefreshUI: suspend () -> Unit, save: suspend () -> Unit) {
-        try {
-            ioThread { save() }
-        } catch (e: SQLiteException) {
-            // The dialog has closed: without this, the account would seem saved.
-            Timber.e(e)
-            toaster.show(R.string.msg_account_not_saved)
-            return
-        }
-        onRefreshUI()
+        // The dialog has closed: without the message, the account would seem saved.
+        if (userWrites.run(R.string.msg_account_not_saved) { ioThread { save() } }) onRefreshUI()
     }
 }
