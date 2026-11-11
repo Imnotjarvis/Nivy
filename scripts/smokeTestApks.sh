@@ -35,9 +35,13 @@ check() {
 }
 
 # The first element in this screen dump showing exactly this text, in any case (system dialogs
-# show their buttons in capitals).
+# show their buttons in capitals), or else described so: an icon without a label, such as a tab
+# not selected, as TalkBack reads it.
 node_with_text() {
-    grep -io "<node [^>]*text=\"$2\"[^>]*>" <<< "$1" | head -1
+    local node
+    node=$(grep -io "<node [^>]*text=\"$2\"[^>]*>" <<< "$1" | head -1)
+    [ -n "$node" ] || node=$(grep -io "<node [^>]*content-desc=\"$2\"[^>]*>" <<< "$1" | head -1)
+    printf '%s\n' "$node"
 }
 
 # The bounds "x1 y1 x2 y2" of an element.
@@ -131,12 +135,12 @@ for apk in "$@"; do
         && step "$name" 7-home "Home" \
         || { fail=1; continue; }
 
-    # Only the account's page shows Add income, and only Main shows Home, in its bottom bar.
+    # Only the account's page shows Add income, and only Main shows Accounts, in its bottom bar.
     step "$name" 7a-accounts "Accounts" "Accounts" \
         && step "$name" 7b-cash "Cash" "Cash" \
         && step "$name" 7c-cash-page "Add income" \
         && swipe_down \
-        && step "$name" 7d-swiped-back "Home" \
+        && step "$name" 7d-swiped-back "Accounts" \
         || { fail=1; continue; }
 
     adb shell am start -W -n "$PACKAGE/$ACTIVITY" -a "$ADD_TRANSACTION_ACTION" \
