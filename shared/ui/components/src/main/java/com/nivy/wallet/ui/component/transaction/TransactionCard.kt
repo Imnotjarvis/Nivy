@@ -38,6 +38,7 @@ import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.readableTint
 import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.shapes.PillShape
+import com.nivy.design.system.shapes.nestedShape
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.typography.numberLabelMedium
 import com.nivy.ui.R
@@ -211,6 +212,7 @@ fun TransactionCard(
                         .padding(start = 24.dp),
                     text = stringResource(R.string.skip),
                     wrapContentMode = false,
+                    shape = nestedShape(CardInset),
                     backgroundColor = MaterialTheme.colorScheme.surface,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
@@ -228,6 +230,7 @@ fun TransactionCard(
                         .padding(end = 24.dp),
                     text = if (isExpense) stringResource(R.string.pay) else stringResource(R.string.get),
                     wrapContentMode = false,
+                    shape = nestedShape(CardInset),
                     backgroundColor = if (isExpense) MaterialTheme.colorScheme.onSurface else Green,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = if (isExpense) MaterialTheme.colorScheme.surface else White,

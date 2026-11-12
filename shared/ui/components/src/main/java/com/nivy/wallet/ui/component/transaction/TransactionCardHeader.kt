@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import com.nivy.design.system.shapes.PillShape
+import com.nivy.design.system.shapes.nestedShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -48,6 +48,13 @@ import com.nivy.design.system.colors.categoryColor
 import kotlinx.collections.immutable.ImmutableList
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.colors.accountColor
+
+/**
+ * How far into a transaction card, from its nearest edges, its chips and buttons sit: the header
+ * row's padding, and the room above and below the card's content. Their corners are the card's
+ * less this, so they run parallel to the card's.
+ */
+internal val CardInset = 20.dp
 
 @Composable
 internal fun ColumnScope.TransactionTags(tags: ImmutableList<Tag>) {
@@ -205,10 +212,11 @@ private fun TransactionBadge(
 
     onClick: () -> Unit
 ) {
+    val shape = nestedShape(CardInset)
     Row(
         modifier = Modifier
-            .clip(PillShape)
-            .background(backgroundColor, PillShape)
+            .clip(shape)
+            .background(backgroundColor, shape)
             .clickable {
                 onClick()
             }
@@ -266,10 +274,10 @@ private fun TransferHeader(
                                 0.5f to accountColor(toAccount.color.value),
                                 1f to accountColor(toAccount.color.value)
                             ),
-                            shape = PillShape
+                            shape = nestedShape(CardInset)
                         )
                 } else {
-                    Modifier.background(MaterialTheme.colorScheme.surface, PillShape)
+                    Modifier.background(MaterialTheme.colorScheme.surface, nestedShape(CardInset))
                 }
             ),
         verticalAlignment = Alignment.CenterVertically

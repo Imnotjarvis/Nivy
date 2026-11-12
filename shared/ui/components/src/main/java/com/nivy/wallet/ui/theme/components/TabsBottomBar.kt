@@ -31,12 +31,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.nivy.design.system.colors.White
-import com.nivy.design.system.colors.gradientCutBackgroundTop
 import com.nivy.design.system.colors.readableTint
 import com.nivy.design.system.motion.PanelSolidAt
 import com.nivy.design.system.shapes.AppCornerRadius
@@ -85,8 +84,8 @@ private const val MenuZIndex = 150f
 /**
  * The bar along the bottom, as wide as the screen's blocks: its tabs in a block of their own, the
  * [start] one and the [end] one, then room for the + button ([BottomBarFab]) beside them. What
- * scrolls under the bar fades into the page behind it. Taps on the tabs' block don't reach what's
- * behind it.
+ * scrolls under the bar shows above and beside it, and fades into the page below it, by the
+ * screen's bottom edge. Taps on the tabs' block don't reach what's behind it.
  *
  * [contentAlpha] fades the tabs, not their block.
  */
@@ -98,11 +97,22 @@ fun BoxWithConstraintsScope.TabsBottomBar(
     contentAlpha: Float = 1f,
 ) {
     val shape = MaterialTheme.shapes.medium
+    val page = MaterialTheme.colorScheme.background
     Row(
         modifier = modifier
             .fillMaxWidth()
             .align(Alignment.BottomCenter)
-            .gradientCutBackgroundTop(MaterialTheme.colorScheme.background, LocalDensity.current)
+            // From the bar's bottom edge to the page by its margin, solid on to the screen's edge:
+            // faded from above the bar, what scrolled under it showed as a band on top of it.
+            .drawBehind {
+                drawRect(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, page),
+                        startY = BarHeight.toPx(),
+                        endY = (BarHeight + BarMargin).toPx(),
+                    )
+                )
+            }
             .navigationBarsPadding()
             .padding(start = BarMargin, end = BarMargin, bottom = BarMargin),
         verticalAlignment = Alignment.CenterVertically
