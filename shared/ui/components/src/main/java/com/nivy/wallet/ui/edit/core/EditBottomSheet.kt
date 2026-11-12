@@ -2,7 +2,6 @@ package com.nivy.wallet.ui.edit.core
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -25,6 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -39,6 +44,7 @@ import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.GreenDark
 import com.nivy.design.system.colors.GreenLight
 import com.nivy.design.system.colors.NivyDark
+import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.shapes.ShapeTop
 import com.nivy.design.utils.consumeClicks
 import com.nivy.design.utils.densityScope
@@ -62,6 +68,25 @@ import com.nivy.wallet.utils.verticalSwipeListener
 import java.util.UUID
 
 private const val SWIPE_UP_EXPANDED_THRESHOLD = 200
+
+/**
+ * The sheet's outline, over it, along its top and round its corners only: the sheet runs from
+ * edge to edge down to the screen's bottom, so its sides and bottom lie on the screen's own edges,
+ * where an outline ran into the screen's rounded corners. Goes right after the clip to [ShapeTop],
+ * which cuts the stroke's outer half.
+ */
+private fun Modifier.topOutline(color: Color) = drawWithContent {
+    drawContent()
+    clipRect(bottom = AppCornerRadius.value.toPx()) {
+        drawOutline(
+            outline = ShapeTop.createOutline(size, layoutDirection, this),
+            color = color,
+            style = Stroke(width = SheetOutline.toPx() * 2),
+        )
+    }
+}
+
+private val SheetOutline = 2.dp
 
 @Suppress("LongMethod", "LongParameterList", "ParameterNaming")
 @Composable
@@ -122,11 +147,8 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             .onSizeChanged {
                 onHeightChanged(with(density) { (it.height - navigationBar).coerceAtLeast(0).toDp() })
             }
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = ShapeTop
-            )
+            .clip(ShapeTop)
+            .topOutline(MaterialTheme.colorScheme.surfaceVariant)
             .background(MaterialTheme.colorScheme.surface, ShapeTop)
             .verticalSwipeListener(
                 sensitivity = SWIPE_UP_EXPANDED_THRESHOLD,

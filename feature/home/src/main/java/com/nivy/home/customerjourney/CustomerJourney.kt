@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nivy.design.system.shapes.nestedShape
 import com.nivy.domain.RootScreen
 import com.nivy.wallet.LocalMainScreenState
 import com.nivy.wallet.rootScreen
@@ -145,7 +146,9 @@ private fun CustomerJourneyCard(
                 fontWeight = FontWeight.Bold
             ),
             padding = 8.dp,
-            backgroundColor = readableOn(cardData.background)
+            backgroundColor = readableOn(cardData.background),
+            // 20 dp from the card's side and bottom: its corners less that, parallel to the card's.
+            shape = nestedShape(20.dp)
         ) {
             onCTA()
         }

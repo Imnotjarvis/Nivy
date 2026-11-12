@@ -8,6 +8,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import com.nivy.design.system.motion.CoveredDimAlpha
 import com.nivy.design.system.motion.appearTween
+import com.nivy.design.system.shapes.AppCornerRadius
+import com.nivy.design.system.shapes.nestedShape
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -119,7 +121,9 @@ internal fun BoxWithConstraintsScope.BottomBar(
                     modifier = Modifier.fillMaxWidth(),
                     iconStart = R.drawable.ic_planned_payments,
                     text = stringResource(R.string.add_planned_payment),
-                    solidBackground = true
+                    solidBackground = true,
+                    // 16 dp into the panel, by its top corners: theirs less that, parallel to them.
+                    shape = nestedShape(AppCornerRadius.ScreenMargin)
                 ) {
                     onAddPlannedPayment()
                 }

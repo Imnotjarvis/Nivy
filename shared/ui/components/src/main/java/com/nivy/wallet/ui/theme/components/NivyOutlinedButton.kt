@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -41,20 +42,21 @@ fun NivyOutlinedButton(
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     padding: Dp = 12.dp,
+    // A pill's, or nestedShape() inside a block.
+    shape: Shape = PillShape,
     // A × at the end, read as [clearLabel], when there's something to clear.
     onClear: (() -> Unit)? = null,
     clearLabel: String? = null,
     onClick: () -> Unit,
 ) {
     val pure = MaterialTheme.colorScheme.surface
-    val rFull = PillShape
     Row(
         modifier = modifier
-            .clip(PillShape)
+            .clip(shape)
             .defaultMinSize(minWidth, minHeight)
-            .border(2.dp, borderColor, PillShape)
+            .border(2.dp, borderColor, shape)
             .thenIf(solidBackground) {
-                background(pure, rFull)
+                background(pure, shape)
             }
             .clickable(
                 onClick = onClick,

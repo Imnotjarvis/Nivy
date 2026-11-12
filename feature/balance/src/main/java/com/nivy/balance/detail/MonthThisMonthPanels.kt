@@ -17,6 +17,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.nivy.design.system.shapes.nestedShape
 import com.nivy.base.model.TransactionType
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Nivy
@@ -152,6 +153,8 @@ internal fun SetBudgetPanel() {
             text = stringResource(R.string.add_budget),
             iconStart = R.drawable.ic_plus,
             solidBackground = true,
+            // 20 dp from the panel's bottom: its corners less that, parallel to the panel's.
+            shape = nestedShape(20.dp),
             onClick = { nav.navigateTo(BudgetScreen()) },
         )
     }

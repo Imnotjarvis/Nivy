@@ -146,5 +146,5 @@ private fun RadiusPreview(radius: Dp) {
     }
 }
 
-private const val MaxRadius = 32
+private const val MaxRadius = 48
 private val ModalId = UUID.randomUUID()
