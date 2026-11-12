@@ -6,6 +6,7 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.data.repository.ConsumerPricesRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
 import com.nivy.domain.usecase.exchange.BaseCurrencyRates
@@ -14,6 +15,7 @@ import com.nivy.domain.usecase.spending.paidBetween
 import com.nivy.domain.usecase.spending.toFlow
 import com.nivy.reports.trends.AllMonthsAtMost
 import com.nivy.reports.trends.MonthSpan
+import com.nivy.reports.trends.MonthTrend
 import com.nivy.reports.trends.OutlookMonths
 import com.nivy.reports.trends.TrendsDetail
 import com.nivy.reports.trends.TrendsRange
@@ -25,6 +27,7 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.util.roundNicely
 import com.nivy.wallet.domain.pure.util.smallPurchaseEdge
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -44,6 +47,7 @@ class TrendsUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val accountBalanceUseCase: AccountBalanceUseCase,
     private val exchangeUseCase: ExchangeUseCase,
+    private val consumerPricesRepository: ConsumerPricesRepository,
     private val timeProvider: TimeProvider,
     private val timeConverter: TimeConverter,
     private val dispatchers: DispatchersProvider,
@@ -110,13 +114,26 @@ class TrendsUseCase @Inject constructor(
                 outlook = netWorthOutlook(
                     start = worth.last(),
                     changes = changes.takeLast(OutlookMonths),
-                    now = YearMonth.of(current.year ?: today.year, requireNotNull(current.month).monthValue),
+                    now = current.yearMonth(today.year),
                     random = Random(today.toEpochDay()),
                 ),
                 shifts = habitShifts(detail.months, months.map { it.first }, flows, roundNicely(ShiftEuros * perEuro))
                     .toImmutableList(),
+                realNetWorth = if (baseCurrency == AssetCode.EUR) realNetWorth(detail.months, today.year) else null,
             )
         }
+
+    // In the euros of the newest month with Italy's consumer price index; null if a month has none.
+    private suspend fun realNetWorth(months: List<MonthTrend>, year: Int): ImmutableList<Double>? {
+        val prices = consumerPricesRepository.prices()
+        return months.map { month ->
+            val factor = prices.toLatest(month.period.yearMonth(year)) ?: return null
+            month.netWorth * factor
+        }.toImmutableList()
+    }
+
+    private fun TimePeriod.yearMonth(fallbackYear: Int): YearMonth =
+        YearMonth.of(year ?: fallbackYear, requireNotNull(month).monthValue)
 
     // How many months back the first paid transaction is, the current month counted; at most
     // [AllMonthsAtMost].

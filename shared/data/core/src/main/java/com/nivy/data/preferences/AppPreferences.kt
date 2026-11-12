@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.Instant
+import java.time.YearMonth
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -131,6 +132,21 @@ class AppPreferences @Inject constructor(
         }
     }
 
+    /** The months of Italy's consumer price index downloaded so far (see ConsumerPricesRepository). */
+    suspend fun consumerPrices(): Map<YearMonth, Double> =
+        dataStore.data.first()[ConsumerPriceIndex].orEmpty().split(',').filter { it.isNotEmpty() }.associate { entry ->
+            val (month, index) = entry.split('=')
+            YearMonth.parse(month) to index.toDouble()
+        }
+
+    suspend fun setConsumerPrices(index: Map<YearMonth, Double>) =
+        set(ConsumerPriceIndex, index.entries.joinToString(",") { (month, value) -> "$month=$value" })
+
+    /** When a download of the consumer price index was last tried, or null if none was. */
+    suspend fun consumerPricesTriedAt(): Instant? =
+        dataStore.data.first()[ConsumerPricesTriedAt]?.let(Instant::ofEpochMilli)
+    suspend fun setConsumerPricesTried(at: Instant) = set(ConsumerPricesTriedAt, at.toEpochMilli())
+
     private suspend fun <T> get(key: Preferences.Key<T>, default: T): T =
         dataStore.data.first()[key] ?: default
 
@@ -158,6 +174,8 @@ class AppPreferences @Inject constructor(
         private val PieChartByAccount = booleanPreferencesKey("pie_chart_by_account")
         private val ExchangeRatesSyncedFor = stringPreferencesKey("exchange_rates_synced_for")
         private val ExchangeRatesSyncedAt = longPreferencesKey("exchange_rates_synced_at")
+        private val ConsumerPriceIndex = stringPreferencesKey("consumer_price_index")
+        private val ConsumerPricesTriedAt = longPreferencesKey("consumer_prices_tried_at")
         private const val CardDismissedSuffix = "_cj_dismissed"
 
         // The settings that used to live in the database's settings table.

@@ -1,5 +1,7 @@
 package com.nivy.reports.trends
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -9,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,13 +47,26 @@ internal fun NetWorthPanel(
     val chosen = months[selected]
     val before = months.getOrNull(selected - 1)
     val outlook = detail.outlook
+    val real = detail.realNetWorth
     ChartPanel(
         title = overTitle(range, months.first().period),
         legend = {
-            LegendDot(color = Nivy, label = stringResource(R.string.trends_actual))
-            if (outlook != null) {
-                Spacer(Modifier.width(12.dp))
-                LegendDot(color = Nivy.copy(alpha = LikelyLegendAlpha), label = stringResource(R.string.trends_likely))
+            // Under the others, as beside them it doesn't fit on smaller phones.
+            Column(horizontalAlignment = Alignment.End) {
+                Row {
+                    LegendDot(color = Nivy, label = stringResource(R.string.trends_actual))
+                    if (outlook != null) {
+                        Spacer(Modifier.width(12.dp))
+                        LegendDot(
+                            color = Nivy.copy(alpha = LikelyLegendAlpha),
+                            label = stringResource(R.string.trends_likely)
+                        )
+                    }
+                }
+                if (real != null) {
+                    Spacer(Modifier.height(4.dp))
+                    LegendDot(color = TodaysEurosColor, label = stringResource(R.string.trends_in_todays_euros))
+                }
             }
         },
     ) {
@@ -70,9 +86,16 @@ internal fun NetWorthPanel(
                     )
                     add(change to if (moved >= 0) BubbleLine.Gain else BubbleLine.Loss)
                 }
+                // Not for the months in today's euros already.
+                val worth = real?.get(selected)
+                if (worth != null && worth != chosen.netWorth) {
+                    val today = stringResource(R.string.trends_worth_today, worth.format(currency), currency)
+                    add(today to BubbleLine.Label)
+                }
             },
             onSelect = onSelect,
             outlook = outlook?.months,
+            real = real,
         )
         val ahead = ahead(months.last().period, outlook?.months?.size ?: 0)
         val periods = months.map { it.period } + ahead

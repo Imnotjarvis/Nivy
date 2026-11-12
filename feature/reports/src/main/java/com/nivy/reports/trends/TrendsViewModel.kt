@@ -8,7 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
+import com.nivy.data.repository.ConsumerPricesRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.reports.usecase.TrendsUseCase
 import com.nivy.ui.ComposeViewModel
@@ -39,6 +41,7 @@ class TrendsViewModel @Inject constructor(
     private val trendsUseCase: TrendsUseCase,
     private val currencyRepository: CurrencyRepository,
     private val appPreferences: AppPreferences,
+    private val consumerPricesRepository: ConsumerPricesRepository,
 ) : ComposeViewModel<TrendsState, TrendsEvent>() {
     private var baseCurrency by mutableStateOf("")
     private var range by mutableStateOf(TrendsRange.Year)
@@ -50,6 +53,9 @@ class TrendsViewModel @Inject constructor(
     override fun uiState(): TrendsState {
         LaunchedEffect(Unit) {
             load()
+            // The net worth after inflation reads Italy's consumer prices: newer ones, once
+            // downloaded, load the trends again.
+            if (currencyRepository.getBaseCurrency() == AssetCode.EUR && consumerPricesRepository.syncIfDue()) load()
         }
 
         return TrendsState(

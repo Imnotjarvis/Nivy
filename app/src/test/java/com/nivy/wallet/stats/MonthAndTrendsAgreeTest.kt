@@ -20,6 +20,8 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.BudgetRepository
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.data.repository.ConsumerPrices
+import com.nivy.data.repository.ConsumerPricesRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceDetails
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
@@ -108,6 +110,9 @@ class MonthAndTrendsAgreeTest {
         categoryRepository = categoryRepository,
         accountBalanceUseCase = accountBalanceUseCase,
         exchangeUseCase = exchangeUseCase,
+        consumerPricesRepository = mockk<ConsumerPricesRepository> {
+            coEvery { prices() } returns ConsumerPrices(emptyMap())
+        },
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         dispatchers = TestDispatchersProvider,
