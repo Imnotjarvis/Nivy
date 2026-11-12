@@ -199,13 +199,13 @@ class RootActivity : AppCompatActivity(), RootScreen {
         AddTransactionWidgetCompact.updateBroadcast(this)
     }
 
-    // By default blocks follow the screen's rounded corners: their radius less the margin blocks keep
-    // from the edge. Android reports the radius from version 12.
+    // By default blocks are as round as the screen's corners. Android reports their radius from
+    // version 12, as a circle's: less the margin blocks keep from the edge, blocks looked squarer
+    // than the screen's smoother corners, on Samsung phones above all.
     private fun matchScreenCorners() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         val corner = display?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT) ?: return
-        val radius = (corner.radius / resources.displayMetrics.density).dp
-        AppCornerRadius.matchPhone = (radius - AppCornerRadius.ScreenMargin).coerceAtLeast(0.dp)
+        AppCornerRadius.matchPhone = (corner.radius / resources.displayMetrics.density).dp
     }
 
     // Dismissing the dialog picks nothing.
