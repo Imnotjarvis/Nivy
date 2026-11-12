@@ -142,23 +142,23 @@ internal fun NetWorthSummary(detail: TrendsDetail, range: TrendsRange, currency:
             fontWeight = FontWeight.Bold,
         ),
     )
-    detail.realNetWorth?.let { real ->
-        // In today's euros, the range's first month is worth more than it was.
-        val realChange = real.last() - real.first()
+    detail.adjustedNetWorth?.let { adjusted ->
+        // In the euros of the range's first month, where the change above is in each month's own.
+        val adjustedChange = adjusted.last() - adjusted.first()
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = if (real.first() > 0) {
+            text = if (adjusted.first() > 0) {
                 stringResource(
-                    R.string.trends_after_inflation,
-                    signed(realChange, currency),
+                    R.string.trends_adjusted_change,
+                    signed(adjustedChange, currency),
                     currency,
-                    signedPercent(realChange / real.first())
+                    signedPercent(adjustedChange / adjusted.first())
                 )
             } else {
-                stringResource(R.string.trends_after_inflation_amount, signed(realChange, currency), currency)
+                stringResource(R.string.trends_adjusted_change_amount, signed(adjustedChange, currency), currency)
             },
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = if (realChange >= 0) incomeGreen(page) else expenseRed(page),
+                color = if (adjustedChange >= 0) incomeGreen(page) else expenseRed(page),
             ),
         )
     }

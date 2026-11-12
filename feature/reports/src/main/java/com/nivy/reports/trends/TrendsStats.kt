@@ -2,6 +2,7 @@ package com.nivy.reports.trends
 
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
+import com.nivy.data.repository.ConsumerPrices
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.forecast.line
 import com.nivy.wallet.domain.pure.spending.BiggestPurchase
@@ -19,6 +20,7 @@ import com.nivy.wallet.domain.pure.spending.trackedSince
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.abs
 
@@ -41,6 +43,19 @@ private const val CalendarWeeks = 26
 
 // The quartiles the spending calendar's darker days start from.
 private val CalendarLevels = listOf(0.25, 0.5, 0.75)
+
+/**
+ * The [netWorth] of each of the [months] as what it buys at the first's consumer [prices], in that
+ * month's euros. Null without an index for each month.
+ */
+internal fun adjustedForInflation(
+    netWorth: List<Double>,
+    months: List<YearMonth>,
+    prices: ConsumerPrices,
+): List<Double>? {
+    val factors = months.map { prices.toLatest(it) ?: return null }
+    return netWorth.mapIndexed { index, worth -> worth * (factors[index] / factors.first()) }
+}
 
 /**
  * The trends of the range's [months] from the [flows] in them. [netWorth] and [balances] are

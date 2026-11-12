@@ -31,7 +31,7 @@ class TrendsViewModelTest {
                 asked += range
                 // Marked, when computed with the prices downloaded.
                 val marked = persistentListOf(1.0).takeIf { pricesDownloaded }
-                detail(months = range.months ?: 1).copy(realNetWorth = marked)
+                detail(months = range.months ?: 1).copy(adjustedNetWorth = marked)
             }
         },
         currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } answers { base } },
@@ -78,7 +78,7 @@ class TrendsViewModelTest {
 
         // then
         viewModel.runTest {
-            detail?.realNetWorth shouldBe persistentListOf(1.0)
+            detail?.adjustedNetWorth shouldBe persistentListOf(1.0)
         }
     }
 

@@ -86,10 +86,10 @@ internal fun NetWorthChart(
     bubble: List<Pair<String, BubbleLine>>,
     onSelect: (Int) -> Unit,
     outlook: List<Band>? = null,
-    real: List<Double>? = null,
+    adjusted: List<Double>? = null,
 ) {
     val line = Nivy
-    val realLine = TodaysEurosColor
+    val adjustedLine = AdjustedColor
     val highlight = MaterialTheme.colorScheme.surface
     val ring = MaterialTheme.colorScheme.surfaceVariant
     val measurer = rememberTextMeasurer()
@@ -123,7 +123,7 @@ internal fun NetWorthChart(
         val bubbleHeight = texts.sumOf { it.size.height } + 2 * padding
         val top = bubbleHeight + BubbleGap.toPx()
         val bottom = size.height - ChartPointRing.toPx()
-        val all = values + real.orEmpty() + (outlook?.flatMap { listOf(it.low, it.high) } ?: emptyList())
+        val all = values + adjusted.orEmpty() + (outlook?.flatMap { listOf(it.low, it.high) } ?: emptyList())
         val margin = (all.max() - all.min()).coerceAtLeast(1.0) * ChartMargin
         val min = all.min() - margin
         val max = all.max() + margin
@@ -132,13 +132,14 @@ internal fun NetWorthChart(
         fun y(value: Double) = top + ((max - value) / (max - min)).toFloat() * (bottom - top)
 
         slot(selected, count, highlight)
-        // Under the net worth's line, which it meets in the months already in today's euros.
-        if (real != null && real.size > 1) {
+        // Under the net worth's line, which it starts from.
+        if (adjusted != null && adjusted.size > 1) {
             val path = Path().apply {
-                moveTo(x(0), y(real.first()))
-                for (index in 1..real.lastIndex) lineTo(x(index), y(real[index]))
+                moveTo(x(0), y(adjusted.first()))
+                for (index in 1..adjusted.lastIndex) lineTo(x(index), y(adjusted[index]))
             }
-            drawPath(path, realLine, style = Stroke(RealWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            val stroke = Stroke(AdjustedWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            drawPath(path, adjustedLine, style = stroke)
         }
         if (values.size > 1) {
             lineOverArea(values.indices.map { Offset(x(it), y(values[it])) }, line, top, bottom)
@@ -174,8 +175,8 @@ internal fun NetWorthChart(
     }
 }
 
-/** The net worth in today's euros: orange beside the net worth's purple, in minimal colors a grey. */
-internal val TodaysEurosColor: Color get() = if (ColorMode.minimal) minimalTone(2) else Orange
+/** The net worth adjusted for inflation: orange beside the net worth's purple, in minimal colors a grey. */
+internal val AdjustedColor: Color get() = if (ColorMode.minimal) minimalTone(2) else Orange
 
 /** What a line of the net worth chart's bubble tells: the month, the amount, a gain or a loss. */
 internal enum class BubbleLine { Label, Amount, Gain, Loss }
@@ -538,7 +539,7 @@ private val PunchHeight = 200.dp
 private val MaxCell = 20.dp
 private val SlotRadius = 8.dp
 private val RateWidth = 2.5.dp
-private val RealWidth = 2.dp
+private val AdjustedWidth = 2.dp
 private val GuideWidth = 1.dp
 private val AverageWidth = 1.5.dp
 private val Dash = 4.dp
