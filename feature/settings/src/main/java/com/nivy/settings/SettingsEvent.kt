@@ -1,6 +1,7 @@
 package com.nivy.settings
 
 import com.nivy.base.model.AppLockDelay
+import com.nivy.base.model.ColorPalette
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.domain.RootScreen
 
@@ -23,5 +24,6 @@ sealed interface SettingsEvent {
     /** A radius in dp, or null to match the phone's screen corners. */
     data class SetCornerRadius(val dp: Int?) : SettingsEvent
     data class SetMinimalColors(val minimal: Boolean) : SettingsEvent
+    data class SetColorPalette(val palette: ColorPalette) : SettingsEvent
     data object DeleteAllUserData : SettingsEvent
 }

@@ -44,6 +44,12 @@ class SettingsDialogsPaparazziTest(
         ChooseCornerRadiusModal(visible = true, dismiss = {}, onSet = {})
     }
 
+    // Nivy's palette chosen, or minimal colors.
+    @Test
+    fun `snapshot the colors dialog`() = shot {
+        ChooseColorsModal(visible = true, dismiss = {}, onChoosePalette = {}, onChooseMinimal = {})
+    }
+
     // The date format dialog shows today's date: on a stopped clock, one that stays the same.
     private fun shot(content: @Composable BoxWithConstraintsScope.() -> Unit) =
         snapshot(theme, minimal = colors == Colors.Minimal) {

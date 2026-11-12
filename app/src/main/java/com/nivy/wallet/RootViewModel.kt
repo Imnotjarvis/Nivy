@@ -133,6 +133,11 @@ class RootViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            // Its own colors come from the palette chosen in the settings.
+            appPreferences.colorPalette.collect { ColorMode.palette = it }
+        }
+
+        viewModelScope.launch {
             withContext(dispatchers.io) {
                 // initial app locked state
                 _appLocked.value = appPreferences.isAppLockEnabled()

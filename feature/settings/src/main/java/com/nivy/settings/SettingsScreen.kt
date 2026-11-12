@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.AppLockDelay
+import com.nivy.base.model.ColorPalette
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.base.model.Theme
 import com.nivy.design.system.shapes.AppCornerRadius
@@ -111,6 +112,9 @@ fun BoxWithConstraintsScope.SettingsScreen() {
         },
         onSetMinimalColors = {
             viewModel.onEvent(SettingsEvent.SetMinimalColors(it))
+        },
+        onSetColorPalette = {
+            viewModel.onEvent(SettingsEvent.SetColorPalette(it))
         }
     )
 }
@@ -145,12 +149,14 @@ internal fun BoxWithConstraintsScope.UI(
     onSetDateFormat: (DateDisplayFormat) -> Unit = {},
     onSetCornerRadius: (Int?) -> Unit = {},
     onSetMinimalColors: (Boolean) -> Unit = {},
+    onSetColorPalette: (ColorPalette) -> Unit = {},
 ) {
     var currencyModalVisible by remember { mutableStateOf(false) }
     var chooseStartDateOfMonthVisible by remember { mutableStateOf(false) }
     var chooseDateFormatVisible by remember { mutableStateOf(false) }
     var chooseLockDelayVisible by remember { mutableStateOf(false) }
     var chooseCornerRadiusVisible by remember { mutableStateOf(false) }
+    var chooseColorsVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalVisible by remember { mutableStateOf(false) }
     var deleteAllDataModalFinalVisible by remember { mutableStateOf(false) }
     val nav = navigation()
@@ -360,13 +366,13 @@ internal fun BoxWithConstraintsScope.UI(
 
             Spacer(Modifier.height(12.dp))
 
-            AppSwitch(
-                lockApp = ColorMode.minimal,
-                onSetLockApp = onSetMinimalColors,
-                text = stringResource(R.string.minimal_colors),
-                description = stringResource(R.string.minimal_colors_description),
-                icon = R.drawable.ic_custom_palette_m
-            )
+            SettingsValueRow(
+                icon = R.drawable.ic_custom_palette_m,
+                label = stringResource(R.string.colors),
+                value = if (ColorMode.minimal) stringResource(R.string.colors_minimal) else ColorMode.palette.label(),
+            ) {
+                chooseColorsVisible = true
+            }
 
             Spacer(Modifier.height(12.dp))
 
@@ -432,6 +438,13 @@ internal fun BoxWithConstraintsScope.UI(
         visible = chooseCornerRadiusVisible,
         dismiss = { chooseCornerRadiusVisible = false },
         onSet = onSetCornerRadius,
+    )
+
+    ChooseColorsModal(
+        visible = chooseColorsVisible,
+        dismiss = { chooseColorsVisible = false },
+        onChoosePalette = onSetColorPalette,
+        onChooseMinimal = { onSetMinimalColors(true) },
     )
 
     DeleteModal(

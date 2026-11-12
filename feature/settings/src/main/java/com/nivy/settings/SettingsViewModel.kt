@@ -168,6 +168,11 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.SetMinimalColors -> viewModelScope.launch {
                 appPreferences.setMinimalColors(event.minimal)
             }
+            // Saved, out of minimal colors; the root view model updates the colors the app draws with.
+            is SettingsEvent.SetColorPalette -> viewModelScope.launch {
+                appPreferences.setColorPalette(event.palette)
+                appPreferences.setMinimalColors(false)
+            }
 
             SettingsEvent.DeleteAllUserData -> deleteAllUserData()
         }

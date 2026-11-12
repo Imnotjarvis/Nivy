@@ -29,7 +29,8 @@ import com.nivy.wallet.utils.shortenAmount
 import com.nivy.wallet.utils.horizontalSwipeListener
 import com.nivy.wallet.utils.rememberSwipeListenerState
 import com.nivy.ui.R
-import com.nivy.design.system.colors.Green
+import com.nivy.design.system.colors.shown
+import com.nivy.design.system.colors.Palette
 import com.nivy.design.system.colors.White
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
@@ -129,7 +130,8 @@ internal fun Header(
                 val backgroundColor = if (transactionType == TransactionType.EXPENSE) {
                     MaterialTheme.colorScheme.onSurface
                 } else {
-                    Green
+                    // Income's green, whatever the palette.
+                    Palette.Green.shown()
                 }
                 CircleButtonFilled(
                     modifier = Modifier

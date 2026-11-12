@@ -1,11 +1,16 @@
 package com.nivy.design.system
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.nivy.design.system.colors.BackgroundDark
 import com.nivy.design.system.colors.BackgroundLight
 import com.nivy.design.system.colors.Black
@@ -25,6 +30,8 @@ import com.nivy.design.system.colors.OrangeLight
 import com.nivy.design.system.colors.Palette
 import com.nivy.design.system.colors.TrueBlack
 import com.nivy.design.system.colors.White
+import com.nivy.design.system.colors.readableOn
+import com.nivy.design.system.colors.wallpaperColors
 import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.shapes.nivyShapes
 import com.nivy.design.system.typography.NivyTypography
@@ -36,7 +43,8 @@ import com.nivy.design.system.typography.NivyTypography
 //   surfaceVariant        cards, chips and input backgrounds ("medium")
 //   onSurfaceVariant      secondary text and icons (gray)
 //   inverseSurface        the opposite theme's surfaceVariant ("mediumInverse")
-//   primary               Nivy purple; secondary green; tertiary orange; error red
+//   primary               the palette's accent (Nivy's purple); secondary its second color,
+//                         tertiary its third (green and orange in Nivy's); error red
 //   secondaryContainer    the theme's soft green ("green1")
 @Composable
 fun NivyMaterial3Theme(
@@ -46,6 +54,14 @@ fun NivyMaterial3Theme(
 ) {
     // Before anything below draws: minimal colors draw with the theme's text color.
     ColorMode.dark = dark
+    // The wallpaper's colors, for its palette and its row in the Colors dialog, where Android has
+    // them. A new wallpaper restarts the activity, and with it this.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val context = LocalContext.current
+        ColorMode.wallpaper = remember(context) {
+            wallpaperColors(dynamicLightColorScheme(context), dynamicDarkColorScheme(context))
+        }
+    }
     val colorScheme = if (dark) nivyDarkColorScheme(isTrueBlack) else nivyLightColorScheme()
     MaterialTheme(
         colorScheme = if (ColorMode.minimal) colorScheme.monochrome() else colorScheme,
@@ -60,7 +76,8 @@ fun NivyMaterial3Theme(
 // role there yields an invalid color space ("Invalid ID") and crashes drawing.
 private fun nivyLightColorScheme(): ColorScheme = lightColorScheme(
     primary = Nivy,
-    onPrimary = White,
+    // White, or black on a light accent: the wallpaper's on dark themes.
+    onPrimary = readableOn(Nivy),
     primaryContainer = NivyLight,
     onPrimaryContainer = NivyDark,
     inversePrimary = NivyLight,
@@ -104,7 +121,8 @@ private fun nivyLightColorScheme(): ColorScheme = lightColorScheme(
 
 private fun nivyDarkColorScheme(isTrueBlack: Boolean): ColorScheme = darkColorScheme(
     primary = Nivy,
-    onPrimary = White,
+    // White, or black on a light accent: the wallpaper's on dark themes.
+    onPrimary = readableOn(Nivy),
     primaryContainer = NivyDark,
     onPrimaryContainer = NivyLight,
     inversePrimary = NivyDark,
