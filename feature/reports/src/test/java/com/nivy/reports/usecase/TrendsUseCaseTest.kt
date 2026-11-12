@@ -134,31 +134,31 @@ class TrendsUseCaseTest {
     }
 
     @Test
-    fun `net worth after inflation is in the money of the newest month with an index`() = runTest {
+    fun `net worth adjusted for inflation is in the euros of the range's first month`() = runTest {
         // given prices up 4% from September to October, and no index for November yet
         prices = ConsumerPrices(mapOf(YearMonth.of(2026, 9) to 100.0, YearMonth.of(2026, 10) to 104.0))
 
         // when
         val trends = useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur)
 
-        // then: September's 109 in October's euros, October's and November's as they are
-        trends.realNetWorth shouldBe listOf(109.0 * (104.0 / 100.0), 110.0, 111.0)
+        // then: September's 109 as it is, October's and November's in September's euros, 4% less
+        trends.adjustedNetWorth shouldBe listOf(109.0, 110.0 * (1 / 1.04), 111.0 * (1 / 1.04))
     }
 
     @Test
-    fun `there's no net worth after inflation without each month's index, or in another currency`() = runTest {
+    fun `there's no net worth adjusted for inflation without each month's index, or in another currency`() = runTest {
         // given no index for September
         prices = ConsumerPrices(mapOf(YearMonth.of(2026, 10) to 104.0))
 
         // then
-        useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur).realNetWorth shouldBe null
+        useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur).adjustedNetWorth shouldBe null
 
         // given September's, in dollars
         prices = ConsumerPrices(mapOf(YearMonth.of(2026, 9) to 100.0, YearMonth.of(2026, 10) to 104.0))
 
         // then: the index is Italy's
         val inDollars = useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = AssetCode.USD)
-        inDollars.realNetWorth shouldBe null
+        inDollars.adjustedNetWorth shouldBe null
     }
 
     @Test

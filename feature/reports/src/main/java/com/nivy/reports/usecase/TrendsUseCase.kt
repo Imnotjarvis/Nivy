@@ -15,10 +15,10 @@ import com.nivy.domain.usecase.spending.paidBetween
 import com.nivy.domain.usecase.spending.toFlow
 import com.nivy.reports.trends.AllMonthsAtMost
 import com.nivy.reports.trends.MonthSpan
-import com.nivy.reports.trends.MonthTrend
 import com.nivy.reports.trends.OutlookMonths
 import com.nivy.reports.trends.TrendsDetail
 import com.nivy.reports.trends.TrendsRange
+import com.nivy.reports.trends.adjustedForInflation
 import com.nivy.reports.trends.habitShifts
 import com.nivy.reports.trends.netWorthOutlook
 import com.nivy.reports.trends.trends
@@ -27,7 +27,6 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.util.roundNicely
 import com.nivy.wallet.domain.pure.util.smallPurchaseEdge
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -119,18 +118,18 @@ class TrendsUseCase @Inject constructor(
                 ),
                 shifts = habitShifts(detail.months, months.map { it.first }, flows, roundNicely(ShiftEuros * perEuro))
                     .toImmutableList(),
-                realNetWorth = if (baseCurrency == AssetCode.EUR) realNetWorth(detail.months, today.year) else null,
+                // Italy's consumer prices are in euros.
+                adjustedNetWorth = if (baseCurrency == AssetCode.EUR) {
+                    adjustedForInflation(
+                        netWorth = detail.months.map { it.netWorth },
+                        months = detail.months.map { it.period.yearMonth(today.year) },
+                        prices = consumerPricesRepository.prices(),
+                    )?.toImmutableList()
+                } else {
+                    null
+                },
             )
         }
-
-    // In the euros of the newest month with Italy's consumer price index; null if a month has none.
-    private suspend fun realNetWorth(months: List<MonthTrend>, year: Int): ImmutableList<Double>? {
-        val prices = consumerPricesRepository.prices()
-        return months.map { month ->
-            val factor = prices.toLatest(month.period.yearMonth(year)) ?: return null
-            month.netWorth * factor
-        }.toImmutableList()
-    }
 
     private fun TimePeriod.yearMonth(fallbackYear: Int): YearMonth =
         YearMonth.of(year ?: fallbackYear, requireNotNull(month).monthValue)

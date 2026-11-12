@@ -47,7 +47,7 @@ internal fun NetWorthPanel(
     val chosen = months[selected]
     val before = months.getOrNull(selected - 1)
     val outlook = detail.outlook
-    val real = detail.realNetWorth
+    val adjusted = detail.adjustedNetWorth
     ChartPanel(
         title = overTitle(range, months.first().period),
         legend = {
@@ -63,9 +63,9 @@ internal fun NetWorthPanel(
                         )
                     }
                 }
-                if (real != null) {
+                if (adjusted != null) {
                     Spacer(Modifier.height(4.dp))
-                    LegendDot(color = TodaysEurosColor, label = stringResource(R.string.trends_in_todays_euros))
+                    LegendDot(color = AdjustedColor, label = stringResource(R.string.trends_adjusted))
                 }
             }
         },
@@ -86,16 +86,16 @@ internal fun NetWorthPanel(
                     )
                     add(change to if (moved >= 0) BubbleLine.Gain else BubbleLine.Loss)
                 }
-                // Not for the months in today's euros already.
-                val worth = real?.get(selected)
+                // Not for the range's first month, in whose euros the others are adjusted.
+                val worth = adjusted?.get(selected)
                 if (worth != null && worth != chosen.netWorth) {
-                    val today = stringResource(R.string.trends_worth_today, worth.format(currency), currency)
-                    add(today to BubbleLine.Label)
+                    val line = stringResource(R.string.trends_adjusted_amount, worth.format(currency), currency)
+                    add(line to BubbleLine.Label)
                 }
             },
             onSelect = onSelect,
             outlook = outlook?.months,
-            real = real,
+            adjusted = adjusted,
         )
         val ahead = ahead(months.last().period, outlook?.months?.size ?: 0)
         val periods = months.map { it.period } + ahead

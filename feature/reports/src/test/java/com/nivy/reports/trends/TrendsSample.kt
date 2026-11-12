@@ -177,9 +177,11 @@ internal object TrendsSample {
                 random = Random(Today.toEpochDay()),
             ),
             shifts = habitShifts(detail.months, Months, Flows, atLeast = 10.0).toImmutableList(),
-            realNetWorth = NetWorth.mapIndexed { index, worth ->
-                worth * requireNotNull(Prices.toLatest(Current.minusMonths(Months.lastIndex - index.toLong())))
-            }.toImmutableList(),
+            adjustedNetWorth = adjustedForInflation(
+                netWorth = NetWorth,
+                months = (Months.lastIndex downTo 0).map { Current.minusMonths(it.toLong()) },
+                prices = Prices,
+            )?.toImmutableList(),
         )
     }
 
