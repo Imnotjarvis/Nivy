@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -89,6 +90,7 @@ internal fun BoxWithConstraintsScope.ChooseColorsModal(
 
 /** The palette's name, as the settings show it. */
 @Composable
+@ReadOnlyComposable
 internal fun ColorPalette.label(): String = stringResource(
     when (this) {
         ColorPalette.NIVY -> R.string.palette_nivy
