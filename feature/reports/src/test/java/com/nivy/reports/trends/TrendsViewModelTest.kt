@@ -2,6 +2,7 @@ package com.nivy.reports.trends
 
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
+import com.nivy.data.repository.ConsumerPricesRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.reports.usecase.TrendsUseCase
 import com.nivy.ui.testing.runTest
@@ -9,6 +10,7 @@ import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -18,16 +20,23 @@ class TrendsViewModelTest {
     // The ranges asked for, in order.
     private val asked = mutableListOf<TrendsRange>()
 
+    private var base = Eur
+    private var pricesDownloaded = false
+    private val consumerPrices = mockk<ConsumerPricesRepository> { coEvery { syncIfDue() } returns false }
+
     private val viewModel = TrendsViewModel(
         trendsUseCase = mockk<TrendsUseCase> {
             coEvery { trends(any(), any(), any()) } answers {
                 val range = firstArg<TrendsRange>()
                 asked += range
-                detail(months = range.months ?: 1)
+                // Marked, when computed with the prices downloaded.
+                val marked = persistentListOf(1.0).takeIf { pricesDownloaded }
+                detail(months = range.months ?: 1).copy(realNetWorth = marked)
             }
         },
-        currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
+        currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } answers { base } },
         appPreferences = mockk<AppPreferences> { coEvery { startDayOfMonth() } returns 1 },
+        consumerPricesRepository = consumerPrices,
     )
 
     @Test
@@ -57,6 +66,32 @@ class TrendsViewModelTest {
         viewModel.runTest(events = listOf(TrendsEvent.SelectMonth(4))) {
             selectedIndex shouldBe 4
         }
+    }
+
+    @Test
+    fun `newer prices, once downloaded, load the trends again`() {
+        // given
+        coEvery { consumerPrices.syncIfDue() } answers {
+            pricesDownloaded = true
+            true
+        }
+
+        // then
+        viewModel.runTest {
+            detail?.realNetWorth shouldBe persistentListOf(1.0)
+        }
+    }
+
+    @Test
+    fun `prices are downloaded for euros only`() {
+        // given
+        base = AssetCode.USD
+
+        // then
+        viewModel.runTest {
+            baseCurrency shouldBe "USD"
+        }
+        coVerify(exactly = 0) { consumerPrices.syncIfDue() }
     }
 
     private fun detail(months: Int) = TrendsDetail(

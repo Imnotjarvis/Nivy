@@ -17,6 +17,7 @@ dependencies {
 
     testImplementation(projects.shared.data.coreTesting)
     testImplementation(projects.shared.data.modelTesting)
+    testImplementation(libs.ktor.client.mock)
     androidTestImplementation(libs.bundles.integration.testing)
     androidTestImplementation(projects.shared.data.coreTesting)
 }

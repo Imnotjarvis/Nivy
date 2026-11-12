@@ -48,6 +48,9 @@ data class TrendsDetail(
     val outlook: NetWorthOutlook? = null,
     // How categories' spending shifted over the range's full months, the biggest shifts first.
     val shifts: ImmutableList<HabitShift> = kotlinx.collections.immutable.persistentListOf(),
+    // Each month's net worth in the euros of the newest month with Italy's consumer price index;
+    // null in another currency.
+    val realNetWorth: ImmutableList<Double>? = null,
 )
 
 /** A month of the trends. */

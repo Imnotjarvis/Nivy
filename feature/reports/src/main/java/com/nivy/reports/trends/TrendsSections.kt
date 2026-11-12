@@ -142,6 +142,26 @@ internal fun NetWorthSummary(detail: TrendsDetail, range: TrendsRange, currency:
             fontWeight = FontWeight.Bold,
         ),
     )
+    detail.realNetWorth?.let { real ->
+        // In today's euros, the range's first month is worth more than it was.
+        val realChange = real.last() - real.first()
+        Text(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            text = if (real.first() > 0) {
+                stringResource(
+                    R.string.trends_after_inflation,
+                    signed(realChange, currency),
+                    currency,
+                    signedPercent(realChange / real.first())
+                )
+            } else {
+                stringResource(R.string.trends_after_inflation_amount, signed(realChange, currency), currency)
+            },
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = if (realChange >= 0) incomeGreen(page) else expenseRed(page),
+            ),
+        )
+    }
 }
 
 // ---- Parts

@@ -22,6 +22,8 @@ import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
+import com.nivy.data.repository.ConsumerPrices
+import com.nivy.data.repository.ConsumerPricesRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.account.AccountBalanceDetails
 import com.nivy.domain.usecase.account.AccountBalanceUseCase
@@ -64,6 +66,8 @@ class TrendsUseCaseTest {
     private val asked = mutableListOf<Pair<Account, Instant>>()
     private var bankAt: (Instant) -> Double = { it.atOffset(ZoneOffset.UTC).monthValue.toDouble() }
 
+    private var prices = ConsumerPrices(emptyMap())
+
     private val useCase = TrendsUseCase(
         transactionRepository = mockk<TransactionRepository> {
             coEvery { findFirstPaidTime() } answers { firstPaid }
@@ -86,6 +90,7 @@ class TrendsUseCaseTest {
         exchangeUseCase = mockk<ExchangeUseCase> {
             coEvery { convert(any<PositiveValue>(), any()) } returns None
         },
+        consumerPricesRepository = mockk<ConsumerPricesRepository> { coEvery { prices() } answers { prices } },
         timeProvider = FixedTime,
         timeConverter = TestTimeConverter(),
         dispatchers = TestDispatchersProvider,
@@ -126,6 +131,34 @@ class TrendsUseCaseTest {
         )
         // A quarter's trends still read the 13 month ends before now.
         asked.first().second.atOffset(ZoneOffset.UTC).toLocalDate() shouldBe LocalDate.of(2025, 11, 30)
+    }
+
+    @Test
+    fun `net worth after inflation is in the money of the newest month with an index`() = runTest {
+        // given prices up 4% from September to October, and no index for November yet
+        prices = ConsumerPrices(mapOf(YearMonth.of(2026, 9) to 100.0, YearMonth.of(2026, 10) to 104.0))
+
+        // when
+        val trends = useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur)
+
+        // then: September's 109 in October's euros, October's and November's as they are
+        trends.realNetWorth shouldBe listOf(109.0 * (104.0 / 100.0), 110.0, 111.0)
+    }
+
+    @Test
+    fun `there's no net worth after inflation without each month's index, or in another currency`() = runTest {
+        // given no index for September
+        prices = ConsumerPrices(mapOf(YearMonth.of(2026, 10) to 104.0))
+
+        // then
+        useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = Eur).realNetWorth shouldBe null
+
+        // given September's, in dollars
+        prices = ConsumerPrices(mapOf(YearMonth.of(2026, 9) to 100.0, YearMonth.of(2026, 10) to 104.0))
+
+        // then: the index is Italy's
+        val inDollars = useCase.trends(TrendsRange.ThreeMonths, startDayOfMonth = 1, baseCurrency = AssetCode.USD)
+        inDollars.realNetWorth shouldBe null
     }
 
     @Test

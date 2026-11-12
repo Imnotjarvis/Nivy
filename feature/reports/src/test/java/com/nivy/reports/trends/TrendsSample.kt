@@ -12,6 +12,7 @@ import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.data.repository.ConsumerPrices
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
@@ -151,6 +152,13 @@ internal object TrendsSample {
 
     private val NetWorth = Months.indices.map { index -> Balances.sumOf { (_, values) -> values[index] } }
 
+    // Italy's consumer prices from December 2025, as the app has them built in: none for November yet.
+    private val Prices = ConsumerPrices(
+        listOf(99.973, 100.4, 101.1, 101.6, 102.7, 103.1, 103.1, 103.4, 103.9, 104.6, 105.5)
+            .mapIndexed { index, value -> YearMonth.of(2025, 12).plusMonths(index.toLong()) to value }
+            .toMap()
+    )
+
     val Detail: TrendsDetail = trends(
         months = Months,
         changeMonths = ChangeMonths,
@@ -169,6 +177,9 @@ internal object TrendsSample {
                 random = Random(Today.toEpochDay()),
             ),
             shifts = habitShifts(detail.months, Months, Flows, atLeast = 10.0).toImmutableList(),
+            realNetWorth = NetWorth.mapIndexed { index, worth ->
+                worth * requireNotNull(Prices.toLatest(Current.minusMonths(Months.lastIndex - index.toLong())))
+            }.toImmutableList(),
         )
     }
 
