@@ -30,8 +30,9 @@ val Transparent = Color(0x00000000)
 /**
  * The hues as they are. Account and category colors are stored as ARGB ints picked from these
  * values, so a value must never change. For what's saved, the color pickers and what keeps its
- * color in minimal colors (Home's income and expenses, warnings); everything else draws with the
- * hues below, which turn grey in minimal colors (see [ColorMode]).
+ * color whatever the palette (Home's income and expenses, warnings); the app's own colors draw
+ * with the hues below, which come from the palette chosen and turn grey in minimal colors (see
+ * [AppColors] and [ColorMode]).
  */
 object Palette {
     // Hues (Nivy is the brand color)
@@ -92,20 +93,20 @@ object Palette {
     val Red3Dark = Color(0xFF802653)
 }
 
-// The hues as drawn.
-val Nivy: Color get() = Palette.Nivy.shown()
-val Blue: Color get() = Palette.Blue.shown()
-val Green: Color get() = Palette.Green.shown()
-val Orange: Color get() = Palette.Orange.shown()
+// The hues as drawn: the palette's, named after Nivy's own.
+val Nivy: Color get() = appColors.accent.tone.shown()
+val Blue: Color get() = appColors.fourth.tone.shown()
+val Green: Color get() = appColors.second.tone.shown()
+val Orange: Color get() = appColors.third.tone.shown()
 val Orange3: Color get() = Palette.Orange3.shown()
 val Red: Color get() = Palette.Red.shown()
-val NivyLight: Color get() = Palette.NivyLight.shown()
-val GreenLight: Color get() = Palette.GreenLight.shown()
-val OrangeLight: Color get() = Palette.OrangeLight.shown()
+val NivyLight: Color get() = appColors.accentLight.shown()
+val GreenLight: Color get() = appColors.secondLight.shown()
+val OrangeLight: Color get() = appColors.thirdLight.shown()
 val RedLight: Color get() = Palette.RedLight.shown()
 val Red3Light: Color get() = Palette.Red3Light.shown()
-val NivyDark: Color get() = Palette.NivyDark.shown()
+val NivyDark: Color get() = appColors.accentDark.shown()
 val Purple1Dark: Color get() = Palette.Purple1Dark.shown()
 val Blue2Dark: Color get() = Palette.Blue2Dark.shown()
-val GreenDark: Color get() = Palette.GreenDark.shown()
-val OrangeDark: Color get() = Palette.OrangeDark.shown()
+val GreenDark: Color get() = appColors.secondDark.shown()
+val OrangeDark: Color get() = appColors.thirdDark.shown()

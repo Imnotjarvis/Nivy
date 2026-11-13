@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.biometric.BiometricPrompt
 import com.nivy.base.model.AppLockDelay
+import com.nivy.base.model.ColorPalette
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.data.preferences.AppPreferences
+import com.nivy.design.system.colors.ColorMode
 import com.nivy.domain.features.Features
 import com.nivy.navigation.MainScreen
 import com.nivy.navigation.Navigation
@@ -42,12 +44,14 @@ class RootViewModelTest {
 
     private val appLockSetting = MutableStateFlow(true)
     private val lockDelaySetting = MutableStateFlow(AppLockDelay.ONE_MINUTE)
+    private val paletteSetting = MutableStateFlow(ColorPalette.NIVY)
     private val appPreferences = mockk<AppPreferences>(relaxed = true) {
         every { appLockEnabled } returns appLockSetting
         every { appLockDelay } returns lockDelaySetting
         every { dateFormat } returns emptyFlow()
         every { cornerRadius } returns emptyFlow()
         every { minimalColors } returns emptyFlow()
+        every { colorPalette } returns paletteSetting
         coEvery { isAppLockEnabled() } answers { appLockSetting.value }
         coEvery { isOnboardingCompleted() } returns true
         coEvery { settings() } returns null
@@ -69,6 +73,7 @@ class RootViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        ColorMode.palette = ColorPalette.NIVY
     }
 
     private fun viewModel() = RootViewModel(
@@ -95,6 +100,18 @@ class RootViewModelTest {
         onAppHidden()
         now += seconds * 1_000L
         onAppShown()
+    }
+
+    @Test
+    fun `the app's own colors follow the palette chosen in the settings`() = runTest(dispatcher) {
+        // given
+        startedViewModel()
+
+        // when
+        paletteSetting.value = ColorPalette.SUNSET
+
+        // then
+        ColorMode.palette shouldBe ColorPalette.SUNSET
     }
 
     @Test

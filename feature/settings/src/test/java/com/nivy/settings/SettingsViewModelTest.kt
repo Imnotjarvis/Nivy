@@ -8,6 +8,7 @@ import arrow.core.left
 import arrow.core.right
 import com.nivy.base.Toaster
 import com.nivy.base.model.AppLockDelay
+import com.nivy.base.model.ColorPalette
 import com.nivy.data.file.FileSystem
 import com.nivy.data.model.Budget
 import com.nivy.data.model.BudgetId
@@ -148,6 +149,14 @@ class SettingsViewModelTest {
         viewModel.onEvent(SettingsEvent.SetLockDelay(AppLockDelay.FIVE_MINUTES))
 
         coVerify { appPreferences.setAppLockDelay(AppLockDelay.FIVE_MINUTES) }
+    }
+
+    @Test
+    fun `choosing a palette saves it, and leaves minimal colors`() {
+        viewModel.onEvent(SettingsEvent.SetColorPalette(ColorPalette.SUNSET))
+
+        coVerify { appPreferences.setColorPalette(ColorPalette.SUNSET) }
+        coVerify { appPreferences.setMinimalColors(false) }
     }
 
     @Test

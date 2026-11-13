@@ -25,6 +25,8 @@ import androidx.compose.ui.zIndex
 import com.nivy.wallet.data.model.MainTab
 import com.nivy.ui.R
 import com.nivy.design.system.colors.Green
+import com.nivy.design.system.colors.Palette
+import com.nivy.design.system.colors.shown
 import com.nivy.design.system.colors.Nivy
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
 import com.nivy.wallet.ui.theme.modal.AddModalBackHandling
@@ -132,7 +134,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
             BottomBarMenuButton(
                 icon = R.drawable.ic_income,
                 name = stringResource(R.string.income),
-                color = Green,
+                // Income's green, whatever the palette.
+                color = Palette.Green.shown(),
                 onClick = onAddIncome
             )
             BottomBarMenuButton(

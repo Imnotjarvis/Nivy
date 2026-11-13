@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.nivy.base.model.ColorPalette
 
 /**
  * Whether the app is drawn in minimal colors: black, white and greys, but for Home's income and
@@ -13,9 +14,18 @@ import androidx.compose.ui.graphics.Color
 object ColorMode {
     var minimal: Boolean by mutableStateOf(false)
 
+    /** The palette the app's own colors come from (see AppColors), as chosen in the settings. */
+    var palette: ColorPalette by mutableStateOf(ColorPalette.NIVY)
+
+    /** The phone's wallpaper's colors, on Android 12 and later: the theme reads them. */
+    var wallpaper: AppColors? by mutableStateOf(null)
+
     /** Whether the theme is dark. The theme sets it: minimal colors draw with its text color. */
     var dark: Boolean by mutableStateOf(false)
 }
+
+/** The app's own colors, as the palette chosen gives them. */
+internal val appColors: AppColors get() = colorsOf(ColorMode.palette, ColorMode.wallpaper)
 
 /**
  * This color as drawn. In minimal colors a hue is the theme's text color, black or white, as

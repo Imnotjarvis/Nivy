@@ -17,8 +17,9 @@ class ColorModeTest {
     }
 
     @Test
-    fun `colors are drawn as they are unless in minimal colors`() {
-        Green shouldBe Palette.Green
+    fun `colors are drawn as their palette has them unless in minimal colors`() {
+        // Nivy's: its purple as it is, its green a deeper shade on light themes.
+        Green shouldBe NivyColors.second.light
         Nivy shouldBe Palette.Nivy
         Palette.Nivy.toArgb().toComposeColor() shouldBe Palette.Nivy
     }

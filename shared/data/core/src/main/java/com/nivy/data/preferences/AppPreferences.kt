@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nivy.base.model.AppLockDelay
+import com.nivy.base.model.ColorPalette
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.base.model.Theme
 import kotlinx.coroutines.flow.Flow
@@ -68,6 +69,12 @@ class AppPreferences @Inject constructor(
     /** Whether the app is drawn in greys only (see ColorMode). */
     val minimalColors: Flow<Boolean> = dataStore.data.map { it[MinimalColors] ?: false }.distinctUntilChanged()
     suspend fun setMinimalColors(minimal: Boolean) = set(MinimalColors, minimal)
+
+    /** The palette of the app's own colors (see ColorMode), as it changes: Nivy's until another is chosen. */
+    val colorPalette: Flow<ColorPalette> = dataStore.data.map { prefs ->
+        ColorPalette.entries.find { it.name == prefs[ColorPaletteName] } ?: ColorPalette.NIVY
+    }.distinctUntilChanged()
+    suspend fun setColorPalette(palette: ColorPalette) = set(ColorPaletteName, palette.name)
 
     suspend fun showNotifications(): Boolean = get(ShowNotifications, true)
     suspend fun setShowNotifications(show: Boolean) = set(ShowNotifications, show)
@@ -166,6 +173,7 @@ class AppPreferences @Inject constructor(
         private val DateFormat = stringPreferencesKey("date_format")
         private val CornerRadiusDp = intPreferencesKey("corner_radius")
         private val MinimalColors = booleanPreferencesKey("minimal_colors")
+        private val ColorPaletteName = stringPreferencesKey("color_palette")
         private val ShowNotifications = booleanPreferencesKey("show_notifications")
         private val HideCurrentBalance = booleanPreferencesKey("hide_current_balance")
         private val HideIncome = booleanPreferencesKey("hide_income")
