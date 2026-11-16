@@ -202,14 +202,15 @@ fun TransactionCard(
         }
 
         if (!transaction.settled) {
-            // Pay/Get button
+            // Skip and Pay or Get, as far in from the card's sides as the card ends below them:
+            // their corners, the card's less that, run parallel to the card's.
             Spacer(Modifier.height(16.dp))
             val isExpense = type == TransactionType.EXPENSE
             Row {
                 NivyButton(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 24.dp),
+                        .padding(start = CardInset),
                     text = stringResource(R.string.skip),
                     wrapContentMode = false,
                     shape = nestedShape(CardInset),
@@ -227,7 +228,7 @@ fun TransactionCard(
                 NivyButton(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 24.dp),
+                        .padding(end = CardInset),
                     text = if (isExpense) stringResource(R.string.pay) else stringResource(R.string.get),
                     wrapContentMode = false,
                     shape = nestedShape(CardInset),
