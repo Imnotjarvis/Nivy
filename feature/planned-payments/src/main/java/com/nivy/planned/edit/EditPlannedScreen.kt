@@ -31,6 +31,7 @@ import com.nivy.wallet.ui.previewAccount
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
+import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.wallet.ui.edit.core.Category
 import com.nivy.wallet.ui.component.edit.core.Description
 import com.nivy.wallet.ui.edit.core.EditBottomSheet
@@ -144,17 +145,9 @@ internal fun BoxWithConstraintsScope.UI(
             intervalN = state.intervalN,
             intervalType = state.intervalType,
             oneTime = state.oneTime,
+            endDate = state.endDate,
             onShowRecurringRuleModal = {
-                onEvent(
-                    EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
-                        RecurringRuleModalData(
-                            initialStartDate = state.startDate,
-                            initialIntervalN = state.intervalN,
-                            initialIntervalType = state.intervalType,
-                            initialOneTime = state.oneTime
-                        )
-                    )
-                )
+                onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(state.scheduleModalData()))
             }
         )
 
@@ -181,16 +174,18 @@ internal fun BoxWithConstraintsScope.UI(
     }
 
     val latestOnEvent by rememberUpdatedState(onEvent)
+    val timeConverter = LocalTimeConverter.current
     LaunchedEffect(Unit) {
         if (screen.plannedPaymentRuleId == null) {
             // Create mode
             if (screen.mandatoryFilled()) {
                 // Flow Convert (Amount, Account, Category). A new rule has no schedule yet; the
-                // state may still hold the previous rule's, as start() hasn't run.
+                // state may still hold the previous rule's, as start() hasn't run. One repeating
+                // a saved transaction starts on its date.
                 latestOnEvent(
                     EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
                         RecurringRuleModalData(
-                            initialStartDate = null,
+                            initialStartDate = screen.startDate?.let { with(timeConverter) { it.toLocalDateTime() } },
                             initialIntervalN = null,
                             initialIntervalType = null,
                         )
@@ -209,7 +204,7 @@ internal fun BoxWithConstraintsScope.UI(
         type = state.transactionType,
         accounts = state.accounts,
         selectedAccount = state.account,
-        toAccount = null,
+        toAccount = state.toAccount,
         amount = state.amount,
         currency = state.currency,
 
@@ -240,16 +235,7 @@ internal fun BoxWithConstraintsScope.UI(
                     state.intervalType,
                     state.oneTime
                 ) -> {
-                    onEvent(
-                        EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
-                            RecurringRuleModalData(
-                                initialStartDate = state.startDate,
-                                initialIntervalN = state.intervalN,
-                                initialIntervalType = state.intervalType,
-                                initialOneTime = state.oneTime
-                            )
-                        )
-                    )
+                    onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(state.scheduleModalData()))
                 }
 
                 shouldFocusTitle(titleTextFieldValue) -> {
@@ -258,7 +244,7 @@ internal fun BoxWithConstraintsScope.UI(
             }
         },
         onSelectedAccountChanged = { onEvent(EditPlannedScreenEvent.OnAccountChanged(it)) },
-        onToAccountChanged = { },
+        onToAccountChanged = { onEvent(EditPlannedScreenEvent.OnToAccountChanged(it)) },
         onAddNewAccount = {
             onEvent(
                 EditPlannedScreenEvent.OnAccountModalDataChanged(
@@ -286,16 +272,7 @@ internal fun BoxWithConstraintsScope.UI(
         },
         onCategoryChanged = {
             onEvent(EditPlannedScreenEvent.OnCategoryChanged(it))
-            onEvent(
-                EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
-                    RecurringRuleModalData(
-                        initialStartDate = state.startDate,
-                        initialIntervalN = state.intervalN,
-                        initialIntervalType = state.intervalType,
-                        initialOneTime = state.oneTime
-                    )
-                )
-            )
+            onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(state.scheduleModalData()))
         },
         dismiss = {
             onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(false))
@@ -343,7 +320,7 @@ internal fun BoxWithConstraintsScope.UI(
     ChangeTransactionTypeModal(
         title = stringResource(R.string.set_payment_type),
         visible = state.transactionTypeModalVisible,
-        includeTransferType = false,
+        includeTransferType = true,
         initialType = state.transactionType,
         dismiss = {
             onEvent(EditPlannedScreenEvent.OnTransactionTypeModalVisible(false))
@@ -357,15 +334,8 @@ internal fun BoxWithConstraintsScope.UI(
 
     RecurringRuleModal(
         modal = state.recurringRuleModalData,
-        onRuleChanged = { newStartDate, newOneTime, newIntervalN, newIntervalType ->
-            onEvent(
-                EditPlannedScreenEvent.OnRuleChanged(
-                    newStartDate,
-                    newOneTime,
-                    newIntervalN,
-                    newIntervalType
-                )
-            )
+        onRuleChanged = { schedule ->
+            onEvent(EditPlannedScreenEvent.OnRuleChanged(schedule))
 
             when {
                 shouldFocusCategory(state.category) -> {
@@ -382,6 +352,15 @@ internal fun BoxWithConstraintsScope.UI(
         }
     )
 }
+
+// The schedule dialog, opened on the plan's schedule as it is.
+private fun EditPlannedScreenState.scheduleModalData() = RecurringRuleModalData(
+    initialStartDate = startDate,
+    initialIntervalN = intervalN,
+    initialIntervalType = intervalType,
+    initialOneTime = oneTime,
+    initialEndDate = endDate,
+)
 
 private fun shouldFocusCategory(category: Category?): Boolean = category == null
 
@@ -412,6 +391,7 @@ private fun Preview() {
             screen = EditPlannedScreen(null, TransactionType.EXPENSE),
             EditPlannedScreenState(
                 oneTime = false,
+                endDate = null,
                 startDate = null,
                 intervalN = null,
                 intervalType = null,
@@ -420,6 +400,7 @@ private fun Preview() {
                 description = null,
                 category = null,
                 account = previewAccount("phyre", color = Orange, currency = "BGN"),
+                toAccount = null,
                 creditCards = persistentListOf(),
                 creditCard = null,
                 amount = 0.0,

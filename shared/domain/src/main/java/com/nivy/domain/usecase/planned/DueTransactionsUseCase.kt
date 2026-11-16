@@ -11,6 +11,7 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
+import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.transaction.TransactionAmountsUseCase
 import java.time.Instant
 import javax.inject.Inject
@@ -23,6 +24,7 @@ class DueTransactionsUseCase @Inject constructor(
     private val transactionAmountsUseCase: TransactionAmountsUseCase,
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
     private val creditCardChargeUseCase: CreditCardChargeUseCase,
+    private val exchangeUseCase: ExchangeUseCase,
     private val timeProvider: TimeProvider,
     private val databaseTransaction: DatabaseTransaction,
 ) {
@@ -34,13 +36,14 @@ class DueTransactionsUseCase @Inject constructor(
         )
 
     /**
-     * Settles a due [transaction] now; its due time becomes the time it was paid for.
+     * Settles a due [transaction] now; its due time becomes the time it was paid for. A transfer
+     * between two currencies moves its amount at the day's rate, when there's one.
      * @return the paid transaction, or null if it was already settled
      */
     suspend fun pay(transaction: Transaction): Transaction? {
         if (transaction.settled) return null
         // Paid with a credit card, it counts when the card charges it.
-        val paid = creditCardChargeUseCase.dated(transaction.paidNow())
+        val paid = creditCardChargeUseCase.dated(atTodaysRate(transaction).paidNow())
         // One database transaction: the payment and what it changes in its rule land together.
         databaseTransaction.run {
             transactionRepository.save(paid)
@@ -72,6 +75,15 @@ class DueTransactionsUseCase @Inject constructor(
             plannedPaymentsGenerator.topUp(rule)
         }
     }
+
+    private suspend fun atTodaysRate(transaction: Transaction): Transaction =
+        if (transaction is Transfer && transaction.toValue.asset != transaction.fromValue.asset) {
+            exchangeUseCase.convert(transaction.fromValue, to = transaction.toValue.asset).getOrNull()
+                ?.let { transaction.copy(toValue = it) }
+                ?: transaction
+        } else {
+            transaction
+        }
 
     private fun Transaction.paidNow(): Transaction {
         val now = timeProvider.utcNow()

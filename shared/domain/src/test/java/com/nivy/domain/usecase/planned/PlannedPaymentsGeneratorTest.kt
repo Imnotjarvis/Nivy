@@ -1,6 +1,8 @@
 package com.nivy.domain.usecase.planned
 
 import android.database.sqlite.SQLiteFullException
+import arrow.core.None
+import arrow.core.Some
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
@@ -13,17 +15,23 @@ import com.nivy.data.model.Expense
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
+import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.model.primitive.PositiveInt
 import com.nivy.data.repository.AccountRepository
+import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -61,13 +69,30 @@ class PlannedPaymentsGeneratorTest {
     }
     private val accountRepository = mockk<AccountRepository> {
         coEvery { findById(Cash.id) } returns Cash
+        coEvery { findById(Savings.id) } returns Savings
+    }
+
+    // Removes the rules that end.
+    private val ruleRepository = mockk<PlannedPaymentRuleRepository>(relaxed = true)
+
+    // Today's rate from euros to dollars: 1.10.
+    private val exchangeUseCase = mockk<ExchangeUseCase> {
+        coEvery { convert(any(), Usd) } answers {
+            Some(PositiveValue(PositiveDouble.unsafe(firstArg<PositiveValue>().amount.value * 1.1), Usd))
+        }
     }
     private val timeProvider = mockk<TimeProvider> {
         every { utcNow() } returns date(2026, 1, 1)
         every { getZoneId() } returns ZoneOffset.UTC
     }
-    private val generator =
-        PlannedPaymentsGenerator(transactionRepository, accountRepository, timeProvider, databaseTransaction)
+    private val generator = PlannedPaymentsGenerator(
+        transactionRepository,
+        accountRepository,
+        ruleRepository,
+        exchangeUseCase,
+        timeProvider,
+        databaseTransaction,
+    )
 
     @Test
     fun `monthly dates keep the start date's day after a short month`() = runTest {
@@ -172,6 +197,102 @@ class PlannedPaymentsGeneratorTest {
         // then: new ones start the day after the last paid one, and the skipped one stays gone
         unpaidDates().first() shouldBe date(2026, 3, 14)
         unpaidDates().size shouldBe 72
+        coVerify(exactly = 0) { ruleRepository.deleteById(any()) }
+    }
+
+    @Test
+    fun `a rule with an end date plans nothing after its last day`() = runTest {
+        // An end at noon: the occurrence at midnight that day is still in.
+        generator.generate(monthlyFrom(date(2026, 1, 1)).copy(endDate = noon(2026, 3, 1)), previous = null)
+
+        unpaidDates() shouldBe listOf(date(2026, 1, 1), date(2026, 2, 1), date(2026, 3, 1))
+    }
+
+    @Test
+    fun `moving the end earlier drops the payments after it, moving it later adds them`() = runTest {
+        // given
+        val rule = monthlyFrom(date(2026, 1, 1)).copy(endDate = noon(2026, 6, 1))
+        generator.generate(rule, previous = null)
+
+        // when
+        val earlier = rule.copy(endDate = noon(2026, 2, 1))
+        generator.generate(earlier, previous = rule)
+
+        // then
+        unpaidDates() shouldBe listOf(date(2026, 1, 1), date(2026, 2, 1))
+
+        // when
+        generator.generate(earlier.copy(endDate = noon(2026, 4, 1)), previous = earlier)
+
+        // then
+        unpaidDates() shouldBe listOf(date(2026, 1, 1), date(2026, 2, 1), date(2026, 3, 1), date(2026, 4, 1))
+    }
+
+    @Test
+    fun `a rule paid up to its end is removed once nothing is left to top up`() = runTest {
+        // given: all three payments up to its end paid
+        val rule = monthlyFrom(date(2026, 1, 1)).copy(endDate = noon(2026, 3, 1))
+        generator.generate(rule, previous = null)
+        listOf(date(2026, 1, 1), date(2026, 2, 1), date(2026, 3, 1)).forEach(::pay)
+
+        // when
+        generator.topUp(rule)
+
+        // then
+        unpaidDates() shouldBe emptyList()
+        coVerify { ruleRepository.deleteById(rule.id) }
+    }
+
+    @Test
+    fun `a rule whose last payments to its end were skipped is removed`() = runTest {
+        // given: the only payment before its end skipped, as a skip deletes it
+        val rule = monthlyFrom(date(2026, 1, 1)).copy(endDate = noon(2026, 1, 15))
+        generator.generate(rule, previous = null)
+        stored.clear()
+
+        // when
+        generator.topUp(rule)
+
+        // then
+        coVerify { ruleRepository.deleteById(rule.id) }
+    }
+
+    @Test
+    fun `an end moved before what's left to pay removes the rule`() = runTest {
+        // given: January paid, then the end moved to before February
+        val rule = monthlyFrom(date(2026, 1, 1))
+        generator.generate(rule, previous = null)
+        pay(date(2026, 1, 1))
+
+        // when
+        val ended = rule.copy(endDate = noon(2026, 1, 20))
+        generator.generate(ended, previous = rule)
+
+        // then
+        unpaidDates() shouldBe emptyList()
+        coVerify { ruleRepository.deleteById(rule.id) }
+    }
+
+    @Test
+    fun `a planned transfer moves its amount to its account, what arrives at today's rate`() = runTest {
+        generator.generate(transferFrom(date(2026, 1, 1)), previous = null)
+
+        val first = stored.minBy { it.time } as Transfer
+        first.fromAccount shouldBe Cash.id
+        first.fromValue shouldBe PositiveValue(PositiveDouble.unsafe(10.0), AssetCode.unsafe("EUR"))
+        first.toAccount shouldBe Savings.id
+        first.toValue.asset shouldBe Usd
+        first.toValue.amount.value shouldBe (11.0 plusOrMinus 0.001)
+        first.settled shouldBe false
+    }
+
+    @Test
+    fun `without a rate, a planned transfer's estimate is its own amount`() = runTest {
+        coEvery { exchangeUseCase.convert(any(), any()) } returns None
+
+        generator.generate(transferFrom(date(2026, 1, 1)), previous = null)
+
+        (stored.first() as Transfer).toValue shouldBe PositiveValue(PositiveDouble.unsafe(10.0), Usd)
     }
 
     @Test
@@ -197,17 +318,21 @@ class PlannedPaymentsGeneratorTest {
 
     private fun monthlyFrom(start: Instant) = rule(start, IntervalType.MONTH)
     private fun dailyFrom(start: Instant) = rule(start, IntervalType.DAY)
+    private fun transferFrom(start: Instant) =
+        monthlyFrom(start).copy(type = TransactionType.TRANSFER, toAccount = Savings.id)
 
     private fun rule(start: Instant, type: IntervalType) = PlannedPaymentRule(
         id = PlannedPaymentRuleId(UUID.randomUUID()),
         type = TransactionType.EXPENSE,
         account = Cash.id,
+        toAccount = null,
         amount = PositiveDouble.unsafe(10.0),
         category = null,
         title = null,
         description = null,
         startDate = start,
         interval = PlannedPaymentInterval(PositiveInt.unsafe(1), type),
+        endDate = null,
         creditCard = null,
     )
 
@@ -224,7 +349,16 @@ class PlannedPaymentsGeneratorTest {
             orderNum = 0.0,
         )
 
+        val Usd = AssetCode.unsafe("USD")
+        val Savings = Cash.copy(
+            id = AccountId(UUID.randomUUID()),
+            name = NotBlankTrimmedString.unsafe("Savings"),
+            asset = Usd,
+        )
+
         fun date(year: Int, month: Int, day: Int): Instant =
             LocalDate.of(year, month, day).atStartOfDay(ZoneOffset.UTC).toInstant()
+
+        fun noon(year: Int, month: Int, day: Int): Instant = date(year, month, day).plusSeconds(12 * 3600L)
     }
 }

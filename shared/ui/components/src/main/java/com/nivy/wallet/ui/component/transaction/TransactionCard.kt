@@ -202,10 +202,11 @@ fun TransactionCard(
         }
 
         if (!transaction.settled) {
-            // Skip and Pay or Get, as far in from the card's sides as the card ends below them:
-            // their corners, the card's less that, run parallel to the card's.
+            // Skip and Pay, Get or Transfer, as far in from the card's sides as the card ends below
+            // them: their corners, the card's less that, run parallel to the card's. An income's in
+            // its green, the others in the text's color.
             Spacer(Modifier.height(16.dp))
-            val isExpense = type == TransactionType.EXPENSE
+            val isIncome = type == TransactionType.INCOME
             Row {
                 NivyButton(
                     modifier = Modifier
@@ -229,12 +230,18 @@ fun TransactionCard(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = CardInset),
-                    text = if (isExpense) stringResource(R.string.pay) else stringResource(R.string.get),
+                    text = stringResource(
+                        when (type) {
+                            TransactionType.INCOME -> R.string.get
+                            TransactionType.EXPENSE -> R.string.pay
+                            TransactionType.TRANSFER -> R.string.transfer
+                        }
+                    ),
                     wrapContentMode = false,
                     shape = nestedShape(CardInset),
-                    backgroundColor = if (isExpense) MaterialTheme.colorScheme.onSurface else Green,
+                    backgroundColor = if (isIncome) Green else MaterialTheme.colorScheme.onSurface,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = if (isExpense) MaterialTheme.colorScheme.surface else White,
+                        color = if (isIncome) White else MaterialTheme.colorScheme.surface,
                         fontWeight = FontWeight.Bold
                     )
                 ) {

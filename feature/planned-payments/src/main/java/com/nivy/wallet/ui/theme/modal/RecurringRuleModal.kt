@@ -60,7 +60,18 @@ data class RecurringRuleModalData(
     val initialIntervalN: Int?,
     val initialIntervalType: IntervalType?,
     val initialOneTime: Boolean = false,
+    // The last day a repeating plan can fall on; null when it doesn't end.
+    val initialEndDate: LocalDateTime? = null,
     val id: UUID = UUID.randomUUID()
+)
+
+/** When a plan falls: once on [startDate], or every [intervalN] [intervalType]s from it until [endDate]. */
+data class PlanSchedule(
+    val startDate: LocalDateTime,
+    val oneTime: Boolean,
+    val intervalN: Int?,
+    val intervalType: IntervalType?,
+    val endDate: LocalDateTime?,
 )
 
 @Suppress("ParameterNaming")
@@ -69,7 +80,7 @@ internal fun BoxWithConstraintsScope.RecurringRuleModal(
     modal: RecurringRuleModalData?,
 
     dismiss: () -> Unit,
-    onRuleChanged: (LocalDateTime, oneTime: Boolean, Int?, IntervalType?) -> Unit,
+    onRuleChanged: (PlanSchedule) -> Unit,
 ) {
     // Closing clears the data: the dialog keeps showing the last while it fades out.
     val shown = dialogData(modal)
@@ -86,6 +97,9 @@ internal fun BoxWithConstraintsScope.RecurringRuleModal(
     var intervalType by remember(shown) {
         mutableStateOf(shown?.initialIntervalType ?: IntervalType.MONTH)
     }
+    var endDate by remember(shown) {
+        mutableStateOf(shown?.initialEndDate)
+    }
 
     val modalScrollState = rememberScrollState()
 
@@ -97,14 +111,18 @@ internal fun BoxWithConstraintsScope.RecurringRuleModal(
         primaryAction = {
             ModalSet(
                 modifier = Modifier.testTag("recurringModalSet"),
-                enabled = validate(oneTime, intervalN, intervalType)
+                enabled = validate(oneTime, intervalN, intervalType, startDate, endDate)
             ) {
                 dismiss()
                 onRuleChanged(
-                    startDate,
-                    oneTime,
-                    intervalN,
-                    intervalType
+                    PlanSchedule(
+                        startDate = startDate,
+                        oneTime = oneTime,
+                        intervalN = intervalN,
+                        intervalType = intervalType,
+                        // Paid once, it has nothing to end.
+                        endDate = endDate.takeUnless { oneTime },
+                    )
                 )
             }
         }
@@ -148,18 +166,26 @@ internal fun BoxWithConstraintsScope.RecurringRuleModal(
                 },
                 onSetIntervalType = {
                     intervalType = it
+                },
+                endDate = endDate,
+                onSetEndDate = {
+                    endDate = it
                 }
             )
         }
     }
 }
 
+// An end, when there's one, falls on the start's day or after it.
 private fun validate(
     oneTime: Boolean,
     intervalN: Int?,
-    intervalType: IntervalType?
+    intervalType: IntervalType?,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime?,
 ): Boolean {
-    return oneTime || intervalN != null && intervalN > 0 && intervalType != null
+    return oneTime || intervalN != null && intervalN > 0 && intervalType != null &&
+        (endDate == null || !endDate.toLocalDate().isBefore(startDate.toLocalDate()))
 }
 
 @Composable
@@ -167,6 +193,22 @@ private fun TimesSelector(
     oneTime: Boolean,
 
     onSetOneTime: (Boolean) -> Unit
+) {
+    TwoChoices(
+        first = stringResource(R.string.one_time),
+        second = stringResource(R.string.multiple_times),
+        firstSelected = oneTime,
+        onSelectFirst = onSetOneTime,
+    )
+}
+
+// Two segments side by side, one of them selected.
+@Composable
+private fun TwoChoices(
+    first: String,
+    second: String,
+    firstSelected: Boolean,
+    onSelectFirst: (Boolean) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -178,19 +220,19 @@ private fun TimesSelector(
         Spacer(Modifier.width(8.dp))
 
         SegmentedButton(
-            label = stringResource(R.string.one_time),
-            selected = oneTime,
+            label = first,
+            selected = firstSelected,
         ) {
-            onSetOneTime(true)
+            onSelectFirst(true)
         }
 
         Spacer(Modifier.width(8.dp))
 
         SegmentedButton(
-            label = stringResource(R.string.multiple_times),
-            selected = !oneTime,
+            label = second,
+            selected = !firstSelected,
         ) {
-            onSetOneTime(false)
+            onSelectFirst(false)
         }
 
         Spacer(Modifier.width(8.dp))
@@ -222,7 +264,9 @@ private fun MultipleTimes(
 
     onSetStartDate: (LocalDateTime) -> Unit,
     onSetIntervalN: (Int) -> Unit,
-    onSetIntervalType: (IntervalType) -> Unit
+    onSetIntervalType: (IntervalType) -> Unit,
+    endDate: LocalDateTime?,
+    onSetEndDate: (LocalDateTime?) -> Unit,
 ) {
     Spacer(Modifier.height(40.dp))
 
@@ -278,6 +322,42 @@ private fun MultipleTimes(
         onSetIntervalType = onSetIntervalType
     )
 
+    Spacer(Modifier.height(32.dp))
+
+    NivyDividerLine(
+        modifier = Modifier.padding(horizontal = 24.dp)
+    )
+
+    Spacer(Modifier.height(32.dp))
+
+    Text(
+        modifier = Modifier
+            .padding(start = 24.dp),
+        text = stringResource(R.string.ends),
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.ExtraBold
+        )
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    // A new end falls a year after the start, to be moved from there.
+    TwoChoices(
+        first = stringResource(R.string.ends_never),
+        second = stringResource(R.string.ends_on_a_date),
+        firstSelected = endDate == null,
+        onSelectFirst = { never -> onSetEndDate(if (never) null else endDate ?: startDate.plusYears(1)) },
+    )
+
+    if (endDate != null) {
+        Spacer(Modifier.height(24.dp))
+
+        DateRow(dateTime = endDate) {
+            onSetEndDate(it)
+        }
+    }
+
     Spacer(Modifier.height(48.dp))
 }
 
@@ -298,16 +378,20 @@ private fun DateRow(
 
         val context = LocalContext.current
 
+        // The date takes the room the button leaves: a long one, as a later year's, wraps beside it.
         Column(
-            modifier = Modifier.clickableNoIndication(rememberInteractionSource()) {
-                (context as RootScreen).pickDateAtNoon(dateTime.toLocalDate(), onDatePicked)
-            }
+            modifier = Modifier
+                .weight(1f)
+                .clickableNoIndication(rememberInteractionSource()) {
+                    (context as RootScreen).pickDateAtNoon(dateTime.toLocalDate(), onDatePicked)
+                }
         ) {
             val date = dateTime.toLocalDate()
             val closeDay = date.closeDay()
-            // The full weekday name, then the date in the format the user chose.
+            // The full weekday name, then the date in the format the user chose, which stays on
+            // one line when the two don't fit on one.
             val weekdayAndDate = date.formatLocal("EEEE") + ", " + with(LocalTimeFormatter.current) {
-                dateTime.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+                dateTime.format(TimeFormatter.Style.DateOnly(includeWeekDay = false)).replace(' ', '\u00A0')
             }
 
             Text(
@@ -332,7 +416,6 @@ private fun DateRow(
         }
 
         Spacer(Modifier.width(24.dp))
-        Spacer(Modifier.weight(1f))
 
         NivyCircleButton(
             modifier = Modifier
@@ -372,7 +455,7 @@ private fun Preview_oneTime() {
                     initialOneTime = true
                 ),
                 dismiss = {},
-                onRuleChanged = { _, _, _, _ -> }
+                onRuleChanged = {}
             )
         }
     }
@@ -391,7 +474,7 @@ private fun Preview_multipleTimes() {
                     initialOneTime = false
                 ),
                 dismiss = {},
-                onRuleChanged = { _, _, _, _ -> }
+                onRuleChanged = {}
             )
         }
     }

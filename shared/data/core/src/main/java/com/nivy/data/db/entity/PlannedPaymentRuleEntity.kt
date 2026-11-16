@@ -39,10 +39,18 @@ data class PlannedPaymentRuleEntity(
     val title: String? = null,
     @SerialName("description")
     val description: String? = null,
-    // The credit card a planned expense is paid with; null when it's paid from the account.
+    // The credit card a planned expense or transfer is paid with; null when it's paid from the account.
     @SerialName("creditCardId")
     @Serializable(with = KSerializerUUID::class)
     val creditCardId: UUID? = null,
+    // The account a planned transfer goes to; null for an income or an expense.
+    @SerialName("toAccountId")
+    @Serializable(with = KSerializerUUID::class)
+    val toAccountId: UUID? = null,
+    // The last day a repeating plan can fall on; null when it doesn't end.
+    @SerialName("endDate")
+    @Serializable(with = KSerializerInstant::class)
+    val endDate: Instant? = null,
 
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")

@@ -4,27 +4,22 @@ import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CreditCard
-import com.nivy.base.model.IntervalType
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
+import com.nivy.wallet.ui.theme.modal.PlanSchedule
 import com.nivy.wallet.ui.theme.modal.RecurringRuleModalData
 import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
-import java.time.LocalDateTime
 
 sealed interface EditPlannedScreenEvent {
-    data class OnRuleChanged(
-        val startDate: LocalDateTime,
-        val oneTime: Boolean,
-        val intervalN: Int?,
-        val intervalType: IntervalType?
-    ) : EditPlannedScreenEvent
+    data class OnRuleChanged(val schedule: PlanSchedule) : EditPlannedScreenEvent
 
     data class OnAmountChanged(val newAmount: Double) : EditPlannedScreenEvent
     data class OnTitleChanged(val newTitle: String?) : EditPlannedScreenEvent
     data class OnDescriptionChanged(val newDescription: String?) : EditPlannedScreenEvent
     data class OnCategoryChanged(val newCategory: Category?) : EditPlannedScreenEvent
     data class OnAccountChanged(val newAccount: Account) : EditPlannedScreenEvent
+    data class OnToAccountChanged(val newAccount: Account) : EditPlannedScreenEvent
     data class OnCreditCardChanged(val creditCard: CreditCard?) : EditPlannedScreenEvent
     data class OnSetTransactionType(val newTransactionType: TransactionType) :
         EditPlannedScreenEvent

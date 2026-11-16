@@ -47,7 +47,7 @@ fun BoxWithConstraintsScope.PlannedPaymentsScreen() {
 }
 
 @Composable
-private fun BoxWithConstraintsScope.UI(
+internal fun BoxWithConstraintsScope.UI(
     state: PlannedPaymentsScreenState,
     onEvent: (PlannedPaymentsScreenEvent) -> Unit = {}
 ) {

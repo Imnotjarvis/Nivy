@@ -1,5 +1,6 @@
 package com.nivy.data.dao
 
+import com.nivy.base.model.IntervalType
 import com.nivy.base.model.LoanType
 import com.nivy.base.model.TransactionType
 import com.nivy.data.db.dao.fake.FakeBudgetDao
@@ -89,6 +90,33 @@ class FakeDaosMatchSqlTest {
     }
 
     @Test
+    fun `an account's payments to come are its own and the transfers going to it`() = runTest {
+        val dao = FakeTransactionDao()
+        val account = UUID.randomUUID()
+        val own = transaction(dueDate = Later).copy(accountId = account)
+        val incoming = transaction(dueDate = Later).copy(type = TransactionType.TRANSFER, toAccountId = account)
+        dao.save(own)
+        dao.save(incoming)
+        dao.save(transaction(dueDate = Later))
+
+        dao.findAllDueToBetweenByAccount(Now, Later, account).toSet() shouldBe setOf(own, incoming)
+    }
+
+    @Test
+    fun `deleting an account's planned payments takes the transfers into it too`() = runTest {
+        val dao = FakePlannedPaymentDao()
+        val account = UUID.randomUUID()
+        val other = rule(accountId = UUID.randomUUID())
+        dao.save(rule(accountId = account))
+        dao.save(rule(accountId = UUID.randomUUID()).copy(type = TransactionType.TRANSFER, toAccountId = account))
+        dao.save(other)
+
+        dao.deleteAllByAccountId(account)
+
+        dao.findAll() shouldBe listOf(other)
+    }
+
+    @Test
     fun `deleting a planned payment rule's unpaid payments keeps the paid ones`() = runTest {
         val dao = FakeTransactionDao()
         val ruleId = UUID.randomUUID()
@@ -166,6 +194,16 @@ class FakeDaosMatchSqlTest {
         recurringRuleId = recurringRuleId,
         loanId = loanId,
         loanRecordId = loanRecordId,
+    )
+
+    private fun rule(accountId: UUID) = PlannedPaymentRuleEntity(
+        startDate = Now,
+        intervalN = 1,
+        intervalType = IntervalType.MONTH,
+        oneTime = false,
+        type = TransactionType.EXPENSE,
+        accountId = accountId,
+        amount = 10.0,
     )
 
     private companion object {

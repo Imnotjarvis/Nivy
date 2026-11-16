@@ -48,6 +48,7 @@ private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
                 canSave = false,
                 hasChanges = false,
                 displayLoanHelper = EditTransactionDisplayLoan(),
+                repeatable = false,
                 backgroundProcessingStarted = false,
                 customExchangeRateState = CustomExchangeRateState(),
                 tags = persistentListOf(),

@@ -259,10 +259,26 @@ private fun TransferHeader(
     val toAccount = remember(accounts, transaction) {
         accounts.find { it.id == transaction.toAccount }
     }
-    val accountColors = shouldShowAccountSpecificColorInTransactions
+    TransferAccounts(
+        account = account,
+        toAccount = toAccount,
+        accountColors = shouldShowAccountSpecificColorInTransactions,
+    )
+}
 
+/**
+ * A transfer's two accounts in one pill: the one it leaves, an arrow, the one it goes to. With
+ * [accountColors], each half takes its account's color. A deleted account reads as deleted.
+ */
+@Composable
+fun TransferAccounts(
+    account: Account?,
+    toAccount: Account?,
+    accountColors: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .then(
                 if (accountColors && account != null && toAccount != null) {
                     Modifier

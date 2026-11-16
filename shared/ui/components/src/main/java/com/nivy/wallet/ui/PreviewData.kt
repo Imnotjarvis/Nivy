@@ -102,10 +102,13 @@ fun previewPlannedPaymentRule(
     startDate: Instant,
     type: TransactionType,
     interval: Pair<Int, IntervalType>? = null,
+    toAccount: AccountId? = null,
+    endDate: Instant? = null,
 ): PlannedPaymentRule = PlannedPaymentRule(
     id = PlannedPaymentRuleId(UUID.randomUUID()),
     type = type,
     account = account,
+    toAccount = toAccount,
     amount = PositiveDouble.unsafe(amount),
     category = category,
     title = NotBlankTrimmedString.unsafe(title),
@@ -114,6 +117,7 @@ fun previewPlannedPaymentRule(
     interval = interval?.let { (n, intervalType) ->
         PlannedPaymentInterval(n = PositiveInt.unsafe(n), type = intervalType)
     },
+    endDate = endDate,
     creditCard = null,
 )
 

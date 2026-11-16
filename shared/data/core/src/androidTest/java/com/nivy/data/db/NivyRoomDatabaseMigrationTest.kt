@@ -31,6 +31,32 @@ class NivyRoomDatabaseMigrationTest {
     )
 
     @Test
+    fun migrate137to138_PlannedTransfersAndEndDates() {
+        val rule = UUID.randomUUID().toString()
+        helper.createDatabase(TestDb, 137).apply {
+            execSQL(
+                """
+                INSERT INTO planned_payment_rules (startDate, intervalN, intervalType, oneTime, type,
+                accountId, amount, isSynced, isDeleted, id)
+                VALUES (1761933600000, 1, 'MONTH', 0, 'EXPENSE', ?, 800.0, 0, 0, ?)
+                """.trimIndent(),
+                arrayOf<Any>(UUID.randomUUID().toString(), rule)
+            )
+            close()
+        }
+
+        // Two new columns: a plan from before goes to no account and doesn't end.
+        val newDb = helper.runMigrationsAndValidate(TestDb, 138, true)
+
+        newDb.query("SELECT toAccountId, endDate FROM planned_payment_rules WHERE id = ?", arrayOf(rule)).use {
+            it.moveToFirst()
+            it.isNull(0) shouldBe true
+            it.isNull(1) shouldBe true
+        }
+        newDb.close()
+    }
+
+    @Test
     fun migrate136to137_AccountValues() {
         helper.createDatabase(TestDb, 136).close()
 

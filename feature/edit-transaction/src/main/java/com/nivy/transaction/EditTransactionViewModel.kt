@@ -95,6 +95,7 @@ class EditTransactionViewModel @Inject constructor(
     private var amount by mutableDoubleStateOf(0.0)
     private var hasChanges by mutableStateOf(false)
     private var displayLoanHelper by mutableStateOf(EditTransactionDisplayLoan())
+    private var repeatable by mutableStateOf(false)
 
     private var paidHistory: Instant? = null
 
@@ -175,6 +176,7 @@ class EditTransactionViewModel @Inject constructor(
             canSave = amount > 0.0,
             hasChanges = hasChanges,
             displayLoanHelper = displayLoanHelper,
+            repeatable = repeatable,
             backgroundProcessingStarted = backgroundProcessingStarted,
             customExchangeRateState = rateCard.state,
             tags = tags.all,
@@ -242,6 +244,9 @@ class EditTransactionViewModel @Inject constructor(
         rateCard.show(transaction, account = account, toAccount = toAccount, currency = currency)
 
         displayLoanHelper = transactionLoanDisplay.getDisplayLoanHelper(trans = transaction)
+        // Saved and paid, in no plan and no loan: a plan can repeat it.
+        repeatable = editMode && transaction.dueDate == null && transaction.recurringRuleId == null &&
+            transaction.loanId == null && transaction.loanRecordId == null
     }
 
     private fun onAmountChanged(newAmount: Double) {

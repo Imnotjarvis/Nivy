@@ -20,11 +20,15 @@ data class EditPlannedScreenState(
     val intervalN: Int?,
     val intervalType: IntervalType?,
     val oneTime: Boolean,
+    // The last day a repeating plan can fall on; null when it doesn't end.
+    val endDate: LocalDateTime?,
     val initialTitle: String?,
     val description: String?,
     val categories: ImmutableList<Category>,
     val accounts: ImmutableList<Account>,
     val account: Account?,
+    // The account a transfer goes to; null for an income or an expense.
+    val toAccount: Account?,
     // The account's credit cards a planned expense can be paid with, and the one it's paid with.
     val creditCards: ImmutableList<CreditCard>,
     val creditCard: CreditCard?,

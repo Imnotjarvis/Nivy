@@ -92,8 +92,10 @@ import com.nivy.data.db.migration.Migration135to136_CreditCards
         AutoMigration(from = 134, to = 135),
         // 137: the values entered for investment accounts.
         AutoMigration(from = 136, to = 137),
+        // 138: a planned transfer's destination account; a repeating plan's end date.
+        AutoMigration(from = 137, to = 138),
     ],
-    version = 137,
+    version = 138,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)

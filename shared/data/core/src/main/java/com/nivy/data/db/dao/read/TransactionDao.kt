@@ -169,9 +169,11 @@ interface TransactionDao {
         endDate: Instant,
     ): List<TransactionEntity>
 
+    // An account's: what it pays or gets, and the transfers going to it.
     @Query(
         "SELECT * FROM transactions " +
-            "WHERE dueDate >= :startDate AND dueDate <= :endDate AND accountId = :accountId " +
+            "WHERE dueDate >= :startDate AND dueDate <= :endDate " +
+            "AND (accountId = :accountId OR toAccountId = :accountId) " +
             "ORDER BY dateTime DESC, dueDate ASC"
     )
     suspend fun findAllDueToBetweenByAccount(

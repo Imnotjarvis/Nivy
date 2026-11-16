@@ -83,6 +83,33 @@ class TransactionsPaparazziTest(
     }
 
     @Test
+    fun `snapshot a planned transfer to come`() {
+        val dark = theme == PaparazziTheme.Dark
+        snapshot(theme, minimal = colors == Colors.Minimal) {
+            NivyPreview(theme = if (dark) Theme.DARK else Theme.LIGHT, timeProvider = FixedTime) {
+                LazyColumn {
+                    transactions(
+                        baseData = AppBaseData("EUR", persistentListOf(Bank, Savings), persistentListOf()),
+                        upcoming = DueSection(
+                            trns = persistentListOf(savings),
+                            expanded = true,
+                            stats = IncomeExpensePair(income = BigDecimal.ZERO, expense = BigDecimal.ZERO),
+                        ),
+                        overdue = null,
+                        history = persistentListOf(),
+                        emptyStateTitle = "",
+                        emptyStateText = "",
+                        shouldShowAccountSpecificColorInTransactions = false,
+                        onPayOrGet = {},
+                        setUpcomingExpanded = {},
+                        setOverdueExpanded = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun `snapshot a transfer to another currency, to an account deleted since`() {
         val dark = theme == PaparazziTheme.Dark
         snapshot(theme, minimal = colors == Colors.Minimal) {
@@ -151,6 +178,20 @@ class TransactionsPaparazziTest(
         account = Bank.id,
     )
 
+    private val savings = Transfer(
+        id = TransactionId(UUID(0, 4)),
+        title = NotBlankTrimmedString.unsafe("Savings"),
+        description = null,
+        category = null,
+        time = Instant.parse("2026-12-01T09:00:00Z"),
+        settled = false,
+        metadata = NoMetadata,
+        fromAccount = Bank.id,
+        fromValue = eur(200.0),
+        toAccount = Savings.id,
+        toValue = eur(200.0),
+    )
+
     private val dinner = Expense(
         id = TransactionId(UUID(0, 3)),
         title = NotBlankTrimmedString.unsafe("Dinner out"),
@@ -168,6 +209,8 @@ class TransactionsPaparazziTest(
     private companion object {
         // Stored colors are the palette's own: minimal colors turn them grey where they're drawn.
         val Bank = previewAccount("Bank", color = Palette.Blue, icon = "bank", currency = "EUR", id = UUID(0, 10))
+        val Savings =
+            previewAccount("Savings", color = Palette.Green, icon = "safe", currency = "EUR", id = UUID(0, 12))
 
         val Holiday = Tag(
             id = TagId(UUID(0, 20)),

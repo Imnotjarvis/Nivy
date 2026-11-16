@@ -6,6 +6,7 @@ import com.nivy.data.model.Transaction
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import java.time.Instant
 import java.util.UUID
 
 data object MainScreen : Screen {
@@ -67,6 +68,11 @@ data class PieChartStatisticScreen(
  */
 data class BudgetPage(val budget: Budget, val month: String, val range: ClosedTimeRange)
 
+/**
+ * The planned payment editor: the rule [plannedPaymentRuleId], or a new one filled with the rest.
+ * A new one made from a saved transaction, [repeatedTransactionId], starts on its date,
+ * [startDate], and counts it as its first payment once saved.
+ */
 data class EditPlannedScreen(
     val plannedPaymentRuleId: UUID?,
     val type: TransactionType,
@@ -75,6 +81,10 @@ data class EditPlannedScreen(
     val categoryId: UUID? = null,
     val title: String? = null,
     val description: String? = null,
+    val toAccountId: UUID? = null,
+    val creditCardId: UUID? = null,
+    val startDate: Instant? = null,
+    val repeatedTransactionId: UUID? = null,
 ) : Screen {
     override val isLegacy: Boolean
         get() = true

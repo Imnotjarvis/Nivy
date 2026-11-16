@@ -179,6 +179,21 @@ class AccountCategoryDeletionTest {
         }
 
     @Test
+    fun `a planned transfer to come with it goes, as its planned payment does`() = runTest {
+        // given: a transfer from Revolut into the deleted account, planned and not paid yet
+        val planned = transfer(revolut, 60.0, oldBank, 50.0).copy(settled = false)
+        transactions = listOf(planned)
+
+        // when
+        deletion.deleteAccount(oldBank.id.value)
+
+        // then: it's not kept on Revolut as an expense, nor left a transfer to nowhere
+        saved shouldBe emptyList()
+        coVerify { transactionRepository.deleteById(planned.id) }
+        coVerify { plannedPaymentRuleRepository.deleteAllByAccountId(oldBank.id) }
+    }
+
+    @Test
     fun `deleting an account that's already gone keeps no transfer`() = runTest {
         // given
         val gone = AccountId(UUID.randomUUID())

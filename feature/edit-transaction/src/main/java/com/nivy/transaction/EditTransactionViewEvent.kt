@@ -44,6 +44,8 @@ data class EditTransactionViewState(
     // A planned payment was changed since it was opened: its button is Save, and Pay again once saved.
     val hasChanges: Boolean,
     val displayLoanHelper: EditTransactionDisplayLoan,
+    // Saved and paid, in no plan and no loan: a planned payment can repeat it.
+    val repeatable: Boolean,
     val backgroundProcessingStarted: Boolean,
     val customExchangeRateState: CustomExchangeRateState,
     val tags: ImmutableList<Tag>,

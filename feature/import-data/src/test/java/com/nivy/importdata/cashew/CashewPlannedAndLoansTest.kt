@@ -7,6 +7,7 @@ import com.nivy.base.model.TransactionType
 import com.nivy.data.model.ExchangeRate
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.importdata.cashew.LeftOut.Reason
@@ -15,7 +16,6 @@ import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 import java.time.Instant
-import java.time.LocalDate
 
 class CashewPlannedAndLoansTest {
 
@@ -52,7 +52,7 @@ class CashewPlannedAndLoansTest {
     }
 
     @Test
-    fun `a subscription that ends in Cashew repeats in Nivy, and is listed`() {
+    fun `a subscription that ends in Cashew ends there in Nivy too`() {
         // when
         val plan = plan {
             wallet("w1", "Bank")
@@ -61,10 +61,10 @@ class CashewPlannedAndLoansTest {
         }
 
         // then
-        plan.plannedPayments.single().interval?.type shouldBe IntervalType.MONTH
-        plan.leftOut shouldBe listOf(
-            LeftOut(Reason.EndsInCashew, listOf(LeftOut.Item("Music", LocalDate.of(2027, 3, 1)))),
-        )
+        val rule = plan.plannedPayments.single()
+        rule.interval?.type shouldBe IntervalType.MONTH
+        rule.endDate shouldBe Instant.parse("2027-03-01T00:00:00Z")
+        plan.leftOut.shouldBeEmpty()
     }
 
     @Test
@@ -122,27 +122,62 @@ class CashewPlannedAndLoansTest {
     }
 
     @Test
-    fun `a planned transfer isn't planned, and is listed`() {
+    fun `a planned transfer is planned, from the wallet it leaves to the one it goes to`() {
         // when
         val plan = plan {
             wallet("w1", "Bank")
             wallet("w2", "Savings")
-            transaction("in", 100.0, wallet = "w2", category = "0", paid = false, type = CashewType.Repetitive)
-            transaction(
-                "out",
-                -100.0,
-                wallet = "w1",
-                category = "0",
-                paired = "in",
-                paid = false,
-                type = CashewType.Repetitive,
-                name = "Savings",
-            )
+            plannedTransfer("out", "in", date = "2026-11-20T09:00:00Z")
         }
 
         // then
-        plan.plannedPayments.shouldBeEmpty()
-        plan.leftOut.single().reason shouldBe Reason.PlannedTransfer
+        val (bank, savings) = plan.accounts
+        val rule = plan.plannedPayments.single()
+        rule.type shouldBe TransactionType.TRANSFER
+        rule.account shouldBe bank.id
+        rule.toAccount shouldBe savings.id
+        rule.amount.value shouldBe 100.0
+        rule.title?.value shouldBe "Savings"
+        rule.startDate shouldBe Instant.parse("2026-11-20T09:00:00Z")
+        rule.interval?.type shouldBe IntervalType.MONTH
+        plan.leftOut.shouldBeEmpty()
+    }
+
+    @Test
+    fun `a planned transfer's paid ones are transfers in its planned transfer`() {
+        // when: October's paid, November's to come
+        val plan = plan {
+            wallet("w1", "Bank")
+            wallet("w2", "Savings")
+            plannedTransfer("out", "in", date = "2026-10-20T09:00:00Z", paid = true)
+            plannedTransfer("out::predict::1", "in::predict::1", date = "2026-11-20T09:00:00Z")
+        }
+
+        // then
+        val rule = plan.plannedPayments.single()
+        rule.startDate shouldBe Instant.parse("2026-11-20T09:00:00Z")
+        val paid = plan.transactions.single() as Transfer
+        paid.metadata.recurringRuleId shouldBe rule.id.value
+        paid.metadata.paidForDateTime shouldBe Instant.parse("2026-10-20T09:00:00Z")
+    }
+
+    // A monthly transfer of 100 from Bank to Savings, its two halves as Cashew writes them.
+    private fun CashewFile.plannedTransfer(out: String, into: String, date: String, paid: Boolean = false) {
+        listOf(into to 100.0, out to -100.0).forEach { (pk, amount) ->
+            transaction(
+                pk,
+                amount,
+                wallet = if (amount > 0) "w2" else "w1",
+                category = "0",
+                date = date,
+                name = "Savings",
+                paid = paid,
+                type = CashewType.Repetitive,
+                paired = if (amount > 0) null else into,
+                repeat = CashewRepeat.Monthly,
+                repeatEvery = 1,
+            )
+        }
     }
 
     @Test

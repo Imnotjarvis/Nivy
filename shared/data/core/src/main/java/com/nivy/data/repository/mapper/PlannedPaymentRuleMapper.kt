@@ -19,11 +19,18 @@ import javax.inject.Inject
 
 class PlannedPaymentRuleMapper @Inject constructor() {
     fun PlannedPaymentRuleEntity.toDomain(): Either<String, PlannedPaymentRule> = either {
-        ensure(type != TransactionType.TRANSFER) { "Planned payment $id is a transfer" }
+        // A transfer goes to another account; an income's or an expense's has no meaning.
+        val toAccount = if (type == TransactionType.TRANSFER) {
+            ensureNotNull(toAccountId) { "Planned transfer $id has no account to go to" }
+                .also { ensure(it != accountId) { "Planned transfer $id goes to the account it leaves" } }
+        } else {
+            null
+        }
         PlannedPaymentRule(
             id = PlannedPaymentRuleId(id),
             type = type,
             account = AccountId(accountId),
+            toAccount = toAccount?.let(::AccountId),
             amount = PositiveDouble.from(amount).bind(),
             category = categoryId?.let(::CategoryId),
             title = title?.let(NotBlankTrimmedString::from)?.getOrNull(),
@@ -39,6 +46,8 @@ class PlannedPaymentRuleMapper @Inject constructor() {
                     type = ensureNotNull(intervalType) { "Planned payment $id has no interval type" },
                 )
             },
+            // Paid once, it has nothing to end.
+            endDate = endDate.takeUnless { oneTime },
             creditCard = creditCardId?.let(::CreditCardId),
         )
     }
@@ -55,6 +64,8 @@ class PlannedPaymentRuleMapper @Inject constructor() {
         title = title?.value,
         description = description?.value,
         creditCardId = creditCard?.value,
+        toAccountId = toAccount?.value,
+        endDate = endDate,
         id = id.value,
     )
 }

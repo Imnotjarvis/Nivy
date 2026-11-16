@@ -267,6 +267,19 @@
       "title": "Streaming",
       "creditCardId": "c0c0c0c0-0000-4000-8000-000000000001",
       "id": "9a9a9a9a-0000-4000-8000-000000000002"
+    },
+    {
+      "startDate": 1796115600000,
+      "intervalN": 1,
+      "intervalType": "MONTH",
+      "oneTime": false,
+      "type": "TRANSFER",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "amount": 200.0,
+      "title": "Savings",
+      "toAccountId": "aaaaaaaa-0000-4000-8000-000000000002",
+      "endDate": 1827576000000,
+      "id": "9a9a9a9a-0000-4000-8000-000000000003"
     }
   ],
   "budgets": [

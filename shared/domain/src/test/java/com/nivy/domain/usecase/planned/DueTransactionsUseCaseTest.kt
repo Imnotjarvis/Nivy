@@ -1,5 +1,6 @@
 package com.nivy.domain.usecase.planned
 
+import arrow.core.Some
 import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeProvider
@@ -13,6 +14,7 @@ import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.model.primitive.PositiveInt
@@ -20,6 +22,7 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
+import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.transaction.TransactionAmountsUseCase
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -43,6 +46,14 @@ class DueTransactionsUseCaseTest {
         coEvery { dated(any()) } answers { firstArg() }
     }
 
+    // The day's rate from euros to dollars: 1.25.
+    private val exchangeUseCase = mockk<ExchangeUseCase> {
+        coEvery { convert(any(), AssetCode.unsafe("USD")) } answers {
+            val amount = firstArg<PositiveValue>().amount.value * 1.25
+            Some(PositiveValue(PositiveDouble.unsafe(amount), AssetCode.unsafe("USD")))
+        }
+    }
+
     // The database transaction's block runs as it is; inTransaction says when.
     private var inTransaction = false
     private val databaseTransaction = object : DatabaseTransaction(mockk(), mockk()) {
@@ -63,6 +74,7 @@ class DueTransactionsUseCaseTest {
         transactionAmountsUseCase = transactionAmountsUseCase,
         plannedPaymentsGenerator = plannedPaymentsGenerator,
         creditCardChargeUseCase = creditCardChargeUseCase,
+        exchangeUseCase = exchangeUseCase,
         timeProvider = timeProvider,
         databaseTransaction = databaseTransaction,
     )
@@ -166,6 +178,31 @@ class DueTransactionsUseCaseTest {
     }
 
     @Test
+    fun `a transfer between currencies is paid at the day's rate`() = runTest {
+        // given: planned at 1.10, paid when the rate is 1.25
+        val due = Transfer(
+            id = TransactionId(UUID.randomUUID()),
+            title = null,
+            description = null,
+            category = null,
+            time = DueTime,
+            settled = false,
+            metadata = expense(rule = MonthlyRule.id, settled = false).metadata,
+            fromAccount = Account,
+            fromValue = PositiveValue(PositiveDouble.unsafe(100.0), AssetCode.unsafe("EUR")),
+            toAccount = AccountId(UUID.randomUUID()),
+            toValue = PositiveValue(PositiveDouble.unsafe(110.0), Usd),
+        )
+
+        // when
+        val paid = useCase.pay(due)
+
+        // then
+        paid.shouldBeInstanceOf<Transfer>().toValue shouldBe PositiveValue(PositiveDouble.unsafe(125.0), Usd)
+        paid.fromValue shouldBe due.fromValue
+    }
+
+    @Test
     fun `the due balance is in the base currency`() = runTest {
         // given
         val due = listOf(expense(rule = MonthlyRule.id, settled = false))
@@ -211,12 +248,14 @@ class DueTransactionsUseCaseTest {
             id = PlannedPaymentRuleId(UUID.randomUUID()),
             type = TransactionType.EXPENSE,
             account = Account,
+            toAccount = null,
             amount = PositiveDouble.unsafe(42.0),
             category = null,
             title = null,
             description = null,
             startDate = DueTime,
             interval = interval,
+            endDate = null,
             creditCard = null,
         )
     }

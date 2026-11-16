@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -202,6 +203,12 @@ internal fun BoxWithConstraintsScope.UI(
             PlanItButton(state = state, title = { titleTextFieldValue.text })
         }
 
+        if (state.repeatable) {
+            Spacer(Modifier.height(12.dp))
+
+            RepeatButton(screen = screen, state = state, title = { titleTextFieldValue.text })
+        }
+
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
@@ -327,6 +334,39 @@ private fun PlanItButton(state: EditTransactionViewState, title: () -> String) {
                     categoryId = state.category?.id?.value,
                     title = title(),
                     description = state.description,
+                    toAccountId = state.toAccount?.id?.value,
+                )
+            )
+        }
+    )
+}
+
+/**
+ * Plans the saved transaction to repeat: the planned payment editor opens filled with it, from its
+ * date, and once saved counts it as the plan's first payment.
+ */
+@Composable
+private fun RepeatButton(screen: EditTransactionScreen, state: EditTransactionViewState, title: () -> String) {
+    val nav = navigation()
+    AddPrimaryAttributeButton(
+        modifier = Modifier.testTag("repeat_as_planned_payment"),
+        icon = R.drawable.ic_planned_payments,
+        text = stringResource(R.string.repeat_as_planned_payment),
+        onClick = {
+            nav.back()
+            nav.navigateTo(
+                EditPlannedScreen(
+                    plannedPaymentRuleId = null,
+                    type = state.transactionType,
+                    amount = state.amount,
+                    accountId = state.account?.id?.value,
+                    categoryId = state.category?.id?.value,
+                    title = title(),
+                    description = state.description,
+                    toAccountId = state.toAccount?.id?.value,
+                    creditCardId = state.creditCard?.id?.value,
+                    startDate = state.dateTime,
+                    repeatedTransactionId = screen.initialTransactionId,
                 )
             )
         }
@@ -355,11 +395,13 @@ private fun ActionButton(
         }
         // no changes, pay
         else -> ModalCheck(
-            label = if (state.transactionType == TransactionType.EXPENSE) {
-                stringResource(R.string.pay)
-            } else {
-                stringResource(R.string.get)
-            }
+            label = stringResource(
+                when (state.transactionType) {
+                    TransactionType.INCOME -> R.string.get
+                    TransactionType.EXPENSE -> R.string.pay
+                    TransactionType.TRANSFER -> R.string.transfer
+                }
+            )
         ) {
             onEvent(EditTransactionViewEvent.OnPayPlannedPayment)
         }
@@ -370,9 +412,9 @@ private fun ActionButton(
 private val EditTransactionViewState.showsRateCard: Boolean
     get() = transactionType == TransactionType.TRANSFER && customExchangeRateState.showCard
 
-/** A transaction without a date yet, and not planned nor a transfer, can be planned instead. */
+/** A transaction without a date yet, and not planned, can be planned instead. */
 private val EditTransactionViewState.canBecomePlanned: Boolean
-    get() = dueDate == null && transactionType != TransactionType.TRANSFER && dateTime == null
+    get() = dueDate == null && dateTime == null
 
 private fun shouldFocusCategory(
     category: Category?,

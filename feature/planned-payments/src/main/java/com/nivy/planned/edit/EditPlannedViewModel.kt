@@ -18,9 +18,14 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.CreditCard
+import com.nivy.data.model.Expense
+import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
+import com.nivy.data.model.Transaction
+import com.nivy.data.model.TransactionId
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.pickable
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -40,6 +45,7 @@ import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
+import com.nivy.wallet.ui.theme.modal.PlanSchedule
 import com.nivy.wallet.ui.theme.modal.RecurringRuleModalData
 import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
@@ -77,9 +83,11 @@ class EditPlannedViewModel @Inject constructor(
     private var intervalN by mutableStateOf<Int?>(null)
     private var intervalType by mutableStateOf<IntervalType?>(null)
     private var oneTime by mutableStateOf(false)
+    private var endDate by mutableStateOf<LocalDateTime?>(null)
     private var initialTitle by mutableStateOf<String?>(null)
     private var description by mutableStateOf<String?>(null)
     private var account by mutableStateOf<Account?>(null)
+    private var toAccount by mutableStateOf<Account?>(null)
     private var allCreditCards by mutableStateOf<List<CreditCard>>(emptyList())
     private var creditCard by mutableStateOf<CreditCard?>(null)
     private var category by mutableStateOf<Category?>(null)
@@ -98,6 +106,9 @@ class EditPlannedViewModel @Inject constructor(
 
     private var ruleId: PlannedPaymentRuleId? = null
     private var editMode = false
+
+    // The saved transaction a new rule repeats: it's the rule's first payment.
+    private var repeatedTransaction: TransactionId? = null
     private var title: String? = null
 
     @Composable
@@ -110,7 +121,9 @@ class EditPlannedViewModel @Inject constructor(
             startDate = startDate,
             intervalN = intervalN,
             oneTime = oneTime,
+            endDate = endDate,
             account = account,
+            toAccount = toAccount,
             creditCards = accountCreditCards(),
             creditCard = creditCard,
             category = category,
@@ -143,11 +156,11 @@ class EditPlannedViewModel @Inject constructor(
             is EditPlannedScreenEvent.OnCreateAccount -> createAccount(event.data)
             is EditPlannedScreenEvent.OnCreateCategory -> createCategory(event.data)
             is EditPlannedScreenEvent.OnAccountChanged -> updateAccount(event.newAccount)
+            is EditPlannedScreenEvent.OnToAccountChanged -> updateToAccount(event.newAccount)
             is EditPlannedScreenEvent.OnCreditCardChanged -> updateCreditCard(event.creditCard)
             is EditPlannedScreenEvent.OnAmountChanged -> updateAmount(event.newAmount)
             is EditPlannedScreenEvent.OnTitleChanged -> updateTitle(event.newTitle)
-            is EditPlannedScreenEvent.OnRuleChanged ->
-                updateRule(event.startDate, event.oneTime, event.intervalN, event.intervalType)
+            is EditPlannedScreenEvent.OnRuleChanged -> updateRule(event.schedule)
 
             is EditPlannedScreenEvent.OnCategoryChanged -> updateCategory(event.newCategory)
             is EditPlannedScreenEvent.OnEditCategory -> editCategory(event.updatedCategory)
@@ -195,7 +208,9 @@ class EditPlannedViewModel @Inject constructor(
             val rule = screen.plannedPaymentRuleId?.let {
                 plannedPaymentRuleRepository.findById(PlannedPaymentRuleId(it))
             }
-            val pickable = accounts.pickable(listOf(rule?.account)).ifEmpty { accounts }.toImmutableList()
+            // An archived account a rule already uses, or goes to, stays there to pick.
+            val pickable = accounts.pickable(listOf(rule?.account, rule?.toAccount)).ifEmpty { accounts }
+                .toImmutableList()
             this@EditPlannedViewModel.accounts = pickable
             if (rule != null) {
                 display(rule)
@@ -215,7 +230,9 @@ class EditPlannedViewModel @Inject constructor(
         oneTime = rule.interval == null
         intervalN = rule.interval?.n?.value
         intervalType = rule.interval?.type
+        endDate = rule.endDate?.let { with(timeConverter) { it.toLocalDateTime() } }
         account = accountRepository.findById(rule.account)
+        toAccount = rule.toAccount?.let { accountRepository.findById(it) }
         creditCard = allCreditCards.find { it.id == rule.creditCard }
         category = rule.category?.let { categoryRepository.findById(it) }
         amount = rule.amount.value
@@ -232,8 +249,12 @@ class EditPlannedViewModel @Inject constructor(
         oneTime = false
         intervalN = null
         intervalType = null
+        endDate = null
         account = accounts.find { it.id.value == screen.accountId } ?: accounts.first()
-        creditCard = account?.let { defaultCreditCard(it, transactionType) }
+        toAccount = screen.toAccountId?.let { id -> accounts.find { it.id.value == id } }
+        creditCard = screen.creditCardId?.let { id -> allCreditCards.find { it.id.value == id } }
+            ?: account?.let { defaultCreditCard(it, transactionType) }
+        repeatedTransaction = screen.repeatedTransactionId?.let(::TransactionId)
         category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
         amount = screen.amount ?: 0.0
 
@@ -244,16 +265,12 @@ class EditPlannedViewModel @Inject constructor(
         currency = account.asset.code
     }
 
-    private fun updateRule(
-        startDate: LocalDateTime,
-        oneTime: Boolean,
-        intervalN: Int?,
-        intervalType: IntervalType?
-    ) {
-        this@EditPlannedViewModel.startDate = startDate
-        this@EditPlannedViewModel.intervalN = intervalN
-        this@EditPlannedViewModel.intervalType = intervalType
-        this@EditPlannedViewModel.oneTime = oneTime
+    private fun updateRule(schedule: PlanSchedule) {
+        startDate = schedule.startDate
+        intervalN = schedule.intervalN
+        intervalType = schedule.intervalType
+        oneTime = schedule.oneTime
+        endDate = schedule.endDate
 
         saveIfEditMode()
     }
@@ -291,6 +308,12 @@ class EditPlannedViewModel @Inject constructor(
         saveIfEditMode()
     }
 
+    private fun updateToAccount(newAccount: Account) {
+        toAccount = newAccount
+
+        saveIfEditMode()
+    }
+
     private fun updateCreditCard(newCreditCard: CreditCard?) {
         creditCard = newCreditCard
 
@@ -298,7 +321,7 @@ class EditPlannedViewModel @Inject constructor(
     }
 
     private fun updateTransactionType(newTransactionType: TransactionType) {
-        // Only an expense is paid with a card.
+        // Only an expense or a transfer is paid with a card.
         if (newTransactionType != transactionType) {
             creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
         }
@@ -307,9 +330,9 @@ class EditPlannedViewModel @Inject constructor(
         saveIfEditMode()
     }
 
-    /** The cards of the account a planned expense can be paid with. */
+    /** The cards of the account a planned expense or transfer can be paid with. */
     private fun accountCreditCards(): ImmutableList<CreditCard> =
-        if (transactionType == TransactionType.EXPENSE) {
+        if (transactionType != TransactionType.INCOME) {
             allCreditCards.filter { it.account == account?.id }.toImmutableList()
         } else {
             persistentListOf()
@@ -337,6 +360,8 @@ class EditPlannedViewModel @Inject constructor(
                     // The rule as it was, so that the payments already skipped stay so.
                     val previous = plannedPaymentRuleRepository.findById(rule.id)
                     plannedPaymentRuleRepository.save(rule)
+                    repeatedTransaction?.let { transactionRepository.findById(it) }
+                        ?.let { transactionRepository.save(it.firstPaymentOf(rule)) }
                     plannedPaymentsGenerator.generate(rule, previous = previous)
                 }
             }
@@ -349,12 +374,19 @@ class EditPlannedViewModel @Inject constructor(
 
     /** The rule the form describes, or null while it's incomplete. */
     private fun rule(): PlannedPaymentRule? = either {
-        ensure(transactionType != TransactionType.TRANSFER) { "Planned transfers aren't supported" }
         val startDate = ensureNotNull(startDate) { "No start date" }
+        val account = ensureNotNull(account) { "No account" }.id
+        val toAccount = if (transactionType == TransactionType.TRANSFER) {
+            ensureNotNull(toAccount) { "No account to transfer to" }.id
+                .also { ensure(it != account) { "A transfer to the account it leaves" } }
+        } else {
+            null
+        }
         PlannedPaymentRule(
             id = ensureNotNull(ruleId) { "No rule" },
             type = transactionType,
-            account = ensureNotNull(account) { "No account" }.id,
+            account = account,
+            toAccount = toAccount,
             amount = PositiveDouble.from(amount).bind(),
             category = category?.id,
             title = title?.let(NotBlankTrimmedString::from)?.getOrNull(),
@@ -368,9 +400,26 @@ class EditPlannedViewModel @Inject constructor(
                     type = ensureNotNull(intervalType) { "No interval type" },
                 )
             },
+            endDate = endDate.takeUnless { oneTime }?.let { with(timeConverter) { it.toUTC() } },
             creditCard = creditCard?.id,
         )
     }.getOrNull()
+
+    /**
+     * This paid transaction as [rule]'s first payment: in the rule, paid for the day it was made,
+     * its purchase's for one paid with a card.
+     */
+    private fun Transaction.firstPaymentOf(rule: PlannedPaymentRule): Transaction {
+        val metadata = metadata.copy(
+            recurringRuleId = rule.id.value,
+            paidForDateTime = metadata.purchaseDateTime ?: time,
+        )
+        return when (this) {
+            is Income -> copy(metadata = metadata)
+            is Expense -> copy(metadata = metadata)
+            is Transfer -> copy(metadata = metadata)
+        }
+    }
 
     private fun delete() {
         viewModelScope.launch {
