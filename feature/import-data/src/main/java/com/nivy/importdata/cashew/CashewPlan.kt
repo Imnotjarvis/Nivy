@@ -65,12 +65,6 @@ data class LeftOut(val reason: Reason, val items: List<Item>) {
         /** Transactions of a wallet that isn't in the file. */
         NoAccount,
 
-        /** Planned payments that end in Cashew: Nivy's repeat until they're deleted. */
-        EndsInCashew,
-
-        /** Planned transfers: Nivy plans incomes and expenses. */
-        PlannedTransfer,
-
         /** Planned payments that repeat in a way Nivy's don't. */
         CantRepeat,
 

@@ -106,12 +106,14 @@ class PlannedPaymentAmountsUseCaseTest {
         id = PlannedPaymentRuleId(UUID.randomUUID()),
         type = TransactionType.EXPENSE,
         account = account,
+        toAccount = null,
         amount = PositiveDouble.unsafe(amount),
         category = null,
         title = null,
         description = null,
         startDate = Start,
         interval = every?.let { PlannedPaymentInterval(n = PositiveInt.unsafe(1), type = it) },
+        endDate = null,
         creditCard = null,
     )
 

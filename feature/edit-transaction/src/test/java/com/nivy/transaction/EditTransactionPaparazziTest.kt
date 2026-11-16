@@ -189,6 +189,8 @@ private fun BoxWithConstraintsScope.Editor(
             canSave = amount > 0.0,
             hasChanges = false,
             displayLoanHelper = EditTransactionDisplayLoan(),
+            // Saved and paid: a planned payment can repeat it.
+            repeatable = true,
             backgroundProcessingStarted = false,
             customExchangeRateState = exchangeRate,
             tags = Tags,

@@ -66,7 +66,7 @@ class CashewImportPaparazziTest(
                                     Item("Refund", LocalDate.of(2026, 6, 2))
                                 ),
                             ),
-                            LeftOut(Reason.EndsInCashew, listOf(Item("Gym", LocalDate.of(2027, 3, 1)))),
+                            LeftOut(Reason.CantRepeat, listOf(Item("Gym"))),
                             LeftOut(Reason.Budget, listOf(Item("Weekly groceries"), Item("Salary"))),
                             LeftOut(Reason.CategoryLimits, listOf(Item("Everything"))),
                         ),

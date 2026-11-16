@@ -51,12 +51,16 @@ class AccountCategoryDeletion @Inject constructor(
      * The money a transfer with another account moved was paid all the same: the other account keeps
      * it, as an expense when it went to the deleted account and an income when it came from it, with
      * a note naming the deleted account. Left a transfer, it would count for neither account, and the
-     * other account's balance would change.
+     * other account's balance would change. A planned transfer still to come goes with its planned
+     * payment: no money moved.
      */
     private suspend fun keepTransfersWithOtherAccounts(deleted: AccountId) {
         val name = accountRepository.findById(deleted)?.name?.value ?: return
-        transactionRepository.findAll()
-            .filterIsInstance<Transfer>()
+        val transfers = transactionRepository.findAll().filterIsInstance<Transfer>()
+        // Those out of it go with the account's own transactions.
+        transfers.filter { !it.settled && it.toAccount == deleted }.forEach { transactionRepository.deleteById(it.id) }
+        transfers
+            .filter { it.settled }
             .mapNotNull { transfer ->
                 when (deleted) {
                     transfer.toAccount -> transfer.asExpense(note = "Transfer to $name, a deleted account")

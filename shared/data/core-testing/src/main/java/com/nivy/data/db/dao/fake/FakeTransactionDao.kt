@@ -184,7 +184,7 @@ class FakeTransactionDao(
     ): List<TransactionEntity> {
         return items.filter {
             val dueDate = it.dueDate ?: return@filter false
-            isBetween(dueDate, startDate, endDate) && it.accountId == accountId
+            isBetween(dueDate, startDate, endDate) && (it.accountId == accountId || it.toAccountId == accountId)
         }.sortedByDescending { it.dateTime }
     }
 

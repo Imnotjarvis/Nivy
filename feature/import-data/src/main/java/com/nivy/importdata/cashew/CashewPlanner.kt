@@ -252,22 +252,32 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
     // region Transfers and balance corrections
     /**
      * Cashew's balance corrections: a transfer is two of them, the half the money left pointing at
-     * the half it arrived in. A paid pair is a transfer; a correction alone adjusts a balance.
+     * the half it arrived in. A paid pair is a transfer; a correction alone adjusts a balance. A
+     * pair still to come is a planned transfer, from its next one on, with its paid ones before it
+     * linked to it, as a series of payments is.
      */
     private fun planCorrections(rows: List<CashewTransaction>) {
         val byPk = rows.associateBy { it.pk }
         val paired = mutableSetOf<String>()
+        val pairs = mutableListOf<Pair<CashewTransaction, CashewTransaction>>()
         rows.forEach { half ->
             val other = half.pairedPk?.let(byPk::get)
                 ?.takeIf { it.pk != half.pk && it.paid == half.paid && it.pk !in paired && half.pk !in paired }
                 ?: return@forEach
             paired += half.pk
             paired += other.pk
-            when {
-                half.paid -> planTransfer(half, other)
-                // A transfer that's still to come: Nivy plans incomes and expenses only.
-                half.type in Planned -> leave(Reason.PlannedTransfer, half)
+            // The money left the half below zero.
+            pairs += if (half.amount <= other.amount) half to other else other to half
+        }
+        val ruleIds = pairs.filter { (from, _) -> !from.paid && from.type in Planned }
+            .groupBy { (from, _) -> seriesOf(from) }
+            .mapValues { (_, series) ->
+                val (from, to) = series.minBy { (from, _) -> from.date }
+                planTransferRule(from, to)
             }
+        pairs.filter { (from, _) -> from.paid }.forEach { (from, to) ->
+            val ruleId = from.takeIf { it.type in Planned }?.let { ruleIds[seriesOf(it)] }
+            planTransfer(from, to, metadata = ruleId?.let { planned(it, from) } ?: NoMetadata)
         }
         rows.filter { it.pk !in paired }.forEach { correction ->
             when {
@@ -276,14 +286,17 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
                     title = correction.name.ifBlank { AdjustAccountBalanceUseCase.AdjustTitle },
                     category = null,
                 )
-                correction.type in Planned -> leave(Reason.PlannedTransfer, correction)
+                // A correction still to come, alone: Nivy plans none.
+                correction.type in Planned -> leave(Reason.NotPaid, correction)
             }
         }
     }
 
-    private fun planTransfer(first: CashewTransaction, second: CashewTransaction) {
-        // The money left the half below zero.
-        val (from, to) = if (first.amount <= second.amount) first to second else second to first
+    // The series a repeating row is of; an upcoming one is its own.
+    private fun seriesOf(cashew: CashewTransaction): String =
+        if (cashew.type == CashewType.Upcoming) cashew.pk else cashew.pk.substringBefore(SeriesKeySeparator)
+
+    private fun planTransfer(from: CashewTransaction, to: CashewTransaction, metadata: TransactionMetadata) {
         val fromAccount = accounts[from.walletPk]
         val toAccount = accounts[to.walletPk]
         val fromAmount = PositiveDouble.from(abs(from.amount)).getOrNull()
@@ -295,13 +308,12 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
             else -> add(
                 Transfer(
                     id = TransactionId(UUID.randomUUID()),
-                    // Cashew titles each half after its wallet unless one title was given to both.
-                    title = from.name.takeIf { it == to.name }?.let { NotBlankTrimmedString.from(it).getOrNull() },
+                    title = transferTitle(from, to),
                     description = description(from.note),
                     category = null,
                     time = minOf(from.date, to.date),
                     settled = true,
-                    metadata = NoMetadata,
+                    metadata = metadata,
                     fromAccount = fromAccount.id,
                     fromValue = PositiveValue(fromAmount, fromAccount.asset),
                     toAccount = toAccount.id,
@@ -312,6 +324,37 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
             )
         }
     }
+
+    /**
+     * A transfer still to come, [from] one wallet [to] another: a planned transfer of what leaves,
+     * once or repeating as in Cashew until its end. Returns the planned payment's id, or null for
+     * none: it ended, or can't come over, and is listed.
+     */
+    private fun planTransferRule(from: CashewTransaction, to: CashewTransaction): UUID? {
+        val fromAccount = accounts[from.walletPk]
+        val toAccount = accounts[to.walletPk]
+        val amount = PositiveDouble.from(abs(from.amount)).getOrNull()
+        val once = from.type == CashewType.Upcoming
+        val interval = if (once) null else interval(from)
+        return when {
+            from.endDate?.let { from.date > it } == true -> null
+            fromAccount == null || toAccount == null -> null.also { leave(Reason.NoAccount, from) }
+            amount == null -> null.also { leave(Reason.NoAmount, from) }
+            !once && interval == null -> null.also { leave(Reason.CantRepeat, from) }
+            else -> UUID.randomUUID().also { id ->
+                rules += rule(from, id, fromAccount, amount, interval).copy(
+                    type = TransactionType.TRANSFER,
+                    toAccount = toAccount.id,
+                    title = transferTitle(from, to),
+                    category = null,
+                )
+            }
+        }
+    }
+
+    // Cashew titles each half after its wallet unless one title was given to both.
+    private fun transferTitle(from: CashewTransaction, to: CashewTransaction): NotBlankTrimmedString? =
+        from.name.takeIf { it == to.name }?.let { NotBlankTrimmedString.from(it).getOrNull() }
     // endregion
 
     // region Planned payments
@@ -337,10 +380,7 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
             account == null -> leave(Reason.NoAccount, next)
             amount == null -> leave(Reason.NoAmount, next)
             interval == null -> leave(Reason.CantRepeat, next)
-            else -> {
-                rules += rule(next, ruleId, account, amount, interval)
-                next.endDate?.let { leave(Reason.EndsInCashew, next, date = it) }
-            }
+            else -> rules += rule(next, ruleId, account, amount, interval)
         }
     }
 
@@ -369,12 +409,15 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
         id = PlannedPaymentRuleId(id),
         type = if (cashew.amount > 0) TransactionType.INCOME else TransactionType.EXPENSE,
         account = account.id,
+        toAccount = null,
         amount = amount,
         category = categories[cashew.categoryPk]?.id,
         title = NotBlankTrimmedString.from(cashew.name).getOrNull(),
         description = description(cashew.note),
         startDate = cashew.date,
         interval = interval,
+        // Repeating, it ends where it does in Cashew.
+        endDate = cashew.endDate.takeIf { interval != null },
         creditCard = null,
     )
 

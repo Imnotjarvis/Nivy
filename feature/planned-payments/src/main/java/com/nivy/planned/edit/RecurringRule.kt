@@ -30,6 +30,7 @@ import com.nivy.wallet.ui.theme.components.NivyIcon
 import java.time.LocalDateTime
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.design.system.typography.numberLabelMedium
 
 @Composable
 fun RecurringRule(
@@ -37,6 +38,7 @@ fun RecurringRule(
     intervalN: Int?,
     intervalType: IntervalType?,
     oneTime: Boolean,
+    endDate: LocalDateTime?,
     onShowRecurringRuleModal: () -> Unit,
 ) {
     if (
@@ -52,6 +54,7 @@ fun RecurringRule(
             intervalN = intervalN,
             intervalType = intervalType,
             oneTime = oneTime,
+            endDate = endDate,
             onClick = {
                 onShowRecurringRuleModal()
             }
@@ -81,6 +84,7 @@ private fun RecurringRuleCard(
     intervalN: Int?,
     intervalType: IntervalType?,
     oneTime: Boolean,
+    endDate: LocalDateTime?,
     onClick: () -> Unit,
 ) {
     Row(
@@ -119,6 +123,23 @@ private fun RecurringRuleCard(
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
+
+                if (endDate != null) {
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = stringResource(
+                            R.string.ends_date,
+                            with(LocalTimeFormatter.current) {
+                                endDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+                            }
+                        ),
+                        style = MaterialTheme.typography.numberLabelMedium.copy(
+                            color = Orange,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    )
+                }
             }
         }
 
@@ -146,7 +167,8 @@ private fun Preview_Empty() {
             startDate = null,
             intervalN = null,
             intervalType = null,
-            oneTime = true
+            oneTime = true,
+            endDate = null,
         ) {
         }
     }
@@ -160,7 +182,8 @@ private fun Preview_Repeat() {
             startDate = LocalDateTime.now(),
             intervalN = 1,
             intervalType = IntervalType.MONTH,
-            oneTime = false
+            oneTime = false,
+            endDate = LocalDateTime.now().plusYears(1),
         ) {
         }
     }
@@ -174,7 +197,8 @@ private fun Preview_OneTime() {
             startDate = LocalDateTime.now().plusDays(5),
             intervalN = null,
             intervalType = null,
-            oneTime = true
+            oneTime = true,
+            endDate = null,
         ) {
         }
     }

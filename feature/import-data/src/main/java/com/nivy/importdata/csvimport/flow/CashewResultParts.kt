@@ -91,8 +91,6 @@ private fun Reason.text(): Int = when (this) {
     Reason.NoAmount -> R.string.cashew_no_amount
     Reason.NotPaid -> R.string.cashew_not_paid
     Reason.NoAccount -> R.string.cashew_no_account
-    Reason.EndsInCashew -> R.string.cashew_ends_in_cashew
-    Reason.PlannedTransfer -> R.string.cashew_planned_transfer
     Reason.CantRepeat -> R.string.cashew_cant_repeat
     Reason.Budget -> R.string.cashew_budget
     Reason.CategoryLimits -> R.string.cashew_category_limits

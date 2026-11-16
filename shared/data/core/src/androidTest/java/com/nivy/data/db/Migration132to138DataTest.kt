@@ -36,12 +36,12 @@ import java.util.UUID
 
 /**
  * A wallet from before Nivy's first database change (132), with a row in every table, opened the
- * way the app opens it after an update: Room runs 132 to 137 and checks the schema. Everything
+ * way the app opens it after an update: Room runs 132 to 138 and checks the schema. Everything
  * then reads back through the app's own DAOs as it was, with the new columns at their defaults,
  * and the balances still add up.
  */
 @RunWith(AndroidJUnit4::class)
-class Migration132to137DataTest {
+class Migration132to138DataTest {
 
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
@@ -70,7 +70,7 @@ class Migration132to137DataTest {
     private val loanPayment = UUID.randomUUID()
 
     @Test
-    fun aWalletAt132KeepsEveryRowAt137() {
+    fun aWalletAt132KeepsEveryRowAt138() {
         helper.createDatabase(TestDb, 132).apply {
             insertWallet()
             close()
@@ -107,7 +107,7 @@ class Migration132to137DataTest {
                     startDate = Nov1Morning, intervalN = 1, intervalType = IntervalType.MONTH,
                     oneTime = false, type = TransactionType.EXPENSE, accountId = bank, amount = 800.0,
                     categoryId = null, title = "Rent", description = "Flat", creditCardId = null,
-                    id = rentRule,
+                    toAccountId = null, endDate = null, id = rentRule,
                 ),
             )
             db.exchangeRatesDao.findAll().first() shouldContainExactlyInAnyOrder listOf(
@@ -311,7 +311,7 @@ class Migration132to137DataTest {
     private val Instant.millis get() = toEpochMilli()
 
     private companion object {
-        const val TestDb = "migration-132-137-data-test"
+        const val TestDb = "migration-132-138-data-test"
 
         const val Green = -11751600
         const val Black = -16777216

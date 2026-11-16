@@ -14,7 +14,8 @@ interface WritePlannedPaymentRuleDao {
     @Upsert
     suspend fun saveMany(value: List<PlannedPaymentRuleEntity>)
 
-    @Query("DELETE FROM planned_payment_rules WHERE accountId = :accountId")
+    // An account's: its incomes and expenses, and the transfers out of it or into it.
+    @Query("DELETE FROM planned_payment_rules WHERE accountId = :accountId OR toAccountId = :accountId")
     suspend fun deleteAllByAccountId(accountId: UUID)
 
     @Query("DELETE FROM planned_payment_rules WHERE id = :id")

@@ -64,11 +64,41 @@ class PlannedPaymentRuleMapperTest {
     }
 
     @Test
-    fun `rule needs a start date, an amount and not be a transfer`() {
+    fun `rule needs a start date and an amount`() {
         with(mapper) { RecurringEntity.copy(startDate = null).toDomain() }.shouldBeLeft()
         with(mapper) { RecurringEntity.copy(amount = 0.0).toDomain() }.shouldBeLeft()
-        with(mapper) { RecurringEntity.copy(type = TransactionType.TRANSFER).toDomain() }
-            .shouldBeLeft()
+    }
+
+    @Test
+    fun `a planned transfer goes to another account`() {
+        val toAccount = UUID.randomUUID()
+        val entity = RecurringEntity.copy(type = TransactionType.TRANSFER, toAccountId = toAccount)
+
+        val rule = with(mapper) { entity.toDomain() }.shouldBeRight()
+
+        rule.toAccount shouldBe AccountId(toAccount)
+        with(mapper) { rule.toEntity() } shouldBe entity
+        with(mapper) { entity.copy(toAccountId = null).toDomain() }.shouldBeLeft()
+        with(mapper) { entity.copy(toAccountId = AccountUuid).toDomain() }.shouldBeLeft()
+    }
+
+    @Test
+    fun `an income or an expense goes to no account`() {
+        val entity = RecurringEntity.copy(toAccountId = UUID.randomUUID())
+
+        with(mapper) { entity.toDomain() }.shouldBeRight().toAccount shouldBe null
+    }
+
+    @Test
+    fun `a recurring rule keeps its end date, a one-time one has none`() {
+        val end = Instant.parse("2025-01-15T12:00:00Z")
+        val entity = RecurringEntity.copy(endDate = end)
+
+        val rule = with(mapper) { entity.toDomain() }.shouldBeRight()
+
+        rule.endDate shouldBe end
+        with(mapper) { rule.toEntity() } shouldBe entity
+        with(mapper) { entity.copy(oneTime = true).toDomain() }.shouldBeRight().endDate shouldBe null
     }
 
     companion object {
@@ -95,6 +125,7 @@ class PlannedPaymentRuleMapperTest {
             id = PlannedPaymentRuleId(RuleUuid),
             type = TransactionType.EXPENSE,
             account = AccountId(AccountUuid),
+            toAccount = null,
             amount = PositiveDouble.unsafe(12.5),
             category = CategoryId(CategoryUuid),
             title = NotBlankTrimmedString.unsafe("Music"),
@@ -104,6 +135,7 @@ class PlannedPaymentRuleMapperTest {
                 n = PositiveInt.unsafe(1),
                 type = IntervalType.MONTH,
             ),
+            endDate = null,
             creditCard = null,
         )
     }

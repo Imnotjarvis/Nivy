@@ -10,9 +10,14 @@ import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.CreditCard
 import com.nivy.data.model.CreditCardId
+import com.nivy.data.model.Expense
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
+import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.Transaction
+import com.nivy.data.model.TransactionId
+import com.nivy.data.model.TransactionMetadata
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
@@ -28,11 +33,13 @@ import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.testing.runTest
+import com.nivy.wallet.ui.theme.modal.PlanSchedule
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -70,12 +77,14 @@ class EditPlannedViewModelTest {
         id = PlannedPaymentRuleId(UUID.randomUUID()),
         type = TransactionType.EXPENSE,
         account = visa.id,
+        toAccount = null,
         amount = PositiveDouble.unsafe(30.0),
         category = null,
         title = NotBlankTrimmedString.unsafe("Gym"),
         description = null,
         startDate = Instant.parse("2026-11-02T08:00:00Z"),
         interval = PlannedPaymentInterval(PositiveInt.unsafe(2), IntervalType.WEEK),
+        endDate = null,
         creditCard = visaCard.id,
     )
 
@@ -111,12 +120,7 @@ class EditPlannedViewModelTest {
     )
 
     private val firstOfDecember = LocalDateTime.of(2026, 12, 1, 9, 0)
-    private val monthly = EditPlannedScreenEvent.OnRuleChanged(
-        startDate = firstOfDecember,
-        oneTime = false,
-        intervalN = 1,
-        intervalType = IntervalType.MONTH,
-    )
+    private val monthly = schedule(firstOfDecember, oneTime = false, intervalN = 1, intervalType = IntervalType.MONTH)
 
     @Before
     fun setUp() {
@@ -186,7 +190,7 @@ class EditPlannedViewModelTest {
     fun `a one-time plan has no interval`() {
         // given
         newPlan()
-        val once = EditPlannedScreenEvent.OnRuleChanged(firstOfDecember, oneTime = true, null, null)
+        val once = schedule(firstOfDecember, oneTime = true, intervalN = null, intervalType = null)
 
         // when
         viewModel.runTest(events = listOf(once, EditPlannedScreenEvent.OnSave)) {}
@@ -199,7 +203,7 @@ class EditPlannedViewModelTest {
     fun `an incomplete plan isn't saved, and the editor stays open`() {
         // given
         newPlan()
-        val noInterval = EditPlannedScreenEvent.OnRuleChanged(firstOfDecember, oneTime = false, null, null)
+        val noInterval = schedule(firstOfDecember, oneTime = false, intervalN = null, intervalType = null)
 
         // when
         viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnSave)) {}
@@ -219,7 +223,8 @@ class EditPlannedViewModelTest {
         newPlan()
 
         // then: no interval, then an amount of 0, then everything
-        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnRuleChanged(firstOfDecember, false, null, null))) {
+        val noInterval = schedule(firstOfDecember, oneTime = false, intervalN = null, intervalType = null)
+        viewModel.runTest(events = listOf(noInterval)) {
             canSave shouldBe false
         }
         viewModel.runTest(events = listOf(monthly, EditPlannedScreenEvent.OnAmountChanged(0.0))) {
@@ -231,15 +236,101 @@ class EditPlannedViewModelTest {
     }
 
     @Test
-    fun `a transfer can't be planned`() {
+    fun `a transfer is planned to the account it goes to, one other than its own`() {
         // given
         newPlan(type = TransactionType.TRANSFER)
+        val save = EditPlannedScreenEvent.OnSave
 
-        // when
+        // when: no account to go to, then its own, then another one
         viewModel.runTest(events = listOf(monthly, EditPlannedScreenEvent.OnSave)) {}
+        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnToAccountChanged(bank), save)) {}
+        saved shouldBe emptyList()
+        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnToAccountChanged(visa), save)) {}
 
         // then
-        saved shouldBe emptyList()
+        val rule = saved.single()
+        rule.type shouldBe TransactionType.TRANSFER
+        rule.account shouldBe bank.id
+        rule.toAccount shouldBe visa.id
+    }
+
+    @Test
+    fun `a repeating plan keeps its end date, a one-time plan has none`() {
+        // given
+        newPlan()
+        val end = LocalDateTime.of(2027, 11, 30, 12, 0)
+
+        // when
+        viewModel.runTest(
+            events = listOf(
+                schedule(firstOfDecember, oneTime = false, intervalN = 1, intervalType = IntervalType.MONTH, end),
+                EditPlannedScreenEvent.OnSave,
+            )
+        ) {}
+        viewModel.runTest(
+            events = listOf(
+                schedule(firstOfDecember, oneTime = true, intervalN = null, intervalType = null, endDate = end),
+                EditPlannedScreenEvent.OnSave,
+            )
+        ) {}
+
+        // then
+        saved.map { it.endDate } shouldBe listOf(Instant.parse("2027-11-30T12:00:00Z"), null)
+    }
+
+    @Test
+    fun `a plan repeating a saved transaction counts it as its first payment`() {
+        // given: Gym, paid on November 3, repeated
+        val paid = Expense(
+            id = TransactionId(UUID.randomUUID()),
+            title = NotBlankTrimmedString.unsafe("Gym"),
+            description = null,
+            category = null,
+            time = Instant.parse("2026-11-03T17:30:00Z"),
+            settled = true,
+            metadata = TransactionMetadata(
+                recurringRuleId = null,
+                paidForDateTime = null,
+                loanRecordId = null,
+                purchaseDateTime = null,
+            ),
+            value = PositiveValue(PositiveDouble.unsafe(45.0), AssetCode.unsafe("EUR")),
+            account = bank.id,
+        )
+        coEvery { transactionRepository.findById(paid.id) } returns paid
+        val linked = slot<Transaction>()
+        coEvery { transactionRepository.save(capture(linked)) } returns Unit
+        viewModel.start(
+            EditPlannedScreen(
+                plannedPaymentRuleId = null,
+                type = TransactionType.EXPENSE,
+                amount = 45.0,
+                accountId = bank.id.value,
+                title = "Gym",
+                startDate = paid.time,
+                repeatedTransactionId = paid.id.value,
+            )
+        )
+        val fromItsDate = schedule(
+            LocalDateTime.of(2026, 11, 3, 17, 30),
+            oneTime = false,
+            intervalN = 1,
+            intervalType = IntervalType.MONTH,
+        )
+
+        // when
+        viewModel.runTest(events = listOf(fromItsDate, EditPlannedScreenEvent.OnSave)) {}
+
+        // then: in the plan, paid for its own day, before the plan's payments are generated
+        val rule = saved.single()
+        rule.startDate shouldBe paid.time
+        linked.captured.metadata.recurringRuleId shouldBe rule.id.value
+        linked.captured.metadata.paidForDateTime shouldBe paid.time
+        coVerifyOrder {
+            ruleRepository.save(rule)
+            transactionRepository.save(any())
+            generator.generate(rule, previous = null)
+        }
     }
 
     @Test
@@ -340,4 +431,12 @@ class EditPlannedViewModelTest {
             orderNum = 0.0,
         )
     }
+
+    private fun schedule(
+        start: LocalDateTime,
+        oneTime: Boolean,
+        intervalN: Int?,
+        intervalType: IntervalType?,
+        endDate: LocalDateTime? = null,
+    ) = EditPlannedScreenEvent.OnRuleChanged(PlanSchedule(start, oneTime, intervalN, intervalType, endDate))
 }

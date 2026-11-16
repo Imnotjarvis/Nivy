@@ -435,6 +435,44 @@ class EditTransactionViewModelTest {
     }
 
     @Test
+    fun `a saved, paid transaction can be repeated as a planned payment`() {
+        val paid = lunch()
+        coEvery { transactionRepo.findById(paid.id) } returns paid
+
+        viewModel.start(EditTransactionScreen(initialTransactionId = paid.id.value, type = TransactionType.EXPENSE))
+
+        viewModel.runTest { repeatable shouldBe true }
+    }
+
+    @Test
+    fun `a payment to come can't be repeated`() = assertNotRepeatable(lunch().copy(settled = false))
+
+    @Test
+    fun `a transaction a plan already has can't be repeated`() =
+        assertNotRepeatable(lunch().let { it.copy(metadata = it.metadata.copy(recurringRuleId = UUID.randomUUID())) })
+
+    @Test
+    fun `a loan's transaction can't be repeated`() =
+        assertNotRepeatable(lunch().let { it.copy(metadata = it.metadata.copy(loanId = UUID.randomUUID())) })
+
+    @Test
+    fun `a new transaction can't be repeated`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+
+        viewModel.runTest { repeatable shouldBe false }
+    }
+
+    private fun assertNotRepeatable(transaction: Expense) {
+        coEvery { transactionRepo.findById(transaction.id) } returns transaction
+
+        viewModel.start(
+            EditTransactionScreen(initialTransactionId = transaction.id.value, type = TransactionType.EXPENSE)
+        )
+
+        viewModel.runTest { repeatable shouldBe false }
+    }
+
+    @Test
     fun `Save on a planned payment's change turns the button back into Pay`() {
         val planned = lunch().copy(settled = false)
         coEvery { transactionRepo.findById(planned.id) } returns planned

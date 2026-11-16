@@ -36,7 +36,7 @@ class FakePlannedPaymentDao : PlannedPaymentRuleDao, WritePlannedPaymentRuleDao 
     }
 
     override suspend fun deleteAllByAccountId(accountId: UUID) {
-        items.removeIf { it.accountId == accountId }
+        items.removeIf { it.accountId == accountId || it.toAccountId == accountId }
     }
 
     override suspend fun deleteById(id: UUID) {

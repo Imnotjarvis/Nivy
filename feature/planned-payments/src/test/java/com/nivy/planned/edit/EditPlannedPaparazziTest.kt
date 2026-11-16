@@ -39,6 +39,7 @@ class EditPlannedPaparazziTest(
                 screen = EditPlannedScreen(plannedPaymentRuleId = UUID(0, 1), type = TransactionType.EXPENSE),
                 state = EditPlannedScreenState(
                     oneTime = false,
+                    endDate = null,
                     startDate = null,
                     intervalN = null,
                     intervalType = null,
@@ -47,6 +48,7 @@ class EditPlannedPaparazziTest(
                     description = null,
                     category = Housing,
                     account = Bank,
+                    toAccount = null,
                     creditCards = persistentListOf(),
                     creditCard = null,
                     amount = 750.0,

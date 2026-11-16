@@ -38,6 +38,7 @@ import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.forDisplay
+import com.nivy.wallet.ui.component.transaction.TransferAccounts
 import com.nivy.wallet.ui.component.transaction.TypeAmountCurrency
 import com.nivy.wallet.ui.previewAccount
 import com.nivy.wallet.ui.previewPlannedPaymentRule
@@ -103,6 +104,12 @@ internal fun LazyItemScope.PlannedPaymentCard(
             },
             interval = plannedPayment.interval,
         )
+
+        plannedPayment.endDate?.let { endDate ->
+            Spacer(Modifier.height(4.dp))
+
+            EndDateRow(endDate = with(LocalTimeConverter.current) { endDate.toLocalDateTime() })
+        }
 
         plannedPayment.title?.let { title ->
             Spacer(Modifier.height(8.dp))
@@ -184,26 +191,35 @@ private fun PlannedPaymentHeaderRow(
         }
 
         val account = accounts.find { it.id == plannedPayment.account }
-        NivyButton(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            text = account?.name?.value ?: stringResource(R.string.deleted),
-            iconTint = MaterialTheme.colorScheme.onSurface,
-            iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),
-            textStyle = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold
-            ),
-            padding = 8.dp,
-            iconEdgePadding = 8.dp,
-            shape = nestedShape(20.dp)
-        ) {
-            account?.let {
-                nav.navigateTo(
-                    TransactionsScreen(
-                        accountId = account.id.value,
-                        categoryId = null
+        if (plannedPayment.type == TransactionType.TRANSFER) {
+            // Both its accounts, as a transfer's card shows them.
+            TransferAccounts(
+                account = account,
+                toAccount = accounts.find { it.id == plannedPayment.toAccount },
+                accountColors = false,
+            )
+        } else {
+            NivyButton(
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                text = account?.name?.value ?: stringResource(R.string.deleted),
+                iconTint = MaterialTheme.colorScheme.onSurface,
+                iconStart = getCustomIconIdS(account?.icon?.id, R.drawable.ic_custom_account_s),
+                textStyle = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                padding = 8.dp,
+                iconEdgePadding = 8.dp,
+                shape = nestedShape(20.dp)
+            ) {
+                account?.let {
+                    nav.navigateTo(
+                        TransactionsScreen(
+                            accountId = account.id.value,
+                            categoryId = null
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -264,6 +280,24 @@ private fun RuleTextRow(
 
         Spacer(Modifier.width(24.dp))
     }
+}
+
+// The last day a repeating plan falls on.
+@Composable
+private fun EndDateRow(endDate: LocalDateTime) {
+    Text(
+        modifier = Modifier.padding(horizontal = 24.dp),
+        text = stringResource(
+            R.string.ends_date,
+            with(LocalTimeFormatter.current) {
+                endDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
+            }
+        ),
+        style = MaterialTheme.typography.numberLabelMedium.copy(
+            color = Orange,
+            fontWeight = FontWeight.ExtraBold
+        )
+    )
 }
 
 @Preview
