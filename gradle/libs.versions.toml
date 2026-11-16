@@ -3,7 +3,7 @@ kotlin = "2.4.21"
 kotlin-coroutines = "1.11.0"
 ktor = "3.6.1"
 arrow = "2.3.0.1"
-kotest = "6.2.6"
+kotest = "6.2.7"
 # https://developer.android.com/develop/ui/compose/bom/bom-mapping (BOM 2026.09.00)
 compose = "1.12.1"
 compose-material3 = "1.4.0"
@@ -35,7 +35,7 @@ jvm-target = "17"
 detekt = "1.23.8" # https://detekt.dev/docs/gettingstarted/gradle/
 
 # Minimum Bouncy Castle for the build tools (see the build-tooling-minimums bundle).
-bouncycastle = "1.86"
+bouncycastle = "1.87"
 
 [libraries]
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version = "9.5.1" }
@@ -48,7 +48,7 @@ kotlin-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections" }
 
 # KotlinX Serialization
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.12.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.13.0" }
 kotlinx-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 
 # Ktor
@@ -74,7 +74,7 @@ paparazzi-plugin = { module = "app.cash.paparazzi:paparazzi-gradle-plugin", vers
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 google-testparameterinjector = { module = "com.google.testparameterinjector:test-parameter-injector", version = "1.25" }
 # A real SQLite database on the JVM: the Cashew import reads its tests' files with it.
-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version = "3.53.4.0" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version = "3.54.1.0" }
 
 # Integartion (Android) testing
 androidx-test-runner = { module = "androidx.test:runner", version = "1.7.0" }
@@ -128,7 +128,7 @@ timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 # Legacy
 keval = { module = "com.notkamui.libs:keval", version = "2.0.1" }
 opencsv-csv = { module = "com.opencsv:opencsv", version = "5.12.0" }
-opencsv-apache-commons = { module = "org.apache.commons:commons-lang3", version = "3.21.0" }
+opencsv-apache-commons = { module = "org.apache.commons:commons-lang3", version = "3.22.0" }
 
 # Linters
 detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
@@ -138,7 +138,7 @@ detekt-ruleset-compose = { module = "io.nlopez.compose.rules:detekt", version = 
 slack-lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version = "1.6.1" }
 
 # KSP
-ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version = "2.3.12" }
+ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version = "2.3.14" }
 
 # Modules Graph
 module-graph-plugin = { module = "com.jraska.module.graph.assertion:plugin", version = "2.9.1" }
