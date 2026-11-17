@@ -25,6 +25,7 @@ import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
+import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.db.entity.TransactionEntity
@@ -40,6 +41,7 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.fake.fakeRepositoryMemoFactory
@@ -51,6 +53,7 @@ import com.nivy.data.repository.mapper.CreditCardMapper
 import com.nivy.data.repository.mapper.ExchangeRateMapper
 import com.nivy.data.repository.mapper.LoanMapper
 import com.nivy.data.repository.mapper.PlannedPaymentRuleMapper
+import com.nivy.data.repository.mapper.QuickAddMapper
 import com.nivy.data.repository.mapper.TagMapper
 import com.nivy.data.repository.mapper.TransactionMapper
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -163,6 +166,12 @@ class DeleteAllDataTest {
                 mapper = LoanMapper(),
                 dispatchersProvider = dispatchers,
             ),
+            quickAddRepository = QuickAddRepository(
+                quickAddDao = db.quickAddDao,
+                writeQuickAddDao = db.writeQuickAddDao,
+                mapper = QuickAddMapper(),
+                dispatchersProvider = dispatchers,
+            ),
         )
     }
 
@@ -199,6 +208,7 @@ class DeleteAllDataTest {
         db.creditCardDao.findAll(),
         db.accountValueDao.findAll(),
         db.exchangeRatesDao.findAll().first(),
+        db.quickAddDao.findAll(),
     )
 
     private suspend fun fillEveryTable() {
@@ -265,5 +275,6 @@ class DeleteAllDataTest {
             AccountValueEntity(accountId = account.id, time = Instant.EPOCH, value = 1_000.0, id = UUID.randomUUID())
         )
         db.writeExchangeRatesDao.save(ExchangeRateEntity(baseCurrency = "EUR", currency = "USD", rate = 1.08))
+        db.writeQuickAddDao.save(QuickAddEntity(type = TransactionType.EXPENSE, accountId = account.id, amount = 2.2))
     }
 }
