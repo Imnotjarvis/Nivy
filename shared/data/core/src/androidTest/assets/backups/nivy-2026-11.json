@@ -282,6 +282,35 @@
       "id": "9a9a9a9a-0000-4000-8000-000000000003"
     }
   ],
+  "quickAdds": [
+    {
+      "type": "EXPENSE",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "amount": 2.2,
+      "categoryId": "cccccccc-0000-4000-8000-000000000004",
+      "title": "Metro",
+      "creditCardId": "c0c0c0c0-0000-4000-8000-000000000002",
+      "orderNum": 0.0,
+      "id": "9b9b9b9b-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "EXPENSE",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000002",
+      "categoryId": "cccccccc-0000-4000-8000-000000000001",
+      "title": "Lunch",
+      "orderNum": 1.0,
+      "id": "9b9b9b9b-0000-4000-8000-000000000002"
+    },
+    {
+      "type": "TRANSFER",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "amount": 50.0,
+      "title": "To dollars",
+      "toAccountId": "aaaaaaaa-0000-4000-8000-000000000004",
+      "orderNum": 2.0,
+      "id": "9b9b9b9b-0000-4000-8000-000000000003"
+    }
+  ],
   "budgets": [
     {
       "name": "Food",

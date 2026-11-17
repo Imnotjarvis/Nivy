@@ -44,6 +44,7 @@ import com.nivy.design.system.colors.readableOn
 import kotlin.math.roundToInt
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.design.system.typography.numberHeadlineLarge
 import com.nivy.design.system.colors.accountColor
 
 @Composable
@@ -266,6 +267,8 @@ internal fun Amount(
     account: Account?,
     onShowAmountModal: () -> Unit,
     showConvertedAmountText: String? = null,
+    // Shown instead of an amount of nothing, as a quick add's that's entered each time.
+    emptyAmount: String? = null,
     onAccountMiniClick: () -> Unit
 
 ) {
@@ -287,18 +290,34 @@ internal fun Amount(
         }
 
         Column {
-            BalanceRow(
-                modifier = Modifier
-                    .clickableNoIndication(rememberInteractionSource()) {
-                        onShowAmountModal()
-                    }
-                    .testTag("edit_amount_balance_row"),
-                currency = currency,
-                balance = amount,
+            if (emptyAmount != null && amount == 0.0) {
+                Text(
+                    modifier = Modifier
+                        .clickableNoIndication(rememberInteractionSource()) {
+                            onShowAmountModal()
+                        }
+                        .testTag("edit_amount_balance_row"),
+                    text = emptyAmount,
+                    style = MaterialTheme.typography.numberHeadlineLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = balanceFontSize.sp,
+                    ),
+                )
+            } else {
+                BalanceRow(
+                    modifier = Modifier
+                        .clickableNoIndication(rememberInteractionSource()) {
+                            onShowAmountModal()
+                        }
+                        .testTag("edit_amount_balance_row"),
+                    currency = currency,
+                    balance = amount,
 
-                balanceFontSize = balanceFontSize.sp,
+                    balanceFontSize = balanceFontSize.sp,
 
-            )
+                )
+            }
             if (showConvertedAmountText != null) {
                 Text(
                     text = showConvertedAmountText,

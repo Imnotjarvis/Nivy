@@ -37,6 +37,22 @@ import com.nivy.wallet.ui.theme.components.BottomBarTab
 import com.nivy.wallet.ui.theme.components.BottomBarFab
 import com.nivy.wallet.ui.theme.components.BottomBarMenu
 import com.nivy.wallet.ui.theme.components.BottomBarMenuButton
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+import com.nivy.data.model.QuickAdd
+import com.nivy.design.system.colors.Gray
+import com.nivy.design.system.shapes.PillShape
+import com.nivy.wallet.data.AppBaseData
+import com.nivy.wallet.ui.component.quickadd.QuickAddTile
+import kotlinx.collections.immutable.ImmutableList
 
 // The bar's buttons and their expand animation share one state.
 @Composable
@@ -48,6 +64,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
     onAddExpense: () -> Unit,
     onAddTransfer: () -> Unit,
     onAddPlannedPayment: () -> Unit,
+
+    quickAdds: QuickAddsMenu,
 
     showAddAccountModal: () -> Unit,
 ) {
@@ -129,6 +147,25 @@ internal fun BoxWithConstraintsScope.BottomBar(
                 ) {
                     onAddPlannedPayment()
                 }
+
+                if (quickAdds.quickAdds.isNotEmpty()) {
+                    QuickAdds(
+                        quickAdds = quickAdds.quickAdds,
+                        baseData = quickAdds.baseData,
+                        onQuickAdd = {
+                            expanded = false
+                            quickAdds.onQuickAdd(it)
+                        },
+                        onEditQuickAdd = {
+                            expanded = false
+                            quickAdds.onEditQuickAdd(it)
+                        },
+                        onEdit = {
+                            expanded = false
+                            quickAdds.onEdit()
+                        },
+                    )
+                }
             },
         ) {
             BottomBarMenuButton(
@@ -184,3 +221,66 @@ internal fun BoxWithConstraintsScope.BottomBar(
         }
     }
 }
+
+/**
+ * The quick adds the add menu shows, in their order, with the accounts and categories they show: a
+ * tap adds one, a long press opens the transaction editor filled in with it, Edit opens their list.
+ */
+internal class QuickAddsMenu(
+    val quickAdds: ImmutableList<QuickAdd>,
+    val baseData: AppBaseData,
+    val onQuickAdd: (QuickAdd) -> Unit,
+    val onEditQuickAdd: (QuickAdd) -> Unit,
+    val onEdit: () -> Unit,
+)
+
+/**
+ * The quick adds under their heading, three to a row, by the buttons that add a transaction:
+ * those added most often are within the thumb's reach, Add planned payment above them.
+ */
+@Composable
+private fun QuickAdds(
+    quickAdds: ImmutableList<QuickAdd>,
+    baseData: AppBaseData,
+    onQuickAdd: (QuickAdd) -> Unit,
+    onEditQuickAdd: (QuickAdd) -> Unit,
+    onEdit: () -> Unit,
+) {
+    Spacer(Modifier.height(8.dp))
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = stringResource(R.string.quick_add),
+            style = MaterialTheme.typography.labelLarge.copy(color = Gray),
+        )
+        // Taller than its text, to be easy to tap.
+        Text(
+            modifier = Modifier
+                .clip(PillShape)
+                .clickable(onClick = onEdit, role = Role.Button)
+                .padding(vertical = 8.dp, horizontal = 4.dp),
+            text = stringResource(R.string.edit),
+            style = MaterialTheme.typography.labelLarge.copy(color = Nivy),
+        )
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(QuickAddGap)) {
+        quickAdds.chunked(QuickAddsPerRow).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(QuickAddGap)) {
+                row.forEach { quickAdd ->
+                    QuickAddTile(
+                        modifier = Modifier.weight(1f),
+                        quickAdd = quickAdd,
+                        baseData = baseData,
+                        onClick = { onQuickAdd(quickAdd) },
+                        onLongClick = { onEditQuickAdd(quickAdd) },
+                    )
+                }
+                // A last row that isn't full keeps the others' widths.
+                repeat(QuickAddsPerRow - row.size) { Spacer(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
+private const val QuickAddsPerRow = 3
+private val QuickAddGap = 8.dp

@@ -6,7 +6,7 @@ import com.nivy.data.db.entity.CreditCardEntity
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.UUID
 
-/** The cards alone: it has no transactions or planned payments to unlink from a deleted card. */
+/** The cards alone: it has no transactions, planned payments or quick adds to unlink from a deleted card. */
 @VisibleForTesting
 class FakeCreditCardDao : CreditCardDao, WriteCreditCardDao {
     private val items = mutableListOf<CreditCardEntity>()
@@ -28,6 +28,8 @@ class FakeCreditCardDao : CreditCardDao, WriteCreditCardDao {
     override suspend fun unlinkTransactions(id: UUID) = Unit
 
     override suspend fun unlinkPlannedPaymentRules(id: UUID) = Unit
+
+    override suspend fun unlinkQuickAdds(id: UUID) = Unit
 
     override suspend fun deleteCreditCardRow(id: UUID) {
         items.removeIf { it.id == id }

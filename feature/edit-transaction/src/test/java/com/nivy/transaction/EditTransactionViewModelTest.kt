@@ -248,6 +248,54 @@ class EditTransactionViewModelTest {
     }
 
     @Test
+    fun `a new transaction filled in from a quick add saves as it was filled in`() {
+        viewModel.start(
+            EditTransactionScreen(
+                initialTransactionId = null,
+                type = TransactionType.EXPENSE,
+                accountId = bank.id.value,
+                categoryId = food.id.value,
+                title = "Metro",
+                amount = 2.2,
+                creditCardId = visa.id.value,
+            )
+        )
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        val expense = saved().shouldBeInstanceOf<Expense>()
+        expense.account shouldBe bank.id
+        expense.value shouldBe PositiveValue(PositiveDouble.unsafe(2.2), Eur)
+        expense.category shouldBe food.id
+        expense.title?.value shouldBe "Metro"
+        expense.metadata.creditCard shouldBe visa.id
+    }
+
+    @Test
+    fun `a transfer to another currency filled in with its amount receives it converted`() {
+        viewModel.start(transferFilledIn(to = dollars))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        saved().shouldBeInstanceOf<Transfer>().toValue shouldBe PositiveValue(PositiveDouble.unsafe(200.0), Usd)
+    }
+
+    @Test
+    fun `a transfer in one currency filled in with its amount receives it as it is`() {
+        viewModel.start(transferFilledIn(to = wallet))
+        viewModel.onEvent(EditTransactionViewEvent.Save(closeScreen = true))
+
+        saved().shouldBeInstanceOf<Transfer>().toValue shouldBe PositiveValue(PositiveDouble.unsafe(100.0), Eur)
+    }
+
+    // A transfer of 100 euros from the bank, as a quick add fills it in.
+    private fun transferFilledIn(to: Account) = EditTransactionScreen(
+        initialTransactionId = null,
+        type = TransactionType.TRANSFER,
+        accountId = bank.id.value,
+        toAccountId = to.id.value,
+        amount = 100.0,
+    )
+
+    @Test
     fun `a transfer to the same account isn't saved, and says why`() {
         viewModel.start(newTransaction(TransactionType.TRANSFER, bank))
         viewModel.onEvent(EditTransactionViewEvent.OnToAccountChanged(bank))

@@ -15,11 +15,12 @@ interface WriteCategoryDao {
     @Upsert
     suspend fun saveMany(values: List<CategoryEntity>)
 
-    /** Deletes the category. Its transactions and planned payments stay, without a category. */
+    /** Deletes the category. Its transactions, planned payments and quick adds stay, without a category. */
     @Transaction
     suspend fun deleteById(id: UUID) {
         uncategorizeTransactions(id)
         uncategorizePlannedPaymentRules(id)
+        uncategorizeQuickAdds(id)
         deleteCategoryRow(id)
     }
 
@@ -28,6 +29,9 @@ interface WriteCategoryDao {
 
     @Query("UPDATE planned_payment_rules SET categoryId = NULL WHERE categoryId = :id")
     suspend fun uncategorizePlannedPaymentRules(id: UUID)
+
+    @Query("UPDATE quick_adds SET categoryId = NULL WHERE categoryId = :id")
+    suspend fun uncategorizeQuickAdds(id: UUID)
 
     @Query("DELETE FROM categories WHERE id = :id")
     suspend fun deleteCategoryRow(id: UUID)

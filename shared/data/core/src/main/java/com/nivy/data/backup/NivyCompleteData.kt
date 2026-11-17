@@ -10,6 +10,7 @@ import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
+import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.db.entity.TransactionEntity
@@ -49,6 +50,8 @@ data class NivyCompleteData(
     /** The exchange rates entered by hand. The others are downloaded again. */
     @SerialName("exchangeRates")
     val exchangeRates: List<ExchangeRateEntity> = emptyList(),
+    @SerialName("quickAdds")
+    val quickAdds: List<QuickAddEntity> = emptyList(),
 )
 
 /**

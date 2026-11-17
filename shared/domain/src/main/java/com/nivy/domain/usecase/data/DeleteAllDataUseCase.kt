@@ -16,6 +16,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import kotlinx.coroutines.withContext
@@ -37,6 +38,7 @@ class DeleteAllDataUseCase @Inject constructor(
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val budgetRepository: BudgetRepository,
     private val loanRepository: LoanRepository,
+    private val quickAddRepository: QuickAddRepository,
 ) {
     suspend operator fun invoke() {
         withContext(dispatchers.io) {
@@ -53,6 +55,7 @@ class DeleteAllDataUseCase @Inject constructor(
                 plannedPaymentRuleRepository.deleteAll()
                 budgetRepository.deleteAll()
                 loanRepository.deleteAll()
+                quickAddRepository.deleteAll()
             }
             // also forgets the settings in AppPreferences, but not that the old ones were copied:
             // they aren't to come back

@@ -25,6 +25,27 @@ import com.nivy.wallet.ui.theme.modal.edit.AccountModal
 import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
 import androidx.compose.runtime.LaunchedEffect
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.nivy.data.model.QuickAdd
+import com.nivy.navigation.QuickAddsScreen
+import com.nivy.ui.R
+import com.nivy.wallet.data.AppBaseData
+import com.nivy.wallet.ui.component.quickadd.currency
+import com.nivy.wallet.ui.component.quickadd.name
+import com.nivy.wallet.ui.theme.components.BottomBarMessage
+import com.nivy.wallet.ui.theme.modal.edit.AmountModal
+import com.nivy.wallet.utils.amountAndCode
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import java.util.UUID
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -47,7 +68,79 @@ fun BoxWithConstraintsScope.MainScreen() {
         tab = mainScreenState.tab,
         baseCurrency = currency,
         selectTab = viewModel::selectTab,
-        onCreateAccount = viewModel::createAccount
+        onCreateAccount = viewModel::createAccount,
+        quickAdds = viewModel.quickAdds,
+        baseData = viewModel.baseData,
+        onQuickAdd = viewModel::quickAdd,
+        onEditQuickAdd = { viewModel.edit(it) },
+    )
+
+    QuickAddAmount(
+        quickAdd = viewModel.amountAsked,
+        baseData = viewModel.baseData,
+        onAmount = viewModel::enterAmount,
+        dismiss = viewModel::dismissAmount,
+    )
+
+    QuickAddedMessage(added = viewModel.added, baseData = viewModel.baseData, onUndo = viewModel::undo)
+}
+
+/** The amount of [quickAdd], which has none of its own, entered on the keypad, under its name. */
+@Composable
+internal fun BoxWithConstraintsScope.QuickAddAmount(
+    quickAdd: QuickAdd?,
+    baseData: AppBaseData,
+    onAmount: (Double) -> Unit,
+    dismiss: () -> Unit,
+) {
+    // Always there, closed while nothing asks for an amount, so that it opens as dialogs do; it
+    // reads as it did while it closes. Each time it opens, it starts empty.
+    var shown by remember { mutableStateOf(quickAdd) }
+    if (quickAdd != null) shown = quickAdd
+    val id = remember(quickAdd) { UUID.randomUUID() }
+    AmountModal(
+        id = id,
+        visible = quickAdd != null,
+        currency = shown?.currency(baseData) ?: baseData.baseCurrency,
+        initialAmount = null,
+        header = {
+            Spacer(Modifier.height(24.dp))
+            Text(
+                modifier = Modifier.padding(start = 32.dp),
+                text = shown?.name(baseData).orEmpty(),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.ExtraBold,
+                ),
+            )
+        },
+        dismiss = dismiss,
+        onAmountChanged = onAmount,
+    )
+}
+
+/** What the last quick add saved, with Undo, above the bar while it can be taken back. */
+@Composable
+internal fun BoxWithConstraintsScope.QuickAddedMessage(
+    added: QuickAdded?,
+    baseData: AppBaseData,
+    onUndo: () -> Unit,
+) {
+    // Always there, hidden while there's nothing to take back, so that it fades in; it reads as
+    // it did while it fades out.
+    var shown by remember { mutableStateOf(added) }
+    if (added != null) shown = added
+    BottomBarMessage(
+        visible = added != null,
+        text = shown?.let {
+            stringResource(
+                R.string.quick_add_added,
+                it.quickAdd.name(baseData),
+                amountAndCode(it.value.amount.value, it.value.asset.code),
+            )
+        }.orEmpty(),
+        action = stringResource(R.string.undo),
+        onAction = onUndo,
     )
 }
 
@@ -61,6 +154,10 @@ private fun BoxWithConstraintsScope.UI(
 
     selectTab: (MainTab) -> Unit,
     onCreateAccount: (CreateAccountData) -> Unit,
+    quickAdds: ImmutableList<QuickAdd>,
+    baseData: AppBaseData,
+    onQuickAdd: (QuickAdd) -> Unit,
+    onEditQuickAdd: (QuickAdd) -> Unit,
 ) {
     when (tab) {
         MainTab.HOME -> HomeTab()
@@ -107,6 +204,14 @@ private fun BoxWithConstraintsScope.UI(
             )
         },
 
+        quickAdds = QuickAddsMenu(
+            quickAdds = quickAdds,
+            baseData = baseData,
+            onQuickAdd = onQuickAdd,
+            onEditQuickAdd = onEditQuickAdd,
+            onEdit = { nav.navigateTo(QuickAddsScreen) },
+        ),
+
         showAddAccountModal = {
             accountModalData = AccountModalData(
                 account = null,
@@ -136,7 +241,11 @@ private fun PreviewMainScreen() {
             tab = MainTab.HOME,
             baseCurrency = "BGN",
             selectTab = {},
-            onCreateAccount = { }
+            onCreateAccount = { },
+            quickAdds = persistentListOf(),
+            baseData = AppBaseData("BGN", persistentListOf(), persistentListOf()),
+            onQuickAdd = {},
+            onEditQuickAdd = {},
         )
     }
 }

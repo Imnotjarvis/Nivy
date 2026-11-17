@@ -14,12 +14,13 @@ interface WriteCreditCardDao {
 
     /**
      * Deletes the card. What was bought with it stays on the date it was charged, as a plain
-     * expense; its planned payments stay, paid from the account.
+     * expense; its planned payments and quick adds stay, paid from the account.
      */
     @Transaction
     suspend fun deleteById(id: UUID) {
         unlinkTransactions(id)
         unlinkPlannedPaymentRules(id)
+        unlinkQuickAdds(id)
         deleteCreditCardRow(id)
     }
 
@@ -38,6 +39,9 @@ interface WriteCreditCardDao {
 
     @Query("UPDATE planned_payment_rules SET creditCardId = NULL WHERE creditCardId = :id")
     suspend fun unlinkPlannedPaymentRules(id: UUID)
+
+    @Query("UPDATE quick_adds SET creditCardId = NULL WHERE creditCardId = :id")
+    suspend fun unlinkQuickAdds(id: UUID)
 
     @Query("DELETE FROM credit_cards WHERE id = :id")
     suspend fun deleteCreditCardRow(id: UUID)

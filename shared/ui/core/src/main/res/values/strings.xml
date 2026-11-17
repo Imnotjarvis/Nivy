@@ -90,6 +90,16 @@
     <string name="expense">Expense</string>
     <string name="add_planned_date_payment">Add planned date of payment</string>
     <string name="repeat_as_planned_payment">Repeat as a planned payment</string>
+    <string name="save_as_quick_add">Save as quick add</string>
+    <string name="quick_add">Quick add</string>
+    <string name="quick_adds">Quick adds</string>
+    <string name="new_quick_add">New quick add</string>
+    <string name="any_amount">Any amount</string>
+    <string name="quick_add_added">Added %1$s, %2$s</string>
+    <string name="undo">Undo</string>
+    <string name="quick_add_confirm_deletion_description">The transactions it added stay</string>
+    <string name="no_quick_adds">No quick adds</string>
+    <string name="no_quick_adds_description">Save a transaction you enter often as a quick add, or add one here, then add it from the add menu in one tap</string>
     <string name="pay">Pay</string>
     <string name="get">Get</string>
     <string name="confirm_deletion">Confirm deletion</string>

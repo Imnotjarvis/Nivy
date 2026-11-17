@@ -18,6 +18,7 @@ import com.nivy.data.db.dao.fake.FakeExchangeRatesDao
 import com.nivy.data.db.dao.fake.FakeLoanDao
 import com.nivy.data.db.dao.fake.FakeLoanRecordDao
 import com.nivy.data.db.dao.fake.FakePlannedPaymentDao
+import com.nivy.data.db.dao.fake.FakeQuickAddDao
 import com.nivy.data.db.dao.fake.FakeTagAssociationDao
 import com.nivy.data.db.dao.fake.FakeTagDao
 import com.nivy.data.db.dao.fake.FakeTransactionDao
@@ -82,6 +83,7 @@ class BackupDataUseCaseTest {
         creditCardDao: FakeCreditCardDao = FakeCreditCardDao(),
         accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
         exchangeRatesDao: FakeExchangeRatesDao = FakeExchangeRatesDao(),
+        quickAddDao: FakeQuickAddDao = FakeQuickAddDao(),
         fileSystem: FileSystem = mockk(relaxed = true),
         json: Json = this.json,
     ): BackupDataUseCase {
@@ -117,6 +119,8 @@ class BackupDataUseCaseTest {
             accountValueWriter = accountValueDao,
             exchangeRatesDao = exchangeRatesDao,
             exchangeRatesWriter = exchangeRatesDao,
+            quickAddDao = quickAddDao,
+            quickAddWriter = quickAddDao,
             transaction = FakeDatabaseTransaction(),
         )
     }
@@ -267,6 +271,7 @@ class BackupDataUseCaseTest {
         private val creditCards = FakeCreditCardDao()
         private val accountValues = FakeAccountValueDao()
         private val exchangeRates = FakeExchangeRatesDao()
+        private val quickAdds = FakeQuickAddDao()
         val preferences = AppPreferences(InMemoryPreferencesDataStore())
         val backup = newBackupDataUseCase(
             accountDao = accounts,
@@ -282,6 +287,7 @@ class BackupDataUseCaseTest {
             creditCardDao = creditCards,
             accountValueDao = accountValues,
             exchangeRatesDao = exchangeRates,
+            quickAddDao = quickAdds,
         )
 
         suspend fun tables() = NivyCompleteData(
@@ -297,6 +303,7 @@ class BackupDataUseCaseTest {
             creditCards = creditCards.findAll(),
             accountValues = accountValues.findAll(),
             exchangeRates = exchangeRates.findAllManuallyOverridden(),
+            quickAdds = quickAdds.findAll(),
         ).tables()
 
         suspend fun balance(account: String) =
@@ -766,6 +773,7 @@ private fun NivyCompleteData.tables() = NivyCompleteData(
     creditCards = creditCards.sortedBy { it.id },
     accountValues = accountValues.sortedBy { it.id },
     exchangeRates = exchangeRates.sortedBy { "${it.baseCurrency} ${it.currency}" },
+    quickAdds = quickAdds.sortedBy { it.id },
 )
 
 /**

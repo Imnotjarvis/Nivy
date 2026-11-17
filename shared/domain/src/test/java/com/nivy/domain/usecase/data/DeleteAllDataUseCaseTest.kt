@@ -17,6 +17,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
 import io.kotest.matchers.shouldBe
@@ -69,6 +70,7 @@ class DeleteAllDataUseCaseTest {
             },
             budgetRepository = mockk<BudgetRepository> { coEvery { deleteAll() } answers { delete() } },
             loanRepository = mockk<LoanRepository> { coEvery { deleteAll() } answers { delete() } },
+            quickAddRepository = mockk<QuickAddRepository> { coEvery { deleteAll() } answers { delete() } },
         )
     }
 
@@ -81,8 +83,8 @@ class DeleteAllDataUseCaseTest {
         // when
         useCase()
 
-        // then: all ten repositories' tables
-        deletes shouldBe List(10) { true }
+        // then: all eleven repositories' tables
+        deletes shouldBe List(11) { true }
     }
 
     @Test

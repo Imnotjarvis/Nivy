@@ -36,12 +36,12 @@ import java.util.UUID
 
 /**
  * A wallet from before Nivy's first database change (132), with a row in every table, opened the
- * way the app opens it after an update: Room runs 132 to 138 and checks the schema. Everything
+ * way the app opens it after an update: Room runs 132 to 139 and checks the schema. Everything
  * then reads back through the app's own DAOs as it was, with the new columns at their defaults,
  * and the balances still add up.
  */
 @RunWith(AndroidJUnit4::class)
-class Migration132to138DataTest {
+class Migration132to139DataTest {
 
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
@@ -70,7 +70,7 @@ class Migration132to138DataTest {
     private val loanPayment = UUID.randomUUID()
 
     @Test
-    fun aWalletAt132KeepsEveryRowAt138() {
+    fun aWalletAt132KeepsEveryRowAt139() {
         helper.createDatabase(TestDb, 132).apply {
             insertWallet()
             close()
@@ -147,6 +147,7 @@ class Migration132to138DataTest {
             // The tables added since are there, empty: no account was a credit card before 134.
             db.creditCardDao.findAll().shouldBeEmpty()
             db.accountValueDao.findAll().shouldBeEmpty()
+            db.quickAddDao.findAll().shouldBeEmpty()
 
             // Salary in, the transfer and the paid rent out; the rent still due counts for nothing.
             db.transactionDao.balance(bank, Instant.EPOCH, Far) shouldBe 1600.0

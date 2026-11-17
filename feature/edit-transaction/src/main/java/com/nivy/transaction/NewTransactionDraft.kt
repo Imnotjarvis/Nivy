@@ -7,7 +7,10 @@ import com.nivy.navigation.EditTransactionScreen
 import com.nivy.wallet.domain.pure.account.startingAccount
 import java.util.UUID
 
-/** A new transaction's draft, on the screen's account or else the last one chosen, with its default card. */
+/**
+ * A new transaction's draft, on the screen's account or else the last one chosen, with the screen's
+ * card or else the account's default one, and the title and amount a quick add fills in.
+ */
 internal suspend fun newDraft(
     screen: EditTransactionScreen,
     accounts: List<Account>,
@@ -19,14 +22,16 @@ internal suspend fun newDraft(
         accounts = accounts.filter { it.id.value != screen.toAccountId }.ifEmpty { accounts },
         appPreferences = appPreferences,
     )
-    val card = accounts.find { it.id.value == accountId }?.let { defaultCreditCard(allCreditCards, it, screen.type) }
+    val card = screen.creditCardId?.let { id -> allCreditCards.find { it.id.value == id } }
+        ?: accounts.find { it.id.value == accountId }?.let { defaultCreditCard(allCreditCards, it, screen.type) }
     return TransactionDraft(
         accountId = accountId,
         toAccountId = screen.toAccountId,
         categoryId = screen.categoryId,
         type = screen.type,
-        amount = 0.0,
+        amount = screen.amount ?: 0.0,
         toAmount = 0.0,
+        title = screen.title,
         creditCardId = card?.id?.value,
     )
 }

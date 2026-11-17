@@ -6,6 +6,7 @@ import com.nivy.base.Toaster
 import com.nivy.base.model.Theme
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
+import com.nivy.data.DataObserver
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.PositiveValue
@@ -117,6 +118,7 @@ class HomeViewModelTest : ComposeViewModelTest() {
         syncExchangeRatesUseCase = syncExchangeRates,
         userWrites = UserWrites(toaster),
         dispatchers = TestDispatchersProvider,
+        dataObserver = DataObserver(),
     )
 
     @Test

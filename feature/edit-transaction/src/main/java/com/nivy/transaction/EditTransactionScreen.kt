@@ -36,6 +36,7 @@ import com.nivy.data.model.Category
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.domain.RootScreen
 import com.nivy.navigation.EditPlannedScreen
+import com.nivy.navigation.EditQuickAddScreen
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.navigation
 import com.nivy.navigation.screenScopedViewModel
@@ -207,13 +208,18 @@ internal fun BoxWithConstraintsScope.UI(
             Spacer(Modifier.height(12.dp))
 
             RepeatButton(screen = screen, state = state, title = { titleTextFieldValue.text })
+
+            Spacer(Modifier.height(12.dp))
+
+            QuickAddButton(state = state, title = { titleTextFieldValue.text })
         }
 
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
     LaunchedEffect(Unit) {
-        if (screen.initialTransactionId == null) {
+        // A new transaction asks for its amount first, unless a quick add filled it in.
+        if (screen.initialTransactionId == null && screen.amount == null) {
             open.amount = true
         }
     }
@@ -367,6 +373,32 @@ private fun RepeatButton(screen: EditTransactionScreen, state: EditTransactionVi
                     creditCardId = state.creditCard?.id?.value,
                     startDate = state.dateTime,
                     repeatedTransactionId = screen.initialTransactionId,
+                )
+            )
+        }
+    )
+}
+
+/** Opens a new quick add filled in with the transaction, to add it again from the add menu in one tap. */
+@Composable
+private fun QuickAddButton(state: EditTransactionViewState, title: () -> String) {
+    val nav = navigation()
+    AddPrimaryAttributeButton(
+        modifier = Modifier.testTag("save_as_quick_add"),
+        icon = R.drawable.ic_plus,
+        text = stringResource(R.string.save_as_quick_add),
+        onClick = {
+            nav.back()
+            nav.navigateTo(
+                EditQuickAddScreen(
+                    quickAddId = null,
+                    type = state.transactionType,
+                    amount = state.amount,
+                    accountId = state.account?.id?.value,
+                    toAccountId = state.toAccount?.id?.value,
+                    categoryId = state.category?.id?.value,
+                    title = title(),
+                    creditCardId = state.creditCard?.id?.value,
                 )
             )
         }
