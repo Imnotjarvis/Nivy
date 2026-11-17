@@ -36,17 +36,8 @@ class QuickAddUseCase @Inject constructor(
      * accounts, or a transfer between currencies without a rate, which the editor asks for.
      */
     suspend fun add(quickAdd: QuickAdd, amount: PositiveDouble? = null): Transaction? {
-        val value = (quickAdd.amount ?: amount)?.let { amount ->
-            accountRepository.findById(quickAdd.account)?.let { PositiveValue(amount, it.asset) }
-        } ?: return null
-        val toAccount = quickAdd.toAccount
-        val toValue = if (toAccount != null) {
-            val toAsset = accountRepository.findById(toAccount)?.asset ?: return null
-            exchangeUseCase.convert(value, to = toAsset).getOrNull() ?: return null
-        } else {
-            null
-        }
-        val transaction = creditCardChargeUseCase.dated(transaction(quickAdd, value, toValue))
+        val values = values(quickAdd, amount) ?: return null
+        val transaction = creditCardChargeUseCase.dated(transaction(quickAdd, values))
         transactionRepository.save(transaction)
         dataObserver.post(DataWriteEvent.TransactionsChanged)
         return transaction
@@ -58,7 +49,29 @@ class QuickAddUseCase @Inject constructor(
         dataObserver.post(DataWriteEvent.TransactionsChanged)
     }
 
-    private fun transaction(quickAdd: QuickAdd, value: PositiveValue, toValue: PositiveValue?): Transaction {
+    /**
+     * What [quickAdd] moves: its amount, else [amount], in its account's currency, and for a
+     * transfer what arrives, in the other account's at the day's rate. Null without an amount,
+     * without its accounts, or without a rate between them.
+     */
+    private suspend fun values(quickAdd: QuickAdd, amount: PositiveDouble?): Values? {
+        val from = (quickAdd.amount ?: amount)?.let { value ->
+            accountRepository.findById(quickAdd.account)?.let { PositiveValue(value, it.asset) }
+        }
+        val toAccount = quickAdd.toAccount
+        return when {
+            from == null -> null
+            toAccount == null -> Values(from, to = null)
+            else -> accountRepository.findById(toAccount)?.asset
+                ?.let { exchangeUseCase.convert(from, to = it).getOrNull() }
+                ?.let { Values(from, it) }
+        }
+    }
+
+    /** A quick add's amount, and for a transfer what arrives. */
+    private data class Values(val from: PositiveValue, val to: PositiveValue?)
+
+    private fun transaction(quickAdd: QuickAdd, values: Values): Transaction {
         val id = TransactionId(UUID.randomUUID())
         val time = timeProvider.utcNow()
         val metadata = TransactionMetadata(
@@ -69,6 +82,8 @@ class QuickAddUseCase @Inject constructor(
             creditCard = quickAdd.creditCard,
         )
         val toAccount = quickAdd.toAccount
+        val value = values.from
+        val toValue = values.to
         return when {
             toAccount != null && toValue != null -> Transfer(
                 id = id,

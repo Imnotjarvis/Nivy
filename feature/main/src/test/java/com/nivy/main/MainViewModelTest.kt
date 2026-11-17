@@ -1,6 +1,5 @@
 package com.nivy.main
 
-import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CategoryId

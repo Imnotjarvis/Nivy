@@ -150,8 +150,6 @@ class EditTransactionViewModel @Inject constructor(
 
             tags.show(all = tagList.await(), transaction = loadedTransaction().id)
             display(loadedTransaction!!)
-            // Filled in with an amount, a new transfer's rate card is as if the amount was typed.
-            screen.amount?.takeUnless { editMode }?.let { updateCustomExchangeRateState(amt = it) }
         }
     }
 

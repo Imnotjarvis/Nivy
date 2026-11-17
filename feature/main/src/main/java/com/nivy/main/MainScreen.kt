@@ -204,11 +204,13 @@ private fun BoxWithConstraintsScope.UI(
             )
         },
 
-        quickAdds = quickAdds,
-        baseData = baseData,
-        onQuickAdd = onQuickAdd,
-        onEditQuickAdd = onEditQuickAdd,
-        onEditQuickAdds = { nav.navigateTo(QuickAddsScreen) },
+        quickAdds = QuickAddsMenu(
+            quickAdds = quickAdds,
+            baseData = baseData,
+            onQuickAdd = onQuickAdd,
+            onEditQuickAdd = onEditQuickAdd,
+            onEdit = { nav.navigateTo(QuickAddsScreen) },
+        ),
 
         showAddAccountModal = {
             accountModalData = AccountModalData(

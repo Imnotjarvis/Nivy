@@ -46,7 +46,10 @@ class QuickAddScreensPaparazziTest(
 
     @Test
     fun `snapshot the quick adds`() = shot {
-        QuickAddList(state = QuickAddsState(QuickAdds.toImmutableList(), BaseData, reorderVisible = false), onEvent = {})
+        QuickAddList(
+            state = QuickAddsState(QuickAdds.toImmutableList(), BaseData, reorderVisible = false),
+            onEvent = {},
+        )
     }
 
     @Test

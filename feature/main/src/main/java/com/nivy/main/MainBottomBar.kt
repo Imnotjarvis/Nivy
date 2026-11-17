@@ -65,13 +65,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
     onAddTransfer: () -> Unit,
     onAddPlannedPayment: () -> Unit,
 
-    // The quick adds, in their order: a tap adds one, a long press opens the editor filled in
-    // with it, Edit opens their list.
-    quickAdds: ImmutableList<QuickAdd>,
-    baseData: AppBaseData,
-    onQuickAdd: (QuickAdd) -> Unit,
-    onEditQuickAdd: (QuickAdd) -> Unit,
-    onEditQuickAdds: () -> Unit,
+    quickAdds: QuickAddsMenu,
 
     showAddAccountModal: () -> Unit,
 ) {
@@ -154,21 +148,21 @@ internal fun BoxWithConstraintsScope.BottomBar(
                     onAddPlannedPayment()
                 }
 
-                if (quickAdds.isNotEmpty()) {
+                if (quickAdds.quickAdds.isNotEmpty()) {
                     QuickAdds(
-                        quickAdds = quickAdds,
-                        baseData = baseData,
+                        quickAdds = quickAdds.quickAdds,
+                        baseData = quickAdds.baseData,
                         onQuickAdd = {
                             expanded = false
-                            onQuickAdd(it)
+                            quickAdds.onQuickAdd(it)
                         },
                         onEditQuickAdd = {
                             expanded = false
-                            onEditQuickAdd(it)
+                            quickAdds.onEditQuickAdd(it)
                         },
                         onEdit = {
                             expanded = false
-                            onEditQuickAdds()
+                            quickAdds.onEdit()
                         },
                     )
                 }
@@ -227,6 +221,18 @@ internal fun BoxWithConstraintsScope.BottomBar(
         }
     }
 }
+
+/**
+ * The quick adds the add menu shows, in their order, with the accounts and categories they show: a
+ * tap adds one, a long press opens the transaction editor filled in with it, Edit opens their list.
+ */
+internal class QuickAddsMenu(
+    val quickAdds: ImmutableList<QuickAdd>,
+    val baseData: AppBaseData,
+    val onQuickAdd: (QuickAdd) -> Unit,
+    val onEditQuickAdd: (QuickAdd) -> Unit,
+    val onEdit: () -> Unit,
+)
 
 /**
  * The quick adds under their heading, three to a row, by the buttons that add a transaction:
