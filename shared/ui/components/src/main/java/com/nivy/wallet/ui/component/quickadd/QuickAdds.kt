@@ -36,8 +36,6 @@ import com.nivy.design.system.colors.categoryColor
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.readableOn
-import com.nivy.design.system.shapes.AppCornerRadius
-import com.nivy.design.system.shapes.nestedShape
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.ui.R
 import com.nivy.wallet.data.AppBaseData
@@ -48,9 +46,8 @@ import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.utils.amountAndCode
 
 /**
- * A quick add in the add menu: its category's icon on its color, then its name over its amount.
- * The menu's panel holds it 16 dp in from its sides, so its corners are the panel's less that,
- * as Add planned payment's are.
+ * A quick add in the add menu: its category's icon on its color, then its name over its amount,
+ * with the blocks' corners, as the menu's buttons under it.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -61,7 +58,7 @@ fun QuickAddTile(
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = nestedShape(AppCornerRadius.ScreenMargin)
+    val shape = MaterialTheme.shapes.medium
     Column(
         modifier = modifier
             .clip(shape)

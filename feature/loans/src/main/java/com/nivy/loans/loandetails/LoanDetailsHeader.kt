@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nivy.design.system.shapes.nestedShape
 import com.nivy.data.model.Account
 import com.nivy.data.model.Loan
 import com.nivy.design.system.colors.Gray
@@ -231,9 +230,7 @@ private fun LoanInfoCard(
                         fontWeight = FontWeight.ExtraBold
                     ),
                     padding = 8.dp,
-                    iconEdgePadding = 8.dp,
-                    // 12 dp from the card's top: its corners less that, parallel to the card's.
-                    shape = nestedShape(12.dp)
+                    iconEdgePadding = 8.dp
                 ) {
                     nav.navigateTo(
                         TransactionsScreen(
@@ -378,9 +375,7 @@ private fun LoanInfoCard(
                 color = readableOn(contrastColor),
                 fontWeight = FontWeight.Bold
             ),
-            wrapContentMode = false,
-            // 12 dp from the card's bottom.
-            shape = nestedShape(12.dp)
+            wrapContentMode = false
         ) {
             onAddRecord()
         }

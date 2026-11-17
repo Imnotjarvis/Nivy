@@ -38,7 +38,6 @@ import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.readableTint
 import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.shapes.PillShape
-import com.nivy.design.system.shapes.nestedShape
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.typography.numberLabelMedium
 import com.nivy.ui.R
@@ -203,8 +202,8 @@ fun TransactionCard(
 
         if (!transaction.settled) {
             // Skip and Pay, Get or Transfer, as far in from the card's sides as the card ends below
-            // them: their corners, the card's less that, run parallel to the card's. An income's in
-            // its green, the others in the text's color.
+            // them, in line with its chips. An income's in its green, the others in the text's
+            // color.
             Spacer(Modifier.height(16.dp))
             val isIncome = type == TransactionType.INCOME
             Row {
@@ -214,7 +213,6 @@ fun TransactionCard(
                         .padding(start = CardInset),
                     text = stringResource(R.string.skip),
                     wrapContentMode = false,
-                    shape = nestedShape(CardInset),
                     backgroundColor = MaterialTheme.colorScheme.surface,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
@@ -238,7 +236,6 @@ fun TransactionCard(
                         }
                     ),
                     wrapContentMode = false,
-                    shape = nestedShape(CardInset),
                     backgroundColor = if (isIncome) Green else MaterialTheme.colorScheme.onSurface,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = if (isIncome) White else MaterialTheme.colorScheme.surface,

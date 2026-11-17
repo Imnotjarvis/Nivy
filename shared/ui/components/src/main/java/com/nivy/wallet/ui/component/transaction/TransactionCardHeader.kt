@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import com.nivy.design.system.shapes.nestedShape
+import com.nivy.design.system.shapes.PillShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -51,8 +51,7 @@ import com.nivy.design.system.colors.accountColor
 
 /**
  * How far into a transaction card, from its nearest edges, its chips and buttons sit: the header
- * row's padding, and the room above and below the card's content. Their corners are the card's
- * less this, so they run parallel to the card's.
+ * row's padding, and the room above and below the card's content.
  */
 internal val CardInset = 20.dp
 
@@ -212,15 +211,13 @@ private fun TransactionBadge(
 
     onClick: () -> Unit
 ) {
-    val shape = nestedShape(CardInset)
     Row(
         modifier = Modifier
-            .clip(shape)
-            .background(backgroundColor, shape)
+            .clip(PillShape)
+            .background(backgroundColor, PillShape)
             .clickable {
                 onClick()
-            }
-            .padding(end = 12.dp),
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(8.dp))
@@ -243,7 +240,9 @@ private fun TransactionBadge(
             )
         )
 
-        Spacer(Modifier.width(20.dp))
+        // As much room after the text as before the icon's drawing, which sits a few dp inside
+        // its box.
+        Spacer(Modifier.width(16.dp))
     }
 }
 
@@ -290,10 +289,10 @@ fun TransferAccounts(
                                 0.5f to accountColor(toAccount.color.value),
                                 1f to accountColor(toAccount.color.value)
                             ),
-                            shape = nestedShape(CardInset)
+                            shape = PillShape
                         )
                 } else {
-                    Modifier.background(MaterialTheme.colorScheme.surface, nestedShape(CardInset))
+                    Modifier.background(MaterialTheme.colorScheme.surface, PillShape)
                 }
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -356,6 +355,7 @@ fun TransferAccounts(
             )
         )
 
-        Spacer(Modifier.width(20.dp))
+        // As much room after the text as before the first icon's drawing, as a chip has.
+        Spacer(Modifier.width(16.dp))
     }
 }

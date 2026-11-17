@@ -31,9 +31,8 @@ import java.util.UUID
 import kotlin.math.abs
 
 /**
- * A payment to come's Skip and Pay buttons sit as far from its card's sides as from its bottom:
- * their corners, the card's radius less that, then run parallel to the card's. Measured on the
- * card as it's drawn, at a large radius, where a difference shows.
+ * A payment to come's Skip and Pay buttons sit as far from its card's sides as from its bottom, in
+ * line with its chips. Measured on the card as it's drawn, at a large radius.
  */
 class DueCardButtonsTest {
     private var frame: BufferedImage? = null
