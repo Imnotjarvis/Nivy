@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -154,6 +155,7 @@ fun QuickAddRow(
 
 /** What names a quick add: its title, else its category's name, else its type. */
 @Composable
+@ReadOnlyComposable
 fun QuickAdd.name(baseData: AppBaseData): String =
     title?.value
         ?: baseData.categories.find { it.id == category }?.name?.value
@@ -161,6 +163,7 @@ fun QuickAdd.name(baseData: AppBaseData): String =
 
 /** Its amount in its account's currency, or that it's entered each time. */
 @Composable
+@ReadOnlyComposable
 fun QuickAdd.amountText(baseData: AppBaseData): String =
     amount?.let { amountAndCode(it.value, currency(baseData)) } ?: stringResource(R.string.any_amount)
 
@@ -170,6 +173,7 @@ fun QuickAdd.currency(baseData: AppBaseData): String =
 
 // Its account, or a transfer's two.
 @Composable
+@ReadOnlyComposable
 private fun QuickAdd.accounts(baseData: AppBaseData): String {
     fun name(id: AccountId) = baseData.accounts.find { it.id == id }?.name?.value
     val from = name(account) ?: stringResource(R.string.deleted)
