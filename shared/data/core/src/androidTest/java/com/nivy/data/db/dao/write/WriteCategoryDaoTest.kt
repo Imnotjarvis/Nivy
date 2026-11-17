@@ -9,6 +9,7 @@ import com.nivy.data.db.NivyRoomDatabase
 import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.CategoryEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
+import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TransactionEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -36,7 +37,7 @@ class WriteCategoryDaoTest {
     }
 
     @Test
-    fun deletingCategoryKeepsItsTransactionsAndPlannedPaymentsUncategorized() = runBlocking {
+    fun deletingCategoryKeepsItsTransactionsPlannedPaymentsAndQuickAddsUncategorized() = runBlocking {
         val account = AccountEntity(name = "Cash", currency = "EUR", color = 0)
         val food = CategoryEntity(name = "Food", color = 0)
         val transaction = TransactionEntity(
@@ -55,10 +56,18 @@ class WriteCategoryDaoTest {
             accountId = account.id,
             categoryId = food.id,
         )
+        val lunch = QuickAddEntity(
+            type = TransactionType.EXPENSE,
+            accountId = account.id,
+            amount = 12.0,
+            categoryId = food.id,
+            title = "Lunch",
+        )
         db.writeAccountDao.save(account)
         db.writeCategoryDao.save(food)
         db.writeTransactionDao.save(transaction)
         db.writePlannedPaymentRuleDao.save(rule)
+        db.writeQuickAddDao.save(lunch)
 
         db.writeCategoryDao.deleteById(food.id)
 
@@ -67,5 +76,6 @@ class WriteCategoryDaoTest {
         assertEquals(500.0, kept?.amount)
         assertNull(kept?.categoryId)
         assertNull(db.plannedPaymentRuleDao.findById(rule.id)?.categoryId)
+        assertEquals(lunch.copy(categoryId = null), db.quickAddDao.findById(lunch.id))
     }
 }

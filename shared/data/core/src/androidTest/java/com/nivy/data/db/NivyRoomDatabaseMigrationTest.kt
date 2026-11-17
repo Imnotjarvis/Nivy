@@ -31,6 +31,24 @@ class NivyRoomDatabaseMigrationTest {
     )
 
     @Test
+    fun migrate138to139_QuickAdds() {
+        helper.createDatabase(TestDb, 138).close()
+
+        // A new table: Room adds it, and checks the schema.
+        val newDb = helper.runMigrationsAndValidate(TestDb, 139, true)
+
+        newDb.execSQL(
+            "INSERT INTO quick_adds (type, accountId, amount, orderNum, id) " +
+                "VALUES ('EXPENSE', '${UUID.randomUUID()}', NULL, 0.0, '${UUID.randomUUID()}')"
+        )
+        newDb.query("SELECT amount FROM quick_adds").use {
+            it.moveToFirst()
+            it.isNull(0) shouldBe true
+        }
+        newDb.close()
+    }
+
+    @Test
     fun migrate137to138_PlannedTransfersAndEndDates() {
         val rule = UUID.randomUUID().toString()
         helper.createDatabase(TestDb, 137).apply {

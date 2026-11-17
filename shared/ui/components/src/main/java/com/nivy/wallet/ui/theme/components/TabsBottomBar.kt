@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -46,6 +48,7 @@ import androidx.compose.ui.zIndex
 import com.nivy.design.system.colors.White
 import com.nivy.design.system.colors.readableTint
 import com.nivy.design.system.motion.PanelSolidAt
+import com.nivy.design.system.motion.appearTween
 import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.shapes.ShapeTop
 import com.nivy.design.system.shapes.nestedShape
@@ -283,6 +286,69 @@ fun BottomBarMenuButton(
         )
     }
 }
+
+/**
+ * A short message over [TabsBottomBar], as wide as the screen's blocks and as far above the bar as
+ * the bar's buttons are apart, with [action] at its end, as Undo: the theme's text color, with the
+ * page's on it, so it stands out from what scrolls under it. It fades in as it turns [visible] and
+ * out after; while it shows, taps on it don't reach what's behind.
+ */
+@Composable
+fun BoxWithConstraintsScope.BottomBarMessage(
+    visible: Boolean,
+    text: String,
+    action: String,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val shown by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = appearTween(),
+        label = "bottom_bar_message",
+    )
+    if (!visible && shown == 0f) return
+    val shape = MaterialTheme.shapes.medium
+    Row(
+        modifier = modifier
+            .align(Alignment.BottomCenter)
+            .zIndex(MenuZIndex)
+            .graphicsLayer { alpha = shown }
+            .navigationBarsPadding()
+            .padding(start = BarMargin, end = BarMargin, bottom = BarMargin + BarHeight + BarGap)
+            .fillMaxWidth()
+            .height(MessageHeight)
+            .shadow(BarElevation, shape)
+            .background(MaterialTheme.colorScheme.onSurface, shape)
+            .consumeClicks(rememberInteractionSource())
+            .padding(start = BarMargin, end = MessageInset),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = text,
+            maxLines = 2,
+            style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.surface),
+        )
+        Spacer(Modifier.width(MessageInset))
+        // Inside the message, by its end: its corners less the inset, parallel to them.
+        Text(
+            modifier = Modifier
+                .clip(nestedShape(MessageInset))
+                .background(MaterialTheme.colorScheme.surface)
+                .clickable(onClick = onAction, role = Role.Button)
+                .padding(horizontal = BarMargin, vertical = 12.dp),
+            text = action,
+            style = MaterialTheme.typography.labelLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+            ),
+        )
+    }
+}
+
+// The message is a little lower than the bar; its action sits this far in from its end.
+private val MessageHeight = 56.dp
+private val MessageInset = 8.dp
 
 /** Where the + button beside [TabsBottomBar]'s tabs goes: its top left corner, in pixels. */
 @Composable

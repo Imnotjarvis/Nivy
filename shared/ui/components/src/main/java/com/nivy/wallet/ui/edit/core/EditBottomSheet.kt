@@ -109,6 +109,8 @@ fun BoxWithConstraintsScope.EditBottomSheet(
     convertedAmount: Double? = null,
     convertedAmountCurrencyCode: String? = null,
     onHeightChanged: (Dp) -> Unit = {},
+    // An amount that can be left empty, as a quick add's: shown, and entered empty, as this.
+    emptyAmount: String? = null,
 ) {
     val rootView = LocalView.current
     val keyboardShown = isKeyboardVisible()
@@ -203,6 +205,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             label = label,
             account = selectedAccount,
             showConvertedAmountText = showConvertedAmountText,
+            emptyAmount = emptyAmount,
             percentExpanded = percentExpanded,
             onShowAmountModal = {
                 setAmountModalShown(true)
@@ -268,6 +271,7 @@ fun BoxWithConstraintsScope.EditBottomSheet(
             )
         },
         amountSpacerTop = 48.dp,
+        emptyAmount = emptyAmount,
         dismiss = {
             setAmountModalShown(false)
         }

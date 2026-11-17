@@ -29,6 +29,8 @@ import com.nivy.navigation.MainScreen
 import com.nivy.navigation.OnboardingScreen
 import com.nivy.navigation.PieChartStatisticScreen
 import com.nivy.navigation.PlannedPaymentsScreen
+import com.nivy.navigation.QuickAddsScreen
+import com.nivy.navigation.EditQuickAddScreen
 import com.nivy.navigation.ReportScreen
 import com.nivy.navigation.TrendsScreen
 import com.nivy.navigation.Screen
@@ -39,6 +41,8 @@ import com.nivy.onboarding.OnboardingScreen
 import com.nivy.piechart.PieChartStatisticScreen
 import com.nivy.planned.edit.EditPlannedScreen
 import com.nivy.planned.list.PlannedPaymentsScreen
+import com.nivy.quickadd.edit.EditQuickAddScreen
+import com.nivy.quickadd.list.QuickAddsScreen
 import com.nivy.reports.ReportScreen
 import com.nivy.reports.trends.TrendsScreen
 import com.nivy.search.SearchScreen
@@ -65,6 +69,8 @@ fun BoxWithConstraintsScope.NivyNavGraph(screen: Screen?) {
         is SettingsScreen -> SettingsScreen()
         is PlannedPaymentsScreen -> PlannedPaymentsScreen()
         is EditPlannedScreen -> EditPlannedScreen(screen = screen)
+        is QuickAddsScreen -> QuickAddsScreen()
+        is EditQuickAddScreen -> EditQuickAddScreen(screen = screen)
         is BalanceScreen -> BalanceScreen()
         is ImportScreen -> ImportCSVScreen(screen = screen)
         is ReportScreen -> ReportScreen()

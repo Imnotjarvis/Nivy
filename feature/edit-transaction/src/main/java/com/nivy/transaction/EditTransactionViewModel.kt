@@ -150,6 +150,8 @@ class EditTransactionViewModel @Inject constructor(
 
             tags.show(all = tagList.await(), transaction = loadedTransaction().id)
             display(loadedTransaction!!)
+            // Filled in with an amount, a new transfer's rate card is as if the amount was typed.
+            screen.amount?.takeUnless { editMode }?.let { updateCustomExchangeRateState(amt = it) }
         }
     }
 
@@ -244,7 +246,7 @@ class EditTransactionViewModel @Inject constructor(
         rateCard.show(transaction, account = account, toAccount = toAccount, currency = currency)
 
         displayLoanHelper = transactionLoanDisplay.getDisplayLoanHelper(trans = transaction)
-        // Saved and paid, in no plan and no loan: a plan can repeat it.
+        // Saved and paid, in no plan and no loan: a plan can repeat it, a quick add add it again.
         repeatable = editMode && transaction.dueDate == null && transaction.recurringRuleId == null &&
             transaction.loanId == null && transaction.loanRecordId == null
     }

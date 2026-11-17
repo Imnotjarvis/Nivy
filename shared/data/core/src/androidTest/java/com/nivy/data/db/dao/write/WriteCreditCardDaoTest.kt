@@ -8,6 +8,7 @@ import com.nivy.base.model.TransactionType
 import com.nivy.data.db.NivyRoomDatabase
 import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.CreditCardEntity
+import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TransactionEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -61,6 +62,26 @@ class WriteCreditCardDaoTest {
             bought.copy(creditCardId = null, purchaseDateTime = null, chargeShift = 0),
             db.transactionDao.findById(bought.id),
         )
+    }
+
+    @Test
+    fun deletingACardKeepsItsQuickAddsPaidFromTheAccount() = runBlocking {
+        val account = AccountEntity(name = "Bank", currency = "EUR", color = 0)
+        val visa = card(account, "Visa")
+        val metro = QuickAddEntity(
+            type = TransactionType.EXPENSE,
+            accountId = account.id,
+            amount = 2.2,
+            title = "Metro",
+            creditCardId = visa.id,
+        )
+        db.writeAccountDao.save(account)
+        db.writeCreditCardDao.saveMany(listOf(visa))
+        db.writeQuickAddDao.save(metro)
+
+        db.writeCreditCardDao.deleteById(visa.id)
+
+        assertEquals(metro.copy(creditCardId = null), db.quickAddDao.findById(metro.id))
     }
 
     private fun card(account: AccountEntity, name: String) = CreditCardEntity(

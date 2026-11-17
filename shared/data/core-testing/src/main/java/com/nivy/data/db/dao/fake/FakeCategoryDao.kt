@@ -35,10 +35,12 @@ class FakeCategoryDao : CategoryDao, WriteCategoryDao {
         values.forEach { save(it) }
     }
 
-    // This fake holds no transactions or planned payments.
+    // This fake holds no transactions, planned payments or quick adds.
     override suspend fun uncategorizeTransactions(id: UUID) = Unit
 
     override suspend fun uncategorizePlannedPaymentRules(id: UUID) = Unit
+
+    override suspend fun uncategorizeQuickAdds(id: UUID) = Unit
 
     override suspend fun deleteCategoryRow(id: UUID) {
         items.removeIf { it.id == id }

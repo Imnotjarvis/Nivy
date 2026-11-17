@@ -25,4 +25,10 @@ sealed interface DataWriteEvent {
      * deleted or a database transaction: memos read the database again, as the accounts tab does.
      */
     data object AllDataChange : DataWriteEvent
+
+    /**
+     * Transactions were added or deleted without leaving Home, as a quick add and its undo do:
+     * Home lists them again, and the accounts tab works out the balances again.
+     */
+    data object TransactionsChanged : DataWriteEvent
 }

@@ -34,6 +34,10 @@ data class EditTransactionScreen(
     val categoryId: UUID? = null,
     // A new transfer's destination: the money comes from another account.
     val toAccountId: UUID? = null,
+    // A new transaction filled in from a quick add.
+    val title: String? = null,
+    val amount: Double? = null,
+    val creditCardId: UUID? = null,
 ) : Screen {
     override val isLegacy: Boolean
         get() = true
@@ -101,6 +105,27 @@ data object BalanceScreen : Screen {
 }
 
 data object PlannedPaymentsScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
+/** The quick adds, to add, change, reorder or delete. */
+data object QuickAddsScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
+/** A quick add's editor: a new one, filled in with what's given, or [quickAddId]'s. */
+data class EditQuickAddScreen(
+    val quickAddId: UUID?,
+    val type: TransactionType,
+    val amount: Double? = null,
+    val accountId: UUID? = null,
+    val toAccountId: UUID? = null,
+    val categoryId: UUID? = null,
+    val title: String? = null,
+    val creditCardId: UUID? = null,
+) : Screen {
     override val isLegacy: Boolean
         get() = true
 }

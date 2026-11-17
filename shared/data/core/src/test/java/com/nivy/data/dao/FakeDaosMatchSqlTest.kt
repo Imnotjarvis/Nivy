@@ -7,6 +7,7 @@ import com.nivy.data.db.dao.fake.FakeBudgetDao
 import com.nivy.data.db.dao.fake.FakeLoanDao
 import com.nivy.data.db.dao.fake.FakeLoanRecordDao
 import com.nivy.data.db.dao.fake.FakePlannedPaymentDao
+import com.nivy.data.db.dao.fake.FakeQuickAddDao
 import com.nivy.data.db.dao.fake.FakeTagAssociationDao
 import com.nivy.data.db.dao.fake.FakeTagDao
 import com.nivy.data.db.dao.fake.FakeTransactionDao
@@ -14,6 +15,7 @@ import com.nivy.data.db.entity.BudgetEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
+import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.db.entity.TransactionEntity
@@ -174,6 +176,39 @@ class FakeDaosMatchSqlTest {
 
         links.findAll() shouldBe listOf(toKept)
     }
+
+    @Test
+    fun `quick adds come in their order, smallest first, as ORDER BY does`() = runTest {
+        val dao = FakeQuickAddDao()
+        val second = quickAdd(Account, orderNum = 2.0)
+        val first = quickAdd(Account, orderNum = 1.0)
+        dao.save(second)
+        dao.save(first)
+
+        dao.findAll() shouldBe listOf(first, second)
+    }
+
+    @Test
+    fun `deleting an account's quick adds takes the transfers into it too`() = runTest {
+        val dao = FakeQuickAddDao()
+        val account = UUID.randomUUID()
+        val other = quickAdd(UUID.randomUUID())
+        dao.save(quickAdd(account))
+        dao.save(quickAdd(UUID.randomUUID(), toAccountId = account))
+        dao.save(other)
+
+        dao.deleteAllByAccountId(account)
+
+        dao.findAll() shouldBe listOf(other)
+    }
+
+    private fun quickAdd(accountId: UUID, toAccountId: UUID? = null, orderNum: Double = 0.0) = QuickAddEntity(
+        type = if (toAccountId != null) TransactionType.TRANSFER else TransactionType.EXPENSE,
+        accountId = accountId,
+        amount = 2.2,
+        toAccountId = toAccountId,
+        orderNum = orderNum,
+    )
 
     private fun tag(name: String) = TagEntity(UUID.randomUUID(), name, null, 0, null, 0.0, Now, false, Now)
 

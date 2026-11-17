@@ -13,6 +13,7 @@ import com.nivy.data.repository.AccountValueRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.navigation.Navigation
 import com.nivy.wallet.utils.ioThread
@@ -27,6 +28,7 @@ class AccountCategoryDeletion @Inject constructor(
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val creditCardRepository: CreditCardRepository,
     private val accountValueRepository: AccountValueRepository,
+    private val quickAddRepository: QuickAddRepository,
     private val transaction: DatabaseTransaction,
     private val nav: Navigation,
 ) {
@@ -40,6 +42,7 @@ class AccountCategoryDeletion @Inject constructor(
                 plannedPaymentRuleRepository.deleteAllByAccountId(accountId = AccountId(accountId))
                 creditCardRepository.deleteAllByAccountId(accountId = AccountId(accountId))
                 accountValueRepository.deleteAllByAccountId(accountId = AccountId(accountId))
+                quickAddRepository.deleteAllByAccountId(accountId = AccountId(accountId))
                 accountRepository.deleteById(AccountId(accountId))
             }
 

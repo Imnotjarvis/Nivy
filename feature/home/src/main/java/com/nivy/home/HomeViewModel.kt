@@ -52,11 +52,15 @@ import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import com.nivy.wallet.domain.usecase.StartDayOfMonthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.nivy.data.DataObserver
+import com.nivy.data.DataWriteEvent
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -93,7 +97,9 @@ class HomeViewModel @Inject constructor(
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase,
     private val userWrites: UserWrites,
     private val dispatchers: DispatchersProvider,
+    private val dataObserver: DataObserver,
 ) : ComposeViewModel<HomeState, HomeEvent>() {
+
     private var currentTheme by mutableStateOf(Theme.AUTO)
     private var period by mutableStateOf(periodState.selected)
     private var baseData by mutableStateOf(
@@ -136,6 +142,10 @@ class HomeViewModel @Inject constructor(
     override fun uiState(): HomeState {
         LaunchedEffect(Unit) {
             start()
+        }
+        // A quick add, or taking it back, changes the transactions while Home shows.
+        LaunchedEffect(Unit) {
+            dataObserver.writeEvents.filterIsInstance<DataWriteEvent.TransactionsChanged>().collectLatest { reload() }
         }
 
         return HomeState(

@@ -59,6 +59,7 @@ import dagger.hilt.android.EntryPointAccessors
 import java.util.UUID
 import kotlin.math.truncate
 import androidx.compose.material3.MaterialTheme
+import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.typography.numberHeadlineMedium
 import androidx.compose.runtime.LaunchedEffect
 
@@ -75,6 +76,9 @@ fun BoxWithConstraintsScope.AmountModal(
     decimalCountMax: Int = 2,
     header: (@Composable () -> Unit)? = null,
     amountSpacerTop: Dp = 64.dp,
+    // An amount that can be left empty, as a quick add's: shown while nothing's entered, and Enter
+    // then gives 0.
+    emptyAmount: String? = null,
     onAmountChanged: (Double) -> Unit,
 ) {
     var amount by remember(id) {
@@ -120,7 +124,7 @@ fun BoxWithConstraintsScope.AmountModal(
                 iconStart = R.drawable.ic_check
             ) {
                 // An amount that isn't a number yet ("." alone, say) keeps the dialog open.
-                amount.amountToDoubleOrNull()?.let {
+                (amount.amountToDoubleOrNull() ?: 0.0.takeIf { emptyAmount != null && amount.isEmpty() })?.let {
                     onAmountChanged(it)
                     dismiss()
                 }
@@ -160,10 +164,22 @@ fun BoxWithConstraintsScope.AmountModal(
             hideKeyboard(rootView)
         }
 
-        AmountCurrency(
-            amount = amount,
-            currency = currency
-        )
+        if (emptyAmount != null && amount.isEmpty()) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = emptyAmount,
+                style = MaterialTheme.typography.numberHeadlineMedium.copy(
+                    color = Gray,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                ),
+            )
+        } else {
+            AmountCurrency(
+                amount = amount,
+                currency = currency
+            )
+        }
 
         Spacer(Modifier.height(8.dp))
 
