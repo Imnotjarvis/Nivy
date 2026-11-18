@@ -48,6 +48,8 @@ fun NivyButton(
     padding: Dp = 12.dp,
     iconEdgePadding: Dp = 12.dp,
     iconTextPadding: Dp = 4.dp,
+    // Between the text and an end without an icon.
+    textEdgePadding: Dp = 24.dp,
     shape: Shape = PillShape,
     onClick: () -> Unit
 ) {
@@ -81,7 +83,7 @@ fun NivyButton(
                 )
             }
             else -> {
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(textEdgePadding))
             }
         }
 
@@ -119,7 +121,7 @@ fun NivyButton(
                 )
             }
             else -> {
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(textEdgePadding))
             }
         }
     }

@@ -3,6 +3,7 @@ package com.nivy.widget.balance
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -14,6 +15,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.nivy.domain.AppStarter
+import com.nivy.domain.WidgetCornerRadius
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -28,9 +30,11 @@ class WalletBalanceWidgetWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val numbers: WalletBalanceWidgetNumbers,
     private val appStarter: AppStarter,
+    private val cornerRadius: WidgetCornerRadius,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val shown = numbers.load()
+        val radius = cornerRadius.dp()
         val widget = WalletBalanceWidget(getAppStarter = { appStarter })
         GlanceAppWidgetManager(applicationContext).getGlanceIds(WalletBalanceWidget::class.java).forEach { id ->
             updateAppWidgetState(applicationContext, PreferencesGlanceStateDefinition, id) { prefs ->
@@ -40,6 +44,7 @@ class WalletBalanceWidgetWorker @AssistedInject constructor(
                     this[stringPreferencesKey(PrefsKey.CURRENCY)] = shown.currency
                     this[doublePreferencesKey(PrefsKey.INCOME)] = shown.income
                     this[doublePreferencesKey(PrefsKey.EXPENSE)] = shown.expense
+                    if (radius != null) this[floatPreferencesKey(PrefsKey.CORNER_RADIUS)] = radius
                 }
             }
             widget.update(applicationContext, id)

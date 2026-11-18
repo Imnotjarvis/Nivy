@@ -3,6 +3,7 @@ package com.nivy.widget.balance
 import android.content.Intent
 import android.util.TypedValue
 import android.widget.FrameLayout
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
@@ -38,7 +39,13 @@ class WalletBalanceWidgetPaparazziTest {
     }
 
     @Test
-    fun `snapshot the balance widget`() {
+    fun `snapshot the balance widget`() = snapshot(cornerRadius = 16.dp)
+
+    // From Android 12 its corners and its chips' are the app's corner radius, whatever it is.
+    @Test
+    fun `snapshot the balance widget with the corners of a larger radius`() = snapshot(cornerRadius = 40.dp)
+
+    private fun snapshot(cornerRadius: Dp) {
         val context = paparazzi.context
         val open = actionStartActivity(Intent())
         val views = runBlocking {
@@ -49,6 +56,7 @@ class WalletBalanceWidgetPaparazziTest {
                     currency = "EUR",
                     income = chipAmount(2_500.0, "EUR"),
                     expense = chipAmount(80.5, "EUR"),
+                    cornerRadius = cornerRadius,
                     onIncomeClick = open,
                     onExpenseClick = open,
                     onTransferClick = open,

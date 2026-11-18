@@ -3,6 +3,7 @@ package com.nivy.widget.balance
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
@@ -11,6 +12,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -37,6 +39,7 @@ internal fun WalletBalanceWidgetContent(
     currency: String,
     income: String,
     expense: String,
+    cornerRadius: Dp,
     onIncomeClick: Action,
     onExpenseClick: Action,
     onTransferClick: Action,
@@ -46,6 +49,7 @@ internal fun WalletBalanceWidgetContent(
     Box(
         GlanceModifier
             .background(ImageProvider(R.drawable.shape_widget_background))
+            .cornerRadius(cornerRadius)
             .clickable(onWidgetClick),
         contentAlignment = Alignment.Center
     ) {
@@ -66,7 +70,7 @@ internal fun WalletBalanceWidgetContent(
                 )
             } else {
                 BalanceSection(balance, currency)
-                IncomeExpenseSection(income, expense, currency)
+                IncomeExpenseSection(income, expense, currency, cornerRadius)
                 ButtonsSection(onIncomeClick, onExpenseClick, onTransferClick)
             }
         }
@@ -126,6 +130,8 @@ private fun IncomeExpenseSection(
     income: String,
     expense: String,
     currency: String,
+    // 12 dp inside the widget: the whole radius, as the app's chips have.
+    cornerRadius: Dp,
 ) {
     Row(
         GlanceModifier.fillMaxWidth()
@@ -137,7 +143,8 @@ private fun IncomeExpenseSection(
             GlanceModifier
                 .padding(12.dp)
                 .defaultWeight()
-                .background(ImageProvider(R.drawable.income_shape_widget_background)),
+                .background(ImageProvider(R.drawable.income_shape_widget_background))
+                .cornerRadius(cornerRadius),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(ImageProvider(R.drawable.ic_income_white), resources.getString((R.string.income)))
@@ -155,7 +162,8 @@ private fun IncomeExpenseSection(
             GlanceModifier
                 .padding(12.dp)
                 .defaultWeight()
-                .background(ImageProvider(R.drawable.expense_shape_widget_background)),
+                .background(ImageProvider(R.drawable.expense_shape_widget_background))
+                .cornerRadius(cornerRadius),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(

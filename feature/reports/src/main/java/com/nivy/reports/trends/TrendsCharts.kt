@@ -37,6 +37,7 @@ import com.nivy.design.system.colors.Orange
 import com.nivy.design.system.colors.expenseRed
 import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.minimalTone
+import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.wallet.domain.pure.forecast.Band
 import com.nivy.wallet.ui.component.percent
 import kotlin.math.abs
@@ -181,7 +182,8 @@ internal val AdjustedColor: Color get() = if (ColorMode.minimal) minimalTone(2) 
 /** What a line of the net worth chart's bubble tells: the month, the amount, a gain or a loss. */
 internal enum class BubbleLine { Label, Amount, Gain, Loss }
 
-// The bubble over the chart, centered on [x] and kept inside it: [texts], one under the other.
+// The bubble over the chart, centered on [x] and kept inside it: [texts], one under the other,
+// with the blocks' corners, as round as its height allows.
 private fun DrawScope.bubble(texts: List<TextLayoutResult>, x: Float, color: Color) {
     if (texts.isEmpty()) return
     val padding = BubblePadding.toPx()
@@ -192,7 +194,7 @@ private fun DrawScope.bubble(texts: List<TextLayoutResult>, x: Float, color: Col
         color,
         topLeft = Offset(left, 0f),
         size = Size(width, height),
-        cornerRadius = CornerRadius(BubbleRadius.toPx())
+        cornerRadius = CornerRadius(minOf(AppCornerRadius.value.toPx(), height / 2))
     )
     var top = padding
     texts.forEach { text ->
@@ -545,7 +547,6 @@ private val AverageWidth = 1.5.dp
 private val Dash = 4.dp
 private val SmallPoint = 3.dp
 private val BubblePadding = 8.dp
-private val BubbleRadius = 12.dp
 private val BubbleGap = 12.dp
 private val LabelGap = 8.dp
 private val BarGap = 2.dp

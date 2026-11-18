@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
-import android.view.RoundedCorner
 import android.view.WindowManager
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
@@ -35,6 +34,7 @@ import com.nivy.base.model.Theme
 import com.nivy.base.time.TimeConverter
 import com.nivy.base.time.TimeProvider
 import com.nivy.design.system.NivyMaterial3Theme
+import com.nivy.base.screenCornerRadiusDp
 import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.domain.RootScreen
 import com.nivy.wallet.utils.activityForResultLauncher
@@ -204,8 +204,8 @@ class RootActivity : AppCompatActivity(), RootScreen {
     // than the screen's smoother corners, on Samsung phones above all.
     private fun matchScreenCorners() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-        val corner = display?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT) ?: return
-        AppCornerRadius.matchPhone = (corner.radius / resources.displayMetrics.density).dp
+        val radius = display?.let { screenCornerRadiusDp(it) } ?: return
+        AppCornerRadius.matchPhone = radius.dp
     }
 
     // Dismissing the dialog picks nothing.
@@ -339,8 +339,11 @@ class RootActivity : AppCompatActivity(), RootScreen {
         // A rotation or a theme change recreates the activity: that's not leaving the app either.
         if (!isChangingConfigurations) {
             viewModel.onAppHidden()
-            // Whatever was written meanwhile, the balance widget shows it once the app is left.
+            // Whatever was written meanwhile, the balance widget shows it once the app is left, and
+            // every widget takes the corner radius picked meanwhile.
             WalletBalanceWidgetReceiver.updateBroadcast(this)
+            AddTransactionWidget.updateBroadcast(this)
+            AddTransactionWidgetCompact.updateBroadcast(this)
         }
     }
 

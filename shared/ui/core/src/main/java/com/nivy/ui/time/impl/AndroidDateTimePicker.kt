@@ -39,6 +39,7 @@ import java.time.ZoneOffset
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.nivy.design.system.shapes.PillShape
 
 @Stable
 @Singleton
@@ -171,6 +172,7 @@ class AndroidDateTimePicker @Inject constructor(
     ) {
         Button(
             modifier = modifier,
+            shape = PillShape,
             onClick = onClick
         ) {
             Text(text = stringResource(R.string.select))

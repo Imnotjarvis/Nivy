@@ -50,8 +50,10 @@ val ShapeTop: Shape
     get() = RoundedCornerShape(topStart = AppCornerRadius.value, topEnd = AppCornerRadius.value)
 
 /**
- * For a block set [inset] inside another one, like the selected half of a two-option switch:
- * corners concentric with the outer block's, the app's radius less the inset, never under 4 dp.
+ * For a block set [inset] close inside another one, 8 dp in like the selected half of a two-option
+ * switch: corners concentric with the outer block's, the app's radius less the inset, never under
+ * 4 dp. Further in, like a card's chips and buttons, a block keeps the app's radius: less a wider
+ * inset, its corners would come out nearly square.
  */
 fun nestedShape(inset: Dp): Shape = RoundedCornerShape((AppCornerRadius.value - inset).coerceAtLeast(4.dp))
 

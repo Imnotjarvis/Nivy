@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import com.nivy.design.system.shapes.PillShape
-import com.nivy.design.system.shapes.nestedShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -176,8 +175,8 @@ private fun PlannedPaymentHeaderRow(
                 ),
                 padding = 8.dp,
                 iconEdgePadding = 8.dp,
-                // 20 dp into the card: its corners less that, parallel to the card's.
-                shape = nestedShape(20.dp)
+                // As much room after the text as before the icon's drawing.
+                textEdgePadding = 16.dp
             ) {
                 nav.navigateTo(
                     TransactionsScreen(
@@ -210,7 +209,8 @@ private fun PlannedPaymentHeaderRow(
                 ),
                 padding = 8.dp,
                 iconEdgePadding = 8.dp,
-                shape = nestedShape(20.dp)
+                // As much room after the text as before the icon's drawing.
+                textEdgePadding = 16.dp
             ) {
                 account?.let {
                     nav.navigateTo(

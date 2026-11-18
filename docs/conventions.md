@@ -58,8 +58,11 @@ class name (`RootActivity`, `PaymentTileService`, the three widget receivers and
   labels, fields and controls.
 - **Spacing:** on the 4 dp grid, except a value that centers or aligns something exactly.
 - **Corners:** one radius, the corner radius setting (`AppCornerRadius`), which every shape reads.
-  A block close inside another one's corners, like a switch's selected half, takes
-  `nestedShape(inset)`: the radius less the gap, so the corners stay concentric.
+  A block close inside another one's corners, 8 dp in like a switch's selected half, takes
+  `nestedShape(inset)`: the radius less the gap, so the corners stay concentric. Further in, like
+  a card's chips and buttons, it keeps the whole radius: less a wider gap, its corners would come
+  out nearly square. The home screen widgets take the radius too, from Android 12
+  (`WidgetCornerRadius`); before, their backgrounds keep 16 dp.
 - **Amounts:** the currency code after the number, everywhere: `amountAndCode` writes both, and
   `formatAmount` the number alone. A small label over an amount is in regular weight and the
   secondary grey, so the amount leads.

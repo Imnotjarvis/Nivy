@@ -35,6 +35,7 @@ import com.nivy.wallet.ui.theme.components.GradientCutBottom
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import androidx.compose.material3.MaterialTheme
 import com.nivy.navigation.rememberOnBack
+import com.nivy.design.system.shapes.PillShape
 
 @ExperimentalFoundationApi
 @Composable
@@ -69,6 +70,7 @@ internal fun BoxWithConstraintsScope.ImportFrom(
                     .fillMaxWidth()
                     .height(64.dp)
                     .padding(horizontal = 16.dp),
+                shape = PillShape,
                 onClick = {
                     nav.navigateTo(CSVScreen(launchedFromOnboarding))
                 }

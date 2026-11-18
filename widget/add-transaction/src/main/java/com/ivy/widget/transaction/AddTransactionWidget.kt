@@ -7,6 +7,11 @@ import android.widget.RemoteViews
 import com.nivy.base.model.TransactionType
 import com.nivy.base.refreshWidget
 import com.nivy.widget.transaction.AddTransactionWidgetClick
+import com.nivy.base.di.AppCoroutineScope
+import com.nivy.domain.WidgetCornerRadius
+import com.nivy.widget.transaction.drawWithCorners
+import com.nivy.widget.transaction.roundCorners
+import kotlinx.coroutines.CoroutineScope
 import com.nivy.widget.transaction.R
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -17,6 +22,13 @@ class AddTransactionWidget : AppWidgetProvider() {
 
     @Inject
     lateinit var widgetClick: AddTransactionWidgetClick
+
+    @Inject
+    lateinit var cornerRadius: WidgetCornerRadius
+
+    @Inject
+    @AppCoroutineScope
+    lateinit var appScope: CoroutineScope
 
     companion object {
         fun updateBroadcast(context: Context) {
@@ -35,15 +47,16 @@ class AddTransactionWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+        drawWithCorners(appScope, cornerRadius, appWidgetIds) { appWidgetId, radius ->
+            updateAppWidget(context, appWidgetManager, appWidgetId, radius)
         }
     }
 
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetId: Int
+        appWidgetId: Int,
+        cornerRadiusDp: Float?,
     ) {
         val rv = RemoteViews(context.packageName, R.layout.widget_add_transaction)
         widgetClick.setClickListener(context, rv, R.id.ivIncome, TransactionType.INCOME)
@@ -52,6 +65,8 @@ class AddTransactionWidget : AppWidgetProvider() {
         widgetClick.setClickListener(context, rv, R.id.tvExpense, TransactionType.EXPENSE)
         widgetClick.setClickListener(context, rv, R.id.ivTransfer, TransactionType.TRANSFER)
         widgetClick.setClickListener(context, rv, R.id.tvTransfer, TransactionType.TRANSFER)
+
+        rv.roundCorners(R.id.widgetBar, cornerRadiusDp)
 
         appWidgetManager.updateAppWidget(appWidgetId, rv)
     }

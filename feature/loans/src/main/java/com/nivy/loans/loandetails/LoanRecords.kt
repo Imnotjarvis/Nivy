@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.nivy.design.system.shapes.nestedShape
 import com.nivy.base.model.TransactionType
 import com.nivy.base.model.processByType
 import com.nivy.data.model.Account
@@ -105,8 +104,8 @@ private fun LoanRecordItem(
                         ),
                         padding = 8.dp,
                         iconEdgePadding = 8.dp,
-                        // 16 dp into the card: its corners less that, parallel to the card's.
-                        shape = nestedShape(16.dp)
+                        // As much room after the text as before the icon's drawing.
+                        textEdgePadding = 16.dp
                     ) {
                         nav.navigateTo(
                             TransactionsScreen(
@@ -137,7 +136,8 @@ private fun LoanRecordItem(
                         ),
                         padding = 8.dp,
                         iconEdgePadding = 8.dp,
-                        shape = nestedShape(16.dp)
+                        // As much room after the text as before the icon's drawing.
+                        textEdgePadding = 16.dp
                     ) {
                         // do Nothing
                     }
@@ -240,8 +240,9 @@ internal fun InitialRecordItem(
                 fontWeight = FontWeight.ExtraBold
             ),
             padding = 8.dp,
-            // 16 dp into the card: its corners less that, parallel to the card's.
-            shape = nestedShape(16.dp),
+            iconEdgePadding = 8.dp,
+            // As much room after the text as before the icon's drawing.
+            textEdgePadding = 16.dp,
         ) {}
 
         val timeFormatter = LocalTimeFormatter.current

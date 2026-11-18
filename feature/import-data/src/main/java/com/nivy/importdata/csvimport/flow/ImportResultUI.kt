@@ -40,6 +40,7 @@ import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.typography.numberHeadlineMedium
 import com.nivy.navigation.rememberOnBack
 import com.nivy.design.system.colors.Palette
+import com.nivy.design.system.shapes.PillShape
 
 @Composable
 internal fun ImportResultUI(
@@ -137,6 +138,7 @@ internal fun ImportResultUI(
                         .fillMaxWidth()
                         .height(52.dp)
                         .padding(horizontal = 16.dp),
+                    shape = PillShape,
                     onClick = {
                         nav.navigateTo(CSVScreen(launchedFromOnboarding = launchedFromOnboarding))
                     }

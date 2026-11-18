@@ -1,9 +1,11 @@
 package com.nivy.widget.balance
 
 import android.content.Context
+import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
@@ -22,6 +24,7 @@ object PrefsKey {
     const val CURRENCY = "currency"
     const val INCOME = "income_v2"
     const val EXPENSE = "expense_v2"
+    const val CORNER_RADIUS = "cornerRadius"
 }
 
 /** How the widget writes [amount]: as the app does, in [currency]'s format, shortened from 100k on. */
@@ -36,6 +39,8 @@ internal fun chipAmount(amount: Double, currency: String): String =
 
 private const val ChipShortenFrom = 1_000
 
+private const val DefaultCornerRadiusDp = 16f
+
 class WalletBalanceWidget(
     private val getAppStarter: () -> AppStarter,
 ) : GlanceAppWidget() {
@@ -47,6 +52,8 @@ class WalletBalanceWidget(
             val currency = prefs[stringPreferencesKey(PrefsKey.CURRENCY)] ?: "USD"
             val income = prefs[doublePreferencesKey(PrefsKey.INCOME)] ?: 0.00
             val expense = prefs[doublePreferencesKey(PrefsKey.EXPENSE)] ?: 0.00
+            // The app's corner radius, from Android 12; until the worker has read it, its default.
+            val cornerRadius = prefs[floatPreferencesKey(PrefsKey.CORNER_RADIUS)] ?: DefaultCornerRadiusDp
 
             WalletBalanceWidgetContent(
                 appLocked = appLocked,
@@ -54,6 +61,7 @@ class WalletBalanceWidget(
                 currency = currency,
                 income = chipAmount(income, currency),
                 expense = chipAmount(expense, currency),
+                cornerRadius = cornerRadius.dp,
                 // Activity actions, so a tap opens the app directly instead of going through a
                 // broadcast receiver.
                 onIncomeClick = actionStartActivity(
