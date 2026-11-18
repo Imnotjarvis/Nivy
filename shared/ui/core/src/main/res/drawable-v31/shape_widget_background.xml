@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Square from Android 12: the widget rounds it from code by the app's corner radius. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#E62b2c2d" />
+        </shape>
+    </item>
+</selector>

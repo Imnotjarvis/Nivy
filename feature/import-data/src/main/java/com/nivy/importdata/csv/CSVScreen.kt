@@ -50,6 +50,7 @@ import kotlin.math.abs
 import androidx.compose.material3.MaterialTheme
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.system.typography.numberTitleLarge
+import com.nivy.design.system.shapes.PillShape
 
 // Rows of the file the preview shows.
 private const val PreviewRows = 10
@@ -156,6 +157,7 @@ private fun ImportButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
+        shape = PillShape,
         onClick = {
             (context as RootScreen).openFile {
                 onFilePick(it)
@@ -407,7 +409,7 @@ private fun AmountMetadata(
 ) {
     Text(text = stringResource(R.string.csv_multiplier), style = MaterialTheme.typography.bodyLarge)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = { onMetaChange(dividedByTen(multiplier)) }) {
+        Button(shape = PillShape, onClick = { onMetaChange(dividedByTen(multiplier)) }) {
             Text(text = "/10")
         }
         Spacer8(horizontal = true)
@@ -421,7 +423,7 @@ private fun AmountMetadata(
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer8(horizontal = true)
-        Button(onClick = { onMetaChange(multipliedByTen(multiplier)) }) {
+        Button(shape = PillShape, onClick = { onMetaChange(multipliedByTen(multiplier)) }) {
             Text(text = "*10")
         }
     }
@@ -521,6 +523,7 @@ private fun EnabledButton(
     onClick: () -> Unit,
 ) {
     Button(
+        shape = PillShape,
         colors = if (enabled) {
             ButtonDefaults.buttonColors()
         } else {
@@ -639,6 +642,7 @@ private fun LazyListScope.continueButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
+            shape = PillShape,
             enabled = enabled,
             onClick = {
                 onEvent(CSVEvent.Continue)

@@ -11,9 +11,13 @@
     tools:ignore="UselessParent">
     <!-- The root only centers the bar vertically in the widget's cell. -->
 
+    <!-- Rounded from code by the app's corner radius, from Android 12 (roundCorners). -->
     <LinearLayout
+        android:id="@+id/widgetBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipToOutline="true"
+        tools:targetApi="s"
         android:background="@drawable/shape_widget_background"
         android:baselineAligned="false"
         android:orientation="horizontal"
