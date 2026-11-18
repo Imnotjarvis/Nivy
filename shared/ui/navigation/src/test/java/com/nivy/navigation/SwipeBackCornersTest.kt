@@ -3,11 +3,8 @@ package com.nivy.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
@@ -58,7 +55,7 @@ class SwipeBackCornersTest {
         AppCornerRadius.setting = 32.dp
 
         // when
-        pulled(0.dp)
+        pulled(0)
 
         // then
         page(x = 0f, y = 0f) shouldBe true
@@ -71,7 +68,7 @@ class SwipeBackCornersTest {
         AppCornerRadius.setting = 32.dp
 
         // when
-        pulled(80.dp)
+        pulled(80)
 
         // then: a 32 dp corner's curve crosses its diagonal 9.4 dp in from both edges.
         val top = 80 * PixelsPerDp
@@ -81,11 +78,11 @@ class SwipeBackCornersTest {
         page(x = Width - 1 - 13 * PixelsPerDp, y = top + 13 * PixelsPerDp) shouldBe true
     }
 
-    private fun pulled(distance: Dp) {
+    // The finger [distanceDp] down, where letting go goes back 80 dp down, as on a screen.
+    private fun pulled(distanceDp: Int) {
+        val swipe = SwipeBack(80 * PixelsPerDp, canGoBack = { true }, goBack = { true }, onReachPoint = {})
+        swipe.drag(distanceDp * PixelsPerDp)
         paparazzi.snapshot {
-            val swipe = rememberSwipeBack(canGoBack = { true }, goBack = { true })
-            val px = with(LocalDensity.current) { distance.toPx() }
-            remember(swipe) { swipe.drag(px) }
             Box(Modifier.fillMaxSize().background(Color.Black)) {
                 Box(Modifier.swipeBack(swipe, dragAnywhere = true).fillMaxSize().background(Color.White))
             }
