@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -256,6 +258,8 @@ private fun ColumnScope.Content(
     Spacer(Modifier.height(24.dp))
 }
 
+// Two rows of buttons, the outer ones 24 dp from the sides, as the title and the arrow are, the
+// others evenly between them.
 @Composable
 private fun QuickAccess(
     theme: Theme,
@@ -265,12 +269,12 @@ private fun QuickAccess(
         val nav = navigation()
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Spacer(Modifier.weight(1f))
-
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_settings,
                 label = stringResource(R.string.settings)
@@ -278,16 +282,12 @@ private fun QuickAccess(
                 nav.navigateTo(SettingsScreen)
             }
 
-            Spacer(Modifier.weight(1f))
-
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_categories,
                 label = stringResource(R.string.categories)
             ) {
                 nav.navigateTo(CategoriesScreen)
             }
-
-            Spacer(Modifier.weight(1f))
 
             MoreMenuButton(
                 icon = when (theme) {
@@ -318,36 +318,30 @@ private fun QuickAccess(
                 onSwitchTheme()
             }
 
-            Spacer(Modifier.weight(1f))
-
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_planned_payments,
                 label = stringResource(R.string.planned_payments)
             ) {
                 nav.navigateTo(PlannedPaymentsScreen)
             }
-
-            Spacer(Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(16.dp))
 
         // Second Row
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Spacer(Modifier.weight(1f))
-
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_reports,
                 label = stringResource(R.string.reports),
             ) {
                 nav.navigateTo(ReportScreen)
             }
-
-            Spacer(Modifier.weight(1f))
 
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_budgets,
@@ -356,8 +350,6 @@ private fun QuickAccess(
                 nav.navigateTo(BudgetScreen())
             }
 
-            Spacer(Modifier.weight(1f))
-
             MoreMenuButton(
                 icon = R.drawable.home_more_menu_loans,
                 label = stringResource(R.string.loans),
@@ -365,16 +357,12 @@ private fun QuickAccess(
                 nav.navigateTo(LoansScreen)
             }
 
-            Spacer(Modifier.weight(1f))
-
             MoreMenuButton(
                 icon = R.drawable.ic_vue_chart_trend_up,
                 label = stringResource(R.string.trends),
             ) {
                 nav.navigateTo(TrendsScreen)
             }
-
-            Spacer(Modifier.weight(1f))
         }
     }
 }
@@ -389,10 +377,14 @@ private fun MoreMenuButton(
 
     onClick: () -> Unit
 ) {
+    // As wide as its circle, so that a row spaces the circles evenly; the label spreads past it,
+    // centered under it.
     Column(
+        modifier = Modifier.width(ButtonSize),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CircleButtonFilled(
+            modifier = Modifier.size(ButtonSize),
             icon = icon,
             backgroundColor = backgroundColor,
             tint = tint,
@@ -404,6 +396,7 @@ private fun MoreMenuButton(
 
         Text(
             modifier = Modifier
+                .wrapContentWidth(unbounded = true)
                 .defaultMinSize(minWidth = 92.dp)
                 .clickableNoIndication(rememberInteractionSource()) {
                     onClick()
@@ -417,6 +410,9 @@ private fun MoreMenuButton(
         )
     }
 }
+
+// A button's circle: its 24 dp icon with 14 dp around it.
+private val ButtonSize = 52.dp
 
 @Preview
 @Composable

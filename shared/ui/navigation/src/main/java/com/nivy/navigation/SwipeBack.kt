@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animate
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.motion.appearTween
+import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.utils.thenIf
 
 /**
@@ -121,13 +123,18 @@ fun rememberSwipeBack(canGoBack: () -> Boolean, goBack: () -> Boolean): SwipeBac
 
 /**
  * Moves with [swipe], pulled from what scrolls inside it; with [dragAnywhere], dragged from anywhere
- * else on it too.
+ * else on it too. Coming down, its top corners round as far as it is down, up to the app's radius.
  */
 fun Modifier.swipeBack(swipe: SwipeBack, dragAnywhere: Boolean): Modifier =
     nestedScroll(swipe)
         .thenIf(dragAnywhere) {
             draggable(swipe.draggable, Orientation.Vertical, onDragStopped = { swipe.release() })
         }
-        .graphicsLayer { translationY = swipe.offsetPx }
+        .graphicsLayer {
+            translationY = swipe.offsetPx
+            val radius = minOf(swipe.offsetPx, AppCornerRadius.value.toPx())
+            shape = RoundedCornerShape(topStart = radius, topEnd = radius)
+            clip = radius > 0f
+        }
 
 private val SwipeBackDistance = 80.dp

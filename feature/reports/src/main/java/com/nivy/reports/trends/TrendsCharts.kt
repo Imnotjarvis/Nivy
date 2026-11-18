@@ -120,8 +120,7 @@ internal fun NetWorthChart(
             .monthSlots(count) { select(it.coerceAtMost(values.lastIndex)) }
     ) {
         if (values.isEmpty()) return@Canvas
-        val padding = BubblePadding.toPx()
-        val bubbleHeight = texts.sumOf { it.size.height } + 2 * padding
+        val bubbleHeight = texts.sumOf { it.size.height } + 2 * BubblePaddingY.toPx()
         val top = bubbleHeight + BubbleGap.toPx()
         val bottom = size.height - ChartPointRing.toPx()
         val all = values + adjusted.orEmpty() + (outlook?.flatMap { listOf(it.low, it.high) } ?: emptyList())
@@ -167,7 +166,7 @@ internal fun NetWorthChart(
         val point = Offset(x(selected), y(values[selected]))
         drawLine(
             line.copy(alpha = GuideAlpha),
-            Offset(point.x, top - padding),
+            Offset(point.x, bubbleHeight + GuideGap.toPx()),
             Offset(point.x, bottom),
             GuideWidth.toPx()
         )
@@ -183,22 +182,25 @@ internal val AdjustedColor: Color get() = if (ColorMode.minimal) minimalTone(2) 
 internal enum class BubbleLine { Label, Amount, Gain, Loss }
 
 // The bubble over the chart, centered on [x] and kept inside it: [texts], one under the other,
-// with the blocks' corners, as round as its height allows.
+// with the blocks' corners, as round as its height allows. Beside its text it leaves 16 dp, or half
+// its corners' radius when that's more, so that their curve keeps clear of the text.
 private fun DrawScope.bubble(texts: List<TextLayoutResult>, x: Float, color: Color) {
     if (texts.isEmpty()) return
-    val padding = BubblePadding.toPx()
-    val width = texts.maxOf { it.size.width } + 2 * padding
-    val height = texts.sumOf { it.size.height } + 2 * padding
+    val paddingY = BubblePaddingY.toPx()
+    val height = texts.sumOf { it.size.height } + 2 * paddingY
+    val radius = minOf(AppCornerRadius.value.toPx(), height / 2)
+    val paddingX = maxOf(BubblePaddingX.toPx(), radius / 2)
+    val width = texts.maxOf { it.size.width } + 2 * paddingX
     val left = (x - width / 2).coerceIn(0f, (size.width - width).coerceAtLeast(0f))
     drawRoundRect(
         color,
         topLeft = Offset(left, 0f),
         size = Size(width, height),
-        cornerRadius = CornerRadius(minOf(AppCornerRadius.value.toPx(), height / 2))
+        cornerRadius = CornerRadius(radius)
     )
-    var top = padding
+    var top = paddingY
     texts.forEach { text ->
-        drawText(text, topLeft = Offset(left + padding, top))
+        drawText(text, topLeft = Offset(left + paddingX, top))
         top += text.size.height
     }
 }
@@ -546,8 +548,10 @@ private val GuideWidth = 1.dp
 private val AverageWidth = 1.5.dp
 private val Dash = 4.dp
 private val SmallPoint = 3.dp
-private val BubblePadding = 8.dp
+private val BubblePaddingX = 16.dp
+private val BubblePaddingY = 12.dp
 private val BubbleGap = 12.dp
+private val GuideGap = 4.dp
 private val LabelGap = 8.dp
 private val BarGap = 2.dp
 private val StackRadius = 4.dp
