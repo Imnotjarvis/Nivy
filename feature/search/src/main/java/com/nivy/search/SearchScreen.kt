@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.nivy.base.model.Theme
 import com.nivy.wallet.NivyComponentPreview
 import com.nivy.wallet.data.AppBaseData
+import com.nivy.wallet.data.DueSection
+import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import com.nivy.wallet.ui.SearchInput
 import com.nivy.wallet.ui.component.transaction.transactions
 import com.nivy.design.utils.keyboardHeight
@@ -29,6 +31,15 @@ import com.nivy.navigation.NivyMaterial3Preview
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
 import kotlinx.collections.immutable.persistentListOf
+import androidx.compose.material3.MaterialTheme
+import com.nivy.base.model.TransactionType
+import com.nivy.data.model.Expense
+import com.nivy.data.model.Income
+import com.nivy.navigation.PieChartStatisticScreen
+import com.nivy.navigation.navigation
+import com.nivy.wallet.domain.data.TransactionHistoryEntry
+import com.nivy.wallet.ui.component.IncomeExpensesCards
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun SearchScreen() {
@@ -42,7 +53,7 @@ fun SearchScreen() {
 }
 
 @Composable
-private fun SearchUi(
+internal fun SearchUi(
     uiState: SearchState,
     focusSearch: Boolean = true,
     onEvent: (SearchEvent) -> Unit
@@ -90,18 +101,27 @@ private fun SearchUi(
             // Nothing until something is typed and searched for: then its results, or that none
             // were found.
             if (uiState.searchQuery.isNotBlank()) {
+                if (uiState.foundAny) {
+                    item {
+                        Totals(uiState)
+                    }
+                }
+                // What's still to pay apart, as on an account's page: Upcoming and Overdue, closed
+                // at first, then what was paid.
                 transactions(
                     baseData = AppBaseData(
                         baseCurrency = uiState.baseCurrency,
                         accounts = uiState.accounts,
                         categories = uiState.categories
                     ),
-                    upcoming = null,
-                    setUpcomingExpanded = { },
-                    overdue = null,
-                    setOverdueExpanded = { },
+                    upcoming = uiState.upcoming,
+                    setUpcomingExpanded = { onEvent(SearchEvent.SetUpcomingExpanded(it)) },
+                    overdue = uiState.overdue,
+                    setOverdueExpanded = { onEvent(SearchEvent.SetOverdueExpanded(it)) },
                     history = uiState.transactions,
-                    onPayOrGet = { },
+                    onPayOrGet = { onEvent(SearchEvent.PayOrGet(it)) },
+                    onSkipTransaction = { onEvent(SearchEvent.Skip(listOf(it))) },
+                    onSkipAllTransactions = { onEvent(SearchEvent.Skip(it)) },
                     emptyStateTitle = emptyStateTitle,
                     emptyStateText = emptyStateText,
                     dateDividerMarginTop = 16.dp,
@@ -121,6 +141,42 @@ private fun SearchUi(
     }
 }
 
+private val SearchState.foundAny: Boolean
+    get() = transactions.isNotEmpty() || upcoming.trns.isNotEmpty() || overdue.trns.isNotEmpty()
+
+// What the matches paid came to, in the account page's cards; tapped, one splits its side by
+// category, as there.
+@Composable
+private fun Totals(uiState: SearchState) {
+    val nav = navigation()
+    val paid = uiState.transactions
+        .filterIsInstance<TransactionHistoryEntry>()
+        .map { it.transaction }
+        .toImmutableList()
+    Column {
+        IncomeExpensesCards(
+            history = uiState.transactions,
+            currency = uiState.baseCurrency,
+            income = uiState.income,
+            expenses = uiState.expenses,
+            hasAddButtons = false,
+            itemColor = MaterialTheme.colorScheme.surface,
+            incomeHeaderCardClicked = {
+                if (paid.any { it is Income }) {
+                    nav.navigateTo(PieChartStatisticScreen(type = TransactionType.INCOME, transactions = paid))
+                }
+            },
+            expenseHeaderCardClicked = {
+                if (paid.any { it is Expense }) {
+                    nav.navigateTo(PieChartStatisticScreen(type = TransactionType.EXPENSE, transactions = paid))
+                }
+            },
+        )
+
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
 @Preview
 @Composable
 private fun Preview(isDark: Boolean = false) {
@@ -129,6 +185,10 @@ private fun Preview(isDark: Boolean = false) {
             uiState = SearchState(
                 searchQuery = "",
                 transactions = persistentListOf(),
+                upcoming = DueSection(trns = persistentListOf(), expanded = false, stats = IncomeExpensePair.zero()),
+                overdue = DueSection(trns = persistentListOf(), expanded = false, stats = IncomeExpensePair.zero()),
+                income = 0.0,
+                expenses = 0.0,
                 baseCurrency = "",
                 accounts = persistentListOf(),
                 categories = persistentListOf(),
