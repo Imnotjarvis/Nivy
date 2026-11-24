@@ -9,10 +9,10 @@ import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
 import com.nivy.wallet.data.EditTransactionDisplayLoan
 import com.nivy.wallet.domain.data.CustomExchangeRateState
+import com.nivy.wallet.domain.logic.TitleSuggestion
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableSet
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -20,7 +20,8 @@ import java.time.LocalDateTime
 data class EditTransactionViewState(
     val transactionType: TransactionType,
     val initialTitle: String?,
-    val titleSuggestions: ImmutableSet<String>,
+    // Titles used before, each with the category it's in most.
+    val titleSuggestions: ImmutableList<TitleSuggestion>,
     val currency: String,
     val description: String?,
     val dateTime: Instant?,
@@ -35,6 +36,8 @@ data class EditTransactionViewState(
     val canMoveChargeEarlier: Boolean,
     val accounts: ImmutableList<Account>,
     val categories: ImmutableList<Category>,
+    // The categories this type of transaction was put in most over the last 12 months.
+    val mostUsedCategories: ImmutableList<Category>,
     val account: Account?,
     val toAccount: Account?,
     val category: Category?,

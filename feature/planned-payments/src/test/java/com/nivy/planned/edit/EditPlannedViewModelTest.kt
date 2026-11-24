@@ -29,6 +29,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.UserWrites
+import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
 import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
@@ -73,6 +74,7 @@ class EditPlannedViewModelTest {
         icon = null,
         orderNum = 0.0,
     )
+    private val salary = rent.copy(id = CategoryId(UUID.randomUUID()), name = NotBlankTrimmedString.unsafe("Salary"))
     private val gym = PlannedPaymentRule(
         id = PlannedPaymentRuleId(UUID.randomUUID()),
         type = TransactionType.EXPENSE,
@@ -107,6 +109,11 @@ class EditPlannedViewModelTest {
         categoryRepository = mockk<CategoryRepository> {
             coEvery { findAll() } returns listOf(rent)
             coEvery { findById(rent.id) } returns rent
+        },
+        mostUsedCategoriesUseCase = mockk<MostUsedCategoriesUseCase> {
+            coEvery { mostUsed(TransactionType.EXPENSE) } returns listOf(rent)
+            coEvery { mostUsed(TransactionType.INCOME) } returns listOf(salary)
+            coEvery { mostUsed(TransactionType.TRANSFER) } returns emptyList()
         },
         nav = nav,
         plannedPaymentRuleRepository = ruleRepository,
@@ -157,6 +164,18 @@ class EditPlannedViewModelTest {
             initialTitle shouldBe "Rent"
             startDate shouldBe null
             accounts shouldBe listOf(bank, visa)
+        }
+    }
+
+    @Test
+    fun `the categories used most are the plan's type's`() {
+        // when
+        newPlan()
+
+        // then
+        viewModel.runTest { mostUsedCategories shouldBe listOf(rent) }
+        viewModel.runTest(events = listOf(EditPlannedScreenEvent.OnSetTransactionType(TransactionType.INCOME))) {
+            mostUsedCategories shouldBe listOf(salary)
         }
     }
 

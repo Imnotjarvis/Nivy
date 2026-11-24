@@ -210,6 +210,15 @@ interface TransactionDao {
         accountId: UUID
     ): List<TransactionEntity>
 
+    // The categories a type's transactions made since a time are in most, at most limit of them:
+    // the most used first, and of those used as often, the one used last.
+    @Query(
+        "SELECT categoryId FROM transactions " +
+            "WHERE categoryId IS NOT NULL AND type = :type AND dateTime >= :since " +
+            "GROUP BY categoryId ORDER BY COUNT(*) DESC, MAX(dateTime) DESC LIMIT :limit"
+    )
+    suspend fun findMostUsedCategoryIds(type: TransactionType, since: Instant, limit: Int): List<UUID>
+
     @Query("SELECT * FROM transactions WHERE loanId = :loanId AND loanRecordId IS NULL")
     suspend fun findLoanTransaction(
         loanId: UUID

@@ -39,6 +39,7 @@ import com.nivy.data.repository.TransactionRepository
 import com.nivy.data.repository.mapper.TransactionMapper
 import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
+import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.loan.LoanTransactionsUseCase
@@ -90,6 +91,7 @@ class EditTransactionViewModelTest {
         icon = null,
         orderNum = 0.0,
     )
+    private val salary = food.copy(id = CategoryId(UUID.randomUUID()), name = NotBlankTrimmedString.unsafe("Salary"))
 
     private val accountRepository = mockk<AccountRepository> {
         listOf(bank, wallet, dollars, amexAccount).forEach { coEvery { findById(it.id) } returns it }
@@ -167,9 +169,13 @@ class EditTransactionViewModelTest {
             categoryCreator = mockk(relaxed = true),
             accountCreator = mockk(relaxed = true),
             smartTitleSuggestionsLogic = mockk<SmartTitleSuggestionsLogic> {
-                coEvery { suggest(any(), any(), any()) } returns emptySet()
+                coEvery { suggest(any(), any(), any()) } returns emptyList()
             },
-            sortedCategories = SortedCategories(categoryRepository, features, context),
+            mostUsedCategoriesUseCase = mockk<MostUsedCategoriesUseCase> {
+                coEvery { mostUsed(TransactionType.EXPENSE) } returns listOf(food)
+                coEvery { mostUsed(TransactionType.INCOME) } returns listOf(salary)
+                coEvery { mostUsed(TransactionType.TRANSFER) } returns emptyList()
+            },
             categoryRepository = categoryRepository,
             accountRepository = accountRepository,
             transactionRepo = transactionRepo,
@@ -480,6 +486,16 @@ class EditTransactionViewModelTest {
 
         coVerify { toaster.show(R.string.msg_change_not_saved, any()) }
         verify(exactly = 0) { nav.back() }
+    }
+
+    @Test
+    fun `the categories used most are the transaction type's`() {
+        viewModel.start(newTransaction(TransactionType.EXPENSE, wallet))
+        viewModel.runTest { mostUsedCategories shouldBe listOf(food) }
+
+        viewModel.runTest(events = listOf(EditTransactionViewEvent.OnSetTransactionType(TransactionType.INCOME))) {
+            mostUsedCategories shouldBe listOf(salary)
+        }
     }
 
     @Test

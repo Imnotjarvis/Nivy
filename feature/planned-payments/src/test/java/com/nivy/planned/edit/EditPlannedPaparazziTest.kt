@@ -54,6 +54,7 @@ class EditPlannedPaparazziTest(
                     amount = 750.0,
                     transactionType = TransactionType.EXPENSE,
                     categories = persistentListOf(Housing),
+                    mostUsedCategories = persistentListOf(),
                     accounts = persistentListOf(Bank),
                     categoryModalVisible = false,
                     categoryModalData = null,

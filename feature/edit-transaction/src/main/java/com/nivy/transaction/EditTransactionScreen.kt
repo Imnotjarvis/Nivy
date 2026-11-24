@@ -32,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
-import com.nivy.data.model.Category
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.domain.RootScreen
 import com.nivy.navigation.EditPlannedScreen
@@ -133,6 +132,13 @@ internal fun BoxWithConstraintsScope.UI(
             suggestions = state.titleSuggestions,
             scrollState = scrollState,
             onTitleChanged = { onEvent(EditTransactionViewEvent.OnTitleChanged(it)) },
+            onDone = { suggested ->
+                when (val next = afterTitle(chosen = state.category, suggested = suggested)) {
+                    is AfterTitle.Choose -> onEvent(EditTransactionViewEvent.OnCategoryChanged(next.category))
+                    AfterTitle.Ask -> open.chooseCategory = true
+                    AfterTitle.Keep -> Unit
+                }
+            },
         )
 
         state.displayLoanHelper.loanCaption?.let { LoanCaption(it) }
@@ -240,10 +246,10 @@ internal fun BoxWithConstraintsScope.UI(
         setAmountModalShown = { open.amount = it },
         onAmountChanged = {
             onEvent(EditTransactionViewEvent.OnAmountChanged(it))
-            if (shouldFocusCategory(state.category)) {
-                open.chooseCategory = true
-            } else if (shouldFocusTitle(titleTextFieldValue, state.transactionType)) {
-                titleFocus.requestFocus()
+            when (afterAmount(titleTextFieldValue.text, state.transactionType, state.category)) {
+                Next.Title -> titleFocus.requestFocus()
+                Next.Category -> open.chooseCategory = true
+                Next.None -> Unit
             }
         },
         onSelectedAccountChanged = {
@@ -447,10 +453,6 @@ private val EditTransactionViewState.showsRateCard: Boolean
 /** A transaction without a date yet, and not planned, can be planned instead. */
 private val EditTransactionViewState.canBecomePlanned: Boolean
     get() = dueDate == null && dateTime == null
-
-private fun shouldFocusCategory(
-    category: Category?,
-): Boolean = category == null
 
 private fun shouldFocusTitle(
     titleTextFieldValue: TextFieldValue,

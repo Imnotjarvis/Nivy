@@ -60,6 +60,7 @@ internal fun BoxWithConstraintsScope.EditTransactionModals(
         visible = open.chooseCategory,
         initialCategory = state.category,
         categories = state.categories,
+        mostUsed = state.mostUsedCategories,
         showCategoryModal = { open.editCategory = CategoryModalData(it) },
         onCategoryChanged = {
             onEvent(EditTransactionViewEvent.OnCategoryChanged(it))

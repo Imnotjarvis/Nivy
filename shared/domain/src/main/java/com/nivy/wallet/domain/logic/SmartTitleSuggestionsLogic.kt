@@ -2,14 +2,21 @@ package com.nivy.wallet.domain.logic
 
 import com.nivy.data.db.dao.read.TransactionDao
 import com.nivy.data.db.entity.TransactionEntity
+import com.nivy.data.model.Category
+import com.nivy.data.repository.CategoryRepository
 import com.nivy.wallet.utils.capitalizeWords
+import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
 
 const val SUGGESTIONS_LIMIT = 10
 
+/** A title used before, and the category it's in most, if any is still there. */
+data class TitleSuggestion(val title: String, val category: Category?)
+
 class SmartTitleSuggestionsLogic @Inject constructor(
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val categoryRepository: CategoryRepository,
 ) {
 
     /**
@@ -22,15 +29,16 @@ class SmartTitleSuggestionsLogic @Inject constructor(
         title: String?,
         categoryId: UUID?,
         accountId: UUID?
-    ): Set<String> {
-        val suggestions = mutableSetOf<String>()
+    ): List<TitleSuggestion> {
+        // Each title with the category it's in most, most used first.
+        val suggestions = linkedMapOf<String, UUID?>()
 
         if (!title.isNullOrEmpty()) {
             // suggest by title
             val suggestionsByTitle = transactionDao.findAllByTitleMatchingPattern("$title%")
                 .titlesByUse()
 
-            suggestions.addAll(suggestionsByTitle)
+            suggestions.putAll(suggestionsByTitle)
         }
 
         if (categoryId != null) {
@@ -43,9 +51,9 @@ class SmartTitleSuggestionsLogic @Inject constructor(
                     categoryId = categoryId
                 )
                 // exclude already suggested suggestions so they're ordered by priority at the end
-                .titlesByUse(excludeSuggestions = suggestions)
+                .titlesByUse(excludeSuggestions = suggestions.keys)
 
-            suggestions.addAll(suggestionsByCategory)
+            suggestions.putAll(suggestionsByCategory)
         }
 
         if (suggestions.size < SUGGESTIONS_LIMIT && accountId != null) {
@@ -58,23 +66,40 @@ class SmartTitleSuggestionsLogic @Inject constructor(
                     accountId = accountId
                 )
                 // exclude already suggested suggestions so they're ordered by priority at the end
-                .titlesByUse(excludeSuggestions = suggestions)
+                .titlesByUse(excludeSuggestions = suggestions.keys)
 
-            suggestions.addAll(suggestionsByAccount)
+            suggestions.putAll(suggestionsByAccount)
         }
 
+        // A category deleted since brings none.
+        val categories = categoryRepository.findAll().associateBy { it.id.value }
         return suggestions
-            .filter { it != title }
-            .toSet()
+            .filterKeys { it != title }
+            .map { (suggestion, category) -> TitleSuggestion(suggestion, category?.let(categories::get)) }
     }
 }
 
-/** The titles of these transactions, most used first, counted here rather than one query each. */
+/**
+ * The titles of these transactions, most used first, counted here rather than one query each, each
+ * with the category it's in most.
+ */
 private fun List<TransactionEntity>.titlesByUse(
     excludeSuggestions: Set<String> = emptySet()
-): List<String> = mapNotNull { it.title?.takeIf(String::isNotBlank) }
-    .map { it.trim().capitalizeWords() }
-    .filterNot { it in excludeSuggestions }
-    .groupingBy { it }.eachCount()
-    .entries.sortedByDescending { it.value }
-    .map { it.key }
+): Map<String, UUID?> = mapNotNull { transaction ->
+    transaction.title?.takeIf(String::isNotBlank)?.let { it.trim().capitalizeWords() to transaction }
+}
+    .filterNot { (title, _) -> title in excludeSuggestions }
+    .groupBy({ it.first }, { it.second })
+    .entries.sortedByDescending { it.value.size }
+    .associate { (title, transactions) -> title to transactions.mostUsedCategory() }
+
+// The category these are in most; of those they're in as often, the one they were in last.
+private fun List<TransactionEntity>.mostUsedCategory(): UUID? =
+    mapNotNull { transaction -> transaction.categoryId?.let { it to transaction.dateTime } }
+        .groupBy({ it.first }, { it.second })
+        .entries
+        .maxWithOrNull(
+            compareBy<Map.Entry<UUID, List<Instant?>>> { it.value.size }
+                .thenBy { it.value.filterNotNull().maxOrNull() }
+        )
+        ?.key
