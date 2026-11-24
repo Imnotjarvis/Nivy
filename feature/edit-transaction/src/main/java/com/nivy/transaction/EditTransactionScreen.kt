@@ -133,6 +133,7 @@ internal fun BoxWithConstraintsScope.UI(
             suggestions = state.titleSuggestions,
             scrollState = scrollState,
             onTitleChanged = { onEvent(EditTransactionViewEvent.OnTitleChanged(it)) },
+            onDone = { titleDone(state.category, suggested = it, onEvent) { open.chooseCategory = true } },
         )
 
         state.displayLoanHelper.loanCaption?.let { LoanCaption(it) }
@@ -240,10 +241,10 @@ internal fun BoxWithConstraintsScope.UI(
         setAmountModalShown = { open.amount = it },
         onAmountChanged = {
             onEvent(EditTransactionViewEvent.OnAmountChanged(it))
-            if (shouldFocusCategory(state.category)) {
-                open.chooseCategory = true
-            } else if (shouldFocusTitle(titleTextFieldValue, state.transactionType)) {
-                titleFocus.requestFocus()
+            when (afterAmount(titleTextFieldValue.text, state.transactionType, state.category)) {
+                Next.Title -> titleFocus.requestFocus()
+                Next.Category -> open.chooseCategory = true
+                Next.None -> Unit
             }
         },
         onSelectedAccountChanged = {
@@ -448,9 +449,19 @@ private val EditTransactionViewState.showsRateCard: Boolean
 private val EditTransactionViewState.canBecomePlanned: Boolean
     get() = dueDate == null && dateTime == null
 
-private fun shouldFocusCategory(
-    category: Category?,
-): Boolean = category == null
+/** Once the title is done: the category its suggestion brings, unless one is chosen; with none, the list. */
+private fun titleDone(
+    chosen: Category?,
+    suggested: Category?,
+    onEvent: (EditTransactionViewEvent) -> Unit,
+    chooseCategory: () -> Unit,
+) {
+    when (val next = afterTitle(chosen = chosen, suggested = suggested)) {
+        is AfterTitle.Choose -> onEvent(EditTransactionViewEvent.OnCategoryChanged(next.category))
+        AfterTitle.Ask -> chooseCategory()
+        AfterTitle.Keep -> Unit
+    }
+}
 
 private fun shouldFocusTitle(
     titleTextFieldValue: TextFieldValue,

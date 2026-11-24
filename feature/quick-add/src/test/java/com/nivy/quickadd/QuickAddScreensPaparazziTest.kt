@@ -66,6 +66,7 @@ class QuickAddScreensPaparazziTest(
                 initialTitle = "Lunch",
                 currency = "EUR",
                 categories = persistentListOf(EatingOut),
+                mostUsedCategories = persistentListOf(),
                 accounts = persistentListOf(Bank, Savings),
                 account = Bank,
                 toAccount = null,

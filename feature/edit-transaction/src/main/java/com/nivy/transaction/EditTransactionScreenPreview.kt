@@ -12,7 +12,6 @@ import com.nivy.navigation.NivyMaterial3Preview
 import com.nivy.wallet.data.EditTransactionDisplayLoan
 import com.nivy.wallet.domain.data.CustomExchangeRateState
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentSetOf
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -30,7 +29,7 @@ private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
             state = EditTransactionViewState(
                 transactionType = TransactionType.INCOME,
                 initialTitle = "",
-                titleSuggestions = persistentSetOf(),
+                titleSuggestions = persistentListOf(),
                 currency = "BGN",
                 description = null,
                 dateTime = testDateTime,
@@ -41,6 +40,7 @@ private fun BoxWithConstraintsScope.Preview(isDark: Boolean = false) {
                 canMoveChargeEarlier = false,
                 accounts = persistentListOf(),
                 categories = persistentListOf(),
+                mostUsedCategories = persistentListOf(),
                 account = previewAccount("phyre", color = Orange, currency = "BGN"),
                 toAccount = null,
                 category = null,

@@ -221,6 +221,22 @@ class FakeTransactionDao(
             .sortedByDescending { it.dateTime }
     }
 
+    override suspend fun findMostUsedCategoryIds(
+        type: TransactionType,
+        since: Instant,
+        limit: Int,
+    ): List<UUID> = items
+        .filter { it.type == type && it.dateTime?.let { time -> time >= since } == true }
+        .mapNotNull { transaction -> transaction.categoryId?.let { it to transaction.dateTime } }
+        .groupBy({ it.first }, { it.second })
+        .entries
+        .sortedWith(
+            compareByDescending<Map.Entry<UUID, List<Instant?>>> { it.value.size }
+                .thenByDescending { it.value.filterNotNull().maxOrNull() }
+        )
+        .take(limit)
+        .map { it.key }
+
     override suspend fun findLoanTransaction(loanId: UUID): TransactionEntity? {
         return items.find { it.loanId == loanId && it.loanRecordId == null }
     }

@@ -30,7 +30,6 @@ import com.nivy.wallet.ui.previewAccount
 import com.nivy.wallet.ui.theme.modal.edit.ChooseCategoryModal
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentSetOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
@@ -111,6 +110,7 @@ class EditTransactionPaparazziTest(
             visible = true,
             initialCategory = Groceries,
             categories = Categories,
+            mostUsed = persistentListOf(Groceries, Rent),
             showCategoryModal = {},
             onCategoryChanged = {},
             dismiss = {},
@@ -171,7 +171,7 @@ private fun BoxWithConstraintsScope.Editor(
         state = EditTransactionViewState(
             transactionType = type,
             initialTitle = title,
-            titleSuggestions = persistentSetOf(),
+            titleSuggestions = persistentListOf(),
             currency = "EUR",
             description = description,
             dateTime = Instant.parse("2026-11-03T17:30:00Z"),
@@ -182,6 +182,7 @@ private fun BoxWithConstraintsScope.Editor(
             canMoveChargeEarlier = false,
             accounts = persistentListOf(Bank, Revolut),
             categories = Categories,
+            mostUsedCategories = persistentListOf(),
             account = Bank,
             toAccount = toAccount,
             category = category,

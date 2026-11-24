@@ -6,14 +6,6 @@ import javax.inject.Singleton
 @Singleton
 class NivyFeatures @Inject constructor() : Features {
 
-    override val sortCategoriesAscending = BoolFeature(
-        key = "sort_categories_ascending",
-        group = FeatureGroup.Category,
-        name = "Sort categories list",
-        description = "Show categories in ascending order (A-Z) on the transaction entry screen",
-        defaultValue = false
-    )
-
     override val compactAccountsMode = BoolFeature(
         key = "compact_account_ui",
         group = FeatureGroup.Account,
@@ -80,7 +72,6 @@ class NivyFeatures @Inject constructor() : Features {
 
     override val allFeatures: List<BoolFeature>
         get() = listOf(
-            sortCategoriesAscending,
             compactAccountsMode,
             compactCategoriesMode,
             showTitleSuggestions,

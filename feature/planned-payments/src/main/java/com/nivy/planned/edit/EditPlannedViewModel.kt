@@ -36,6 +36,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.UserWrites
+import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
 import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
@@ -65,6 +66,7 @@ import javax.inject.Inject
 class EditPlannedViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
+    private val mostUsedCategoriesUseCase: MostUsedCategoriesUseCase,
     private val nav: Navigation,
     private val plannedPaymentRuleRepository: PlannedPaymentRuleRepository,
     private val plannedPaymentsGenerator: PlannedPaymentsGenerator,
@@ -94,6 +96,7 @@ class EditPlannedViewModel @Inject constructor(
     private var amount by mutableDoubleStateOf(0.0)
     private var currency by mutableStateOf("")
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
+    private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var categoryModalVisible by mutableStateOf(false)
     private var descriptionModalVisible by mutableStateOf(false)
@@ -116,6 +119,7 @@ class EditPlannedViewModel @Inject constructor(
         return EditPlannedScreenState(
             currency = currency,
             categories = categories,
+            mostUsedCategories = mostUsedCategories,
             accounts = accounts,
             transactionType = transactionType,
             startDate = startDate,
@@ -217,6 +221,7 @@ class EditPlannedViewModel @Inject constructor(
             } else {
                 displayNew(screen, pickable)
             }
+            mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(transactionType).toImmutableList()
         }
     }
 
@@ -328,6 +333,9 @@ class EditPlannedViewModel @Inject constructor(
         this@EditPlannedViewModel.transactionType = newTransactionType
 
         saveIfEditMode()
+        viewModelScope.launch {
+            mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(newTransactionType).toImmutableList()
+        }
     }
 
     /** The cards of the account a planned expense or transfer can be paid with. */

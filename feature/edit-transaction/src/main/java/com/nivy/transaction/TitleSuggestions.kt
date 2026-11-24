@@ -8,16 +8,17 @@ import androidx.compose.runtime.setValue
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.domain.features.Features
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
-import kotlinx.collections.immutable.ImmutableSet
-import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.collections.immutable.toPersistentSet
+import com.nivy.wallet.domain.logic.TitleSuggestion
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlinx.coroutines.withContext
 
-/** Titles of earlier transactions, offered under the title as it's typed. */
+/** Titles of earlier transactions, with their category, offered under the title as it's typed. */
 @Stable
 internal class TitleSuggestions(
     private val smartTitleSuggestionsLogic: SmartTitleSuggestionsLogic,
@@ -25,16 +26,16 @@ internal class TitleSuggestions(
     private val scope: CoroutineScope,
     private val dispatchers: DispatchersProvider,
 ) {
-    private var suggestions by mutableStateOf(persistentSetOf<String>())
+    private var suggestions by mutableStateOf(persistentListOf<TitleSuggestion>())
     private var job: Job? = null
 
     /** The suggestions, or none while they're turned off in the settings. */
     @Composable
-    fun shown(): ImmutableSet<String> =
+    fun shown(): ImmutableList<TitleSuggestion> =
         if (features.showTitleSuggestions.asEnabledState()) {
             suggestions
         } else {
-            persistentSetOf()
+            persistentListOf()
         }
 
     /** Looks them up again, for [title] in the category [categoryId] on the account [accountId]. */
@@ -48,7 +49,7 @@ internal class TitleSuggestions(
                     categoryId = categoryId,
                     accountId = accountId
                 )
-            }.toPersistentSet()
+            }.toPersistentList()
         }
     }
 }

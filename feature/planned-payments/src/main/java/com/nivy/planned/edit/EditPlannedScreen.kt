@@ -125,7 +125,7 @@ internal fun BoxWithConstraintsScope.UI(
             setTitleTextFieldValue = {
                 titleTextFieldValue = it
             },
-            suggestions = emptySet(), // DO NOT display title suggestions for "Planned Payments"
+            suggestions = persistentListOf(), // DO NOT display title suggestions for "Planned Payments"
             onTitleChanged = { onEvent(EditPlannedScreenEvent.OnTitleChanged(it)) },
         )
 
@@ -263,6 +263,7 @@ internal fun BoxWithConstraintsScope.UI(
         visible = state.categoryModalVisible,
         initialCategory = state.category,
         categories = state.categories,
+        mostUsed = state.mostUsedCategories,
         showCategoryModal = {
             onEvent(
                 EditPlannedScreenEvent.OnCategoryModalDataChanged(
@@ -406,6 +407,7 @@ private fun Preview() {
                 amount = 0.0,
                 transactionType = TransactionType.INCOME,
                 categories = persistentListOf(),
+                mostUsedCategories = persistentListOf(),
                 accounts = persistentListOf(),
                 categoryModalVisible = false,
                 categoryModalData = null,

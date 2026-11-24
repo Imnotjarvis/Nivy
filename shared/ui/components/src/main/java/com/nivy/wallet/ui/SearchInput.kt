@@ -24,6 +24,9 @@ import com.nivy.wallet.ui.theme.components.NivyBasicTextField
 import com.nivy.design.system.shapes.PillShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.platform.LocalView
+import com.nivy.design.utils.hideKeyboard
 
 @Composable
 fun SearchInput(
@@ -32,6 +35,8 @@ fun SearchInput(
     modifier: Modifier = Modifier,
     focus: Boolean = true,
     showClearIcon: Boolean = true,
+    // What the keyboard's Done does once it closes the keyboard.
+    onSubmit: () -> Unit = {},
     onSetSearchQueryTextField: (TextFieldValue) -> Unit
 ) {
     Row(
@@ -46,6 +51,7 @@ fun SearchInput(
         NivyIcon(icon = R.drawable.ic_search, modifier = Modifier.weight(1f))
 
         val searchFocus = remember { FocusRequester() }
+        val view = LocalView.current
         // The clear icon shows at the end of the text's place, so that the lens and the text stay
         // where they are once it does.
         Box(
@@ -60,6 +66,12 @@ fun SearchInput(
                     .focusRequester(searchFocus),
                 value = searchQueryTextFieldValue,
                 hint = hint,
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        hideKeyboard(view)
+                        onSubmit()
+                    }
+                ),
                 onValueChanged = {
                     onSetSearchQueryTextField(it)
                 }

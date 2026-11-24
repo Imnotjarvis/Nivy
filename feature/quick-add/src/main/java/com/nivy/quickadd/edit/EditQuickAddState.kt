@@ -17,6 +17,8 @@ data class EditQuickAddState(
     val initialTitle: String?,
     val currency: String,
     val categories: ImmutableList<Category>,
+    // The categories this type of transaction was put in most over the last 12 months.
+    val mostUsedCategories: ImmutableList<Category>,
     val accounts: ImmutableList<Account>,
     val account: Account?,
     // The account a transfer goes to; null for an income or an expense.

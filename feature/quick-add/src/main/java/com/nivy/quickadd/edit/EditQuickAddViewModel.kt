@@ -26,6 +26,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.domain.UserWrites
+import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
 import com.nivy.navigation.EditQuickAddScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.ComposeViewModel
@@ -54,6 +55,7 @@ import javax.inject.Inject
 class EditQuickAddViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val categoryRepository: CategoryRepository,
+    private val mostUsedCategoriesUseCase: MostUsedCategoriesUseCase,
     private val creditCardRepository: CreditCardRepository,
     private val quickAddRepository: QuickAddRepository,
     private val categoryCreator: CategoryCreator,
@@ -73,6 +75,7 @@ class EditQuickAddViewModel @Inject constructor(
     private var amount by mutableDoubleStateOf(0.0)
     private var currency by mutableStateOf("")
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
+    private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var categoryModalVisible by mutableStateOf(false)
     private var categoryModalData by mutableStateOf<CategoryModalData?>(null)
@@ -91,6 +94,7 @@ class EditQuickAddViewModel @Inject constructor(
         initialTitle = initialTitle,
         currency = currency,
         categories = categories,
+        mostUsedCategories = mostUsedCategories,
         accounts = accounts,
         account = account,
         toAccount = toAccount,
@@ -146,6 +150,7 @@ class EditQuickAddViewModel @Inject constructor(
             val pickable = all.pickable(listOf(quickAdd?.account, quickAdd?.toAccount)).ifEmpty { all }
             accounts = pickable.toImmutableList()
             if (quickAdd != null) display(quickAdd) else displayNew(screen, pickable)
+            mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(type).toImmutableList()
         }
     }
 
@@ -184,6 +189,9 @@ class EditQuickAddViewModel @Inject constructor(
         // Only an expense or a transfer is paid with a card.
         if (newType != type) creditCard = account?.let { defaultCreditCard(it, newType) }
         changed { type = newType }
+        viewModelScope.launch {
+            mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(newType).toImmutableList()
+        }
     }
 
     private fun updateAccount(newAccount: Account) {

@@ -105,6 +105,7 @@ class EditPlannedSchedulePaparazziTest(
         amount = amount,
         transactionType = type,
         categories = persistentListOf(Housing),
+        mostUsedCategories = persistentListOf(),
         accounts = persistentListOf(Bank, Savings),
         categoryModalVisible = false,
         categoryModalData = null,

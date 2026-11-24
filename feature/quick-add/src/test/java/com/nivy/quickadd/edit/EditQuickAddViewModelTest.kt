@@ -19,6 +19,7 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.domain.UserWrites
+import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
 import com.nivy.navigation.EditQuickAddScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.testing.runTest
@@ -57,6 +58,10 @@ class EditQuickAddViewModelTest {
         icon = null,
         orderNum = 0.0,
     )
+    private val salary = transport.copy(
+        id = CategoryId(UUID.randomUUID()),
+        name = NotBlankTrimmedString.unsafe("Salary"),
+    )
     private val coffee = QuickAdd(
         id = QuickAddId(UUID.randomUUID()),
         type = TransactionType.EXPENSE,
@@ -86,6 +91,11 @@ class EditQuickAddViewModelTest {
         categoryRepository = mockk<CategoryRepository> {
             coEvery { findAll() } returns listOf(transport)
             coEvery { findById(transport.id) } returns transport
+        },
+        mostUsedCategoriesUseCase = mockk<MostUsedCategoriesUseCase> {
+            coEvery { mostUsed(TransactionType.EXPENSE) } returns listOf(transport)
+            coEvery { mostUsed(TransactionType.INCOME) } returns listOf(salary)
+            coEvery { mostUsed(TransactionType.TRANSFER) } returns emptyList()
         },
         creditCardRepository = mockk<CreditCardRepository> { coEvery { findAll() } returns listOf(visaCard) },
         quickAddRepository = quickAddRepository,
@@ -117,6 +127,18 @@ class EditQuickAddViewModelTest {
                 title = "Metro",
             )
         )
+
+    @Test
+    fun `the categories used most are the quick add's type's`() {
+        // when
+        newQuickAdd()
+
+        // then
+        viewModel.runTest { mostUsedCategories shouldBe listOf(transport) }
+        viewModel.runTest(events = listOf(EditQuickAddEvent.OnTypeChanged(TransactionType.INCOME))) {
+            mostUsedCategories shouldBe listOf(salary)
+        }
+    }
 
     @Test
     fun `a new quick add is saved as filled in, after the others, and the editor closes`() {

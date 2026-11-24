@@ -1,7 +1,6 @@
 package com.nivy.domain.features
 
 interface Features {
-    val sortCategoriesAscending: BoolFeature
     val compactAccountsMode: BoolFeature
     val compactCategoriesMode: BoolFeature
     val showTitleSuggestions: BoolFeature

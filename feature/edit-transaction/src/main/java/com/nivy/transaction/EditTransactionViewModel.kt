@@ -26,6 +26,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
+import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
 import com.nivy.domain.usecase.creditcard.minChargeShift
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.navigation.MainScreen
@@ -64,7 +65,7 @@ class EditTransactionViewModel @Inject constructor(
     private val categoryCreator: CategoryCreator,
     private val accountCreator: AccountCreator,
     private val smartTitleSuggestionsLogic: SmartTitleSuggestionsLogic,
-    private val sortedCategories: SortedCategories,
+    private val mostUsedCategoriesUseCase: MostUsedCategoriesUseCase,
     private val categoryRepository: CategoryRepository,
     private val accountRepository: AccountRepository,
     private val transactionRepo: TransactionRepository,
@@ -89,6 +90,7 @@ class EditTransactionViewModel @Inject constructor(
     private var creditCard by mutableStateOf<CreditCard?>(null)
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
+    private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var account by mutableStateOf<Account?>(null)
     private var toAccount by mutableStateOf<Account?>(null)
     private var category by mutableStateOf<Category?>(null)
@@ -132,7 +134,7 @@ class EditTransactionViewModel @Inject constructor(
                 return@launch
             }
 
-            categories = sortedCategories.sortCategories()
+            categories = categoryRepository.findAll().toImmutableList()
             allCreditCards = creditCardRepository.findAll()
 
             reset()
@@ -169,6 +171,7 @@ class EditTransactionViewModel @Inject constructor(
             canMoveChargeEarlier = canMoveChargeEarlier(creditCard, chargeShift, ::purchase),
             accounts = accounts,
             categories = categories,
+            mostUsedCategories = mostUsedCategories,
             account = account,
             toAccount = toAccount,
             category = category,
@@ -222,6 +225,7 @@ class EditTransactionViewModel @Inject constructor(
         this.title = transaction.title
 
         transactionType = transaction.type
+        mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(transaction.type).toImmutableList()
         initialTitle = transaction.title
         dateTime = transaction.dateTime
         description = transaction.description
@@ -385,6 +389,9 @@ class EditTransactionViewModel @Inject constructor(
         )
         transactionType = newTransactionType
         saveIfEditMode()
+        viewModelScope.launch {
+            mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(newTransactionType).toImmutableList()
+        }
     }
 
     // A move counts from a card's usual charge date, so another card starts without one.
@@ -439,7 +446,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun createCategory(data: CreateCategoryData) {
         viewModelScope.launch {
             categoryCreator.createCategory(data) {
-                categories = sortedCategories.sortCategories()
+                categories = categoryRepository.findAll().toImmutableList()
 
                 // Select the newly created category
                 onCategoryChanged(it)
@@ -465,7 +472,7 @@ class EditTransactionViewModel @Inject constructor(
     private fun editCategory(updatedCategory: Category) {
         viewModelScope.launch {
             categoryCreator.editCategory(updatedCategory) {
-                categories = sortedCategories.sortCategories()
+                categories = categoryRepository.findAll().toImmutableList()
             }
         }
     }

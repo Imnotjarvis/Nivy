@@ -39,6 +39,7 @@ import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModal
 import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
 import com.nivy.wallet.ui.theme.modal.edit.ChooseCategoryModal
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun BoxWithConstraintsScope.EditQuickAddScreen(screen: EditQuickAddScreen) {
@@ -94,7 +95,7 @@ internal fun BoxWithConstraintsScope.UI(
             titleFocus = titleFocus,
             titleTextFieldValue = titleTextFieldValue,
             setTitleTextFieldValue = { titleTextFieldValue = it },
-            suggestions = emptySet(),
+            suggestions = persistentListOf(),
             onTitleChanged = { onEvent(EditQuickAddEvent.OnTitleChanged(it)) },
         )
 
@@ -169,6 +170,7 @@ internal fun BoxWithConstraintsScope.UI(
         visible = state.categoryModalVisible,
         initialCategory = state.category,
         categories = state.categories,
+        mostUsed = state.mostUsedCategories,
         showCategoryModal = { onEvent(EditQuickAddEvent.OnCategoryModalDataChanged(CategoryModalData(it))) },
         onCategoryChanged = {
             onEvent(EditQuickAddEvent.OnCategoryChanged(it))
