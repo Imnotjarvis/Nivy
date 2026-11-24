@@ -36,7 +36,7 @@ fun SearchInput(
     focus: Boolean = true,
     showClearIcon: Boolean = true,
     // What the keyboard's Done does once it closes the keyboard.
-    onDone: () -> Unit = {},
+    onSubmit: () -> Unit = {},
     onSetSearchQueryTextField: (TextFieldValue) -> Unit
 ) {
     Row(
@@ -69,7 +69,7 @@ fun SearchInput(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         hideKeyboard(view)
-                        onDone()
+                        onSubmit()
                     }
                 ),
                 onValueChanged = {

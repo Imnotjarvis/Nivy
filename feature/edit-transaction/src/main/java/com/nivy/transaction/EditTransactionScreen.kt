@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
+import com.nivy.data.model.Category
 import com.nivy.design.utils.hideKeyboard
 import com.nivy.domain.RootScreen
 import com.nivy.navigation.EditPlannedScreen
@@ -132,13 +133,7 @@ internal fun BoxWithConstraintsScope.UI(
             suggestions = state.titleSuggestions,
             scrollState = scrollState,
             onTitleChanged = { onEvent(EditTransactionViewEvent.OnTitleChanged(it)) },
-            onDone = { suggested ->
-                when (val next = afterTitle(chosen = state.category, suggested = suggested)) {
-                    is AfterTitle.Choose -> onEvent(EditTransactionViewEvent.OnCategoryChanged(next.category))
-                    AfterTitle.Ask -> open.chooseCategory = true
-                    AfterTitle.Keep -> Unit
-                }
-            },
+            onDone = { titleDone(state.category, suggested = it, onEvent) { open.chooseCategory = true } },
         )
 
         state.displayLoanHelper.loanCaption?.let { LoanCaption(it) }
@@ -453,6 +448,20 @@ private val EditTransactionViewState.showsRateCard: Boolean
 /** A transaction without a date yet, and not planned, can be planned instead. */
 private val EditTransactionViewState.canBecomePlanned: Boolean
     get() = dueDate == null && dateTime == null
+
+/** Once the title is done: the category its suggestion brings, unless one is chosen; with none, the list. */
+private fun titleDone(
+    chosen: Category?,
+    suggested: Category?,
+    onEvent: (EditTransactionViewEvent) -> Unit,
+    chooseCategory: () -> Unit,
+) {
+    when (val next = afterTitle(chosen = chosen, suggested = suggested)) {
+        is AfterTitle.Choose -> onEvent(EditTransactionViewEvent.OnCategoryChanged(next.category))
+        AfterTitle.Ask -> chooseCategory()
+        AfterTitle.Keep -> Unit
+    }
+}
 
 private fun shouldFocusTitle(
     titleTextFieldValue: TextFieldValue,

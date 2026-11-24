@@ -142,7 +142,7 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
             searchQueryTextFieldValue = search,
             hint = stringResource(R.string.search_categories),
             focus = false,
-            onDone = { found.takeIf { typed.isNotEmpty() }?.firstOrNull()?.let(::onSelected) },
+            onSubmit = { found.takeIf { typed.isNotEmpty() }?.firstOrNull()?.let(::onSelected) },
             onSetSearchQueryTextField = { search = it },
         )
 

@@ -58,7 +58,10 @@ class EditQuickAddViewModelTest {
         icon = null,
         orderNum = 0.0,
     )
-    private val salary = transport.copy(id = CategoryId(UUID.randomUUID()), name = NotBlankTrimmedString.unsafe("Salary"))
+    private val salary = transport.copy(
+        id = CategoryId(UUID.randomUUID()),
+        name = NotBlankTrimmedString.unsafe("Salary"),
+    )
     private val coffee = QuickAdd(
         id = QuickAddId(UUID.randomUUID()),
         type = TransactionType.EXPENSE,
