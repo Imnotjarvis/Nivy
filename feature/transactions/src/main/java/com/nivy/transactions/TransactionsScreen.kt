@@ -185,6 +185,11 @@ fun BoxWithConstraintsScope.TransactionsScreen(screen: TransactionsScreen) {
         setValuesExpanded = {
             viewModel.onEvent(TransactionsEvent.SetValuesExpanded(it))
         },
+        periodChart = uiState.periodChart,
+        periodChartExpanded = uiState.periodChartExpanded,
+        setPeriodChartExpanded = {
+            viewModel.onEvent(TransactionsEvent.SetPeriodChartExpanded(it))
+        },
         onSaveValue = {
             viewModel.onEvent(TransactionsEvent.SaveValue(screen, it))
         },
@@ -254,6 +259,9 @@ internal fun BoxWithConstraintsScope.UI(
     setValuesExpanded: (Boolean) -> Unit = {},
     onSaveValue: (AccountValue) -> Unit = {},
     onDeleteValue: (AccountValue) -> Unit = {},
+    periodChart: PeriodChart? = null,
+    periodChartExpanded: Boolean = true,
+    setPeriodChartExpanded: (Boolean) -> Unit = {},
     onChoosePeriodModal: (ChoosePeriodModalData?) -> Unit,
 ) {
     val periodState = LocalPeriodState.current
@@ -445,6 +453,19 @@ internal fun BoxWithConstraintsScope.UI(
                 onChoosePeriodModal = onChoosePeriodModal,
                 onSetPeriod = onSetPeriod,
             )
+
+            if (periodChart != null) {
+                item(key = "period_chart") {
+                    PeriodChartPanel(
+                        modifier = Modifier.padding(top = 16.dp),
+                        chart = periodChart,
+                        period = period,
+                        currency = currency,
+                        expanded = periodChartExpanded,
+                        onExpandedChange = setPeriodChartExpanded,
+                    )
+                }
+            }
 
             transactions(
                 baseData = AppBaseData(

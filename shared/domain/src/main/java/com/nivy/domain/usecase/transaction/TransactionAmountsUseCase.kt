@@ -20,6 +20,12 @@ class TransactionAmountsUseCase @Inject constructor(
         return transactions.sumOf { rates.inBase(it.getFromValue()) }
     }
 
+    /** Each transaction's amount, as [total] counts it. */
+    suspend fun amounts(transactions: List<Transaction>, currency: AssetCode): List<Double> {
+        val rates = BaseCurrencyRates(exchangeUseCase, currency)
+        return transactions.map { rates.inBase(it.getFromValue()) }
+    }
+
     /** Income minus expenses; transfers don't change it. */
     suspend fun balance(transactions: List<Transaction>, currency: AssetCode): Double {
         val rates = BaseCurrencyRates(exchangeUseCase, currency)

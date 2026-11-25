@@ -15,6 +15,8 @@ import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.domain.pure.transaction.filterOverdue
 import com.nivy.wallet.domain.pure.transaction.filterUpcoming
 import com.nivy.wallet.domain.data.TransactionHistoryItem
+import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
@@ -99,6 +101,34 @@ class CategoryTransactionsLogic @Inject constructor(
     ): List<TransactionHistoryItem> = withDateDividers(
         historyByCategory(category, range, accountFilterSet, transactions)
     )
+
+    /** The category's transactions in [range], or those of [transactions], in [accountFilterSet]'s accounts. */
+    suspend fun byCategory(
+        category: Category,
+        range: FromToTimeRange,
+        accountFilterSet: Set<UUID>,
+        transactions: List<Transaction> = emptyList(),
+    ): List<Transaction> = historyByCategory(category, range, accountFilterSet, transactions)
+
+    /** The transactions without a category in [range], in [accountFilterSet]'s accounts. */
+    suspend fun unspecified(range: FromToTimeRange, accountFilterSet: Set<UUID> = emptySet()): List<Transaction> =
+        transactionRepository.findAllUnspecifiedAndBetween(
+            startDate = range.from(),
+            endDate = range.to()
+        ).inAccounts(accountFilterSet)
+
+    /** What [transactions]' income and expenses brought in and took out, each on its [day], in the base currency. */
+    internal suspend fun flows(transactions: List<Transaction>, day: (Instant) -> LocalDate): List<Flow> {
+        val counted = transactions.filter { it is Income || it is Expense }
+        val amounts = transactionAmountsUseCase.amounts(counted, currencyRepository.getBaseCurrency())
+        return counted.zip(amounts) { transaction, amount ->
+            if (transaction is Income) {
+                Flow(day(transaction.time), income = amount)
+            } else {
+                Flow(day(transaction.time), expense = amount)
+            }
+        }
+    }
 
     suspend fun historyUnspecified(range: FromToTimeRange): List<TransactionHistoryItem> =
         withDateDividers(

@@ -10,10 +10,12 @@ import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
+import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
+import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
@@ -105,6 +107,12 @@ class TransactionsViewModelTest {
     }
     private val periodState = PeriodState(FixedTime)
     private val categoryRepository = mockk<CategoryRepository> { coEvery { findAll() } returns emptyList() }
+    private var transfersCounted = false
+    private var chartExpanded = true
+    private val appPreferences = mockk<AppPreferences>(relaxUnitFun = true) {
+        coEvery { transfersAsIncomeExpense() } answers { transfersCounted }
+        coEvery { periodChartExpanded() } answers { chartExpanded }
+    }
     private val nav = mockk<Navigation>(relaxed = true)
 
     private val viewModel = TransactionsViewModel(
@@ -125,7 +133,7 @@ class TransactionsViewModelTest {
         categoryCreator = mockk(relaxed = true),
         accountCreator = mockk(relaxed = true),
         dueTransactionsUseCase = dueTransactionsUseCase,
-        appPreferences = mockk<AppPreferences> { coEvery { transfersAsIncomeExpense() } returns false },
+        appPreferences = appPreferences,
         accountTransactionsUseCase = mockk<AccountTransactionsUseCase> {
             coEvery { transactions(any(), any()) } answers { accountTransactions }
         },
@@ -392,6 +400,87 @@ class TransactionsViewModelTest {
             categoryPeriodLoader.initForCategoryWithTransactions(any(), food, any(), fromReports)
         }
     }
+
+    @Test
+    fun `an account's page adds up what came into it and went out of it, to today`() {
+        // given: it's November 15
+        accountTransactions = listOf(
+            income(bank, 100.0, "2026-11-03T10:00:00Z"),
+            expense(bank, settled = true),
+            transferIn(bank, 40.0, "2026-11-12T10:00:00Z"),
+        )
+
+        // when
+        viewModel.start(bankPage)
+
+        // then
+        viewModel.runTest {
+            val chart = periodChart!!
+            chart.through shouldBe LocalDate.of(2026, 11, 15)
+            chart.income!!.size shouldBe 15
+            chart.income.last() shouldBe 100.0
+            chart.expenses!!.last() shouldBe 10.0
+        }
+    }
+
+    @Test
+    fun `with transfers counted as income and expenses, a transfer in adds to what came in`() {
+        // given
+        transfersCounted = true
+        accountTransactions = listOf(transferIn(bank, 40.0, "2026-11-12T10:00:00Z"))
+
+        // when
+        viewModel.start(bankPage)
+
+        // then
+        viewModel.runTest {
+            periodChart!!.income!!.last() shouldBe 40.0
+        }
+    }
+
+    @Test
+    fun `the chart of the period opens, or stays folded, as it was last left`() {
+        // given
+        chartExpanded = false
+
+        // when
+        viewModel.start(bankPage)
+
+        // then
+        viewModel.runTest {
+            periodChartExpanded shouldBe false
+        }
+        viewModel.runTest(events = listOf(TransactionsEvent.SetPeriodChartExpanded(true))) {
+            periodChartExpanded shouldBe true
+        }
+        coVerify { appPreferences.setPeriodChartExpanded(true) }
+    }
+
+    private fun income(account: Account, amount: Double, time: String) = Income(
+        id = TransactionId(UUID.randomUUID()),
+        title = null,
+        description = null,
+        category = null,
+        time = Instant.parse(time),
+        settled = true,
+        metadata = Metadata,
+        value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
+        account = account.id,
+    )
+
+    private fun transferIn(account: Account, amount: Double, time: String) = Transfer(
+        id = TransactionId(UUID.randomUUID()),
+        title = null,
+        description = null,
+        category = null,
+        time = Instant.parse(time),
+        settled = true,
+        metadata = Metadata,
+        fromAccount = dollars.id,
+        fromValue = PositiveValue(PositiveDouble.unsafe(amount * 2), dollars.asset),
+        toAccount = account.id,
+        toValue = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
+    )
 
     private fun expense(account: Account, settled: Boolean) = Expense(
         id = TransactionId(UUID.randomUUID()),

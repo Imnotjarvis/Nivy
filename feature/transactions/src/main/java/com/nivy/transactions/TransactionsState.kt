@@ -47,6 +47,9 @@ data class TransactionsState(
     val compactTransactions: Boolean = false,
     // An investment account's money in, gain and values; null for other accounts and categories.
     val investment: InvestmentData? = null,
+    // The period's money in and out added up, under its switcher; null while nothing moved in it.
+    val periodChart: PeriodChart? = null,
+    val periodChartExpanded: Boolean = true,
 )
 
 /**
