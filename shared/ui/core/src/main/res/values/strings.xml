@@ -234,6 +234,11 @@
     <string name="month_spent">Spent</string>
     <string name="month_average_short">avg %1$s</string>
     <string name="month_compared_with">Compared with %1$s</string>
+    <string name="period_chart_more_in">By %1$s, %2$s %3$s more in than out</string>
+    <string name="period_chart_more_out">By %1$s, %2$s %3$s more out than in</string>
+    <string name="period_chart_period_before">the period before</string>
+    <string name="period_chart_now">Now</string>
+    <string name="period_chart_before">Before</string>
     <string name="month_less_than_by">%1$s %2$s less than by %3$s</string>
     <string name="month_more_than_by">%1$s %2$s more than by %3$s</string>
     <string name="month_spent_a_day">Spent a day</string>

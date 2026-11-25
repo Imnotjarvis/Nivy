@@ -30,6 +30,7 @@ import com.nivy.wallet.utils.computationThread
 import com.nivy.wallet.utils.ioThread
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
 
@@ -70,6 +71,12 @@ class CategoryPeriodLoader @Inject constructor(
                 range,
                 accountFilterSet = accountFilterList.toSet(),
             ).toImmutableList()
+        }
+
+        chart.value = ioThread {
+            chartOf(range, categoryLogic.byCategory(pageCategory, range, accountFilterSet)) {
+                categoryLogic.byCategory(pageCategory, it, accountFilterSet)
+            }
         }
 
         loadDue(pageCategory, range, accountFilterSet)
@@ -134,6 +141,12 @@ class CategoryPeriodLoader @Inject constructor(
                 ).toImmutableList()
             }
 
+            chart.value = ioThread {
+                chartOf(range, categoryLogic.byCategory(pageCategory, range, accountFilterSet, trans)) {
+                    categoryLogic.byCategory(pageCategory, it, accountFilterSet)
+                }
+            }
+
             loadDue(pageCategory, range, accountFilterSet)
         }
     }
@@ -156,6 +169,8 @@ class CategoryPeriodLoader @Inject constructor(
         history.value = ioThread {
             categoryLogic.historyUnspecified(range).toImmutableList()
         }
+
+        chart.value = ioThread { chartOf(range, categoryLogic.unspecified(range)) { categoryLogic.unspecified(it) } }
 
         // Upcoming
         upcomingIncome.doubleValue = ioThread {
@@ -207,6 +222,9 @@ class CategoryPeriodLoader @Inject constructor(
                 it.settled && (accountFilterSet.isEmpty() || it.getFromAccount().value in accountFilterSet)
             }
         ).toImmutableList()
+        val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
+        val inAccounts = trans.filter { accountFilterSet.isEmpty() || it.getFromAccount().value in accountFilterSet }
+        chart.value = ioThread { chartOf(range, inAccounts) { categoryLogic.unspecified(it, accountFilterSet) } }
     }
 
     internal suspend fun initForAccountTransfersCategory(
@@ -223,6 +241,7 @@ class CategoryPeriodLoader @Inject constructor(
             orderNum = 0.0,
         )
         category.value = accountTransferCategory
+        chart.value = null
         val accountFilterIdSet = accountFilterList.toHashSet()
         val trans = transactions.filter {
             it is Transfer && it.category == null && (
@@ -243,6 +262,25 @@ class CategoryPeriodLoader @Inject constructor(
             baseCurrency = baseCurrency.value,
             transactions = transactions.filter { it.settled }
         ).toImmutableList()
+    }
+
+    /**
+     * The chart of the [now] transactions in the period's [range], over what moved in the period
+     * before, which [before] reads; none before a period that starts at the first transaction.
+     */
+    private suspend fun chartOf(
+        range: FromToTimeRange,
+        now: List<Transaction>,
+        before: suspend (FromToTimeRange) -> List<Transaction>,
+    ): PeriodChart? {
+        val day = { time: Instant -> with(timeConverter) { time.toLocalDate() } }
+        val flows = categoryLogic.flows(now, day)
+        val today = timeProvider.localDateNow()
+        val days = range.chartDays(flows.minOfOrNull { it.day }, today, timeConverter) ?: return null
+        val earlier = periodBefore(days).takeIf { range.from != null }?.let { beforeDays ->
+            beforeDays to categoryLogic.flows(before(beforeDays.toTimeRange(timeConverter)), day)
+        }
+        return categoryChart(days, today, flows, earlier)
     }
 
     /**
@@ -279,4 +317,5 @@ internal class CategoryLoadState(
     val overdue: MutableState<ImmutableList<Transaction>>,
     val overdueIncome: MutableDoubleState,
     val overdueExpenses: MutableDoubleState,
+    val chart: MutableState<PeriodChart?>,
 )

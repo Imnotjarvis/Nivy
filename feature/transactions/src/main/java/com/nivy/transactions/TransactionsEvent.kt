@@ -12,6 +12,7 @@ import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
 sealed interface TransactionsEvent {
     data class SetUpcomingExpanded(val expanded: Boolean) : TransactionsEvent
     data class SetValuesExpanded(val expanded: Boolean) : TransactionsEvent
+    data class SetPeriodChartExpanded(val expanded: Boolean) : TransactionsEvent
     data class SaveValue(val screen: TransactionsScreen, val value: AccountValue) : TransactionsEvent
     data class DeleteValue(val screen: TransactionsScreen, val value: AccountValue) : TransactionsEvent
     data class SetOverdueExpanded(val expanded: Boolean) : TransactionsEvent

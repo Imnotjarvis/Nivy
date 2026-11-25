@@ -37,11 +37,13 @@ import com.nivy.navigation.TransactionsScreen
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.PeriodState
+import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.data.model.toCloseTimeRange
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
+import com.nivy.wallet.domain.pure.transaction.AccountValueFunctions
 import com.nivy.wallet.ui.theme.modal.ChoosePeriodModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -50,6 +52,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.math.BigDecimal
+import java.util.UUID
 import javax.inject.Inject
 
 // The transactions screen serves accounts and categories with their own stats and actions.
@@ -120,6 +124,8 @@ class TransactionsViewModel @Inject constructor(
     private val choosePeriodModal = mutableStateOf<ChoosePeriodModalData?>(null)
     private val investment = mutableStateOf<InvestmentData?>(null)
     private val valuesExpanded = mutableStateOf(true)
+    private val periodChart = mutableStateOf<PeriodChart?>(null)
+    private val periodChartExpanded = mutableStateOf(true)
 
     private val categoryLoadState = CategoryLoadState(
         period = period,
@@ -137,6 +143,7 @@ class TransactionsViewModel @Inject constructor(
         overdue = overdue,
         overdueIncome = overdueIncome,
         overdueExpenses = overdueExpenses,
+        chart = periodChart,
     )
 
     @Composable
@@ -172,6 +179,8 @@ class TransactionsViewModel @Inject constructor(
             showAccountColorsInTransactions = getShouldShowAccountSpecificColorInTransactions(),
             compactTransactions = features.compactTransactionsMode.asEnabledState(),
             investment = investment.value?.copy(valuesExpanded = valuesExpanded.value),
+            periodChart = periodChart.value,
+            periodChartExpanded = periodChartExpanded.value,
         )
     }
 
@@ -208,6 +217,7 @@ class TransactionsViewModel @Inject constructor(
             is TransactionsEvent.SetOverdueExpanded -> setOverdueExpanded(event.expanded)
             is TransactionsEvent.SetUpcomingExpanded -> setUpcomingExpanded(event.expanded)
             is TransactionsEvent.SetValuesExpanded -> valuesExpanded.value = event.expanded
+            is TransactionsEvent.SetPeriodChartExpanded -> setPeriodChartExpanded(event.expanded)
             is TransactionsEvent.SaveValue -> saveValue(event.screen, event.value)
             is TransactionsEvent.DeleteValue -> deleteValue(event.screen, event.value)
             is TransactionsEvent.SetSkipAllModalVisible -> setSkipAllModalVisible(event.visible)
@@ -262,6 +272,7 @@ class TransactionsViewModel @Inject constructor(
             baseCurrency = baseCurrency.value,
             transactions = accountTransactions.filter { it.settled }
         ).toImmutableList()
+        periodChart.value = accountChartOf(initialAccount, range, accountTransactions, includeTransfersInCalc)
 
         // Upcoming
         upcomingIncome.doubleValue = withContext(dispatchers.io) {
@@ -291,6 +302,35 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
+     * The [account]'s chart of the period's [range]: what its [transactions] brought in and took
+     * out, as its income and expenses count them, [transfers] too when they count.
+     */
+    private fun accountChartOf(
+        account: Account,
+        range: FromToTimeRange,
+        transactions: List<Transaction>,
+        transfers: Boolean,
+    ): PeriodChart? {
+        val id = account.id.value
+        fun amount(
+            transaction: Transaction,
+            own: (Transaction, UUID) -> BigDecimal,
+            transfer: (Transaction, UUID) -> BigDecimal,
+        ): Double = (own(transaction, id) + if (transfers) transfer(transaction, id) else BigDecimal.ZERO).toDouble()
+
+        val flows = transactions.map {
+            Flow(
+                day = with(timeConverter) { it.time.toLocalDate() },
+                income = amount(it, AccountValueFunctions::income, AccountValueFunctions::transferIncome),
+                expense = amount(it, AccountValueFunctions::expense, AccountValueFunctions::transferExpense),
+            )
+        }
+        val today = timeProvider.localDateNow()
+        val days = range.chartDays(flows.minOfOrNull { it.day }, today, timeConverter) ?: return null
+        return accountChart(days, today, flows)
+    }
+
+    /**
      * The page's account or category is gone: deleted on a page opened from this one, which went
      * back here. There's nothing to show, so this page goes back too.
      */
@@ -302,6 +342,7 @@ class TransactionsViewModel @Inject constructor(
         account.value = null
         category.value = null
         investment.value = null
+        periodChart.value = null
     }
 
     private fun setUpcomingExpanded(expanded: Boolean) {
@@ -310,6 +351,12 @@ class TransactionsViewModel @Inject constructor(
 
     private fun setOverdueExpanded(expanded: Boolean) {
         overdueExpanded.value = expanded
+    }
+
+    // Kept for every account's and category's page from then on.
+    private fun setPeriodChartExpanded(expanded: Boolean) {
+        periodChartExpanded.value = expanded
+        viewModelScope.launch { appPreferences.setPeriodChartExpanded(expanded) }
     }
 
     // A period chosen in the dialog is the one the app's screens show from then on.
@@ -468,6 +515,7 @@ class TransactionsViewModel @Inject constructor(
             accounts.value = accountRepository.findAll().toImmutableList()
             initWithTransactions.value = false
             treatTransfersAsIncomeExpense.value = appPreferences.transfersAsIncomeExpense()
+            periodChartExpanded.value = appPreferences.periodChartExpanded()
 
             when {
                 screen.accountId != null -> {

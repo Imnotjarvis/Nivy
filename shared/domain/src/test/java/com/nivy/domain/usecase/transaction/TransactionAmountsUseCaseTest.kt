@@ -51,6 +51,16 @@ class TransactionAmountsUseCaseTest {
     }
 
     @Test
+    fun `each amount converts on its own, the rate read once`() = runTest {
+        // when
+        val amounts = useCase.amounts(listOf(expense(10.0, Eur), income(5.0, Usd), expense(4.0, Eur)), Usd)
+
+        // then
+        amounts shouldBe listOf(12.5, 5.0, 5.0)
+        coVerify(exactly = 1) { exchangeUseCase.convert(any<PositiveValue>(), any()) }
+    }
+
+    @Test
     fun `without a rate the amount is left out`() = runTest {
         // when
         val total = useCase.total(listOf(expense(7.0, Bgn), income(5.0, Usd)), Usd)

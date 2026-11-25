@@ -72,6 +72,9 @@ class CategoryPeriodLoaderTest {
             firstArg<List<Transaction>>().sumOf { (it as Expense).value.amount.value }
         }
         coEvery { balance(any(), any()) } returns 0.0
+        coEvery { amounts(any(), any()) } answers {
+            firstArg<List<Transaction>>().map { (it as Expense).value.amount.value }
+        }
     }
     private val currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur }
 
@@ -133,6 +136,47 @@ class CategoryPeriodLoaderTest {
         state.overdueExpenses.doubleValue shouldBe 65.0
     }
 
+    @Test
+    fun `a category's page charts its spending to today, over the month before's`() = runTest {
+        // given: it's November 15
+        val now = listOf(spent(20.0, "2026-11-02T10:00:00Z"), spent(30.0, "2026-11-14T10:00:00Z"))
+        val before = listOf(spent(25.0, "2026-10-03T10:00:00Z"), spent(40.0, "2026-10-20T10:00:00Z"))
+        coEvery { transactionRepository.findAllByCategoryAndBetween(food.id.value, any(), any()) } answers {
+            if (secondArg<Instant>() < Instant.parse("2026-11-01T00:00:00Z")) before else now
+        }
+        val state = newState()
+
+        // when
+        loader.initForCategory(state, food, accountFilterList = emptyList())
+
+        // then
+        val chart = state.chart.value!!
+        chart.expenses!!.size shouldBe 15
+        chart.expenses.last() shouldBe 50.0
+        chart.before!!.addedUp.last() shouldBe 65.0
+        chart.before.sameDay shouldBe LocalDate.of(2026, 10, 15)
+        chart.before.bySameDay shouldBe 25.0
+    }
+
+    @Test
+    fun `a category opened from Reports charts the transactions it was given, over the month before's`() = runTest {
+        // given
+        val given = listOf(spent(12.0, "2026-11-05T10:00:00Z"))
+        coEvery { transactionRepository.findAllByCategoryAndBetween(food.id.value, any(), any()) } returns
+            listOf(spent(8.0, "2026-10-05T10:00:00Z"))
+        val state = newState()
+
+        // when
+        loader.initForCategoryWithTransactions(state, food, accountFilterList = emptyList(), transactions = given)
+
+        // then
+        val chart = state.chart.value!!
+        chart.expenses!!.last() shouldBe 12.0
+        chart.before!!.bySameDay shouldBe 8.0
+    }
+
+    private fun spent(amount: Double, time: String) = expense(bank, amount, time).copy(settled = true)
+
     private fun newState() = CategoryLoadState(
         period = mutableStateOf(TimePeriod(month = Month.fromMonthValue(11), year = 2026)),
         baseCurrency = mutableStateOf("EUR"),
@@ -149,6 +193,7 @@ class CategoryPeriodLoaderTest {
         overdue = mutableStateOf(persistentListOf()),
         overdueIncome = mutableDoubleStateOf(0.0),
         overdueExpenses = mutableDoubleStateOf(0.0),
+        chart = mutableStateOf(null),
     )
 
     private fun expense(account: Account, amount: Double, due: String) = Expense(

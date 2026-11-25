@@ -95,6 +95,10 @@ class AppPreferences @Inject constructor(
     suspend fun pieChartByAccount(): Boolean = get(PieChartByAccount, false)
     suspend fun setPieChartByAccount(byAccount: Boolean) = set(PieChartByAccount, byAccount)
 
+    /** Whether an account's or a category's page shows its period's chart open, as last left: open at first. */
+    suspend fun periodChartExpanded(): Boolean = get(PeriodChartExpanded, true)
+    suspend fun setPeriodChartExpanded(expanded: Boolean) = set(PeriodChartExpanded, expanded)
+
     /** The user's settings; null until onboarding (or a backup, or the old database) sets them. */
     suspend fun settings(): AppSettings? {
         val prefs = dataStore.data.first()
@@ -180,6 +184,7 @@ class AppPreferences @Inject constructor(
         private val TransfersAsIncomeExpense = booleanPreferencesKey("transfers_as_inc_exp")
         private val CategorySortOrder = intPreferencesKey("categorySortOrder")
         private val PieChartByAccount = booleanPreferencesKey("pie_chart_by_account")
+        private val PeriodChartExpanded = booleanPreferencesKey("period_chart_expanded")
         private val ExchangeRatesSyncedFor = stringPreferencesKey("exchange_rates_synced_for")
         private val ExchangeRatesSyncedAt = longPreferencesKey("exchange_rates_synced_at")
         private val ConsumerPriceIndex = stringPreferencesKey("consumer_price_index")
