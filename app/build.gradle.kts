@@ -191,3 +191,18 @@ dependencies {
 
     lintChecks(libs.slack.lint.compose)
 }
+
+// CI's test job runs this after its tests, with resolveDetektTools and for the same reason: the
+// Gradle caches it saves then hold lint's own tools, the rules lintChecks adds, and the Compose
+// compiler's mapping tool for the minified demo build. The lint and demo jobs downloaded them from
+// Maven Central every run, and failed when it answered "429 Too Many Requests". Every module's
+// lint takes the same tools and rules as this one's.
+tasks.register("resolveLintAndDemoTools") {
+    val tools = files(
+        configurations.named("androidLintTool"),
+        configurations.named("lintChecks"),
+        configurations.named("composeMappingProducerClasspath"),
+    )
+    inputs.files(tools)
+    doLast { logger.lifecycle("Lint's and the demo build's tools: ${tools.files.size} files") }
+}
