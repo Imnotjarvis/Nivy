@@ -346,9 +346,9 @@ jobs:
         with:
           cache-provider: basic
           # Save from every branch, not only the default one, so later runs skip the
-          # ~10 min plugin download. This job resolves almost everything the others need, and
-          # detekt's tools for the checks job (resolveDetektTools). A failed run saves nothing:
-          # see the job's last step.
+          # ~10 min plugin download. This job resolves almost everything the others need, and the
+          # tools of the checks, lint and demo jobs (resolveDetektTools, resolveLintAndDemoTools).
+          # A failed run saves nothing: see the job's last step.
           cache-read-only: false
 
       - name: Download Gradle
@@ -381,11 +381,14 @@ jobs:
         if: failure()
         run: python3 -I scripts/printCompilerProblems.py
 
-      # Puts detekt's tools in the Gradle caches this job saves, for the checks job. On its own and
-      # best effort: they come from GitHub's release servers, which sometimes time out, and a
-      # failed download there shouldn't fail the tests. The checks job then downloads them itself.
-      - name: Resolve detekt's tools
-        run: ./gradlew resolveDetektTools || echo "::warning::Detekt's tools weren't downloaded; the checks job downloads them."
+      # Puts the other jobs' tools in the Gradle caches this job saves: detekt's for the checks job,
+      # lint's and the demo build's for theirs, which otherwise download them every run. On its own
+      # and best effort: detekt's come from GitHub's release servers, which sometimes time out, and
+      # a failed download shouldn't fail the tests. Those jobs then download what's missing.
+      - name: Resolve the other jobs' tools
+        run: |
+          ./gradlew resolveDetektTools :app:resolveLintAndDemoTools --continue ||
+            echo "::warning::Some of the other jobs' tools weren't downloaded; those jobs download them."
 
       - name: Keep the newest 750 MB of the build cache
         if: ${{ !cancelled() && steps.restore-cache.outputs.cache-hit != 'true' }}
