@@ -24,9 +24,9 @@ import org.junit.runner.RunWith
 import java.util.UUID
 
 /**
- * The account and category dialogs, where their colors are picked: the hues, or in minimal colors
- * the greys. The account's green, picked before, shows as the grey nearest its own; the
- * category's grey, picked in minimal colors, as itself.
+ * The account and category dialogs, where their colors are picked: on a ring of hues round the
+ * icon, with a tone and a code, or in minimal colors on a ring of greys. The account's green shows
+ * as its grey there; the category's grey, picked in minimal colors, as itself.
  */
 @RunWith(TestParameterInjector::class)
 class ItemColorDialogsPaparazziTest(
@@ -85,7 +85,7 @@ class ItemColorDialogsPaparazziTest(
         val Groceries = Category(
             id = CategoryId(UUID(9L, 1L)),
             name = NotBlankTrimmedString.unsafe("Groceries"),
-            // The third of the greys offered in minimal colors.
+            // A grey, as minimal colors' ring gives one.
             color = ColorInt(0xFF4E4E4E.toInt()),
             icon = IconAsset.unsafe("groceries"),
             orderNum = 0.0,

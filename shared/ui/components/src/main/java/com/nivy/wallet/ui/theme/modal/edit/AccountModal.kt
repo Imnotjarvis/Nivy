@@ -188,6 +188,8 @@ fun BoxWithConstraintsScope.AccountModal(
 
         NivyColorPicker(
             selectedColor = color,
+            icon = icon,
+            defaultIcon = R.drawable.ic_custom_account_m,
             onColorSelected = { color = it }
         )
 

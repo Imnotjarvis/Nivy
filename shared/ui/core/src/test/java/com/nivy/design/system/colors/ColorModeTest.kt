@@ -78,7 +78,7 @@ class ColorModeTest {
     fun `in minimal colors, a grey picked shows as itself`() {
         ColorMode.minimal = true
 
-        NIVY_COLOR_PICKER_GREYS.forEach { grey ->
+        (0..10).map { wheelGrey(it / 10f) }.forEach { grey ->
             val shown = grey.toArgb().toComposeColor()
             shown.red.toDouble() shouldBe (grey.red.toDouble() plusOrMinus Channel)
             shown.alpha shouldBe grey.alpha
@@ -86,21 +86,11 @@ class ColorModeTest {
     }
 
     @Test
-    fun `the greys the pickers offer in minimal colors run from near black to a light grey`() {
-        NIVY_COLOR_PICKER_GREYS.size shouldBe 8
-        // Saved as they are: these values must never change.
-        NIVY_COLOR_PICKER_GREYS.first() shouldBe Color(0xFF1F1F1F)
-        NIVY_COLOR_PICKER_GREYS.last() shouldBe Color(0xFFDDDDDD)
-        NIVY_COLOR_PICKER_GREYS.forEach { it.red shouldBe it.blue }
-        NIVY_COLOR_PICKER_GREYS.map { it.luminance() } shouldBe NIVY_COLOR_PICKER_GREYS.map { it.luminance() }.sorted()
-    }
-
-    @Test
-    fun `the color pickers offer the colors as they are, also in minimal colors`() {
+    fun `imported accounts and categories take the palette's hues as they are, also in minimal colors`() {
         ColorMode.minimal = true
 
         NIVY_COLOR_PICKER_HUES.first() shouldBe Palette.Nivy
-        NIVY_COLOR_PICKER_SHADES.last() shouldBe Palette.Red3Dark
+        NIVY_COLOR_PICKER_HUES.last() shouldBe Palette.Red3
     }
 
     @Test
@@ -123,9 +113,8 @@ class ColorModeTest {
         readableOn(Palette.Nivy) shouldBe White
         readableOn(Palette.Green) shouldBe Black
 
-        // On every color the pickers offer, at least 4.2:1: the closest calls, a mid red and a
-        // dull yellow, are a hair under 4.5 either way.
-        (NIVY_COLOR_PICKER_HUES + NIVY_COLOR_PICKER_SHADES).forEach { fill ->
+        // On any color the picker's wheel gives, every hue at every tone, at least 4.2:1.
+        (0 until 360 step 10).flatMap { hue -> (0..20).map { wheelColor(hue.toFloat(), it / 20f) } }.forEach { fill ->
             contrast(readableOn(fill), fill) shouldBeGreaterThanOrEqual 4.2
         }
     }

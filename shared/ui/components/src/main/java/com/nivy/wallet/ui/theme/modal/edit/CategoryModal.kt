@@ -158,6 +158,8 @@ fun BoxWithConstraintsScope.CategoryModal(
 
         NivyColorPicker(
             selectedColor = color,
+            icon = icon?.id,
+            defaultIcon = R.drawable.ic_custom_category_m,
             onColorSelected = { color = it }
         )
 

@@ -218,6 +218,8 @@ fun BoxWithConstraintsScope.LoanModal(
 
         NivyColorPicker(
             selectedColor = color,
+            icon = icon,
+            defaultIcon = R.drawable.ic_custom_loan_m,
             onColorSelected = { color = it }
         )
 
