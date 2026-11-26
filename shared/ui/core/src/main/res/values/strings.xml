@@ -438,6 +438,12 @@
     <string name="crypto">Crypto</string>
     <string name="exchange_rate">Exchange rate</string>
     <string name="choose_color">Select a color</string>
+    <string name="color_hue">Hue</string>
+    <string name="color_tone">Tone</string>
+    <string name="color_grey">Grey</string>
+    <string name="color_light">Light</string>
+    <string name="color_dark">Dark</string>
+    <string name="color_code">Code</string>
     <string name="reorder">Reorder</string>
     <string name="keyword">Keyword</string>
     <string name="edit_budget">Edit budget</string>
