@@ -26,11 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -89,14 +87,15 @@ private const val MenuZIndex = 150f
  * scrolls under the bar shows above and beside it, and fades into the page below it, by the
  * screen's bottom edge. Taps on the tabs' block don't reach what's behind it.
  *
- * [contentAlpha] fades the tabs, not their block.
+ * [contentAlpha] fades the tabs, not their block. It's read as they're drawn, so animating it
+ * doesn't recompose the bar.
  */
 @Composable
 fun BoxWithConstraintsScope.TabsBottomBar(
     start: @Composable RowScope.() -> Unit,
     end: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    contentAlpha: Float = 1f,
+    contentAlpha: () -> Float = { 1f },
 ) {
     val shape = MaterialTheme.shapes.medium
     val page = MaterialTheme.colorScheme.background
@@ -130,7 +129,11 @@ fun BoxWithConstraintsScope.TabsBottomBar(
                     // consume click
                 }
                 .padding(TabInset)
-                .alpha(contentAlpha),
+                // As Modifier.alpha does: clipped to the tabs while they fade.
+                .graphicsLayer {
+                    alpha = contentAlpha()
+                    clip = alpha < 1f
+                },
         ) {
             start()
             end()
@@ -362,14 +365,15 @@ private fun bottomBarFabStart(): Offset {
 
 /**
  * The + button beside [TabsBottomBar]'s tabs, as tall as them and with the blocks' corners, which
- * TalkBack reads as [contentDescription]. [iconRotation] turns the + alone, into an x say.
+ * TalkBack reads as [contentDescription]. [iconRotation] turns the + alone, into an x say; it's
+ * read as the + is drawn, so animating it doesn't recompose the button.
  */
 @Composable
 fun BottomBarFab(
     backgroundColor: Color,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    iconRotation: Float = 0f,
+    iconRotation: () -> Float = { 0f },
     onClick: () -> Unit,
 ) {
     val start = bottomBarFabStart()
@@ -390,7 +394,7 @@ fun BottomBarFab(
             .background(backgroundColor)
             .clickable(onClick = onClick, role = Role.Button)
             .padding(FabIconPadding)
-            .rotate(iconRotation),
+            .graphicsLayer { rotationZ = iconRotation() },
         icon = R.drawable.ic_add,
         tint = readableTint(backgroundColor, White),
         contentDescription = contentDescription
