@@ -20,6 +20,15 @@ enum class NivyNotificationChannel(
         description = "Reminding you to record your transactions on a daily basis.",
         importance = NotificationManager.IMPORTANCE_HIGH,
         bypassDnd = false
+    ),
+
+    // Silent: it only checks that Nivy hears the notifications of the apps it reads.
+    LISTENING_TEST(
+        channelId = "listening_test",
+        channelName = "Listening test",
+        description = "Checks that Nivy hears notifications, to read the payments of the apps you pick.",
+        importance = NotificationManager.IMPORTANCE_LOW,
+        bypassDnd = false
     );
 
     @SuppressLint("WrongConstant")

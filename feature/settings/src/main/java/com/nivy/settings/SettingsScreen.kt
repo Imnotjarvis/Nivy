@@ -35,6 +35,7 @@ import com.nivy.navigation.ExchangeRatesScreen
 import com.nivy.navigation.FeaturesScreen
 import com.nivy.navigation.ImportScreen
 import com.nivy.navigation.navigation
+import com.nivy.navigation.PaymentNotificationsScreen
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.domain.data.NivyCurrency
@@ -305,6 +306,16 @@ internal fun BoxWithConstraintsScope.UI(
                 text = stringResource(R.string.show_notifications),
                 icon = R.drawable.ic_notification_m
             )
+
+            Spacer(Modifier.height(12.dp))
+
+            SettingsDefaultButton(
+                icon = R.drawable.ic_custom_bank_m,
+                text = stringResource(R.string.payment_notifications),
+                description = stringResource(R.string.payment_notifications_description),
+            ) {
+                nav.navigateTo(PaymentNotificationsScreen)
+            }
 
             Spacer(Modifier.height(12.dp))
 

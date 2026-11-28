@@ -62,6 +62,8 @@ class AccountsViewModel @Inject constructor(
                 when (event) {
                     DataWriteEvent.AccountsChanged, DataWriteEvent.AllDataChange,
                     DataWriteEvent.TransactionsChanged -> onStart()
+                    // A payment added from one posts TransactionsChanged too.
+                    DataWriteEvent.PaymentNotificationsChanged -> Unit
                 }
             }
         }

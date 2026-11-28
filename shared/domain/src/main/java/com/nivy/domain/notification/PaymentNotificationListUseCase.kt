@@ -1,16 +1,20 @@
 package com.nivy.domain.notification
 
 import com.nivy.data.db.entity.PaymentNotificationEntity
+import com.nivy.data.model.Expense
+import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.repository.PaymentNotificationRepository
 import com.nivy.data.repository.TransactionRepository
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import java.time.Instant
+import java.util.UUID
 import javax.inject.Inject
 
 /**
  * A notification in the list: what became of it and why, the transaction it added, the other
- * apps that reported the same payment, and [since], the time of the one it repeats or of the
+ * apps' notifications of the same payment, and [since], the time of the one it repeats or of the
  * payment entered by hand like it.
  */
 data class ListedNotification(
@@ -18,9 +22,12 @@ data class ListedNotification(
     val outcome: Outcome,
     val why: Why?,
     val transaction: Transaction?,
-    val alsoIn: List<String>,
+    val alsoIn: List<AlsoIn>,
     val since: Instant?,
 )
+
+/** Another app's notification of the same payment: [id] to add it as a payment of its own, and its [app]. */
+data class AlsoIn(val id: UUID, val app: String)
 
 /** The list, newest first: what was added, or undone since, and what wasn't added. */
 data class NotificationList(val added: List<ListedNotification>, val notAdded: List<ListedNotification>) {
@@ -28,7 +35,19 @@ data class NotificationList(val added: List<ListedNotification>, val notAdded: L
 
     /** The payments added and still there. */
     val stillAdded: List<ListedNotification> get() = added.filter { it.outcome == Outcome.Added }
+
+    /** What the payments still added came to in the base currency: those without a rate left out. */
+    suspend fun totals(rates: BaseCurrencyRates): Totals {
+        val transactions = stillAdded.mapNotNull { it.transaction }
+        return Totals(
+            income = transactions.filterIsInstance<Income>().sumOf { rates.inBase(it.value) },
+            expenses = transactions.filterIsInstance<Expense>().sumOf { rates.inBase(it.value) },
+        )
+    }
 }
+
+/** Income and expenses, in the base currency. */
+data class Totals(val income: Double, val expenses: Double)
 
 /** The payments added from notifications and the notifications not added, until they're seen. */
 class PaymentNotificationListUseCase @Inject constructor(
@@ -42,7 +61,7 @@ class PaymentNotificationListUseCase @Inject constructor(
             .associateBy { it.id.value }
         val alsoIn = unseen
             .filter { outcomeOf(it.outcome) == Outcome.SamePayment }
-            .groupBy({ it.about }, { it.appName ?: it.packageName })
+            .groupBy({ it.about }, { AlsoIn(it.id, it.appName ?: it.packageName) })
         val byId = unseen.associateBy { it.id }
         val listed = unseen.map { notification ->
             val transaction = notification.transactionId?.let(transactions::get)

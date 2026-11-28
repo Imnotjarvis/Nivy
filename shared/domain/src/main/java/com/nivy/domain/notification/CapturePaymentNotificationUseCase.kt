@@ -22,6 +22,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.roundToLong
 
+/** How long the notifications read are kept: what the log shows. */
+val NotificationsKeptFor: Duration = Duration.ofDays(30)
+
 /** A notification Android posted: its app and the app's name, Android's key for it, when, its title and text. */
 data class PostedNotification(
     val packageName: String,
@@ -87,15 +90,17 @@ class CapturePaymentNotificationUseCase @Inject constructor(
         val paysFrom = paysFrom(sources, posted.packageName, money?.card)
         val account = paysFrom?.let { accountRepository.findById(it.account) }
         val recent = repository.findSince(posted.postTime - NotificationDecisions.Window)
+        val adding = appPreferences.addFromNotifications()
         val decision = NotificationDecisions.decide(
             posted = Posted(posted.packageName, posted.key, posted.postTime, textOf(posted.title, posted.text)),
             reading = reading,
             earlier = recent.map { it.asEarlier() },
             handEntered = account?.let { handEntered(it.id, posted.postTime, recent) }.orEmpty(),
             accountCurrency = account?.asset?.code,
-            adding = appPreferences.addFromNotifications(),
+            adding = adding,
         )
-        if (decision is Decision.Keep) keep(posted, money, paysFrom, decision)
+        // While adding is off, only the log shows what was read: nothing goes to Home's list.
+        if (decision is Decision.Keep) keep(posted, money, paysFrom, decision, seen = !adding)
     }
 
     private suspend fun keep(
@@ -103,6 +108,7 @@ class CapturePaymentNotificationUseCase @Inject constructor(
         money: Reading.Money?,
         paysFrom: PaysFrom?,
         decision: Decision.Keep,
+        seen: Boolean,
     ) {
         val added = if (decision.outcome == Outcome.Added && money != null && paysFrom != null) {
             transactions.add(
@@ -140,10 +146,10 @@ class CapturePaymentNotificationUseCase @Inject constructor(
                 about = decision.about,
                 aboutTime = decision.at,
                 guessedAccount = added != null && paysFrom?.guessed == true,
-                reviewed = false,
+                reviewed = seen,
             )
         )
-        repository.deleteOlderThan(timeProvider.utcNow() - KeptFor)
+        repository.deleteOlderThan(timeProvider.utcNow() - NotificationsKeptFor)
         dataObserver.post(DataWriteEvent.PaymentNotificationsChanged)
     }
 
@@ -167,7 +173,6 @@ class CapturePaymentNotificationUseCase @Inject constructor(
     }
 
     private companion object {
-        val KeptFor: Duration = Duration.ofDays(30)
         const val CentsInUnit = 100
     }
 }

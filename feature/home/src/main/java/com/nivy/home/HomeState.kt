@@ -2,6 +2,7 @@ package com.nivy.home
 
 import androidx.compose.runtime.Immutable
 import com.nivy.base.model.Theme
+import com.nivy.domain.notification.Stopped
 import com.nivy.home.customerjourney.CustomerJourneyCardModel
 import com.nivy.home.usecase.Glance
 import com.nivy.wallet.data.AppBaseData
@@ -40,4 +41,8 @@ data class HomeState(
     val expanded: Boolean,
     val shouldShowAccountSpecificColorInTransactions: Boolean,
     val compactTransactions: Boolean = false,
+    // The payments added from notifications until they're seen; null until loaded.
+    val notifications: HomeNotifications? = null,
+    // Why Nivy stopped reading notifications, while apps are picked; null while it reads them.
+    val listeningStopped: Stopped? = null,
 )

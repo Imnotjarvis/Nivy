@@ -154,6 +154,7 @@ dependencies {
     implementation(projects.feature.loans)
     implementation(projects.feature.main)
     implementation(projects.feature.onboarding)
+    implementation(projects.feature.paymentNotifications)
     implementation(projects.feature.piechart)
     implementation(projects.feature.plannedPayments)
     implementation(projects.feature.quickAdd)

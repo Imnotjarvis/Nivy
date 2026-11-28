@@ -28,6 +28,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PaymentNotificationRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -38,6 +39,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
@@ -115,6 +117,48 @@ class PaymentNotificationUseCasesTest {
     }
 
     @Test
+    fun `many banks' payment notifications each add their expense, with its amount and shop`() = runTest {
+        // given: the shapes the reader reads, each from an app of its own
+        val payments = listOf(
+            BankPayment(
+                "Revolut",
+                "Hai pagato 10 € presso Vega Carburanti ⛽\n⚠️ Saldo: 24,53 €",
+                10.0,
+                "Vega Carburanti",
+            ),
+            BankPayment("isybank", "Pagamento di 12,50 € con carta *1234 presso CONAD", 12.5, "CONAD"),
+            BankPayment(
+                "UniCredit",
+                "Pagamento con carta di EUR 12,50 presso CONAD SUPERSTORE il 27/11",
+                12.5,
+                "CONAD SUPERSTORE",
+            ),
+            BankPayment("Fineco", "Addebito carta: 12,50 EUR - CONAD SUPERSTORE", 12.5, "CONAD SUPERSTORE"),
+            BankPayment("HYPE", "Pagamento di 7,90 € effettuato presso Netflix", 7.9, "Netflix"),
+            BankPayment(
+                "Nexi Pay",
+                "Autorizzato pagamento di 1.234,56 EUR presso Mediaworld con carta ****1234",
+                1234.56,
+                "Mediaworld",
+            ),
+            BankPayment("N26", "You spent €23.49 at Lidl", 23.49, "Lidl"),
+            BankPayment("Satispay", "Hai pagato 3,50 € a Bar Roma", 3.5, "Bar Roma"),
+        )
+        payments.forEach { pick(it.packageName, Intesa) }
+
+        // when: two hours apart, so that none is taken for another's repeat
+        payments.forEachIndexed { i, payment ->
+            capture.capture(
+                posted(payment.packageName, payment.app, payment.text, at = Now.plus(Duration.ofHours(2L * i)))
+            )
+        }
+
+        // then
+        saved.values.map { it as Expense }.map { Triple(it.value.amount.value, it.title?.value, it.account) } shouldBe
+            payments.map { Triple(it.amount, it.shop, Intesa.id) }
+    }
+
+    @Test
     fun `while adding is off, a payment is logged as it would be added, and nothing is`() = runTest {
         // given
         pick(IntesaApp, Intesa)
@@ -125,8 +169,27 @@ class PaymentNotificationUseCasesTest {
 
         // then
         saved.values.shouldBeEmpty()
-        notificationDao.findUnreviewed().single().outcome shouldBe Outcome.WouldAdd.name
+        notificationDao.findSince(Instant.EPOCH).single().outcome shouldBe Outcome.WouldAdd.name
     }
+
+    @Test
+    fun `while adding is off, nothing goes to Home's list, not even what wasn't added, and the log has it all`() =
+        runTest {
+            // given
+            pick(IntesaApp, Intesa)
+            adding = false
+
+            // when
+            capture.capture(posted(IntesaApp, "Intesa Sanpaolo", "Hai pagato 12,50 € presso CONAD SUPERSTORE"))
+            capture.capture(
+                posted(IntesaApp, "Intesa Sanpaolo", "Hai ricevuto 57 € da Marco", at = Now.plusSeconds(60))
+            )
+
+            // then
+            list.load().size shouldBe 0
+            notificationDao.findSince(Instant.EPOCH).map { it.outcome }.toSet() shouldBe
+                setOf(Outcome.WouldAdd.name, Outcome.NotAdded.name)
+        }
 
     @Test
     fun `an app that isn't picked isn't read`() = runTest {
@@ -153,7 +216,44 @@ class PaymentNotificationUseCasesTest {
         // then
         saved.values.size shouldBe 1
         val listed = list.load()
-        listed.added.single().alsoIn shouldBe listOf("Wallet")
+        listed.added.single().alsoIn.map { it.app } shouldBe listOf("Wallet")
+    }
+
+    @Test
+    fun `the list's totals count the payments still added, not the ones undone`() = runTest {
+        // given
+        pick(IntesaApp, Intesa)
+        capture.capture(posted(IntesaApp, "Intesa Sanpaolo", "Hai pagato 12,50 € presso CONAD SUPERSTORE"))
+        capture.capture(
+            posted(IntesaApp, "Intesa Sanpaolo", "Hai pagato 4,20 € presso Bar Roma", at = Now.plusSeconds(60))
+        )
+        actions.undo(list.load().added.first { it.notification.merchant == "Bar Roma" }.notification.id)
+
+        // when
+        val totals = list.load().totals(BaseCurrencyRates(mockk(), Eur))
+
+        // then
+        totals shouldBe Totals(income = 0.0, expenses = 12.5)
+    }
+
+    @Test
+    fun `Separate adds the other app's notification of a payment as a payment of its own`() = runTest {
+        // given
+        pick(IntesaApp, Intesa)
+        pick(Wallet, Intesa)
+        capture.capture(posted(IntesaApp, "Intesa Sanpaolo", "Hai pagato 12,50 € con la carta *1501 da CONAD"))
+        capture.capture(
+            posted(Wallet, "CONAD", "12,50 € con Carta Visa ••1501", at = Now.plusSeconds(570))
+        )
+
+        // when
+        list.load().added.single().alsoIn.forEach { actions.add(it.id) }
+
+        // then
+        saved.values.size shouldBe 2
+        val listed = list.load()
+        listed.added.map { it.outcome } shouldBe listOf(Outcome.Added, Outcome.Added)
+        listed.added.flatMap { it.alsoIn }.shouldBeEmpty()
     }
 
     @Test
@@ -326,4 +426,9 @@ class PaymentNotificationUseCasesTest {
             orderNum = 0.0,
         )
     }
+}
+
+// A bank's payment notification, and the expense it should add.
+private data class BankPayment(val app: String, val text: String, val amount: Double, val shop: String) {
+    val packageName = "test.bank." + app.lowercase().filter(Char::isLetter)
 }
