@@ -11,9 +11,6 @@ data class NotificationText(
 /** Which way money went. */
 enum class MoneyWay { Spent, Received, Sent, Cash }
 
-/** Why a notification isn't money that moved. */
-enum class NotMoney { Code, Hold, Declined, LowBalance, NotYet, Offer, Access, NoAmount }
-
 /** What a notification says about money. */
 sealed interface Reading {
     /**
@@ -29,7 +26,7 @@ sealed interface Reading {
         val card: String?,
     ) : Reading
 
-    data class Ignored(val why: NotMoney) : Reading
+    data class Ignored(val why: Why) : Reading
 }
 
 /**
@@ -52,7 +49,7 @@ object PaymentNotificationReader {
         val amount = amountIn(all)
         return when {
             notMoney != null -> Reading.Ignored(notMoney)
-            amount == null -> Reading.Ignored(NotMoney.NoAmount)
+            amount == null -> Reading.Ignored(Why.NoAmount)
             else -> money(notification, title, all, amount)
         }
     }
@@ -79,9 +76,9 @@ object PaymentNotificationReader {
         )
     }
 
-    private fun notMoney(all: String): NotMoney? =
+    private fun notMoney(all: String): Why? =
         if (StrongCode.containsMatchIn(all) || CodeWord.containsMatchIn(all) && CodeToken.containsMatchIn(all)) {
-            NotMoney.Code
+            Why.Code
         } else {
             NotMoneySigns.entries.firstOrNull { it.value.containsMatchIn(all) }?.key
         }
@@ -217,31 +214,31 @@ object PaymentNotificationReader {
     private val CodeToken = Regex("""(?<![\d•*xX.,:/])\d{4,8}(?![\d.,:/])""")
 
     private val NotMoneySigns = linkedMapOf(
-        NotMoney.Hold to signs(
+        Why.Hold to signs(
             "blocco temporaneo", "importo bloccato", "bloccat[oi] temporaneamente", "pre-?autorizzazione",
             "pagamento aggiornato", "temporary hold", "on hold", "pre-?authori[sz]ation", "payment updated",
             "authori[sz]ation hold",
         ),
-        NotMoney.Declined to signs(
+        Why.Declined to signs(
             "rifiutat[oa]", "non riuscit[oa]", "non (?:è |e )?andat[oa] a buon fine", "negat[oa]", "respint[oa]",
             "annullat[oa]", "stornat[oa]", "revocat[oa]", "non autorizzat[oa]", "declined", "failed",
             "cancell?ed", "reversed", "rejected", "unsuccessful",
         ),
-        NotMoney.LowBalance to signs(
+        Why.LowBalance to signs(
             "saldo (?:inferiore|basso|insufficiente)", "fondi insufficienti", "disponibilit[àa] insufficiente",
             "low balance", "insufficient funds", "balance is low",
         ),
-        NotMoney.NotYet to signs(
+        Why.NotYet to signs(
             "verr[àa] addebitat[oa]", "sar[àa] addebitat[oa]", "verranno addebitat[ie]", "in scadenza", "scade",
             "scadr[àa]", "promemoria", "ricorda", "ti ricordiamo", "in sospeso", "in attesa",
             "will be (?:debited|charged)", "payment due", "is due", "due date", "upcoming", "reminder", "pending",
             "scheduled",
         ),
-        NotMoney.Offer to signs(
+        Why.Offer to signs(
             "termini e condizioni", "si applicano", "offerta", "promozione", "promo", "gratis",
             "terms and conditions", "terms apply", "promotion", "offer",
         ),
-        NotMoney.Access to signs(
+        Why.Access to signs(
             "accesso", "login", "log-in", "nuovo dispositivo", "new device", "sign-?in", "signed in",
         ),
     )
