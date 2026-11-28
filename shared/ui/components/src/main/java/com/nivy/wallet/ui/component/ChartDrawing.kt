@@ -32,10 +32,7 @@ const val LikelyBandAlpha = 0.2f
  */
 fun DrawScope.lineOverArea(points: List<Offset>, color: Color, top: Float = 0f, bottom: Float = size.height) {
     if (points.isEmpty()) return
-    val line = Path().apply {
-        moveTo(points.first().x, points.first().y)
-        for (index in 1..points.lastIndex) lineTo(points[index].x, points[index].y)
-    }
+    val line = linePath(points)
     val area = Path().apply {
         addPath(line)
         lineTo(points.last().x, bottom)
@@ -44,6 +41,11 @@ fun DrawScope.lineOverArea(points: List<Offset>, color: Color, top: Float = 0f, 
     }
     drawPath(area, Brush.verticalGradient(listOf(color.copy(alpha = AreaAlpha), Color.Transparent), top, bottom))
     drawPath(line, color, style = Stroke(ChartLineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+}
+
+/** A line through [points] in [color], [width] wide, with round ends and corners. */
+fun DrawScope.chartLine(points: List<Offset>, color: Color, width: Dp = ChartLineWidth) {
+    drawPath(linePath(points), color, style = Stroke(width.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 }
 
 /** The stroke of what's likely ahead, dotted: apart from what's planned, dashed, in minimal colors too. */
@@ -64,6 +66,11 @@ fun DrawScope.pointInRing(
 ) {
     drawCircle(ring, ringRadius.toPx(), center)
     drawCircle(color, radius.toPx(), center)
+}
+
+private fun linePath(points: List<Offset>) = Path().apply {
+    moveTo(points.first().x, points.first().y)
+    for (index in 1..points.lastIndex) lineTo(points[index].x, points[index].y)
 }
 
 private const val AreaAlpha = 0.25f

@@ -39,14 +39,15 @@ import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.minimalTone
 import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.wallet.domain.pure.forecast.Band
-import com.nivy.wallet.ui.component.percent
-import kotlin.math.abs
-import kotlin.math.sqrt
 import com.nivy.wallet.ui.component.ChartPointRing
 import com.nivy.wallet.ui.component.LikelyBandAlpha
+import com.nivy.wallet.ui.component.chartLine
 import com.nivy.wallet.ui.component.likelyStroke
 import com.nivy.wallet.ui.component.lineOverArea
+import com.nivy.wallet.ui.component.percent
 import com.nivy.wallet.ui.component.pointInRing
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 /**
  * The slot under a tap, or a drag across, a chart of [count] equal slots goes to [onSelect]. The
@@ -134,12 +135,7 @@ internal fun NetWorthChart(
         slot(selected, count, highlight)
         // Under the net worth's line, which it starts from.
         if (adjusted != null && adjusted.size > 1) {
-            val path = Path().apply {
-                moveTo(x(0), y(adjusted.first()))
-                for (index in 1..adjusted.lastIndex) lineTo(x(index), y(adjusted[index]))
-            }
-            val stroke = Stroke(AdjustedWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-            drawPath(path, adjustedLine, style = stroke)
+            chartLine(adjusted.indices.map { Offset(x(it), y(adjusted[it])) }, adjustedLine, AdjustedWidth)
         }
         if (values.size > 1) {
             lineOverArea(values.indices.map { Offset(x(it), y(values[it])) }, line, top, bottom)

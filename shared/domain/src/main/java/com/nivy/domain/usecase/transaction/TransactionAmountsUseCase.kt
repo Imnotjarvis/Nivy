@@ -15,10 +15,8 @@ class TransactionAmountsUseCase @Inject constructor(
     private val exchangeUseCase: ExchangeUseCase,
 ) {
     /** The sum of the transactions' amounts, a transfer counting what left its source account. */
-    suspend fun total(transactions: List<Transaction>, currency: AssetCode): Double {
-        val rates = BaseCurrencyRates(exchangeUseCase, currency)
-        return transactions.sumOf { rates.inBase(it.getFromValue()) }
-    }
+    suspend fun total(transactions: List<Transaction>, currency: AssetCode): Double =
+        amounts(transactions, currency).sum()
 
     /** Each transaction's amount, as [total] counts it. */
     suspend fun amounts(transactions: List<Transaction>, currency: AssetCode): List<Double> {
