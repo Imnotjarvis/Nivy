@@ -3,7 +3,6 @@ package com.nivy.main
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nivy.data.model.PositiveValue
@@ -25,7 +24,6 @@ import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.data.model.MainTab
 import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
-import com.nivy.wallet.utils.asLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -51,9 +49,6 @@ class MainViewModel @Inject constructor(
     private val nav: Navigation,
 ) : ViewModel() {
 
-    private val _currency = MutableLiveData<String>()
-    val currency = _currency.asLiveData()
-
     /** The quick adds the add menu shows, in their order. */
     var quickAdds by mutableStateOf<ImmutableList<QuickAdd>>(persistentListOf())
         private set
@@ -76,7 +71,6 @@ class MainViewModel @Inject constructor(
     fun start() {
         viewModelScope.launch {
             val baseCurrency = currencyRepository.getBaseCurrency().code
-            _currency.value = baseCurrency
             baseData = AppBaseData(
                 baseCurrency = baseCurrency,
                 accounts = accountRepository.findAll().toImmutableList(),
@@ -140,20 +134,15 @@ class MainViewModel @Inject constructor(
     private fun add(quickAdd: QuickAdd, amount: PositiveDouble?) {
         viewModelScope.launch {
             var saved: QuickAdded? = null
-            var unsaved = false
             val wrote = userWrites.run(R.string.msg_transaction_not_saved) {
-                val transaction = quickAddUseCase.add(quickAdd, amount)
-                if (transaction == null) {
-                    unsaved = true
-                } else {
-                    saved = QuickAdded(transaction.id, quickAdd, transaction.getFromValue())
-                }
+                saved = quickAddUseCase.add(quickAdd, amount)?.let { QuickAdded(it.id, quickAdd, it.getFromValue()) }
             }
+            val done = saved
             when {
                 !wrote -> Unit
                 // A transfer between currencies without a rate: the editor asks for one.
-                unsaved -> edit(quickAdd, amount)
-                else -> saved?.let(::showUndo)
+                done == null -> edit(quickAdd, amount)
+                else -> showUndo(done)
             }
         }
     }
