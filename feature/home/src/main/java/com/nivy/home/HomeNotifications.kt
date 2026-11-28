@@ -20,18 +20,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nivy.base.model.TransactionType
 import com.nivy.data.model.getFromAccount
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.Orange
-import com.nivy.design.system.colors.expenseRed
-import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.readableOn
-import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.domain.notification.ListedNotification
 import com.nivy.domain.notification.Outcome
 import com.nivy.domain.notification.Stopped
@@ -39,15 +34,14 @@ import com.nivy.domain.notification.Totals
 import com.nivy.ui.R
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.component.notification.CategoryCircle
+import com.nivy.wallet.ui.component.notification.PaymentAmount
+import com.nivy.wallet.ui.component.notification.PaymentTitle
 import com.nivy.wallet.ui.component.notification.SmallPill
 import com.nivy.wallet.ui.component.notification.ToCheckTag
 import com.nivy.wallet.ui.component.notification.dayAndTime
-import com.nivy.wallet.ui.component.notification.isIncome
-import com.nivy.wallet.ui.component.notification.signedAmount
 import com.nivy.wallet.ui.component.transaction.SectionDivider
 import com.nivy.wallet.ui.component.transaction.account
 import com.nivy.wallet.ui.component.transaction.category
-import com.nivy.wallet.ui.component.transaction.label
 import com.nivy.wallet.ui.theme.components.NivyButton
 import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
@@ -158,10 +152,8 @@ private fun CompactAddition(item: ListedNotification, baseData: AppBaseData, on:
     val notification = item.notification
     val transaction = item.transaction
     val undone = item.outcome == Outcome.Undone
-    val type = if (item.isIncome()) TransactionType.INCOME else TransactionType.EXPENSE
     val accountName = transaction?.let { account(it.getFromAccount().value, baseData.accounts)?.name?.value }
     val toCheck = !undone && (notification.guessedAccount || transaction?.title == null)
-    val page = MaterialTheme.colorScheme.surfaceVariant
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -173,32 +165,9 @@ private fun CompactAddition(item: ListedNotification, baseData: AppBaseData, on:
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = transaction?.title?.value ?: notification.merchant
-                        ?: stringResource(type.label()),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = if (undone) Gray else MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (undone) TextDecoration.LineThrough else null,
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                PaymentTitle(item, Modifier.weight(1f))
                 Spacer(Modifier.width(8.dp))
-                Text(
-                    text = item.signedAmount(),
-                    style = MaterialTheme.typography.numberBodyLarge.copy(
-                        color = when {
-                            undone -> Gray
-                            type == TransactionType.INCOME -> incomeGreen(page)
-                            else -> expenseRed(page)
-                        },
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (undone) TextDecoration.LineThrough else null,
-                    ),
-                    maxLines = 1,
-                )
+                PaymentAmount(item)
             }
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {

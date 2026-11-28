@@ -36,7 +36,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -48,11 +47,8 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.expenseRed
-import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.shapes.PillShape
-import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.domain.UserWrites
 import com.nivy.domain.notification.ListedNotification
 import com.nivy.domain.notification.Outcome
@@ -69,15 +65,15 @@ import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.component.notification.CategoryCircle
+import com.nivy.wallet.ui.component.notification.PaymentAmount
+import com.nivy.wallet.ui.component.notification.PaymentTitle
 import com.nivy.wallet.ui.component.notification.SmallPill
 import com.nivy.wallet.ui.component.notification.ToCheckTag
 import com.nivy.wallet.ui.component.notification.dayAndTime
-import com.nivy.wallet.ui.component.notification.isIncome
-import com.nivy.wallet.ui.component.notification.signedAmount
 import com.nivy.wallet.ui.component.notification.timeOf
+import com.nivy.wallet.ui.component.notification.type
 import com.nivy.wallet.ui.component.transaction.account
 import com.nivy.wallet.ui.component.transaction.category
-import com.nivy.wallet.ui.component.transaction.label
 import com.nivy.wallet.ui.theme.components.BackBottomBar
 import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.wallet.utils.amountAndCode
@@ -281,7 +277,7 @@ private fun Addition(
     val notification = item.notification
     val transaction = item.transaction
     val undone = item.outcome == Outcome.Undone
-    val type = if (item.isIncome()) TransactionType.INCOME else TransactionType.EXPENSE
+    val type = item.type()
     val title = transaction?.title?.value ?: notification.merchant
     val accountName = transaction?.let { account(it.getFromAccount().value, baseData.accounts)?.name?.value }
     ListBlock(onClick = transaction?.let { { onOpen(it.id.value, type) } }) {
@@ -289,16 +285,7 @@ private fun Addition(
             CategoryCircle(category(transaction?.category?.value, baseData.categories), dim = undone)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(
-                    text = title ?: stringResource(type.label()),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = if (undone) Gray else MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (undone) TextDecoration.LineThrough else null,
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                PaymentTitle(item)
                 Text(
                     text = if (undone) {
                         stringResource(R.string.undone)
@@ -313,20 +300,7 @@ private fun Addition(
             }
             Spacer(Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
-                val page = MaterialTheme.colorScheme.surfaceVariant
-                Text(
-                    text = item.signedAmount(),
-                    style = MaterialTheme.typography.numberBodyLarge.copy(
-                        color = when {
-                            undone -> Gray
-                            type == TransactionType.INCOME -> incomeGreen(page)
-                            else -> expenseRed(page)
-                        },
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (undone) TextDecoration.LineThrough else null,
-                    ),
-                    maxLines = 1,
-                )
+                PaymentAmount(item)
                 Spacer(Modifier.height(6.dp))
                 SmallPill(text = stringResource(if (undone) R.string.add_back else R.string.undo)) {
                     onEvent(

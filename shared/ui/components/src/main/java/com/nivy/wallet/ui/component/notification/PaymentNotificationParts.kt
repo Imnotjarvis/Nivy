@@ -17,6 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Category
@@ -25,16 +27,21 @@ import com.nivy.data.model.getFromValue
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Nivy
 import com.nivy.design.system.colors.categoryColor
+import com.nivy.design.system.colors.expenseRed
+import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.shapes.PillShape
+import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.domain.notification.ListedNotification
 import com.nivy.domain.notification.MoneyWay
+import com.nivy.domain.notification.Outcome
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.LocalTimeProvider
 import com.nivy.wallet.ui.component.transaction.amountPrefix
+import com.nivy.wallet.ui.component.transaction.label
 import com.nivy.wallet.ui.theme.components.ItemIconSDefaultIcon
 import com.nivy.wallet.utils.amountAndCode
 import java.time.Instant
@@ -55,12 +62,53 @@ fun readAmount(cents: Long?, currency: String?): String? =
 fun ListedNotification.isIncome(): Boolean =
     transaction?.let { it is Income } ?: (notification.way == MoneyWay.Received.name)
 
+/** A payment's type: income when [isIncome], else an expense. */
+fun ListedNotification.type(): TransactionType = if (isIncome()) TransactionType.INCOME else TransactionType.EXPENSE
+
 /** A payment's amount, signed: its transaction's once added, else what was read. */
 fun ListedNotification.signedAmount(): String {
     val value = transaction?.getFromValue()
     val amount = value?.let { amountAndCode(it.amount.value, it.asset.code) }
         ?: readAmount(notification.cents, notification.currency).orEmpty()
-    return amountPrefix(if (isIncome()) TransactionType.INCOME else TransactionType.EXPENSE) + amount
+    return amountPrefix(type()) + amount
+}
+
+/** A payment's title, or its type's name without one: struck through in grey once undone. */
+@Composable
+fun PaymentTitle(item: ListedNotification, modifier: Modifier = Modifier) {
+    val undone = item.outcome == Outcome.Undone
+    Text(
+        modifier = modifier,
+        text = item.transaction?.title?.value ?: item.notification.merchant ?: stringResource(item.type().label()),
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = if (undone) Gray else MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+            textDecoration = if (undone) TextDecoration.LineThrough else null,
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+/** A payment's signed amount, in income's or expenses' color: struck through in grey once undone. */
+@Composable
+fun PaymentAmount(item: ListedNotification, modifier: Modifier = Modifier) {
+    val undone = item.outcome == Outcome.Undone
+    val page = MaterialTheme.colorScheme.surfaceVariant
+    Text(
+        modifier = modifier,
+        text = item.signedAmount(),
+        style = MaterialTheme.typography.numberBodyLarge.copy(
+            color = when {
+                undone -> Gray
+                item.isIncome() -> incomeGreen(page)
+                else -> expenseRed(page)
+            },
+            fontWeight = FontWeight.Bold,
+            textDecoration = if (undone) TextDecoration.LineThrough else null,
+        ),
+        maxLines = 1,
+    )
 }
 
 /**
