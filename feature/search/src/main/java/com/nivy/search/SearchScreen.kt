@@ -149,10 +149,10 @@ private val SearchState.foundAny: Boolean
 @Composable
 private fun Totals(uiState: SearchState) {
     val nav = navigation()
-    val paid = uiState.transactions
-        .filterIsInstance<TransactionHistoryEntry>()
-        .map { it.transaction }
-        .toImmutableList()
+    // Worked out again only when the matches change, not on each letter typed.
+    val paid = remember(uiState.transactions) {
+        uiState.transactions.filterIsInstance<TransactionHistoryEntry>().map { it.transaction }.toImmutableList()
+    }
     Column {
         IncomeExpensesCards(
             history = uiState.transactions,

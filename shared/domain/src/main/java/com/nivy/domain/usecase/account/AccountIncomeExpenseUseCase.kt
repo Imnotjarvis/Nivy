@@ -2,6 +2,7 @@ package com.nivy.domain.usecase.account
 
 import com.nivy.base.threading.DispatchersProvider
 import com.nivy.base.time.TimeProvider
+import com.nivy.data.model.Account
 import com.nivy.data.model.Transaction
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
@@ -21,20 +22,32 @@ class AccountIncomeExpenseUseCase @Inject constructor(
      * currency; transfers too when [includeTransfersInCalc].
      */
     suspend fun incomeExpense(
-        account: com.nivy.data.model.Account,
+        account: Account,
         range: ClosedTimeRange? = null,
         includeTransfersInCalc: Boolean = false,
     ): IncomeExpensePair = withContext(dispatchers.io) {
-        val id = account.id.value
         val transactions = accountTransactionsUseCase.transactions(
-            accountId = id,
+            accountId = account.id.value,
             range = range ?: ClosedTimeRange.allTimeNivy(timeProvider)
         )
+        incomeExpenseOf(account, transactions, includeTransfersInCalc)
+    }
+
+    /**
+     * What [transactions], as [AccountTransactionsUseCase] reads them, brought into and took out of
+     * [account], in its own currency; transfers too when [includeTransfersInCalc].
+     */
+    fun incomeExpenseOf(
+        account: Account,
+        transactions: List<Transaction>,
+        includeTransfersInCalc: Boolean,
+    ): IncomeExpensePair {
+        val id = account.id.value
         fun sum(value: (Transaction, UUID) -> BigDecimal): BigDecimal =
             transactions.fold(BigDecimal.ZERO) { total, transaction -> total + value(transaction, id) }
 
         val transfers = includeTransfersInCalc
-        IncomeExpensePair(
+        return IncomeExpensePair(
             income = sum(AccountValueFunctions::income) +
                 if (transfers) sum(AccountValueFunctions::transferIncome) else BigDecimal.ZERO,
             expense = sum(AccountValueFunctions::expense) +

@@ -314,33 +314,6 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    fun findAllByCategoryAndTypeAndBetween() {
-        val categoryId = ModelFixtures.CategoryId
-        val trnType = TransactionType.EXPENSE
-        val startDate = Arb.javaInstant().next()
-        val endDate = Arb.javaInstant().next()
-
-        transactionsTestCase(
-            daoMethod = {
-                transactionDao.findAllByCategoryAndTypeAndBetween(
-                    categoryId = categoryId.value,
-                    type = trnType,
-                    startDate = startDate,
-                    endDate = endDate,
-                )
-            },
-            repoMethod = {
-                repository.findAllByCategoryAndTypeAndBetween(
-                    categoryId = categoryId.value,
-                    type = trnType,
-                    startDate = startDate,
-                    endDate = endDate,
-                )
-            }
-        )
-    }
-
-    @Test
     fun save() = runTest {
         // given
         repository = newRepository(fakeDao = FakeTransactionDao())

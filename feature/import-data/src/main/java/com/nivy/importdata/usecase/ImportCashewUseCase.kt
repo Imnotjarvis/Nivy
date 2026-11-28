@@ -171,7 +171,7 @@ internal class ImportCashewUseCase @Inject constructor(
                 plannedPaymentsGenerator.generate(it, previous = null)
             }
             budgetRepository.saveMany(plan.budgets)
-            plan.rates.forEach { exchangeRatesRepository.save(it) }
+            exchangeRatesRepository.saveManyRates(plan.rates)
             onProgress(Progress.SAVED)
         }
     }

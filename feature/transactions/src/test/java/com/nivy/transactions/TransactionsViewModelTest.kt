@@ -42,7 +42,6 @@ import com.nivy.wallet.data.model.FromToTimeRange
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.data.ClosedTimeRange
-import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -72,11 +71,20 @@ class TransactionsViewModelTest {
     private val dollars = account("Dollars", Usd)
     private val bankPage = TransactionsScreen(accountId = bank.id.value)
 
-    /** The income of the month a range starts in: November 50, December 70, any other 0. */
-    private fun incomeOf(range: ClosedTimeRange): Int = when (range.from) {
-        Instant.parse("2026-11-01T00:00:00Z") -> 50
-        Instant.parse("2026-12-01T00:00:00Z") -> 70
-        else -> 0
+    /** The bank's transactions in November, the month the page opens on: 50 came in and 30 went out. */
+    private var accountTransactions = listOf<Transaction>(
+        income(bank, 50.0, "2026-11-03T10:00:00Z"),
+        expense(bank, settled = true, amount = 30.0),
+    )
+
+    /** The account's transactions in [range]: November's, or December's, when 70 came in and 30 went out. */
+    private fun transactionsIn(range: ClosedTimeRange): List<Transaction> = when (range.from) {
+        Instant.parse("2026-11-01T00:00:00Z") -> accountTransactions
+        Instant.parse("2026-12-01T00:00:00Z") -> listOf(
+            income(bank, 70.0, "2026-12-03T10:00:00Z"),
+            expense(bank, settled = true, amount = 30.0, time = "2026-12-10T10:00:00Z"),
+        )
+        else -> emptyList()
     }
 
     private val accountRepository = mockk<AccountRepository> {
@@ -84,15 +92,9 @@ class TransactionsViewModelTest {
         coEvery { findById(dollars.id) } returns dollars
         coEvery { findAll() } returns listOf(bank, dollars)
     }
-    private val accountIncomeExpenseUseCase = mockk<AccountIncomeExpenseUseCase> {
-        coEvery { incomeExpense(any(), any(), any()) } answers {
-            IncomeExpensePair(
-                income = incomeOf(secondArg()).toBigDecimal(),
-                expense = BigDecimal(30),
-            )
-        }
+    private val accountTransactionsUseCase = mockk<AccountTransactionsUseCase> {
+        coEvery { transactions(any(), any()) } answers { transactionsIn(secondArg()) }
     }
-    private var accountTransactions = listOf<Transaction>()
     private val shownInHistory = slot<List<Transaction>>()
     private val transactionsWithDateDividersUseCase = mockk<TransactionsWithDateDividersUseCase> {
         coEvery { withDateDividers(any(), capture(shownInHistory)) } returns emptyList()
@@ -134,13 +136,15 @@ class TransactionsViewModelTest {
         accountCreator = mockk(relaxed = true),
         dueTransactionsUseCase = dueTransactionsUseCase,
         appPreferences = appPreferences,
-        accountTransactionsUseCase = mockk<AccountTransactionsUseCase> {
-            coEvery { transactions(any(), any()) } answers { accountTransactions }
-        },
+        accountTransactionsUseCase = accountTransactionsUseCase,
         transactionsWithDateDividersUseCase = transactionsWithDateDividersUseCase,
         currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns Eur },
         accountBalanceUseCase = accountBalanceUseCase,
-        accountIncomeExpenseUseCase = accountIncomeExpenseUseCase,
+        accountIncomeExpenseUseCase = AccountIncomeExpenseUseCase(
+            accountTransactionsUseCase = accountTransactionsUseCase,
+            timeProvider = FixedTime,
+            dispatchers = TestDispatchersProvider,
+        ),
         exchangeUseCase = mockk<ExchangeUseCase> {
             // 1 USD = 0.5 EUR
             coEvery { convert(any(), any()) } answers {
@@ -182,6 +186,15 @@ class TransactionsViewModelTest {
             income shouldBe 50.0
             expenses shouldBe 30.0
         }
+    }
+
+    @Test
+    fun `an account's page reads its transactions in the period once, for its totals, history and chart`() {
+        // when
+        viewModel.start(bankPage)
+
+        // then
+        coVerify(exactly = 1) { accountTransactionsUseCase.transactions(bank.id.value, any()) }
     }
 
     @Test
@@ -239,13 +252,10 @@ class TransactionsViewModelTest {
     fun `a month chosen after another shows its own figures, even when the other one's load ends last`() {
         // December's figures come slowly: January is chosen, and comes, before they do.
         val december = CompletableDeferred<Unit>()
-        coEvery { accountIncomeExpenseUseCase.incomeExpense(any(), any(), any()) } coAnswers {
+        coEvery { accountTransactionsUseCase.transactions(any(), any()) } coAnswers {
             val range = secondArg<ClosedTimeRange>()
             if (range.from == Instant.parse("2026-12-01T00:00:00Z")) december.await()
-            IncomeExpensePair(
-                income = incomeOf(range).toBigDecimal(),
-                expense = BigDecimal(30),
-            )
+            transactionsIn(range)
         }
         viewModel.start(bankPage)
 
@@ -482,15 +492,20 @@ class TransactionsViewModelTest {
         toValue = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
     )
 
-    private fun expense(account: Account, settled: Boolean) = Expense(
+    private fun expense(
+        account: Account,
+        settled: Boolean,
+        amount: Double = 10.0,
+        time: String = "2026-11-10T10:00:00Z",
+    ) = Expense(
         id = TransactionId(UUID.randomUUID()),
         title = null,
         description = null,
         category = null,
-        time = Instant.parse("2026-11-10T10:00:00Z"),
+        time = Instant.parse(time),
         settled = settled,
         metadata = Metadata,
-        value = PositiveValue(PositiveDouble.unsafe(10.0), account.asset),
+        value = PositiveValue(PositiveDouble.unsafe(amount), account.asset),
         account = account.id,
     )
 

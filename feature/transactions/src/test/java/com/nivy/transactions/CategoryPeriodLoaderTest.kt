@@ -28,6 +28,7 @@ import com.nivy.wallet.utils.computationThread
 import com.nivy.wallet.utils.ioThread
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -64,7 +65,6 @@ class CategoryPeriodLoaderTest {
     private val transactionRepository = mockk<TransactionRepository> {
         coEvery { findAllDueToBetweenByCategory(any(), any(), any()) } returns
             listOf(bankUpcoming, cashUpcoming, bankOverdue, cashOverdue)
-        coEvery { findAllByCategoryAndTypeAndBetween(any(), any(), any(), any()) } returns emptyList()
         coEvery { findAllByCategoryAndBetween(any(), any(), any()) } returns emptyList()
     }
     private val amounts = mockk<TransactionAmountsUseCase> {
@@ -156,6 +156,22 @@ class CategoryPeriodLoaderTest {
         chart.before!!.addedUp.last() shouldBe 65.0
         chart.before.sameDay shouldBe LocalDate.of(2026, 10, 15)
         chart.before.bySameDay shouldBe 25.0
+    }
+
+    @Test
+    fun `a category's page reads its transactions in the period once, for its totals, history and chart`() = runTest {
+        // given: it's November 15
+        coEvery { transactionRepository.findAllByCategoryAndBetween(food.id.value, any(), any()) } returns
+            listOf(spent(20.0, "2026-11-02T10:00:00Z"))
+        val state = newState()
+
+        // when
+        loader.initForCategory(state, food, accountFilterList = emptyList())
+
+        // then: November once, and October once for the chart's month before
+        coVerify(exactly = 2) { transactionRepository.findAllByCategoryAndBetween(food.id.value, any(), any()) }
+        state.expenses.doubleValue shouldBe 20.0
+        state.income.doubleValue shouldBe 0.0
     }
 
     @Test

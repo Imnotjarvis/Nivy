@@ -33,41 +33,16 @@ class CategoryTransactionsLogic @Inject constructor(
         range: FromToTimeRange,
         accountFilterSet: Set<UUID> = emptySet(),
         transactions: List<Transaction> = emptyList()
-    ): Double = transactionAmountsUseCase.balance(
-        byCategory(category, range, accountFilterSet, transactions),
-        currencyRepository.getBaseCurrency()
-    )
+    ): Double = balanceOf(byCategory(category, range, accountFilterSet, transactions))
 
-    suspend fun calculateCategoryIncome(
-        category: Category,
-        range: FromToTimeRange,
-        accountFilterSet: Set<UUID> = emptySet(),
-    ): Double = total(
-        transactionRepository.findAllByCategoryAndTypeAndBetween(
-            categoryId = category.id.value,
-            type = TransactionType.INCOME,
-            startDate = range.from(),
-            endDate = range.to()
-        ).inAccounts(accountFilterSet)
-    )
+    /** Income minus expenses of [transactions], in the base currency. */
+    suspend fun balanceOf(transactions: List<Transaction>): Double =
+        transactionAmountsUseCase.balance(transactions, currencyRepository.getBaseCurrency())
 
     suspend fun calculateCategoryIncome(
         incomeTransaction: List<Transaction>,
         accountFilterSet: Set<UUID> = emptySet()
     ): Double = total(incomeTransaction.inAccounts(accountFilterSet))
-
-    suspend fun calculateCategoryExpenses(
-        category: Category,
-        range: FromToTimeRange,
-        accountFilterSet: Set<UUID> = emptySet(),
-    ): Double = total(
-        transactionRepository.findAllByCategoryAndTypeAndBetween(
-            categoryId = category.id.value,
-            type = TransactionType.EXPENSE,
-            startDate = range.from(),
-            endDate = range.to()
-        ).inAccounts(accountFilterSet)
-    )
 
     suspend fun calculateCategoryExpenses(
         expenseTransactions: List<Transaction>,
@@ -185,8 +160,8 @@ class CategoryTransactionsLogic @Inject constructor(
         )
     }.inAccounts(accountFilterSet)
 
-    /** The history only shows what already happened. */
-    private suspend fun withDateDividers(transactions: List<Transaction>): List<TransactionHistoryItem> =
+    /** [transactions] as the history shows them, with their days' dividers: only what already happened. */
+    suspend fun withDateDividers(transactions: List<Transaction>): List<TransactionHistoryItem> =
         transactionsWithDateDividersUseCase.withDateDividers(
             baseCurrency = currencyRepository.getBaseCurrency().code,
             transactions = transactions.filter { it.settled }
