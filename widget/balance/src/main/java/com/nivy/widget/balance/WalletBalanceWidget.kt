@@ -12,6 +12,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
+import com.nivy.base.DefaultCornerRadiusDp
 import com.nivy.base.model.TransactionType
 import com.nivy.domain.AppStarter
 import com.nivy.wallet.utils.formatAmount
@@ -38,8 +39,6 @@ internal fun chipAmount(amount: Double, currency: String): String =
     if (abs(amount) >= ChipShortenFrom) shortenAmount(amount) else formatAmount(amount, currency)
 
 private const val ChipShortenFrom = 1_000
-
-private const val DefaultCornerRadiusDp = 16f
 
 class WalletBalanceWidget(
     private val getAppStarter: () -> AppStarter,
