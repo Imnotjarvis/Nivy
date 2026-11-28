@@ -3,7 +3,7 @@ package com.nivy.paymentnotifications
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.db.entity.PaymentNotificationEntity
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
@@ -26,22 +26,12 @@ import com.nivy.wallet.ui.previewAccount
 import com.nivy.wallet.ui.previewTransaction
 import kotlinx.collections.immutable.persistentListOf
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
 /** Saturday November 28, 2026, at 14:30 in UTC: the screenshots' today. */
-internal object FixedTime : TimeProvider {
-    private val now = LocalDateTime.of(2026, 11, 28, 14, 30)
-    override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-    override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-    override fun localNow(): LocalDateTime = now
-    override fun localDateNow(): LocalDate = now.toLocalDate()
-    override fun localTimeNow(): LocalTime = now.toLocalTime()
-}
+internal val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 28, 14, 30))
 
 internal const val IntesaApp = "com.latuabancaperandroid"
 internal const val RevolutApp = "com.revolut.revolut"

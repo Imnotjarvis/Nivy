@@ -3,7 +3,7 @@ package com.nivy.budgets
 import arrow.core.Some
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.Theme
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
@@ -42,10 +42,7 @@ import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 class BudgetViewModelTest : ComposeViewModelTest() {
@@ -334,14 +331,7 @@ class BudgetViewModelTest : ComposeViewModelTest() {
         )
 
         /** November 15, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 15, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 15, 12, 0))
 
         fun account(name: String, asset: AssetCode = Eur, includeInBalance: Boolean = true) = Account(
             id = AccountId(UUID.randomUUID()),

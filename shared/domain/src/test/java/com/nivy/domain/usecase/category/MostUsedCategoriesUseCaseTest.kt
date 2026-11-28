@@ -2,7 +2,7 @@ package com.nivy.domain.usecase.category
 
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.db.dao.fake.FakeTransactionDao
 import com.nivy.data.db.entity.TransactionEntity
 import com.nivy.data.model.Category
@@ -16,10 +16,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 class MostUsedCategoriesUseCaseTest {
@@ -102,13 +99,6 @@ class MostUsedCategoriesUseCaseTest {
         val Account: UUID = UUID.randomUUID()
 
         /** November 24, 2026, at noon, in UTC. */
-        val November24 = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 24, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val November24 = FixedTimeProvider(LocalDateTime.of(2026, 11, 24, 12, 0))
     }
 }

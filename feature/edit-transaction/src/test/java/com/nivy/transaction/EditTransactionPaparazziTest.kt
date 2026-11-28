@@ -9,7 +9,7 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
@@ -33,10 +33,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /** The transaction editor as it opens an existing transaction, and with its category and tag dialogs. */
@@ -202,14 +199,7 @@ private fun BoxWithConstraintsScope.Editor(
 }
 
 /** November 7, 2026, noon, in UTC. */
-private object FixedTime : TimeProvider {
-    private val now = LocalDateTime.of(2026, 11, 7, 12, 0)
-    override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-    override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-    override fun localNow(): LocalDateTime = now
-    override fun localDateNow(): LocalDate = now.toLocalDate()
-    override fun localTimeNow(): LocalTime = now.toLocalTime()
-}
+private val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 7, 12, 0))
 
 // Stored colors are the palette's own: minimal colors turn them grey where they're drawn.
 private val Bank = previewAccount("Bank", color = Palette.Blue, icon = "bank", currency = "EUR")

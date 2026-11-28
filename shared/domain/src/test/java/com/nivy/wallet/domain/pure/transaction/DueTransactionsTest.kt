@@ -1,15 +1,13 @@
 package com.nivy.wallet.domain.pure.transaction
 
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Transaction
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 
 class DueTransactionsTest {
@@ -49,12 +47,5 @@ class DueTransactionsTest {
         every { this@mockk.settled } returns settled
     }
 
-    private fun noonOnNov15(zone: String) = object : TimeProvider {
-        private val now = LocalDateTime.of(2026, 11, 15, 12, 0)
-        override fun getZoneId(): ZoneId = ZoneId.of(zone)
-        override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-        override fun localNow(): LocalDateTime = now
-        override fun localDateNow(): LocalDate = now.toLocalDate()
-        override fun localTimeNow(): LocalTime = now.toLocalTime()
-    }
+    private fun noonOnNov15(zone: String) = FixedTimeProvider(LocalDateTime.of(2026, 11, 15, 12, 0), ZoneId.of(zone))
 }

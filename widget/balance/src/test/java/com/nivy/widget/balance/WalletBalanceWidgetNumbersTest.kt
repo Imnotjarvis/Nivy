@@ -1,6 +1,6 @@
 package com.nivy.widget.balance
 
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
@@ -17,11 +17,8 @@ import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.math.BigDecimal
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 
 class WalletBalanceWidgetNumbersTest {
     @Test
@@ -70,13 +67,6 @@ class WalletBalanceWidgetNumbersTest {
 
     private companion object {
         /** November 20, 2026, noon, in UTC. */
-        val November20 = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 20, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val November20 = FixedTimeProvider(LocalDateTime.of(2026, 11, 20, 12, 0))
     }
 }

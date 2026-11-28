@@ -11,7 +11,7 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.design.system.colors.Palette
 import com.nivy.navigation.NivyMaterial3Preview
 import com.nivy.navigation.TransactionsScreen
@@ -30,8 +30,6 @@ import org.junit.runner.RunWith
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /**
@@ -165,13 +163,6 @@ class PeriodChartPaparazziTest(
         fun oct(day: Int): LocalDate = LocalDate.of(2026, 10, day)
 
         /** November 24, 2026, noon, in UTC. */
-        val Today24 = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 24, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val Today24 = FixedTimeProvider(LocalDateTime.of(2026, 11, 24, 12, 0))
     }
 }

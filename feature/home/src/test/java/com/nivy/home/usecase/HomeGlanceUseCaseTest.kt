@@ -1,7 +1,7 @@
 package com.nivy.home.usecase
 
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
@@ -28,7 +28,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
@@ -192,14 +191,7 @@ class HomeGlanceUseCaseTest {
         fun november(day: Int): Instant = LocalDateTime.of(2026, 11, day, 9, 0).toInstant(ZoneOffset.UTC)
 
         /** November 9, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 9, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 9, 12, 0))
         val StartOfToday: Instant = LocalDate.of(2026, 11, 9).atStartOfDay().toInstant(ZoneOffset.UTC)
         val EndOfToday: Instant = LocalDate.of(2026, 11, 9).atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC)
         val EndOfWeekAfter: Instant = LocalDate.of(2026, 11, 16).atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC)

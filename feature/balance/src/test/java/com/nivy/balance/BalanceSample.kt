@@ -17,7 +17,7 @@ import com.nivy.balance.detail.runway
 import com.nivy.balance.detail.unusual
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
@@ -34,12 +34,9 @@ import com.nivy.wallet.domain.pure.util.SizeEdgesInEuros
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import java.time.DayOfWeek
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.YearMonth
-import java.time.ZoneId
 import java.util.UUID
 import kotlin.random.Random
 
@@ -50,14 +47,7 @@ import kotlin.random.Random
  */
 internal object BalanceSample {
     /** November 9, 2026, noon, in UTC. */
-    val November9 = object : TimeProvider {
-        private val now = LocalDateTime.of(2026, 11, 9, 12, 0)
-        override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-        override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-        override fun localNow(): LocalDateTime = now
-        override fun localDateNow(): LocalDate = now.toLocalDate()
-        override fun localTimeNow(): LocalTime = now.toLocalTime()
-    }
+    val November9 = FixedTimeProvider(LocalDateTime.of(2026, 11, 9, 12, 0))
 
     private val Groceries = category("Groceries", Palette.Green2, "groceries", 1)
     private val EatingOut = category("Eating out", Palette.Orange, "restaurant", 2)

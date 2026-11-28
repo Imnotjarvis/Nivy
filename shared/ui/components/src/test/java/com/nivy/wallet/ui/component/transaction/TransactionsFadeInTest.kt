@@ -8,7 +8,7 @@ import app.cash.paparazzi.Snapshot
 import app.cash.paparazzi.SnapshotHandler
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.design.system.NivyMaterial3Theme
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.NivyPreview
@@ -30,8 +30,6 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.Locale
 import java.util.UUID
 
@@ -142,13 +140,6 @@ class TransactionsFadeInTest {
         val Dinner = expense(4, "Dinner out", 42.5, "2026-11-05T20:00:00Z")
 
         /** November 7, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 7, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 7, 12, 0))
     }
 }

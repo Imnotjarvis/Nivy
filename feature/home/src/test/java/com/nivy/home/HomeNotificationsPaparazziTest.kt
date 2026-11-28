@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.db.entity.PaymentNotificationEntity
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
@@ -36,8 +36,6 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
@@ -75,14 +73,7 @@ class HomeNotificationsPaparazziTest(
 }
 
 /** Saturday November 28, 2026, at 14:30 in UTC. */
-internal object FixedTime : TimeProvider {
-    private val now = LocalDateTime.of(2026, 11, 28, 14, 30)
-    override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-    override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-    override fun localNow(): LocalDateTime = now
-    override fun localDateNow(): LocalDate = now.toLocalDate()
-    override fun localTimeNow(): LocalTime = now.toLocalTime()
-}
+internal val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 28, 14, 30))
 
 internal val November = TimePeriod(month = Month.fromMonthValue(11), year = 2026)
 

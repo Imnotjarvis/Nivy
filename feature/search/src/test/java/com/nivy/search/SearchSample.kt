@@ -3,7 +3,7 @@ package com.nivy.search
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
@@ -25,22 +25,13 @@ import kotlinx.collections.immutable.toImmutableList
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
 /** What Search shows for a salary and its plan, and for a restaurant, on November 18, 2026. */
 internal object SearchSample {
     /** November 18, 2026, at noon, in UTC. */
-    val November18 = object : TimeProvider {
-        private val now = LocalDateTime.of(2026, 11, 18, 12, 0)
-        override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-        override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-        override fun localNow(): LocalDateTime = now
-        override fun localDateNow(): LocalDate = now.toLocalDate()
-        override fun localTimeNow(): LocalTime = now.toLocalTime()
-    }
+    val November18 = FixedTimeProvider(LocalDateTime.of(2026, 11, 18, 12, 0))
 
     private val bank = previewAccount("Main Bank", Palette.Blue3, icon = "bank", currency = "EUR", id = UUID(0, 1))
     private val work = category("Salary", Palette.Green2, "work", id = 2)

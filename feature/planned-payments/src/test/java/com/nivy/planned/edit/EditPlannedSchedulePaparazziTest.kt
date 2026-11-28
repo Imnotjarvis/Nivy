@@ -9,7 +9,7 @@ import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.IntervalType
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
@@ -24,11 +24,7 @@ import com.nivy.wallet.ui.previewAccount
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /** The planned payment editor of a monthly plan that ends, and of a planned transfer. */
@@ -125,13 +121,6 @@ class EditPlannedSchedulePaparazziTest(
         )
 
         /** November 16, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 16, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 16, 12, 0))
     }
 }
