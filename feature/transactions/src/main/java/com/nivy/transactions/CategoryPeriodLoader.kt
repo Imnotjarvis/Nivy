@@ -53,30 +53,23 @@ class CategoryPeriodLoader @Inject constructor(
         category.value = pageCategory
         val range = period.value.toRange(periodState.startDayOfMonth, timeConverter, timeProvider)
 
-        balance.doubleValue = ioThread {
-            categoryLogic.calculateCategoryBalance(pageCategory, range, accountFilterSet)
-        }
+        // The category's transactions in the period, read once: its totals, history and chart all come from them.
+        val inPeriod = ioThread { categoryLogic.byCategory(pageCategory, range, accountFilterSet) }
+
+        balance.doubleValue = ioThread { categoryLogic.balanceOf(inPeriod) }
 
         income.doubleValue = ioThread {
-            categoryLogic.calculateCategoryIncome(pageCategory, range, accountFilterSet)
+            categoryLogic.calculateCategoryIncome(incomeTransaction = inPeriod.filterIsInstance<Income>())
         }
 
         expenses.doubleValue = ioThread {
-            categoryLogic.calculateCategoryExpenses(pageCategory, range, accountFilterSet)
+            categoryLogic.calculateCategoryExpenses(expenseTransactions = inPeriod.filterIsInstance<Expense>())
         }
 
-        history.value = ioThread {
-            categoryLogic.historyByCategoryAccountWithDateDividers(
-                pageCategory,
-                range,
-                accountFilterSet = accountFilterList.toSet(),
-            ).toImmutableList()
-        }
+        history.value = ioThread { categoryLogic.withDateDividers(inPeriod).toImmutableList() }
 
         chart.value = ioThread {
-            chartOf(range, categoryLogic.byCategory(pageCategory, range, accountFilterSet)) {
-                categoryLogic.byCategory(pageCategory, it, accountFilterSet)
-            }
+            chartOf(range, inPeriod) { categoryLogic.byCategory(pageCategory, it, accountFilterSet) }
         }
 
         loadDue(pageCategory, range, accountFilterSet)

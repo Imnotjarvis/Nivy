@@ -128,22 +128,6 @@ class TransactionRepository @Inject constructor(
         }
     )
 
-    suspend fun findAllByCategoryAndTypeAndBetween(
-        categoryId: UUID,
-        type: TransactionType,
-        startDate: Instant,
-        endDate: Instant
-    ): List<Transaction> = retrieveTrns(
-        dbCall = {
-            transactionDao.findAllByCategoryAndTypeAndBetween(
-                categoryId = categoryId,
-                type = type,
-                startDate = startDate,
-                endDate = endDate
-            )
-        }
-    )
-
     suspend fun findAllUnspecifiedAndTypeAndBetween(
         type: TransactionType,
         startDate: Instant,

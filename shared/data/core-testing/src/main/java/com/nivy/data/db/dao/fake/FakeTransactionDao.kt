@@ -77,20 +77,6 @@ class FakeTransactionDao(
         }.sortedByDescending { it.dateTime }
     }
 
-    override suspend fun findAllByCategoryAndTypeAndBetween(
-        categoryId: UUID,
-        type: TransactionType,
-        startDate: Instant,
-        endDate: Instant
-    ): List<TransactionEntity> {
-        return items.filter {
-            val dateTime = it.dateTime ?: return@filter false
-            isBetween(dateTime, startDate, endDate) &&
-                    it.type == type &&
-                    it.categoryId == categoryId
-        }.sortedByDescending { it.dateTime }
-    }
-
     override suspend fun findAllUnspecifiedAndTypeAndBetween(
         type: TransactionType,
         startDate: Instant,

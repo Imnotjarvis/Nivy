@@ -61,18 +61,6 @@ interface TransactionDao {
 
     @Query(
         "SELECT * FROM transactions " +
-            "WHERE (categoryId = :categoryId) AND type = :type AND dateTime >= :startDate AND dateTime <= :endDate " +
-            "ORDER BY dateTime DESC"
-    )
-    suspend fun findAllByCategoryAndTypeAndBetween(
-        categoryId: UUID,
-        type: TransactionType,
-        startDate: Instant,
-        endDate: Instant
-    ): List<TransactionEntity>
-
-    @Query(
-        "SELECT * FROM transactions " +
             "WHERE (categoryId IS NULL) AND type = :type AND dateTime >= :startDate AND dateTime <= :endDate " +
             "ORDER BY dateTime DESC"
     )
