@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
-import com.nivy.base.model.AccountType
 import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeConverter
@@ -18,14 +17,12 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.CreditCard
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
-import com.nivy.data.model.Transfer
+import com.nivy.data.model.copy
 import com.nivy.data.model.pickable
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -37,6 +34,8 @@ import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
+import com.nivy.domain.usecase.creditcard.accountCreditCards
+import com.nivy.domain.usecase.creditcard.defaultCreditCard
 import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
@@ -47,9 +46,6 @@ import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import com.nivy.wallet.ui.theme.modal.PlanSchedule
-import com.nivy.wallet.ui.theme.modal.RecurringRuleModalData
-import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -98,14 +94,6 @@ class EditPlannedViewModel @Inject constructor(
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private var categoryModalVisible by mutableStateOf(false)
-    private var descriptionModalVisible by mutableStateOf(false)
-    private var deleteTransactionModalVisible by mutableStateOf(false)
-    private var transactionTypeModalVisible by mutableStateOf(false)
-    private var amountModalVisible by mutableStateOf(false)
-    private var recurringRuleModalData by mutableStateOf<RecurringRuleModalData?>(null)
-    private var categoryModalData by mutableStateOf<CategoryModalData?>(null)
-    private var accountModalData by mutableStateOf<AccountModalData?>(null)
 
     private var ruleId: PlannedPaymentRuleId? = null
     private var editMode = false
@@ -128,21 +116,13 @@ class EditPlannedViewModel @Inject constructor(
             endDate = endDate,
             account = account,
             toAccount = toAccount,
-            creditCards = accountCreditCards(),
+            creditCards = accountCreditCards(transactionType, allCreditCards, account),
             creditCard = creditCard,
             category = category,
             amount = amount,
             initialTitle = initialTitle,
             description = description,
             intervalType = intervalType,
-            categoryModalVisible = categoryModalVisible,
-            categoryModalData = categoryModalData,
-            accountModalData = accountModalData,
-            deleteTransactionModalVisible = deleteTransactionModalVisible,
-            descriptionModalVisible = descriptionModalVisible,
-            amountModalVisible = amountModalVisible,
-            transactionTypeModalVisible = transactionTypeModalVisible,
-            recurringRuleModalData = recurringRuleModalData,
             canSave = rule() != null,
         )
     }
@@ -168,29 +148,6 @@ class EditPlannedViewModel @Inject constructor(
 
             is EditPlannedScreenEvent.OnCategoryChanged -> updateCategory(event.newCategory)
             is EditPlannedScreenEvent.OnEditCategory -> editCategory(event.updatedCategory)
-            is EditPlannedScreenEvent.OnCategoryModalVisible ->
-                categoryModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnCategoryModalDataChanged ->
-                categoryModalData = event.categoryModalData
-
-            is EditPlannedScreenEvent.OnAccountModalDataChanged ->
-                accountModalData = event.accountModalData
-
-            is EditPlannedScreenEvent.OnDescriptionModalVisible ->
-                descriptionModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnTransactionTypeModalVisible ->
-                transactionTypeModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnAmountModalVisible ->
-                amountModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnDeleteTransactionModalVisible ->
-                deleteTransactionModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnRecurringRuleModalDataChanged ->
-                recurringRuleModalData = event.recurringRuleModalData
         }
     }
 
@@ -258,7 +215,7 @@ class EditPlannedViewModel @Inject constructor(
         account = accounts.find { it.id.value == screen.accountId } ?: accounts.first()
         toAccount = screen.toAccountId?.let { id -> accounts.find { it.id.value == id } }
         creditCard = screen.creditCardId?.let { id -> allCreditCards.find { it.id.value == id } }
-            ?: account?.let { defaultCreditCard(it, transactionType) }
+            ?: account?.let { defaultCreditCard(allCreditCards, it, transactionType) }
         repeatedTransaction = screen.repeatedTransactionId?.let(::TransactionId)
         category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
         amount = screen.amount ?: 0.0
@@ -306,7 +263,7 @@ class EditPlannedViewModel @Inject constructor(
 
     private fun updateAccount(newAccount: Account) {
         // Another account's card can't pay it: the one its new expenses start on instead.
-        if (newAccount.id != account?.id) creditCard = defaultCreditCard(newAccount, transactionType)
+        if (newAccount.id != account?.id) creditCard = defaultCreditCard(allCreditCards, newAccount, transactionType)
         this@EditPlannedViewModel.account = newAccount
         updateCurrency(account = newAccount)
 
@@ -328,7 +285,7 @@ class EditPlannedViewModel @Inject constructor(
     private fun updateTransactionType(newTransactionType: TransactionType) {
         // Only an expense or a transfer is paid with a card.
         if (newTransactionType != transactionType) {
-            creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+            creditCard = account?.let { defaultCreditCard(allCreditCards, it, newTransactionType) }
         }
         this@EditPlannedViewModel.transactionType = newTransactionType
 
@@ -337,19 +294,6 @@ class EditPlannedViewModel @Inject constructor(
             mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(newTransactionType).toImmutableList()
         }
     }
-
-    /** The cards of the account a planned expense or transfer can be paid with. */
-    private fun accountCreditCards(): ImmutableList<CreditCard> =
-        if (transactionType != TransactionType.INCOME) {
-            allCreditCards.filter { it.account == account?.id }.toImmutableList()
-        } else {
-            persistentListOf()
-        }
-
-    /** What a new expense on [account] is paid with: a credit card account's own card. */
-    private fun defaultCreditCard(account: Account, type: TransactionType): CreditCard? =
-        allCreditCards.firstOrNull { it.account == account.id }
-            ?.takeIf { type == TransactionType.EXPENSE && account.type == AccountType.CREDIT_CARD }
 
     private fun saveIfEditMode() {
         if (editMode) {
@@ -422,16 +366,11 @@ class EditPlannedViewModel @Inject constructor(
             recurringRuleId = rule.id.value,
             paidForDateTime = metadata.purchaseDateTime ?: time,
         )
-        return when (this) {
-            is Income -> copy(metadata = metadata)
-            is Expense -> copy(metadata = metadata)
-            is Transfer -> copy(metadata = metadata)
-        }
+        return copy(metadata = metadata)
     }
 
     private fun delete() {
         viewModelScope.launch {
-            deleteTransactionModalVisible = false
             val deleted = userWrites.run(R.string.msg_change_not_saved) {
                 ruleId?.let {
                     plannedPaymentRuleRepository.deleteById(it)

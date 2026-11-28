@@ -1,23 +1,19 @@
 package com.nivy.domain.usecase.quickadd
 
-import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.QuickAdd
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
-import com.nivy.data.model.Transfer
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
-import java.util.UUID
+import com.nivy.domain.usecase.transaction.newTransaction
 import javax.inject.Inject
 
 /** Adds a quick add as a transaction made now, and takes it back. */
@@ -71,57 +67,22 @@ class QuickAddUseCase @Inject constructor(
     /** A quick add's amount, and for a transfer what arrives. */
     private data class Values(val from: PositiveValue, val to: PositiveValue?)
 
-    private fun transaction(quickAdd: QuickAdd, values: Values): Transaction {
-        val id = TransactionId(UUID.randomUUID())
-        val time = timeProvider.utcNow()
-        val metadata = TransactionMetadata(
+    private fun transaction(quickAdd: QuickAdd, values: Values): Transaction = newTransaction(
+        type = quickAdd.type,
+        account = quickAdd.account,
+        value = values.from,
+        title = quickAdd.title,
+        category = quickAdd.category,
+        time = timeProvider.utcNow(),
+        settled = true,
+        metadata = TransactionMetadata(
             recurringRuleId = null,
             paidForDateTime = null,
             loanRecordId = null,
             purchaseDateTime = null,
             creditCard = quickAdd.creditCard,
-        )
-        val toAccount = quickAdd.toAccount
-        val value = values.from
-        val toValue = values.to
-        return when {
-            toAccount != null && toValue != null -> Transfer(
-                id = id,
-                title = quickAdd.title,
-                description = null,
-                category = quickAdd.category,
-                time = time,
-                settled = true,
-                metadata = metadata,
-                fromAccount = quickAdd.account,
-                fromValue = value,
-                toAccount = toAccount,
-                toValue = toValue,
-            )
-
-            quickAdd.type == TransactionType.INCOME -> Income(
-                id = id,
-                title = quickAdd.title,
-                description = null,
-                category = quickAdd.category,
-                time = time,
-                settled = true,
-                metadata = metadata,
-                value = value,
-                account = quickAdd.account,
-            )
-
-            else -> Expense(
-                id = id,
-                title = quickAdd.title,
-                description = null,
-                category = quickAdd.category,
-                time = time,
-                settled = true,
-                metadata = metadata,
-                value = value,
-                account = quickAdd.account,
-            )
-        }
-    }
+        ),
+        toAccount = quickAdd.toAccount,
+        toValue = values.to,
+    )
 }

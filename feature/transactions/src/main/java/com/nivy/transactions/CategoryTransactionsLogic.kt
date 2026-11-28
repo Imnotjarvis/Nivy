@@ -34,7 +34,7 @@ class CategoryTransactionsLogic @Inject constructor(
         accountFilterSet: Set<UUID> = emptySet(),
         transactions: List<Transaction> = emptyList()
     ): Double = transactionAmountsUseCase.balance(
-        historyByCategory(category, range, accountFilterSet, transactions),
+        byCategory(category, range, accountFilterSet, transactions),
         currencyRepository.getBaseCurrency()
     )
 
@@ -99,16 +99,8 @@ class CategoryTransactionsLogic @Inject constructor(
         accountFilterSet: Set<UUID>,
         transactions: List<Transaction> = emptyList()
     ): List<TransactionHistoryItem> = withDateDividers(
-        historyByCategory(category, range, accountFilterSet, transactions)
+        byCategory(category, range, accountFilterSet, transactions)
     )
-
-    /** The category's transactions in [range], or those of [transactions], in [accountFilterSet]'s accounts. */
-    suspend fun byCategory(
-        category: Category,
-        range: FromToTimeRange,
-        accountFilterSet: Set<UUID>,
-        transactions: List<Transaction> = emptyList(),
-    ): List<Transaction> = historyByCategory(category, range, accountFilterSet, transactions)
 
     /** The transactions without a category in [range], in [accountFilterSet]'s accounts. */
     suspend fun unspecified(range: FromToTimeRange, accountFilterSet: Set<UUID> = emptySet()): List<Transaction> =
@@ -131,12 +123,7 @@ class CategoryTransactionsLogic @Inject constructor(
     }
 
     suspend fun historyUnspecified(range: FromToTimeRange): List<TransactionHistoryItem> =
-        withDateDividers(
-            transactionRepository.findAllUnspecifiedAndBetween(
-                startDate = range.from(),
-                endDate = range.to()
-            )
-        )
+        withDateDividers(unspecified(range))
 
     suspend fun calculateUpcomingIncomeUnspecified(range: FromToTimeRange): Double =
         total(upcomingUnspecified(range).filterIsInstance<Income>())
@@ -184,11 +171,12 @@ class CategoryTransactionsLogic @Inject constructor(
             endDate = range.overdueTo(timeProvider)
         ).filterOverdue(timeProvider)
 
-    private suspend fun historyByCategory(
+    /** The category's transactions in [range], or those of [transactions], in [accountFilterSet]'s accounts. */
+    suspend fun byCategory(
         category: Category,
         range: FromToTimeRange,
         accountFilterSet: Set<UUID>,
-        transactions: List<Transaction>
+        transactions: List<Transaction> = emptyList(),
     ): List<Transaction> = transactions.ifEmpty {
         transactionRepository.findAllByCategoryAndBetween(
             categoryId = category.id.value,

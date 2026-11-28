@@ -2,11 +2,10 @@ package com.nivy.domain.usecase.planned
 
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.db.DatabaseTransaction
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentRuleId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.Transfer
+import com.nivy.data.model.copy
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
@@ -88,10 +87,6 @@ class DueTransactionsUseCase @Inject constructor(
     private fun Transaction.paidNow(): Transaction {
         val now = timeProvider.utcNow()
         val metadata = metadata.copy(paidForDateTime = time)
-        return when (this) {
-            is Income -> copy(settled = true, time = now, metadata = metadata)
-            is Expense -> copy(settled = true, time = now, metadata = metadata)
-            is Transfer -> copy(settled = true, time = now, metadata = metadata)
-        }
+        return copy(settled = true, time = now, metadata = metadata)
     }
 }

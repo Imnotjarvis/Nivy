@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,18 +20,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nivy.base.model.IntervalType
+import com.nivy.design.system.colors.Orange
+import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.planned.list.EndDateRow
+import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeFormatter
 import com.nivy.ui.time.TimeFormatter
 import com.nivy.wallet.NivyComponentPreview
 import com.nivy.wallet.forDisplay
-import com.nivy.ui.R
-import com.nivy.design.system.colors.Orange
 import com.nivy.wallet.ui.theme.components.AddPrimaryAttributeButton
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import java.time.LocalDateTime
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberBodyLarge
-import com.nivy.design.system.typography.numberLabelMedium
 
 @Composable
 fun RecurringRule(
@@ -127,18 +127,7 @@ private fun RecurringRuleCard(
                 if (endDate != null) {
                     Spacer(Modifier.height(4.dp))
 
-                    Text(
-                        text = stringResource(
-                            R.string.ends_date,
-                            with(LocalTimeFormatter.current) {
-                                endDate.format(TimeFormatter.Style.DateOnly(includeWeekDay = false))
-                            }
-                        ),
-                        style = MaterialTheme.typography.numberLabelMedium.copy(
-                            color = Orange,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    )
+                    EndDateRow(endDate)
                 }
             }
         }

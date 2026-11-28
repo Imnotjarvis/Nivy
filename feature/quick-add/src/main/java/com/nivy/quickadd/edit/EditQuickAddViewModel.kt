@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
-import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
@@ -27,6 +26,8 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
+import com.nivy.domain.usecase.creditcard.accountCreditCards
+import com.nivy.domain.usecase.creditcard.defaultCreditCard
 import com.nivy.navigation.EditQuickAddScreen
 import com.nivy.navigation.Navigation
 import com.nivy.ui.ComposeViewModel
@@ -35,8 +36,6 @@ import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
-import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -76,12 +75,6 @@ class EditQuickAddViewModel @Inject constructor(
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private var categoryModalVisible by mutableStateOf(false)
-    private var categoryModalData by mutableStateOf<CategoryModalData?>(null)
-    private var accountModalData by mutableStateOf<AccountModalData?>(null)
-    private var deleteModalVisible by mutableStateOf(false)
-    private var typeModalVisible by mutableStateOf(false)
-    private var amountModalVisible by mutableStateOf(false)
 
     private var id: QuickAddId? = null
     private var orderNum = 0.0
@@ -97,16 +90,10 @@ class EditQuickAddViewModel @Inject constructor(
         accounts = accounts,
         account = account,
         toAccount = toAccount,
-        creditCards = accountCreditCards(),
+        creditCards = accountCreditCards(type, allCreditCards, account),
         creditCard = creditCard,
         category = category,
         amount = amount,
-        categoryModalVisible = categoryModalVisible,
-        categoryModalData = categoryModalData,
-        accountModalData = accountModalData,
-        deleteModalVisible = deleteModalVisible,
-        typeModalVisible = typeModalVisible,
-        amountModalVisible = amountModalVisible,
         canSave = quickAdd() != null,
     )
 
@@ -122,12 +109,6 @@ class EditQuickAddViewModel @Inject constructor(
             is EditQuickAddEvent.OnCreateCategory -> createCategory(event.data)
             is EditQuickAddEvent.OnEditCategory -> editCategory(event.category)
             is EditQuickAddEvent.OnCreateAccount -> createAccount(event.data)
-            is EditQuickAddEvent.OnCategoryModalVisible -> categoryModalVisible = event.visible
-            is EditQuickAddEvent.OnCategoryModalDataChanged -> categoryModalData = event.data
-            is EditQuickAddEvent.OnAccountModalDataChanged -> accountModalData = event.data
-            is EditQuickAddEvent.OnTypeModalVisible -> typeModalVisible = event.visible
-            is EditQuickAddEvent.OnAmountModalVisible -> amountModalVisible = event.visible
-            is EditQuickAddEvent.OnDeleteModalVisible -> deleteModalVisible = event.visible
             EditQuickAddEvent.OnSave -> save(closeScreen = true)
             EditQuickAddEvent.OnDelete -> delete()
         }
@@ -177,14 +158,14 @@ class EditQuickAddViewModel @Inject constructor(
         this.account = account
         toAccount = screen.toAccountId?.let { id -> accounts.find { it.id.value == id } }
         creditCard = screen.creditCardId?.let { id -> allCreditCards.find { it.id.value == id } }
-            ?: defaultCreditCard(account, type)
+            ?: defaultCreditCard(allCreditCards, account, type)
         category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
         amount = screen.amount ?: 0.0
     }
 
     private fun updateType(newType: TransactionType) {
         // Only an expense or a transfer is paid with a card.
-        if (newType != type) creditCard = account?.let { defaultCreditCard(it, newType) }
+        if (newType != type) creditCard = account?.let { defaultCreditCard(allCreditCards, it, newType) }
         changed { type = newType }
         viewModelScope.launch {
             mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(newType).toImmutableList()
@@ -193,22 +174,9 @@ class EditQuickAddViewModel @Inject constructor(
 
     private fun updateAccount(newAccount: Account) {
         // Another account's card can't pay it: the one its new expenses start on instead.
-        if (newAccount.id != account?.id) creditCard = defaultCreditCard(newAccount, type)
+        if (newAccount.id != account?.id) creditCard = defaultCreditCard(allCreditCards, newAccount, type)
         changed { account = newAccount }
     }
-
-    /** The cards of the account an expense or a transfer can be paid with. */
-    private fun accountCreditCards(): ImmutableList<CreditCard> =
-        if (type != TransactionType.INCOME) {
-            allCreditCards.filter { it.account == account?.id }.toImmutableList()
-        } else {
-            persistentListOf()
-        }
-
-    /** What a new expense on [account] is paid with: a credit card account's own card. */
-    private fun defaultCreditCard(account: Account, type: TransactionType): CreditCard? =
-        allCreditCards.firstOrNull { it.account == account.id }
-            ?.takeIf { type == TransactionType.EXPENSE && account.type == AccountType.CREDIT_CARD }
 
     // A quick add already saved keeps every change at once.
     private fun changed(change: () -> Unit) {
@@ -248,7 +216,6 @@ class EditQuickAddViewModel @Inject constructor(
     }.getOrNull()
 
     private fun delete() {
-        deleteModalVisible = false
         val id = id ?: return
         viewModelScope.launch {
             val deleted = userWrites.run(R.string.msg_change_not_saved) { quickAddRepository.deleteById(id) }

@@ -11,18 +11,13 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.expenseRed
@@ -31,11 +26,11 @@ import com.nivy.ui.R
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.ui.component.AxisLabels
-import com.nivy.wallet.ui.component.ChartLineWidth
 import com.nivy.wallet.ui.component.ChartPanel
 import com.nivy.wallet.ui.component.ChartPointRing
 import com.nivy.wallet.ui.component.LegendDot
 import com.nivy.wallet.ui.component.PanelNote
+import com.nivy.wallet.ui.component.chartLine
 import com.nivy.wallet.ui.component.dayLabel
 import com.nivy.wallet.ui.component.pointInRing
 import com.nivy.wallet.utils.format
@@ -158,12 +153,9 @@ private fun AddedUpLines(chart: PeriodChart, lines: List<Pair<List<Double>, Colo
         val bottom = size.height - ChartPointRing.toPx()
         fun x(index: Int) = index / (count - 1f) * size.width
         fun y(value: Double) = bottom - (value / max).toFloat() * (bottom - top)
-        fun path(values: List<Double>) = Path().apply {
-            moveTo(x(0), y(values.first()))
-            for (index in 1..values.lastIndex) lineTo(x(index), y(values[index]))
-        }
-        if (before != null) drawPath(path(before.addedUp), Gray, style = lineStroke(BeforeWidth))
-        lines.forEach { (values, color) -> drawPath(path(values), color, style = lineStroke(ChartLineWidth)) }
+        fun points(values: List<Double>) = values.indices.map { Offset(x(it), y(values[it])) }
+        if (before != null) chartLine(points(before.addedUp), Gray, BeforeWidth)
+        lines.forEach { (values, color) -> chartLine(points(values), color) }
         val reached = lines.first().first.lastIndex
         before?.addedUp?.getOrNull(reached)?.let {
             pointInRing(Offset(x(reached), y(it)), Gray, ring, SmallPoint, SmallRing)
@@ -250,8 +242,6 @@ private fun DrawScope.labelAbove(text: TextLayoutResult, point: Offset) {
 private fun DrawScope.labelBelow(text: TextLayoutResult, point: Offset) {
     drawText(text, topLeft = Offset(centered(text, point), point.y + LabelBelowGap.toPx()))
 }
-
-private fun DrawScope.lineStroke(width: Dp) = Stroke(width.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
 
 private fun DrawScope.centered(text: TextLayoutResult, point: Offset): Float =
     (point.x - text.size.width / 2f).coerceIn(0f, (size.width - text.size.width).coerceAtLeast(0f))

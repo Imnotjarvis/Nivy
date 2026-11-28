@@ -52,7 +52,6 @@ import com.nivy.wallet.ui.theme.modal.edit.ChooseCategoryModal
 import com.nivy.wallet.ui.theme.modal.edit.DescriptionModal
 import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDateTime
-import androidx.compose.runtime.rememberUpdatedState
 
 @ExperimentalFoundationApi
 @Composable
@@ -90,6 +89,7 @@ internal fun BoxWithConstraintsScope.UI(
         )
     }
     val titleFocus = remember { FocusRequester() }
+    val open = remember { OpenModals() }
     // How high the amount panel covers the screen: the card list stays clear of it.
     var bottomSheetHeight by remember { mutableStateOf(0.dp) }
 
@@ -105,12 +105,8 @@ internal fun BoxWithConstraintsScope.UI(
         Toolbar(
             type = state.transactionType,
             initialTransactionId = screen.plannedPaymentRuleId,
-            onDeleteTrnModal = {
-                onEvent(EditPlannedScreenEvent.OnDeleteTransactionModalVisible(true))
-            },
-            onChangeTransactionTypeModal = {
-                onEvent(EditPlannedScreenEvent.OnTransactionTypeModalVisible(true))
-            },
+            onDeleteTrnModal = { open.delete = true },
+            onChangeTransactionTypeModal = { open.changeType = true },
             showDuplicateButton = false,
             onDuplicate = {}
         )
@@ -133,9 +129,7 @@ internal fun BoxWithConstraintsScope.UI(
 
         Category(
             category = state.category,
-            onChooseCategory = {
-                onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
-            }
+            onChooseCategory = { open.chooseCategory = true }
         )
 
         Spacer(Modifier.height(32.dp))
@@ -146,9 +140,7 @@ internal fun BoxWithConstraintsScope.UI(
             intervalType = state.intervalType,
             oneTime = state.oneTime,
             endDate = state.endDate,
-            onShowRecurringRuleModal = {
-                onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(state.scheduleModalData()))
-            }
+            onShowRecurringRuleModal = { open.schedule = state.scheduleModalData() }
         )
 
         if (state.creditCards.isNotEmpty()) {
@@ -166,14 +158,13 @@ internal fun BoxWithConstraintsScope.UI(
 
         Description(
             description = state.description,
-            onAddDescription = { onEvent(EditPlannedScreenEvent.OnDescriptionModalVisible(true)) },
-            onEditDescription = { onEvent(EditPlannedScreenEvent.OnDescriptionModalVisible(true)) }
+            onAddDescription = { open.description = true },
+            onEditDescription = { open.description = true }
         )
 
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
-    val latestOnEvent by rememberUpdatedState(onEvent)
     val timeConverter = LocalTimeConverter.current
     LaunchedEffect(Unit) {
         if (screen.plannedPaymentRuleId == null) {
@@ -182,18 +173,14 @@ internal fun BoxWithConstraintsScope.UI(
                 // Flow Convert (Amount, Account, Category). A new rule has no schedule yet; the
                 // state may still hold the previous rule's, as start() hasn't run. One repeating
                 // a saved transaction starts on its date.
-                latestOnEvent(
-                    EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(
-                        RecurringRuleModalData(
-                            initialStartDate = screen.startDate?.let { with(timeConverter) { it.toLocalDateTime() } },
-                            initialIntervalN = null,
-                            initialIntervalType = null,
-                        )
-                    )
+                open.schedule = RecurringRuleModalData(
+                    initialStartDate = screen.startDate?.let { with(timeConverter) { it.toLocalDateTime() } },
+                    initialIntervalN = null,
+                    initialIntervalType = null,
                 )
             } else {
                 // Flow Empty
-                latestOnEvent(EditPlannedScreenEvent.OnTransactionTypeModalVisible(true))
+                open.changeType = true
             }
         }
     }
@@ -217,16 +204,14 @@ internal fun BoxWithConstraintsScope.UI(
             }
         },
 
-        amountModalShown = state.amountModalVisible,
-        setAmountModalShown = {
-            onEvent(EditPlannedScreenEvent.OnAmountModalVisible(it))
-        },
+        amountModalShown = open.amount,
+        setAmountModalShown = { open.amount = it },
 
         onAmountChanged = {
             onEvent(EditPlannedScreenEvent.OnAmountChanged(it))
             when {
                 shouldFocusCategory(state.category) -> {
-                    onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
+                    open.chooseCategory = true
                 }
 
                 shouldFocusRecurring(
@@ -235,7 +220,7 @@ internal fun BoxWithConstraintsScope.UI(
                     state.intervalType,
                     state.oneTime
                 ) -> {
-                    onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(state.scheduleModalData()))
+                    open.schedule = state.scheduleModalData()
                 }
 
                 shouldFocusTitle(titleTextFieldValue) -> {
@@ -246,101 +231,76 @@ internal fun BoxWithConstraintsScope.UI(
         onSelectedAccountChanged = { onEvent(EditPlannedScreenEvent.OnAccountChanged(it)) },
         onToAccountChanged = { onEvent(EditPlannedScreenEvent.OnToAccountChanged(it)) },
         onAddNewAccount = {
-            onEvent(
-                EditPlannedScreenEvent.OnAccountModalDataChanged(
-                    AccountModalData(
-                        account = null,
-                        baseCurrency = state.currency,
-                        balance = 0.0
-                    )
-                )
-            )
+            open.newAccount = AccountModalData(account = null, baseCurrency = state.currency, balance = 0.0)
         }
     )
 
     // Modals
     ChooseCategoryModal(
-        visible = state.categoryModalVisible,
+        visible = open.chooseCategory,
         initialCategory = state.category,
         categories = state.categories,
         mostUsed = state.mostUsedCategories,
-        showCategoryModal = {
-            onEvent(
-                EditPlannedScreenEvent.OnCategoryModalDataChanged(
-                    CategoryModalData(it)
-                )
-            )
-        },
+        showCategoryModal = { open.editCategory = CategoryModalData(it) },
         onCategoryChanged = {
             onEvent(EditPlannedScreenEvent.OnCategoryChanged(it))
-            onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(state.scheduleModalData()))
+            open.schedule = state.scheduleModalData()
         },
-        dismiss = {
-            onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(false))
-        }
+        dismiss = { open.chooseCategory = false }
     )
 
     CategoryModal(
-        modal = state.categoryModalData,
+        modal = open.editCategory,
         onCreateCategory = { onEvent(EditPlannedScreenEvent.OnCreateCategory(it)) },
         onEditCategory = {
             onEvent(EditPlannedScreenEvent.OnEditCategory(it))
         },
-        dismiss = {
-            onEvent(EditPlannedScreenEvent.OnCategoryModalDataChanged(null))
-        }
+        dismiss = { open.editCategory = null }
     )
 
     AccountModal(
-        modal = state.accountModalData,
+        modal = open.newAccount,
         onCreateAccount = { onEvent(EditPlannedScreenEvent.OnCreateAccount(it)) },
         onEditAccount = { _, _, _ -> },
-        dismiss = {
-            onEvent(EditPlannedScreenEvent.OnAccountModalDataChanged(null))
-        }
+        dismiss = { open.newAccount = null }
     )
 
     DescriptionModal(
-        visible = state.descriptionModalVisible,
+        visible = open.description,
         description = state.description,
         onDescriptionChanged = { onEvent(EditPlannedScreenEvent.OnDescriptionChanged(it)) },
-        dismiss = {
-            onEvent(EditPlannedScreenEvent.OnDescriptionModalVisible(false))
-        }
+        dismiss = { open.description = false }
     )
 
     DeleteModal(
-        visible = state.deleteTransactionModalVisible,
+        visible = open.delete,
         title = stringResource(R.string.confirm_deletion),
         description = stringResource(R.string.planned_payment_confirm_deletion_description),
-        dismiss = { onEvent(EditPlannedScreenEvent.OnDeleteTransactionModalVisible(false)) }
+        dismiss = { open.delete = false }
     ) {
+        open.delete = false
         onEvent(EditPlannedScreenEvent.OnDelete)
     }
 
     ChangeTransactionTypeModal(
         title = stringResource(R.string.set_payment_type),
-        visible = state.transactionTypeModalVisible,
+        visible = open.changeType,
         includeTransferType = true,
         initialType = state.transactionType,
-        dismiss = {
-            onEvent(EditPlannedScreenEvent.OnTransactionTypeModalVisible(false))
-        }
+        dismiss = { open.changeType = false }
     ) {
         onEvent(EditPlannedScreenEvent.OnSetTransactionType(it))
-        if (shouldFocusAmount(state.amount)) {
-            onEvent(EditPlannedScreenEvent.OnAmountModalVisible(true))
-        }
+        if (shouldFocusAmount(state.amount)) open.amount = true
     }
 
     RecurringRuleModal(
-        modal = state.recurringRuleModalData,
+        modal = open.schedule,
         onRuleChanged = { schedule ->
             onEvent(EditPlannedScreenEvent.OnRuleChanged(schedule))
 
             when {
                 shouldFocusCategory(state.category) -> {
-                    onEvent(EditPlannedScreenEvent.OnCategoryModalVisible(true))
+                    open.chooseCategory = true
                 }
 
                 shouldFocusTitle(titleTextFieldValue) -> {
@@ -348,9 +308,7 @@ internal fun BoxWithConstraintsScope.UI(
                 }
             }
         },
-        dismiss = {
-            onEvent(EditPlannedScreenEvent.OnRecurringRuleModalDataChanged(null))
-        }
+        dismiss = { open.schedule = null }
     )
 }
 
@@ -409,15 +367,21 @@ private fun Preview() {
                 categories = persistentListOf(),
                 mostUsedCategories = persistentListOf(),
                 accounts = persistentListOf(),
-                categoryModalVisible = false,
-                categoryModalData = null,
-                accountModalData = null,
-                descriptionModalVisible = false,
-                deleteTransactionModalVisible = false,
-                recurringRuleModalData = null,
-                transactionTypeModalVisible = false,
-                amountModalVisible = false
             )
         ) {}
     }
+}
+
+// The editor's open dialogs, kept as the transaction editor keeps its own.
+private class OpenModals {
+    var chooseCategory by mutableStateOf(false)
+    var editCategory by mutableStateOf<CategoryModalData?>(null)
+    var newAccount by mutableStateOf<AccountModalData?>(null)
+    var description by mutableStateOf(false)
+    var delete by mutableStateOf(false)
+    var changeType by mutableStateOf(false)
+    var schedule by mutableStateOf<RecurringRuleModalData?>(null)
+
+    /** The amount panel, in the bottom sheet. */
+    var amount by mutableStateOf(false)
 }

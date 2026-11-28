@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -67,6 +66,7 @@ internal fun BoxWithConstraintsScope.UI(
         mutableStateOf(TextFieldValue(state.initialTitle.orEmpty()))
     }
     val titleFocus = remember { FocusRequester() }
+    val open = remember { OpenModals() }
     // How high the amount panel covers the screen: the card list stays clear of it.
     var bottomSheetHeight by remember { mutableStateOf(0.dp) }
 
@@ -82,8 +82,8 @@ internal fun BoxWithConstraintsScope.UI(
         Toolbar(
             type = state.type,
             initialTransactionId = screen.quickAddId,
-            onDeleteTrnModal = { onEvent(EditQuickAddEvent.OnDeleteModalVisible(true)) },
-            onChangeTransactionTypeModal = { onEvent(EditQuickAddEvent.OnTypeModalVisible(true)) },
+            onDeleteTrnModal = { open.delete = true },
+            onChangeTransactionTypeModal = { open.changeType = true },
             showDuplicateButton = false,
             onDuplicate = {},
         )
@@ -103,7 +103,7 @@ internal fun BoxWithConstraintsScope.UI(
 
         Category(
             category = state.category,
-            onChooseCategory = { onEvent(EditQuickAddEvent.OnCategoryModalVisible(true)) },
+            onChooseCategory = { open.chooseCategory = true },
         )
 
         if (state.creditCards.isNotEmpty()) {
@@ -120,12 +120,9 @@ internal fun BoxWithConstraintsScope.UI(
         Spacer(Modifier.height(600.dp)) // scroll hack
     }
 
-    val latestOnEvent by rememberUpdatedState(onEvent)
     LaunchedEffect(Unit) {
         // A new one with nothing filled in, as from the quick adds' list: its type first.
-        if (screen.quickAddId == null && screen.accountId == null) {
-            latestOnEvent(EditQuickAddEvent.OnTypeModalVisible(true))
-        }
+        if (screen.quickAddId == null && screen.accountId == null) open.changeType = true
     }
 
     EditBottomSheet(
@@ -146,73 +143,82 @@ internal fun BoxWithConstraintsScope.UI(
                 onEvent(EditQuickAddEvent.OnSave)
             }
         },
-        amountModalShown = state.amountModalVisible,
-        setAmountModalShown = { onEvent(EditQuickAddEvent.OnAmountModalVisible(it)) },
+        amountModalShown = open.amount,
+        setAmountModalShown = { open.amount = it },
         onAmountChanged = {
             onEvent(EditQuickAddEvent.OnAmountChanged(it))
             when {
-                state.category == null -> onEvent(EditQuickAddEvent.OnCategoryModalVisible(true))
+                state.category == null -> open.chooseCategory = true
                 titleTextFieldValue.text.isBlank() -> titleFocus.requestFocus()
             }
         },
         onSelectedAccountChanged = { onEvent(EditQuickAddEvent.OnAccountChanged(it)) },
         onToAccountChanged = { onEvent(EditQuickAddEvent.OnToAccountChanged(it)) },
         onAddNewAccount = {
-            onEvent(
-                EditQuickAddEvent.OnAccountModalDataChanged(
-                    AccountModalData(account = null, baseCurrency = state.currency, balance = 0.0)
-                )
-            )
+            open.newAccount = AccountModalData(account = null, baseCurrency = state.currency, balance = 0.0)
         },
     )
 
     ChooseCategoryModal(
-        visible = state.categoryModalVisible,
+        visible = open.chooseCategory,
         initialCategory = state.category,
         categories = state.categories,
         mostUsed = state.mostUsedCategories,
-        showCategoryModal = { onEvent(EditQuickAddEvent.OnCategoryModalDataChanged(CategoryModalData(it))) },
+        showCategoryModal = { open.editCategory = CategoryModalData(it) },
         onCategoryChanged = {
             onEvent(EditQuickAddEvent.OnCategoryChanged(it))
             if (titleTextFieldValue.text.isBlank()) titleFocus.requestFocus()
         },
-        dismiss = { onEvent(EditQuickAddEvent.OnCategoryModalVisible(false)) },
+        dismiss = { open.chooseCategory = false },
     )
 
     CategoryModal(
-        modal = state.categoryModalData,
+        modal = open.editCategory,
         onCreateCategory = { onEvent(EditQuickAddEvent.OnCreateCategory(it)) },
         onEditCategory = { onEvent(EditQuickAddEvent.OnEditCategory(it)) },
-        dismiss = { onEvent(EditQuickAddEvent.OnCategoryModalDataChanged(null)) },
+        dismiss = { open.editCategory = null },
     )
 
     AccountModal(
-        modal = state.accountModalData,
+        modal = open.newAccount,
         onCreateAccount = { onEvent(EditQuickAddEvent.OnCreateAccount(it)) },
         onEditAccount = { _, _, _ -> },
-        dismiss = { onEvent(EditQuickAddEvent.OnAccountModalDataChanged(null)) },
+        dismiss = { open.newAccount = null },
     )
 
     DeleteModal(
-        visible = state.deleteModalVisible,
+        visible = open.delete,
         title = stringResource(R.string.confirm_deletion),
         description = stringResource(R.string.quick_add_confirm_deletion_description),
-        dismiss = { onEvent(EditQuickAddEvent.OnDeleteModalVisible(false)) },
+        dismiss = { open.delete = false },
     ) {
+        open.delete = false
         onEvent(EditQuickAddEvent.OnDelete)
     }
 
     ChangeTransactionTypeModal(
         title = stringResource(R.string.set_payment_type),
-        visible = state.typeModalVisible,
+        visible = open.changeType,
         includeTransferType = true,
         initialType = state.type,
-        dismiss = { onEvent(EditQuickAddEvent.OnTypeModalVisible(false)) },
+        dismiss = { open.changeType = false },
     ) {
         onEvent(EditQuickAddEvent.OnTypeChanged(it))
         // A new one's amount comes next.
         if (screen.quickAddId == null && state.amount == 0.0) {
-            onEvent(EditQuickAddEvent.OnAmountModalVisible(true))
+            open.amount = true
         }
     }
+}
+
+// The editor's open dialogs, kept as the transaction editor keeps its own.
+private class OpenModals {
+    var chooseCategory by mutableStateOf(false)
+    var editCategory by mutableStateOf<CategoryModalData?>(null)
+    var newAccount by mutableStateOf<AccountModalData?>(null)
+    var delete by mutableStateOf(false)
+    var changeType by mutableStateOf(false)
+
+    /** The amount panel, in the bottom sheet. */
+    var amount by mutableStateOf(false)
 }
