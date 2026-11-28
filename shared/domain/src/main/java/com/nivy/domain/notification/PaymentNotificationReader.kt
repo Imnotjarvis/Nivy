@@ -98,8 +98,11 @@ object PaymentNotificationReader {
         }
         ?.let { match ->
             val groups = match.groupValues
-            val sign = listOf(groups[1], groups[2], groups[5], groups[6]).first { it.isNotEmpty() }
-            Amount(cents(groups[3].ifEmpty { groups[4] }), currencyCode(sign), match.range.last + 1)
+            val sign = listOf(SymbolBefore, CodeBefore, SymbolAfter, CodeAfter)
+                .map { groups[it] }
+                .first { it.isNotEmpty() }
+            val number = groups[NumberAfterCurrency].ifEmpty { groups[NumberBeforeCurrency] }
+            Amount(cents(number), currencyCode(sign), match.range.last + 1)
         }
 
     // In its currency's cents: the last separator is the decimal mark when one or two digits
@@ -177,6 +180,14 @@ object PaymentNotificationReader {
 
     // A number with its sign before (groups 1 and 2, the number in 3) or after it (the number in
     // 4, the sign in 5 and 6). Codes are in capitals, as apps write them.
+    // AmountPattern's groups: a currency, as a symbol or a code, then the number; or the number,
+    // then its currency as a symbol or a code.
+    private const val SymbolBefore = 1
+    private const val CodeBefore = 2
+    private const val NumberAfterCurrency = 3
+    private const val NumberBeforeCurrency = 4
+    private const val SymbolAfter = 5
+    private const val CodeAfter = 6
     private val AmountPattern = Regex(
         """(?:($Symbol)|\b($Codes)(?![A-Za-z]))\s?($Number)|($Number)\s?(?:($Symbol)|($Codes)\b)""",
     )

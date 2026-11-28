@@ -149,7 +149,6 @@ class NotificationLogViewModel @Inject constructor(
             )
         }.toImmutableList()
     }
-
 }
 
 private fun PaymentNotificationEntity.asEntry(

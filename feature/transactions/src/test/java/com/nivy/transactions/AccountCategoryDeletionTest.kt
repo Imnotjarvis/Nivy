@@ -122,7 +122,9 @@ class AccountCategoryDeletionTest {
         coEvery { creditCardRepository.deleteAllByAccountId(any()) } answers { note("cards deleted") }
         coEvery { accountValueRepository.deleteAllByAccountId(any()) } answers { note("values deleted") }
         coEvery { quickAddRepository.deleteAllByAccountId(any()) } answers { note("quick adds deleted") }
-        coEvery { paymentNotificationRepository.deleteSourcesByAccountId(any()) } answers { note("payment apps deleted") }
+        coEvery { paymentNotificationRepository.deleteSourcesByAccountId(any()) } answers {
+            note("payment apps deleted")
+        }
         coEvery { accountRepository.deleteById(any()) } answers { note("account deleted") }
         every { nav.back() } answers {
             note("page left")

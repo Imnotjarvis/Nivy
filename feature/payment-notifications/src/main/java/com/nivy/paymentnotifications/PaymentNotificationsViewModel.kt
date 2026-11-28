@@ -174,7 +174,6 @@ class PaymentNotificationsViewModel @Inject constructor(
             .sortedBy { it.payer.id }
             .toImmutableList()
     }
-
 }
 
 /** An app's or a card's source as the dialog that changes it shows it. */

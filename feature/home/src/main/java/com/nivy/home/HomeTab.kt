@@ -364,7 +364,7 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(
 ) {
     NivyMaterial3Preview(isDark) {
         HomeUi(
-            uiState = change(HomeState(
+            uiState = HomeState(
                 theme = Theme.AUTO,
                 baseData = AppBaseData(
                     baseCurrency = "",
@@ -393,7 +393,7 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(
                 hideIncome = false,
                 expanded = false,
                 shouldShowAccountSpecificColorInTransactions = false
-            )),
+            ).let(change),
             onEvent = {}
         )
     }
