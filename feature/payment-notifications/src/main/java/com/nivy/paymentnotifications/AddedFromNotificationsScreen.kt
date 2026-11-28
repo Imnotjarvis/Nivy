@@ -36,7 +36,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -48,11 +47,8 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.design.system.colors.Gray
-import com.nivy.design.system.colors.expenseRed
-import com.nivy.design.system.colors.incomeGreen
 import com.nivy.design.system.colors.upcomingOrange
 import com.nivy.design.system.shapes.PillShape
-import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.domain.UserWrites
 import com.nivy.domain.notification.ListedNotification
 import com.nivy.domain.notification.Outcome
@@ -69,15 +65,15 @@ import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.component.notification.CategoryCircle
+import com.nivy.wallet.ui.component.notification.PaymentAmount
+import com.nivy.wallet.ui.component.notification.PaymentTitle
 import com.nivy.wallet.ui.component.notification.SmallPill
 import com.nivy.wallet.ui.component.notification.ToCheckTag
 import com.nivy.wallet.ui.component.notification.dayAndTime
-import com.nivy.wallet.ui.component.notification.isIncome
-import com.nivy.wallet.ui.component.notification.signedAmount
 import com.nivy.wallet.ui.component.notification.timeOf
+import com.nivy.wallet.ui.component.notification.type
 import com.nivy.wallet.ui.component.transaction.account
 import com.nivy.wallet.ui.component.transaction.category
-import com.nivy.wallet.ui.component.transaction.label
 import com.nivy.wallet.ui.theme.components.BackBottomBar
 import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.wallet.utils.amountAndCode
@@ -85,7 +81,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -103,9 +98,8 @@ sealed interface AddedFromNotificationsEvent {
     data class Undo(val id: UUID) : AddedFromNotificationsEvent
     data class AddBack(val id: UUID) : AddedFromNotificationsEvent
 
-    /** The other apps' notifications of a payment, added as payments of their own. */
-    data class Separate(val ids: List<UUID>) : AddedFromNotificationsEvent
-    data class Add(val id: UUID) : AddedFromNotificationsEvent
+    /** Notifications added as payments of their own: one not added, or the other apps' ones of a payment. */
+    data class Add(val ids: List<UUID>) : AddedFromNotificationsEvent
     data class Dismiss(val id: UUID) : AddedFromNotificationsEvent
     data class SetCardAccount(val card: String, val account: AccountId) : AddedFromNotificationsEvent
     data object AllGood : AddedFromNotificationsEvent
@@ -145,8 +139,7 @@ class AddedFromNotificationsViewModel @Inject constructor(
         when (event) {
             is AddedFromNotificationsEvent.Undo -> write { actions.undo(event.id) }
             is AddedFromNotificationsEvent.AddBack -> write { actions.addBack(event.id) }
-            is AddedFromNotificationsEvent.Separate -> write { event.ids.forEach { actions.add(it) } }
-            is AddedFromNotificationsEvent.Add -> write { actions.add(event.id) }
+            is AddedFromNotificationsEvent.Add -> write { event.ids.forEach { actions.add(it) } }
             is AddedFromNotificationsEvent.Dismiss -> write { actions.dismiss(event.id) }
             is AddedFromNotificationsEvent.SetCardAccount -> write {
                 actions.setCardAccount(event.card, event.account, creditCard = null)
@@ -155,12 +148,7 @@ class AddedFromNotificationsViewModel @Inject constructor(
         }
     }
 
-    private fun write(change: suspend () -> Unit) {
-        viewModelScope.launch {
-            userWrites.run(R.string.msg_change_not_saved) { change() }
-            load()
-        }
-    }
+    private fun write(change: suspend () -> Unit) = viewModelScope.write(userWrites, ::load, change)
 
     private suspend fun load() {
         val base = currencyRepository.getBaseCurrency()
@@ -289,7 +277,7 @@ private fun Addition(
     val notification = item.notification
     val transaction = item.transaction
     val undone = item.outcome == Outcome.Undone
-    val type = if (item.isIncome()) TransactionType.INCOME else TransactionType.EXPENSE
+    val type = item.type()
     val title = transaction?.title?.value ?: notification.merchant
     val accountName = transaction?.let { account(it.getFromAccount().value, baseData.accounts)?.name?.value }
     ListBlock(onClick = transaction?.let { { onOpen(it.id.value, type) } }) {
@@ -297,16 +285,7 @@ private fun Addition(
             CategoryCircle(category(transaction?.category?.value, baseData.categories), dim = undone)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(
-                    text = title ?: stringResource(type.label()),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = if (undone) Gray else MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (undone) TextDecoration.LineThrough else null,
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                PaymentTitle(item)
                 Text(
                     text = if (undone) {
                         stringResource(R.string.undone)
@@ -321,20 +300,7 @@ private fun Addition(
             }
             Spacer(Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
-                val page = MaterialTheme.colorScheme.surfaceVariant
-                Text(
-                    text = item.signedAmount(),
-                    style = MaterialTheme.typography.numberBodyLarge.copy(
-                        color = when {
-                            undone -> Gray
-                            type == TransactionType.INCOME -> incomeGreen(page)
-                            else -> expenseRed(page)
-                        },
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (undone) TextDecoration.LineThrough else null,
-                    ),
-                    maxLines = 1,
-                )
+                PaymentAmount(item)
                 Spacer(Modifier.height(6.dp))
                 SmallPill(text = stringResource(if (undone) R.string.add_back else R.string.undo)) {
                     onEvent(
@@ -373,7 +339,7 @@ private fun ColumnScope.Checks(
             )
             Spacer(Modifier.width(8.dp))
             SmallPill(text = stringResource(R.string.separate)) {
-                onEvent(AddedFromNotificationsEvent.Separate(item.alsoIn.map { it.id }))
+                onEvent(AddedFromNotificationsEvent.Add(item.alsoIn.map { it.id }))
             }
         }
     }
@@ -424,10 +390,7 @@ private fun NotAdded(item: ListedNotification, onEvent: (AddedFromNotificationsE
             Column(Modifier.weight(1f)) {
                 Text(
                     text = app,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = titleStyle(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -472,7 +435,7 @@ private fun NotAdded(item: ListedNotification, onEvent: (AddedFromNotificationsE
                 text = stringResource(addLabel(item.why)),
                 background = MaterialTheme.colorScheme.onSurface,
                 content = MaterialTheme.colorScheme.surface,
-            ) { onEvent(AddedFromNotificationsEvent.Add(notification.id)) }
+            ) { onEvent(AddedFromNotificationsEvent.Add(listOf(notification.id))) }
         }
     }
 }

@@ -30,6 +30,7 @@ enum class Outcome {
 
 /** Why a notification wasn't added. */
 enum class Why {
+    // The reader's: not money that moved.
     Code, Hold, Declined, LowBalance, NotYet, Offer, Access, NoAmount,
 
     /** The same payment as one that was undone. */
@@ -112,7 +113,7 @@ object NotificationDecisions {
         val recent = earlier.filter { !it.postTime.isBefore(posted.postTime - Window) }
         if (recent.any { it.isSame(posted) }) return Decision.Skip
         return when (reading) {
-            is Reading.Ignored -> Decision.Keep(Outcome.Ignored, reading.why.asWhy())
+            is Reading.Ignored -> Decision.Keep(Outcome.Ignored, reading.why)
             is Reading.Money -> decideMoney(posted, reading, recent, handEntered, accountCurrency, adding)
         }
     }
@@ -200,8 +201,6 @@ object NotificationDecisions {
     private val AddedOrWould = setOf(Outcome.Added, Outcome.WouldAdd)
     private val Repeatable = setOf(Outcome.Added, Outcome.WouldAdd, Outcome.SamePayment)
     private val Kept = Repeatable + Outcome.Undone
-
-    private fun NotMoney.asWhy(): Why = Why.valueOf(name)
 
     private fun MoneyWay?.notSpentWhy(): Why = when (this) {
         MoneyWay.Received -> Why.MoneyIn

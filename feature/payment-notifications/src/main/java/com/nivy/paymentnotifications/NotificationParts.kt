@@ -6,21 +6,25 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
@@ -41,14 +45,34 @@ import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.shapes.PillShape
-import com.nivy.design.system.typography.numberBodyLarge
-import com.nivy.design.utils.thenIf
+import com.nivy.navigation.rememberOnBack
 import com.nivy.ui.R
 import com.nivy.wallet.ui.component.notification.SmallPill
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivySwitch
+import com.nivy.wallet.ui.theme.components.NivyToolbar
+import com.nivy.wallet.ui.theme.components.SettingsButtonRow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+/** A page of payment notifications: back at the top, then its [title] and its [content]. */
+@Composable
+internal fun NotificationsPage(title: String, content: LazyListScope.() -> Unit) {
+    val onBack = rememberOnBack()
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+    ) {
+        stickyHeader { NivyToolbar(onBack = onBack) }
+        item {
+            Spacer(Modifier.height(8.dp))
+            PageTitle(title)
+        }
+        content()
+    }
+}
 
 /** A page's title, as Settings' own. */
 @Composable
@@ -86,25 +110,18 @@ internal fun SectionLabel(text: String) {
     Spacer(Modifier.height(16.dp))
 }
 
-/** A row of Settings: in 16 dp from the screen's sides, in the theme's light grey. */
+/** A row's title: bold, in the text color. */
 @Composable
-internal fun Block(
-    start: Dp = 20.dp,
-    onClick: (() -> Unit)? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
-            .thenIf(onClick != null) { clickable { onClick?.invoke() } }
-            .padding(start = start),
-        verticalAlignment = Alignment.CenterVertically,
-        content = content,
-    )
-}
+@ReadOnlyComposable
+internal fun titleStyle() = MaterialTheme.typography.bodyLarge.copy(
+    color = MaterialTheme.colorScheme.onSurface,
+    fontWeight = FontWeight.Bold,
+)
+
+/** What a row says under its title: smaller, in grey. */
+@Composable
+@ReadOnlyComposable
+internal fun detailStyle() = MaterialTheme.typography.bodyLarge.copy(color = Gray, fontSize = 14.sp)
 
 /** A title and, under it in grey, what it says, filling the row's room. */
 @Composable
@@ -112,15 +129,12 @@ internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modif
     Column(modifier.weight(1f).padding(vertical = 20.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-            ),
+            style = titleStyle(),
         )
         if (text != null) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
+                style = detailStyle(),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -131,7 +145,7 @@ internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modif
 /** A row with an icon, a title, what it says and a switch, as Settings' switches. */
 @Composable
 internal fun SwitchRow(@DrawableRes icon: Int, title: String, text: String, on: Boolean, onChange: (Boolean) -> Unit) {
-    Block(start = 12.dp, onClick = { onChange(!on) }) {
+    SettingsButtonRow(start = 12.dp, onClick = { onChange(!on) }) {
         Icon(
             modifier = Modifier.size(48.dp),
             painter = painterResource(icon),
@@ -148,7 +162,7 @@ internal fun SwitchRow(@DrawableRes icon: Int, title: String, text: String, on: 
 /** A row that opens a page, with what it says under its title, as Settings' own. */
 @Composable
 internal fun LinkRow(@DrawableRes icon: Int, title: String, text: String?, onClick: () -> Unit) {
-    Block(start = 12.dp, onClick = onClick) {
+    SettingsButtonRow(start = 12.dp, onClick = onClick) {
         Icon(
             modifier = Modifier.size(48.dp).padding(4.dp),
             painter = painterResource(icon),
@@ -159,37 +173,6 @@ internal fun LinkRow(@DrawableRes icon: Int, title: String, text: String?, onCli
         TitleAndText(title = title, text = text)
         NivyIcon(icon = R.drawable.ic_arrow_right, tint = Gray)
         Spacer(Modifier.width(16.dp))
-    }
-}
-
-/** A row with its value on the right, as Settings' own. */
-@Composable
-internal fun ValueRow(@DrawableRes icon: Int, title: String, value: String, onClick: () -> Unit) {
-    Block(start = 12.dp, onClick = onClick) {
-        Icon(
-            modifier = Modifier.size(48.dp).padding(12.dp),
-            painter = painterResource(icon),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            modifier = Modifier.weight(1f).padding(vertical = 20.dp),
-            text = title,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-            ),
-        )
-        Spacer(Modifier.width(16.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.numberBodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold,
-            ),
-        )
-        Spacer(Modifier.width(32.dp))
     }
 }
 
@@ -206,7 +189,7 @@ internal fun Step(
     action: String? = null,
     onAction: () -> Unit = {},
 ) {
-    Block(start = 16.dp) {
+    SettingsButtonRow(start = 16.dp) {
         // In line with the step's title.
         Box(Modifier.align(Alignment.Top).padding(top = 20.dp)) {
             if (done) {
@@ -224,14 +207,11 @@ internal fun Step(
         Column(Modifier.weight(1f).padding(vertical = 20.dp)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = titleStyle(),
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
+                style = detailStyle(),
             )
             if (action != null) {
                 Spacer(Modifier.height(12.dp))

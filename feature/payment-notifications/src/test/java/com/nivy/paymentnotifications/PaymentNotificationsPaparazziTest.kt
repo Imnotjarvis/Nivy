@@ -98,9 +98,7 @@ internal val FirstTime = PaymentNotificationsState(
     cards = persistentListOf(),
     batteryUnrestricted = false,
     installedFromFile = true,
-    payer = null,
-    accounts = SampleBaseData.accounts,
-    creditCards = persistentListOf(),
+    paysFrom = PaysFromChoice(payer = null, accounts = SampleBaseData.accounts, creditCards = persistentListOf()),
 )
 
 private fun payer(kind: String, id: String, name: String) =
@@ -144,9 +142,7 @@ internal val Apps = NotificationAppsState(
             )
         }
         ).toImmutableList(),
-    payer = null,
-    accounts = SampleBaseData.accounts,
-    creditCards = persistentListOf(),
+    paysFrom = PaysFromChoice(payer = null, accounts = SampleBaseData.accounts, creditCards = persistentListOf()),
 )
 
 private fun entry(

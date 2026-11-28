@@ -68,7 +68,7 @@ class NotificationTransactions @Inject constructor(
     // The payment's amount in its account's currency.
     private suspend fun valueOn(payment: NotificationPayment): PositiveValue? {
         val asset = accountRepository.findById(payment.account)?.asset
-        val value = PositiveDouble.from(payment.cents / CentsInUnit).getOrNull()?.let { amount ->
+        val value = PositiveDouble.from(payment.cents.fromCents()).getOrNull()?.let { amount ->
             AssetCode.from(payment.currency).getOrNull()?.let { PositiveValue(amount, it) }
         }
         return when {
@@ -114,9 +114,5 @@ class NotificationTransactions @Inject constructor(
                 account = payment.account,
             )
         }
-    }
-
-    private companion object {
-        const val CentsInUnit = 100.0
     }
 }

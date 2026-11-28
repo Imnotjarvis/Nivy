@@ -5,15 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Green
@@ -43,7 +38,6 @@ import com.nivy.navigation.KeepListeningScreen
 import com.nivy.navigation.NotificationAppsScreen
 import com.nivy.navigation.NotificationLogScreen
 import com.nivy.navigation.navigation
-import com.nivy.navigation.rememberOnBack
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.ui.component.notification.SmallPill
@@ -51,7 +45,8 @@ import com.nivy.wallet.ui.component.notification.dayAndTime
 import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
-import com.nivy.wallet.ui.theme.components.NivyToolbar
+import com.nivy.wallet.ui.theme.components.SettingsButtonRow
+import com.nivy.wallet.ui.theme.components.SettingsValueRow
 import com.nivy.wallet.ui.theme.modal.ModalTitle
 import com.nivy.wallet.ui.theme.modal.NivyModal
 import java.util.UUID
@@ -79,7 +74,6 @@ internal fun BoxWithConstraintsScope.UI(
     restrictedStepsShown: Boolean = false,
 ) {
     val nav = navigation()
-    val onBack = rememberOnBack()
     val context = LocalContext.current
     var restrictedSteps by remember { mutableStateOf(restrictedStepsShown) }
     // Android 13 and later lock the access of an app installed from a file: the way to unlock it first.
@@ -91,17 +85,7 @@ internal fun BoxWithConstraintsScope.UI(
         }
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding(),
-    ) {
-        stickyHeader { NivyToolbar(onBack = onBack) }
-        item {
-            Spacer(Modifier.height(8.dp))
-            PageTitle(stringResource(R.string.payment_notifications))
-        }
+    NotificationsPage(stringResource(R.string.payment_notifications)) {
         if (state.setUp) {
             setUp(
                 state = state,
@@ -130,16 +114,7 @@ internal fun BoxWithConstraintsScope.UI(
         onAppInfo = { PhoneSettings.openAppInfo(context) },
     )
 
-    PaysFromModal(
-        payer = state.payer,
-        accounts = state.accounts,
-        creditCards = state.creditCards,
-        dismiss = { onEvent(PaymentNotificationsEvent.ShowPaysFrom(null)) },
-        onChoose = { payer, account, creditCard ->
-            onEvent(PaymentNotificationsEvent.SetPaysFrom(payer, account, creditCard))
-        },
-        onRemove = { onEvent(PaymentNotificationsEvent.Remove(it)) },
-    )
+    PaysFromModal(state.paysFrom, onEvent)
 }
 
 private fun LazyListScope.firstTime(
@@ -198,7 +173,7 @@ private fun LazyListScope.setUp(
     }
     items(state.apps, key = { "app " + it.payer.id }) { app ->
         AppRow(app = app, cardsBelow = state.cards.isNotEmpty()) {
-            onEvent(PaymentNotificationsEvent.ShowPaysFrom(app.payer))
+            onEvent(PaysFromEvent.Show(app.payer))
         }
         Spacer(Modifier.height(12.dp))
     }
@@ -213,7 +188,7 @@ private fun LazyListScope.setUp(
     if (state.cards.isNotEmpty()) {
         item { SectionLabel(stringResource(R.string.cards)) }
         items(state.cards, key = { "card " + it.payer.id }) { card ->
-            CardRow(card) { onEvent(PaymentNotificationsEvent.ShowPaysFrom(card.payer)) }
+            CardRow(card) { onEvent(PaysFromEvent.Show(card.payer)) }
             Spacer(Modifier.height(12.dp))
         }
     }
@@ -228,9 +203,9 @@ private fun LazyListScope.setUp(
             onClick = openKeepListening,
         )
         Spacer(Modifier.height(12.dp))
-        ValueRow(
+        SettingsValueRow(
             icon = R.drawable.ic_notification_m,
-            title = stringResource(R.string.notification_access),
+            label = stringResource(R.string.notification_access),
             value = stringResource(
                 if (state.granted) R.string.notification_access_on else R.string.notification_access_off,
             ),
@@ -260,23 +235,14 @@ private fun AddingSwitch(adding: Boolean, onChange: (Boolean) -> Unit) {
 // Whether Nivy is listening, its last payment notification or the test's result, and the test.
 @Composable
 private fun Status(state: PaymentNotificationsState, onTest: () -> Unit) {
-    Block {
+    SettingsButtonRow(start = 20.dp) {
         val dot = if (state.listening) Green else upcomingOrange(MaterialTheme.colorScheme.surfaceVariant)
         Box(Modifier.size(12.dp).clip(PillShape).background(dot))
         Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f).padding(vertical = 20.dp)) {
-            Text(
-                text = stringResource(if (state.listening) R.string.listening else R.string.not_listening),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                ),
-            )
-            Text(
-                text = statusText(state),
-                style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
-            )
-        }
+        TitleAndText(
+            title = stringResource(if (state.listening) R.string.listening else R.string.not_listening),
+            text = statusText(state),
+        )
         Spacer(Modifier.width(8.dp))
         SmallPill(text = stringResource(R.string.test_it), onClick = onTest)
         Spacer(Modifier.width(16.dp))
@@ -307,7 +273,7 @@ internal fun testText(result: TestResult, failed: Int = R.string.test_failed): S
 
 @Composable
 private fun AppRow(app: PickedApp, cardsBelow: Boolean, onClick: () -> Unit) {
-    Block(start = 16.dp, onClick = onClick) {
+    SettingsButtonRow(start = 16.dp, onClick = onClick) {
         AppIcon(packageName = app.payer.id, name = app.payer.name)
         Spacer(Modifier.width(12.dp))
         val paysFrom = when {
@@ -320,16 +286,13 @@ private fun AppRow(app: PickedApp, cardsBelow: Boolean, onClick: () -> Unit) {
         Column(Modifier.weight(1f).padding(vertical = 16.dp)) {
             Text(
                 text = app.payer.name,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = titleStyle(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = listOfNotNull(paysFrom, last).joinToString(" · "),
-                style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
+                style = detailStyle(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -341,7 +304,7 @@ private fun AppRow(app: PickedApp, cardsBelow: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun CardRow(card: KnownCard, onClick: () -> Unit) {
-    Block(onClick = onClick) {
+    SettingsButtonRow(onClick = onClick, start = 20.dp) {
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
             text = stringResource(R.string.card_digits, card.payer.id),
@@ -354,10 +317,7 @@ private fun CardRow(card: KnownCard, onClick: () -> Unit) {
         Text(
             modifier = Modifier.weight(1f),
             text = card.paysFrom?.let { stringResource(R.string.pays_from, it) }.orEmpty(),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-            ),
+            style = titleStyle(),
             textAlign = TextAlign.End,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

@@ -1,39 +1,37 @@
 package com.nivy.settings
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nivy.design.utils.thenIf
-import com.nivy.ui.R
 import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.White
-import com.nivy.wallet.ui.theme.components.NivySwitch
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberBodyLarge
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
 import com.nivy.design.system.colors.readableTint
+import com.nivy.design.system.typography.numberBodyLarge
+import com.nivy.ui.R
+import com.nivy.wallet.ui.theme.components.NivySwitch
+import com.nivy.wallet.ui.theme.components.SettingsButtonRow
 
 @Composable
 internal fun StartDateOfMonth(
@@ -69,53 +67,6 @@ internal fun StartDateOfMonth(
 
         Text(
             text = startDateOfMonth.toString(),
-            style = MaterialTheme.typography.numberBodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
-
-        Spacer(Modifier.width(32.dp))
-    }
-}
-
-// A setting showing its current value on the right.
-@Composable
-internal fun SettingsValueRow(
-    @DrawableRes icon: Int,
-    label: String,
-    value: String,
-    onClick: () -> Unit
-) {
-    SettingsButtonRow(
-        onClick = onClick
-    ) {
-        Spacer(Modifier.width(12.dp))
-
-        Icon(
-            modifier = Modifier.size(48.dp).padding(12.dp),
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(Modifier.width(8.dp))
-
-        Text(
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 20.dp),
-            text = label,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        Text(
-            text = value,
             style = MaterialTheme.typography.numberBodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.ExtraBold
@@ -294,29 +245,6 @@ internal fun SettingsPrimaryButton(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun SettingsButtonRow(
-    onClick: (() -> Unit)?,
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    content: @Composable RowScope.() -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .background(backgroundColor, MaterialTheme.shapes.medium)
-            .thenIf(onClick != null) {
-                clickable {
-                    onClick?.invoke()
-                }
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        content()
     }
 }
 

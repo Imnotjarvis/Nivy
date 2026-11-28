@@ -10,9 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.db.entity.PaymentSourceEntity
-import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
-import com.nivy.data.model.CreditCard
 import com.nivy.data.model.CreditCardId
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.repository.AccountRepository
@@ -24,7 +22,6 @@ import com.nivy.domain.notification.NotificationsKeptFor
 import com.nivy.domain.notification.PaymentNotificationActions
 import com.nivy.domain.notification.PaymentNotificationReader
 import com.nivy.ui.ComposeViewModel
-import com.nivy.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
@@ -53,9 +50,7 @@ data class PaymentNotificationsState(
     val cards: ImmutableList<KnownCard>,
     val batteryUnrestricted: Boolean,
     val installedFromFile: Boolean,
-    val payer: Payer?,
-    val accounts: ImmutableList<Account>,
-    val creditCards: ImmutableList<CreditCard>,
+    val paysFrom: PaysFromChoice,
 ) {
     /** Set up once an app is picked: the page shows how it's going, not the steps. */
     val setUp: Boolean get() = apps.isNotEmpty()
@@ -66,10 +61,6 @@ sealed interface PaymentNotificationsEvent {
     data object Shown : PaymentNotificationsEvent
     data object Test : PaymentNotificationsEvent
     data class SetAdding(val adding: Boolean) : PaymentNotificationsEvent
-    data class ShowPaysFrom(val payer: Payer?) : PaymentNotificationsEvent
-    data class SetPaysFrom(val payer: Payer, val account: AccountId, val creditCard: CreditCardId?) :
-        PaymentNotificationsEvent
-    data class Remove(val payer: Payer) : PaymentNotificationsEvent
 }
 
 /** Payment notifications' page: Android's access, whether Nivy is listening, the apps and cards. */
@@ -92,9 +83,7 @@ class PaymentNotificationsViewModel @Inject constructor(
     private var apps by mutableStateOf<ImmutableList<PickedApp>>(persistentListOf())
     private var cards by mutableStateOf<ImmutableList<KnownCard>>(persistentListOf())
     private var batteryUnrestricted by mutableStateOf(false)
-    private var payer by mutableStateOf<Payer?>(null)
-    private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private var creditCards by mutableStateOf<ImmutableList<CreditCard>>(persistentListOf())
+    private val paysFrom = PaysFromPicker(actions, userWrites, viewModelScope, ::load)
     private val installedFromFile = PhoneSettings.installedFromFile(context)
 
     @Composable
@@ -111,9 +100,7 @@ class PaymentNotificationsViewModel @Inject constructor(
             cards = cards,
             batteryUnrestricted = batteryUnrestricted,
             installedFromFile = installedFromFile,
-            payer = payer,
-            accounts = accounts,
-            creditCards = creditCards,
+            paysFrom = paysFrom.choice,
         )
     }
 
@@ -122,16 +109,7 @@ class PaymentNotificationsViewModel @Inject constructor(
             PaymentNotificationsEvent.Shown -> viewModelScope.launch { load() }
             PaymentNotificationsEvent.Test -> viewModelScope.launch { test.run() }
             is PaymentNotificationsEvent.SetAdding -> saveAdding(event.adding)
-            is PaymentNotificationsEvent.ShowPaysFrom -> payer = event.payer
-            is PaymentNotificationsEvent.SetPaysFrom -> write {
-                val payer = event.payer
-                if (payer.kind == PaymentSourceEntity.Card) {
-                    actions.setCardAccount(payer.id, event.account, event.creditCard)
-                } else {
-                    actions.setAppAccount(payer.id, payer.name, event.account, event.creditCard)
-                }
-            }
-            is PaymentNotificationsEvent.Remove -> write { actions.remove(event.payer.kind, event.payer.id) }
+            is PaysFromEvent -> paysFrom.onEvent(event)
         }
     }
 
@@ -140,21 +118,13 @@ class PaymentNotificationsViewModel @Inject constructor(
         viewModelScope.launch { appPreferences.setAddFromNotifications(add) }
     }
 
-    private fun write(change: suspend () -> Unit) {
-        viewModelScope.launch {
-            userWrites.run(R.string.msg_change_not_saved) { change() }
-            load()
-        }
-    }
-
     private suspend fun load() {
         granted = access.granted()
         batteryUnrestricted = PhoneSettings.batteryUnrestricted(context)
         adding = appPreferences.addFromNotifications()
         val allAccounts = accountRepository.findAll()
         val allCards = creditCardRepository.findAll()
-        accounts = allAccounts.toImmutableList()
-        creditCards = allCards.toImmutableList()
+        paysFrom.loaded(allAccounts, allCards)
         val read = repository.findSince(timeProvider.utcNow() - NotificationsKeptFor)
         lastPayment = read.firstOrNull()?.postTime
         val sources = repository.findSources()

@@ -21,7 +21,7 @@ class NotificationDecisionsTest {
 
     @Test
     fun `what isn't a payment is ignored or kept as not added, with why`() {
-        decide(posted(intesa, "Codice 1234"), Reading.Ignored(NotMoney.Code)) shouldBe
+        decide(posted(intesa, "Codice 1234"), Reading.Ignored(Why.Code)) shouldBe
             Decision.Keep(Outcome.Ignored, Why.Code)
         decide(posted(intesa, "Hai ricevuto"), payment.copy(way = MoneyWay.Received)) shouldBe
             Decision.Keep(Outcome.NotAdded, Why.MoneyIn)
