@@ -10,6 +10,7 @@ import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
+import com.nivy.data.db.entity.PaymentSourceEntity
 import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TagEntity
@@ -52,6 +53,9 @@ data class NivyCompleteData(
     val exchangeRates: List<ExchangeRateEntity> = emptyList(),
     @SerialName("quickAdds")
     val quickAdds: List<QuickAddEntity> = emptyList(),
+    /** The apps picked for payment notifications, and the cards seen, with their accounts. */
+    @SerialName("paymentSources")
+    val paymentSources: List<PaymentSourceEntity> = emptyList(),
 )
 
 /**

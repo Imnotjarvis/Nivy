@@ -15,7 +15,7 @@ empty, so a backup from an older version imports, and an older version can impor
 
 | Key | Holds |
 |---|---|
-| `accounts`, `categories`, `transactions`, `budgets`, `loans`, `loanRecords`, `plannedPaymentRules`, `tags`, `tagAssociations`, `creditCards`, `accountValues`, `quickAdds` | The database's rows, field for field (the entities' `@SerialName`s). |
+| `accounts`, `categories`, `transactions`, `budgets`, `loans`, `loanRecords`, `plannedPaymentRules`, `tags`, `tagAssociations`, `creditCards`, `accountValues`, `quickAdds`, `paymentSources` | The database's rows, field for field (the entities' `@SerialName`s). `paymentSources` are the apps picked for payment notifications and the cards seen in them, with the accounts they pay from; the notifications themselves aren't backed up. |
 | `exchangeRates` | The exchange rates entered by hand (`manualOverride`). Downloaded ones aren't kept: they're downloaded again. |
 | `settings` | One entry: `theme`, `currency` (the base currency), `bufferAmount` (the savings goal) and `name`. |
 | `sharedPrefs` | A few display settings as strings, under their old SharedPreferences names: notifications, hiding the balance, transfers as income and expense, and the app lock. |

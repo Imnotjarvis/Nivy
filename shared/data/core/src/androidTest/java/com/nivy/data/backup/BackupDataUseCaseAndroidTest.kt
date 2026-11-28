@@ -82,6 +82,8 @@ class BackupDataUseCaseAndroidTest {
             exchangeRatesWriter = db.writeExchangeRatesDao,
             quickAddDao = db.quickAddDao,
             quickAddWriter = db.writeQuickAddDao,
+            paymentSourceDao = db.paymentSourceDao,
+            paymentSourceWriter = db.writePaymentSourceDao,
             transaction = DatabaseTransaction(db, DataObserver()),
         )
     }
@@ -137,6 +139,7 @@ class BackupDataUseCaseAndroidTest {
         accountValues = db.accountValueDao.findAll(),
         exchangeRates = db.exchangeRatesDao.findAllManuallyOverridden(),
         quickAdds = db.quickAddDao.findAll(),
+        paymentSources = db.paymentSourceDao.findAll(),
     ).tables()
 
     private suspend fun shouldHaveTheBackupsSettingsAndBalances() {
@@ -240,6 +243,7 @@ private fun NivyCompleteData.tables() = NivyCompleteData(
     accountValues = accountValues.sortedBy { it.id },
     exchangeRates = exchangeRates.sortedBy { "${it.baseCurrency} ${it.currency}" },
     quickAdds = quickAdds.sortedBy { it.id },
+    paymentSources = paymentSources.sortedBy { "${it.kind} ${it.id}" },
 )
 
 private val Far: Instant = Instant.parse("3000-01-01T00:00:00Z")

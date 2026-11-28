@@ -16,6 +16,8 @@ import com.nivy.data.db.dao.read.CreditCardDao
 import com.nivy.data.db.dao.read.ExchangeRatesDao
 import com.nivy.data.db.dao.read.LoanDao
 import com.nivy.data.db.dao.read.LoanRecordDao
+import com.nivy.data.db.dao.read.PaymentNotificationDao
+import com.nivy.data.db.dao.read.PaymentSourceDao
 import com.nivy.data.db.dao.read.PlannedPaymentRuleDao
 import com.nivy.data.db.dao.read.QuickAddDao
 import com.nivy.data.db.dao.read.TagAssociationDao
@@ -29,6 +31,8 @@ import com.nivy.data.db.dao.write.WriteCreditCardDao
 import com.nivy.data.db.dao.write.WriteExchangeRatesDao
 import com.nivy.data.db.dao.write.WriteLoanDao
 import com.nivy.data.db.dao.write.WriteLoanRecordDao
+import com.nivy.data.db.dao.write.WritePaymentNotificationDao
+import com.nivy.data.db.dao.write.WritePaymentSourceDao
 import com.nivy.data.db.dao.write.WritePlannedPaymentRuleDao
 import com.nivy.data.db.dao.write.WriteQuickAddDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
@@ -42,6 +46,8 @@ import com.nivy.data.db.entity.CreditCardEntity
 import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
+import com.nivy.data.db.entity.PaymentNotificationEntity
+import com.nivy.data.db.entity.PaymentSourceEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
 import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TagAssociationEntity
@@ -80,6 +86,7 @@ import com.nivy.data.db.migration.Migration135to136_CreditCards
         PlannedPaymentRuleEntity::class, ExchangeRateEntity::class, BudgetEntity::class,
         LoanEntity::class, LoanRecordEntity::class, TagEntity::class, TagAssociationEntity::class,
         CreditCardEntity::class, AccountValueEntity::class, QuickAddEntity::class,
+        PaymentNotificationEntity::class, PaymentSourceEntity::class,
     ],
     autoMigrations = [
         AutoMigration(
@@ -99,8 +106,10 @@ import com.nivy.data.db.migration.Migration135to136_CreditCards
         AutoMigration(from = 137, to = 138),
         // 139: quick adds, the transactions kept to add again in one tap.
         AutoMigration(from = 138, to = 139),
+        // 140: the payment notifications read, and the apps and cards their money comes from.
+        AutoMigration(from = 139, to = 140),
     ],
-    version = 139,
+    version = 140,
     exportSchema = true
 )
 @TypeConverters(RoomTypeConverters::class)
@@ -118,6 +127,8 @@ abstract class NivyRoomDatabase : RoomDatabase() {
     abstract val creditCardDao: CreditCardDao
     abstract val accountValueDao: AccountValueDao
     abstract val quickAddDao: QuickAddDao
+    abstract val paymentNotificationDao: PaymentNotificationDao
+    abstract val paymentSourceDao: PaymentSourceDao
 
     abstract val writeAccountDao: WriteAccountDao
     abstract val writeTransactionDao: WriteTransactionDao
@@ -132,6 +143,8 @@ abstract class NivyRoomDatabase : RoomDatabase() {
     abstract val writeCreditCardDao: WriteCreditCardDao
     abstract val writeAccountValueDao: WriteAccountValueDao
     abstract val writeQuickAddDao: WriteQuickAddDao
+    abstract val writePaymentNotificationDao: WritePaymentNotificationDao
+    abstract val writePaymentSourceDao: WritePaymentSourceDao
 
     companion object {
         const val DB_NAME = "ivywallet.db"

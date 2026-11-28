@@ -11,6 +11,8 @@ import com.nivy.data.db.dao.read.ExchangeRatesDao
 import com.nivy.data.db.dao.read.LoanDao
 import com.nivy.data.db.dao.read.LoanRecordDao
 import com.nivy.data.db.dao.read.PlannedPaymentRuleDao
+import com.nivy.data.db.dao.read.PaymentNotificationDao
+import com.nivy.data.db.dao.read.PaymentSourceDao
 import com.nivy.data.db.dao.read.QuickAddDao
 import com.nivy.data.db.dao.read.TagAssociationDao
 import com.nivy.data.db.dao.read.TagDao
@@ -24,6 +26,8 @@ import com.nivy.data.db.dao.write.WriteExchangeRatesDao
 import com.nivy.data.db.dao.write.WriteLoanDao
 import com.nivy.data.db.dao.write.WriteLoanRecordDao
 import com.nivy.data.db.dao.write.WritePlannedPaymentRuleDao
+import com.nivy.data.db.dao.write.WritePaymentNotificationDao
+import com.nivy.data.db.dao.write.WritePaymentSourceDao
 import com.nivy.data.db.dao.write.WriteQuickAddDao
 import com.nivy.data.db.dao.write.WriteTagAssociationDao
 import com.nivy.data.db.dao.write.WriteTagDao
@@ -87,6 +91,16 @@ object RoomDbModule {
     @Provides
     fun provideQuickAddDao(db: NivyRoomDatabase): QuickAddDao {
         return db.quickAddDao
+    }
+
+    @Provides
+    fun providePaymentNotificationDao(db: NivyRoomDatabase): PaymentNotificationDao {
+        return db.paymentNotificationDao
+    }
+
+    @Provides
+    fun providePaymentSourceDao(db: NivyRoomDatabase): PaymentSourceDao {
+        return db.paymentSourceDao
     }
 
     @Provides
@@ -154,6 +168,16 @@ object RoomDbModule {
     @Provides
     fun provideWriteQuickAddDao(db: NivyRoomDatabase): WriteQuickAddDao {
         return db.writeQuickAddDao
+    }
+
+    @Provides
+    fun provideWritePaymentNotificationDao(db: NivyRoomDatabase): WritePaymentNotificationDao {
+        return db.writePaymentNotificationDao
+    }
+
+    @Provides
+    fun provideWritePaymentSourceDao(db: NivyRoomDatabase): WritePaymentSourceDao {
+        return db.writePaymentSourceDao
     }
 
     @Provides

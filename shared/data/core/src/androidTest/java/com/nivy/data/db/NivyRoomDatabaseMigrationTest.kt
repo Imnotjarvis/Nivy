@@ -31,6 +31,28 @@ class NivyRoomDatabaseMigrationTest {
     )
 
     @Test
+    fun migrate139to140_PaymentNotifications() {
+        helper.createDatabase(TestDb, 139).close()
+
+        // Two new tables: Room adds them, and checks the schema.
+        val newDb = helper.runMigrationsAndValidate(TestDb, 140, true)
+
+        newDb.execSQL(
+            "INSERT INTO payment_sources (kind, id, name, accountId, creditCardId) " +
+                "VALUES ('app', 'test.bank', 'Bank', '${UUID.randomUUID()}', NULL)"
+        )
+        newDb.query("SELECT name FROM payment_sources WHERE kind = 'app' AND id = 'test.bank'").use {
+            it.moveToFirst()
+            it.getString(0) shouldBe "Bank"
+        }
+        newDb.query("SELECT COUNT(*) FROM payment_notifications").use {
+            it.moveToFirst()
+            it.getInt(0) shouldBe 0
+        }
+        newDb.close()
+    }
+
+    @Test
     fun migrate138to139_QuickAdds() {
         helper.createDatabase(TestDb, 138).close()
 

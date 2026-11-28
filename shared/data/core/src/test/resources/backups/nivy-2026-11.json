@@ -311,6 +311,21 @@
       "id": "9b9b9b9b-0000-4000-8000-000000000003"
     }
   ],
+  "paymentSources": [
+    {
+      "kind": "app",
+      "id": "test.bank",
+      "name": "Bank",
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000001"
+    },
+    {
+      "kind": "card",
+      "id": "1501",
+      "name": null,
+      "accountId": "aaaaaaaa-0000-4000-8000-000000000003",
+      "creditCardId": "c0c0c0c0-0000-4000-8000-000000000001"
+    }
+  ],
   "budgets": [
     {
       "name": "Food",
