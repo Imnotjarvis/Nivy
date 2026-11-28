@@ -256,18 +256,19 @@ class TransactionsViewModel @Inject constructor(
 
         val includeTransfersInCalc = appPreferences.transfersAsIncomeExpense()
 
-        val incomeExpensePair = accountIncomeExpenseUseCase.incomeExpense(
+        // The account's transactions in the period, read once: its totals, history and chart all come from them.
+        val accountTransactions = accountTransactionsUseCase.transactions(
+            accountId = initialAccount.id.value,
+            range = range.toCloseTimeRange()
+        )
+        val incomeExpensePair = accountIncomeExpenseUseCase.incomeExpenseOf(
             account = initialAccount,
-            range = range.toCloseTimeRange(),
+            transactions = accountTransactions,
             includeTransfersInCalc = includeTransfersInCalc
         )
         income.doubleValue = incomeExpensePair.income.toDouble()
         expenses.doubleValue = incomeExpensePair.expense.toDouble()
 
-        val accountTransactions = accountTransactionsUseCase.transactions(
-            accountId = initialAccount.id.value,
-            range = range.toCloseTimeRange()
-        )
         history.value = transactionsWithDateDividersUseCase.withDateDividers(
             baseCurrency = baseCurrency.value,
             transactions = accountTransactions.filter { it.settled }
