@@ -130,16 +130,7 @@ internal fun BoxWithConstraintsScope.UI(
         onAppInfo = { PhoneSettings.openAppInfo(context) },
     )
 
-    PaysFromModal(
-        payer = state.payer,
-        accounts = state.accounts,
-        creditCards = state.creditCards,
-        dismiss = { onEvent(PaymentNotificationsEvent.ShowPaysFrom(null)) },
-        onChoose = { payer, account, creditCard ->
-            onEvent(PaymentNotificationsEvent.SetPaysFrom(payer, account, creditCard))
-        },
-        onRemove = { onEvent(PaymentNotificationsEvent.Remove(it)) },
-    )
+    PaysFromModal(state.paysFrom, onEvent)
 }
 
 private fun LazyListScope.firstTime(
@@ -198,7 +189,7 @@ private fun LazyListScope.setUp(
     }
     items(state.apps, key = { "app " + it.payer.id }) { app ->
         AppRow(app = app, cardsBelow = state.cards.isNotEmpty()) {
-            onEvent(PaymentNotificationsEvent.ShowPaysFrom(app.payer))
+            onEvent(PaysFromEvent.Show(app.payer))
         }
         Spacer(Modifier.height(12.dp))
     }
@@ -213,7 +204,7 @@ private fun LazyListScope.setUp(
     if (state.cards.isNotEmpty()) {
         item { SectionLabel(stringResource(R.string.cards)) }
         items(state.cards, key = { "card " + it.payer.id }) { card ->
-            CardRow(card) { onEvent(PaymentNotificationsEvent.ShowPaysFrom(card.payer)) }
+            CardRow(card) { onEvent(PaysFromEvent.Show(card.payer)) }
             Spacer(Modifier.height(12.dp))
         }
     }

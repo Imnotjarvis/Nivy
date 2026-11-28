@@ -30,10 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.nivy.data.db.entity.PaymentSourceEntity
-import com.nivy.data.model.Account
-import com.nivy.data.model.AccountId
-import com.nivy.data.model.CreditCard
-import com.nivy.data.model.CreditCardId
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PaymentNotificationRepository
@@ -54,7 +50,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -65,17 +60,8 @@ data class AppChoice(val payer: Payer, val paysFrom: String?)
 @Immutable
 data class NotificationAppsState(
     val apps: ImmutableList<AppChoice>,
-    val payer: Payer?,
-    val accounts: ImmutableList<Account>,
-    val creditCards: ImmutableList<CreditCard>,
+    val paysFrom: PaysFromChoice,
 )
-
-sealed interface NotificationAppsEvent {
-    data class ShowPaysFrom(val payer: Payer?) : NotificationAppsEvent
-    data class SetPaysFrom(val payer: Payer, val account: AccountId, val creditCard: CreditCardId?) :
-        NotificationAppsEvent
-    data class Remove(val payer: Payer) : NotificationAppsEvent
-}
 
 /** The phone's apps to pick for payment notifications: the ones picked first, then the rest by name. */
 @HiltViewModel
@@ -86,40 +72,22 @@ class NotificationAppsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val creditCardRepository: CreditCardRepository,
     private val userWrites: UserWrites,
-) : ComposeViewModel<NotificationAppsState, NotificationAppsEvent>() {
+) : ComposeViewModel<NotificationAppsState, PaysFromEvent>() {
     private var apps by mutableStateOf<ImmutableList<AppChoice>>(persistentListOf())
-    private var payer by mutableStateOf<Payer?>(null)
-    private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private var creditCards by mutableStateOf<ImmutableList<CreditCard>>(persistentListOf())
+    private val paysFrom = PaysFromPicker(actions, userWrites, viewModelScope, ::load)
 
     @Composable
     override fun uiState(): NotificationAppsState {
         LaunchedEffect(Unit) { load() }
-        return NotificationAppsState(apps = apps, payer = payer, accounts = accounts, creditCards = creditCards)
+        return NotificationAppsState(apps = apps, paysFrom = paysFrom.choice)
     }
 
-    override fun onEvent(event: NotificationAppsEvent) {
-        when (event) {
-            is NotificationAppsEvent.ShowPaysFrom -> payer = event.payer
-            is NotificationAppsEvent.SetPaysFrom -> write {
-                actions.setAppAccount(event.payer.id, event.payer.name, event.account, event.creditCard)
-            }
-            is NotificationAppsEvent.Remove -> write { actions.remove(PaymentSourceEntity.App, event.payer.id) }
-        }
-    }
-
-    private fun write(change: suspend () -> Unit) {
-        viewModelScope.launch {
-            userWrites.run(R.string.msg_change_not_saved) { change() }
-            load()
-        }
-    }
+    override fun onEvent(event: PaysFromEvent) = paysFrom.onEvent(event)
 
     private suspend fun load() {
         val allAccounts = accountRepository.findAll()
         val allCards = creditCardRepository.findAll()
-        accounts = allAccounts.toImmutableList()
-        creditCards = allCards.toImmutableList()
+        paysFrom.loaded(allAccounts, allCards)
         val picked = repository.findSources().filter { it.kind == PaymentSourceEntity.App }.associateBy { it.id }
         val installed = withContext(Dispatchers.IO) { PhoneSettings.launchableApps(context) }
         apps = installed
@@ -152,7 +120,7 @@ fun BoxWithConstraintsScope.NotificationAppsScreen() {
 @Composable
 internal fun BoxWithConstraintsScope.NotificationAppsUI(
     state: NotificationAppsState,
-    onEvent: (NotificationAppsEvent) -> Unit,
+    onEvent: (PaysFromEvent) -> Unit,
 ) {
     val onBack = rememberOnBack()
     var query by remember { mutableStateOf(TextFieldValue()) }
@@ -179,22 +147,13 @@ internal fun BoxWithConstraintsScope.NotificationAppsUI(
             Spacer(Modifier.height(16.dp))
         }
         items(shown, key = { it.payer.id }) { app ->
-            AppChoiceRow(app) { onEvent(NotificationAppsEvent.ShowPaysFrom(app.payer)) }
+            AppChoiceRow(app) { onEvent(PaysFromEvent.Show(app.payer)) }
             Spacer(Modifier.height(12.dp))
         }
         item { Spacer(Modifier.height(48.dp)) }
     }
 
-    PaysFromModal(
-        payer = state.payer,
-        accounts = state.accounts,
-        creditCards = state.creditCards,
-        dismiss = { onEvent(NotificationAppsEvent.ShowPaysFrom(null)) },
-        onChoose = { payer, account, creditCard ->
-            onEvent(NotificationAppsEvent.SetPaysFrom(payer, account, creditCard))
-        },
-        onRemove = { onEvent(NotificationAppsEvent.Remove(it)) },
-    )
+    PaysFromModal(state.paysFrom, onEvent)
 }
 
 @Composable

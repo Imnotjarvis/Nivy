@@ -103,9 +103,8 @@ sealed interface AddedFromNotificationsEvent {
     data class Undo(val id: UUID) : AddedFromNotificationsEvent
     data class AddBack(val id: UUID) : AddedFromNotificationsEvent
 
-    /** The other apps' notifications of a payment, added as payments of their own. */
-    data class Separate(val ids: List<UUID>) : AddedFromNotificationsEvent
-    data class Add(val id: UUID) : AddedFromNotificationsEvent
+    /** Notifications added as payments of their own: one not added, or the other apps' ones of a payment. */
+    data class Add(val ids: List<UUID>) : AddedFromNotificationsEvent
     data class Dismiss(val id: UUID) : AddedFromNotificationsEvent
     data class SetCardAccount(val card: String, val account: AccountId) : AddedFromNotificationsEvent
     data object AllGood : AddedFromNotificationsEvent
@@ -145,8 +144,7 @@ class AddedFromNotificationsViewModel @Inject constructor(
         when (event) {
             is AddedFromNotificationsEvent.Undo -> write { actions.undo(event.id) }
             is AddedFromNotificationsEvent.AddBack -> write { actions.addBack(event.id) }
-            is AddedFromNotificationsEvent.Separate -> write { event.ids.forEach { actions.add(it) } }
-            is AddedFromNotificationsEvent.Add -> write { actions.add(event.id) }
+            is AddedFromNotificationsEvent.Add -> write { event.ids.forEach { actions.add(it) } }
             is AddedFromNotificationsEvent.Dismiss -> write { actions.dismiss(event.id) }
             is AddedFromNotificationsEvent.SetCardAccount -> write {
                 actions.setCardAccount(event.card, event.account, creditCard = null)
@@ -155,12 +153,7 @@ class AddedFromNotificationsViewModel @Inject constructor(
         }
     }
 
-    private fun write(change: suspend () -> Unit) {
-        viewModelScope.launch {
-            userWrites.run(R.string.msg_change_not_saved) { change() }
-            load()
-        }
-    }
+    private fun write(change: suspend () -> Unit) = viewModelScope.write(userWrites, ::load, change)
 
     private suspend fun load() {
         val base = currencyRepository.getBaseCurrency()
@@ -373,7 +366,7 @@ private fun ColumnScope.Checks(
             )
             Spacer(Modifier.width(8.dp))
             SmallPill(text = stringResource(R.string.separate)) {
-                onEvent(AddedFromNotificationsEvent.Separate(item.alsoIn.map { it.id }))
+                onEvent(AddedFromNotificationsEvent.Add(item.alsoIn.map { it.id }))
             }
         }
     }
@@ -472,7 +465,7 @@ private fun NotAdded(item: ListedNotification, onEvent: (AddedFromNotificationsE
                 text = stringResource(addLabel(item.why)),
                 background = MaterialTheme.colorScheme.onSurface,
                 content = MaterialTheme.colorScheme.surface,
-            ) { onEvent(AddedFromNotificationsEvent.Add(notification.id)) }
+            ) { onEvent(AddedFromNotificationsEvent.Add(listOf(notification.id))) }
         }
     }
 }
