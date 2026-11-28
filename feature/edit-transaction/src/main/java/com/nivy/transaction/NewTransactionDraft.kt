@@ -3,6 +3,7 @@ package com.nivy.transaction
 import com.nivy.data.model.Account
 import com.nivy.data.model.CreditCard
 import com.nivy.data.preferences.AppPreferences
+import com.nivy.domain.usecase.creditcard.defaultCreditCard
 import com.nivy.navigation.EditTransactionScreen
 import com.nivy.wallet.domain.pure.account.startingAccount
 import java.util.UUID

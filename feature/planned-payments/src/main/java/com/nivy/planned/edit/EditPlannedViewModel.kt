@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
-import com.nivy.base.model.AccountType
 import com.nivy.base.model.IntervalType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.TimeConverter
@@ -37,6 +36,8 @@ import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.UserWrites
 import com.nivy.domain.usecase.category.MostUsedCategoriesUseCase
+import com.nivy.domain.usecase.creditcard.accountCreditCards
+import com.nivy.domain.usecase.creditcard.defaultCreditCard
 import com.nivy.domain.usecase.planned.PlannedPaymentsGenerator
 import com.nivy.navigation.EditPlannedScreen
 import com.nivy.navigation.Navigation
@@ -128,7 +129,7 @@ class EditPlannedViewModel @Inject constructor(
             endDate = endDate,
             account = account,
             toAccount = toAccount,
-            creditCards = accountCreditCards(),
+            creditCards = accountCreditCards(transactionType, allCreditCards, account),
             creditCard = creditCard,
             category = category,
             amount = amount,
@@ -258,7 +259,7 @@ class EditPlannedViewModel @Inject constructor(
         account = accounts.find { it.id.value == screen.accountId } ?: accounts.first()
         toAccount = screen.toAccountId?.let { id -> accounts.find { it.id.value == id } }
         creditCard = screen.creditCardId?.let { id -> allCreditCards.find { it.id.value == id } }
-            ?: account?.let { defaultCreditCard(it, transactionType) }
+            ?: account?.let { defaultCreditCard(allCreditCards, it, transactionType) }
         repeatedTransaction = screen.repeatedTransactionId?.let(::TransactionId)
         category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
         amount = screen.amount ?: 0.0
@@ -306,7 +307,7 @@ class EditPlannedViewModel @Inject constructor(
 
     private fun updateAccount(newAccount: Account) {
         // Another account's card can't pay it: the one its new expenses start on instead.
-        if (newAccount.id != account?.id) creditCard = defaultCreditCard(newAccount, transactionType)
+        if (newAccount.id != account?.id) creditCard = defaultCreditCard(allCreditCards, newAccount, transactionType)
         this@EditPlannedViewModel.account = newAccount
         updateCurrency(account = newAccount)
 
@@ -328,7 +329,7 @@ class EditPlannedViewModel @Inject constructor(
     private fun updateTransactionType(newTransactionType: TransactionType) {
         // Only an expense or a transfer is paid with a card.
         if (newTransactionType != transactionType) {
-            creditCard = account?.let { defaultCreditCard(it, newTransactionType) }
+            creditCard = account?.let { defaultCreditCard(allCreditCards, it, newTransactionType) }
         }
         this@EditPlannedViewModel.transactionType = newTransactionType
 
@@ -337,19 +338,6 @@ class EditPlannedViewModel @Inject constructor(
             mostUsedCategories = mostUsedCategoriesUseCase.mostUsed(newTransactionType).toImmutableList()
         }
     }
-
-    /** The cards of the account a planned expense or transfer can be paid with. */
-    private fun accountCreditCards(): ImmutableList<CreditCard> =
-        if (transactionType != TransactionType.INCOME) {
-            allCreditCards.filter { it.account == account?.id }.toImmutableList()
-        } else {
-            persistentListOf()
-        }
-
-    /** What a new expense on [account] is paid with: a credit card account's own card. */
-    private fun defaultCreditCard(account: Account, type: TransactionType): CreditCard? =
-        allCreditCards.firstOrNull { it.account == account.id }
-            ?.takeIf { type == TransactionType.EXPENSE && account.type == AccountType.CREDIT_CARD }
 
     private fun saveIfEditMode() {
         if (editMode) {
