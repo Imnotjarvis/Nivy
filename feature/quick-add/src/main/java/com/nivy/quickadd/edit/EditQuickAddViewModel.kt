@@ -36,8 +36,6 @@ import com.nivy.wallet.domain.logic.AccountCreator
 import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
-import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -77,12 +75,6 @@ class EditQuickAddViewModel @Inject constructor(
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private var categoryModalVisible by mutableStateOf(false)
-    private var categoryModalData by mutableStateOf<CategoryModalData?>(null)
-    private var accountModalData by mutableStateOf<AccountModalData?>(null)
-    private var deleteModalVisible by mutableStateOf(false)
-    private var typeModalVisible by mutableStateOf(false)
-    private var amountModalVisible by mutableStateOf(false)
 
     private var id: QuickAddId? = null
     private var orderNum = 0.0
@@ -102,12 +94,6 @@ class EditQuickAddViewModel @Inject constructor(
         creditCard = creditCard,
         category = category,
         amount = amount,
-        categoryModalVisible = categoryModalVisible,
-        categoryModalData = categoryModalData,
-        accountModalData = accountModalData,
-        deleteModalVisible = deleteModalVisible,
-        typeModalVisible = typeModalVisible,
-        amountModalVisible = amountModalVisible,
         canSave = quickAdd() != null,
     )
 
@@ -123,12 +109,6 @@ class EditQuickAddViewModel @Inject constructor(
             is EditQuickAddEvent.OnCreateCategory -> createCategory(event.data)
             is EditQuickAddEvent.OnEditCategory -> editCategory(event.category)
             is EditQuickAddEvent.OnCreateAccount -> createAccount(event.data)
-            is EditQuickAddEvent.OnCategoryModalVisible -> categoryModalVisible = event.visible
-            is EditQuickAddEvent.OnCategoryModalDataChanged -> categoryModalData = event.data
-            is EditQuickAddEvent.OnAccountModalDataChanged -> accountModalData = event.data
-            is EditQuickAddEvent.OnTypeModalVisible -> typeModalVisible = event.visible
-            is EditQuickAddEvent.OnAmountModalVisible -> amountModalVisible = event.visible
-            is EditQuickAddEvent.OnDeleteModalVisible -> deleteModalVisible = event.visible
             EditQuickAddEvent.OnSave -> save(closeScreen = true)
             EditQuickAddEvent.OnDelete -> delete()
         }
@@ -236,7 +216,6 @@ class EditQuickAddViewModel @Inject constructor(
     }.getOrNull()
 
     private fun delete() {
-        deleteModalVisible = false
         val id = id ?: return
         viewModelScope.launch {
             val deleted = userWrites.run(R.string.msg_change_not_saved) { quickAddRepository.deleteById(id) }
