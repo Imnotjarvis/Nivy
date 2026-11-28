@@ -87,7 +87,7 @@ class DeleteAllDataUseCaseTest {
         // when
         useCase()
 
-        // then: all eleven repositories' tables
+        // then: all twelve repositories' tables
         deletes shouldBe List(12) { true }
     }
 

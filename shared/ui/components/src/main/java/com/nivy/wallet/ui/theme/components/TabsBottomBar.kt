@@ -49,7 +49,6 @@ import com.nivy.design.system.colors.White
 import com.nivy.design.system.colors.readableTint
 import com.nivy.design.system.motion.PanelSolidAt
 import com.nivy.design.system.motion.appearTween
-import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.shapes.ShapeTop
 import com.nivy.design.system.shapes.nestedShape
 import com.nivy.design.utils.LocalScreenSize
@@ -69,7 +68,7 @@ private val BarHeight = 64.dp
 
 // The bar keeps the blocks' margin from the screen's edges and from its bottom, above the
 // navigation bar.
-private val BarMargin = AppCornerRadius.ScreenMargin
+private val BarMargin = 16.dp
 
 // Between the tabs and the + button, as between the menu's buttons; around the selected tab
 // inside the tabs.

@@ -599,7 +599,6 @@
     <string name="trends_over_three_months">Over 3 months</string>
     <string name="trends_over_six_months">Over 6 months</string>
     <string name="trends_over_the_year">Over the year</string>
-    <string name="trends_over_since">Since %1$s</string>
     <string name="trends_actual">Actual</string>
     <string name="trends_adjusted">Adjusted</string>
     <string name="trends_adjusted_amount">%1$s %2$s adjusted</string>

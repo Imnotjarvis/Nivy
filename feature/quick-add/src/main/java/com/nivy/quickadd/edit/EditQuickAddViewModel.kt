@@ -73,7 +73,6 @@ class EditQuickAddViewModel @Inject constructor(
     private var creditCard by mutableStateOf<CreditCard?>(null)
     private var category by mutableStateOf<Category?>(null)
     private var amount by mutableDoubleStateOf(0.0)
-    private var currency by mutableStateOf("")
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
@@ -92,7 +91,7 @@ class EditQuickAddViewModel @Inject constructor(
     override fun uiState(): EditQuickAddState = EditQuickAddState(
         type = type,
         initialTitle = initialTitle,
-        currency = currency,
+        currency = account?.asset?.code.orEmpty(),
         categories = categories,
         mostUsedCategories = mostUsedCategories,
         accounts = accounts,
@@ -165,7 +164,6 @@ class EditQuickAddViewModel @Inject constructor(
         creditCard = allCreditCards.find { it.id == quickAdd.creditCard }
         category = quickAdd.category?.let { categoryRepository.findById(it) }
         amount = quickAdd.amount?.value ?: 0.0
-        account?.let { currency = it.asset.code }
     }
 
     private suspend fun displayNew(screen: EditQuickAddScreen, accounts: List<Account>) {
@@ -182,7 +180,6 @@ class EditQuickAddViewModel @Inject constructor(
             ?: defaultCreditCard(account, type)
         category = screen.categoryId?.let { categoryRepository.findById(CategoryId(it)) }
         amount = screen.amount ?: 0.0
-        currency = account.asset.code
     }
 
     private fun updateType(newType: TransactionType) {
@@ -197,7 +194,6 @@ class EditQuickAddViewModel @Inject constructor(
     private fun updateAccount(newAccount: Account) {
         // Another account's card can't pay it: the one its new expenses start on instead.
         if (newAccount.id != account?.id) creditCard = defaultCreditCard(newAccount, type)
-        currency = newAccount.asset.code
         changed { account = newAccount }
     }
 

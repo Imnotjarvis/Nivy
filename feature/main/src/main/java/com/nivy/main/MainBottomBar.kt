@@ -88,15 +88,8 @@ internal fun BoxWithConstraintsScope.BottomBar(
     )
     val shown by remember { derivedStateOf { appeared.value > 0f } }
 
-    val fabRotation by animateFloatAsState(
-        targetValue = if (expanded) 45f else 0f,
-        animationSpec = appearTween()
-    )
-
-    val buttonsShownPercent by appeared
-
     TabsBottomBar(
-        contentAlpha = 1f - buttonsShownPercent,
+        contentAlpha = 1f - appeared.value,
         start = {
             BottomBarTab(
                 icon = R.drawable.ic_home,
@@ -189,7 +182,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
 
     // + & x button
     BottomBarFab(
-        iconRotation = fabRotation,
+        iconRotation = 45f * appeared.value,
         modifier = Modifier.testTag("fab_add"),
         backgroundColor = when (tab) {
             MainTab.HOME -> {

@@ -89,13 +89,12 @@ internal fun SectionLabel(text: String) {
 /** A row of Settings: in 16 dp from the screen's sides, in the theme's light grey. */
 @Composable
 internal fun Block(
-    modifier: Modifier = Modifier,
     start: Dp = 20.dp,
     onClick: (() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
@@ -281,7 +280,7 @@ private fun StepNumber(number: Int, size: Dp = 32.dp) {
 
 /** An app's icon from the phone, or its name's first letter when the phone can't give it. */
 @Composable
-internal fun AppIcon(packageName: String, name: String?, size: Dp = 40.dp) {
+internal fun AppIcon(packageName: String, name: String, size: Dp = 40.dp) {
     val context = LocalContext.current
     val pixels = with(LocalDensity.current) { size.roundToPx() }
     val icon by produceState<ImageBitmap?>(null, packageName, pixels) {
@@ -296,7 +295,7 @@ internal fun AppIcon(packageName: String, name: String?, size: Dp = 40.dp) {
             Image(bitmap = bitmap, contentDescription = null, modifier = Modifier.size(size))
         } else {
             Text(
-                text = (name ?: packageName).take(1).uppercase(),
+                text = name.take(1).uppercase(),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold,

@@ -21,9 +21,6 @@ import kotlin.math.abs
  * redraws the app.
  */
 object AppCornerRadius {
-    /** The margin blocks keep from the screen's edge. */
-    val ScreenMargin = 16.dp
-
     /** The radius the user picked in the settings, or null to match the phone. */
     var setting: Dp? by mutableStateOf(null)
 

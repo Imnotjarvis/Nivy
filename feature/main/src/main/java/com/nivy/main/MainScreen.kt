@@ -5,7 +5,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,8 +52,6 @@ import java.util.UUID
 fun BoxWithConstraintsScope.MainScreen() {
     val viewModel: MainViewModel = viewModel()
 
-    val currency by viewModel.currency.observeAsState("")
-
     LaunchedEffect(Unit) {
         viewModel.start()
     }
@@ -66,7 +63,6 @@ fun BoxWithConstraintsScope.MainScreen() {
     }
     UI(
         tab = mainScreenState.tab,
-        baseCurrency = currency,
         selectTab = viewModel::selectTab,
         onCreateAccount = viewModel::createAccount,
         quickAdds = viewModel.quickAdds,
@@ -150,8 +146,6 @@ internal fun BoxWithConstraintsScope.QuickAddedMessage(
 private fun BoxWithConstraintsScope.UI(
     tab: MainTab,
 
-    baseCurrency: String,
-
     selectTab: (MainTab) -> Unit,
     onCreateAccount: (CreateAccountData) -> Unit,
     quickAdds: ImmutableList<QuickAdd>,
@@ -216,7 +210,7 @@ private fun BoxWithConstraintsScope.UI(
             accountModalData = AccountModalData(
                 account = null,
                 balance = 0.0,
-                baseCurrency = baseCurrency
+                baseCurrency = baseData.baseCurrency
             )
         }
     )
@@ -239,7 +233,6 @@ private fun PreviewMainScreen() {
     NivyPreview {
         UI(
             tab = MainTab.HOME,
-            baseCurrency = "BGN",
             selectTab = {},
             onCreateAccount = { },
             quickAdds = persistentListOf(),
