@@ -46,9 +46,6 @@ import com.nivy.wallet.domain.logic.CategoryCreator
 import com.nivy.wallet.domain.logic.model.CreateAccountData
 import com.nivy.wallet.domain.logic.model.CreateCategoryData
 import com.nivy.wallet.ui.theme.modal.PlanSchedule
-import com.nivy.wallet.ui.theme.modal.RecurringRuleModalData
-import com.nivy.wallet.ui.theme.modal.edit.AccountModalData
-import com.nivy.wallet.ui.theme.modal.edit.CategoryModalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -97,14 +94,6 @@ class EditPlannedViewModel @Inject constructor(
     private var categories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var mostUsedCategories by mutableStateOf<ImmutableList<Category>>(persistentListOf())
     private var accounts by mutableStateOf<ImmutableList<Account>>(persistentListOf())
-    private var categoryModalVisible by mutableStateOf(false)
-    private var descriptionModalVisible by mutableStateOf(false)
-    private var deleteTransactionModalVisible by mutableStateOf(false)
-    private var transactionTypeModalVisible by mutableStateOf(false)
-    private var amountModalVisible by mutableStateOf(false)
-    private var recurringRuleModalData by mutableStateOf<RecurringRuleModalData?>(null)
-    private var categoryModalData by mutableStateOf<CategoryModalData?>(null)
-    private var accountModalData by mutableStateOf<AccountModalData?>(null)
 
     private var ruleId: PlannedPaymentRuleId? = null
     private var editMode = false
@@ -134,14 +123,6 @@ class EditPlannedViewModel @Inject constructor(
             initialTitle = initialTitle,
             description = description,
             intervalType = intervalType,
-            categoryModalVisible = categoryModalVisible,
-            categoryModalData = categoryModalData,
-            accountModalData = accountModalData,
-            deleteTransactionModalVisible = deleteTransactionModalVisible,
-            descriptionModalVisible = descriptionModalVisible,
-            amountModalVisible = amountModalVisible,
-            transactionTypeModalVisible = transactionTypeModalVisible,
-            recurringRuleModalData = recurringRuleModalData,
             canSave = rule() != null,
         )
     }
@@ -167,29 +148,6 @@ class EditPlannedViewModel @Inject constructor(
 
             is EditPlannedScreenEvent.OnCategoryChanged -> updateCategory(event.newCategory)
             is EditPlannedScreenEvent.OnEditCategory -> editCategory(event.updatedCategory)
-            is EditPlannedScreenEvent.OnCategoryModalVisible ->
-                categoryModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnCategoryModalDataChanged ->
-                categoryModalData = event.categoryModalData
-
-            is EditPlannedScreenEvent.OnAccountModalDataChanged ->
-                accountModalData = event.accountModalData
-
-            is EditPlannedScreenEvent.OnDescriptionModalVisible ->
-                descriptionModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnTransactionTypeModalVisible ->
-                transactionTypeModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnAmountModalVisible ->
-                amountModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnDeleteTransactionModalVisible ->
-                deleteTransactionModalVisible = event.visible
-
-            is EditPlannedScreenEvent.OnRecurringRuleModalDataChanged ->
-                recurringRuleModalData = event.recurringRuleModalData
         }
     }
 
@@ -413,7 +371,6 @@ class EditPlannedViewModel @Inject constructor(
 
     private fun delete() {
         viewModelScope.launch {
-            deleteTransactionModalVisible = false
             val deleted = userWrites.run(R.string.msg_change_not_saved) {
                 ruleId?.let {
                     plannedPaymentRuleRepository.deleteById(it)
