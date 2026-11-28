@@ -6,14 +6,12 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -47,14 +45,13 @@ import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Green
 import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.shapes.PillShape
-import com.nivy.design.system.typography.numberBodyLarge
-import com.nivy.design.utils.thenIf
 import com.nivy.navigation.rememberOnBack
 import com.nivy.ui.R
 import com.nivy.wallet.ui.component.notification.SmallPill
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivySwitch
 import com.nivy.wallet.ui.theme.components.NivyToolbar
+import com.nivy.wallet.ui.theme.components.SettingsButtonRow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -113,26 +110,6 @@ internal fun SectionLabel(text: String) {
     Spacer(Modifier.height(16.dp))
 }
 
-/** A row of Settings: in 16 dp from the screen's sides, in the theme's light grey. */
-@Composable
-internal fun Block(
-    start: Dp = 20.dp,
-    onClick: (() -> Unit)? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
-            .thenIf(onClick != null) { clickable { onClick?.invoke() } }
-            .padding(start = start),
-        verticalAlignment = Alignment.CenterVertically,
-        content = content,
-    )
-}
-
 /** A row's title: bold, in the text color. */
 @Composable
 @ReadOnlyComposable
@@ -168,7 +145,7 @@ internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modif
 /** A row with an icon, a title, what it says and a switch, as Settings' switches. */
 @Composable
 internal fun SwitchRow(@DrawableRes icon: Int, title: String, text: String, on: Boolean, onChange: (Boolean) -> Unit) {
-    Block(start = 12.dp, onClick = { onChange(!on) }) {
+    SettingsButtonRow(start = 12.dp, onClick = { onChange(!on) }) {
         Icon(
             modifier = Modifier.size(48.dp),
             painter = painterResource(icon),
@@ -185,7 +162,7 @@ internal fun SwitchRow(@DrawableRes icon: Int, title: String, text: String, on: 
 /** A row that opens a page, with what it says under its title, as Settings' own. */
 @Composable
 internal fun LinkRow(@DrawableRes icon: Int, title: String, text: String?, onClick: () -> Unit) {
-    Block(start = 12.dp, onClick = onClick) {
+    SettingsButtonRow(start = 12.dp, onClick = onClick) {
         Icon(
             modifier = Modifier.size(48.dp).padding(4.dp),
             painter = painterResource(icon),
@@ -196,34 +173,6 @@ internal fun LinkRow(@DrawableRes icon: Int, title: String, text: String?, onCli
         TitleAndText(title = title, text = text)
         NivyIcon(icon = R.drawable.ic_arrow_right, tint = Gray)
         Spacer(Modifier.width(16.dp))
-    }
-}
-
-/** A row with its value on the right, as Settings' own. */
-@Composable
-internal fun ValueRow(@DrawableRes icon: Int, title: String, value: String, onClick: () -> Unit) {
-    Block(start = 12.dp, onClick = onClick) {
-        Icon(
-            modifier = Modifier.size(48.dp).padding(12.dp),
-            painter = painterResource(icon),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            modifier = Modifier.weight(1f).padding(vertical = 20.dp),
-            text = title,
-            style = titleStyle(),
-        )
-        Spacer(Modifier.width(16.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.numberBodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.ExtraBold,
-            ),
-        )
-        Spacer(Modifier.width(32.dp))
     }
 }
 
@@ -240,7 +189,7 @@ internal fun Step(
     action: String? = null,
     onAction: () -> Unit = {},
 ) {
-    Block(start = 16.dp) {
+    SettingsButtonRow(start = 16.dp) {
         // In line with the step's title.
         Box(Modifier.align(Alignment.Top).padding(top = 20.dp)) {
             if (done) {

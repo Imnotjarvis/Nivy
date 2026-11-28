@@ -45,6 +45,8 @@ import com.nivy.wallet.ui.component.notification.dayAndTime
 import com.nivy.wallet.ui.theme.components.NivyButton
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivyOutlinedButton
+import com.nivy.wallet.ui.theme.components.SettingsButtonRow
+import com.nivy.wallet.ui.theme.components.SettingsValueRow
 import com.nivy.wallet.ui.theme.modal.ModalTitle
 import com.nivy.wallet.ui.theme.modal.NivyModal
 import java.util.UUID
@@ -201,9 +203,9 @@ private fun LazyListScope.setUp(
             onClick = openKeepListening,
         )
         Spacer(Modifier.height(12.dp))
-        ValueRow(
+        SettingsValueRow(
             icon = R.drawable.ic_notification_m,
-            title = stringResource(R.string.notification_access),
+            label = stringResource(R.string.notification_access),
             value = stringResource(
                 if (state.granted) R.string.notification_access_on else R.string.notification_access_off,
             ),
@@ -233,7 +235,7 @@ private fun AddingSwitch(adding: Boolean, onChange: (Boolean) -> Unit) {
 // Whether Nivy is listening, its last payment notification or the test's result, and the test.
 @Composable
 private fun Status(state: PaymentNotificationsState, onTest: () -> Unit) {
-    Block {
+    SettingsButtonRow(start = 20.dp) {
         val dot = if (state.listening) Green else upcomingOrange(MaterialTheme.colorScheme.surfaceVariant)
         Box(Modifier.size(12.dp).clip(PillShape).background(dot))
         Spacer(Modifier.width(16.dp))
@@ -271,7 +273,7 @@ internal fun testText(result: TestResult, failed: Int = R.string.test_failed): S
 
 @Composable
 private fun AppRow(app: PickedApp, cardsBelow: Boolean, onClick: () -> Unit) {
-    Block(start = 16.dp, onClick = onClick) {
+    SettingsButtonRow(start = 16.dp, onClick = onClick) {
         AppIcon(packageName = app.payer.id, name = app.payer.name)
         Spacer(Modifier.width(12.dp))
         val paysFrom = when {
@@ -302,7 +304,7 @@ private fun AppRow(app: PickedApp, cardsBelow: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun CardRow(card: KnownCard, onClick: () -> Unit) {
-    Block(onClick = onClick) {
+    SettingsButtonRow(onClick = onClick, start = 20.dp) {
         Text(
             modifier = Modifier.padding(vertical = 20.dp),
             text = stringResource(R.string.card_digits, card.payer.id),

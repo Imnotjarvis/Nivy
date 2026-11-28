@@ -34,6 +34,7 @@ import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.ui.SearchInput
 import com.nivy.wallet.ui.theme.components.NivyIcon
+import com.nivy.wallet.ui.theme.components.SettingsButtonRow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
@@ -139,7 +140,7 @@ internal fun BoxWithConstraintsScope.NotificationAppsUI(
 
 @Composable
 private fun AppChoiceRow(app: AppChoice, onClick: () -> Unit) {
-    Block(start = 16.dp, onClick = onClick) {
+    SettingsButtonRow(start = 16.dp, onClick = onClick) {
         AppIcon(packageName = app.payer.id, name = app.payer.name)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f).padding(vertical = 16.dp)) {

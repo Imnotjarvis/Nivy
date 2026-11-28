@@ -1,6 +1,5 @@
 package com.nivy.settings
 
-import com.nivy.design.system.colors.deleteRed
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,27 +27,28 @@ import com.nivy.base.model.AppLockDelay
 import com.nivy.base.model.ColorPalette
 import com.nivy.base.model.DateDisplayFormat
 import com.nivy.base.model.Theme
-import com.nivy.design.system.shapes.AppCornerRadius
 import com.nivy.design.system.colors.ColorMode
-import com.nivy.wallet.NivyPreview
-import com.nivy.wallet.rootScreen
+import com.nivy.design.system.colors.Green
+import com.nivy.design.system.colors.deleteRed
+import com.nivy.design.system.shapes.AppCornerRadius
+import com.nivy.design.system.typography.numberLabelMedium
 import com.nivy.navigation.ExchangeRatesScreen
 import com.nivy.navigation.FeaturesScreen
 import com.nivy.navigation.ImportScreen
-import com.nivy.navigation.navigation
 import com.nivy.navigation.PaymentNotificationsScreen
+import com.nivy.navigation.navigation
+import com.nivy.navigation.rememberOnBack
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.R
+import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.domain.data.NivyCurrency
-import com.nivy.design.system.colors.Green
+import com.nivy.wallet.rootScreen
 import com.nivy.wallet.ui.theme.components.NivyToolbar
+import com.nivy.wallet.ui.theme.components.SettingsValueRow
 import com.nivy.wallet.ui.theme.modal.ChooseStartDateOfMonthModal
 import com.nivy.wallet.ui.theme.modal.CurrencyModal
 import com.nivy.wallet.ui.theme.modal.DeleteModal
 import com.nivy.wallet.ui.theme.modal.ProgressModal
-import androidx.compose.material3.MaterialTheme
-import com.nivy.design.system.typography.numberLabelMedium
-import com.nivy.navigation.rememberOnBack
 import kotlin.math.roundToInt
 
 @ExperimentalFoundationApi
