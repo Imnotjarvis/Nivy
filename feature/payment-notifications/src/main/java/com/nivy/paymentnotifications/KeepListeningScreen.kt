@@ -3,11 +3,7 @@ package com.nivy.paymentnotifications
 import android.content.Context
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
@@ -20,11 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewModelScope
-import com.nivy.navigation.rememberOnBack
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
-import com.nivy.wallet.ui.theme.components.NivyToolbar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -78,18 +72,9 @@ fun BoxWithConstraintsScope.KeepListeningScreen() {
  */
 @Composable
 internal fun BoxWithConstraintsScope.KeepListeningUI(state: KeepListeningState, onEvent: (KeepListeningEvent) -> Unit) {
-    val onBack = rememberOnBack()
     val context = LocalContext.current
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding(),
-    ) {
-        stickyHeader { NivyToolbar(onBack = onBack) }
+    NotificationsPage(stringResource(R.string.keep_nivy_listening)) {
         item {
-            Spacer(Modifier.height(8.dp))
-            PageTitle(stringResource(R.string.keep_nivy_listening))
             PageText(stringResource(R.string.keep_listening_intro))
             Spacer(Modifier.height(24.dp))
             Step(

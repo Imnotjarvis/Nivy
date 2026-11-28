@@ -4,15 +4,10 @@ import android.content.Context
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -23,27 +18,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.nivy.data.db.entity.PaymentSourceEntity
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PaymentNotificationRepository
-import com.nivy.design.system.colors.Gray
 import com.nivy.design.system.colors.Green
 import com.nivy.domain.UserWrites
 import com.nivy.domain.notification.PaymentNotificationActions
-import com.nivy.navigation.rememberOnBack
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
 import com.nivy.wallet.ui.SearchInput
 import com.nivy.wallet.ui.theme.components.NivyIcon
-import com.nivy.wallet.ui.theme.components.NivyToolbar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
@@ -122,19 +112,10 @@ internal fun BoxWithConstraintsScope.NotificationAppsUI(
     state: NotificationAppsState,
     onEvent: (PaysFromEvent) -> Unit,
 ) {
-    val onBack = rememberOnBack()
     var query by remember { mutableStateOf(TextFieldValue()) }
     val shown = state.apps.filter { it.payer.name.contains(query.text.trim(), ignoreCase = true) }
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding(),
-    ) {
-        stickyHeader { NivyToolbar(onBack = onBack) }
+    NotificationsPage(stringResource(R.string.your_apps)) {
         item {
-            Spacer(Modifier.height(8.dp))
-            PageTitle(stringResource(R.string.your_apps))
             PageText(stringResource(R.string.your_apps_description))
             Spacer(Modifier.height(24.dp))
             SearchInput(
@@ -164,17 +145,14 @@ private fun AppChoiceRow(app: AppChoice, onClick: () -> Unit) {
         Column(Modifier.weight(1f).padding(vertical = 16.dp)) {
             Text(
                 text = app.payer.name,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = titleStyle(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             if (app.paysFrom != null) {
                 Text(
                     text = stringResource(R.string.pays_from, app.paysFrom),
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
+                    style = detailStyle(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -11,14 +11,10 @@ import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,7 +51,6 @@ import com.nivy.domain.notification.Outcome
 import com.nivy.domain.notification.Why
 import com.nivy.domain.notification.outcomeOf
 import com.nivy.domain.notification.whyOf
-import com.nivy.navigation.rememberOnBack
 import com.nivy.navigation.screenScopedViewModel
 import com.nivy.ui.ComposeViewModel
 import com.nivy.ui.R
@@ -65,7 +60,6 @@ import com.nivy.wallet.ui.component.notification.dayName
 import com.nivy.wallet.ui.component.notification.readAmount
 import com.nivy.wallet.ui.component.notification.timeOf
 import com.nivy.wallet.ui.theme.components.NivyButton
-import com.nivy.wallet.ui.theme.components.NivyToolbar
 import com.nivy.wallet.ui.theme.modal.ModalTitle
 import com.nivy.wallet.ui.theme.modal.NivyModal
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -185,21 +179,12 @@ internal fun BoxWithConstraintsScope.NotificationLogUI(
     state: NotificationLogState,
     onEvent: (NotificationLogEvent) -> Unit,
 ) {
-    val onBack = rememberOnBack()
     val converter = LocalTimeConverter.current
     val days = remember(state.entries) {
         state.entries.groupBy { with(converter) { it.time.toLocalDate() } }.values.toList()
     }
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding(),
-    ) {
-        stickyHeader { NivyToolbar(onBack = onBack) }
+    NotificationsPage(stringResource(R.string.notification_log)) {
         item {
-            Spacer(Modifier.height(8.dp))
-            PageTitle(stringResource(R.string.notification_log))
             val intro = stringResource(R.string.notification_log_intro)
             PageText(if (state.trying) "$intro. ${stringResource(R.string.notification_log_trying)}" else intro)
             if (state.entries.isEmpty()) {
@@ -394,10 +379,7 @@ private fun Field(label: String, value: String) {
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-            ),
+            style = titleStyle(),
         )
     }
 }

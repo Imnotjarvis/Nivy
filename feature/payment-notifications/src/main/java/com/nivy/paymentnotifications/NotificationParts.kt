@@ -12,15 +12,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
@@ -43,12 +49,33 @@ import com.nivy.design.system.colors.readableOn
 import com.nivy.design.system.shapes.PillShape
 import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.design.utils.thenIf
+import com.nivy.navigation.rememberOnBack
 import com.nivy.ui.R
 import com.nivy.wallet.ui.component.notification.SmallPill
 import com.nivy.wallet.ui.theme.components.NivyIcon
 import com.nivy.wallet.ui.theme.components.NivySwitch
+import com.nivy.wallet.ui.theme.components.NivyToolbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+/** A page of payment notifications: back at the top, then its [title] and its [content]. */
+@Composable
+internal fun NotificationsPage(title: String, content: LazyListScope.() -> Unit) {
+    val onBack = rememberOnBack()
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+    ) {
+        stickyHeader { NivyToolbar(onBack = onBack) }
+        item {
+            Spacer(Modifier.height(8.dp))
+            PageTitle(title)
+        }
+        content()
+    }
+}
 
 /** A page's title, as Settings' own. */
 @Composable
@@ -106,21 +133,31 @@ internal fun Block(
     )
 }
 
+/** A row's title: bold, in the text color. */
+@Composable
+@ReadOnlyComposable
+internal fun titleStyle() = MaterialTheme.typography.bodyLarge.copy(
+    color = MaterialTheme.colorScheme.onSurface,
+    fontWeight = FontWeight.Bold,
+)
+
+/** What a row says under its title: smaller, in grey. */
+@Composable
+@ReadOnlyComposable
+internal fun detailStyle() = MaterialTheme.typography.bodyLarge.copy(color = Gray, fontSize = 14.sp)
+
 /** A title and, under it in grey, what it says, filling the row's room. */
 @Composable
 internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modifier = Modifier) {
     Column(modifier.weight(1f).padding(vertical = 20.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-            ),
+            style = titleStyle(),
         )
         if (text != null) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
+                style = detailStyle(),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -176,10 +213,7 @@ internal fun ValueRow(@DrawableRes icon: Int, title: String, value: String, onCl
         Text(
             modifier = Modifier.weight(1f).padding(vertical = 20.dp),
             text = title,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-            ),
+            style = titleStyle(),
         )
         Spacer(Modifier.width(16.dp))
         Text(
@@ -224,14 +258,11 @@ internal fun Step(
         Column(Modifier.weight(1f).padding(vertical = 20.dp)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = titleStyle(),
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(color = Gray).copy(fontSize = 14.sp),
+                style = detailStyle(),
             )
             if (action != null) {
                 Spacer(Modifier.height(12.dp))

@@ -85,7 +85,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -417,10 +416,7 @@ private fun NotAdded(item: ListedNotification, onEvent: (AddedFromNotificationsE
             Column(Modifier.weight(1f)) {
                 Text(
                     text = app,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = titleStyle(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
