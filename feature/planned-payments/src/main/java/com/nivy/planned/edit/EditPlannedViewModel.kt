@@ -17,14 +17,12 @@ import com.nivy.data.model.Account
 import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.CreditCard
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
-import com.nivy.data.model.Transfer
+import com.nivy.data.model.copy
 import com.nivy.data.model.pickable
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
@@ -410,11 +408,7 @@ class EditPlannedViewModel @Inject constructor(
             recurringRuleId = rule.id.value,
             paidForDateTime = metadata.purchaseDateTime ?: time,
         )
-        return when (this) {
-            is Income -> copy(metadata = metadata)
-            is Expense -> copy(metadata = metadata)
-            is Transfer -> copy(metadata = metadata)
-        }
+        return copy(metadata = metadata)
     }
 
     private fun delete() {

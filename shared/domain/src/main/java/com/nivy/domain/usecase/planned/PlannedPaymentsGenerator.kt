@@ -1,24 +1,19 @@
 package com.nivy.domain.usecase.planned
 
-import com.nivy.base.model.TransactionType
 import com.nivy.base.model.incrementDate
 import com.nivy.base.time.TimeProvider
 import com.nivy.data.db.DatabaseTransaction
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
 import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
-import com.nivy.data.model.Transfer
 import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.transaction.newTransaction
 import java.time.Instant
-import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -161,60 +156,28 @@ class PlannedPaymentsGenerator @Inject constructor(
     private fun Transaction.dueDate(): Instant = metadata.paidForDateTime ?: time
 
     /** The unpaid transaction [rule] plans for [dueDate]. */
-    private fun plannedTransaction(rule: PlannedPaymentRule, values: Values, dueDate: Instant): Transaction {
-        val id = TransactionId(UUID.randomUUID())
-        val value = values.from
-        val toAccount = rule.toAccount
-        val toValue = values.to
-        val metadata = TransactionMetadata(
-            recurringRuleId = rule.id.value,
-            paidForDateTime = null,
-            loanId = null,
-            loanRecordId = null,
-            purchaseDateTime = null,
-            // Paid with the rule's card, it counts when the card charges it.
-            creditCard = rule.creditCard,
+    private fun plannedTransaction(rule: PlannedPaymentRule, values: Values, dueDate: Instant): Transaction =
+        newTransaction(
+            type = rule.type,
+            account = rule.account,
+            value = values.from,
+            title = rule.title,
+            category = rule.category,
+            time = dueDate,
+            settled = false,
+            metadata = TransactionMetadata(
+                recurringRuleId = rule.id.value,
+                paidForDateTime = null,
+                loanId = null,
+                loanRecordId = null,
+                purchaseDateTime = null,
+                // Paid with the rule's card, it counts when the card charges it.
+                creditCard = rule.creditCard,
+            ),
+            description = rule.description,
+            toAccount = rule.toAccount,
+            toValue = values.to,
         )
-        return when {
-            toAccount != null && toValue != null -> Transfer(
-                id = id,
-                title = rule.title,
-                description = rule.description,
-                category = rule.category,
-                time = dueDate,
-                settled = false,
-                metadata = metadata,
-                fromAccount = rule.account,
-                fromValue = value,
-                toAccount = toAccount,
-                toValue = toValue,
-            )
-
-            rule.type == TransactionType.INCOME -> Income(
-                id = id,
-                title = rule.title,
-                description = rule.description,
-                category = rule.category,
-                time = dueDate,
-                settled = false,
-                metadata = metadata,
-                value = value,
-                account = rule.account,
-            )
-
-            else -> Expense(
-                id = id,
-                title = rule.title,
-                description = rule.description,
-                category = rule.category,
-                time = dueDate,
-                settled = false,
-                metadata = metadata,
-                value = value,
-                account = rule.account,
-            )
-        }
-    }
 
     private companion object {
         const val GeneratedInstancesLimit = 72

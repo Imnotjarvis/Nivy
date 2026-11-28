@@ -2,10 +2,9 @@ package com.nivy.domain.usecase.creditcard
 
 import com.nivy.base.time.TimeConverter
 import com.nivy.data.model.CreditCard
-import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.Transfer
+import com.nivy.data.model.copy
 import com.nivy.data.repository.CreditCardRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -35,11 +34,7 @@ class CreditCardChargeUseCase @Inject constructor(
             card.chargeDateTime(purchase.toLocalDateTime(), transaction.metadata.chargeShift).toUTC()
         }
         val metadata = transaction.metadata.copy(purchaseDateTime = purchase)
-        return when (transaction) {
-            is Expense -> transaction.copy(time = charge, metadata = metadata)
-            is Transfer -> transaction.copy(time = charge, metadata = metadata)
-            is Income -> transaction
-        }
+        return if (transaction is Income) transaction else transaction.copy(time = charge, metadata = metadata)
     }
 }
 

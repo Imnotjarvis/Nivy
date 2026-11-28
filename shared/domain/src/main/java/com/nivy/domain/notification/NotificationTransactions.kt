@@ -1,11 +1,10 @@
 package com.nivy.domain.notification
 
+import com.nivy.base.model.TransactionType
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.CreditCardId
-import com.nivy.data.model.Expense
-import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
@@ -17,9 +16,9 @@ import com.nivy.data.repository.AccountRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.domain.usecase.creditcard.CreditCardChargeUseCase
 import com.nivy.domain.usecase.exchange.ExchangeUseCase
+import com.nivy.domain.usecase.transaction.newTransaction
 import com.nivy.wallet.domain.logic.SmartTitleSuggestionsLogic
 import java.time.Instant
-import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -79,7 +78,6 @@ class NotificationTransactions @Inject constructor(
     }
 
     private suspend fun transaction(payment: NotificationPayment, value: PositiveValue): Transaction {
-        val id = TransactionId(UUID.randomUUID())
         val title = payment.merchant?.let { NotBlankTrimmedString.from(it).getOrNull() }
         val category = payment.merchant?.let { titleSuggestions.categoryOf(it) }?.id
         val metadata = TransactionMetadata(
@@ -89,30 +87,15 @@ class NotificationTransactions @Inject constructor(
             purchaseDateTime = null,
             creditCard = payment.creditCard.takeUnless { payment.income },
         )
-        return if (payment.income) {
-            Income(
-                id = id,
-                title = title,
-                description = null,
-                category = category,
-                time = payment.time,
-                settled = true,
-                metadata = metadata,
-                value = value,
-                account = payment.account,
-            )
-        } else {
-            Expense(
-                id = id,
-                title = title,
-                description = null,
-                category = category,
-                time = payment.time,
-                settled = true,
-                metadata = metadata,
-                value = value,
-                account = payment.account,
-            )
-        }
+        return newTransaction(
+            type = if (payment.income) TransactionType.INCOME else TransactionType.EXPENSE,
+            account = payment.account,
+            value = value,
+            title = title,
+            category = category,
+            time = payment.time,
+            settled = true,
+            metadata = metadata,
+        )
     }
 }

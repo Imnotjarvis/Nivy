@@ -89,3 +89,14 @@ fun Transaction.getToAccount(): AccountId? = when (this) {
     is Income -> null
     is Transfer -> toAccount
 }
+
+/** This transaction, of whatever kind, with a new [time], [settled] or [metadata]. */
+fun Transaction.copy(
+    time: Instant = this.time,
+    settled: Boolean = this.settled,
+    metadata: TransactionMetadata = this.metadata,
+): Transaction = when (this) {
+    is Expense -> copy(time = time, settled = settled, metadata = metadata)
+    is Income -> copy(time = time, settled = settled, metadata = metadata)
+    is Transfer -> copy(time = time, settled = settled, metadata = metadata)
+}
