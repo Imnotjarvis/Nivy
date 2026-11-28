@@ -107,7 +107,10 @@ internal fun LazyItemScope.PlannedPaymentCard(
         plannedPayment.endDate?.let { endDate ->
             Spacer(Modifier.height(4.dp))
 
-            EndDateRow(endDate = with(LocalTimeConverter.current) { endDate.toLocalDateTime() })
+            EndDateRow(
+                endDate = with(LocalTimeConverter.current) { endDate.toLocalDateTime() },
+                modifier = Modifier.padding(horizontal = 24.dp),
+            )
         }
 
         plannedPayment.title?.let { title ->
@@ -282,11 +285,11 @@ private fun RuleTextRow(
     }
 }
 
-// The last day a repeating plan falls on.
+/** The last day a repeating plan falls on, on its card and in its editor. */
 @Composable
-private fun EndDateRow(endDate: LocalDateTime) {
+internal fun EndDateRow(endDate: LocalDateTime, modifier: Modifier = Modifier) {
     Text(
-        modifier = Modifier.padding(horizontal = 24.dp),
+        modifier = modifier,
         text = stringResource(
             R.string.ends_date,
             with(LocalTimeFormatter.current) {

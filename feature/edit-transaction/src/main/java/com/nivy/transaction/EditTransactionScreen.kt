@@ -332,18 +332,7 @@ private fun PlanItButton(state: EditTransactionViewState, title: () -> String) {
         text = stringResource(R.string.add_planned_date_payment),
         onClick = {
             nav.back()
-            nav.navigateTo(
-                EditPlannedScreen(
-                    plannedPaymentRuleId = null,
-                    type = state.transactionType,
-                    amount = state.amount,
-                    accountId = state.account?.id?.value,
-                    categoryId = state.category?.id?.value,
-                    title = title(),
-                    description = state.description,
-                    toAccountId = state.toAccount?.id?.value,
-                )
-            )
+            nav.navigateTo(state.planned(title()))
         }
     )
 }
@@ -362,15 +351,7 @@ private fun RepeatButton(screen: EditTransactionScreen, state: EditTransactionVi
         onClick = {
             nav.back()
             nav.navigateTo(
-                EditPlannedScreen(
-                    plannedPaymentRuleId = null,
-                    type = state.transactionType,
-                    amount = state.amount,
-                    accountId = state.account?.id?.value,
-                    categoryId = state.category?.id?.value,
-                    title = title(),
-                    description = state.description,
-                    toAccountId = state.toAccount?.id?.value,
+                state.planned(title()).copy(
                     creditCardId = state.creditCard?.id?.value,
                     startDate = state.dateTime,
                     repeatedTransactionId = screen.initialTransactionId,
@@ -379,6 +360,19 @@ private fun RepeatButton(screen: EditTransactionScreen, state: EditTransactionVi
         }
     )
 }
+
+// A new planned payment, in its editor, with the transaction's type, amount, accounts, category
+// and text.
+private fun EditTransactionViewState.planned(title: String) = EditPlannedScreen(
+    plannedPaymentRuleId = null,
+    type = transactionType,
+    amount = amount,
+    accountId = account?.id?.value,
+    categoryId = category?.id?.value,
+    title = title,
+    description = description,
+    toAccountId = toAccount?.id?.value,
+)
 
 /** Opens a new quick add filled in with the transaction, to add it again from the add menu in one tap. */
 @Composable
