@@ -10,6 +10,7 @@ import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.file.FileSystem
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.ExchangeRate
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
@@ -31,6 +32,7 @@ import com.nivy.importdata.cashew.Now
 import com.nivy.importdata.cashew.readCashew
 import com.nivy.ui.R
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -59,6 +61,7 @@ class ImportCashewUseCaseTest {
     private var existingAccounts = emptyList<Account>()
     private var databaseFull = false
     private val savedTransactions = mutableListOf<List<Transaction>>()
+    private val savedRates = mutableListOf<List<ExchangeRate>>()
     private val appPreferences = mockk<AppPreferences>(relaxUnitFun = true)
 
     private val useCase = ImportCashewUseCase(
@@ -107,7 +110,10 @@ class ImportCashewUseCaseTest {
         },
         exchangeRatesRepository = mockk<ExchangeRatesRepository> {
             coEvery { findAllManuallyOverridden() } returns emptyList()
-            coEvery { save(any()) } answers { write("rate") }
+            coEvery { saveManyRates(any()) } answers {
+                savedRates += firstArg<List<ExchangeRate>>()
+                write("rates")
+            }
         },
         currencyRepository = mockk<CurrencyRepository> { coEvery { getBaseCurrency() } returns AssetCode.EUR },
         appPreferences = appPreferences,
@@ -167,7 +173,7 @@ class ImportCashewUseCaseTest {
         // then
         writes shouldBe listOf(
             "accounts", "category", "tag", "transactions", "tag links", "loans", "loan record",
-            "planned payment", "its occurrences", "budgets", "rate",
+            "planned payment", "its occurrences", "budgets", "rates",
         )
         with(imported.result) {
             rowsFound shouldBe 2
@@ -185,6 +191,25 @@ class ImportCashewUseCaseTest {
         savedTransactions.single().size shouldBe 2
         // The copy of the file is gone.
         cache.listFiles().orEmpty().toList().shouldBeEmpty()
+    }
+
+    @Test
+    fun `a Cashew file's exchange rates are saved together`() = runTest {
+        // given: dollars and pounds beside the euro, each with its rate set by hand
+        cashew.apply {
+            wallet("w1", "Bank", currency = "eur")
+            wallet("w2", "Dollars", currency = "usd")
+            wallet("w3", "Pounds", currency = "gbp")
+            category("c1", "Dining")
+            transaction("t1", -3.5)
+            settings("""{"selectedWalletPk":"w1","customCurrencyAmounts":{"eur":0.9,"usd":1.1,"gbp":0.8}}""")
+        }
+
+        // when
+        useCase.import(uri) {}
+
+        // then
+        savedRates.single().map { it.currency.code } shouldContainExactlyInAnyOrder listOf("USD", "GBP")
     }
 
     @Test

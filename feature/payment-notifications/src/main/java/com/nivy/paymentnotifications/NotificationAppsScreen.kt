@@ -114,7 +114,9 @@ internal fun BoxWithConstraintsScope.NotificationAppsUI(
     onEvent: (PaysFromEvent) -> Unit,
 ) {
     var query by remember { mutableStateOf(TextFieldValue()) }
-    val shown = state.apps.filter { it.payer.name.contains(query.text.trim(), ignoreCase = true) }
+    val shown = remember(state.apps, query.text) {
+        state.apps.filter { it.payer.name.contains(query.text.trim(), ignoreCase = true) }
+    }
     NotificationsPage(stringResource(R.string.your_apps)) {
         item {
             PageText(stringResource(R.string.your_apps_description))
