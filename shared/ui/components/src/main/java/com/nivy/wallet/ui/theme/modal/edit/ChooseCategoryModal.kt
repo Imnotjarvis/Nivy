@@ -148,42 +148,28 @@ fun BoxWithConstraintsScope.ChooseCategoryModal(
 
         Spacer(Modifier.height(16.dp))
 
+        // Every row picks its category, edits it on a long press and clears the one chosen.
+        @Composable
+        fun CategoryChoice(category: Category, takenByEnter: Boolean = false) = CategoryRow(
+            category = category,
+            selected = category == selectedCategory,
+            typed = typed,
+            takenByEnter = takenByEnter,
+            onClick = { onSelected(category) },
+            onLongClick = { showCategoryModal(category) },
+            onDeselect = { onSelected(null) },
+        )
+
         if (typed.isNotEmpty()) {
-            found.forEachIndexed { index, category ->
-                CategoryRow(
-                    category = category,
-                    selected = category == selectedCategory,
-                    typed = typed,
-                    takenByEnter = index == 0,
-                    onClick = { onSelected(category) },
-                    onLongClick = { showCategoryModal(category) },
-                    onDeselect = { onSelected(null) },
-                )
-            }
+            found.forEachIndexed { index, category -> CategoryChoice(category, takenByEnter = index == 0) }
         } else {
             if (mostUsed.isNotEmpty()) {
                 SectionLabel(stringResource(R.string.most_used))
-                mostUsed.forEach { category ->
-                    CategoryRow(
-                        category = category,
-                        selected = category == selectedCategory,
-                        onClick = { onSelected(category) },
-                        onLongClick = { showCategoryModal(category) },
-                        onDeselect = { onSelected(null) },
-                    )
-                }
+                mostUsed.forEach { CategoryChoice(it) }
                 Spacer(Modifier.height(16.dp))
                 SectionLabel(stringResource(R.string.all_categories))
             }
-            aToZ.forEach { category ->
-                CategoryRow(
-                    category = category,
-                    selected = category == selectedCategory,
-                    onClick = { onSelected(category) },
-                    onLongClick = { showCategoryModal(category) },
-                    onDeselect = { onSelected(null) },
-                )
-            }
+            aToZ.forEach { CategoryChoice(it) }
         }
 
         Spacer(Modifier.height(24.dp))
