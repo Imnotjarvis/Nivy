@@ -123,9 +123,9 @@ internal fun titleStyle() = MaterialTheme.typography.bodyLarge.copy(
 @ReadOnlyComposable
 internal fun detailStyle() = MaterialTheme.typography.bodyLarge.copy(color = Gray, fontSize = 14.sp)
 
-/** A title and, under it in grey, what it says, filling the row's room. */
+/** A title and, under it in grey, what it says in up to [maxLines] lines, filling the row's room. */
 @Composable
-internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modifier = Modifier) {
+internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modifier = Modifier, maxLines: Int = 3) {
     Column(modifier.weight(1f).padding(vertical = 20.dp)) {
         Text(
             text = title,
@@ -135,7 +135,7 @@ internal fun RowScope.TitleAndText(title: String, text: String?, modifier: Modif
             Text(
                 text = text,
                 style = detailStyle(),
-                maxLines = 3,
+                maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
             )
         }

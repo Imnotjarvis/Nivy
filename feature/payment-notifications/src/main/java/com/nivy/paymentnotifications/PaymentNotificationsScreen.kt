@@ -239,9 +239,11 @@ private fun Status(state: PaymentNotificationsState, onTest: () -> Unit) {
         val dot = if (state.listening) Green else upcomingOrange(MaterialTheme.colorScheme.surfaceVariant)
         Box(Modifier.size(12.dp).clip(PillShape).background(dot))
         Spacer(Modifier.width(16.dp))
+        // Every line of it: where to look when the test fails comes last.
         TitleAndText(
             title = stringResource(if (state.listening) R.string.listening else R.string.not_listening),
             text = statusText(state),
+            maxLines = Int.MAX_VALUE,
         )
         Spacer(Modifier.width(8.dp))
         SmallPill(text = stringResource(R.string.test_it), onClick = onTest)

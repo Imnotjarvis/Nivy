@@ -2,6 +2,9 @@ package com.nivy.paymentnotifications
 
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
@@ -77,6 +80,15 @@ class PaymentNotificationsPaparazziTest(
     @Test
     fun `snapshot the list of what was added and what wasn't`() = shot {
         AddedFromNotificationsUI(state = AddedList, onEvent = {})
+    }
+
+    // Android's largest text, after a failed test: the status shows all of it, down to where to look.
+    @Test
+    fun `snapshot the page once set up, after a failed test, in the largest text`() = shot {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+            UI(state = SetUp.copy(listening = false, test = TestResult.Failed), onEvent = {})
+        }
     }
 
     private fun shot(content: @Composable BoxWithConstraintsScope.() -> Unit) =
