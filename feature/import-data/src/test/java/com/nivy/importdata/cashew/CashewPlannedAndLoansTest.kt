@@ -296,6 +296,9 @@ class CashewPlannedAndLoansTest {
             budget("b3", "Everything", 1500.0)
             budget("b4", "Weekly", 50.0, repeat = CashewRepeat.Weekly)
             budget("b5", "Salary", 3000.0, income = true)
+            budget("b6", "Every two months", 400.0, repeatEvery = 2)
+            budget("b7", "Old", 200.0, archived = true)
+            budget("b8", "Added only", 100.0, addedOnly = true)
             categoryLimit("l1", budget = "b3", category = "c1")
         }
 
@@ -309,7 +312,10 @@ class CashewPlannedAndLoansTest {
         travel.name.value shouldBe "Travel"
         plan.leftOut shouldBe listOf(
             LeftOut(Reason.CategoryLimits, listOf(LeftOut.Item("Everything"))),
-            LeftOut(Reason.Budget, listOf(LeftOut.Item("Weekly"), LeftOut.Item("Salary"))),
+            LeftOut(
+                Reason.Budget,
+                listOf("Weekly", "Salary", "Every two months", "Old", "Added only").map { LeftOut.Item(it) },
+            ),
         )
     }
 
