@@ -117,8 +117,9 @@ class PaymentNotificationUseCasesTest {
     }
 
     @Test
-    fun `many banks' payment notifications each add their expense, with its amount and shop`() = runTest {
-        // given: the shapes the reader reads, each from an app of its own
+    fun `several banks' payment notifications each add their expense, with its amount and shop`() = runTest {
+        // given: each from an app of its own, a real one with a balance line, thousands with a card,
+        // and English; the reader's own tests read every bank's shape
         val payments = listOf(
             BankPayment(
                 "Revolut",
@@ -126,15 +127,6 @@ class PaymentNotificationUseCasesTest {
                 10.0,
                 "Vega Carburanti",
             ),
-            BankPayment("isybank", "Pagamento di 12,50 € con carta *1234 presso CONAD", 12.5, "CONAD"),
-            BankPayment(
-                "UniCredit",
-                "Pagamento con carta di EUR 12,50 presso CONAD SUPERSTORE il 27/11",
-                12.5,
-                "CONAD SUPERSTORE",
-            ),
-            BankPayment("Fineco", "Addebito carta: 12,50 EUR - CONAD SUPERSTORE", 12.5, "CONAD SUPERSTORE"),
-            BankPayment("HYPE", "Pagamento di 7,90 € effettuato presso Netflix", 7.9, "Netflix"),
             BankPayment(
                 "Nexi Pay",
                 "Autorizzato pagamento di 1.234,56 EUR presso Mediaworld con carta ****1234",
@@ -142,7 +134,6 @@ class PaymentNotificationUseCasesTest {
                 "Mediaworld",
             ),
             BankPayment("N26", "You spent €23.49 at Lidl", 23.49, "Lidl"),
-            BankPayment("Satispay", "Hai pagato 3,50 € a Bar Roma", 3.5, "Bar Roma"),
         )
         payments.forEach { pick(it.packageName, Intesa) }
 

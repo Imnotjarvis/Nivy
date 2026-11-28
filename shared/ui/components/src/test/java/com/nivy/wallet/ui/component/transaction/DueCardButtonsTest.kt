@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.Snapshot
-import app.cash.paparazzi.SnapshotHandler
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
 import com.nivy.design.system.NivyMaterial3Theme
 import com.nivy.design.system.colors.Palette
 import com.nivy.design.system.shapes.AppCornerRadius
+import com.nivy.ui.testing.measuringPaparazzi
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.previewAccount
@@ -38,24 +35,7 @@ class DueCardButtonsTest {
     private var frame: BufferedImage? = null
 
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6_PRO,
-        showSystemUi = false,
-        useDeviceResolution = true,
-        // Keeps the drawn frame for the test to measure, rather than writing or verifying it.
-        snapshotHandler = object : SnapshotHandler {
-            override fun newFrameHandler(snapshot: Snapshot, frameCount: Int, fps: Int) =
-                object : SnapshotHandler.FrameHandler {
-                    override fun handle(image: BufferedImage) {
-                        frame = image
-                    }
-
-                    override fun close() = Unit
-                }
-
-            override fun close() = Unit
-        },
-    )
+    val paparazzi = measuringPaparazzi { frame = it }
 
     @Before
     fun setup() {

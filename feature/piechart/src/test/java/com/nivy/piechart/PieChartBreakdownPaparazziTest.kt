@@ -8,11 +8,9 @@ import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
@@ -23,14 +21,11 @@ import com.nivy.ui.testing.PaparazziTheme
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.ui.previewCategory
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /** A month's expenses split by category or by account, with the toggle between the two. */
@@ -89,13 +84,8 @@ class PieChartBreakdownPaparazziTest(
         val CreditCard = account("Credit Card", Palette.Purple1, null, 2)
         val Cash = account("Cash", Palette.Green, "cash", 3)
 
-        fun category(name: String, color: Color, icon: String, n: Long) = Category(
-            id = CategoryId(UUID(9L, n)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(color.toArgb()),
-            icon = IconAsset.unsafe(icon),
-            orderNum = n.toDouble(),
-        )
+        fun category(name: String, color: Color, icon: String, n: Long) =
+            previewCategory(name, color, icon, id = UUID(9L, n), orderNum = n.toDouble())
 
         fun account(name: String, color: Color, icon: String?, n: Long) = Account(
             id = AccountId(UUID(1L, n)),
@@ -110,13 +100,6 @@ class PieChartBreakdownPaparazziTest(
         )
 
         /** November 9, 2026, noon, in UTC. */
-        val November9 = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 9, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val November9 = FixedTimeProvider(LocalDateTime.of(2026, 11, 9, 12, 0))
     }
 }

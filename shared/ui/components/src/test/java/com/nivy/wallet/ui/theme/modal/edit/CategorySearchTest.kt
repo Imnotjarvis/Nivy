@@ -1,13 +1,10 @@
 package com.nivy.wallet.ui.theme.modal.edit
 
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test
-import java.util.UUID
 
 class CategorySearchTest {
     private val food = category("Food & Drinks")
@@ -50,11 +47,5 @@ class CategorySearchTest {
 
     private fun List<Category>.names() = map { it.name.value }
 
-    private fun category(name: String) = Category(
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(0),
-        icon = null,
-        id = CategoryId(UUID.nameUUIDFromBytes(name.toByteArray())),
-        orderNum = 0.0,
-    )
+    private fun category(name: String) = previewCategory(name)
 }

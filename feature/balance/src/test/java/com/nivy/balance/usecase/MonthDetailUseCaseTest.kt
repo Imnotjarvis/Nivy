@@ -8,7 +8,7 @@ import com.nivy.balance.detail.UnusualCategory
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
@@ -53,8 +53,6 @@ import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
@@ -479,14 +477,7 @@ class MonthDetailUseCaseTest {
         )
 
         /** November 9, 2026, noon, in UTC: a Monday. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 9, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 9, 12, 0))
 
         fun account(
             name: String,

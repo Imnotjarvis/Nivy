@@ -3,7 +3,7 @@ package com.nivy.accounts
 import com.nivy.accounts.usecase.AccountDataUseCase
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.AccountType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.DataObserver
 import com.nivy.data.DataWriteEvent
@@ -36,11 +36,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -151,13 +147,6 @@ class AccountsViewModelTest {
         )
 
         /** November 15, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 15, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 15, 12, 0))
     }
 }

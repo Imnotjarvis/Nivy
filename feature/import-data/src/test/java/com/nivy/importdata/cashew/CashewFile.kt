@@ -94,12 +94,10 @@ internal class CashewFile(version: Int = 46) : AutoCloseable {
         name: String,
         loan: Boolean = false,
         income: Boolean = false,
-        wallet: String = "w1",
-        date: String = "2026-09-01T10:00:00Z",
     ) = insert(
         "objectives",
         "objective_pk" to pk, "name" to name, "type" to if (loan) 1 else 0, "income" to income,
-        "wallet_fk" to wallet, "amount" to 0.0, "order" to 0, "date_created" to seconds(date),
+        "wallet_fk" to "w1", "amount" to 0.0, "order" to 0, "date_created" to seconds("2026-09-01T10:00:00Z"),
     )
 
     @Suppress("LongParameterList") // one per column a test sets

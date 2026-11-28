@@ -6,11 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.Snapshot
-import app.cash.paparazzi.SnapshotHandler
 import com.nivy.design.system.shapes.AppCornerRadius
+import com.nivy.ui.testing.measuringPaparazzi
 import io.kotest.matchers.shouldBe
 import org.junit.After
 import org.junit.Rule
@@ -25,24 +22,7 @@ class SwipeBackCornersTest {
     private var frame: BufferedImage? = null
 
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6_PRO,
-        showSystemUi = false,
-        useDeviceResolution = true,
-        // Keeps the drawn frame for the test to measure, rather than writing or verifying it.
-        snapshotHandler = object : SnapshotHandler {
-            override fun newFrameHandler(snapshot: Snapshot, frameCount: Int, fps: Int) =
-                object : SnapshotHandler.FrameHandler {
-                    override fun handle(image: BufferedImage) {
-                        frame = image
-                    }
-
-                    override fun close() = Unit
-                }
-
-            override fun close() = Unit
-        },
-    )
+    val paparazzi = measuringPaparazzi { frame = it }
 
     @After
     fun tearDown() {

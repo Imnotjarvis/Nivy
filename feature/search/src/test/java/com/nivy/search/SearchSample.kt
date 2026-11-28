@@ -1,17 +1,11 @@
 package com.nivy.search
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.DueSection
 import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
@@ -19,28 +13,20 @@ import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.previewTransaction
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
 /** What Search shows for a salary and its plan, and for a restaurant, on November 18, 2026. */
 internal object SearchSample {
     /** November 18, 2026, at noon, in UTC. */
-    val November18 = object : TimeProvider {
-        private val now = LocalDateTime.of(2026, 11, 18, 12, 0)
-        override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-        override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-        override fun localNow(): LocalDateTime = now
-        override fun localDateNow(): LocalDate = now.toLocalDate()
-        override fun localTimeNow(): LocalTime = now.toLocalTime()
-    }
+    val November18 = FixedTimeProvider(LocalDateTime.of(2026, 11, 18, 12, 0))
 
     private val bank = previewAccount("Main Bank", Palette.Blue3, icon = "bank", currency = "EUR", id = UUID(0, 1))
     private val work = category("Salary", Palette.Green2, "work", id = 2)
@@ -126,11 +112,6 @@ internal object SearchSample {
 
     private fun at(date: LocalDate): Instant = date.atTime(9, 0).toInstant(ZoneOffset.UTC)
 
-    private fun category(name: String, color: Color, icon: String, id: Long) = Category(
-        id = CategoryId(UUID(0, id)),
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(color.toArgb()),
-        icon = IconAsset.unsafe(icon),
-        orderNum = 0.0,
-    )
+    private fun category(name: String, color: Color, icon: String, id: Long) =
+        previewCategory(name, color, icon, id = UUID(0, id))
 }

@@ -2,7 +2,7 @@ package com.nivy.domain.usecase
 
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.db.DatabaseTransaction
 import com.nivy.data.db.dao.fake.FakeAccountDao
@@ -39,10 +39,7 @@ import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /**
@@ -192,14 +189,7 @@ internal class HomeNumbers {
         val Oct20: Instant = Instant.parse("2026-10-20T12:00:00Z")
 
         /** November 15, 2026, noon, in UTC. */
-        val Today = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 15, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val Today = FixedTimeProvider(LocalDateTime.of(2026, 11, 15, 12, 0))
 
         val timeConverter = TestTimeConverter()
     }

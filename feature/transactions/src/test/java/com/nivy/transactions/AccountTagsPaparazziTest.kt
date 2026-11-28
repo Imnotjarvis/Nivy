@@ -1,18 +1,13 @@
 package com.nivy.transactions
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.navigation.NivyMaterial3Preview
@@ -25,6 +20,7 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.previewTransaction
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
@@ -32,8 +28,6 @@ import org.junit.runner.RunWith
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /** An account's page listing its transactions with their tags: in light and dark, in both color modes. */
@@ -121,22 +115,10 @@ class AccountTagsPaparazziTest(
         val Family = tag("Family", 21)
 
         /** November 7, 2026, noon, in UTC. */
-        val November7 = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 7, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val November7 = FixedTimeProvider(LocalDateTime.of(2026, 11, 7, 12, 0))
 
-        fun category(name: String, color: Color, icon: String, n: Long) = Category(
-            id = CategoryId(UUID(9L, n)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(color.toArgb()),
-            icon = IconAsset.unsafe(icon),
-            orderNum = n.toDouble(),
-        )
+        fun category(name: String, color: Color, icon: String, n: Long) =
+            previewCategory(name, color, icon, id = UUID(9L, n), orderNum = n.toDouble())
 
         fun tag(name: String, n: Long) = Tag(
             id = TagId(UUID(0, n)),

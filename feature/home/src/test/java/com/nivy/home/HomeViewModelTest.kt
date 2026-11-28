@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteFullException
 import com.nivy.base.TestDispatchersProvider
 import com.nivy.base.Toaster
 import com.nivy.base.model.Theme
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.DataObserver
 import com.nivy.data.db.entity.PaymentNotificationEntity
@@ -62,7 +62,6 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.util.UUID
 
@@ -321,13 +320,6 @@ class HomeViewModelTest : ComposeViewModelTest() {
         )
 
         /** November 6, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 6, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 6, 12, 0))
     }
 }

@@ -7,6 +7,7 @@ import com.nivy.base.model.LoanRecordType
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
@@ -20,6 +21,8 @@ import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
 import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.QuickAdd
+import com.nivy.data.model.QuickAddId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
@@ -51,6 +54,44 @@ fun previewAccount(
     includeInBalance = includeInBalance,
     type = AccountType.OTHER,
     archived = false,
+    orderNum = 0.0,
+)
+
+/**
+ * A category for previews and screenshot tests: without a [color] its saved color is 0, as
+ * categories made in tests have, and without an [id] one from its [name].
+ */
+fun previewCategory(
+    name: String,
+    color: Color = Color.Transparent,
+    icon: String? = null,
+    id: UUID = UUID.nameUUIDFromBytes(name.toByteArray()),
+    orderNum: Double = 0.0,
+): Category = Category(
+    id = CategoryId(id),
+    name = NotBlankTrimmedString.unsafe(name),
+    color = ColorInt(color.toArgb()),
+    icon = icon?.let(IconAsset::unsafe),
+    orderNum = orderNum,
+)
+
+/** A quick add for previews and screenshot tests, its id from its [title]. */
+fun previewQuickAdd(
+    title: String,
+    type: TransactionType,
+    account: Account,
+    amount: Double?,
+    category: Category?,
+    toAccount: Account? = null,
+): QuickAdd = QuickAdd(
+    id = QuickAddId(UUID.nameUUIDFromBytes(title.toByteArray())),
+    type = type,
+    account = account.id,
+    toAccount = toAccount?.id,
+    amount = amount?.let(PositiveDouble::unsafe),
+    category = category?.id,
+    title = NotBlankTrimmedString.unsafe(title),
+    creditCard = null,
     orderNum = 0.0,
 )
 

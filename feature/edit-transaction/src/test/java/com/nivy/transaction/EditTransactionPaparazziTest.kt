@@ -4,19 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Tag
 import com.nivy.data.model.TagId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.navigation.EditTransactionScreen
@@ -27,16 +23,14 @@ import com.nivy.wallet.data.EditTransactionDisplayLoan
 import com.nivy.wallet.domain.data.CustomExchangeRateState
 import com.nivy.wallet.ui.component.tags.ShowTagModal
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.theme.modal.edit.ChooseCategoryModal
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 
 /** The transaction editor as it opens an existing transaction, and with its category and tag dialogs. */
@@ -202,14 +196,7 @@ private fun BoxWithConstraintsScope.Editor(
 }
 
 /** November 7, 2026, noon, in UTC. */
-private object FixedTime : TimeProvider {
-    private val now = LocalDateTime.of(2026, 11, 7, 12, 0)
-    override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-    override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-    override fun localNow(): LocalDateTime = now
-    override fun localDateNow(): LocalDate = now.toLocalDate()
-    override fun localTimeNow(): LocalTime = now.toLocalTime()
-}
+private val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 7, 12, 0))
 
 // Stored colors are the palette's own: minimal colors turn them grey where they're drawn.
 private val Bank = previewAccount("Bank", color = Palette.Blue, icon = "bank", currency = "EUR")
@@ -223,13 +210,7 @@ private val Categories = persistentListOf(Groceries, Salary, Rent)
 private val Holiday = tag("Holiday")
 private val Tags = persistentListOf(Holiday, tag("Work"), tag("Family"))
 
-private fun category(name: String, color: Color, icon: String) = Category(
-    id = CategoryId(UUID.nameUUIDFromBytes(name.toByteArray())),
-    name = NotBlankTrimmedString.unsafe(name),
-    color = ColorInt(color.toArgb()),
-    icon = IconAsset.unsafe(icon),
-    orderNum = 0.0,
-)
+private fun category(name: String, color: Color, icon: String) = previewCategory(name, color, icon)
 
 private fun tag(name: String) = Tag(
     id = TagId(UUID.nameUUIDFromBytes(name.toByteArray())),

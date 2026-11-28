@@ -3,8 +3,6 @@ package com.nivy.importdata.cashew
 import com.nivy.base.model.AccountType
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Tag
@@ -17,6 +15,7 @@ import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.importdata.cashew.LeftOut.Reason
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test
@@ -107,13 +106,13 @@ class CashewPlannerTest {
     }
 
     @Test
-    fun `paid transactions come over with their amount, time, title and note`() {
-        // when
+    fun `paid transactions come over with their amount, time, title and note, skip mark and all`() {
+        // when: each with the skip mark Cashew sets on every ordinary transaction, which once kept them out
         val plan = plan {
             wallet("w1", "Bank")
             category("c1", "Dining")
-            transaction("t1", -4.125, name = "Lunch", note = "With Anna", date = "2026-10-05T13:00:00Z")
-            transaction("t2", 2000.0, name = "Salary", date = "2026-10-01T09:00:00Z")
+            transaction("t1", -4.125, name = "Lunch", note = "With Anna", skipPaid = true)
+            transaction("t2", 2000.0, name = "Salary", date = "2026-10-01T09:00:00Z", skipPaid = true)
         }
 
         // then
@@ -130,22 +129,6 @@ class CashewPlannerTest {
             time shouldBe Instant.parse("2026-10-05T13:00:00Z")
             settled shouldBe true
         }
-        plan.found shouldBe 2
-        plan.imported shouldBe 2
-    }
-
-    @Test
-    fun `ordinary transactions come over, with the skip mark Cashew sets on each`() {
-        // when
-        val plan = plan {
-            wallet("w1", "Bank")
-            category("c1", "Dining")
-            transaction("t1", -12.0, name = "Lunch", skipPaid = true)
-            transaction("t2", 1500.0, name = "Salary", skipPaid = true, date = "2026-10-01T09:00:00Z")
-        }
-
-        // then
-        plan.transactions.map { it.title?.value } shouldBe listOf("Salary", "Lunch")
         plan.found shouldBe 2
         plan.imported shouldBe 2
     }
@@ -277,11 +260,5 @@ class CashewPlannerTest {
         orderNum = 3.0,
     )
 
-    private fun category(name: String) = Category(
-        id = CategoryId(UUID.randomUUID()),
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(0),
-        icon = null,
-        orderNum = 0.0,
-    )
+    private fun category(name: String) = previewCategory(name)
 }

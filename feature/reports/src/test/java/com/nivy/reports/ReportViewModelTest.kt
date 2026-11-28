@@ -10,13 +10,12 @@ import com.nivy.base.model.AccountType
 import com.nivy.base.model.TransactionType
 import com.nivy.base.resource.ResourceProvider
 import com.nivy.base.threading.DispatchersProvider
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.file.FileSystem
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
@@ -47,6 +46,7 @@ import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -62,10 +62,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import java.io.IOException
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
@@ -441,14 +438,7 @@ class ReportViewModelTest {
         )
 
         /** November 15, 2026, noon, in UTC. */
-        val FixedTime = object : TimeProvider {
-            private val now = LocalDateTime.of(2026, 11, 15, 12, 0)
-            override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-            override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-            override fun localNow(): LocalDateTime = now
-            override fun localDateNow(): LocalDate = now.toLocalDate()
-            override fun localTimeNow(): LocalTime = now.toLocalTime()
-        }
+        val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 15, 12, 0))
 
         fun account(name: String, asset: AssetCode) = Account(
             id = AccountId(UUID.randomUUID()),
@@ -462,12 +452,6 @@ class ReportViewModelTest {
             orderNum = 0.0,
         )
 
-        fun category(name: String) = Category(
-            id = CategoryId(UUID.randomUUID()),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
-        )
+        fun category(name: String) = previewCategory(name)
     }
 }

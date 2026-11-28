@@ -1,19 +1,14 @@
 package com.nivy.home
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.TransactionType
-import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.db.entity.PaymentNotificationEntity
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.domain.notification.ListedNotification
 import com.nivy.domain.notification.Outcome
@@ -28,6 +23,7 @@ import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
 import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.previewTransaction
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
@@ -36,8 +32,6 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 
@@ -75,14 +69,7 @@ class HomeNotificationsPaparazziTest(
 }
 
 /** Saturday November 28, 2026, at 14:30 in UTC. */
-internal object FixedTime : TimeProvider {
-    private val now = LocalDateTime.of(2026, 11, 28, 14, 30)
-    override fun getZoneId(): ZoneId = ZoneId.of("UTC")
-    override fun utcNow(): Instant = now.atZone(getZoneId()).toInstant()
-    override fun localNow(): LocalDateTime = now
-    override fun localDateNow(): LocalDate = now.toLocalDate()
-    override fun localTimeNow(): LocalTime = now.toLocalTime()
-}
+internal val FixedTime = FixedTimeProvider(LocalDateTime.of(2026, 11, 28, 14, 30))
 
 internal val November = TimePeriod(month = Month.fromMonthValue(11), year = 2026)
 
@@ -91,13 +78,7 @@ internal fun at(day: Int, hour: Int, minute: Int): Instant =
 
 private fun id(name: String): UUID = UUID.nameUUIDFromBytes(name.toByteArray())
 
-private fun category(name: String, color: Color, icon: String) = Category(
-    id = CategoryId(id(name)),
-    name = NotBlankTrimmedString.unsafe(name),
-    color = ColorInt(color.toArgb()),
-    icon = IconAsset.unsafe(icon),
-    orderNum = 0.0,
-)
+private fun category(name: String, color: Color, icon: String) = previewCategory(name, color, icon)
 
 private val Intesa = previewAccount("Intesa", Palette.Blue, currency = "EUR", id = id("Intesa"))
 private val Revolut = previewAccount("Revolut", Palette.Purple1, currency = "EUR", id = id("Revolut"))

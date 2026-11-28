@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.Snapshot
-import app.cash.paparazzi.SnapshotHandler
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Category
@@ -22,6 +18,7 @@ import com.nivy.design.system.NivyMaterial3Theme
 import com.nivy.design.system.colors.Palette
 import com.nivy.ui.testing.DrawnChip
 import com.nivy.ui.testing.drawnChips
+import com.nivy.ui.testing.measuringPaparazzi
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.previewAccount
@@ -44,24 +41,7 @@ class TransactionCardChipsTest {
     private var frame: BufferedImage? = null
 
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6_PRO,
-        showSystemUi = false,
-        useDeviceResolution = true,
-        // Keeps the drawn frame for the test to measure, rather than writing or verifying it.
-        snapshotHandler = object : SnapshotHandler {
-            override fun newFrameHandler(snapshot: Snapshot, frameCount: Int, fps: Int) =
-                object : SnapshotHandler.FrameHandler {
-                    override fun handle(image: BufferedImage) {
-                        frame = image
-                    }
-
-                    override fun close() = Unit
-                }
-
-            override fun close() = Unit
-        },
-    )
+    val paparazzi = measuringPaparazzi { frame = it }
 
     private val bank = previewAccount("Main Bank", color = Palette.Blue, currency = "EUR", id = UUID(0, 10))
     private val savings = previewAccount("Savings", color = Palette.Purple1, currency = "EUR", id = UUID(0, 11))

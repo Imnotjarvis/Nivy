@@ -3,20 +3,10 @@ package com.nivy.quickadd
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.data.model.Account
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.QuickAdd
-import com.nivy.data.model.QuickAddId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NotBlankTrimmedString
-import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.design.system.colors.Palette
 import com.nivy.navigation.EditQuickAddScreen
 import com.nivy.quickadd.edit.EditQuickAddState
@@ -26,6 +16,8 @@ import com.nivy.ui.testing.PaparazziTheme
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
+import com.nivy.wallet.ui.previewQuickAdd
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.junit.Test
@@ -102,37 +94,13 @@ class QuickAddScreensPaparazziTest(
         )
 
         val QuickAdds = listOf(
-            quickAdd("Metro", TransactionType.EXPENSE, Bank, 2.2, Transport),
-            quickAdd("Coffee", TransactionType.EXPENSE, Cash, 1.3, Bar),
-            quickAdd("Lunch", TransactionType.EXPENSE, Bank, null, EatingOut),
-            quickAdd("To savings", TransactionType.TRANSFER, Bank, 50.0, null, toAccount = Savings),
+            previewQuickAdd("Metro", TransactionType.EXPENSE, Bank, 2.2, Transport),
+            previewQuickAdd("Coffee", TransactionType.EXPENSE, Cash, 1.3, Bar),
+            previewQuickAdd("Lunch", TransactionType.EXPENSE, Bank, null, EatingOut),
+            previewQuickAdd("To savings", TransactionType.TRANSFER, Bank, 50.0, null, toAccount = Savings),
         )
 
-        fun quickAdd(
-            title: String,
-            type: TransactionType,
-            account: Account,
-            amount: Double?,
-            category: Category?,
-            toAccount: Account? = null,
-        ) = QuickAdd(
-            id = QuickAddId(UUID.nameUUIDFromBytes(title.toByteArray())),
-            type = type,
-            account = account.id,
-            toAccount = toAccount?.id,
-            amount = amount?.let(PositiveDouble::unsafe),
-            category = category?.id,
-            title = NotBlankTrimmedString.unsafe(title),
-            creditCard = null,
-            orderNum = 0.0,
-        )
-
-        fun category(name: String, color: Color, icon: String, id: Long) = Category(
-            id = CategoryId(UUID(0, id)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(color.toArgb()),
-            icon = IconAsset.unsafe(icon),
-            orderNum = 0.0,
-        )
+        fun category(name: String, color: Color, icon: String, id: Long) =
+            previewCategory(name, color, icon, id = UUID(0, id))
     }
 }
