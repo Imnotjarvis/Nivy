@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -478,6 +479,7 @@ private fun NotAdded(item: ListedNotification, onEvent: (AddedFromNotificationsE
 
 // Why a notification wasn't added, as a sentence of its own.
 @Composable
+@ReadOnlyComposable
 private fun reason(item: ListedNotification): String {
     val at = item.since?.let { timeOf(it) }
     return when {

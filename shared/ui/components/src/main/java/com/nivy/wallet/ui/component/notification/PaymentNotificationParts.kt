@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -146,6 +147,7 @@ fun CategoryCircle(category: Category?, modifier: Modifier = Modifier, dim: Bool
  * not at the [startOfSentence]; today's only its time when [timeToday].
  */
 @Composable
+@ReadOnlyComposable
 fun dayAndTime(instant: Instant, startOfSentence: Boolean = true, timeToday: Boolean = false): String {
     val today = with(LocalTimeConverter.current) { instant.toLocalDate() } == LocalTimeProvider.current.localDateNow()
     return if (timeToday && today) timeOf(instant) else "${dayName(instant, startOfSentence)} ${timeOf(instant)}"
@@ -153,6 +155,7 @@ fun dayAndTime(instant: Instant, startOfSentence: Boolean = true, timeToday: Boo
 
 /** The day something happened: Today, Yesterday, the weekday's name in the week before, else the date. */
 @Composable
+@ReadOnlyComposable
 fun dayName(instant: Instant, startOfSentence: Boolean = true): String {
     val today = LocalTimeProvider.current.localDateNow()
     val date = with(LocalTimeConverter.current) { instant.toLocalDate() }
@@ -171,6 +174,7 @@ fun dayName(instant: Instant, startOfSentence: Boolean = true): String {
 
 /** The time something happened, in the phone's 12 or 24 hours. */
 @Composable
+@ReadOnlyComposable
 fun timeOf(instant: Instant): String {
     val time = with(LocalTimeConverter.current) { instant.toLocalTime() }
     return with(LocalTimeFormatter.current) { time.format() }

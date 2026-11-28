@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -286,6 +287,7 @@ private fun LogRow(entry: LogEntry, onClick: () -> Unit) {
 
 // What became of a notification, as the log says it.
 @Composable
+@ReadOnlyComposable
 private fun resultText(entry: LogEntry): String = when (entry.outcome) {
     Outcome.Added -> stringResource(R.string.added_amount, entry.amount.orEmpty())
     Outcome.WouldAdd -> stringResource(R.string.would_add, entry.amount.orEmpty())
@@ -301,6 +303,7 @@ private fun resultText(entry: LogEntry): String = when (entry.outcome) {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun resultColor(outcome: Outcome): Color {
     val page = MaterialTheme.colorScheme.surfaceVariant
     return when (outcome) {
@@ -313,6 +316,7 @@ private fun resultColor(outcome: Outcome): Color {
 
 /** Why a notification wasn't added, or was ignored, in lower case to follow a colon. */
 @Composable
+@ReadOnlyComposable
 internal fun whyText(why: Why?): String = stringResource(
     when (why) {
         Why.Code -> R.string.why_code

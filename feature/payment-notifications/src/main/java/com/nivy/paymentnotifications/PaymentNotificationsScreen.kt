@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -283,6 +284,7 @@ private fun Status(state: PaymentNotificationsState, onTest: () -> Unit) {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun statusText(state: PaymentNotificationsState): String = when {
     state.test != null -> testText(state.test, failed = R.string.test_failed_see_below)
     !state.granted -> stringResource(R.string.stopped_access_off)
@@ -293,6 +295,7 @@ private fun statusText(state: PaymentNotificationsState): String = when {
 
 /** How the listening test went; [failed] says where to look when it didn't arrive. */
 @Composable
+@ReadOnlyComposable
 internal fun testText(result: TestResult, failed: Int = R.string.test_failed): String = stringResource(
     when (result) {
         TestResult.Waiting -> R.string.test_waiting

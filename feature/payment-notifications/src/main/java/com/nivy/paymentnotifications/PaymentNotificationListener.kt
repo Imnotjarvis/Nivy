@@ -123,9 +123,16 @@ class PaymentNotificationListener : NotificationListenerService() {
     }
 }
 
-/** After the phone restarts, or Nivy updates, asks Android to bind the listener again. */
+/**
+ * After the phone restarts, or Nivy updates, asks Android to bind the listener again. Only those
+ * two system broadcasts: any other intent, or one without an action, does nothing.
+ */
 class ListenerRebindReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        NotificationAccess.rebind(context)
+        if (intent.action in RebindOn) NotificationAccess.rebind(context)
+    }
+
+    private companion object {
+        val RebindOn = setOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED)
     }
 }
