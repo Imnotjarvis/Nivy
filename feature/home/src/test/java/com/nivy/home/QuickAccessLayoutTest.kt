@@ -2,12 +2,9 @@ package com.nivy.home
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.toArgb
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.Snapshot
-import app.cash.paparazzi.SnapshotHandler
 import com.nivy.base.model.Theme
 import com.nivy.design.system.NivyMaterial3Theme
+import com.nivy.ui.testing.measuringPaparazzi
 import com.nivy.wallet.NivyPreview
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -27,24 +24,7 @@ class QuickAccessLayoutTest {
     private var panelColor = 0
 
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6_PRO,
-        showSystemUi = false,
-        useDeviceResolution = true,
-        // Keeps the drawn frame for the test to measure, rather than writing or verifying it.
-        snapshotHandler = object : SnapshotHandler {
-            override fun newFrameHandler(snapshot: Snapshot, frameCount: Int, fps: Int) =
-                object : SnapshotHandler.FrameHandler {
-                    override fun handle(image: BufferedImage) {
-                        frame = image
-                    }
-
-                    override fun close() = Unit
-                }
-
-            override fun close() = Unit
-        },
-    )
+    val paparazzi = measuringPaparazzi { frame = it }
 
     @Test
     fun `the buttons keep the page's margin, evenly spaced, the arrow above the right ones`() {

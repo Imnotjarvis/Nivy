@@ -11,4 +11,6 @@ dependencies {
     implementation(projects.shared.data.model)
     implementation(projects.shared.domain)
     implementation(projects.shared.ui.core)
+
+    testImplementation(projects.shared.ui.testing)
 }
