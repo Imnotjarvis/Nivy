@@ -44,12 +44,9 @@ data class AppColors(
 )
 
 /** This palette's colors: the wallpaper's as Android gives them, or Nivy's until it does. */
-fun ColorPalette.colors(): AppColors = colorsOf(this, ColorMode.wallpaper)
-
-/** The colors of [palette]: for the wallpaper's, its [wallpaper] colors, or Nivy's without them. */
-internal fun colorsOf(palette: ColorPalette, wallpaper: AppColors?): AppColors = when (palette) {
+fun ColorPalette.colors(): AppColors = when (this) {
     ColorPalette.NIVY -> NivyColors
-    ColorPalette.WALLPAPER -> wallpaper ?: NivyColors
+    ColorPalette.WALLPAPER -> ColorMode.wallpaper ?: NivyColors
     ColorPalette.OCEAN -> OceanColors
     ColorPalette.SUNSET -> SunsetColors
     ColorPalette.SKY -> SkyColors

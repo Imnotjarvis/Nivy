@@ -19,6 +19,8 @@ import com.nivy.domain.notification.MoneyWay
 import com.nivy.domain.notification.Outcome
 import com.nivy.domain.notification.PaymentNotificationReader
 import com.nivy.domain.notification.Why
+import com.nivy.domain.notification.outcomeOf
+import com.nivy.domain.notification.whyOf
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.previewAccount
 import com.nivy.wallet.ui.previewTransaction
@@ -118,8 +120,8 @@ internal fun listed(
     since: Instant? = null,
 ) = ListedNotification(
     notification = notification,
-    outcome = Outcome.entries.first { it.name == notification.outcome },
-    why = Why.entries.find { it.name == notification.why },
+    outcome = outcomeOf(notification.outcome),
+    why = whyOf(notification.why),
     transaction = transaction,
     alsoIn = alsoIn,
     since = since,

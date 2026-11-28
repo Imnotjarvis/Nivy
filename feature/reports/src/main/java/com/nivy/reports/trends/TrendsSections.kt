@@ -223,7 +223,7 @@ internal fun overTitle(range: TrendsRange, first: TimePeriod): String = when (ra
     TrendsRange.ThreeMonths -> stringResource(R.string.trends_over_three_months)
     TrendsRange.SixMonths -> stringResource(R.string.trends_over_six_months)
     TrendsRange.Year -> stringResource(R.string.trends_over_the_year)
-    TrendsRange.All -> stringResource(R.string.trends_over_since, monthYear(first))
+    TrendsRange.All -> stringResource(R.string.since_time, monthYear(first))
 }
 
 @Composable
