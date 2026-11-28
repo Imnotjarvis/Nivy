@@ -2,12 +2,9 @@ package com.nivy.transaction
 
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.NotBlankTrimmedString
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.shouldBe
 import org.junit.Test
-import java.util.UUID
 
 class EditorStepsTest {
     private val groceries = category("Groceries")
@@ -35,11 +32,5 @@ class EditorStepsTest {
         afterTitle(chosen = null, suggested = null) shouldBe AfterTitle.Ask
     }
 
-    private fun category(name: String) = Category(
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(0),
-        icon = null,
-        id = CategoryId(UUID.nameUUIDFromBytes(name.toByteArray())),
-        orderNum = 0.0,
-    )
+    private fun category(name: String) = previewCategory(name)
 }

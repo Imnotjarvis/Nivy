@@ -3,8 +3,6 @@ package com.nivy.importdata.cashew
 import com.nivy.base.model.AccountType
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Tag
@@ -17,6 +15,7 @@ import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.importdata.cashew.LeftOut.Reason
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test
@@ -277,11 +276,5 @@ class CashewPlannerTest {
         orderNum = 3.0,
     )
 
-    private fun category(name: String) = Category(
-        id = CategoryId(UUID.randomUUID()),
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(0),
-        icon = null,
-        orderNum = 0.0,
-    )
+    private fun category(name: String) = previewCategory(name)
 }

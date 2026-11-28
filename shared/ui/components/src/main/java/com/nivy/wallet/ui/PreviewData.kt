@@ -7,6 +7,7 @@ import com.nivy.base.model.LoanRecordType
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
+import com.nivy.data.model.Category
 import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
@@ -52,6 +53,24 @@ fun previewAccount(
     type = AccountType.OTHER,
     archived = false,
     orderNum = 0.0,
+)
+
+/**
+ * A category for previews and screenshot tests: without a [color] its saved color is 0, as
+ * categories made in tests have, and without an [id] one from its [name].
+ */
+fun previewCategory(
+    name: String,
+    color: Color = Color.Transparent,
+    icon: String? = null,
+    id: UUID = UUID.nameUUIDFromBytes(name.toByteArray()),
+    orderNum: Double = 0.0,
+): Category = Category(
+    id = CategoryId(id),
+    name = NotBlankTrimmedString.unsafe(name),
+    color = ColorInt(color.toArgb()),
+    icon = icon?.let(IconAsset::unsafe),
+    orderNum = orderNum,
 )
 
 /** A loan for previews and screenshot tests. */

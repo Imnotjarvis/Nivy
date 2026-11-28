@@ -2,23 +2,18 @@ package com.nivy.piechart
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.impl.FixedTimeProvider
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.ui.testing.PaparazziScreenshotTest
 import com.nivy.ui.testing.PaparazziTheme
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.ui.previewCategory
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,13 +62,8 @@ class PieChartUnspecifiedPaparazziTest(
         val EatingOut = category("Eating out", Palette.Red, "restaurant", 2)
         val Bills = category("Bills", Palette.Green2, "bills", 3)
 
-        fun category(name: String, color: Color, icon: String, n: Long) = Category(
-            id = CategoryId(UUID(9L, n)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(color.toArgb()),
-            icon = IconAsset.unsafe(icon),
-            orderNum = n.toDouble(),
-        )
+        fun category(name: String, color: Color, icon: String, n: Long) =
+            previewCategory(name, color, icon, id = UUID(9L, n), orderNum = n.toDouble())
 
         /** November 9, 2026, noon, in UTC. */
         val November9 = FixedTimeProvider(LocalDateTime.of(2026, 11, 9, 12, 0))

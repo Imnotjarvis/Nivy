@@ -4,7 +4,6 @@ import com.nivy.base.model.AccountType
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.NotBlankTrimmedString
@@ -13,6 +12,7 @@ import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.spending.DayAmount
 import com.nivy.wallet.domain.pure.spending.EveningPart
 import com.nivy.wallet.domain.pure.spending.Flow
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -319,13 +319,7 @@ class TrendsStatsTest {
             purchase = false,
         )
 
-        fun category(name: String, n: Long) = Category(
-            id = CategoryId(UUID(9L, n)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(0),
-            icon = null,
-            orderNum = n.toDouble(),
-        )
+        fun category(name: String, n: Long) = previewCategory(name, id = UUID(9L, n), orderNum = n.toDouble())
 
         fun account(name: String) = Account(
             id = AccountId(UUID.nameUUIDFromBytes(name.toByteArray())),

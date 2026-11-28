@@ -11,8 +11,6 @@ import com.nivy.base.model.TransactionType
 import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
 import com.nivy.data.model.primitive.IconAsset
@@ -23,6 +21,7 @@ import com.nivy.ui.testing.PaparazziTheme
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.ui.previewCategory
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,13 +84,8 @@ class PieChartBreakdownPaparazziTest(
         val CreditCard = account("Credit Card", Palette.Purple1, null, 2)
         val Cash = account("Cash", Palette.Green, "cash", 3)
 
-        fun category(name: String, color: Color, icon: String, n: Long) = Category(
-            id = CategoryId(UUID(9L, n)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(color.toArgb()),
-            icon = IconAsset.unsafe(icon),
-            orderNum = n.toDouble(),
-        )
+        fun category(name: String, color: Color, icon: String, n: Long) =
+            previewCategory(name, color, icon, id = UUID(9L, n), orderNum = n.toDouble())
 
         fun account(name: String, color: Color, icon: String?, n: Long) = Account(
             id = AccountId(UUID(1L, n)),

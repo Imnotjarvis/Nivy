@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -18,11 +17,8 @@ import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
 import com.nivy.data.model.Account
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.QuickAdd
 import com.nivy.data.model.QuickAddId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.design.system.colors.Palette
@@ -31,6 +27,7 @@ import com.nivy.ui.testing.PaparazziTheme
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.theme.components.BottomBarMessage
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
@@ -120,12 +117,7 @@ class QuickAddsPaparazziTest(
             orderNum = 0.0,
         )
 
-        fun category(name: String, color: Color, icon: String, id: Long) = Category(
-            id = CategoryId(UUID(0, id)),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(color.toArgb()),
-            icon = IconAsset.unsafe(icon),
-            orderNum = 0.0,
-        )
+        fun category(name: String, color: Color, icon: String, id: Long) =
+            previewCategory(name, color, icon, id = UUID(0, id))
     }
 }

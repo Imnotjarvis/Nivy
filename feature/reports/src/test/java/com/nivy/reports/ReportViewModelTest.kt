@@ -16,7 +16,6 @@ import com.nivy.data.file.FileSystem
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.PositiveValue
@@ -47,6 +46,7 @@ import com.nivy.ui.testing.runTest
 import com.nivy.wallet.PeriodState
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
+import com.nivy.wallet.ui.previewCategory
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -452,12 +452,6 @@ class ReportViewModelTest {
             orderNum = 0.0,
         )
 
-        fun category(name: String) = Category(
-            id = CategoryId(UUID.randomUUID()),
-            name = NotBlankTrimmedString.unsafe(name),
-            color = ColorInt(0),
-            icon = null,
-            orderNum = 0.0,
-        )
+        fun category(name: String) = previewCategory(name)
     }
 }

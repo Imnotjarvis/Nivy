@@ -1,17 +1,11 @@
 package com.nivy.search
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.impl.FixedTimeProvider
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.Income
 import com.nivy.data.model.Transaction
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.DueSection
 import com.nivy.wallet.domain.data.TransactionHistoryDateDivider
@@ -19,6 +13,7 @@ import com.nivy.wallet.domain.data.TransactionHistoryEntry
 import com.nivy.wallet.domain.data.TransactionHistoryItem
 import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.previewTransaction
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -117,11 +112,6 @@ internal object SearchSample {
 
     private fun at(date: LocalDate): Instant = date.atTime(9, 0).toInstant(ZoneOffset.UTC)
 
-    private fun category(name: String, color: Color, icon: String, id: Long) = Category(
-        id = CategoryId(UUID(0, id)),
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(color.toArgb()),
-        icon = IconAsset.unsafe(icon),
-        orderNum = 0.0,
-    )
+    private fun category(name: String, color: Color, icon: String, id: Long) =
+        previewCategory(name, color, icon, id = UUID(0, id))
 }

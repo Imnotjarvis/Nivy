@@ -7,16 +7,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
-import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
-import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
-import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.design.system.colors.Palette
 import com.nivy.ui.testing.PaparazziScreenshotTest
 import com.nivy.ui.testing.PaparazziTheme
@@ -24,6 +18,7 @@ import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.ui.component.transaction.CompactTransactionRow
 import com.nivy.wallet.ui.previewAccount
+import com.nivy.wallet.ui.previewCategory
 import com.nivy.wallet.ui.previewTransaction
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
@@ -68,10 +63,5 @@ private fun CompactRows(theme: Theme) {
     }
 }
 
-private fun category(name: String, color: Color, icon: String, n: Long) = Category(
-    id = CategoryId(UUID(9L, n)),
-    name = NotBlankTrimmedString.unsafe(name),
-    color = ColorInt(color.toArgb()),
-    icon = IconAsset.unsafe(icon),
-    orderNum = n.toDouble(),
-)
+private fun category(name: String, color: Color, icon: String, n: Long) =
+    previewCategory(name, color, icon, id = UUID(9L, n), orderNum = n.toDouble())

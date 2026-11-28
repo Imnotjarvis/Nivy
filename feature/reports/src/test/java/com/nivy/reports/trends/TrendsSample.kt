@@ -7,16 +7,15 @@ import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.data.model.Account
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Category
-import com.nivy.data.model.CategoryId
 import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.model.primitive.ColorInt
-import com.nivy.data.model.primitive.IconAsset
 import com.nivy.data.model.primitive.NotBlankTrimmedString
 import com.nivy.data.repository.ConsumerPrices
 import com.nivy.design.system.colors.Palette
 import com.nivy.wallet.data.model.Month
 import com.nivy.wallet.data.model.TimePeriod
 import com.nivy.wallet.domain.pure.spending.Flow
+import com.nivy.wallet.ui.previewCategory
 import kotlinx.collections.immutable.toImmutableList
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -209,13 +208,8 @@ internal object TrendsSample {
         purchase = false,
     )
 
-    private fun category(name: String, color: Color, icon: String, n: Long) = Category(
-        id = CategoryId(UUID(9L, n)),
-        name = NotBlankTrimmedString.unsafe(name),
-        color = ColorInt(color.toArgb()),
-        icon = IconAsset.unsafe(icon),
-        orderNum = n.toDouble(),
-    )
+    private fun category(name: String, color: Color, icon: String, n: Long) =
+        previewCategory(name, color, icon, id = UUID(9L, n), orderNum = n.toDouble())
 
     private fun account(name: String, color: Color, n: Long) = Account(
         id = AccountId(UUID(1L, n)),
