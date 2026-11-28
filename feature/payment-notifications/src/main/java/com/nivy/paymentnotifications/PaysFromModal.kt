@@ -100,7 +100,9 @@ internal class PaysFromPicker(
                     actions.setAppAccount(payer.id, payer.name, event.account, event.creditCard)
                 }
             }
-            is PaysFromEvent.Remove -> scope.write(userWrites, reload) { actions.remove(event.payer.kind, event.payer.id) }
+            is PaysFromEvent.Remove -> scope.write(userWrites, reload) {
+                actions.remove(event.payer.kind, event.payer.id)
+            }
         }
     }
 }
