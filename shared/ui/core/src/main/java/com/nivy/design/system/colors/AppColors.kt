@@ -133,82 +133,32 @@ internal val SunsetColors = AppColors(
     fourthText = ThemeTones(Color(0xFF8A4700), Color(0xFFE5A977)),
 )
 
-// One accent: a deeper shade of it on light themes and a lighter one on dark ones for the rest.
-internal val SkyColors = AppColors(
-    accent = ThemeTones(Color(0xFF007DA4), Color(0xFF007DA4)),
-    accentLight = Color(0xFFC6EFFF),
-    accentDark = Color(0xFF003A55),
-    second = ThemeTones(Color(0xFF007DA4), Color(0xFF007DA4)),
-    secondLight = Color(0xFFC6EFFF),
-    secondDark = Color(0xFF003A55),
-    third = ThemeTones(Color(0xFF00526F), Color(0xFF5BB2D2)),
-    thirdLight = Color(0xFFC6EFFF),
-    thirdDark = Color(0xFF003A55),
-    thirdText = ThemeTones(Color(0xFF00526F), Color(0xFF5BB2D2)),
-    fourth = ThemeTones(Color(0xFF00526F), Color(0xFF5BB2D2)),
-    fourthText = ThemeTones(Color(0xFF00526F), Color(0xFF5BB2D2)),
-)
+/**
+ * A palette of one accent: the [accent], with its [light] and [dark] tints, stands in for the
+ * second color too, and the third and fourth are a [deep] shade of it on light themes and a [soft]
+ * one on dark themes.
+ */
+private fun oneAccent(accent: Long, light: Long, dark: Long, deep: Long, soft: Long): AppColors {
+    val shade = ThemeTones(Color(deep), Color(soft))
+    return AppColors(
+        accent = ThemeTones(Color(accent), Color(accent)),
+        accentLight = Color(light),
+        accentDark = Color(dark),
+        second = ThemeTones(Color(accent), Color(accent)),
+        secondLight = Color(light),
+        secondDark = Color(dark),
+        third = shade,
+        thirdLight = Color(light),
+        thirdDark = Color(dark),
+        thirdText = shade,
+        fourth = shade,
+        fourthText = shade,
+    )
+}
 
-// One accent: a deeper shade of it on light themes and a lighter one on dark ones for the rest.
-internal val AmberColors = AppColors(
-    accent = ThemeTones(Color(0xFFA86300), Color(0xFFA86300)),
-    accentLight = Color(0xFFFFE2C6),
-    accentDark = Color(0xFF512600),
-    second = ThemeTones(Color(0xFFA86300), Color(0xFFA86300)),
-    secondLight = Color(0xFFFFE2C6),
-    secondDark = Color(0xFF512600),
-    third = ThemeTones(Color(0xFF703E00), Color(0xFFD69C55)),
-    thirdLight = Color(0xFFFFE2C6),
-    thirdDark = Color(0xFF512600),
-    thirdText = ThemeTones(Color(0xFF703E00), Color(0xFFD69C55)),
-    fourth = ThemeTones(Color(0xFF703E00), Color(0xFFD69C55)),
-    fourthText = ThemeTones(Color(0xFF703E00), Color(0xFFD69C55)),
-)
-
-// One accent: a deeper shade of it on light themes and a lighter one on dark ones for the rest.
-internal val PinkColors = AppColors(
-    accent = ThemeTones(Color(0xFFB84999), Color(0xFFB84999)),
-    accentLight = Color(0xFFFFDCF2),
-    accentDark = Color(0xFF4F1D41),
-    second = ThemeTones(Color(0xFFB84999), Color(0xFFB84999)),
-    secondLight = Color(0xFFFFDCF2),
-    secondDark = Color(0xFF4F1D41),
-    third = ThemeTones(Color(0xFF822169), Color(0xFFE68AC9)),
-    thirdLight = Color(0xFFFFDCF2),
-    thirdDark = Color(0xFF4F1D41),
-    thirdText = ThemeTones(Color(0xFF822169), Color(0xFFE68AC9)),
-    fourth = ThemeTones(Color(0xFF822169), Color(0xFFE68AC9)),
-    fourthText = ThemeTones(Color(0xFF822169), Color(0xFFE68AC9)),
-)
-
-// One accent: a deeper shade of it on light themes and a lighter one on dark ones for the rest.
-internal val VioletColors = AppColors(
-    accent = ThemeTones(Color(0xFF9356CD), Color(0xFF9356CD)),
-    accentLight = Color(0xFFEFE0FF),
-    accentDark = Color(0xFF3E2457),
-    second = ThemeTones(Color(0xFF9356CD), Color(0xFF9356CD)),
-    secondLight = Color(0xFFEFE0FF),
-    secondDark = Color(0xFF3E2457),
-    third = ThemeTones(Color(0xFF642D94), Color(0xFFC294F6)),
-    thirdLight = Color(0xFFEFE0FF),
-    thirdDark = Color(0xFF3E2457),
-    thirdText = ThemeTones(Color(0xFF642D94), Color(0xFFC294F6)),
-    fourth = ThemeTones(Color(0xFF642D94), Color(0xFFC294F6)),
-    fourthText = ThemeTones(Color(0xFF642D94), Color(0xFFC294F6)),
-)
-
-// One accent: a deeper shade of it on light themes and a lighter one on dark ones for the rest.
-internal val GraphiteColors = AppColors(
-    accent = ThemeTones(Color(0xFF617689), Color(0xFF617689)),
-    accentLight = Color(0xFFD4EBFF),
-    accentDark = Color(0xFF223545),
-    second = ThemeTones(Color(0xFF617689), Color(0xFF617689)),
-    secondLight = Color(0xFFD4EBFF),
-    secondDark = Color(0xFF223545),
-    third = ThemeTones(Color(0xFF3A4C5B), Color(0xFF97A9B9)),
-    thirdLight = Color(0xFFD4EBFF),
-    thirdDark = Color(0xFF223545),
-    thirdText = ThemeTones(Color(0xFF3A4C5B), Color(0xFF97A9B9)),
-    fourth = ThemeTones(Color(0xFF3A4C5B), Color(0xFF97A9B9)),
-    fourthText = ThemeTones(Color(0xFF3A4C5B), Color(0xFF97A9B9)),
-)
+// Each one accent: the accent, its light and dark tints, its deep and soft shades.
+internal val SkyColors = oneAccent(0xFF007DA4, 0xFFC6EFFF, 0xFF003A55, 0xFF00526F, 0xFF5BB2D2)
+internal val AmberColors = oneAccent(0xFFA86300, 0xFFFFE2C6, 0xFF512600, 0xFF703E00, 0xFFD69C55)
+internal val PinkColors = oneAccent(0xFFB84999, 0xFFFFDCF2, 0xFF4F1D41, 0xFF822169, 0xFFE68AC9)
+internal val VioletColors = oneAccent(0xFF9356CD, 0xFFEFE0FF, 0xFF3E2457, 0xFF642D94, 0xFFC294F6)
+internal val GraphiteColors = oneAccent(0xFF617689, 0xFFD4EBFF, 0xFF223545, 0xFF3A4C5B, 0xFF97A9B9)

@@ -290,13 +290,13 @@ internal fun Amount(
         }
 
         Column {
+            // The amount, or what stands in for it, opens the amount panel.
+            val amountModifier = Modifier
+                .clickableNoIndication(rememberInteractionSource()) { onShowAmountModal() }
+                .testTag("edit_amount_balance_row")
             if (emptyAmount != null && amount == 0.0) {
                 Text(
-                    modifier = Modifier
-                        .clickableNoIndication(rememberInteractionSource()) {
-                            onShowAmountModal()
-                        }
-                        .testTag("edit_amount_balance_row"),
+                    modifier = amountModifier,
                     text = emptyAmount,
                     style = MaterialTheme.typography.numberHeadlineLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
@@ -306,11 +306,7 @@ internal fun Amount(
                 )
             } else {
                 BalanceRow(
-                    modifier = Modifier
-                        .clickableNoIndication(rememberInteractionSource()) {
-                            onShowAmountModal()
-                        }
-                        .testTag("edit_amount_balance_row"),
+                    modifier = amountModifier,
                     currency = currency,
                     balance = amount,
 

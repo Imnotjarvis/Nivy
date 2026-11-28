@@ -117,7 +117,7 @@ internal fun BoxWithConstraintsScope.BottomBar(
         Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * appeared.value.coerceIn(0f, 1f)) }
+                .drawBehind { drawRect(Color.Black, alpha = CoveredDimAlpha * appeared.value) }
                 // No ripple: on the dim it would wash over the whole screen as the menu closes.
                 .clickable(interactionSource = null, indication = null, enabled = expanded) {
                     expanded = false

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.nivy.base.DefaultCornerRadiusDp
 import kotlin.math.abs
 
 /**
@@ -25,7 +26,7 @@ object AppCornerRadius {
     var setting: Dp? by mutableStateOf(null)
 
     /** The screen's corner radius; 16 dp on phones that don't report it. */
-    var matchPhone: Dp by mutableStateOf(16.dp)
+    var matchPhone: Dp by mutableStateOf(DefaultCornerRadiusDp.dp)
 
     val value: Dp get() = setting ?: matchPhone
 }
