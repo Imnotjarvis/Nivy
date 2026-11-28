@@ -97,10 +97,7 @@ private fun Row.objective() = CashewObjective(
     name = text("name"),
     colour = textOrNull("colour"),
     iconName = textOrNull("icon_name"),
-    order = long("order").toInt(),
-    date = instant("date_created"),
     income = bool("income"),
-    walletPk = textOrNull("wallet_fk"),
 )
 
 private fun Row.budget() = CashewBudget(

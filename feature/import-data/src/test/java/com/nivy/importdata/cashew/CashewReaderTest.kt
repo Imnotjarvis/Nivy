@@ -95,7 +95,6 @@ class CashewReaderTest {
             rates = mapOf("eur" to 0.92, "usd" to 1.0),
             customRates = mapOf("eur" to 0.9),
         )
-        data.settings.rate("eur") shouldBe 0.9
     }
 
     @Test

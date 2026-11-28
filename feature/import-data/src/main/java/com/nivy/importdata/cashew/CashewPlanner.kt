@@ -235,8 +235,8 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
             )
     }
 
-    internal fun leave(reason: Reason, cashew: CashewTransaction, date: Instant = cashew.date) =
-        leave(reason, LeftOut.Item(name = label(cashew), date = local(date).toLocalDate()))
+    internal fun leave(reason: Reason, cashew: CashewTransaction) =
+        leave(reason, LeftOut.Item(name = label(cashew), date = local(cashew.date).toLocalDate()))
 
     internal fun leave(reason: Reason, item: LeftOut.Item) {
         leftOut.getOrPut(reason) { mutableListOf() } += item

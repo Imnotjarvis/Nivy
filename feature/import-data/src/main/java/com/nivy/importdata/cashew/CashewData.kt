@@ -74,11 +74,8 @@ internal data class CashewObjective(
     val name: String,
     val colour: String?,
     val iconName: String?,
-    val order: Int,
-    val date: Instant,
     /** For a loan: the money was lent. Borrowed otherwise. */
     val income: Boolean,
-    val walletPk: String?,
 )
 
 internal data class CashewBudget(
@@ -106,10 +103,7 @@ internal data class CashewSettings(
     val primaryWalletPk: String?,
     val rates: Map<String, Double>,
     val customRates: Map<String, Double>,
-) {
-    /** One US dollar in [currency], as Cashew converts it; none when Cashew has no rate. */
-    fun rate(currency: String): Double? = customRates[currency] ?: rates[currency]
-}
+)
 
 /** Cashew's kinds of planned and lent amounts, in its order. */
 internal enum class CashewType { Upcoming, Subscription, Repetitive, Credit, Debt }
