@@ -74,7 +74,7 @@ internal class CashewPlanner(internal val data: CashewData, internal val wallet:
         val (inLoans, rest) = others.partition { it.loanPk in longTermLoans }
         inLoans.groupBy { it.loanPk }.forEach { (pk, rows) -> longTermLoans[pk]?.let { planLongTermLoan(it, rows) } }
         rest.filter { it.type == CashewType.Subscription || it.type == CashewType.Repetitive }
-            .groupBy { it.pk.substringBefore(SeriesKeySeparator) }
+            .groupBy(::seriesOf)
             .values.forEach(::planSeries)
         rest.forEach { cashew ->
             when (cashew.type) {
