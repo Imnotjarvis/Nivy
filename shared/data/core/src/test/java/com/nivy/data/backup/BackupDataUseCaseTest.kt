@@ -18,6 +18,7 @@ import com.nivy.data.db.dao.fake.FakeExchangeRatesDao
 import com.nivy.data.db.dao.fake.FakeLoanDao
 import com.nivy.data.db.dao.fake.FakeLoanRecordDao
 import com.nivy.data.db.dao.fake.FakePlannedPaymentDao
+import com.nivy.data.db.dao.fake.FakePaymentSourceDao
 import com.nivy.data.db.dao.fake.FakeQuickAddDao
 import com.nivy.data.db.dao.fake.FakeTagAssociationDao
 import com.nivy.data.db.dao.fake.FakeTagDao
@@ -25,6 +26,7 @@ import com.nivy.data.db.dao.fake.FakeTransactionDao
 import com.nivy.data.db.entity.AccountEntity
 import com.nivy.data.db.entity.AccountValueEntity
 import com.nivy.data.db.entity.CreditCardEntity
+import com.nivy.data.db.entity.PaymentSourceEntity
 import com.nivy.data.db.entity.TagAssociationEntity
 import com.nivy.data.db.entity.TagEntity
 import com.nivy.data.db.entity.TransactionEntity
@@ -84,6 +86,7 @@ class BackupDataUseCaseTest {
         accountValueDao: FakeAccountValueDao = FakeAccountValueDao(),
         exchangeRatesDao: FakeExchangeRatesDao = FakeExchangeRatesDao(),
         quickAddDao: FakeQuickAddDao = FakeQuickAddDao(),
+        paymentSourceDao: FakePaymentSourceDao = FakePaymentSourceDao(),
         fileSystem: FileSystem = mockk(relaxed = true),
         json: Json = this.json,
     ): BackupDataUseCase {
@@ -121,6 +124,8 @@ class BackupDataUseCaseTest {
             exchangeRatesWriter = exchangeRatesDao,
             quickAddDao = quickAddDao,
             quickAddWriter = quickAddDao,
+            paymentSourceDao = paymentSourceDao,
+            paymentSourceWriter = paymentSourceDao,
             transaction = FakeDatabaseTransaction(),
         )
     }
@@ -257,6 +262,23 @@ class BackupDataUseCaseTest {
         again.shouldHaveTheBackupsSettingsAndBalances()
     }
 
+    @Test
+    fun `the apps and cards picked for payment notifications go into a backup and come back`() = runTest {
+        // given: an app and a card, each with the account it pays from
+        val wallet = Wallet()
+        val account = UUID.fromString("aaaaaaaa-0000-4000-8000-000000000001")
+        val app = PaymentSourceEntity(PaymentSourceEntity.App, "test.bank", name = "Bank", accountId = account)
+        val card = PaymentSourceEntity(PaymentSourceEntity.Card, "1501", name = null, accountId = account)
+        wallet.paymentSources.saveMany(listOf(app, card))
+
+        // when: backed up and restored on another phone
+        val restored = Wallet()
+        restored.backup.importJson(wallet.backup.generateJsonBackup(), onProgress = {})
+
+        // then
+        restored.paymentSources.findAll().toSet() shouldBe setOf(app, card)
+    }
+
     /** A wallet on fakes: the backup use case, and what the wallet holds. */
     private inner class Wallet {
         private val accounts = FakeAccountDao()
@@ -272,6 +294,7 @@ class BackupDataUseCaseTest {
         private val accountValues = FakeAccountValueDao()
         private val exchangeRates = FakeExchangeRatesDao()
         private val quickAdds = FakeQuickAddDao()
+        val paymentSources = FakePaymentSourceDao()
         val preferences = AppPreferences(InMemoryPreferencesDataStore())
         val backup = newBackupDataUseCase(
             accountDao = accounts,
@@ -288,6 +311,7 @@ class BackupDataUseCaseTest {
             accountValueDao = accountValues,
             exchangeRatesDao = exchangeRates,
             quickAddDao = quickAdds,
+            paymentSourceDao = paymentSources,
         )
 
         suspend fun tables() = NivyCompleteData(
@@ -304,6 +328,7 @@ class BackupDataUseCaseTest {
             accountValues = accountValues.findAll(),
             exchangeRates = exchangeRates.findAllManuallyOverridden(),
             quickAdds = quickAdds.findAll(),
+            paymentSources = paymentSources.findAll(),
         ).tables()
 
         suspend fun balance(account: String) =
@@ -774,6 +799,7 @@ private fun NivyCompleteData.tables() = NivyCompleteData(
     accountValues = accountValues.sortedBy { it.id },
     exchangeRates = exchangeRates.sortedBy { "${it.baseCurrency} ${it.currency}" },
     quickAdds = quickAdds.sortedBy { it.id },
+    paymentSources = paymentSources.sortedBy { "${it.kind} ${it.id}" },
 )
 
 /**

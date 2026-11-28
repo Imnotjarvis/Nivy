@@ -158,6 +158,15 @@ class AppPreferences @Inject constructor(
         dataStore.data.first()[ConsumerPricesTriedAt]?.let(Instant::ofEpochMilli)
     suspend fun setConsumerPricesTried(at: Instant) = set(ConsumerPricesTriedAt, at.toEpochMilli())
 
+    /** Whether payment notifications are added as expenses; off, Nivy only logs what it would add. */
+    suspend fun addFromNotifications(): Boolean = get(AddFromNotifications, false)
+    suspend fun setAddFromNotifications(add: Boolean) = set(AddFromNotifications, add)
+
+    /** When the notification listener last heard any app's notification, or null if it never did. */
+    suspend fun notificationHeardAt(): Instant? =
+        dataStore.data.first()[NotificationHeardAt]?.let(Instant::ofEpochMilli)
+    suspend fun setNotificationHeard(at: Instant) = set(NotificationHeardAt, at.toEpochMilli())
+
     private suspend fun <T> get(key: Preferences.Key<T>, default: T): T =
         dataStore.data.first()[key] ?: default
 
@@ -189,6 +198,8 @@ class AppPreferences @Inject constructor(
         private val ExchangeRatesSyncedAt = longPreferencesKey("exchange_rates_synced_at")
         private val ConsumerPriceIndex = stringPreferencesKey("consumer_price_index")
         private val ConsumerPricesTriedAt = longPreferencesKey("consumer_prices_tried_at")
+        private val AddFromNotifications = booleanPreferencesKey("add_from_notifications")
+        private val NotificationHeardAt = longPreferencesKey("notification_heard_at")
         private const val CardDismissedSuffix = "_cj_dismissed"
 
         // The settings that used to live in the database's settings table.

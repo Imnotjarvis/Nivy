@@ -15,6 +15,7 @@ import com.nivy.base.time.TimeProvider
 import com.nivy.data.db.dao.read.TransactionDao
 import com.nivy.data.model.Account
 import com.nivy.data.model.Transaction
+import com.nivy.data.model.primitive.AssetCode
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
 import com.nivy.data.repository.AccountRepository
@@ -22,6 +23,12 @@ import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CurrencyRepository
 import com.nivy.domain.UserWrites
 import com.nivy.domain.features.Features
+import com.nivy.domain.notification.NotificationAccess
+import com.nivy.domain.notification.PaymentNotificationActions
+import com.nivy.domain.notification.PaymentNotificationListUseCase
+import com.nivy.domain.notification.Stopped
+import com.nivy.domain.usecase.exchange.BaseCurrencyRates
+import com.nivy.domain.usecase.exchange.ExchangeUseCase
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
@@ -70,6 +77,9 @@ import kotlin.time.Duration.Companion.seconds
 // How long a tap shows a hidden balance or income.
 private val RevealHiddenFor = 5.seconds
 
+// The payments added from notifications that Home shows, the newest first.
+private const val LatestOnHome = 3
+
 @Stable
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -98,6 +108,10 @@ class HomeViewModel @Inject constructor(
     private val userWrites: UserWrites,
     private val dispatchers: DispatchersProvider,
     private val dataObserver: DataObserver,
+    private val notificationList: PaymentNotificationListUseCase,
+    private val notificationActions: PaymentNotificationActions,
+    private val notificationAccess: NotificationAccess,
+    private val exchangeUseCase: ExchangeUseCase,
 ) : ComposeViewModel<HomeState, HomeEvent>() {
 
     private var currentTheme by mutableStateOf(Theme.AUTO)
@@ -137,6 +151,9 @@ class HomeViewModel @Inject constructor(
     private var hideBalance by mutableStateOf(false)
     private var hideIncome by mutableStateOf(false)
     private var expanded by mutableStateOf(true)
+    private var notifications by mutableStateOf<HomeNotifications?>(null)
+    private var notificationsExpanded by mutableStateOf(true)
+    private var listeningStopped by mutableStateOf<Stopped?>(null)
 
     @Composable
     override fun uiState(): HomeState {
@@ -146,6 +163,11 @@ class HomeViewModel @Inject constructor(
         // A quick add, or taking it back, changes the transactions while Home shows.
         LaunchedEffect(Unit) {
             dataObserver.writeEvents.filterIsInstance<DataWriteEvent.TransactionsChanged>().collectLatest { reload() }
+        }
+        // A payment notification read, or one put away from the list.
+        LaunchedEffect(Unit) {
+            dataObserver.writeEvents.filterIsInstance<DataWriteEvent.PaymentNotificationsChanged>()
+                .collectLatest { loadNotifications(currencyRepository.getBaseCurrency()) }
         }
 
         return HomeState(
@@ -167,6 +189,8 @@ class HomeViewModel @Inject constructor(
             hideIncome = hideIncome,
             shouldShowAccountSpecificColorInTransactions = getShouldShowAccountSpecificColorInTransactions(),
             compactTransactions = features.compactTransactionsMode.asEnabledState(),
+            notifications = notifications?.copy(expanded = notificationsExpanded),
+            listeningStopped = listeningStopped,
         )
     }
 
@@ -192,11 +216,20 @@ class HomeViewModel @Inject constructor(
                 HomeEvent.SwitchTheme -> switchTheme()
                 is HomeEvent.DismissCustomerJourneyCard -> dismissCustomerJourneyCard(event.card)
                 is HomeEvent.SetExpanded -> setExpanded(event.expanded)
+                is HomeEvent.SetNotificationsExpanded -> notificationsExpanded = event.expanded
+                is HomeEvent.UndoNotification ->
+                    userWrites.run(R.string.msg_change_not_saved) { notificationActions.undo(event.id) }
+                is HomeEvent.AddBackNotification ->
+                    userWrites.run(R.string.msg_change_not_saved) { notificationActions.addBack(event.id) }
+                HomeEvent.NotificationsAllGood ->
+                    userWrites.run(R.string.msg_change_not_saved) { notificationActions.allGood() }
             }
         }
     }
 
     private suspend fun start() {
+        // Android binds the notification listener again only once after it drops: on opening Nivy, again.
+        if (notificationAccess.granted() && !notificationAccess.connected.value) notificationAccess.rebind()
         val startDay = startDayOfMonthUseCase.startDay()
         reload(periodState.initSelected(startDayOfMonth = startDay))
     }
@@ -250,6 +283,7 @@ class HomeViewModel @Inject constructor(
         // them down; then the transactions, and the header's glance, which moves nothing; last the
         // balance, which reads every transaction there is.
         timer.step("cards") { loadCustomerJourney() }
+        timer.step("notifications") { loadNotifications(currencyRepository.getBaseCurrency()) }
         timer.step("planned") { loadDueTrns(currencyAndRange) }
         timer.step("month totals") { loadMonthTotals(withAccounts) }
         timer.step("transactions") { loadTrnHistory(currencyAndRange) }
@@ -327,6 +361,19 @@ class HomeViewModel @Inject constructor(
             stats = overdueResult.overdue,
             expanded = overdue.expanded
         )
+    }
+
+    // The newest payments added from notifications, and whether Nivy stopped reading them.
+    private suspend fun loadNotifications(baseCurrency: AssetCode) {
+        val listed = notificationList.load()
+        notifications = HomeNotifications(
+            latest = listed.added.take(LatestOnHome).toImmutableList(),
+            count = listed.size,
+            notAdded = listed.notAdded.size,
+            totals = listed.totals(BaseCurrencyRates(exchangeUseCase, baseCurrency)),
+            expanded = notificationsExpanded,
+        )
+        listeningStopped = notificationAccess.stopped()
     }
 
     private suspend fun loadCustomerJourney() {

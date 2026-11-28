@@ -16,6 +16,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.PaymentNotificationRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
@@ -39,6 +40,7 @@ class DeleteAllDataUseCase @Inject constructor(
     private val budgetRepository: BudgetRepository,
     private val loanRepository: LoanRepository,
     private val quickAddRepository: QuickAddRepository,
+    private val paymentNotificationRepository: PaymentNotificationRepository,
 ) {
     suspend operator fun invoke() {
         withContext(dispatchers.io) {
@@ -56,6 +58,7 @@ class DeleteAllDataUseCase @Inject constructor(
                 budgetRepository.deleteAll()
                 loanRepository.deleteAll()
                 quickAddRepository.deleteAll()
+                paymentNotificationRepository.deleteAll()
             }
             // also forgets the settings in AppPreferences, but not that the old ones were copied:
             // they aren't to come back

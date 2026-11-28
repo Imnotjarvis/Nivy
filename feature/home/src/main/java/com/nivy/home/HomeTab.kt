@@ -55,6 +55,11 @@ import com.nivy.wallet.ui.theme.modal.DeleteModal
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import java.math.BigDecimal
+import androidx.compose.foundation.lazy.LazyListScope
+import com.nivy.navigation.AddedFromNotificationsScreen
+import com.nivy.navigation.PaymentNotificationsScreen
+import com.nivy.base.time.TimeProvider
+import com.nivy.base.time.impl.DeviceTimeProvider
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -90,6 +95,14 @@ private fun BoxWithConstraintsScope.HomeUi(
 
     val pullToSearch = rememberPullToSearch()
     val nav = navigation()
+    val notificationActions = HomeNotificationActions(
+        onExpand = { onEvent(HomeEvent.SetNotificationsExpanded(it)) },
+        onUndo = { onEvent(HomeEvent.UndoNotification(it)) },
+        onAddBack = { onEvent(HomeEvent.AddBackNotification(it)) },
+        onSeeAll = { nav.navigateTo(AddedFromNotificationsScreen) },
+        onAllGood = { onEvent(HomeEvent.NotificationsAllGood) },
+        onFix = { nav.navigateTo(PaymentNotificationsScreen) },
+    )
 
     Column(
         modifier = modifier
@@ -165,7 +178,15 @@ private fun BoxWithConstraintsScope.HomeUi(
             setOverdueExpanded = { onEvent(HomeEvent.SetOverdueExpanded(it)) },
             onSkipAllTransactions = {
                 skipAllModalVisible = true
-            }
+            },
+            notifications = {
+                notificationsOnHome(
+                    stopped = uiState.listeningStopped,
+                    notifications = uiState.notifications,
+                    baseData = uiState.baseData,
+                    on = notificationActions,
+                )
+            },
         )
     }
 
@@ -237,6 +258,8 @@ private fun HomeLazyColumn(
     onSkipAllTransactions: (List<Transaction>) -> Unit,
     modifier: Modifier = Modifier,
     compactTransactions: Boolean = false,
+    // Above the month's transactions: what was added from notifications, or that Nivy stopped reading them.
+    notifications: LazyListScope.() -> Unit = {},
 ) {
     val periodState = LocalPeriodState.current
 
@@ -305,6 +328,8 @@ private fun HomeLazyColumn(
             )
         }
 
+        notifications()
+
         // Nothing until the month's transactions are loaded, rather than "No transactions" while
         // they are; then they fade in.
         if (historyLoaded) {
@@ -335,6 +360,7 @@ private fun HomeLazyColumn(
 private fun BoxWithConstraintsScope.PreviewHomeTab(
     isDark: Boolean = false,
     stats: IncomeExpensePair = IncomeExpensePair.zero(),
+    change: (HomeState) -> HomeState = { it },
 ) {
     NivyMaterial3Preview(isDark) {
         HomeUi(
@@ -367,7 +393,7 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(
                 hideIncome = false,
                 expanded = false,
                 shouldShowAccountSpecificColorInTransactions = false
-            ),
+            ).let(change),
             onEvent = {}
         )
     }
@@ -376,12 +402,18 @@ private fun BoxWithConstraintsScope.PreviewHomeTab(
 /** For screenshot testing: Home with the month's [stats], nothing by default. */
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun HomeUiTest(isDark: Boolean, stats: IncomeExpensePair = IncomeExpensePair.zero()) {
+fun HomeUiTest(
+    isDark: Boolean,
+    stats: IncomeExpensePair = IncomeExpensePair.zero(),
+    timeProvider: TimeProvider = remember { DeviceTimeProvider() },
+    // What the test shows beyond an empty Home.
+    change: (HomeState) -> HomeState = { it },
+) {
     val theme = when (isDark) {
         true -> Theme.DARK
         false -> Theme.LIGHT
     }
-    NivyPreview(theme) {
-        PreviewHomeTab(isDark, stats)
+    NivyPreview(theme, timeProvider) {
+        PreviewHomeTab(isDark, stats, change)
     }
 }

@@ -36,7 +36,8 @@ class NotificationService @Inject constructor(
 
     fun showNotification(
         notification: NotificationCompat.Builder,
-        notificationId: Int
+        notificationId: Int,
+        tag: String? = null
     ) {
         try {
             val notificationManager =
@@ -46,7 +47,7 @@ class NotificationService @Inject constructor(
             val channel = (notification as NivyNotification).nivyChannel.create(context)
 
             notificationManager.createNotificationChannel(channel)
-            notificationManager.notify(notificationId, notification.build())
+            notificationManager.notify(tag, notificationId, notification.build())
         } catch (e: SecurityException) {
             // Some devices refuse to post without the notification permission.
             Timber.e(e)

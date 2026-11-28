@@ -1,7 +1,7 @@
 # The database
 
 Nivy keeps everything in one Room database, `ivywallet.db`, defined by `NivyRoomDatabase`
-(`shared/data/core/src/main/java/com/nivy/data/db/`). It's at version 139. Versions up to 132 come
+(`shared/data/core/src/main/java/com/nivy/data/db/`). It's at version 140. Versions up to 132 come
 from Ivy Wallet; Nivy's own start at 133.
 
 The oldest database the migrations upgrade is version 106: Ivy Wallet's schemas before it don't
@@ -18,7 +18,7 @@ match what its migration from 105 assumed, so there was never a working path fro
 4. Build once: Room exports the new schema to `shared/data/core/schemas/`. Commit that file. CI's
    "Room schemas are committed" step fails when a build changes or adds one, and the migration
    tests read them from there.
-5. Extend `Migration132to139DataTest` (in `src/androidTest`, renamed for the new version). It
+5. Extend `Migration132to140DataTest` (in `src/androidTest`, renamed for the new version). It
    writes real rows at version 132, runs every migration and checks the rows and the balances on
    the other side. Add rows for what the new version touches.
 6. A new table or column usually belongs in backups too: see [backup-format.md](backup-format.md).

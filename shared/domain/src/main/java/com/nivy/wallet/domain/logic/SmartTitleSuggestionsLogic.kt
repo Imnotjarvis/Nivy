@@ -77,6 +77,16 @@ class SmartTitleSuggestionsLogic @Inject constructor(
             .filterKeys { it != title }
             .map { (suggestion, category) -> TitleSuggestion(suggestion, category?.let(categories::get)) }
     }
+
+    /**
+     * The category the transactions titled [title], whatever its case, are in most; null when
+     * there are none, none has a category, or it was deleted since.
+     */
+    suspend fun categoryOf(title: String): Category? {
+        val name = title.trim().capitalizeWords()
+        val categoryId = transactionDao.findAllByTitleMatchingPattern(title.trim()).titlesByUse()[name]
+        return categoryId?.let { id -> categoryRepository.findAll().find { it.id.value == id } }
+    }
 }
 
 /**

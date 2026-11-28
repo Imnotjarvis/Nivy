@@ -31,4 +31,10 @@ sealed interface DataWriteEvent {
      * Home lists them again, and the accounts tab works out the balances again.
      */
     data object TransactionsChanged : DataWriteEvent
+
+    /**
+     * A payment notification was read, or what became of one changed: Home's section of what was
+     * added and the list of them load again.
+     */
+    data object PaymentNotificationsChanged : DataWriteEvent
 }

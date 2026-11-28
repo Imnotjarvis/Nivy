@@ -130,6 +130,36 @@ data class EditQuickAddScreen(
         get() = true
 }
 
+/** Payment notifications: notification access, the apps read and their accounts, the cards seen. */
+data object PaymentNotificationsScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
+/** The settings that keep Nivy listening to notifications, and a test. */
+data object KeepListeningScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
+/** The apps to read for payment notifications, and the account each pays from. */
+data object NotificationAppsScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
+/** What Nivy read in the payment notifications of the last 30 days. */
+data object NotificationLogScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
+/** The payments added from notifications, and what wasn't added, until they're seen. */
+data object AddedFromNotificationsScreen : Screen {
+    override val isLegacy: Boolean
+        get() = true
+}
+
 data object CategoriesScreen : Screen {
     override val isLegacy: Boolean
         get() = true

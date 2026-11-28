@@ -21,6 +21,7 @@ import com.nivy.data.repository.AccountValueRepository
 import com.nivy.data.repository.CategoryRepository
 import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.PaymentNotificationRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TransactionRepository
 import com.nivy.navigation.Navigation
@@ -58,6 +59,7 @@ class AccountCategoryDeletionTest {
     private val creditCardRepository = mockk<CreditCardRepository>(relaxUnitFun = true)
     private val accountValueRepository = mockk<AccountValueRepository>(relaxUnitFun = true)
     private val quickAddRepository = mockk<QuickAddRepository>(relaxUnitFun = true)
+    private val paymentNotificationRepository = mockk<PaymentNotificationRepository>(relaxUnitFun = true)
     private val nav = mockk<Navigation>(relaxed = true)
 
     // The database transaction's block runs as it is; inTransaction says when.
@@ -81,6 +83,7 @@ class AccountCategoryDeletionTest {
         creditCardRepository = creditCardRepository,
         accountValueRepository = accountValueRepository,
         quickAddRepository = quickAddRepository,
+        paymentNotificationRepository = paymentNotificationRepository,
         transaction = transaction,
         nav = nav,
     )
@@ -99,6 +102,7 @@ class AccountCategoryDeletionTest {
             creditCardRepository.deleteAllByAccountId(oldBank.id)
             accountValueRepository.deleteAllByAccountId(oldBank.id)
             quickAddRepository.deleteAllByAccountId(oldBank.id)
+            paymentNotificationRepository.deleteSourcesByAccountId(oldBank.id)
             accountRepository.deleteById(oldBank.id)
             nav.back()
         }
@@ -118,6 +122,9 @@ class AccountCategoryDeletionTest {
         coEvery { creditCardRepository.deleteAllByAccountId(any()) } answers { note("cards deleted") }
         coEvery { accountValueRepository.deleteAllByAccountId(any()) } answers { note("values deleted") }
         coEvery { quickAddRepository.deleteAllByAccountId(any()) } answers { note("quick adds deleted") }
+        coEvery { paymentNotificationRepository.deleteSourcesByAccountId(any()) } answers {
+            note("payment apps deleted")
+        }
         coEvery { accountRepository.deleteById(any()) } answers { note("account deleted") }
         every { nav.back() } answers {
             note("page left")
@@ -135,6 +142,7 @@ class AccountCategoryDeletionTest {
             "cards deleted",
             "values deleted",
             "quick adds deleted",
+            "payment apps deleted",
             "account deleted",
             "page left, outside the transaction",
         )

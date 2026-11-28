@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- To ask, once, to run without Android's battery limits, so the listener keeps listening.
+         Google Play's policy restricts it; Nivy isn't on Play. -->
+    <uses-permission
+        android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+        tools:ignore="BatteryLife" />
+
+    <!-- The apps that can be picked for payment notifications: those with a launcher icon, with
+         their names and icons. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application>
+        <!-- Android keeps notification access under this class name: it must never change, or the
+             access goes. It reads alerting and silent notifications, as Google Wallet's purchase
+             notifications were silent by default. -->
+        <service
+            android:name="com.nivy.paymentnotifications.PaymentNotificationListener"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.notification.default_filter_types"
+                android:value="alerting|silent" />
+        </service>
+
+        <!-- After the phone restarts or Nivy updates, asks Android to bind the listener again. -->
+        <receiver
+            android:name="com.nivy.paymentnotifications.ListenerRebindReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

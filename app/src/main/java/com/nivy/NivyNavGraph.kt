@@ -31,6 +31,11 @@ import com.nivy.navigation.PieChartStatisticScreen
 import com.nivy.navigation.PlannedPaymentsScreen
 import com.nivy.navigation.QuickAddsScreen
 import com.nivy.navigation.EditQuickAddScreen
+import com.nivy.navigation.AddedFromNotificationsScreen
+import com.nivy.navigation.KeepListeningScreen
+import com.nivy.navigation.NotificationAppsScreen
+import com.nivy.navigation.NotificationLogScreen
+import com.nivy.navigation.PaymentNotificationsScreen
 import com.nivy.navigation.ReportScreen
 import com.nivy.navigation.TrendsScreen
 import com.nivy.navigation.Screen
@@ -38,6 +43,11 @@ import com.nivy.navigation.SearchScreen
 import com.nivy.navigation.SettingsScreen
 import com.nivy.navigation.TransactionsScreen
 import com.nivy.onboarding.OnboardingScreen
+import com.nivy.paymentnotifications.AddedFromNotificationsScreen
+import com.nivy.paymentnotifications.KeepListeningScreen
+import com.nivy.paymentnotifications.NotificationAppsScreen
+import com.nivy.paymentnotifications.NotificationLogScreen
+import com.nivy.paymentnotifications.PaymentNotificationsScreen
 import com.nivy.piechart.PieChartStatisticScreen
 import com.nivy.planned.edit.EditPlannedScreen
 import com.nivy.planned.list.PlannedPaymentsScreen
@@ -71,6 +81,11 @@ fun BoxWithConstraintsScope.NivyNavGraph(screen: Screen?) {
         is EditPlannedScreen -> EditPlannedScreen(screen = screen)
         is QuickAddsScreen -> QuickAddsScreen()
         is EditQuickAddScreen -> EditQuickAddScreen(screen = screen)
+        PaymentNotificationsScreen -> PaymentNotificationsScreen()
+        KeepListeningScreen -> KeepListeningScreen()
+        NotificationAppsScreen -> NotificationAppsScreen()
+        NotificationLogScreen -> NotificationLogScreen()
+        AddedFromNotificationsScreen -> AddedFromNotificationsScreen()
         is BalanceScreen -> BalanceScreen()
         is ImportScreen -> ImportCSVScreen(screen = screen)
         is ReportScreen -> ReportScreen()

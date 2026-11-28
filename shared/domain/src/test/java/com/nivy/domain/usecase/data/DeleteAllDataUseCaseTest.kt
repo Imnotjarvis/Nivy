@@ -17,6 +17,7 @@ import com.nivy.data.repository.CreditCardRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.PaymentNotificationRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
@@ -71,6 +72,9 @@ class DeleteAllDataUseCaseTest {
             budgetRepository = mockk<BudgetRepository> { coEvery { deleteAll() } answers { delete() } },
             loanRepository = mockk<LoanRepository> { coEvery { deleteAll() } answers { delete() } },
             quickAddRepository = mockk<QuickAddRepository> { coEvery { deleteAll() } answers { delete() } },
+            paymentNotificationRepository = mockk<PaymentNotificationRepository> {
+                coEvery { deleteAll() } answers { delete() }
+            },
         )
     }
 
@@ -84,7 +88,7 @@ class DeleteAllDataUseCaseTest {
         useCase()
 
         // then: all eleven repositories' tables
-        deletes shouldBe List(11) { true }
+        deletes shouldBe List(12) { true }
     }
 
     @Test

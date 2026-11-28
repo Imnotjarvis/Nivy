@@ -7,6 +7,7 @@ import com.nivy.base.model.Theme
 import com.nivy.base.time.TimeProvider
 import com.nivy.base.time.impl.TestTimeConverter
 import com.nivy.data.DataObserver
+import com.nivy.data.db.entity.PaymentNotificationEntity
 import com.nivy.data.model.AccountId
 import com.nivy.data.model.Expense
 import com.nivy.data.model.PositiveValue
@@ -18,6 +19,12 @@ import com.nivy.data.model.primitive.PositiveDouble
 import com.nivy.data.preferences.AppPreferences
 import com.nivy.data.preferences.AppSettings
 import com.nivy.domain.UserWrites
+import com.nivy.domain.notification.ListedNotification
+import com.nivy.domain.notification.NotificationAccess
+import com.nivy.domain.notification.NotificationList
+import com.nivy.domain.notification.Outcome
+import com.nivy.domain.notification.PaymentNotificationListUseCase
+import com.nivy.domain.notification.Stopped
 import com.nivy.domain.usecase.exchange.SyncExchangeRatesUseCase
 import com.nivy.domain.usecase.planned.DueTransactionsUseCase
 import com.nivy.domain.usecase.wallet.WalletBalanceUseCase
@@ -45,9 +52,11 @@ import com.nivy.wallet.domain.pure.data.IncomeExpensePair
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -73,6 +82,14 @@ class HomeViewModelTest : ComposeViewModelTest() {
     }
 
     private val periodState = PeriodState(FixedTime)
+    private val notificationList = mockk<PaymentNotificationListUseCase> {
+        coEvery { load() } returns NotificationList(added = emptyList(), notAdded = emptyList())
+    }
+    private val notificationAccess = mockk<NotificationAccess>(relaxed = true) {
+        every { granted() } returns false
+        every { connected } returns MutableStateFlow(false)
+        coEvery { stopped() } returns null
+    }
 
     private val viewModel = HomeViewModel(
         periodState = periodState,
@@ -119,6 +136,10 @@ class HomeViewModelTest : ComposeViewModelTest() {
         userWrites = UserWrites(toaster),
         dispatchers = TestDispatchersProvider,
         dataObserver = DataObserver(),
+        notificationList = notificationList,
+        notificationActions = mockk(relaxed = true),
+        notificationAccess = notificationAccess,
+        exchangeUseCase = mockk(),
     )
 
     @Test
@@ -217,7 +238,62 @@ class HomeViewModelTest : ComposeViewModelTest() {
         }
     }
 
+    @Test
+    fun `the newest three payments added from notifications show, with all the list holds`() {
+        val added = (1..4).map { listed(Outcome.Added, minutesAgo = it) }
+        val notAdded = listed(Outcome.NotAdded, minutesAgo = 5)
+        coEvery { notificationList.load() } returns NotificationList(added = added, notAdded = listOf(notAdded))
+
+        viewModel.runTest {
+            notifications?.latest shouldBe added.take(3)
+            notifications?.count shouldBe 5
+            notifications?.notAdded shouldBe 1
+        }
+    }
+
+    @Test
+    fun `Home says when Nivy stopped reading notifications`() {
+        coEvery { notificationAccess.stopped() } returns Stopped(accessOff = true, since = null)
+
+        viewModel.runTest {
+            listeningStopped shouldBe Stopped(accessOff = true, since = null)
+        }
+    }
+
     private companion object {
+        // A notification of the list, read some minutes before now; nothing it added is loaded.
+        fun listed(outcome: Outcome, minutesAgo: Int): ListedNotification {
+            val time = Instant.parse("2026-11-06T12:00:00Z").minusSeconds(60L * minutesAgo)
+            return ListedNotification(
+                notification = PaymentNotificationEntity(
+                    id = UUID.randomUUID(),
+                    packageName = "test.bank",
+                    appName = "Bank",
+                    notificationKey = "k$minutesAgo",
+                    postTime = time,
+                    title = "Bank",
+                    text = "Hai pagato $minutesAgo € presso CONAD",
+                    outcome = outcome.name,
+                    why = null,
+                    way = "Spent",
+                    cents = 100L * minutesAgo,
+                    currency = "EUR",
+                    merchant = "CONAD",
+                    card = null,
+                    transactionId = null,
+                    about = null,
+                    aboutTime = null,
+                    guessedAccount = false,
+                    reviewed = false,
+                ),
+                outcome = outcome,
+                why = null,
+                transaction = null,
+                alsoIn = emptyList(),
+                since = null,
+            )
+        }
+
         // A planned payment due today.
         val DueRent = Expense(
             id = TransactionId(UUID.randomUUID()),

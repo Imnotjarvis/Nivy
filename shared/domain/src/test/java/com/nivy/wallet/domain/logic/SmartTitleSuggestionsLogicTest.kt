@@ -108,6 +108,32 @@ class SmartTitleSuggestionsLogicTest {
             )
         }
 
+    @Test
+    fun `a title's category is the one its transactions are in most, whatever its case`() = runTest {
+        // given: two in groceries, one in a restaurant, and another shop
+        listOf(
+            "CONAD SUPERSTORE" to groceries,
+            "Conad Superstore" to groceries,
+            "conad superstore" to restaurant,
+            "Conad City" to restaurant,
+        ).forEach { (title, category) ->
+            dao.save(
+                TransactionEntity(
+                    accountId = UUID.randomUUID(),
+                    type = TransactionType.EXPENSE,
+                    amount = 1.0,
+                    title = title,
+                    categoryId = category.id.value,
+                    dateTime = Instant.EPOCH,
+                )
+            )
+        }
+
+        // then
+        logic.categoryOf("CONAD SUPERSTORE") shouldBe groceries
+        logic.categoryOf("Bar Roma") shouldBe null
+    }
+
     private fun category(name: String) = Category(
         name = NotBlankTrimmedString.unsafe(name),
         color = ColorInt(0),

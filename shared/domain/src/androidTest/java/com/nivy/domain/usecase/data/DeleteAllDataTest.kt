@@ -24,6 +24,8 @@ import com.nivy.data.db.entity.CreditCardEntity
 import com.nivy.data.db.entity.ExchangeRateEntity
 import com.nivy.data.db.entity.LoanEntity
 import com.nivy.data.db.entity.LoanRecordEntity
+import com.nivy.data.db.entity.PaymentNotificationEntity
+import com.nivy.data.db.entity.PaymentSourceEntity
 import com.nivy.data.db.entity.PlannedPaymentRuleEntity
 import com.nivy.data.db.entity.QuickAddEntity
 import com.nivy.data.db.entity.TagAssociationEntity
@@ -41,6 +43,7 @@ import com.nivy.data.repository.CurrencyRepository
 import com.nivy.data.repository.ExchangeRatesRepository
 import com.nivy.data.repository.LoanRepository
 import com.nivy.data.repository.PlannedPaymentRuleRepository
+import com.nivy.data.repository.PaymentNotificationRepository
 import com.nivy.data.repository.QuickAddRepository
 import com.nivy.data.repository.TagRepository
 import com.nivy.data.repository.TransactionRepository
@@ -172,6 +175,13 @@ class DeleteAllDataTest {
                 mapper = QuickAddMapper(),
                 dispatchersProvider = dispatchers,
             ),
+            paymentNotificationRepository = PaymentNotificationRepository(
+                notificationDao = db.paymentNotificationDao,
+                writeNotificationDao = db.writePaymentNotificationDao,
+                sourceDao = db.paymentSourceDao,
+                writeSourceDao = db.writePaymentSourceDao,
+                dispatchersProvider = dispatchers,
+            ),
         )
     }
 
@@ -209,6 +219,8 @@ class DeleteAllDataTest {
         db.accountValueDao.findAll(),
         db.exchangeRatesDao.findAll().first(),
         db.quickAddDao.findAll(),
+        db.paymentNotificationDao.findSince(Instant.EPOCH),
+        db.paymentSourceDao.findAll(),
     )
 
     private suspend fun fillEveryTable() {
@@ -276,5 +288,31 @@ class DeleteAllDataTest {
         )
         db.writeExchangeRatesDao.save(ExchangeRateEntity(baseCurrency = "EUR", currency = "USD", rate = 1.08))
         db.writeQuickAddDao.save(QuickAddEntity(type = TransactionType.EXPENSE, accountId = account.id, amount = 2.2))
+        db.writePaymentSourceDao.save(
+            PaymentSourceEntity(kind = PaymentSourceEntity.App, id = "test.bank", name = "Bank", accountId = account.id)
+        )
+        db.writePaymentNotificationDao.save(
+            PaymentNotificationEntity(
+                id = UUID.randomUUID(),
+                packageName = "test.bank",
+                appName = "Bank",
+                notificationKey = "1",
+                postTime = Instant.EPOCH,
+                title = "Bank",
+                text = "Hai pagato 12 €",
+                outcome = "Added",
+                why = null,
+                way = "Spent",
+                cents = 1200,
+                currency = "EUR",
+                merchant = null,
+                card = null,
+                transactionId = transaction.id,
+                about = null,
+                aboutTime = null,
+                guessedAccount = false,
+                reviewed = false,
+            )
+        )
     }
 }

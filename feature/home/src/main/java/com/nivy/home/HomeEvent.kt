@@ -3,6 +3,7 @@ package com.nivy.home
 import com.nivy.data.model.Transaction
 import com.nivy.home.customerjourney.CustomerJourneyCardModel
 import com.nivy.wallet.data.model.TimePeriod
+import java.util.UUID
 
 sealed interface HomeEvent {
     data class SetUpcomingExpanded(val expanded: Boolean) : HomeEvent
@@ -25,4 +26,11 @@ sealed interface HomeEvent {
 
     data object SelectNextMonth : HomeEvent
     data object SelectPreviousMonth : HomeEvent
+
+    data class SetNotificationsExpanded(val expanded: Boolean) : HomeEvent
+    data class UndoNotification(val id: UUID) : HomeEvent
+    data class AddBackNotification(val id: UUID) : HomeEvent
+
+    /** The payments added from notifications were seen: they leave Home. */
+    data object NotificationsAllGood : HomeEvent
 }
