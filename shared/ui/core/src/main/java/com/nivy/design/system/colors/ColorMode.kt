@@ -25,7 +25,7 @@ object ColorMode {
 }
 
 /** The app's own colors, as the palette chosen gives them. */
-internal val appColors: AppColors get() = colorsOf(ColorMode.palette, ColorMode.wallpaper)
+internal val appColors: AppColors get() = ColorMode.palette.colors()
 
 /**
  * This color as drawn. In minimal colors a hue is the theme's text color, black or white, as

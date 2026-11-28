@@ -93,10 +93,12 @@ fun BoxWithConstraintsScope.AccountsTab() {
     )
 }
 
+/** The tab; its account cards fade in as they come, unless [fadeIn] is false. */
 @Composable
 private fun BoxWithConstraintsScope.UI(
     state: AccountsState,
-    onEvent: (AccountsEvent) -> Unit = {}
+    onEvent: (AccountsEvent) -> Unit = {},
+    fadeIn: Boolean = true,
 ) {
     val nav = navigation()
     // Until the accounts are loaded, the totals keep their place, empty; then they fade in.
@@ -164,7 +166,8 @@ private fun BoxWithConstraintsScope.UI(
         }
         items(state.shownAccountsData, key = { it.account.id.value }) {
             // Fading in as they're added: when loaded, or shown by a filter.
-            Column(Modifier.animateItem(fadeInSpec = appearTween(), placementSpec = null, fadeOutSpec = null)) {
+            val appearing = Modifier.animateItem(fadeInSpec = appearTween(), placementSpec = null, fadeOutSpec = null)
+            Column(if (fadeIn) appearing else Modifier) {
                 Spacer(Modifier.height(16.dp))
                 AccountCard(
                     baseCurrency = state.baseCurrency,
@@ -588,7 +591,8 @@ private fun AccountsTabSample(theme: Theme, compact: Boolean) {
             hideTotalBalance = false,
             loaded = true,
         )
-        UI(state = state)
+        // Previews and screenshots draw one frame: the cards as shown, not as they start to fade in.
+        UI(state = state, fadeIn = false)
     }
 }
 

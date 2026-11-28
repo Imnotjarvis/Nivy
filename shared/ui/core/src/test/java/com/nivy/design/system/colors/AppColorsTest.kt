@@ -1,5 +1,7 @@
 package com.nivy.design.system.colors
 
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import com.nivy.base.model.ColorPalette
@@ -55,6 +57,31 @@ class AppColorsTest {
         ColorMode.wallpaper = SunsetColors
 
         Nivy shouldBe SunsetColors.accent.light
+    }
+
+    @Test
+    fun `the wallpaper's colors arriving redraw what the wallpaper's palette colors, and nothing else`() {
+        redrawnWhenTheWallpapersColorsArrive(ColorPalette.OCEAN) shouldBe false
+        redrawnWhenTheWallpapersColorsArrive(ColorPalette.WALLPAPER) shouldBe true
+    }
+
+    /** Whether what's drawn with the accent in [palette] draws again when Android gives the wallpaper's colors. */
+    private fun redrawnWhenTheWallpapersColorsArrive(palette: ColorPalette): Boolean {
+        ColorMode.palette = palette
+        ColorMode.wallpaper = null
+        Snapshot.sendApplyNotifications()
+        var redrawn = false
+        // Compose's own record of what drawing read: a change to any of it draws again.
+        val drawing = SnapshotStateObserver { it() }
+        drawing.start()
+        try {
+            drawing.observeReads(palette, onValueChangedForScope = { redrawn = true }) { Nivy }
+            ColorMode.wallpaper = SunsetColors
+            Snapshot.sendApplyNotifications()
+        } finally {
+            drawing.stop()
+        }
+        return redrawn
     }
 
     @Test
