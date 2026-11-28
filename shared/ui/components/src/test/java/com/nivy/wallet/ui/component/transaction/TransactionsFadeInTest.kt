@@ -2,15 +2,12 @@ package com.nivy.wallet.ui.component.transaction
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.Snapshot
-import app.cash.paparazzi.SnapshotHandler
 import com.nivy.base.model.Theme
 import com.nivy.base.model.TransactionType
 import com.nivy.base.time.impl.FixedTimeProvider
 import com.nivy.design.system.NivyMaterial3Theme
 import com.nivy.design.system.colors.Palette
+import com.nivy.ui.testing.measuringPaparazzi
 import com.nivy.wallet.NivyPreview
 import com.nivy.wallet.data.AppBaseData
 import com.nivy.wallet.data.DueSection
@@ -39,25 +36,10 @@ import java.util.UUID
  * exactly what the plain list draws, with full cards or compact rows.
  */
 class TransactionsFadeInTest {
-    private val frames = mutableMapOf<String, BufferedImage>()
+    private val frames = mutableListOf<BufferedImage>()
 
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6_PRO,
-        // Keeps each rendered frame for the test to compare, rather than writing or verifying it.
-        snapshotHandler = object : SnapshotHandler {
-            override fun newFrameHandler(snapshot: Snapshot, frameCount: Int, fps: Int) =
-                object : SnapshotHandler.FrameHandler {
-                    override fun handle(image: BufferedImage) {
-                        frames[snapshot.name.orEmpty()] = image
-                    }
-
-                    override fun close() = Unit
-                }
-
-            override fun close() = Unit
-        },
-    )
+    val paparazzi = measuringPaparazzi { frames += it }
 
     @Before
     fun setup() {
@@ -67,9 +49,11 @@ class TransactionsFadeInTest {
     @Test
     fun `the list fading in is drawn as the plain list is`() {
         for (compact in listOf(false, true)) {
-            paparazzi.snapshot(name = "plain") { HomeList(fadeIn = false, compact = compact) }
-            paparazzi.snapshot(name = "fading in") { HomeList(fadeIn = true, compact = compact) }
-            assertSameImage(frames.getValue("plain"), frames.getValue("fading in"), "compact = $compact")
+            frames.clear()
+            paparazzi.snapshot { HomeList(fadeIn = false, compact = compact) }
+            paparazzi.snapshot { HomeList(fadeIn = true, compact = compact) }
+            val (plain, fadingIn) = frames
+            assertSameImage(plain, fadingIn, "compact = $compact")
         }
     }
 
