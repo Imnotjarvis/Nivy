@@ -21,6 +21,8 @@ import com.nivy.data.model.PlannedPaymentInterval
 import com.nivy.data.model.PlannedPaymentRule
 import com.nivy.data.model.PlannedPaymentRuleId
 import com.nivy.data.model.PositiveValue
+import com.nivy.data.model.QuickAdd
+import com.nivy.data.model.QuickAddId
 import com.nivy.data.model.Transaction
 import com.nivy.data.model.TransactionId
 import com.nivy.data.model.TransactionMetadata
@@ -71,6 +73,26 @@ fun previewCategory(
     color = ColorInt(color.toArgb()),
     icon = icon?.let(IconAsset::unsafe),
     orderNum = orderNum,
+)
+
+/** A quick add for previews and screenshot tests, its id from its [title]. */
+fun previewQuickAdd(
+    title: String,
+    type: TransactionType,
+    account: Account,
+    amount: Double?,
+    category: Category?,
+    toAccount: Account? = null,
+): QuickAdd = QuickAdd(
+    id = QuickAddId(UUID.nameUUIDFromBytes(title.toByteArray())),
+    type = type,
+    account = account.id,
+    toAccount = toAccount?.id,
+    amount = amount?.let(PositiveDouble::unsafe),
+    category = category?.id,
+    title = NotBlankTrimmedString.unsafe(title),
+    creditCard = null,
+    orderNum = 0.0,
 )
 
 /** A loan for previews and screenshot tests. */
