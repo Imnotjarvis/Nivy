@@ -1,5 +1,7 @@
 package com.nivy.domain.notification
 
+import kotlin.math.roundToLong
+
 /** A notification as an app posted it: the app, its name, and the notification's title and text. */
 data class NotificationText(
     val packageName: String,
@@ -10,6 +12,14 @@ data class NotificationText(
 
 /** Which way money went. */
 enum class MoneyWay { Spent, Received, Sent, Cash }
+
+/** An amount as notifications keep it: in its currency's cents. */
+fun Double.inCents(): Long = (this * CentsInUnit).roundToLong()
+
+/** An amount kept in cents, in its currency's units. */
+fun Long.fromCents(): Double = this / CentsInUnit.toDouble()
+
+private const val CentsInUnit = 100
 
 /** What a notification says about money. */
 sealed interface Reading {

@@ -36,6 +36,7 @@ import com.nivy.design.system.typography.numberBodyLarge
 import com.nivy.domain.notification.ListedNotification
 import com.nivy.domain.notification.MoneyWay
 import com.nivy.domain.notification.Outcome
+import com.nivy.domain.notification.fromCents
 import com.nivy.ui.R
 import com.nivy.ui.time.LocalTimeConverter
 import com.nivy.ui.time.LocalTimeFormatter
@@ -52,11 +53,9 @@ import java.util.Locale
 // The days before today that show their weekday's name instead of their date.
 private const val DaysByName = 6L
 
-private const val CentsInUnit = 100.0
-
 /** An amount read from a notification, in cents, with its currency's code after it; null without either. */
 fun readAmount(cents: Long?, currency: String?): String? =
-    if (cents != null && currency != null) amountAndCode(cents / CentsInUnit, currency) else null
+    if (cents != null && currency != null) amountAndCode(cents.fromCents(), currency) else null
 
 /** Whether a payment of the list is an income: added as one, or money received undone since. */
 fun ListedNotification.isIncome(): Boolean =

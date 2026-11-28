@@ -20,7 +20,6 @@ import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.roundToLong
 
 /** How long the notifications read are kept: what the log shows. */
 val NotificationsKeptFor: Duration = Duration.ofDays(30)
@@ -165,15 +164,11 @@ class CapturePaymentNotificationUseCase @Inject constructor(
             .filter { it.id.value !in fromNotifications }
             .map {
                 HandEntered(
-                    cents = (it.value.amount.value * CentsInUnit).roundToLong(),
+                    cents = it.value.amount.value.inCents(),
                     currency = it.value.asset.code,
                     time = it.time,
                 )
             }
-    }
-
-    private companion object {
-        const val CentsInUnit = 100
     }
 }
 
